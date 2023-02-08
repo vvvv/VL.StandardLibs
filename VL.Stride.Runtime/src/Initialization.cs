@@ -9,9 +9,11 @@ using Stride.Shaders.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Runtime.CompilerServices;
+using System.Runtime.Loader;
 using VL.Core;
 using VL.Core.CompilerServices;
 using VL.Lib.Basics.Resources;
@@ -30,6 +32,21 @@ namespace VL.Stride.Core
 {
     public sealed class Initialization : AssemblyInitializer<Initialization>
     {
+        public Initialization()
+        {
+            var thisDirectory = Path.GetDirectoryName(typeof(Initialization).Assembly.Location);
+            var dataDir = Path.Combine(thisDirectory, "data");
+            // Mount build path
+            if (Directory.Exists(dataDir))
+                ((FileSystemProvider)VirtualFileSystem.ApplicationData).ChangeBasePath(dataDir);
+            else
+            {
+                dataDir = Path.Combine(thisDirectory, "..", "..", "..", "VL.Stride", "lib", "net6.0", "data");
+                if (Directory.Exists(dataDir))
+                    ((FileSystemProvider)VirtualFileSystem.ApplicationData).ChangeBasePath(dataDir);
+            }
+        }
+
         protected override void RegisterServices(IVLFactory factory)
         {
             var services = VL.Core.ServiceRegistry.Current;
