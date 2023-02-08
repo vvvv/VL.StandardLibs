@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using VL.Lang.PublicAPI;
 using VL.Lib.IO.Notifications;
-using VL.Model;
 
 namespace VL.Skia
 {
@@ -83,7 +82,7 @@ namespace VL.Skia
                         primary: (touchPoint.dwFlags & Utils.TOUCHEVENTF_PRIMARY) > 0,
                         contactArea: contactArea.ToVector2(),
                         touchDeviceID: touchPoint.hSource.ToInt64(),
-                        modifierKeys: ModifierKeys.ToOurs(),
+                        modifierKeys: (VL.Lib.IO.Keys)ModifierKeys,
                         sender: this);
 
                     touchNotifications.OnNext(notification);

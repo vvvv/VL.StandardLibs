@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="M1XXME8bUtmNxzMxVHhNaw" LanguageVersion="2022.5.0-0541-g967690947d" Version="0.128">
+<Document xmlns:p="property" Id="M1XXME8bUtmNxzMxVHhNaw" LanguageVersion="2022.5.0-0574-g2cb46d484c" Version="0.128">
   <NugetDependency Id="H7bQP5fWfxJOkpVA3p2bbc" Location="VL.CoreLib" Version="2021.4.12-1367-gb6775f76f2" />
   <Patch Id="TD7kfwhJ8HhMDOOQG8b19k">
     <Canvas Id="LFyyxOP6PKBN0XtBLu9qTm" DefaultCategory="Graphics.Skia" CanvasType="FullCategory">
@@ -76,7 +76,7 @@
                 </p:NodeReference>
                 <Patch Id="KGhY8BV5quONrxcic4Q1tL" IsGeneric="true">
                   <Node Bounds="500,247,42,13" Id="OAEGuwqD5NxLBjA9UW3kyo">
-                    <p:NodeReference LastCategoryFullName="VL.Skia.CallerInfo" LastDependency="VL.Skia.dll">
+                    <p:NodeReference LastCategoryFullName="VL.Skia.CallerInfo" LastDependency="VL.Core.Skia.dll">
                       <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                       <CategoryReference Kind="AssemblyCategory" Name="CallerInfo" />
                       <Choice Kind="OperationCallFlag" Name="Default" />
@@ -400,22 +400,11 @@
               </Node>
               <ControlPoint Id="VP5QLGoBXi6QIZco5SoWBx" Bounds="245,207" />
             </Canvas>
-            <Patch Id="Rgx1sKbTEs9MvbLhr9cV7B" Name="Create" />
-            <Patch Id="L7B9erPL1d8MnR4hkhtH91" Name="Update">
-              <Pin Id="BDLqccd3JS0Nr7Whqssogs" Name="Bounds" Kind="InputPin" />
-              <Pin Id="GC6OhT72HiTMAnhCv0PkpN" Name="Backdrop Layer" Kind="InputPin" />
-              <Pin Id="NPVHrglC5o2Pob3SsI7xmy" Name="Layer" Kind="InputPin" />
-            </Patch>
             <ProcessDefinition Id="OO3UwrQRH17OVtzmLj2obg" HasStateOut="true">
               <Fragment Id="JQOYuBU9JepO9Stvfk4HYU" Patch="Rgx1sKbTEs9MvbLhr9cV7B" Enabled="true" />
               <Fragment Id="FaYMxuKINmFQTkt5gYzLgh" Patch="L7B9erPL1d8MnR4hkhtH91" Enabled="true" />
               <Fragment Id="UBMCOLuZjWyPJ1hg2GWtZh" Patch="Dbom1Pisj8NPYMdqQ4xR3Y" />
             </ProcessDefinition>
-            <Patch Id="Dbom1Pisj8NPYMdqQ4xR3Y" Name="Notify" ParticipatingElements="DAn2GY09eEEOx6VxGnd3dr">
-              <Pin Id="Lxc9PiK3pHKQSfM3mBaZ8E" Name="Notification" Kind="InputPin" />
-              <Pin Id="UP4wHaHrKW6O6X0snHSthE" Name="Caller" Kind="InputPin" />
-              <Pin Id="UrMGoGD6ldSLrDpzRlcyfU" Name="Result" Kind="OutputPin" />
-            </Patch>
             <Link Id="RP3uRl45HDaNT76kKIWjAN" Ids="Lxc9PiK3pHKQSfM3mBaZ8E,QfJKV9TrQjbPzTobefOhdr" IsHidden="true" />
             <Link Id="Mh7zpyU3eLXMeeMYFBzS4h" Ids="UP4wHaHrKW6O6X0snHSthE,RCUH3XniKu3LWrclbBOGs0" IsHidden="true" />
             <Link Id="HRf8lLLXe9vOsj8jiBUodM" Ids="SMxzC838doTMeec3Arcxzt,UrMGoGD6ldSLrDpzRlcyfU" IsHidden="true" />
@@ -461,6 +450,17 @@
             <Link Id="Jn5m6GqoyeZL3qJzw5EZGX" Ids="UuTVkGuQ1qqMCn6nppiNq0,LCzKK9hP1hEMgFgLdBAmr2" />
             <Link Id="RMlQhzHkTcCPcKsHzAzFiU" Ids="H48y8IzJQIwN6VCuxUe8bz,PtokdvU9B8GOGM3lLGevKh" />
             <Link Id="UY0S2sCNBrbLrZ4jTK1nVx" Ids="QMpUs1QPKdsNgAYoCzHbul,Hxi0kwhlpkLLdDjq7gsynn" />
+            <Patch Id="Rgx1sKbTEs9MvbLhr9cV7B" Name="Create" />
+            <Patch Id="L7B9erPL1d8MnR4hkhtH91" Name="Update">
+              <Pin Id="BDLqccd3JS0Nr7Whqssogs" Name="Bounds" Kind="InputPin" />
+              <Pin Id="GC6OhT72HiTMAnhCv0PkpN" Name="Backdrop Layer" Kind="InputPin" />
+              <Pin Id="NPVHrglC5o2Pob3SsI7xmy" Name="Layer" Kind="InputPin" />
+            </Patch>
+            <Patch Id="Dbom1Pisj8NPYMdqQ4xR3Y" Name="Notify" ParticipatingElements="DAn2GY09eEEOx6VxGnd3dr">
+              <Pin Id="Lxc9PiK3pHKQSfM3mBaZ8E" Name="Notification" Kind="InputPin" />
+              <Pin Id="UP4wHaHrKW6O6X0snHSthE" Name="Caller" Kind="InputPin" />
+              <Pin Id="UrMGoGD6ldSLrDpzRlcyfU" Name="Result" Kind="OutputPin" />
+            </Patch>
           </Patch>
         </Node>
         <!--
@@ -1100,7 +1100,7 @@
               <Pin Id="U3IHRSZjpfmLmuST4KK9m9" Name="Input" Kind="InputPin" Bounds="1322,568" />
               <Link Id="VQ4KbHzhWMALzayvsPHUE1" Ids="U3IHRSZjpfmLmuST4KK9m9,ILyxWACk2OLNJxxE5jjVMU" IsHidden="true" />
               <Node Bounds="1404,586,59,19" Id="I5iPdW8IxEIN9IpEKY7piZ">
-                <p:NodeReference LastCategoryFullName="VL.Skia.CallerInfo" LastDependency="VL.Skia.dll">
+                <p:NodeReference LastCategoryFullName="VL.Skia.CallerInfo" LastDependency="VL.Core.Skia.dll">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="OperationCallFlag" Name="DIPFactor" />
                   <CategoryReference Kind="AssemblyCategory" Name="CallerInfo" NeedsToBeDirectParent="true" />
@@ -1163,7 +1163,7 @@
               <Pin Id="MRPU4bOkzlrM553dF9eq9q" Name="Input" Kind="InputPin" Bounds="1322,568" />
               <Link Id="Q8o21yX66oRNNvazqCTE8p" Ids="MRPU4bOkzlrM553dF9eq9q,VsZboy5nY7DOxRzL6sCusz" IsHidden="true" />
               <Node Bounds="1603,604,59,19" Id="JJl2g3p4J6lL2I6sfNVEze">
-                <p:NodeReference LastCategoryFullName="VL.Skia.CallerInfo" LastDependency="VL.Skia.dll">
+                <p:NodeReference LastCategoryFullName="VL.Skia.CallerInfo" LastDependency="VL.Core.Skia.dll">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="OperationCallFlag" Name="DIPFactor" />
                   <CategoryReference Kind="AssemblyCategory" Name="CallerInfo" NeedsToBeDirectParent="true" />
@@ -1202,7 +1202,7 @@
               <Pin Id="IZ1P6lq3Vn1ORZdhlvsP77" Name="Input" Kind="InputPin" Bounds="1322,568" />
               <Link Id="EqaiK4HM4cMPjxUBfchw40" Ids="IZ1P6lq3Vn1ORZdhlvsP77,HrCQY0vrOg9M7xn3zMnI09" IsHidden="true" />
               <Node Bounds="1609,826,59,19" Id="J2UWklYSZrlOK7eErmfKHh">
-                <p:NodeReference LastCategoryFullName="VL.Skia.CallerInfo" LastDependency="VL.Skia.dll">
+                <p:NodeReference LastCategoryFullName="VL.Skia.CallerInfo" LastDependency="VL.Core.Skia.dll">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="OperationCallFlag" Name="DIPFactor" />
                   <CategoryReference Kind="AssemblyCategory" Name="CallerInfo" NeedsToBeDirectParent="true" />
@@ -1427,9 +1427,9 @@
               <Pin Id="GIpUwkPgarNQMiIwrZzVNe" Name="Caller" Kind="InputPin" />
             </Patch>
             <Patch Id="SA01Od085GyQL7WFEVXV4S" Name="Notify">
-              <Pin Id="Upbv2Cj59l3Oj43fJ9rmn1" Name="Notification" Kind="InputPin" />
-              <Pin Id="PPHIOY85TKbNEblTCdELMX" Name="Caller" Kind="InputPin" />
-              <Pin Id="Q6A9MUgJ5CwOzYvsLkEr37" Name="Result" Kind="OutputPin" />
+              <Pin Id="HeTIYyzNhiFN2SHvUQVBXO" Name="Notification" Kind="InputPin" />
+              <Pin Id="NZzeobQpYW3MKC2cYFOKDC" Name="Caller" Kind="InputPin" />
+              <Pin Id="UJbTwIQiN4RMhx8STzYhre" Name="Result" Kind="OutputPin" />
             </Patch>
             <Patch Id="PfWIpP0EQvkOijkE39sn6D" Name="Bounds">
               <Pin Id="KnfU8w76DSBMk3orVrJqgU" MergeId="8748" Name="Bounds" Kind="OutputPin" />
@@ -9650,7 +9650,7 @@
                     </p:NodeReference>
                     <Pin Id="VqQrME7jPrQLKPOBIoJW7x" Name="Input" Kind="InputPin" />
                     <Pin Id="QJBcB3G1EAYPCmLui44C8T" Name="Space" Kind="InputPin" DefaultValue="DIPTopLeft">
-                      <p:TypeAnnotation LastCategoryFullName="VL.Skia" LastDependency="VL.Skia.dll">
+                      <p:TypeAnnotation LastCategoryFullName="VL.Skia" LastDependency="VL.Core.Skia.dll">
                         <Choice Kind="TypeFlag" Name="CommonSpace" />
                       </p:TypeAnnotation>
                     </Pin>
@@ -12370,7 +12370,7 @@
                 <Pin Id="FEKXqtV4rbbOSPM8pSCEmU" Name="Output" Kind="OutputPin" />
               </Node>
               <Pad Id="Mg3JJnKF8lRMkaATJgnPaq" Comment="Space" Bounds="447,485,85,19" ShowValueBox="true" isIOBox="true" Value="DIP">
-                <p:TypeAnnotation LastCategoryFullName="VL.Skia" LastDependency="VL.Skia.dll">
+                <p:TypeAnnotation LastCategoryFullName="VL.Skia" LastDependency="VL.Core.Skia.dll">
                   <Choice Kind="TypeFlag" Name="CommonSpace" />
                 </p:TypeAnnotation>
               </Pad>
@@ -12945,21 +12945,6 @@
             <Link Id="FQNz94jqQrBLSAgHvVZPcD" Ids="AMzzj4jcXN6MH2Vmu6Sn0x,HSUcl2heNnBP691st8xsKE" />
             <Link Id="It1C2DfqCvWMBiL0qigp4l" Ids="ItIk1Z6KEb7LDpyP7SmwtK,VF3MVZkEQ9ELtk3UuJ91Ek" />
             <Link Id="JcCTEGTapzjOAbYnTdsyac" Ids="LuFW2tyU89tMLVXhqITuWJ,VjIQbfVs2GvOrUF1FewDZI" />
-            <Patch Id="E5vPQxQxUQ6PAZudxORKPF" Name="Create (Internal)" ParticipatingElements="Gj8nvDKEKgCNT51S8QmSuQ" />
-            <Patch Id="RtxUqHWCfUKMrmTlIiPpZt" Name="Update (Internal)" ManuallySortedPins="true">
-              <Pin Id="LouPQE4O3WJQQUHlnjbFyR" Name="Viewport Bounds In World Space" Kind="OutputPin" />
-              <Pin Id="AKsSKyhKc07QQdvePo8UqO" Name="Viewport Size In World Space" Kind="OutputPin" />
-              <Pin Id="NI733TVH97UNjAcVb1Xk4I" Name="Viewport Bounds In Pixel" Kind="OutputPin" Visibility="Optional" />
-              <Pin Id="AYeeSnNj9g7M6Auj1TASM4" Name="Client Area In Pixel" Kind="OutputPin" Visibility="Optional" />
-            </Patch>
-            <Patch Id="AAeJ3dFFFBxNj6BWNnxb1W" Name="Notify (Internal)" ParticipatingElements="MDM5blCRG9sPhJ0zThC2bg">
-              <Pin Id="NE8K07nSfujPxl3Cj0BaCZ" Name="Notification" Kind="InputPin" />
-              <Pin Id="QuUY1VIlFNUMSoYTe3BFE1" Name="Caller" Kind="InputPin" />
-              <Pin Id="L9g7rO0e0CkO560dxBkXQR" Name="Result" Kind="OutputPin" />
-            </Patch>
-            <Patch Id="Vn0pffuEQMDMAv2PQIJTGa" Name="Render (Internal)">
-              <Pin Id="T2hwiX92o5WQYkjMpJgtv0" Name="Caller" Kind="InputPin" />
-            </Patch>
             <Link Id="LGNYTFZTNYmOJiOFR0SN9U" Ids="T2hwiX92o5WQYkjMpJgtv0,RTqizCj8g9wLkBMHumUxN8" IsHidden="true" />
             <Link Id="Acd7OdANR54PAUJmrdHEX2" Ids="Kp2EXn5HveRMbnUsqrU3oJ,RmxHwJv5BwYPMgzKzqCiUy" />
             <Link Id="EsfUM9KQLnlNbGo7tOWeOO" Ids="RmxHwJv5BwYPMgzKzqCiUy,Ksx4fukbliWP8sM259E1Zy" />
@@ -12972,6 +12957,21 @@
             <Link Id="OHrZIy6hFzIOgK1TKcteML" Ids="IpIY5Y0JG5kPnSE9G4BGDe,Uf0ufH4ylYMNrFyVN2cmL9" />
             <Link Id="MPDaahyjoBAPGB9dSo7Xr1" Ids="Uf0ufH4ylYMNrFyVN2cmL9,OuA5LcD6sF8L7ArFMDM2fV" />
             <Link Id="I6X2Kui4Fx8PfiGzWdNce5" Ids="OuA5LcD6sF8L7ArFMDM2fV,AKsSKyhKc07QQdvePo8UqO" IsHidden="true" />
+            <Patch Id="E5vPQxQxUQ6PAZudxORKPF" Name="Create (Internal)" ParticipatingElements="Gj8nvDKEKgCNT51S8QmSuQ" />
+            <Patch Id="RtxUqHWCfUKMrmTlIiPpZt" Name="Update (Internal)" ManuallySortedPins="true">
+              <Pin Id="LouPQE4O3WJQQUHlnjbFyR" Name="Viewport Bounds In World Space" Kind="OutputPin" />
+              <Pin Id="AKsSKyhKc07QQdvePo8UqO" Name="Viewport Size In World Space" Kind="OutputPin" />
+              <Pin Id="NI733TVH97UNjAcVb1Xk4I" Name="Viewport Bounds In Pixel" Kind="OutputPin" Visibility="Optional" />
+              <Pin Id="AYeeSnNj9g7M6Auj1TASM4" Name="Client Area In Pixel" Kind="OutputPin" Visibility="Optional" />
+            </Patch>
+            <Patch Id="AAeJ3dFFFBxNj6BWNnxb1W" Name="Notify (Internal)" ParticipatingElements="MDM5blCRG9sPhJ0zThC2bg">
+              <Pin Id="NE8K07nSfujPxl3Cj0BaCZ" Name="Notification" Kind="InputPin" />
+              <Pin Id="QuUY1VIlFNUMSoYTe3BFE1" Name="Caller" Kind="InputPin" />
+              <Pin Id="EpTe4Z1bnBTLUONq2wbPJN" Name="Result" Kind="OutputPin" />
+            </Patch>
+            <Patch Id="Vn0pffuEQMDMAv2PQIJTGa" Name="Render (Internal)">
+              <Pin Id="T2hwiX92o5WQYkjMpJgtv0" Name="Caller" Kind="InputPin" />
+            </Patch>
           </Patch>
         </Node>
         <!--
@@ -31003,7 +31003,7 @@
                   </p:NodeReference>
                   <Pin Id="HsNtnQjDcObNar6d6Te0vz" Name="Input" Kind="InputPin" />
                   <Pin Id="UiS4mnlDR2bMj45zErFTM4" Name="Sizing" Kind="InputPin" DefaultValue="DIP">
-                    <p:TypeAnnotation LastCategoryFullName="VL.Skia" LastDependency="VL.Skia.dll">
+                    <p:TypeAnnotation LastCategoryFullName="VL.Skia" LastDependency="VL.Core.Skia.dll">
                       <Choice Kind="TypeFlag" Name="Sizing" />
                     </p:TypeAnnotation>
                   </Pin>
@@ -55829,7 +55829,6 @@
   <PlatformDependency Id="DL2HlbuiS5EPW7U2BXdid3" Location="System" />
   <PlatformDependency Id="UdixSl6nZt6Ork0ncpScXW" Location="SkiaSharp.dll" />
   <PlatformDependency Id="LvYYgOCvbk4Mvt3FwVUWuh" Location="SkiaSharp.Extended.Svg.dll" />
-  <NugetDependency Id="QNuNcl9kSvGP0ui47rDBFD" Location="VL.UI.Core" Version="2021.4.12-1367-gb6775f76f2" />
   <NugetDependency Id="M23LcbP9OURMcPoSOGrJP7" Location="VL.CoreLib.Windows" Version="2021.4.12-1367-gb6775f76f2" />
   <PlatformDependency Id="NTutbiJHE5OOaXLgX3l98B" Location="System.Windows.Forms" />
   <PlatformDependency Id="HOSe7qTEvpVPdGJ8UpvQog" Location="System.Drawing" />
@@ -55837,4 +55836,5 @@
   <NugetDependency Id="OxOyR0F24thMTbXCKgeajH" Location="VL.Core" Version="2021.4.12-1367-gb6775f76f2" />
   <PlatformDependency Id="LkIkhvZ8rOtLsrR0dHCt0V" Location="SkiaSharp.Skottie.dll" />
   <PlatformDependency Id="JLa4Z9GfDuUPYIew3DwWF4" Location="SkiaSharp.SceneGraph.dll" />
+  <NugetDependency Id="ESFOWWbyXc8O2eJRBRHNSj" Location="VL.Core.Skia" Version="0.0.0" />
 </Document>

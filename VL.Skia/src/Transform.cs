@@ -135,13 +135,13 @@ namespace VL.Skia
 
         public override void Render(CallerInfo caller)
         {
-            Transformation = CallerInfo.GetWithinSpaceTransformation(caller.ViewportBounds, Sizing, Width, Height, Origin);
+            Transformation = CallerInfoExtensions.GetWithinSpaceTransformation(caller.ViewportBounds, Sizing, Width, Height, Origin);
             base.Render(caller);
         }
 
         public override bool Notify(INotification notification, CallerInfo caller)
         {
-            Transformation = CallerInfo.GetWithinSpaceTransformation(caller.ViewportBounds, Sizing, Width, Height, Origin);
+            Transformation = CallerInfoExtensions.GetWithinSpaceTransformation(caller.ViewportBounds, Sizing, Width, Height, Origin);
             return base.Notify(notification, caller);
         }
     }
@@ -152,7 +152,7 @@ namespace VL.Skia
         
         public void UpdateTransformation(SKRect viewportBounds, CommonSpace space)
         {
-            Transformation = CallerInfo.GetWithinCommonSpaceTransformation(viewportBounds, space);
+            Transformation = CallerInfoExtensions.GetWithinCommonSpaceTransformation(viewportBounds, space);
         }
 
         public void Update(ILayer input, out ILayer output, CommonSpace space = CommonSpace.Normalized)
@@ -195,7 +195,7 @@ namespace VL.Skia
             var boundsInPixels = caller.Transformation.MapRect(bounds);
 
             // a new callerInfo view the new viewport and transform settings
-            var us = caller.InViewport(boundsInPixels, c => CallerInfo.GetWithinCommonSpaceTransformation(c.ViewportBounds, Space));
+            var us = caller.InViewport(boundsInPixels, c => CallerInfoExtensions.GetWithinCommonSpaceTransformation(c.ViewportBounds, Space));
             us.Canvas.SetMatrix(us.Transformation);
             try
             {
@@ -244,7 +244,7 @@ namespace VL.Skia
             var boundsInPixels = caller.Transformation.MapRect(bounds);
 
             // a new callerInfo view the new viewport and transform settings
-            caller = caller.InViewport(boundsInPixels, c => CallerInfo.GetWithinCommonSpaceTransformation(c.ViewportBounds, Space));
+            caller = caller.InViewport(boundsInPixels, c => CallerInfoExtensions.GetWithinCommonSpaceTransformation(c.ViewportBounds, Space));
 
             SKMatrix invTransformation;
             caller.Transformation.TryInvert(out invTransformation);

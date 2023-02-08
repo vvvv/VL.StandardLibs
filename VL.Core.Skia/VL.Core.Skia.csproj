@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <OutputPath>lib</OutputPath>
+    <UseWindowsForms>true</UseWindowsForms>
+    <VLPackageBasePath>.\</VLPackageBasePath>
+    <PackageId>$(AssemblyName)</PackageId>
+    <Description>Base interfaces shared by components using Skia</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Exclude the *.targets files coming from the SkiaSharp packages - they copy all native dependencies even though the proper one is already selected through our RuntimeIdentifier on the exe project -->
+    <PackageReference Include="SkiaSharp" ExcludeAssets="build;buildTransitive" />
+    <PackageReference Include="SkiaSharp.Svg" ExcludeAssets="build;buildTransitive" />
+    <PackageReference Include="SharpDX.Direct3D11" />
+    <PackageReference Include="System.Drawing.Common" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VL.Core\src\VL.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ext\win-x64\*.dll">
+      <!-- For vvvv the file goes directly to the output - only way for native library lookup to find it (without having to write custom code) -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <!-- As a package we can make use of nuget's asset system, it will make the proper entry in the *.deps.json file for the native library lookup to work -->
+      <PackagePath>runtimes\win-x64\native\%(Filename)%(Extension)</PackagePath>
+      <TargetPath>%(Filename)%(Extension)</TargetPath>
+    </None>
+  </ItemGroup>
+</Project>

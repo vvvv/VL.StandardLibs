@@ -1,92 +1,31 @@
 ﻿using SkiaSharp;
 using System;
-using System.Drawing;
 using VL.Lib.Mathematics;
+using VL.UI.Core;
 
 namespace VL.Skia
 {
-    /// <summary>
-    /// Information from downstream that gets handed over to upstream on render and on notify. Immutable
-    /// </summary>
-    public record class CallerInfo
+    static class CallerInfoExtensions
     {
-        public static SKMatrix Identity = SKMatrix.MakeIdentity();
-        public static readonly CallerInfo Default = new CallerInfo(null, new SKCanvas(new SKBitmap()),
-            Identity, new SKRect(0, 0, 1920, 1080), null);
-
-        public GRContext GRContext { get; init; }
-        public SKCanvas Canvas { get; init; }
-        public SKMatrix Transformation { get; init; }
-        public SKRect ViewportBounds { get; init; }
-        public Func<object, object> RenderInfoHack { get; init; }
-        public bool IsTooltip { get; init; }
-
-        internal CallerInfo(GRContext context, SKCanvas canvas, SKMatrix transformation, SKRect viewportBounds,
-            Func<object, object> renderInfoHack)
-        {
-            GRContext = context;
-            Canvas = canvas;
-            Transformation = transformation;
-            ViewportBounds = viewportBounds;
-            RenderInfoHack = renderInfoHack;
-        }
-
-        static float FDIPFactor = -1;
-        public static float DIPFactor
-        {
-            get
-            {
-                if (FDIPFactor == -1)
-                    using (var g = Graphics.FromHwnd(IntPtr.Zero))
-                        FDIPFactor = g.DpiX / 96;
-                return FDIPFactor;
-            }
-        }
-
-        /// <summary>
-        /// Renderers call this to set up the caller info
-        /// </summary>
-        public static CallerInfo InRenderer(float width, float height, SKCanvas canvas, GRContext context)
-        {
-            return new CallerInfo(context, canvas, Identity, new SKRect(0, 0, width, height), null);
-        }
-
         /// <summary>
         /// Adjust the space for upstream - based on the downstream tranformation.
         /// Can be used by cameras or normal object to world space transformations.
         /// Adjust the camera further downstream to make it work as expected.
         /// </summary>
-        internal CallerInfo PushTransformation(SKMatrix relative)
+        public static CallerInfo PushTransformation(this CallerInfo callerInfo, SKMatrix relative)
         {
-            SKMatrix target = Transformation;
+            SKMatrix target = callerInfo.Transformation;
             SKMatrix.PreConcat(ref target, ref relative);
-            return this with { Transformation = target };
+            return callerInfo with { Transformation = target };
         }
-
-        public CallerInfo WithTransformation(SKMatrix transformation)
-        {
-            return this with { Transformation = transformation };
-        }
-
-        public CallerInfo WithCanvas(SKCanvas canvas)
-        {
-            return this with { Canvas = canvas };
-        }
-
-        public CallerInfo WithGRContext(GRContext context)
-        {
-            return this with { GRContext = context };
-        }
-
-        public CallerInfo AsTooltip => this with { IsTooltip = true };
 
         /// <summary>
         /// Setup a new viewport.
         /// If we are already in a viewport this places the new viewport inside the downstream viewport.
         /// </summary>
-        internal CallerInfo InViewport(SKRect viewportBoundsInWindowPix, Func<CallerInfo, SKMatrix> getTransformation)
+        public static CallerInfo InViewport(this CallerInfo callerInfo, SKRect viewportBoundsInWindowPix, Func<CallerInfo, SKMatrix> getTransformation)
         {
-            var result = this with { ViewportBounds = viewportBoundsInWindowPix };
+            var result = callerInfo with { ViewportBounds = viewportBoundsInWindowPix };
 
             // we need to reset the transformation to reflect the new viewport
             // in the end its only the transformation that influences the rendering
@@ -133,8 +72,8 @@ namespace VL.Skia
                     transformation.ScaleY = 100f;
                     break;
                 case Sizing.DIP:
-                    transformation.ScaleX = DIPFactor*100f;
-                    transformation.ScaleY = DIPFactor*100f;
+                    transformation.ScaleX = DIPHelpers.DIPFactor() * 100f;
+                    transformation.ScaleY = DIPHelpers.DIPFactor() * 100f;
                     break;
                 default:
                     throw new NotImplementedException();
@@ -193,13 +132,5 @@ namespace VL.Skia
                     throw new NotImplementedException();
             }
         }
-
-        /// <summary>
-        /// Use this to implement semantics-like features.
-        /// With the delegate you can influence all rendering nodes upstream.
-        /// </summary>
-        public CallerInfo WithRenderPaintHack(Func<object, object> renderPaintHack)
-            => this with { RenderInfoHack = renderPaintHack };
-
     }
 }

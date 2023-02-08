@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
+    <OutputPath>..\lib</OutputPath>
     <UseWindowsForms>true</UseWindowsForms>
     <!-- We pack native dll in our own NuGet package -->
     <ShouldIncludeNativeSkiaSharp>False</ShouldIncludeNativeSkiaSharp>
@@ -28,6 +29,7 @@
     <PackageReference Include="SkiaSharp.Skottie" ExcludeAssets="build;buildTransitive" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\VL.Core.Skia\VL.Core.Skia.csproj" />
     <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
     <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
   </ItemGroup>
