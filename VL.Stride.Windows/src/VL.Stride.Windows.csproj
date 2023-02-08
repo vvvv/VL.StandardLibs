@@ -15,18 +15,14 @@
     <None Include="..\help\**\*" Link="help\%(RecursiveDir)%(Filename)%(Extension)" Pack="true" AutoGen="false" PackagePath="help\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
     <PackageReference Include="Stride.Assets" />
     <PackageReference Include="Stride.Assets.Models" />
     <!-- A pure package dependency so on install all VL packages come in -->
     <PackageReference Include="Stride.TextureConverter" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(InPrivateRepo)' == 'true'">
-    <ProjectReference Include="..\..\..\..\VL.Skia\src\VL.Skia.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(InPrivateRepo)' != 'true'">
-    <PackageReference Include="VL.Skia" PrivateAssets="all" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.Skia\src\VL.Skia.csproj" />
   </ItemGroup>
   
   <Target Name="IncludeStridePackageContent" BeforeTargets="InferPackageContents" DependsOnTargets="_StridePrepareAssetsForPack">

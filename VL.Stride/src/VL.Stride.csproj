@@ -10,34 +10,10 @@
     <Company>vvvv</Company>
   </PropertyGroup>
 
-  <!-- When building from within the public repo target the vvvv installation directly. This is a workaround as long as we can't handle Stride as a standalone package.  -->
-  <PropertyGroup Condition="'$(Configuration)' != 'Packages' AND !$(InPrivateRepo)">
-    <!-- Build directly into the vvvv installation -->
-    <OutputPath>$(VVVV_BinPath)</OutputPath>
-    <VVVVExePath>$(VVVV_BinPath)vvvv.exe</VVVVExePath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <!-- Triggers stride asset compiler -->
-    <StrideIsExecutable>true</StrideIsExecutable>
-    <!-- The runtime identifier causes the build system to copy needed native libraries to the output folder -->
-    <PlatformTarget>x64</PlatformTarget>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <!-- Check if vvvv gamma is installed before building -->
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)' != 'Packages' AND !$(InPrivateRepo) AND !Exists('$(VVVVExePath)')">
-    <DownloadFile SourceUrl="$(VLZipUrl)" DestinationFolder="$(IntermediateOutputPath)">
-      <Output TaskParameter="DownloadedFile" ItemName="_VLZipFile_" />
-    </DownloadFile>
-    <Unzip SourceFiles="@(_VLZipFile_)" DestinationFolder="$(VVVV_BinPath)" OverwriteReadOnlyFiles="true" />
-    <Error Text="'$(VVVVExePath)' does not exist. Make sure vvvv gamma ($(VLVersion)) is present at the specified path." Condition="!Exists('$(VVVVExePath)')" />
-  </Target>
-  
   <ItemGroup>
     <ProjectReference Include="..\..\VL.Stride.DefaultAssets\VL.Stride.DefaultAssets.csproj" />
     <ProjectReference Include="..\..\VL.Stride.Windows\src\VL.Stride.Windows.csproj" />
     <ProjectReference Include="..\..\VL.Stride.Runtime\src\VL.Stride.Runtime.csproj" />
-    <ProjectReference Include="..\..\StrideLiveEditor\StrideLiveEditor\StrideLiveEditor.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

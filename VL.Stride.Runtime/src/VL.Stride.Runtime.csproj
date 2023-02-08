@@ -42,13 +42,9 @@
       <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'vvvv.geometry3Sharp'" />
     </ItemGroup>
   </Target>
-  <ItemGroup Condition="'$(InPrivateRepo)' == 'true'">
-    <ProjectReference Include="..\..\..\..\VL.Core\src\VL.Core.csproj" />
-    <ProjectReference Include="..\..\..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(InPrivateRepo)' != 'true'">
-    <PackageReference Include="VL.Core" />
-    <PackageReference Include="VL.CoreLib" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
+    <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="vvvv.geometry3Sharp">
