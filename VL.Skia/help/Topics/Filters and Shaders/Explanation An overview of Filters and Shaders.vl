@@ -1,0 +1,422 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="FWt3uDmHdZDPncdLjy5wCC" LanguageVersion="2021.4.11.1066" Version="0.128">
+  <Patch Id="JBtPzl71qIKNFbTrwnyTGp">
+    <Canvas Id="SFmkqv266JHLuOC9PkL2Tn" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="200,100" Id="V8gYI0Qc8kBPc2v4t2fghs">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="AakuIj5uHvGOzeYYASa5w1">
+        <Canvas Id="OmMTMn4stX9OcpjNA5bkqW" CanvasType="Group">
+          <Node Bounds="379,358,84,19" Id="I8MgX1NX3huLgADR7PWx9A">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.ImageFilters" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="ImageFilters" />
+              <Choice Kind="ProcessAppFlag" Name="DropShadow" />
+            </p:NodeReference>
+            <Pin Id="Fg3mRMZFXTqLhIQmCgo5Fl" Name="Offset" Kind="InputPin" />
+            <Pin Id="CymYjN7Yvi5QMo5ynefPVK" Name="Amount" Kind="InputPin" />
+            <Pin Id="QOABct8edEmQcL3FiGFMul" Name="Color" Kind="InputPin" />
+            <Pin Id="J9htmDsdlA7OpRu1ssWV0W" Name="Mode" Kind="InputPin" DefaultValue="DrawShadowAndForeground">
+              <p:TypeAnnotation LastCategoryFullName="SkiaSharp" LastSymbolSource="SkiaSharp.dll">
+                <Choice Kind="TypeFlag" Name="SKDropShadowImageFilterShadowMode" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="PV6n2dYjhlJPyeWbywUnTF" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="293,390,91,19" Id="QX6NLqg94unMwA3zTxmMWr">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="SetImageFilter" />
+            </p:NodeReference>
+            <Pin Id="RMCBxQAzeCvMx4AcXtYRAQ" Name="Input" Kind="InputPin" />
+            <Pin Id="B9OK5b43KexOvjwuwbcueK" Name="Filter" Kind="InputPin" />
+            <Pin Id="Te7CaiLqwglLr2SB7od7rb" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="470,358,43,19" Id="ATvHSOkNYcNLfVG4DRPCG7">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.ImageFilters" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Blur" />
+              <CategoryReference Kind="Category" Name="ImageFilters" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="B2uEfxJy5kRNBWrpgMPWKd" Name="Amount" Kind="InputPin" />
+            <Pin Id="N4IdR3LNS5MNohXiRItU70" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="293,266,91,19" Id="EkBJqJFflSmLbZMaadaVU0">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="SetMaskFilter" />
+            </p:NodeReference>
+            <Pin Id="E5gp89IDw6zNj7GR9EhT7f" Name="Input" Kind="InputPin" />
+            <Pin Id="GYKs2tU4L82QOJtDOdUsnZ" Name="Filter" Kind="InputPin" />
+            <Pin Id="QbTAiguhdKVNUpxq25qpDc" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="379,237,45,19" Id="GyBeAINK7HsLHAggj6mRYA">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.MaskFilters" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Blur" />
+              <CategoryReference Kind="Category" Name="MaskFilters" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="TaDu8wNdFFQLOrKoEqdkUv" Name="Value" Kind="InputPin" />
+            <Pin Id="TeZxGEf6hItLotcySh31bw" Name="Blur Style" Kind="InputPin" DefaultValue="Normal">
+              <p:TypeAnnotation LastCategoryFullName="Graphics.Skia.Unwrapped.Enums" LastSymbolSource="VL.Skia.vl">
+                <Choice Kind="TypeFlag" Name="SKBlurStyle" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="Bq3bnvFXIEzN4iFKqH5fZX" Name="Flags" Kind="InputPin" DefaultValue="None">
+              <p:TypeAnnotation LastCategoryFullName="SkiaSharp" LastSymbolSource="SkiaSharp.dll">
+                <Choice Kind="TypeFlag" Name="SKBlurMaskFilterFlags" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="D4WDbrrzxOnPpiHj66K1WI" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="379,514,105,19" Id="MY76ao3pkIiMFo3T1jQW3k">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.Shaders" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Graphics" />
+              <CategoryReference Kind="Category" Name="Skia" />
+              <CategoryReference Kind="Category" Name="Paint" />
+              <CategoryReference Kind="Category" Name="Shaders" />
+              <Choice Kind="ProcessAppFlag" Name="LinearGradient" />
+            </p:NodeReference>
+            <Pin Id="OkqrnTSPXF1QCtV5mFJjb6" Name="From" Kind="InputPin" DefaultValue="0, 0.15">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="Fdo9D0SgVQuLrTqbWtBQZ7" Name="To" Kind="InputPin" DefaultValue="0, 0.5">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="FMt5yRY50L5Mi5Ysn0m7vl" Name="Colors" Kind="InputPin" />
+            <Pin Id="CNhpeAFLJlyOv1D8ETLPnK" Name="Color Positions" Kind="InputPin" />
+            <Pin Id="QYTmzankZdJL3Rd5smEfmW" Name="Transform" Kind="InputPin" />
+            <Pin Id="Vlrt2czAVRjQJETSx16SBB" Name="Mode" Kind="InputPin" />
+            <Pin Id="Ciz9LGTh5XwPvEXBKoYcvw" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="497,514,105,19" Id="Ixtt9U0s6uULsBmsRIIUIb">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.Shaders" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Graphics" />
+              <CategoryReference Kind="Category" Name="Skia" />
+              <CategoryReference Kind="Category" Name="Paint" />
+              <CategoryReference Kind="Category" Name="Shaders" />
+              <Choice Kind="ProcessAppFlag" Name="RadialGradient" />
+            </p:NodeReference>
+            <Pin Id="CwFWB4o4FyUMkviYxjbKiV" Name="Center" Kind="InputPin" />
+            <Pin Id="NbfHxn8QLUcM0hBslGXxFw" Name="Radius" Kind="InputPin" DefaultValue="0.33">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Float32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="U86bBuBtjx7LpwCQY14d24" Name="Colors" Kind="InputPin" />
+            <Pin Id="J8KexMgoOa9MCd1tZEMUhU" Name="Color Positions" Kind="InputPin" />
+            <Pin Id="Gtw3HAMXLT7Leh6TnrH35s" Name="Transform" Kind="InputPin" />
+            <Pin Id="PDLQ7FXcMBtQJFFU6EpywE" Name="Mode" Kind="InputPin" />
+            <Pin Id="PQNTSOaiSFBPH4tk7WBwmK" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="293,543,91,19" Id="K0XmtupnpwkM6hHMSjVRc2">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="SetShader" />
+            </p:NodeReference>
+            <Pin Id="AG6WVxBGnfsNOR1GTx4VcW" Name="Input" Kind="InputPin" />
+            <Pin Id="LWqzqnlIfbOOqkp8X0MRxk" Name="Value" Kind="InputPin" />
+            <Pin Id="P3Z1jRygb8OPmUbWW4wUpS" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="294,666,91,19" Id="Edn3quDNqS3NzmlOVExxoD">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Graphics" />
+              <CategoryReference Kind="Category" Name="Skia" />
+              <CategoryReference Kind="Category" Name="Paint" />
+              <Choice Kind="ProcessAppFlag" Name="SetColorFilter" />
+            </p:NodeReference>
+            <Pin Id="QbB88gdeDR9MwBOLjKCxgP" Name="Input" Kind="InputPin" />
+            <Pin Id="InJQWQFiJ3YOjCk9LDd2IY" Name="Filter" Kind="InputPin" />
+            <Pin Id="EzHO89mbJNcOkWS9npQseG" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="380,640,69,19" Id="HVE8ov90YXLPlWBxJ6AWkI">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.ColorFilters" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Graphics" />
+              <CategoryReference Kind="Category" Name="Skia" />
+              <CategoryReference Kind="Category" Name="Paint" />
+              <CategoryReference Kind="Category" Name="ColorFilters" />
+              <Choice Kind="ProcessAppFlag" Name="Lighting" />
+            </p:NodeReference>
+            <Pin Id="KtbQm8nN7y8OTXomr0G6TF" Name="Multiply" Kind="InputPin" DefaultValue="0.7499999, 0.5783999, 0.4199999, 1">
+              <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="RGBA" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="IHD7qLMBfzVNxbeNCX07HJ" Name="Add" Kind="InputPin" DefaultValue="0.07559998, 0.14, 0.06999999, 1">
+              <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="RGBA" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="AWPKXz2z86kPSavbzgjEtU" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Overlay Id="J9y0t4dZ8dPNnumH71XsBw" Name="Color Filters" Bounds="85,593,942,101">
+            <p:ColorIndex p:Type="Int32">0</p:ColorIndex>
+          </Overlay>
+          <Overlay Id="PkM5Fkqzl3YMcODKrzVzI2" Name="Shaders" Bounds="85,475,942,97">
+            <p:ColorIndex p:Type="Int32">0</p:ColorIndex>
+          </Overlay>
+          <Overlay Id="EJaJoUMcwPCMtgLDSiOa4V" Name="Image Filters" Bounds="84,316,943,146">
+            <p:ColorIndex p:Type="Int32">1</p:ColorIndex>
+          </Overlay>
+          <Overlay Id="CdIOCg8QCa6QEtRPewDEdk" Name="Mask Filters" Bounds="84,199,944,100">
+            <p:ColorIndex p:Type="Int32">0</p:ColorIndex>
+          </Overlay>
+          <Node Bounds="111,875,165,19" Id="LVmHwmYgw27OIs3Nr0nX3K">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Renderer" />
+            </p:NodeReference>
+            <Pin Id="SKquel0Q4TtORz9XGCLnOE" Name="Bounds" Kind="InputPin" DefaultValue="1008, 22, 316, 252">
+              <p:TypeAnnotation LastCategoryFullName="System.Drawing" LastSymbolSource="System.Drawing.dll">
+                <Choice Kind="TypeFlag" Name="Rectangle" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="Q773hEgm4mkPFkpyLca9gE" Name="Bound to Document" Kind="InputPin" DefaultValue="True">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="SNPy3gV5JHtMuuscaI1r3U" Name="Input" Kind="InputPin" />
+            <Pin Id="APJnkWyd7J5McYxJhPrRDr" Name="Color" Kind="InputPin" DefaultValue="0.25, 0.25, 0.25, 1">
+              <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="RGBA" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="BFBcv8eeMclQVe1ox7ULXn" Name="Clear" Kind="InputPin" />
+            <Pin Id="PkTF4LcG0wpPYosd8aT9Xb" Name="Space" Kind="InputPin" />
+            <Pin Id="G1ZcPkAfBEIPiZRBbAUgPE" Name="Show Cursor" Kind="InputPin" />
+            <Pin Id="Le32DQStPKpPvjvwJbWDPI" Name="VSync" Kind="InputPin" />
+            <Pin Id="AAfPXkEiGZqLeOnqpcwW74" Name="Enabled" Kind="InputPin" />
+            <Pin Id="LqLtuTYVSa7NFxEKGngORI" Name="Form" Kind="OutputPin" />
+            <Pin Id="AhDBol8PLQOQN6BugQMHay" Name="ClientBounds" Kind="OutputPin" />
+            <Pin Id="EMejrXTUJE6Pw0AZx03M0s" Name="Render Time" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="151,825,71,19" Id="SFWPt9zzMq2Ovv0f9fJvCH">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layers" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessNode" Name="Rectangle (Bounds)" />
+            </p:NodeReference>
+            <Pin Id="MmHEPhHcdTONSF13dNsTay" Name="Bounds" Kind="InputPin" />
+            <Pin Id="JXx4b1HmxuDNEuIVuIr2ja" Name="Paint" Kind="InputPin" />
+            <Pin Id="U8l5zQjT437QGtdtrBVatt" Name="Enabled" Kind="InputPin" />
+            <Pin Id="K1aytKmxEzIN9uL3uYmW23" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="184,788,91,19" Id="PZCJk6l8bp8ORdbyQYrkb8">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="SetMaskFilter" />
+            </p:NodeReference>
+            <Pin Id="Q47SebByXBNN0D7GSeuDaY" Name="Input" Kind="InputPin" />
+            <Pin Id="Gs2ksl0geqBLIKeLwgHeyI" Name="Filter" Kind="InputPin" />
+            <Pin Id="AopE2imjUewL7k9EckkAkq" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="182,752,45,19" Id="HQlzm2yjKPxNSASlvzoQS0">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.MaskFilters" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Blur" />
+              <CategoryReference Kind="Category" Name="MaskFilters" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="HzAdRnNHfBdPF8ek739YjR" Name="Value" Kind="InputPin" DefaultValue="0.06">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Float32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="DrTYUTElYqDLUxke2AmzJo" Name="Blur Style" Kind="InputPin" />
+            <Pin Id="I45CtAH1BJMPSSGSLGCGbd" Name="Flags" Kind="InputPin" />
+            <Pin Id="FwRP4K6LWrALpQObNtIki5" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="UCVk5AInDG9NhnOBROw2ZU" Comment="" Bounds="184,730,33,19" ShowValueBox="true" isIOBox="true" Value="0.1">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="525,358,66,19" Id="ASlxIcqZsscPLS1r1Y2HJO">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.ImageFilters" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="ImageFilters" NeedsToBeDirectParent="true" />
+              <Choice Kind="ProcessAppFlag" Name="BlendMode" />
+            </p:NodeReference>
+            <Pin Id="ACblvUUlBF5PaQE3zTqOdK" Name="Background Filter" Kind="InputPin" />
+            <Pin Id="MdOeIoGxXZJNtsGsEzY0DY" Name="Foreground Filter" Kind="InputPin" />
+            <Pin Id="JTHNEFCUPn7LTV5Ike0wXQ" Name="Blend Mode" Kind="InputPin" />
+            <Pin Id="L19m6xfrtXKPNE3r65TLqf" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="603,358,54,19" Id="S2IanOctkqvP0mtCPimIxY">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.ImageFilters" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="ImageFilters" NeedsToBeDirectParent="true" />
+              <Choice Kind="ProcessAppFlag" Name="Offset" />
+            </p:NodeReference>
+            <Pin Id="INMf0G18ZTZPjbFWanvPDz" Name="Value" Kind="InputPin" DefaultValue="0.17, 0.14">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="SGQAKDJhXA9MWQKUU6xh9t" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="665,358,54,19" Id="AIGVyPo98bTLfuyWkuEzxP">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.ImageFilters" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="ImageFilters" NeedsToBeDirectParent="true" />
+              <Choice Kind="ProcessAppFlag" Name="Merge" />
+            </p:NodeReference>
+            <Pin Id="NZficpqzsfxLuvZlHK4hlY" Name="Input" Kind="InputPin" />
+            <Pin Id="CktnXYltCdLM6l3kpBI4aD" Name="Input 2" Kind="InputPin" />
+            <Pin Id="JXuCVoAj22sQVgmLHMIyQF" Name="Mode" Kind="InputPin" />
+            <Pin Id="LUWdB69x2CuPyP9qJyPIpA" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="726,358,69,19" Id="EbVORUNUD21Ld1mhCnLj0e">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.ImageFilters" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="ImageFilters" NeedsToBeDirectParent="true" />
+              <Choice Kind="ProcessAppFlag" Name="Compose" />
+            </p:NodeReference>
+            <Pin Id="THqwDxMc05mL0X1hKLY73h" Name="Outer" Kind="InputPin" />
+            <Pin Id="V2mQG5tLVMtOuoO9XtAmmg" Name="Inner" Kind="InputPin" />
+            <Pin Id="VqqEDAGUjJRLwxNLKe3COa" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="931,514,77,19" Id="BeeRnR3AEfrMKShAAYFNAH">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.Shaders" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Graphics" />
+              <CategoryReference Kind="Category" Name="Skia" />
+              <CategoryReference Kind="Category" Name="Paint" />
+              <CategoryReference Kind="Category" Name="Shaders" />
+              <Choice Kind="ProcessAppFlag" Name="PerlinNoise" />
+            </p:NodeReference>
+            <Pin Id="NCKwrGkNRp8LEorn5mB4M6" Name="Base Frequency" Kind="InputPin" />
+            <Pin Id="NBKPM7ZkNa3QQfoi7iA3oX" Name="Num Octaves" Kind="InputPin" />
+            <Pin Id="FvTLueI0QHvP5gcsdPufNb" Name="Seed" Kind="InputPin" />
+            <Pin Id="UUH8PVL5oO3Om5AMRysGAP" Name="Transform" Kind="InputPin" />
+            <Pin Id="UEOE9n953lLMnJ7RZ0NSQl" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="619,514,125,19" Id="KbAO1MY6nRZP2xmAfzunyz">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.Shaders" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Graphics" />
+              <CategoryReference Kind="Category" Name="Skia" />
+              <CategoryReference Kind="Category" Name="Paint" />
+              <CategoryReference Kind="Category" Name="Shaders" />
+              <Choice Kind="ProcessAppFlag" Name="SweepGradient" />
+            </p:NodeReference>
+            <Pin Id="DItGvgaol4ENE7JGqD7SjV" Name="Center" Kind="InputPin" />
+            <Pin Id="DOFdtNm8ICSQSGVvYRBSfy" Name="Start Angle" Kind="InputPin" />
+            <Pin Id="Jz1f5Dz2HNnLbRbw3PPHhd" Name="End Angle" Kind="InputPin" DefaultValue="0.26">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Float32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="NSHyCk7d7KqNKV9rDuSHGa" Name="Colors" Kind="InputPin" />
+            <Pin Id="GvvSrKYR0pYPBC4dKvV9mE" Name="Color Positions" Kind="InputPin" />
+            <Pin Id="M39z3WgzynkNAoDu92GdC1" Name="Transform" Kind="InputPin" />
+            <Pin Id="KfrRL8ME5tkQAFM7Z6o44F" Name="Mode" Kind="InputPin" />
+            <Pin Id="IGIwTfl7GP0L6lFYah8RMd" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="757,514,74,19" Id="L29lRZkYmKiLN7cQ8xoIQF">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.Shaders" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Graphics" />
+              <CategoryReference Kind="Category" Name="Skia" />
+              <CategoryReference Kind="Category" Name="Paint" />
+              <CategoryReference Kind="Category" Name="Shaders" />
+              <Choice Kind="ProcessAppFlag" Name="ColorFilter" />
+            </p:NodeReference>
+            <Pin Id="NJpHpXQgUdQQAr0EI6zEe3" Name="Input" Kind="InputPin" />
+            <Pin Id="F8fE8r2F7vkPtrCg9VSBQR" Name="Color Filter" Kind="InputPin" />
+            <Pin Id="BTKZ4RXmbqTLHlD52h1Dka" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="844,514,74,19" Id="Ef1TrYCi8QiN8JhFmxRIlz">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Paint.Shaders" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Graphics" />
+              <CategoryReference Kind="Category" Name="Skia" />
+              <CategoryReference Kind="Category" Name="Paint" />
+              <CategoryReference Kind="Category" Name="Shaders" />
+              <Choice Kind="ProcessAppFlag" Name="Compose" />
+            </p:NodeReference>
+            <Pin Id="N90eTxqOZQuNWWWHcA99HG" Name="Input" Kind="InputPin" />
+            <Pin Id="VwMzZVECfKKPzDscLD2oen" Name="Input 2" Kind="InputPin" />
+            <Pin Id="QOGcXfvVcjwMEcWg2TVAdo" Name="Blend Mode" Kind="InputPin" />
+            <Pin Id="Mx6rWmjHK9eNISp5kqB5Pb" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="IbF0RH5qzcTLlCAL8IEZob" Bounds="74,114,323,20" ShowValueBox="true" isIOBox="true" Value="Filters and Shaders Overview">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">15</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="PxPVJogUZoUOB72v2mhu2c" Bounds="75,140,102,22" ShowValueBox="true" isIOBox="true" Value="For details see:">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="NMoFrIpYFM8MBav8eAbRLA" Bounds="75,164,278,22" ShowValueBox="true" isIOBox="true" Value="https://skia.org/user/api/skpaint_overview">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="ObBmVXqWcrWLUZXyvP3rAA" Bounds="501,245,320,43" ShowValueBox="true" isIOBox="true" Value="Mask filters are effects that manipulate the geometry and alpha channel of graphical objects.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="B8gDBNepMq7MvihpwBOr0R" Bounds="501,400,289,57" ShowValueBox="true" isIOBox="true" Value="Image filters are effects that operate on all the color bits of pixels that make up an image.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="OBf4uhw6944MCYyTxqhgHw" Name="Create" />
+        <Patch Id="NxXLTAkwOx1ORJkHfOqfie" Name="Update" />
+        <ProcessDefinition Id="Mvi9DHjquaGNxLtD756dx9">
+          <Fragment Id="NtcffWg4QFLOpzj5cbOvVW" Patch="OBf4uhw6944MCYyTxqhgHw" Enabled="true" />
+          <Fragment Id="G0CV6osMWniNwnVAfhGsxK" Patch="NxXLTAkwOx1ORJkHfOqfie" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="KxymG91Q4LSPS8qzG575gD" Ids="D4WDbrrzxOnPpiHj66K1WI,GYKs2tU4L82QOJtDOdUsnZ" />
+        <Link Id="Ub2cCzunM28MjbztDpHeS7" Ids="AWPKXz2z86kPSavbzgjEtU,InJQWQFiJ3YOjCk9LDd2IY" />
+        <Link Id="EVpRF551ADLPpvWwt2lbp3" Ids="K1aytKmxEzIN9uL3uYmW23,SNPy3gV5JHtMuuscaI1r3U" />
+        <Link Id="CEfsW6w5dSEP2xVPBDCmw8" Ids="FwRP4K6LWrALpQObNtIki5,Gs2ksl0geqBLIKeLwgHeyI" />
+        <Link Id="OfIIK8vl5wBP9f1SG9rda6" Ids="AopE2imjUewL7k9EckkAkq,JXx4b1HmxuDNEuIVuIr2ja" />
+        <Link Id="Eb60yqm9COcMuIBxaWdtPR" Ids="UCVk5AInDG9NhnOBROw2ZU,HzAdRnNHfBdPF8ek739YjR" />
+        <Link Id="Td1onEoz0NjLoxtvmnO1px" Ids="PV6n2dYjhlJPyeWbywUnTF,B9OK5b43KexOvjwuwbcueK" />
+        <Link Id="AWwNTkokFt0NRVtFGSEeEa" Ids="Ciz9LGTh5XwPvEXBKoYcvw,LWqzqnlIfbOOqkp8X0MRxk" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="UNOp1Uu8RDFPXvAXfKqZ47" Location="VL.Skia" Version="2021.4.11-1066-g20071f5dc6" />
+  <NugetDependency Id="GHpVFfqOwayPopzs29fMqy" Location="VL.CoreLib" Version="2021.4.11-1066-g20071f5dc6" />
+</Document>

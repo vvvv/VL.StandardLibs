@@ -1,0 +1,2768 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="PR4TKvzz7jxOCetUj0RClJ" LanguageVersion="2019.2.0-0342-6bc9b61985" Version="0.128" IsTrusted="true">
+  <NugetDependency Id="TnePzRfYMHZNZA3hU0In2h" Location="VL.CoreLib" Version="2019.2.0-0342-g6bc9b61985" />
+  <Patch Id="T8kHcLMkAreORqBQK68amT">
+    <Canvas Id="GZ0mvGuQ4xuPRP4oZ5zJue" DefaultCategory="VVVV.EditingFramework" CanvasType="FullCategory">
+      <!--
+
+    ************************ BezierEditor (2d Internal) ************************
+
+-->
+      <Node Name="BezierEditor (2d Internal)" Bounds="133,134" Id="Pp4IgLNg8s9OaBFdXaoJ5h">
+        <p:NodeReference>
+          <Choice Kind="ContainerDefinition" Name="Patch" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="QEBwr9ykX48Opwtm7yGGkb">
+          <Patch Id="GDZ7n4Fik2kOuYHHnrSLV3" Name="Create" />
+          <Patch Id="K7yVbn13GZjP4Rx4y7mtHF" Name="Update">
+            <Pin Id="VA5BInTQgGFMld1w5rwZWE" Name="Knots To Add" Kind="InputPin" />
+            <Pin Id="UfddbAOPlxnMziLctmP8tI" Name="Add Knot" Kind="InputPin" />
+            <Pin Id="MEe2VXbIqPxPN5VQv7IwHe" Name="Smooth Added Knots" Kind="InputPin" />
+            <Pin Id="Gh2ghUzs4T7QdFTy6eFIFX" Name="Insert Knot" Kind="InputPin" />
+            <Pin Id="RGGOhUohVoIMBvAuOsx5uq" Name="Clear" Kind="InputPin" />
+            <Pin Id="Bs0lH4QWMKdQOCnR14X8jC" Name="BezierEditorControls" Kind="InputPin" />
+            <Pin Id="Ecr1IvaOTyQQXL8ojgYDev" Name="Gizmo Controls" Kind="InputPin" />
+            <Pin Id="QBtjJCHwyEUOuiaod0xKyt" Name="Pick Size" Kind="InputPin" />
+            <Pin Id="Ff0hIDOtdiGNQIyp537HGU" Name="Step Size" Kind="InputPin" />
+            <Pin Id="Ql0vo8bEFrzLpqxuAREEvd" Name="Gizmo Size" Kind="InputPin" />
+            <Pin Id="Bf4p0VHAU8aN367npaRL7Z" Name="View" Kind="InputPin" />
+            <Pin Id="NQGhOWpXjGqLAe5C2x7eAh" Name="Camera Idle" Kind="InputPin" />
+            <Pin Id="FtFbwKsqwLxOou2VruwsZG" Name="Camera Zoom" Kind="InputPin" />
+            <Pin Id="UfjXm9I9fTzLnTxgqvZm2F" Name="File Path" Kind="InputPin" />
+            <Pin Id="URZyJQApNZSNRgWhH1l9CA" Name="Load" Kind="InputPin" />
+            <Pin Id="NbMRhd8emwgOVBU4RQjOL8" Name="Save" Kind="InputPin" />
+            <Pin Id="MWCTcDCPw4tNeykWuCtP1T" Name="BezierEditorState" Kind="OutputPin" />
+            <Pin Id="HuQCC8SgRDuPnWBMSlB3Hf" Name="BezierSpline" Kind="OutputPin" />
+            <Pin Id="BV7G8qLYNBtPoDmwpkhqVD" Name="Idle" Kind="OutputPin" />
+          </Patch>
+          <Canvas Id="Cd6mzoAvnacNWfwpEzJxrj" CanvasType="Group">
+            <Node Bounds="484,206,305,13" Id="KOh4EfEBHLmLc6fHDm8vtf">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.2D" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="ProcessNode" Name="BezierEditor" />
+                <CategoryReference Kind="Category" Name="2D" />
+              </p:NodeReference>
+              <Pin Id="EPg3Y0iAeoCODnblivRAae" Name="Knots To Add" Kind="InputPin" />
+              <Pin Id="O1wKewFLEXpN3CkG2ouqCg" Name="Add Knots" Kind="InputPin" />
+              <Pin Id="S9HdPRsF7bWLE6SKzOtiKs" Name="Add and Smooth" Kind="InputPin" />
+              <Pin Id="MnEPlRN7mVDNY3QGz4CyMu" Name="Insert Knot" Kind="InputPin" />
+              <Pin Id="T5Pn1TXAs40LhrKv1xp6Xz" Name="Clear" Kind="InputPin" />
+              <Pin Id="D95Q5jkub2UMhb72zRjewf" Name="BezierEditorControls" Kind="InputPin" />
+              <Pin Id="LTHlKwtSfrfMY2JHhOejva" Name="Gizmo Controls" Kind="InputPin" />
+              <Pin Id="LsSdkOKaQe5PDnKtlorWZU" Name="Pick Size" Kind="InputPin" />
+              <Pin Id="Uv6iyZ8W8xGMOm15l2NQPZ" Name="Step Size" Kind="InputPin" />
+              <Pin Id="ERh0x9Z39ghOYliILkLfub" Name="Gizmo Size" Kind="InputPin" />
+              <Pin Id="L9yiymxM5D1L4YMedGOprU" Name="View" Kind="InputPin" />
+              <Pin Id="P6KddauZA4cOUwhRxVic69" Name="Camera Idle" Kind="InputPin" />
+              <Pin Id="NJAgYjMfwheLr8uLaBSVhs" Name="Camera Zoom" Kind="InputPin" />
+              <Pin Id="Tmx37UeiTzVOR4KWF6eC4a" Name="File Path" Kind="InputPin" />
+              <Pin Id="DeUOParmDd7ORnBULQEe92" Name="Load" Kind="InputPin" />
+              <Pin Id="JO79doGNURkP4zDKBZGbSs" Name="Save" Kind="InputPin" />
+              <Pin Id="NkvamoogHNDQN2XIThKvaF" Name="BezierEditorState" Kind="OutputPin" />
+              <Pin Id="LcZhw9keAtwPAqHBMAZZnR" Name="BezierSpline" Kind="OutputPin" />
+              <Pin Id="ClShYTjDDhLP7kgqEhSlwj" Name="Idle" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="Pq1LzwrOll4LHXPvnBAcNc" Bounds="-153,101" />
+            <ControlPoint Id="JW7TsLX5X6TQK0g8qdv0D0" Bounds="-62,100" />
+            <ControlPoint Id="QXwChSFUVqdLh7obylwCnx" Bounds="21,100" />
+            <ControlPoint Id="HvRPUTLgArMMyPsbl5jSD0" Bounds="286,100" />
+            <ControlPoint Id="GybBXo0qovdLL57vU5npiz" Bounds="350,101" />
+            <ControlPoint Id="UjuR3CXbvYqPBIXAZbX7Jw" Bounds="567,104" />
+            <ControlPoint Id="T21c7CYqhAYOza53IdIh8a" Bounds="819,103" />
+            <ControlPoint Id="EboDUlNoELcNwdf4RuGKkN" Bounds="1221,102" />
+            <ControlPoint Id="JO1Y99aED2FLLmqrTgUlyp" Bounds="1267,102" />
+            <ControlPoint Id="OVMnowLMp1EPTGt5euaOAo" Bounds="666,104" />
+            <ControlPoint Id="DuUQ5UPkHO7NORAkEY0l3w" Bounds="412,286" />
+            <ControlPoint Id="G75wSrOnbQ7NeHSMxx6xGd" Bounds="628,284" />
+            <ControlPoint Id="GPLE5degBb1MsVxMFwJPQo" Bounds="943,284" />
+            <ControlPoint Id="D2LznRQrmQNOh9Puuyf9ac" Bounds="1143,105" />
+            <ControlPoint Id="T7rwzmeXxu8LsNHlTR0QNm" Bounds="181,102" />
+            <ControlPoint Id="AFoXkVA3telPeCB5flJnZw" Bounds="466,104" />
+            <ControlPoint Id="KX95TSsM2U1QdSpgGcA53I" Bounds="874,105" />
+            <ControlPoint Id="B9IdE0GU58fNHYKqaLlnCt" Bounds="976,108" />
+            <ControlPoint Id="EFw9xJqCO5ZPXERl2J39w8" Bounds="736,103" />
+          </Canvas>
+          <Link Id="EbBQlKbgrMKN4NzCoEyrbY" Ids="VA5BInTQgGFMld1w5rwZWE,Pq1LzwrOll4LHXPvnBAcNc" IsHidden="true" />
+          <Link Id="FQ0jonBkjAsMFzpr4MkfWy" Ids="UfddbAOPlxnMziLctmP8tI,JW7TsLX5X6TQK0g8qdv0D0" IsHidden="true" />
+          <Link Id="SJOD6zKo7N6P0FRBl8qKLt" Ids="MEe2VXbIqPxPN5VQv7IwHe,QXwChSFUVqdLh7obylwCnx" IsHidden="true" />
+          <Link Id="Q83X5mV0oILNzf1I7B4rK5" Ids="RGGOhUohVoIMBvAuOsx5uq,HvRPUTLgArMMyPsbl5jSD0" IsHidden="true" />
+          <Link Id="Rq0zLjPUrvDO5ZNeMPYCC2" Ids="Bs0lH4QWMKdQOCnR14X8jC,GybBXo0qovdLL57vU5npiz" IsHidden="true" />
+          <Link Id="PWgVCnMEkEBNEz0es2mKwc" Ids="QBtjJCHwyEUOuiaod0xKyt,UjuR3CXbvYqPBIXAZbX7Jw" IsHidden="true" />
+          <Link Id="ShpxxXTHKBLPUZmw9yVJid" Ids="Bf4p0VHAU8aN367npaRL7Z,T21c7CYqhAYOza53IdIh8a" IsHidden="true" />
+          <Link Id="BukSXqUeHzDPpDygvPAT4q" Ids="URZyJQApNZSNRgWhH1l9CA,EboDUlNoELcNwdf4RuGKkN" IsHidden="true" />
+          <Link Id="U0daJTawJt9NFBHckKzbsW" Ids="NbMRhd8emwgOVBU4RQjOL8,JO1Y99aED2FLLmqrTgUlyp" IsHidden="true" />
+          <Link Id="Es9W2sWx7W3P96fs93exdJ" Ids="Ff0hIDOtdiGNQIyp537HGU,OVMnowLMp1EPTGt5euaOAo" IsHidden="true" />
+          <Link Id="DK7qThY6RDAL41Mz22NzLG" Ids="DuUQ5UPkHO7NORAkEY0l3w,MWCTcDCPw4tNeykWuCtP1T" IsHidden="true" />
+          <Link Id="RNNFU73IlikPSU0w1IqmxF" Ids="G75wSrOnbQ7NeHSMxx6xGd,HuQCC8SgRDuPnWBMSlB3Hf" IsHidden="true" />
+          <Link Id="CzFS0IFve1cMHpW6z7o4cT" Ids="GPLE5degBb1MsVxMFwJPQo,BV7G8qLYNBtPoDmwpkhqVD" IsHidden="true" />
+          <Link Id="GIyyji2EGBqLU7RJfmkXOi" Ids="UjuR3CXbvYqPBIXAZbX7Jw,LsSdkOKaQe5PDnKtlorWZU" />
+          <Link Id="N6UmOltJrdpMxw8dJrG7Da" Ids="T21c7CYqhAYOza53IdIh8a,L9yiymxM5D1L4YMedGOprU" />
+          <Link Id="CGwuHAghOWJOPLrhTkD6Nv" Ids="ClShYTjDDhLP7kgqEhSlwj,GPLE5degBb1MsVxMFwJPQo" />
+          <Link Id="G2Wpj27ex2sMe85m33j9jl" Ids="GybBXo0qovdLL57vU5npiz,D95Q5jkub2UMhb72zRjewf" />
+          <Link Id="EQn8TmSAND3QSZJffNq1JF" Ids="JW7TsLX5X6TQK0g8qdv0D0,O1wKewFLEXpN3CkG2ouqCg" />
+          <Link Id="B8U0XzWLD5EPknaX4QdbtO" Ids="Pq1LzwrOll4LHXPvnBAcNc,EPg3Y0iAeoCODnblivRAae" />
+          <Link Id="IVKAxgg0QOCNwqorPv8NGb" Ids="NkvamoogHNDQN2XIThKvaF,DuUQ5UPkHO7NORAkEY0l3w" />
+          <Link Id="JI1qDWMTP5WMBBEhB3Prsh" Ids="HvRPUTLgArMMyPsbl5jSD0,T5Pn1TXAs40LhrKv1xp6Xz" />
+          <Link Id="PslBSw28aeVNV1Lg3Nd1iY" Ids="EboDUlNoELcNwdf4RuGKkN,DeUOParmDd7ORnBULQEe92" />
+          <Link Id="MhCP6C2umczOdq1tvTXibG" Ids="JO1Y99aED2FLLmqrTgUlyp,JO79doGNURkP4zDKBZGbSs" />
+          <Link Id="NZkzyOPZNTSNDgdCiFy6EH" Ids="QXwChSFUVqdLh7obylwCnx,S9HdPRsF7bWLE6SKzOtiKs" />
+          <Link Id="Kn3On6rbeB4Pb3glJdq6VC" Ids="LcZhw9keAtwPAqHBMAZZnR,G75wSrOnbQ7NeHSMxx6xGd" />
+          <Link Id="NPWRPT0ep7sMJc4zRYM7jG" Ids="OVMnowLMp1EPTGt5euaOAo,Uv6iyZ8W8xGMOm15l2NQPZ" />
+          <ProcessDefinition Id="BVY7wymuvqsLgeRZ0jMp00">
+            <Fragment Id="CeNbayqKrzsPkOizIVmohP" Patch="GDZ7n4Fik2kOuYHHnrSLV3" Enabled="true" />
+            <Fragment Id="TzQ9ggC1VQYMTYbABqw9YO" Patch="K7yVbn13GZjP4Rx4y7mtHF" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="OgPTWhDjIA2Mv9nVwOESGb" Ids="D2LznRQrmQNOh9Puuyf9ac,Tmx37UeiTzVOR4KWF6eC4a" />
+          <Link Id="RbyRiMkYDuTOu3lXmi00sL" Ids="UfjXm9I9fTzLnTxgqvZm2F,D2LznRQrmQNOh9Puuyf9ac" IsHidden="true" />
+          <Link Id="Ff8VuOuIi9eO3BqY7F2uUT" Ids="T7rwzmeXxu8LsNHlTR0QNm,MnEPlRN7mVDNY3QGz4CyMu" />
+          <Link Id="QqBy1GJvqMaQayQ2oA7LUv" Ids="Gh2ghUzs4T7QdFTy6eFIFX,T7rwzmeXxu8LsNHlTR0QNm" IsHidden="true" />
+          <Link Id="Ohe9UWqan6XLmQMtiVNlum" Ids="AFoXkVA3telPeCB5flJnZw,LTHlKwtSfrfMY2JHhOejva" />
+          <Link Id="FEn2r5UZB2ZLoXUWiMBXsH" Ids="Ecr1IvaOTyQQXL8ojgYDev,AFoXkVA3telPeCB5flJnZw" IsHidden="true" />
+          <Link Id="JZuAHSPWH7hLkh6FQeBO2M" Ids="KX95TSsM2U1QdSpgGcA53I,P6KddauZA4cOUwhRxVic69" />
+          <Link Id="TMYeAAZHJHeMdH7yVhCb2b" Ids="NQGhOWpXjGqLAe5C2x7eAh,KX95TSsM2U1QdSpgGcA53I" IsHidden="true" />
+          <Link Id="US7dSbrtmkPM9ZGUfnNDjd" Ids="B9IdE0GU58fNHYKqaLlnCt,NJAgYjMfwheLr8uLaBSVhs" />
+          <Link Id="N2LBlcbho0kPpkug12eKtQ" Ids="FtFbwKsqwLxOou2VruwsZG,B9IdE0GU58fNHYKqaLlnCt" IsHidden="true" />
+          <Link Id="IROdif5yqKQMrgu8nWxArh" Ids="EFw9xJqCO5ZPXERl2J39w8,ERh0x9Z39ghOYliILkLfub" />
+          <Link Id="BPfmQDkP8g2OSOnYnTQOQI" Ids="Ql0vo8bEFrzLpqxuAREEvd,EFw9xJqCO5ZPXERl2J39w8" IsHidden="true" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ BezierEditor (3d Internal) ************************
+
+-->
+      <Node Name="BezierEditor (3d Internal)" Bounds="588,136" Id="PKh2LUlM7VYMaUPZDvSQKL">
+        <p:NodeReference>
+          <Choice Kind="ContainerDefinition" Name="Patch" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="Ic1gIeEAsU7OE3SLZzzlZl">
+          <Patch Id="QFHK4WOn3SuMM0zVfK0oNq" Name="Create" />
+          <Patch Id="KgnQf4qT8vqPkKEtV3J3q8" Name="Update">
+            <Pin Id="L9skpAKmSV8P6aGJXE6jkv" Name="Knots To Add" Kind="InputPin" />
+            <Pin Id="QJACskUchH5MLo9ZxINrik" Name="Add Knot" Kind="InputPin" />
+            <Pin Id="Iomq1VYN60SNUwq1c0mJmL" Name="Add and Smooth" Kind="InputPin" />
+            <Pin Id="SfNEG4SO2mPOezIqEukpJD" Name="Insert Knot" Kind="InputPin" />
+            <Pin Id="TSSKawXDhgtNl6lSnGtwSf" Name="Clear" Kind="InputPin" />
+            <Pin Id="QZaTWfkMrClPgZa1XaNlT2" Name="BezierEditorControls" Kind="InputPin" />
+            <Pin Id="M6rREje1P8tMsik3nTvPgl" Name="Gizmo Controls" Kind="InputPin" />
+            <Pin Id="IWSUOsplizAL9f4IznBWJD" Name="Pick Size" Kind="InputPin" />
+            <Pin Id="OKJUJy0cpZ3MKW1QwkPuIx" Name="Step Size" Kind="InputPin" />
+            <Pin Id="HsnOrQLeYzIOYSa9ghsDka" Name="Gizmo Size" Kind="InputPin" />
+            <Pin Id="IASsXLGXl0TPq3Fc6Ews50" Name="View Projection" Kind="InputPin" />
+            <Pin Id="QATfyNHOHwsPJDQwNdUv3H" Name="File Path" Kind="InputPin" />
+            <Pin Id="CaPN3QBXiRENdqsKRq7jpC" Name="Load" Kind="InputPin" />
+            <Pin Id="Ktf4rDIoPF0NgseWPn6xOY" Name="Save" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="E5zLnNPbkMROLIjqC2zP5e" Name="BezierEditorState" Kind="OutputPin" />
+            <Pin Id="RokutQ8zBHnQRs4NWNvnJU" Name="BezierSpline" Kind="OutputPin" />
+            <Pin Id="K08YDpxzVowPhTG7L9ZYmc" Name="Idle" Kind="OutputPin" />
+          </Patch>
+          <Canvas Id="KnutRLvslDLO94VHHju5Yo" CanvasType="Group">
+            <Node Bounds="359,225,265,13" Id="H8ggVTSieP9LebZ60u6gtK">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.3D" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="ProcessNode" Name="BezierEditor" />
+                <CategoryReference Kind="Category" Name="3D" />
+              </p:NodeReference>
+              <Pin Id="HJ36Z0PEo2GL1HbRxDPIVj" Name="Knots To Add" Kind="InputPin" />
+              <Pin Id="GHcbJ1uJ5foPCf3mdIx55r" Name="Add Knot" Kind="InputPin" />
+              <Pin Id="Ni9fGy4crVkNgYWbrTnKRd" Name="Add and Smooth" Kind="InputPin" />
+              <Pin Id="BpHTx3J3L7XOBwwVU6y8aH" Name="Insert Knot" Kind="InputPin" />
+              <Pin Id="OKAT5x7X1suL2teEagUyVl" Name="Clear" Kind="InputPin" />
+              <Pin Id="O3y7NrL4ZSzNQykPPvmrbG" Name="BezierEditorControls" Kind="InputPin" />
+              <Pin Id="EbQ1t2Z0lXyLyDKd3o0Ajs" Name="Gizmo Controls" Kind="InputPin" />
+              <Pin Id="PggUAfC7dSIO1JTzSXyIdb" Name="Pick Size" Kind="InputPin" />
+              <Pin Id="I4Ckav8BR4fN2i08AC7UF1" Name="Step Size" Kind="InputPin" />
+              <Pin Id="OWk2vLALLVBQBlE20fGBtC" Name="Gizmo Size" Kind="InputPin" />
+              <Pin Id="MmoUBKmkd8PNt1LIYcpM6A" Name="ViewProjection" Kind="InputPin" />
+              <Pin Id="GAL6WJV08Z5OjUxw5OEXux" Name="File Path" Kind="InputPin" />
+              <Pin Id="CWtQWnMNIuNLc3niOqA1EX" Name="Load" Kind="InputPin" />
+              <Pin Id="V2Vfb6L3Nx4MXGBOxkg4jL" Name="Save" Kind="InputPin" />
+              <Pin Id="P2qclhdZbbxQDnXLJJdfeV" Name="BezierEditorState" Kind="OutputPin" />
+              <Pin Id="POMdzR2kU0CLdK5mbwhiAs" Name="BezierSpline" Kind="OutputPin" />
+              <Pin Id="JFH0qthPNfeLqYsGYndmTw" Name="Idle" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="F4krNoXjUYML9b0alSu9xk" Bounds="-115,106" />
+            <ControlPoint Id="BBLBrbKPWpBNHGZp4ZY9tr" Bounds="-23,106" />
+            <ControlPoint Id="RzzA0zljV6WN35yyhywfgW" Bounds="60,106" />
+            <ControlPoint Id="S1zGTT3Wj4RMvZ8MFBi6kE" Bounds="260,105" />
+            <ControlPoint Id="SJIO1oe2dzIQMb5bpQgfYP" Bounds="305,107" />
+            <ControlPoint Id="H6gdYNs414KPmJJrtbEefH" Bounds="537,110" />
+            <ControlPoint Id="NMzgEmsdyKBNSxzTM7fALx" Bounds="619,110" />
+            <ControlPoint Id="IsDxaiIOESKN4YweEhO4vC" Bounds="826,108" />
+            <ControlPoint Id="LbFTjFv1d5cQVnW6rWxqLR" Bounds="996,104" />
+            <ControlPoint Id="AhEjMHXK7nkMn44uyWz4zr" Bounds="1042,104" />
+            <ControlPoint Id="BcyfPObbba1OnVfuKVsMHp" Bounds="186,272" />
+            <ControlPoint Id="IwasGOg00BfMCMaKh8RVNR" Bounds="298,274" />
+            <ControlPoint Id="Rent55U8jDFMCB2A7T1btX" Bounds="699,272" />
+            <ControlPoint Id="Pk4u5fbY0I2Mrh6UM6leVu" Bounds="935,104" />
+            <ControlPoint Id="GaoebK18gswMdEoc32ha4M" Bounds="169,104" />
+            <ControlPoint Id="QspAUpsiH0INQlBtfmHjnV" Bounds="433,110" />
+            <ControlPoint Id="Ql3RD0KNCmYQcT0w5yX5ZO" Bounds="717,108" />
+          </Canvas>
+          <Link Id="FkTIMVVSmvpMev22j5Wo1f" Ids="L9skpAKmSV8P6aGJXE6jkv,F4krNoXjUYML9b0alSu9xk" IsHidden="true" />
+          <Link Id="TZEzWO6MJbaMQRBHndS6XO" Ids="QJACskUchH5MLo9ZxINrik,BBLBrbKPWpBNHGZp4ZY9tr" IsHidden="true" />
+          <Link Id="GAbf1KPDeawMvSoYsfhy0q" Ids="Iomq1VYN60SNUwq1c0mJmL,RzzA0zljV6WN35yyhywfgW" IsHidden="true" />
+          <Link Id="Mk6hfG8hDc7LkdtyNtPbcF" Ids="TSSKawXDhgtNl6lSnGtwSf,S1zGTT3Wj4RMvZ8MFBi6kE" IsHidden="true" />
+          <Link Id="FwW3m88BVoLNhfPD486bO2" Ids="QZaTWfkMrClPgZa1XaNlT2,SJIO1oe2dzIQMb5bpQgfYP" IsHidden="true" />
+          <Link Id="JeZxRIy582vMmlVtHvXW31" Ids="IWSUOsplizAL9f4IznBWJD,H6gdYNs414KPmJJrtbEefH" IsHidden="true" />
+          <Link Id="Uu6vNaVjqQIMUIqiYk0yWL" Ids="OKJUJy0cpZ3MKW1QwkPuIx,NMzgEmsdyKBNSxzTM7fALx" IsHidden="true" />
+          <Link Id="UYgm7puJHUhQWSbtHj9D8a" Ids="IASsXLGXl0TPq3Fc6Ews50,IsDxaiIOESKN4YweEhO4vC" IsHidden="true" />
+          <Link Id="CxTArWdtLCzNMjg9p5NzqQ" Ids="CaPN3QBXiRENdqsKRq7jpC,LbFTjFv1d5cQVnW6rWxqLR" IsHidden="true" />
+          <Link Id="JHdSRZgYezUOevv7XOipUN" Ids="Ktf4rDIoPF0NgseWPn6xOY,AhEjMHXK7nkMn44uyWz4zr" IsHidden="true" />
+          <Link Id="UrBnWlnuylwK9qe0WMI0u4" Ids="BcyfPObbba1OnVfuKVsMHp,E5zLnNPbkMROLIjqC2zP5e" IsHidden="true" />
+          <Link Id="J3cGj0BWHnePh6N48LJIAU" Ids="IwasGOg00BfMCMaKh8RVNR,RokutQ8zBHnQRs4NWNvnJU" IsHidden="true" />
+          <Link Id="S98ZBp6PhQbOaJoCzUx1ck" Ids="Rent55U8jDFMCB2A7T1btX,K08YDpxzVowPhTG7L9ZYmc" IsHidden="true" />
+          <Link Id="KeJ1E1LYF7YQYyFHMNo5dm" Ids="JFH0qthPNfeLqYsGYndmTw,Rent55U8jDFMCB2A7T1btX" />
+          <Link Id="C5RAjCzFfJVOk0TLJNKJex" Ids="P2qclhdZbbxQDnXLJJdfeV,BcyfPObbba1OnVfuKVsMHp" />
+          <Link Id="JDZQ30OwvktOpRstZvMCRo" Ids="RzzA0zljV6WN35yyhywfgW,Ni9fGy4crVkNgYWbrTnKRd" />
+          <Link Id="QPaFopW7dtCOUE6o0sfhxn" Ids="S1zGTT3Wj4RMvZ8MFBi6kE,OKAT5x7X1suL2teEagUyVl" />
+          <Link Id="N9DcGOEm00TQNRyWOluLpl" Ids="H6gdYNs414KPmJJrtbEefH,PggUAfC7dSIO1JTzSXyIdb" />
+          <Link Id="OhCt7lCvZGtNXYHdp67h7G" Ids="IsDxaiIOESKN4YweEhO4vC,MmoUBKmkd8PNt1LIYcpM6A" />
+          <Link Id="M1ypMDd5UcALLaQ1XtmLIV" Ids="LbFTjFv1d5cQVnW6rWxqLR,CWtQWnMNIuNLc3niOqA1EX" />
+          <Link Id="EmZ4SMxAgXeOA535XiyvsQ" Ids="AhEjMHXK7nkMn44uyWz4zr,V2Vfb6L3Nx4MXGBOxkg4jL" />
+          <Link Id="Mc4kiFephNiN39PeTnDWIJ" Ids="BBLBrbKPWpBNHGZp4ZY9tr,GHcbJ1uJ5foPCf3mdIx55r" />
+          <Link Id="DqWjX0UX1yUOST1zh9lhUn" Ids="F4krNoXjUYML9b0alSu9xk,HJ36Z0PEo2GL1HbRxDPIVj" />
+          <Link Id="CmehD9HrTNeLBIc3piaXrN" Ids="POMdzR2kU0CLdK5mbwhiAs,IwasGOg00BfMCMaKh8RVNR" />
+          <Link Id="MkY8d6hoIaRO8gwNQGxH8G" Ids="NMzgEmsdyKBNSxzTM7fALx,I4Ckav8BR4fN2i08AC7UF1" />
+          <Link Id="OAwofXu7FR0P11I3LT01r6" Ids="SJIO1oe2dzIQMb5bpQgfYP,O3y7NrL4ZSzNQykPPvmrbG" />
+          <ProcessDefinition Id="QfCAzFT1mITLHGUOjaIbsa">
+            <Fragment Id="T9fWGqTEw6mO94fd29RzS8" Patch="QFHK4WOn3SuMM0zVfK0oNq" Enabled="true" />
+            <Fragment Id="EphBlDYJKvePZlV7xOLN4E" Patch="KgnQf4qT8vqPkKEtV3J3q8" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="Ll78YAyKuHTLc8d9CfLs3v" Ids="Pk4u5fbY0I2Mrh6UM6leVu,GAL6WJV08Z5OjUxw5OEXux" />
+          <Link Id="VEZtRA3lqKmLsGdGAOJQmU" Ids="QATfyNHOHwsPJDQwNdUv3H,Pk4u5fbY0I2Mrh6UM6leVu" IsHidden="true" />
+          <Link Id="N1w4NAqpkIyLI7fXcuaN8z" Ids="GaoebK18gswMdEoc32ha4M,BpHTx3J3L7XOBwwVU6y8aH" />
+          <Link Id="DzsKGuW6XK3NNUa4Uovflw" Ids="SfNEG4SO2mPOezIqEukpJD,GaoebK18gswMdEoc32ha4M" IsHidden="true" />
+          <Link Id="PteUBlIgO5nP90mcHmR67r" Ids="QspAUpsiH0INQlBtfmHjnV,EbQ1t2Z0lXyLyDKd3o0Ajs" />
+          <Link Id="UHmr1UbyBtFMSmtU2L7xD9" Ids="M6rREje1P8tMsik3nTvPgl,QspAUpsiH0INQlBtfmHjnV" IsHidden="true" />
+          <Link Id="Ff7ov0BRBvZPKTjEQgll5T" Ids="Ql3RD0KNCmYQcT0w5yX5ZO,OWk2vLALLVBQBlE20fGBtC" />
+          <Link Id="RjZg36hLXwaPDfQBLY4MDd" Ids="HsnOrQLeYzIOYSa9ghsDka,Ql3RD0KNCmYQcT0w5yX5ZO" IsHidden="true" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ BezierEditorControls (Internal) ************************
+
+-->
+      <Node Name="BezierEditorControls (Internal)" Bounds="588,191" Id="JEYbOGvbD1KP4UWp2YxGh8">
+        <p:NodeReference>
+          <Choice Kind="ContainerDefinition" Name="Patch" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="QrXyQLcFsBfO0Q5wYR2udE">
+          <Patch Id="RYplVrhWJ7VL1f5Zx49903" Name="Create" />
+          <Patch Id="DYuqGkCJXZCMEJb4MAvNod" Name="Update">
+            <Pin Id="FJSRyUt9ZnEOS7lbEku0YC" Name="Mouse" Kind="InputPin" />
+            <Pin Id="Oklhw0OJgI6QYF3gDx6wMK" Name="Keyboard" Kind="InputPin" />
+            <Pin Id="NqdjFtbl1LdPtVJOCUj3Z4" Name="Enabled" Kind="InputPin" />
+            <Pin Id="HKuEoMQaUyzPiL6ML2kHNu" Name="BezierEditorControls" Kind="OutputPin" />
+          </Patch>
+          <Canvas Id="L8AespdfI7lNN6LKdLiKOU" BordersChecked="false" CanvasType="Group">
+            <Node Bounds="253,255,121,13" Id="Tsc7FOah6DQOlctDJzbJlc">
+              <p:NodeReference LastCategoryFullName="Editors" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="ProcessNode" Name="BezierEditorControls" />
+                <FullNameCategoryReference ID="Editors" />
+              </p:NodeReference>
+              <Pin Id="UYhq8n08odjLTU7niAAZBn" Name="Keyboard" Kind="InputPin" />
+              <Pin Id="PLY5ieEYzLOMmMb0y85lMn" Name="Mouse" Kind="InputPin" />
+              <Pin Id="SXbhrOcDI53QFK6M3g5g4y" Name="Enabled" Kind="InputPin" />
+              <Pin Id="QH2I4Xv8Lk4LQdxZGd2lVh" Name="BezierEditorControl" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="OB84fbdi9NSNiQiInOksVM" Bounds="183,187" />
+            <ControlPoint Id="OSv06Mlwwf1LNZwU7CgwNM" Bounds="251,187" />
+            <ControlPoint Id="AHeQJgccdG6OUEw63sIxlX" Bounds="343,187" />
+            <ControlPoint Id="LVsRNdA9BhQLIIDR3MHdt3" Bounds="250,300" />
+          </Canvas>
+          <Link Id="M07CjxldKdSM7Y4pDy3rog" Ids="FJSRyUt9ZnEOS7lbEku0YC,OB84fbdi9NSNiQiInOksVM" IsHidden="true" />
+          <Link Id="Ooq6bgyjltFPF96tK9GcdX" Ids="Oklhw0OJgI6QYF3gDx6wMK,OSv06Mlwwf1LNZwU7CgwNM" IsHidden="true" />
+          <Link Id="GCxQHQwd9GJOsN24GpIX6q" Ids="NqdjFtbl1LdPtVJOCUj3Z4,AHeQJgccdG6OUEw63sIxlX" IsHidden="true" />
+          <Link Id="EX7PdgFeI6CLIQaV5mhJHo" Ids="LVsRNdA9BhQLIIDR3MHdt3,HKuEoMQaUyzPiL6ML2kHNu" IsHidden="true" />
+          <Link Id="M6SSBZ9CPVPQJvx7WURSlL" Ids="OSv06Mlwwf1LNZwU7CgwNM,UYhq8n08odjLTU7niAAZBn" />
+          <Link Id="RBlCKtntMhwPGhnTZjg6NO" Ids="OB84fbdi9NSNiQiInOksVM,PLY5ieEYzLOMmMb0y85lMn" />
+          <Link Id="UpcpzYFgiqEL2IW4eniAJw" Ids="AHeQJgccdG6OUEw63sIxlX,SXbhrOcDI53QFK6M3g5g4y" />
+          <Link Id="SmgO4vJ8xTZL98oHuqWNoO" Ids="QH2I4Xv8Lk4LQdxZGd2lVh,LVsRNdA9BhQLIIDR3MHdt3" />
+          <ProcessDefinition Id="DIScaTDDi8EMGyuJ6xqycH">
+            <Fragment Id="VR6sVmExXbtPQ2HsgIk1Yh" Patch="RYplVrhWJ7VL1f5Zx49903" Enabled="true" />
+            <Fragment Id="HfdaUbILlQIL6XRGEVHYLB" Patch="DYuqGkCJXZCMEJb4MAvNod" Enabled="true" />
+          </ProcessDefinition>
+        </Patch>
+      </Node>
+      <Canvas Id="U96NnsW9z6wMg1K3sorc2O" Name="BezierEditorState" Position="128,333" CanvasType="Group">
+        <!--
+
+    ************************ BezierEditorState (Split 3d) ************************
+
+-->
+        <Node Name="BezierEditorState (Split 3d)" Bounds="1068,267,944,167" Id="K4wzw2gR5lwPzEUz4NvjMy">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="VoP2LeizUOIMlAIV7u6Dhe" ManuallySortedPins="true">
+            <Pin Id="F1lLSwGTtwpOrMFt7IUd4T" Name="BezierPointEditorState" Kind="InputPin" />
+            <Pin Id="L3Y4CClnzRNNMyqkqVVpqN" Name="EditableBezierKnots" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Collections" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Spread" />
+                <FullNameCategoryReference ID="Collections" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="EditableBezierKnot" />
+                    <p:TypeArguments>
+                      <TypeReference>
+                        <Choice Kind="TypeFlag" Name="Vector3" />
+                      </TypeReference>
+                    </p:TypeArguments>
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="MX98snGhJoDQExfbpFyM03" Name="Pick Size" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Float32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="C8pbCwTfvaOLl53mqirT0u" Name="Translation" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="T9vD3OpQu50PmuuIBBJ4JL" Name="Rotation" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="CrV8z20DNtANPQfN1twJ4U" Name="Scaling" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="ITV16sccFkUOgGnn96myCq" Name="Offset" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+                <CategoryReference Kind="Category" Name="3D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="QDSS25cOYmION90vhMIZgj" Name="Point on Curve" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="FoLVbA4R9M3PV4VPMhnwSS" Name="Looking for Point" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="TCvjOUkERFvPa5ksDl8hSy" Name="Editing" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Node Bounds="1232,323,225,22" Id="Tfdk2ZA21PjLRC623efVOx">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.BezierEditorState" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="OperationNode" Name="Split" />
+                <CategoryReference Kind="Category" Name="BezierEditorState" />
+              </p:NodeReference>
+              <Pin Id="LR0nJloFXzdOECP8JysCzi" Name="Input" Kind="InputPin" />
+              <Pin Id="B35K4XOPsx1LP5rCXhJhLy" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="Tm5btXXRgpXQNRQLvQN1j5" Name="BezierKnots" Kind="OutputPin" />
+              <Pin Id="T8lBxYlRGTON8CkY9bd0wn" Name="Pick Size" Kind="OutputPin" />
+              <Pin Id="Bgy23cH79nMPbMdntdzgh6" Name="Offset" Kind="OutputPin" />
+              <Pin Id="J7iK3nIOdYQLsdW9mFWbWl" Name="Translation" Kind="OutputPin" />
+              <Pin Id="KHo0SBXg9zoPGmINRIhwuP" Name="Rotation" Kind="OutputPin" />
+              <Pin Id="EsrlAQBw4FeNOY3DPWDEhq" Name="Scaling" Kind="OutputPin" />
+              <Pin Id="Ck3mvYxIInoL9vObx9fXtC" Name="Point on Curve" Kind="OutputPin" />
+              <Pin Id="I6tLxCjs66KM4smC028HNB" Name="Looking for Point" Kind="OutputPin" />
+              <Pin Id="OWtXePolhmRNeT8Fh7JVtJ" Name="Editing" Kind="OutputPin" />
+              <Pin Id="JCNxK4ds4xgO7snYVzL3jK" Name="Is Projection Space" Kind="OutputPin" />
+              <Pin Id="TJl5YIL0cytOWw2pu3oo6f" Name="GizmoState" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="NoOjEsvtIK5ON0riHNXjwb" Bounds="1229,283" />
+            <ControlPoint Id="VcBJX0Y6If1NFmGr9BlvPe" Bounds="1082,415" />
+            <ControlPoint Id="VbV1r6OLjVXLKdcKyMiDYP" Bounds="1220,415" />
+            <ControlPoint Id="CQBMtrkzNXBPpSK9NidZpj" Bounds="1298,415" />
+            <ControlPoint Id="U0ZEZ60BCMaL80qfmuovWR" Bounds="1377,415" />
+            <ControlPoint Id="JgDA5Yd7JDqMnOn6GdF893" Bounds="1440,415" />
+            <ControlPoint Id="TLXcWUalRriNrO7bysBp5u" Bounds="1498,415" />
+            <ControlPoint Id="E31I9jeixPuLXnXU6E1AXm" Bounds="1553,415" />
+            <ControlPoint Id="OKm3qHrbIRTQCVx0HWKMkz" Bounds="1650,415" />
+            <ControlPoint Id="EHGY1E03R0kPAHyzFNoL7d" Bounds="1759,415" />
+            <Link Id="SPfut2o3ZChMjuAfRTmEnn" Ids="NoOjEsvtIK5ON0riHNXjwb,LR0nJloFXzdOECP8JysCzi" />
+            <Link Id="RIzzgLrv7teMChjVkhYqdl" Ids="Bgy23cH79nMPbMdntdzgh6,TLXcWUalRriNrO7bysBp5u" />
+            <Link Id="K3z2hfhh7IALvlRwHn3kh9" Ids="J7iK3nIOdYQLsdW9mFWbWl,CQBMtrkzNXBPpSK9NidZpj" />
+            <Link Id="LtzR2RBbwrLMdduif1nOuc" Ids="KHo0SBXg9zoPGmINRIhwuP,U0ZEZ60BCMaL80qfmuovWR" />
+            <Link Id="LIwpju0P32NLyiAtQQ2gnG" Ids="EsrlAQBw4FeNOY3DPWDEhq,JgDA5Yd7JDqMnOn6GdF893" />
+            <Link Id="VM6UIb4OAKkLuWp4aWJqEx" Ids="Ck3mvYxIInoL9vObx9fXtC,E31I9jeixPuLXnXU6E1AXm" />
+            <Link Id="EhqsMDVKE0CLOmAQTaQKJa" Ids="I6tLxCjs66KM4smC028HNB,OKm3qHrbIRTQCVx0HWKMkz" />
+            <Link Id="Dgvb9VG9NB7NZTKOMEqET1" Ids="T8lBxYlRGTON8CkY9bd0wn,VbV1r6OLjVXLKdcKyMiDYP" />
+            <Link Id="H0Otb5glNlsO9I3k2UA3ky" Ids="OWtXePolhmRNeT8Fh7JVtJ,EHGY1E03R0kPAHyzFNoL7d" />
+            <Link Id="UZkehKABC7BPxIwEJdtVKW" Ids="Tm5btXXRgpXQNRQLvQN1j5,VcBJX0Y6If1NFmGr9BlvPe" />
+            <Link Id="QrmlsdNwBprMTX0Nfn6sY6" Ids="F1lLSwGTtwpOrMFt7IUd4T,NoOjEsvtIK5ON0riHNXjwb" IsHidden="true" />
+            <Link Id="PFjOAFGQfOgPNVfQZiTXMz" Ids="VcBJX0Y6If1NFmGr9BlvPe,L3Y4CClnzRNNMyqkqVVpqN" IsHidden="true" />
+            <Link Id="NIDllOyBQ1VQZYAP1LvVrw" Ids="VbV1r6OLjVXLKdcKyMiDYP,MX98snGhJoDQExfbpFyM03" IsHidden="true" />
+            <Link Id="Ks20VZPAVkqL4IUSm7qoQj" Ids="CQBMtrkzNXBPpSK9NidZpj,C8pbCwTfvaOLl53mqirT0u" IsHidden="true" />
+            <Link Id="OIY8vb5sSWhPsEvttcFvxi" Ids="U0ZEZ60BCMaL80qfmuovWR,T9vD3OpQu50PmuuIBBJ4JL" IsHidden="true" />
+            <Link Id="NEpLR7iAxMXQRExIni0GDj" Ids="JgDA5Yd7JDqMnOn6GdF893,CrV8z20DNtANPQfN1twJ4U" IsHidden="true" />
+            <Link Id="UxrfilGuJHoLkBd0BR4K5i" Ids="TLXcWUalRriNrO7bysBp5u,ITV16sccFkUOgGnn96myCq" IsHidden="true" />
+            <Link Id="P0SumqID64iNVthQpHhVFY" Ids="E31I9jeixPuLXnXU6E1AXm,QDSS25cOYmION90vhMIZgj" IsHidden="true" />
+            <Link Id="QMA4vby9A4gQFZjuEeQZQS" Ids="OKm3qHrbIRTQCVx0HWKMkz,FoLVbA4R9M3PV4VPMhnwSS" IsHidden="true" />
+            <Link Id="QS7EbU6DdY0OSkJMhMHWwU" Ids="EHGY1E03R0kPAHyzFNoL7d,TCvjOUkERFvPa5ksDl8hSy" IsHidden="true" />
+            <ControlPoint Id="Kgr7p4CSbCTQPk8kf8NHEk" Bounds="1822,415" />
+            <Link Id="H7o0FxoGiR4LK4D3KpEHil" Ids="JCNxK4ds4xgO7snYVzL3jK,Kgr7p4CSbCTQPk8kf8NHEk" />
+            <Pin Id="Ce1FkS4J1MOPYAdHsYwHYn" Name="Is Projection Space" Kind="OutputPin" />
+            <Link Id="DBQTyC6vr8uNgM9KqhQ3sV" Ids="Kgr7p4CSbCTQPk8kf8NHEk,Ce1FkS4J1MOPYAdHsYwHYn" IsHidden="true" />
+            <ControlPoint Id="Gs8uDrDRobTPy8nzwqpu4W" Bounds="1938,412" />
+            <Link Id="GGNZXjm9gagMjYmDIidT34" Ids="TJl5YIL0cytOWw2pu3oo6f,Gs8uDrDRobTPy8nzwqpu4W" />
+            <Pin Id="BhWJ2COVdPzMmUrZ4COljx" Name="GizmoState" Kind="OutputPin" />
+            <Link Id="C4x69P1uvuhOWSAeYGpl59" Ids="Gs8uDrDRobTPy8nzwqpu4W,BhWJ2COVdPzMmUrZ4COljx" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ BezierEditorState (Split 2d) ************************
+
+-->
+        <Node Name="BezierEditorState (Split 2d)" Bounds="34,260,948,169" Id="PeqcZIvQUNpOEBg1U0sSUx">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="GClwNQ3kVOCOxmJ6Pcivca" ManuallySortedPins="true">
+            <Pin Id="A7F35ed6t4JNMPXSfqZBnE" Name="BezierEditorState" Kind="InputPin" />
+            <Pin Id="I3VNdsVe8PWLQFFilroR3T" Name="EditableBezierKnots" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Collections" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Spread" />
+                <FullNameCategoryReference ID="Collections" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="EditableBezierKnot" />
+                    <p:TypeArguments>
+                      <TypeReference>
+                        <Choice Kind="TypeFlag" Name="Vector2" />
+                      </TypeReference>
+                    </p:TypeArguments>
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="PQGjcJo7A63MmtYDIKfijM" Name="Pick Size" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Float32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="VB76Bw7Cis6M0U9oC7bvqn" Name="Translation" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="L1EKsnlkBpCOSZ2m6QyLmW" Name="Rotation" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="M2tqPNyF2WILNdMMAKEtac" Name="Scaling" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="VEuxHvarmAAN2KqKytUXWo" Name="Offset" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="BdEVpl4b3KxLIrLO8KmAFJ" Name="Point on Curve" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="VG486YzpXvhPHCHvZY0S7S" Name="Looking for Point" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="GGXJmaYOx8oMWAFqD0BkQc" Name="Editing" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Node Bounds="307,316,225,22" Id="DJbGJMPEYNwPqlD4M83UWm">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.BezierEditorState" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="OperationNode" Name="Split" />
+                <CategoryReference Kind="Category" Name="BezierEditorState" />
+              </p:NodeReference>
+              <Pin Id="PqypZJ5DziuPJJYOpqjXgL" Name="Input" Kind="InputPin" />
+              <Pin Id="Q4iEOobbRLANSZjbvZ4mjb" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="SFdmppvY22LNzo5skLMeea" Name="BezierKnots" Kind="OutputPin" />
+              <Pin Id="QRTWJnwiN0xPKXiuci8dGP" Name="Pick Size" Kind="OutputPin" />
+              <Pin Id="GvAr38wqRO3PMWFdsMeCHw" Name="Offset" Kind="OutputPin" />
+              <Pin Id="AlgvmfN8rOgNUCqAiWMFTe" Name="Translation" Kind="OutputPin" />
+              <Pin Id="T9Gwk5MvHEGL4VBM3axMaP" Name="Rotation" Kind="OutputPin" />
+              <Pin Id="JfUCrO31iEELOYF1qeuwQy" Name="Scaling" Kind="OutputPin" />
+              <Pin Id="J6HvU6jbvYhN5NXwr17gJ5" Name="Point on Curve" Kind="OutputPin" />
+              <Pin Id="M2loGaGtia3MrolHr75rbW" Name="Looking for Point" Kind="OutputPin" />
+              <Pin Id="KGnr8BegFpCL6IVq8D6RAf" Name="Editing" Kind="OutputPin" />
+              <Pin Id="Lpuy5KY9B0PP27SRVLaPHU" Name="Is Projection Space" Kind="OutputPin" />
+              <Pin Id="Cq67Vd0d4k0PJuU5qJQVca" Name="GizmoState" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="GneZnt4fpWiLKIyEq4bRPc" Bounds="304,276" />
+            <ControlPoint Id="UeTJtCW5NUeQOLOOHx9Rav" Bounds="48,410" />
+            <ControlPoint Id="Cgr0CmVqDzhMPuEDZb7q6j" Bounds="204,410" />
+            <ControlPoint Id="QuFbGFWGPnDOCEmPhC1VrL" Bounds="262,410" />
+            <ControlPoint Id="EB8vq5SbPxGQBzJy2I7gXB" Bounds="341,410" />
+            <ControlPoint Id="Auz1opFD9PSLa44R2VgArV" Bounds="404,410" />
+            <ControlPoint Id="QFwFLhH9d2XOAKE3hQlo4j" Bounds="463,410" />
+            <ControlPoint Id="RlFlhoGo677N4I6fQfYBjC" Bounds="519,410" />
+            <ControlPoint Id="Qb7rNlBNCrPPAqCXSdoknV" Bounds="626,410" />
+            <ControlPoint Id="S2KykB9PWLVMHWiS1EPQse" Bounds="731,410" />
+            <Link Id="KUAv1bwN4SaLLlFGTiN8u1" Ids="GneZnt4fpWiLKIyEq4bRPc,PqypZJ5DziuPJJYOpqjXgL" />
+            <Link Id="KteqrhHp0TdOxKbW2NE1EQ" Ids="GvAr38wqRO3PMWFdsMeCHw,QFwFLhH9d2XOAKE3hQlo4j" />
+            <Link Id="CLG2mG1WBtANADdD9OE7DT" Ids="AlgvmfN8rOgNUCqAiWMFTe,QuFbGFWGPnDOCEmPhC1VrL" />
+            <Link Id="OYKdd8vtyHFLCM4SildLuP" Ids="T9Gwk5MvHEGL4VBM3axMaP,EB8vq5SbPxGQBzJy2I7gXB" />
+            <Link Id="CqNLFc4pFXnNp6VObLcR1Q" Ids="JfUCrO31iEELOYF1qeuwQy,Auz1opFD9PSLa44R2VgArV" />
+            <Link Id="QbvRvu44BALMvBtnC3DEYV" Ids="J6HvU6jbvYhN5NXwr17gJ5,RlFlhoGo677N4I6fQfYBjC" />
+            <Link Id="Of3bXx7NeJ5Mon2XmMhxAm" Ids="M2loGaGtia3MrolHr75rbW,Qb7rNlBNCrPPAqCXSdoknV" />
+            <Link Id="TsGOWSPE1zOPwmFXwwqX4z" Ids="QRTWJnwiN0xPKXiuci8dGP,Cgr0CmVqDzhMPuEDZb7q6j" />
+            <Link Id="AYHgZp5VT1fNEC0eYpZcAG" Ids="KGnr8BegFpCL6IVq8D6RAf,S2KykB9PWLVMHWiS1EPQse" />
+            <Link Id="Pvc5SzXvQWcNq9J8CcRUn1" Ids="SFdmppvY22LNzo5skLMeea,UeTJtCW5NUeQOLOOHx9Rav" />
+            <Link Id="DYKAT75zCQNOP2CsJZ0i4Z" Ids="A7F35ed6t4JNMPXSfqZBnE,GneZnt4fpWiLKIyEq4bRPc" IsHidden="true" />
+            <Link Id="IKirVFMHtUVQbMKxH1TfOo" Ids="UeTJtCW5NUeQOLOOHx9Rav,I3VNdsVe8PWLQFFilroR3T" IsHidden="true" />
+            <Link Id="KScvR0COzOjOUvx62XEv4P" Ids="Cgr0CmVqDzhMPuEDZb7q6j,PQGjcJo7A63MmtYDIKfijM" IsHidden="true" />
+            <Link Id="QznjRPeAjMRLDDIp7uEVf7" Ids="QuFbGFWGPnDOCEmPhC1VrL,VB76Bw7Cis6M0U9oC7bvqn" IsHidden="true" />
+            <Link Id="SQiwPPQVhCMOvaqe98Epxf" Ids="EB8vq5SbPxGQBzJy2I7gXB,L1EKsnlkBpCOSZ2m6QyLmW" IsHidden="true" />
+            <Link Id="OaF6Vx7JIbRL20t10veXGq" Ids="Auz1opFD9PSLa44R2VgArV,M2tqPNyF2WILNdMMAKEtac" IsHidden="true" />
+            <Link Id="ApBzAogxII7OXACloUgdHF" Ids="QFwFLhH9d2XOAKE3hQlo4j,VEuxHvarmAAN2KqKytUXWo" IsHidden="true" />
+            <Link Id="QMN5IDLZvzrLPbU8g7BH9C" Ids="RlFlhoGo677N4I6fQfYBjC,BdEVpl4b3KxLIrLO8KmAFJ" IsHidden="true" />
+            <Link Id="CRoiktPKBVoLfbYwQn6AI1" Ids="Qb7rNlBNCrPPAqCXSdoknV,VG486YzpXvhPHCHvZY0S7S" IsHidden="true" />
+            <Link Id="Aderin55UQ3MXFXygywmWA" Ids="S2KykB9PWLVMHWiS1EPQse,GGXJmaYOx8oMWAFqD0BkQc" IsHidden="true" />
+            <ControlPoint Id="Qf5sE5hxYOYNjm8xO2s2nh" Bounds="791,409" />
+            <Link Id="AhZMmE3lS4iQaeNtNf2Ejy" Ids="Lpuy5KY9B0PP27SRVLaPHU,Qf5sE5hxYOYNjm8xO2s2nh" />
+            <Pin Id="KipEBbn5Pa3Pr39oWoLIMX" Name="Is Projection Space" Kind="OutputPin" />
+            <Link Id="ERuFVaQiNbdOPyV9s1ed7o" Ids="Qf5sE5hxYOYNjm8xO2s2nh,KipEBbn5Pa3Pr39oWoLIMX" IsHidden="true" />
+            <ControlPoint Id="Qxh41G3tudAL0EbQqT9JuO" Bounds="908,407" />
+            <Link Id="HhGPf1UM3YfNmUADWVdSke" Ids="Cq67Vd0d4k0PJuU5qJQVca,Qxh41G3tudAL0EbQqT9JuO" />
+            <Pin Id="JokKXVoW9m0LcSyrAUKjKI" Name="GizmoState" Kind="OutputPin" />
+            <Link Id="JPrljh7VDAaNH0jTpKustV" Ids="Qxh41G3tudAL0EbQqT9JuO,JokKXVoW9m0LcSyrAUKjKI" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ BezierEditorState (Join 2d Internal) ************************
+
+-->
+        <Node Name="BezierEditorState (Join 2d Internal)" Bounds="32,53,900,156" Id="A9YVPtwx8mOOeF7Dfecfg6">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="FCR6zNxyaudQA9Mv3eTuRy" ManuallySortedPins="true">
+            <Node Bounds="304,151,225,22" Id="PmseZ1fUA3BONclBnednhL">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.BezierEditorState" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="BezierEditorState" />
+              </p:NodeReference>
+              <Pin Id="NYwGRD1pSx5Ooee9BLDriv" Name="Input" Kind="StateInputPin" />
+              <Pin Id="LmoGXNlgfibPNjxNn5F9a1" Name="BezierKnots" Kind="InputPin" />
+              <Pin Id="LDqUwgEUxYWNCmpFO0BGwv" Name="Pick Size" Kind="InputPin" />
+              <Pin Id="U7eVHYOtWNULI6cTWNaKVz" Name="Offset" Kind="InputPin" />
+              <Pin Id="KjgZy8cH9V4NgegTXKcfbO" Name="Translation" Kind="InputPin" />
+              <Pin Id="GdL3nTyBa9bLmH2meI0mmN" Name="Rotation" Kind="InputPin" />
+              <Pin Id="GYaPfkUAKIyMXsr4PdthNa" Name="Scaling" Kind="InputPin" />
+              <Pin Id="PQ90KQOGpeoNYxHc9fYZpu" Name="Point on Curve" Kind="InputPin" />
+              <Pin Id="BwMyGImTgvhNvYr7sT46jJ" Name="Looking for Point" Kind="InputPin" />
+              <Pin Id="HeVI38YAPNkPcWElrE0dbR" Name="Editing" Kind="InputPin" />
+              <Pin Id="EvdSzNMKAf9L9X7v2Rs19w" Name="Is Projection Space" Kind="InputPin" />
+              <Pin Id="STGiJTUae72LDy5TS4rSLR" Name="GizmoState" Kind="InputPin" />
+              <Pin Id="KFcH2z3JgIJPYU9bohBsOK" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="CPJcDvAMkBBMaYsuNxkMXm" Bounds="46,70" />
+            <ControlPoint Id="QkyIIuKqSWXOYYVQD660MR" Bounds="170,70" />
+            <ControlPoint Id="CKt1dLWuKsjM3lAGClwzdx" Bounds="230,70" />
+            <ControlPoint Id="Ltas31sJaeKNA8ASXynqhD" Bounds="305,70" />
+            <ControlPoint Id="FJMDnpSz289P0BxqXTUqMJ" Bounds="369,70" />
+            <ControlPoint Id="Cx0oJfvH3eTQKtqljavYdh" Bounds="426,70" />
+            <ControlPoint Id="GYNst3LmaxhNaQwNxMPhve" Bounds="484,70" />
+            <ControlPoint Id="B4xhP2BdvDwP3shXV6JKgo" Bounds="590,70" />
+            <ControlPoint Id="DRRyYhEmjHSOlg5E8SHhYz" Bounds="696,70" />
+            <ControlPoint Id="RiXaJr2B0A7O0gL2WpuMs2" Bounds="301,190" />
+            <Link Id="Iz5IGnQJXv5MovPFzy52Mt" Ids="KFcH2z3JgIJPYU9bohBsOK,RiXaJr2B0A7O0gL2WpuMs2" />
+            <Link Id="Ne9JZnjeVLkL4iFthA7zEU" Ids="QkyIIuKqSWXOYYVQD660MR,LDqUwgEUxYWNCmpFO0BGwv" />
+            <Link Id="NktPr8EAtzzPpBU6uxUwBU" Ids="Cx0oJfvH3eTQKtqljavYdh,U7eVHYOtWNULI6cTWNaKVz" />
+            <Link Id="RgCHqTr2PBxOwz1jwANzRH" Ids="CKt1dLWuKsjM3lAGClwzdx,KjgZy8cH9V4NgegTXKcfbO" />
+            <Link Id="PqFyobCivopNzbEek0a3ki" Ids="Ltas31sJaeKNA8ASXynqhD,GdL3nTyBa9bLmH2meI0mmN" />
+            <Link Id="VJiM93YSczyNeDKPoOvDFI" Ids="FJMDnpSz289P0BxqXTUqMJ,GYaPfkUAKIyMXsr4PdthNa" />
+            <Link Id="QiFdCYB2LbxP4G3OPs8pgN" Ids="GYNst3LmaxhNaQwNxMPhve,PQ90KQOGpeoNYxHc9fYZpu" />
+            <Link Id="QXOKLkur64IPPmNO2AOINy" Ids="B4xhP2BdvDwP3shXV6JKgo,BwMyGImTgvhNvYr7sT46jJ" />
+            <Link Id="P0gL009gpwxM0gVJAUzh7K" Ids="DRRyYhEmjHSOlg5E8SHhYz,HeVI38YAPNkPcWElrE0dbR" />
+            <Link Id="NBm7Af0vgu5M7lenYtPMAG" Ids="CPJcDvAMkBBMaYsuNxkMXm,LmoGXNlgfibPNjxNn5F9a1" />
+            <Link Id="EI9rY1FZSntNW8ZzxKPW9H" Ids="Aq1rreOHVsdO0JVAVf9Vlp,CPJcDvAMkBBMaYsuNxkMXm" IsHidden="true" />
+            <Link Id="LcO1XNUWBQyMmWeaFFZLKP" Ids="FhssxidBoksOLVf83WZ2QN,QkyIIuKqSWXOYYVQD660MR" IsHidden="true" />
+            <Link Id="R1h3Nac5aecNF1Jw6O8bYw" Ids="Rqcunt4kWGDQItcD8Bb5g4,CKt1dLWuKsjM3lAGClwzdx" IsHidden="true" />
+            <Link Id="HjsIUJQ9jkPMTCXRmNxyGt" Ids="N3MNvLjR35cPCdHkV0U2Fi,Ltas31sJaeKNA8ASXynqhD" IsHidden="true" />
+            <Link Id="IY15GEO76P2LYCOOu9Dgr2" Ids="GMkMJCqjEsDMs4GtZMxJp8,FJMDnpSz289P0BxqXTUqMJ" IsHidden="true" />
+            <Link Id="RBniOJ8lVc0MdDdpVU3qPN" Ids="EfFbMPQDZFeNPP5N2xGJ0q,Cx0oJfvH3eTQKtqljavYdh" IsHidden="true" />
+            <Link Id="B4Hv2WWd7O4LLWMk0AiMEc" Ids="Fzr3fDI0ywgOXSbohwanc6,GYNst3LmaxhNaQwNxMPhve" IsHidden="true" />
+            <Link Id="KsBjVLrYxl5PlGbN7vMQwJ" Ids="OkNy0aiX3FILnACxXI8vuh,B4xhP2BdvDwP3shXV6JKgo" IsHidden="true" />
+            <Link Id="KmpeVHnCUE5PELycgEOCEq" Ids="LCR9Y7INKUJNU512PMKH4I,DRRyYhEmjHSOlg5E8SHhYz" IsHidden="true" />
+            <Link Id="CxXtpwjooxgPPw0yFV6fbu" Ids="RiXaJr2B0A7O0gL2WpuMs2,E0gpMB0Lz6pOWC5kG7odrz" IsHidden="true" />
+            <ControlPoint Id="T0xO5ySGImFLg0dhvFmLHe" Bounds="749,69" />
+            <Link Id="IqzC0wzYgu5QDVUZUe222y" Ids="T0xO5ySGImFLg0dhvFmLHe,EvdSzNMKAf9L9X7v2Rs19w" />
+            <Link Id="T5dQnazsKgJQQWbvwGDYVe" Ids="MMofWwWlpm7NpUfCmroqUn,T0xO5ySGImFLg0dhvFmLHe" IsHidden="true" />
+            <ControlPoint Id="UGnaOIw2Y2AQQveWn1muG6" Bounds="858,69" />
+            <Link Id="VjkI2gVg6jUMnL4xW7Nzx4" Ids="JLljjbc1JySORE0IXRmggG,UGnaOIw2Y2AQQveWn1muG6" IsHidden="true" />
+            <Link Id="MMTad6Jm7hCM4d4WbosaCb" Ids="UGnaOIw2Y2AQQveWn1muG6,STGiJTUae72LDy5TS4rSLR" />
+            <Pin Id="Aq1rreOHVsdO0JVAVf9Vlp" Name="EditableBezierKnots" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Collections" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Sequence" />
+                <FullNameCategoryReference ID="Collections" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="EditableBezierKnot" />
+                    <p:TypeArguments>
+                      <TypeReference>
+                        <Choice Kind="TypeFlag" Name="Vector2" />
+                      </TypeReference>
+                    </p:TypeArguments>
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="FhssxidBoksOLVf83WZ2QN" Name="Pick Size" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Float32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="Rqcunt4kWGDQItcD8Bb5g4" Name="Translation" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="N3MNvLjR35cPCdHkV0U2Fi" Name="Rotation" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="GMkMJCqjEsDMs4GtZMxJp8" Name="Scaling" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="EfFbMPQDZFeNPP5N2xGJ0q" Name="Offset" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+                <CategoryReference Kind="Category" Name="2D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="Fzr3fDI0ywgOXSbohwanc6" Name="Point on Curve" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+                <CategoryReference Kind="Category" Name="2D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="OkNy0aiX3FILnACxXI8vuh" Name="Looking for Point" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="LCR9Y7INKUJNU512PMKH4I" Name="Editing" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="MMofWwWlpm7NpUfCmroqUn" Name="Is Projection Space" Kind="InputPin" />
+            <Pin Id="JLljjbc1JySORE0IXRmggG" Name="GizmoState" Kind="InputPin" />
+            <Pin Id="E0gpMB0Lz6pOWC5kG7odrz" Name="BezierEditorState" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors.Bezier" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="TypeFlag" Name="BezierEditorState" />
+              </p:TypeAnnotation>
+            </Pin>
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ BezierEditorState (Join 3d Internal) ************************
+
+-->
+        <Node Name="BezierEditorState (Join 3d Internal)" Bounds="951,78,916,153" Id="UVpkXHI9VzaMkm4VJ7iHqx">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="DA8fbEhxOb4LHNh0aQ82gt" ManuallySortedPins="true">
+            <Node Bounds="1233,166,225,22" Id="P4mHndQuumlOL9vvLM8ko8">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.BezierEditorState" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="BezierEditorState" />
+              </p:NodeReference>
+              <Pin Id="HWCTq8YEcUcNIikegvIwDB" Name="Input" Kind="StateInputPin" />
+              <Pin Id="LKMsPqAe8PkNMw2ULetUj5" Name="BezierKnots" Kind="InputPin" />
+              <Pin Id="ERphCmB3yk1OgPhLo3qzUn" Name="Pick Size" Kind="InputPin" />
+              <Pin Id="QMNeiUJi5QLL1hak11xvqC" Name="Offset" Kind="InputPin" />
+              <Pin Id="CtfRGCI7LwOLUoexiK0xkv" Name="Translation" Kind="InputPin" />
+              <Pin Id="R4BRNWodsg8ONxvKUcwSK4" Name="Rotation" Kind="InputPin" />
+              <Pin Id="RglFyfSZIwNPW4CYh48RAf" Name="Scaling" Kind="InputPin" />
+              <Pin Id="CvRGrGElwBuPQlY1pppArQ" Name="Point on Curve" Kind="InputPin" />
+              <Pin Id="FB2gC8P0XCfO1UPeSGF1RR" Name="Looking for Point" Kind="InputPin" />
+              <Pin Id="UQIz5942ufWPy2iOffGLhe" Name="Editing" Kind="InputPin" />
+              <Pin Id="Cj3jFKzew9DOJHQEWDsycT" Name="Is Projection Space" Kind="InputPin" />
+              <Pin Id="SSUqkxWrr8oMg5khZagkMn" Name="GizmoState" Kind="InputPin" />
+              <Pin Id="Crfeokzqbe8NEiF0g453pQ" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="Q71ZWhwHdyOPsgIax2Bihw" Bounds="965,97" />
+            <ControlPoint Id="E8mZp543WOgOE5SebHKCUG" Bounds="1099,97" />
+            <ControlPoint Id="RXuiq0qFFfzNFdNOzcVv6X" Bounds="1159,97" />
+            <ControlPoint Id="O7suJSXXlQdNcaTurctTml" Bounds="1234,97" />
+            <ControlPoint Id="L757xUjm0ZnQHsxXhWKXMA" Bounds="1298,97" />
+            <ControlPoint Id="DJ8GuM9hA7zOBmKfWBzG6i" Bounds="1355,97" />
+            <ControlPoint Id="NriING0QansMxdOTEA0QIb" Bounds="1413,97" />
+            <ControlPoint Id="JEIeDzc57lSPnlJhsQkO5H" Bounds="1519,97" />
+            <ControlPoint Id="Npy2tlpVHXSLWdQhVwjXSS" Bounds="1625,97" />
+            <ControlPoint Id="RJGcB1AYA7cOyuLAKbZuJO" Bounds="1231,212" />
+            <Link Id="DHLDh3cISwGNBTsuDueclR" Ids="E8mZp543WOgOE5SebHKCUG,ERphCmB3yk1OgPhLo3qzUn" />
+            <Link Id="GtFPdcTfXvRNtH8SGlmIYi" Ids="RXuiq0qFFfzNFdNOzcVv6X,CtfRGCI7LwOLUoexiK0xkv" />
+            <Link Id="M5lOdYS62cePmi6NRFgvGS" Ids="O7suJSXXlQdNcaTurctTml,R4BRNWodsg8ONxvKUcwSK4" />
+            <Link Id="ShcEngRWV1CPt1XYsbGSJy" Ids="L757xUjm0ZnQHsxXhWKXMA,RglFyfSZIwNPW4CYh48RAf" />
+            <Link Id="U3zi02OqchQQc1Knj4021d" Ids="DJ8GuM9hA7zOBmKfWBzG6i,QMNeiUJi5QLL1hak11xvqC" />
+            <Link Id="LJMrsALH6OIQPRno7DiX5C" Ids="NriING0QansMxdOTEA0QIb,CvRGrGElwBuPQlY1pppArQ" />
+            <Link Id="BP73MKusTFNMdQclqq52Ve" Ids="JEIeDzc57lSPnlJhsQkO5H,FB2gC8P0XCfO1UPeSGF1RR" />
+            <Link Id="PW2UN8yj6CYMxkiiDgKZwm" Ids="Npy2tlpVHXSLWdQhVwjXSS,UQIz5942ufWPy2iOffGLhe" />
+            <Link Id="ORpYNLd9PNZPgETR9k8DCI" Ids="Crfeokzqbe8NEiF0g453pQ,RJGcB1AYA7cOyuLAKbZuJO" />
+            <Link Id="J6JfCBLuMxdO3BEM9Rhu5a" Ids="Q71ZWhwHdyOPsgIax2Bihw,LKMsPqAe8PkNMw2ULetUj5" />
+            <Link Id="Q6fZ867kZAYLCQPM4gw6oS" Ids="PuaJ1vcufOwQMylCQ0k7UY,Q71ZWhwHdyOPsgIax2Bihw" IsHidden="true" />
+            <Link Id="E7A1GoebSQYNMRCNAuIY0P" Ids="G9f20eZcL2QLACiDUPNqVB,E8mZp543WOgOE5SebHKCUG" IsHidden="true" />
+            <Link Id="J5DWFtfIU8dMd9skXXuzSI" Ids="C3Fl7lm442SNDomMcuzKUG,RXuiq0qFFfzNFdNOzcVv6X" IsHidden="true" />
+            <Link Id="T1VZU5XwOHLMYubbc3KnJZ" Ids="KJRYsGSWOijLiHBFqAzbqu,O7suJSXXlQdNcaTurctTml" IsHidden="true" />
+            <Link Id="CSuKt15Yc3PO68Ah6IJDbE" Ids="C0ll3HUwMECOLyudLWJ7GB,L757xUjm0ZnQHsxXhWKXMA" IsHidden="true" />
+            <Link Id="VWtijDWdGaOPewcZbpBTex" Ids="K1LS1qSYi3RPQ1VgKYGS2g,DJ8GuM9hA7zOBmKfWBzG6i" IsHidden="true" />
+            <Link Id="TnS1RWWsABQOuKMi0Bz7qx" Ids="O20HmjfPM9yOqa1rSzvMoH,NriING0QansMxdOTEA0QIb" IsHidden="true" />
+            <Link Id="UkipQMlFyqmLCKy9akWhNL" Ids="FistV2EPVNCO8qJBzHnFyV,JEIeDzc57lSPnlJhsQkO5H" IsHidden="true" />
+            <Link Id="PuMe3WTIVxhLcA5ItGpjiQ" Ids="HlJ05DOx0NZPADbJyI5eM3,Npy2tlpVHXSLWdQhVwjXSS" IsHidden="true" />
+            <Link Id="S5tDVKEPLUALSFuRh86H9b" Ids="RJGcB1AYA7cOyuLAKbZuJO,Ej4SgVgAw2UPPWi8woBjhG" IsHidden="true" />
+            <ControlPoint Id="B5D1EFql9QfM0dL8dkVXEf" Bounds="1681,94" />
+            <Link Id="AA4vS1d2w12MInvDUIro3G" Ids="B5D1EFql9QfM0dL8dkVXEf,Cj3jFKzew9DOJHQEWDsycT" />
+            <Link Id="AAYlmScuDNGNVt51RsNmPJ" Ids="JtgEDUSGTX8NMnZMvR0TAc,B5D1EFql9QfM0dL8dkVXEf" IsHidden="true" />
+            <ControlPoint Id="NCnQ6fuZw9QO0ipaYwoL2t" Bounds="1793,96" />
+            <Link Id="G80tnaSeDhVPrjI7qziCc2" Ids="QyTb2XhweIrOVr8n13D3S8,NCnQ6fuZw9QO0ipaYwoL2t" IsHidden="true" />
+            <Link Id="Ip3PYQejDlEM1KhxdGjZGy" Ids="NCnQ6fuZw9QO0ipaYwoL2t,SSUqkxWrr8oMg5khZagkMn" />
+            <Pin Id="PuaJ1vcufOwQMylCQ0k7UY" Name="EditableBezierKnots" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Collections" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Sequence" />
+                <FullNameCategoryReference ID="Collections" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="EditableBezierKnot" />
+                    <p:TypeArguments>
+                      <TypeReference>
+                        <Choice Kind="TypeFlag" Name="Vector3" />
+                      </TypeReference>
+                    </p:TypeArguments>
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="G9f20eZcL2QLACiDUPNqVB" Name="Pick Size" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Float32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="C3Fl7lm442SNDomMcuzKUG" Name="Translation" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="KJRYsGSWOijLiHBFqAzbqu" Name="Rotation" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="C0ll3HUwMECOLyudLWJ7GB" Name="Scaling" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="K1LS1qSYi3RPQ1VgKYGS2g" Name="Offset" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+                <CategoryReference Kind="Category" Name="3D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="O20HmjfPM9yOqa1rSzvMoH" Name="Point on Curve" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+                <CategoryReference Kind="Category" Name="3D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="FistV2EPVNCO8qJBzHnFyV" Name="Looking for Point" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="HlJ05DOx0NZPADbJyI5eM3" Name="Editing" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="JtgEDUSGTX8NMnZMvR0TAc" Name="Is Projection Space" Kind="InputPin" />
+            <Pin Id="QyTb2XhweIrOVr8n13D3S8" Name="GizmoState" Kind="InputPin" />
+            <Pin Id="Ej4SgVgAw2UPPWi8woBjhG" Name="BezierEditorState" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors.Bezier" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="TypeFlag" Name="BezierEditorState" />
+              </p:TypeAnnotation>
+            </Pin>
+          </Patch>
+        </Node>
+      </Canvas>
+      <Canvas Id="Nf7YZ9PzHuQN9dqwozUjsq" Name="BezierKnot2D" Position="465,300" DefaultCategory="VVVV.2d" BordersChecked="false" CanvasType="FullCategory">
+        <!--
+
+    ************************ BezierKnot (Join Controls) ************************
+
+-->
+        <Node Name="BezierKnot (Join Controls)" Bounds="195,69,319,150" Id="Ft5myPX32IvLDrxw33X7cT">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="Lq8VkIhoEkpNCkcrW4zl0P" ManuallySortedPins="true">
+            <Pin Id="JZD8qpQkXPGMdMilowEwlW" Name="Point" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+                <CategoryReference Kind="Category" Name="2D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="BaRRM2gSAAXLJgId2gnblG" Name="Contol1" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+                <CategoryReference Kind="Category" Name="2D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="QTsVQw0wPLeNL9np7VqiCc" Name="Control2" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+                <CategoryReference Kind="Category" Name="2D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="D3raVgLTN0eMJUTX8lT2PQ" Name="Mode" Kind="InputPin" />
+            <Pin Id="HZAN9FBv78WM72JtcgAcCj" Name="BezierKnot" Kind="OutputPin" />
+            <Node Bounds="281,157,105,22" Id="VIBEtJvJnxEL10XCqSr6il">
+              <p:NodeReference LastCategoryFullName="Math.Bezier.BezierKnot" LastSymbolSource="VL.Bezier.Cubic.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="BezierKnot" />
+              </p:NodeReference>
+              <Pin Id="QGmyTF5DTJ3NQbVUAPsAWg" Name="Input" Kind="InputPin" />
+              <Pin Id="BPQRSYFQwsOQBJQkdUiGm6" Name="Point" Kind="InputPin" />
+              <Pin Id="EBIIVenstUyPclhky0ufHK" Name="Control1" Kind="InputPin" />
+              <Pin Id="LtSMLBRE745LmXXZ4lA3p5" Name="Control2" Kind="InputPin" />
+              <Pin Id="RRFDbAow9AYOe5Kv3QSLDT" Name="Mode" Kind="InputPin" />
+              <Pin Id="CpXgZgIk9wZL9I5vjp1CFm" Name="Apply" Kind="ApplyPin" />
+              <Pin Id="RPJWOuI2hdrM0Lpksu56kq" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="JWxeyZCeOvaOPHjoYqi8EL" Bounds="210,86" />
+            <ControlPoint Id="APpqKsYrMxWO0qDB9HhxLf" Bounds="307,86" />
+            <ControlPoint Id="Hbjgv3xE9vlOQiRYA6HDK6" Bounds="398,86" />
+            <ControlPoint Id="Hfh1iuITfn1M15kHJj6NNq" Bounds="469,86" />
+            <ControlPoint Id="DXVb6vT9sVXO0Mix3vRkSU" Bounds="279,201" />
+            <Link Id="RD56mWzo0LhMulmyvV7r34" Ids="JWxeyZCeOvaOPHjoYqi8EL,BPQRSYFQwsOQBJQkdUiGm6" />
+            <Link Id="AWNy0ZkRRWYOes7vIEqBwN" Ids="APpqKsYrMxWO0qDB9HhxLf,EBIIVenstUyPclhky0ufHK" />
+            <Link Id="ITdniMuQ2vsOs5C2Qq8Xy6" Ids="Hbjgv3xE9vlOQiRYA6HDK6,LtSMLBRE745LmXXZ4lA3p5" />
+            <Link Id="CldRNjK12tqOdpKhVZZWUb" Ids="RPJWOuI2hdrM0Lpksu56kq,DXVb6vT9sVXO0Mix3vRkSU" />
+            <Link Id="LoskipkQEEiP1YMz4Ef0Wj" Ids="Hfh1iuITfn1M15kHJj6NNq,RRFDbAow9AYOe5Kv3QSLDT" />
+            <Link Id="Py6ZxkVO2BMLK3vIVQXS9V" Ids="JZD8qpQkXPGMdMilowEwlW,JWxeyZCeOvaOPHjoYqi8EL" IsHidden="true" />
+            <Link Id="JBeyrJOwyGRPJHuGdlOhWi" Ids="BaRRM2gSAAXLJgId2gnblG,APpqKsYrMxWO0qDB9HhxLf" IsHidden="true" />
+            <Link Id="FL4GEXNmtLnMhqGExEF1oX" Ids="QTsVQw0wPLeNL9np7VqiCc,Hbjgv3xE9vlOQiRYA6HDK6" IsHidden="true" />
+            <Link Id="Q72jhCb48xKN69XB4P74xR" Ids="D3raVgLTN0eMJUTX8lT2PQ,Hfh1iuITfn1M15kHJj6NNq" IsHidden="true" />
+            <Link Id="C4L27MlmvhzMHmtEIkAPiT" Ids="DXVb6vT9sVXO0Mix3vRkSU,HZAN9FBv78WM72JtcgAcCj" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ BezierKnot (Join) ************************
+
+-->
+        <Node Name="BezierKnot (Join)" Bounds="249,285,200,124" Id="QO7F4yRzGOPPOPerJDhR8O">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="IEsztgy2aPGM1JnigkKXlV" ManuallySortedPins="true">
+            <Pin Id="PNJfVXNCECWPMmuIUaM48X" Name="Point" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+                <CategoryReference Kind="Category" Name="2D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="DTFefqKYm7JNbu9HLZQnLK" Name="Mode" Kind="InputPin" />
+            <Pin Id="CdPQFCyg9RcQZC8uJPcPdj" Name="BezierKnot" Kind="OutputPin" />
+            <Node Bounds="266,347,105,22" Id="Q1s647CtXfXO1tJKO4paWv">
+              <p:NodeReference LastCategoryFullName="Math.Bezier.BezierKnot" LastSymbolSource="VL.Bezier.Cubic.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="BezierKnot" />
+              </p:NodeReference>
+              <Pin Id="CY9gc6jmt01N6NeSCN74o8" Name="Input" Kind="InputPin" />
+              <Pin Id="JaR0DdIvX81LmbcYryLwuy" Name="Point" Kind="InputPin" />
+              <Pin Id="TsB7c9F5XCGNxJohaYb53h" Name="Control1" Kind="InputPin" />
+              <Pin Id="Hv9Xx9ZFk2fQABmdHXIjUa" Name="Control2" Kind="InputPin" />
+              <Pin Id="F7BquwthTCyP5vO7rGgOUs" Name="Mode" Kind="InputPin" />
+              <Pin Id="D3aFeWT2xoTPhwblZWxMEM" Name="Apply" Kind="ApplyPin" />
+              <Pin Id="B3ps4FNIzfILIkEeqe8L8G" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="BqH3Cs59W0qM4WB1jRmqAW" Bounds="294,302" />
+            <ControlPoint Id="GkWFgx20eLMLe0Cbm6Ho3P" Bounds="404,302" />
+            <ControlPoint Id="IpWASMUHYcROhq5BCC5zdC" Bounds="264,391" />
+            <Link Id="Sn9Us73ruooMXqKBDGsYhd" Ids="B3ps4FNIzfILIkEeqe8L8G,IpWASMUHYcROhq5BCC5zdC" />
+            <Link Id="G6vta5wT5VBMsf6jFgLsMS" Ids="BqH3Cs59W0qM4WB1jRmqAW,JaR0DdIvX81LmbcYryLwuy" />
+            <Link Id="K6X1le6qLDSOlayFSUwRpu" Ids="BqH3Cs59W0qM4WB1jRmqAW,TsB7c9F5XCGNxJohaYb53h" />
+            <Link Id="CHGNwf06vvaPKkLBq3NI98" Ids="BqH3Cs59W0qM4WB1jRmqAW,Hv9Xx9ZFk2fQABmdHXIjUa" />
+            <Link Id="FGj5rems4H1NhKlZp7oLya" Ids="GkWFgx20eLMLe0Cbm6Ho3P,F7BquwthTCyP5vO7rGgOUs" />
+            <Link Id="AqNhQnRHv6DNvjL9Kg8mK0" Ids="PNJfVXNCECWPMmuIUaM48X,BqH3Cs59W0qM4WB1jRmqAW" IsHidden="true" />
+            <Link Id="NMpuFxIyZwyPpDU9Pq04fy" Ids="DTFefqKYm7JNbu9HLZQnLK,GkWFgx20eLMLe0Cbm6Ho3P" IsHidden="true" />
+            <Link Id="QCDezHLFsVSPAhSGI0r1uE" Ids="IpWASMUHYcROhq5BCC5zdC,CdPQFCyg9RcQZC8uJPcPdj" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ BezierKnot (Split) ************************
+
+-->
+        <Node Name="BezierKnot (Split)" Bounds="616,69,299,137" Id="QwxbDzYdgR3LiKLKaFisns">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="JlNvQ8MdR2dPVI8YXOcTij" ManuallySortedPins="true">
+            <Pin Id="IDYnKTQmUKgNFR0MoD5v6l" Name="BezierKnot" Kind="InputPin" />
+            <Pin Id="OjJsChDAjVUP6avnZTuVT8" Name="Point" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+                <CategoryReference Kind="Category" Name="2D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="LJ6SvOvMSeoMsQjFZRyRdu" Name="Control1" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+                <CategoryReference Kind="Category" Name="2D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="J6sh7kXWNnnQOUmWahQRcp" Name="Control2" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+                <CategoryReference Kind="Category" Name="2D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="DTRYWLw9mWfPMjtYTnyeBl" Name="Mode" Kind="OutputPin" />
+            <Node Bounds="699,128,65,22" Id="GozHRIcsIY0PsEsUNPUFJ3">
+              <p:NodeReference LastCategoryFullName="Math.Bezier.BezierKnot" LastSymbolSource="VL.Bezier.Cubic.vl">
+                <Choice Kind="OperationNode" Name="Split" />
+                <CategoryReference Kind="Category" Name="BezierKnot" />
+              </p:NodeReference>
+              <Pin Id="PA2GioK4pRmPvOa9rT6636" Name="Input" Kind="InputPin" />
+              <Pin Id="GXO1KuDgWGENyU1htnxvA7" Name="Point" Kind="OutputPin" />
+              <Pin Id="MLMoEMp6PseNLpi1Mt4mKW" Name="Control1" Kind="OutputPin" />
+              <Pin Id="SxmiCuH3YnFOMNaT6eQFPz" Name="Control2" Kind="OutputPin" />
+              <Pin Id="GTJnUyUYVdpNFWHzFHrfaQ" Name="Mode" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="Mvw1jF4kBd3NJLn3zK9cXd" Bounds="696,86" />
+            <ControlPoint Id="FXITdq5TeJwLuonQy6XhTh" Bounds="631,188" />
+            <ControlPoint Id="D1bQvGTDaobLgcex5VtXwH" Bounds="711,188" />
+            <ControlPoint Id="AW92IGOjwzfNiiuGKn8W9w" Bounds="796,188" />
+            <ControlPoint Id="TgNEpdiiAvzNFC5hY3y68h" Bounds="870,188" />
+            <Link Id="S3BtolcHKXeNxkh16h0cWe" Ids="Mvw1jF4kBd3NJLn3zK9cXd,PA2GioK4pRmPvOa9rT6636" />
+            <Link Id="TIw1OWR384tNDxyJDcudQR" Ids="GXO1KuDgWGENyU1htnxvA7,FXITdq5TeJwLuonQy6XhTh" />
+            <Link Id="VMhXUhUmiBMMRg5JRQRTWE" Ids="MLMoEMp6PseNLpi1Mt4mKW,D1bQvGTDaobLgcex5VtXwH" />
+            <Link Id="MlrrdHjIUp8MXddB26j2kn" Ids="SxmiCuH3YnFOMNaT6eQFPz,AW92IGOjwzfNiiuGKn8W9w" />
+            <Link Id="Np6GahSvvzkOpfigevUK3n" Ids="GTJnUyUYVdpNFWHzFHrfaQ,TgNEpdiiAvzNFC5hY3y68h" />
+            <Link Id="G0NQaT104jaMjNTyRpe33c" Ids="IDYnKTQmUKgNFR0MoD5v6l,Mvw1jF4kBd3NJLn3zK9cXd" IsHidden="true" />
+            <Link Id="QozbjwcYGxKLb74qI4gzzS" Ids="FXITdq5TeJwLuonQy6XhTh,OjJsChDAjVUP6avnZTuVT8" IsHidden="true" />
+            <Link Id="JGPbsCdDGE8LaQskU02DeA" Ids="D1bQvGTDaobLgcex5VtXwH,LJ6SvOvMSeoMsQjFZRyRdu" IsHidden="true" />
+            <Link Id="R70cKsBUFDDLlUPhBhZuDK" Ids="AW92IGOjwzfNiiuGKn8W9w,J6sh7kXWNnnQOUmWahQRcp" IsHidden="true" />
+            <Link Id="BckwnYDTVO4O0e9X56uTfP" Ids="TgNEpdiiAvzNFC5hY3y68h,DTRYWLw9mWfPMjtYTnyeBl" IsHidden="true" />
+          </Patch>
+        </Node>
+      </Canvas>
+      <Canvas Id="TvdPoof5vo0Pk7JS6fvD89" Name="BezierKnot3D" Position="464,334" DefaultCategory="VVVV.3d" BordersChecked="false" CanvasType="FullCategory">
+        <!--
+
+    ************************ BezierKnot (Join) ************************
+
+-->
+        <Node Name="BezierKnot (Join)" Bounds="264,291,199,119" Id="CthGVXDP33BNHzjq1SVojg">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="F4bCmxIsRnPNxelbCOeewG" ManuallySortedPins="true">
+            <Pin Id="U6VyKEoEiBfP3PgFPS2kuS" Name="Point" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+                <CategoryReference Kind="Category" Name="3D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="GR0wHDON6jILH8uKhC3EWF" Name="Mode" Kind="InputPin" />
+            <Pin Id="SF9RJ82uB6FPWVUQe3CoJx" Name="BezierKnot" Kind="OutputPin" />
+            <Node Bounds="281,348,105,22" Id="URU8sX737Z8NzBgoEYwYU6">
+              <p:NodeReference LastCategoryFullName="Math.Bezier.BezierKnot" LastSymbolSource="VL.Bezier.Cubic.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="BezierKnot" />
+              </p:NodeReference>
+              <Pin Id="Q5yZ4sJa8jaPXnFxPsBWhj" Name="Input" Kind="InputPin" />
+              <Pin Id="Sme4rCpHnLrP0rjmGUlRaI" Name="Point" Kind="InputPin" />
+              <Pin Id="U0jNLGlowpQL46dOBpUFmt" Name="Control1" Kind="InputPin" />
+              <Pin Id="CHnrbhyswGwQAlLQ31m0xL" Name="Control2" Kind="InputPin" />
+              <Pin Id="DnHT3vPhjrRLqY0wnGtYGU" Name="Mode" Kind="InputPin" />
+              <Pin Id="HUPGdmrjIAWP60cJp1JuDy" Name="Apply" Kind="ApplyPin" />
+              <Pin Id="NJTcDFmZkpWPhx0dHT09bH" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="QhFQ7SJrqtENc0rfYYbjjs" Bounds="308,308" />
+            <ControlPoint Id="RvJLg96XOBPNbNusqmTvf3" Bounds="418,308" />
+            <ControlPoint Id="GdFSRm7v5CtNxsWDhcJIGi" Bounds="279,392" />
+            <Link Id="Ey3yLJJ6nJbMf4mZlSlEkx" Ids="QhFQ7SJrqtENc0rfYYbjjs,Sme4rCpHnLrP0rjmGUlRaI" />
+            <Link Id="LBXcq103Uz6MBFXZDFVRXL" Ids="QhFQ7SJrqtENc0rfYYbjjs,U0jNLGlowpQL46dOBpUFmt" />
+            <Link Id="HL5QIvQTuc7LyhIt9dMHro" Ids="QhFQ7SJrqtENc0rfYYbjjs,CHnrbhyswGwQAlLQ31m0xL" />
+            <Link Id="QNyHIqQ8tZqOA3BWZ6EHuG" Ids="NJTcDFmZkpWPhx0dHT09bH,GdFSRm7v5CtNxsWDhcJIGi" />
+            <Link Id="DmpayjzUWFLQOP40gi3G1g" Ids="RvJLg96XOBPNbNusqmTvf3,DnHT3vPhjrRLqY0wnGtYGU" />
+            <Link Id="PaU9egzljj2O4uCtwl8LaN" Ids="U6VyKEoEiBfP3PgFPS2kuS,QhFQ7SJrqtENc0rfYYbjjs" IsHidden="true" />
+            <Link Id="Hzz9Xa2TQiCNdnY3ivqvdD" Ids="GR0wHDON6jILH8uKhC3EWF,RvJLg96XOBPNbNusqmTvf3" IsHidden="true" />
+            <Link Id="VqnKGLmx7iuLjg21KX8fOL" Ids="GdFSRm7v5CtNxsWDhcJIGi,SF9RJ82uB6FPWVUQe3CoJx" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ BezierKnot (Join Controls) ************************
+
+-->
+        <Node Name="BezierKnot (Join Controls)" Bounds="209,75,319,150" Id="MaU67zMlzGOPe4ckpRCLH8">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="E7ZmKTSEnnZLtLtsw6Rd2w" ManuallySortedPins="true">
+            <Pin Id="BUSVtoWgX5ELzARtpaGazk" Name="Point" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+                <CategoryReference Kind="Category" Name="3D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="EVSnSCwQKsyM7ZevlZnSjX" Name="Contol1" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+                <CategoryReference Kind="Category" Name="3D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="FwnmjIhcnPZPXjIEYVwGV2" Name="Control2" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+                <CategoryReference Kind="Category" Name="3D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="BOZpYgqiRk5NuOMoFjhZQb" Name="Mode" Kind="InputPin" />
+            <Pin Id="LJ4wIbXu587QaCI5JjVCHc" Name="BezierKnot" Kind="OutputPin" />
+            <Node Bounds="295,163,105,22" Id="IW5D2YIf2kuLXXi2taeTe0">
+              <p:NodeReference LastCategoryFullName="Math.Bezier.BezierKnot" LastSymbolSource="VL.Bezier.Cubic.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="BezierKnot" />
+              </p:NodeReference>
+              <Pin Id="JEF9Q5KofY6PYN1Y9h6FMJ" Name="Input" Kind="InputPin" />
+              <Pin Id="RFjFHxv3XfWO5Vn0IgDlHK" Name="Point" Kind="InputPin" />
+              <Pin Id="T4pKLYi9YYYNfZIJmNvEsz" Name="Control1" Kind="InputPin" />
+              <Pin Id="OVZKD7JVUG9NUn5moRUFel" Name="Control2" Kind="InputPin" />
+              <Pin Id="B3Hk6raDQq5OqUdMxC5KN6" Name="Mode" Kind="InputPin" />
+              <Pin Id="O3TxGm1DEseN2QHO7Q5Ewd" Name="Apply" Kind="ApplyPin" />
+              <Pin Id="CEqOxU8NvvROYCGuSZW10Q" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="VTVKYuchIdoPRoA6IzxyaE" Bounds="224,92" />
+            <ControlPoint Id="Rhw9Bhn5B51LSLRWugSORh" Bounds="321,92" />
+            <ControlPoint Id="RoMCDspWrOcMC8fh2qnj1l" Bounds="412,92" />
+            <ControlPoint Id="ViklcWNJaCWM7fqnsvJal5" Bounds="483,92" />
+            <ControlPoint Id="ERjDHzmyEvoMvNUqaWBru7" Bounds="293,207" />
+            <Link Id="KlOMoznnMNfPruntgzANxC" Ids="VTVKYuchIdoPRoA6IzxyaE,RFjFHxv3XfWO5Vn0IgDlHK" />
+            <Link Id="DFgcumulCX4O63Xjb1KiBr" Ids="Rhw9Bhn5B51LSLRWugSORh,T4pKLYi9YYYNfZIJmNvEsz" />
+            <Link Id="GErzfT4spTPO5zli8z65n6" Ids="RoMCDspWrOcMC8fh2qnj1l,OVZKD7JVUG9NUn5moRUFel" />
+            <Link Id="TTt6cAGiPXsQSpHdK8FHBU" Ids="CEqOxU8NvvROYCGuSZW10Q,ERjDHzmyEvoMvNUqaWBru7" />
+            <Link Id="Eu7Ab2zRViLQBTIoPJBMtT" Ids="ViklcWNJaCWM7fqnsvJal5,B3Hk6raDQq5OqUdMxC5KN6" />
+            <Link Id="AKfstRmbR3ONMhXeNF36Ia" Ids="BUSVtoWgX5ELzARtpaGazk,VTVKYuchIdoPRoA6IzxyaE" IsHidden="true" />
+            <Link Id="L66SMdUD4QHOumYUWMZOyF" Ids="EVSnSCwQKsyM7ZevlZnSjX,Rhw9Bhn5B51LSLRWugSORh" IsHidden="true" />
+            <Link Id="V1HkdqgitbfN7NwkBktuhG" Ids="FwnmjIhcnPZPXjIEYVwGV2,RoMCDspWrOcMC8fh2qnj1l" IsHidden="true" />
+            <Link Id="EeEmNuuNnoDP5ONj5dQlEL" Ids="BOZpYgqiRk5NuOMoFjhZQb,ViklcWNJaCWM7fqnsvJal5" IsHidden="true" />
+            <Link Id="BTD1V3CFeD6QDxngftwbHH" Ids="ERjDHzmyEvoMvNUqaWBru7,LJ4wIbXu587QaCI5JjVCHc" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ BezierKnot (Split) ************************
+
+-->
+        <Node Name="BezierKnot (Split)" Bounds="630,75,299,137" Id="G4XIuTYErpsMH1zK2a0vpe">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="SZSxgzMt9YHLJO1Z1Xc4qY" ManuallySortedPins="true">
+            <Pin Id="Ex0wSA4Yle2QX0QRAg0qLz" Name="BezierKnot" Kind="InputPin" />
+            <Pin Id="I08WSuazSqKOBEK9JDsbhc" Name="Point" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+                <CategoryReference Kind="Category" Name="3D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="G1vpXTKeGXKMHdh3pbHGJ6" Name="Control1" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+                <CategoryReference Kind="Category" Name="3D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="QPbauxbRLbNM4qISUOedxF" Name="Control2" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+                <CategoryReference Kind="Category" Name="3D" NeedsToBeDirectParent="true" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="AEtbqMjprRaPiYjqPlgxjy" Name="Mode" Kind="OutputPin" />
+            <Node Bounds="713,134,65,22" Id="DwcyMthw5B9NIPT0AKSKMv">
+              <p:NodeReference LastCategoryFullName="Math.Bezier.BezierKnot" LastSymbolSource="VL.Bezier.Cubic.vl">
+                <Choice Kind="OperationNode" Name="Split" />
+                <CategoryReference Kind="Category" Name="BezierKnot" />
+              </p:NodeReference>
+              <Pin Id="JgHH2oxsIrNLMPQk1yiFUw" Name="Input" Kind="InputPin" />
+              <Pin Id="KYB4lK2FbnuPIq1Sig2k21" Name="Point" Kind="OutputPin" />
+              <Pin Id="Jqq13nSJqJ2LC7RCYXtr2c" Name="Control1" Kind="OutputPin" />
+              <Pin Id="CA0ZCkq9ty9Nj47plnTpwP" Name="Control2" Kind="OutputPin" />
+              <Pin Id="UKoRuPoT43RPZ0NkG1mzHj" Name="Mode" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="DxKO8ck05BDNFXb2D3YLag" Bounds="710,92" />
+            <ControlPoint Id="KFqijTBd29cPjqsrhFwfU7" Bounds="645,194" />
+            <ControlPoint Id="TCwWiPdYSusPmqJJ9xYPjp" Bounds="725,194" />
+            <ControlPoint Id="MIVZpXaZmUmLkeN2tA4MGm" Bounds="810,194" />
+            <ControlPoint Id="BxIayFpRikiNavK8HHsonT" Bounds="884,194" />
+            <Link Id="AkZs3WbfxLaMy9xJAeZT8B" Ids="KYB4lK2FbnuPIq1Sig2k21,KFqijTBd29cPjqsrhFwfU7" />
+            <Link Id="DnOf19McgHXM4gGoiLndzK" Ids="DxKO8ck05BDNFXb2D3YLag,JgHH2oxsIrNLMPQk1yiFUw" />
+            <Link Id="SjuyHvj9jrmN1yaeYCIMHb" Ids="Jqq13nSJqJ2LC7RCYXtr2c,TCwWiPdYSusPmqJJ9xYPjp" />
+            <Link Id="APzgm0DWCLWPKLA7strIsb" Ids="CA0ZCkq9ty9Nj47plnTpwP,MIVZpXaZmUmLkeN2tA4MGm" />
+            <Link Id="Aljgw6px7bCLvJPrfebE8B" Ids="UKoRuPoT43RPZ0NkG1mzHj,BxIayFpRikiNavK8HHsonT" />
+            <Link Id="DWZFQ2WjA2sLmGB8FAirmL" Ids="Ex0wSA4Yle2QX0QRAg0qLz,DxKO8ck05BDNFXb2D3YLag" IsHidden="true" />
+            <Link Id="VOczjRuySCZPqsQZBXONMJ" Ids="KFqijTBd29cPjqsrhFwfU7,I08WSuazSqKOBEK9JDsbhc" IsHidden="true" />
+            <Link Id="FZZySyLB5fAOyQUZG6c1Ol" Ids="TCwWiPdYSusPmqJJ9xYPjp,G1vpXTKeGXKMHdh3pbHGJ6" IsHidden="true" />
+            <Link Id="DA3pJAkgyWzLCZC4wGpu6R" Ids="MIVZpXaZmUmLkeN2tA4MGm,QPbauxbRLbNM4qISUOedxF" IsHidden="true" />
+            <Link Id="J0Q0b7BvCyzLnZVt4ZVEf4" Ids="BxIayFpRikiNavK8HHsonT,AEtbqMjprRaPiYjqPlgxjy" IsHidden="true" />
+          </Patch>
+        </Node>
+      </Canvas>
+      <Canvas Id="T3gDhXnBrV3OEoUUM8oeMY" Name="EditableBezierKnot" Position="465,374" BordersChecked="false" CanvasType="Group">
+        <!--
+
+    ************************ EditableBezierKnot (Split 2d) ************************
+
+-->
+        <Node Name="EditableBezierKnot (Split 2d)" Bounds="401,26,267,142" Id="OB4xZZeySAJNZKFxjVsk5g">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="IvH55ZukOfpL4Fj36HiWH8" ManuallySortedPins="true">
+            <Pin Id="Ew3CmGO1HNPL5qs1DIX9jA" Name="BezierKnot" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors.Bezier" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="TypeFlag" Name="EditableBezierKnot" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector2" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="RpBDN0T9uIdNlmjeWMUvl8" Name="Point" Kind="OutputPin" />
+            <Pin Id="QCU3RKL75hKO0OZYTqGoJl" Name="Control1" Kind="OutputPin" />
+            <Pin Id="Dbk581BqSBkOOrYeIC5XfA" Name="Control2" Kind="OutputPin" />
+            <Pin Id="J5D9nXG3borOX4lPeJEdUF" Name="Mode" Kind="OutputPin" />
+            <Node Bounds="518,102,77,22" Id="BrxgbIkL9fkQEvTcKBBgEB">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.EditableBezierKnot" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="OperationNode" Name="Split" />
+                <CategoryReference Kind="Category" Name="EditableBezierKnot" />
+              </p:NodeReference>
+              <Pin Id="DV6Z39lkPZnML36NcUry6v" Name="Input" Kind="InputPin" />
+              <Pin Id="MFoQ3TA1z83QXu5aJShQBU" Name="Point" Kind="OutputPin" />
+              <Pin Id="MvgrS0geZaGLawyAVxDUg2" Name="Control1" Kind="OutputPin" />
+              <Pin Id="CvZ9V4ZGri7MiZtamw1Kch" Name="Control2" Kind="OutputPin" />
+              <Pin Id="GRtZ4KZfMFHO9uR0kIIoPd" Name="Mode" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="HcJI0TJSB8YPSMu4uQHJ7j" Bounds="514,42" />
+            <ControlPoint Id="AMlDedrItHMMMDsp6NPyHv" Bounds="415,149" />
+            <ControlPoint Id="MKFLASgsyK6OSAkIvmWfIv" Bounds="475,149" />
+            <ControlPoint Id="CeUDcyE05KSNGoZTN8BPRv" Bounds="549,149" />
+            <ControlPoint Id="Di5bLYMW4VEMee1ONUESMT" Bounds="622,149" />
+            <Link Id="GMwqWaagAFvQFqiR7W2HZT" Ids="MFoQ3TA1z83QXu5aJShQBU,AMlDedrItHMMMDsp6NPyHv" />
+            <Link Id="PnzGV61kx28LAJIjDrkt6d" Ids="MvgrS0geZaGLawyAVxDUg2,MKFLASgsyK6OSAkIvmWfIv" />
+            <Link Id="OgehnOGE1HJQQPWhhGDlLd" Ids="CvZ9V4ZGri7MiZtamw1Kch,CeUDcyE05KSNGoZTN8BPRv" />
+            <Link Id="K2huDLHXi8ZLeMgsBqkRwE" Ids="HcJI0TJSB8YPSMu4uQHJ7j,DV6Z39lkPZnML36NcUry6v" />
+            <Link Id="CZF2KORCSuZLs0WXJzD3gG" Ids="GRtZ4KZfMFHO9uR0kIIoPd,Di5bLYMW4VEMee1ONUESMT" />
+            <Link Id="OuafiFTkxMyO8QEZpsG4bp" Ids="Ew3CmGO1HNPL5qs1DIX9jA,HcJI0TJSB8YPSMu4uQHJ7j" IsHidden="true" />
+            <Link Id="D51kkpCIw0oLqMbzoKBQA5" Ids="AMlDedrItHMMMDsp6NPyHv,RpBDN0T9uIdNlmjeWMUvl8" IsHidden="true" />
+            <Link Id="ITesmsHVpP1QSqeMvI1M0P" Ids="MKFLASgsyK6OSAkIvmWfIv,QCU3RKL75hKO0OZYTqGoJl" IsHidden="true" />
+            <Link Id="CfcaZspR5nuLLHgGSAyTZz" Ids="CeUDcyE05KSNGoZTN8BPRv,Dbk581BqSBkOOrYeIC5XfA" IsHidden="true" />
+            <Link Id="MeOlXvBBIgBL1vsrDYPldQ" Ids="Di5bLYMW4VEMee1ONUESMT,J5D9nXG3borOX4lPeJEdUF" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ EditableBezierKnot (Split 3d) ************************
+
+-->
+        <Node Name="EditableBezierKnot (Split 3d)" Bounds="416,215,272,133" Id="LOr6kTfFoyiLf56OWrr4yM">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="NxlK1GEHSrTMiIdj265xhi" ManuallySortedPins="true">
+            <Pin Id="G48fSHbu5MXM8aOIJGNcHq" Name="BezierKnot" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors.Bezier" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="TypeFlag" Name="EditableBezierKnot" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector3" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="K2rWpJaqQ4FNCSXkV1kOk3" Name="Point" Kind="OutputPin" />
+            <Pin Id="NWp4DVQmZ1XL6oDeLOMYbm" Name="Control1" Kind="OutputPin" />
+            <Pin Id="E116ek4Hb4BPIwD8c7mKdf" Name="Control2" Kind="OutputPin" />
+            <Pin Id="UdnVl3iNCXbLOpQCwzjHT4" Name="Mode" Kind="OutputPin" />
+            <Node Bounds="504,276,77,22" Id="Gw7LyBSRhNqLGzEpiJc0LU">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.EditableBezierKnot" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="OperationNode" Name="Split" />
+                <CategoryReference Kind="Category" Name="EditableBezierKnot" />
+              </p:NodeReference>
+              <Pin Id="KTdbyxvXxm6N0zB2PQUjlM" Name="Input" Kind="InputPin" />
+              <Pin Id="Ec9ia90HLNIP2PTFGdN1tf" Name="Point" Kind="OutputPin" />
+              <Pin Id="Bn7VnAx9SnoQWrasiJh4ez" Name="Control1" Kind="OutputPin" />
+              <Pin Id="PkbPzWxXVt3NNXYMyIpu0a" Name="Control2" Kind="OutputPin" />
+              <Pin Id="AvjGjz9fvaEPU3mo4jfmt9" Name="Mode" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="EWH0iR53P5COh4CLCaii9W" Bounds="502,231" />
+            <ControlPoint Id="Okle8MBaKN5LON8J58SPUS" Bounds="430,329" />
+            <ControlPoint Id="B0hok6VhNtkPmnRXmV81Ji" Bounds="489,329" />
+            <ControlPoint Id="EsTlc83lYXHMxEAuxnz9ad" Bounds="568,329" />
+            <ControlPoint Id="OMxq5TsQiTHNf9D7lo5nUY" Bounds="642,329" />
+            <Link Id="NATRS6h5rGbN5OGCLngOHB" Ids="Ec9ia90HLNIP2PTFGdN1tf,Okle8MBaKN5LON8J58SPUS" />
+            <Link Id="Kef9RcEDFPjOG0E0cC8cxi" Ids="Bn7VnAx9SnoQWrasiJh4ez,B0hok6VhNtkPmnRXmV81Ji" />
+            <Link Id="Lc3W4c1UUoVLGJKhwGWYUs" Ids="PkbPzWxXVt3NNXYMyIpu0a,EsTlc83lYXHMxEAuxnz9ad" />
+            <Link Id="Iyz8IiTYdbhP24XWZOyKWi" Ids="EWH0iR53P5COh4CLCaii9W,KTdbyxvXxm6N0zB2PQUjlM" />
+            <Link Id="AW9zPvkLXXNMdhQp8gJKSI" Ids="AvjGjz9fvaEPU3mo4jfmt9,OMxq5TsQiTHNf9D7lo5nUY" />
+            <Link Id="Ggh0HTDO3y1NdfXM5hiCBO" Ids="G48fSHbu5MXM8aOIJGNcHq,EWH0iR53P5COh4CLCaii9W" IsHidden="true" />
+            <Link Id="AbwnyxL4hlCPeHr3ESip8U" Ids="Okle8MBaKN5LON8J58SPUS,K2rWpJaqQ4FNCSXkV1kOk3" IsHidden="true" />
+            <Link Id="SA0i0x9fR7HNoo9xp4VMIO" Ids="B0hok6VhNtkPmnRXmV81Ji,NWp4DVQmZ1XL6oDeLOMYbm" IsHidden="true" />
+            <Link Id="UE3KhAyzSVbNrRK39ZBY1l" Ids="EsTlc83lYXHMxEAuxnz9ad,E116ek4Hb4BPIwD8c7mKdf" IsHidden="true" />
+            <Link Id="VysjB23tjXaM54KVCaUgzf" Ids="OMxq5TsQiTHNf9D7lo5nUY,UdnVl3iNCXbLOpQCwzjHT4" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ EditableBezierKnot (Join 2d Controls) ************************
+
+-->
+        <Node Name="EditableBezierKnot (Join 2d Controls)" Bounds="845,26,311,142" Id="VAPwXs5OXOqPaJdULtPOt4">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="So9th2HnHtUM8oyH49priL" ManuallySortedPins="true">
+            <Pin Id="BB4JJHcQvvOOWJ8LZu7xHU" Name="Point" Kind="InputPin" />
+            <Pin Id="IwbxpUPctqYNH3P24XLph7" Name="Contol1" Kind="InputPin" />
+            <Pin Id="GsKCEuwp37mNy87VFpRMCz" Name="Control2" Kind="InputPin" />
+            <Pin Id="IecvjudsGRjNn6K7WdHTLt" Name="Mode" Kind="InputPin" />
+            <Pin Id="V04Y3TtcWTGN7TMkTEg9oC" Name="BezierKnot" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors.Bezier" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="TypeFlag" Name="EditableBezierKnot" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector2" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Node Bounds="948,102,105,22" Id="RmH1fsue1cBL9AhqBURm2K">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.EditableBezierKnot" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="EditableBezierKnot" />
+              </p:NodeReference>
+              <Pin Id="U8pI1oEiKwUOelPcUjGBum" Name="Input" Kind="StateInputPin" />
+              <Pin Id="CcgovRimI8LNRf5Z0GqYI2" Name="Point" Kind="InputPin" />
+              <Pin Id="TaANqFvyxsbLkyqq6Vpydt" Name="Contol1" Kind="InputPin" />
+              <Pin Id="KOcNqDy8b5mPwgPM8ilJze" Name="Control2" Kind="InputPin" />
+              <Pin Id="JOsBGlOMiQCLcjWJc1FZfe" Name="Mode" Kind="InputPin" />
+              <Pin Id="DaYUqjaGrttPmFJzHuyYN5" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="NfEQRvrjaghLE2J1YbbM1p" Bounds="859,42" />
+            <ControlPoint Id="FktEE8ztApYLAdN3FaeStb" Bounds="927,42" />
+            <ControlPoint Id="ABvK9FhMrNeQCpNKCUZkxq" Bounds="1048,42" />
+            <ControlPoint Id="MN0IjnLXx4WPmeuLnFzGwv" Bounds="1110,42" />
+            <ControlPoint Id="JmkyZjflsctPoCDIUZpOQD" Bounds="944,149" />
+            <Link Id="TzbpqUw7y5PLTcCciKkUfe" Ids="DaYUqjaGrttPmFJzHuyYN5,JmkyZjflsctPoCDIUZpOQD" />
+            <Link Id="ECdPG1jydDdO2tiHokkbHP" Ids="NfEQRvrjaghLE2J1YbbM1p,CcgovRimI8LNRf5Z0GqYI2" />
+            <Link Id="EKMgbEdh4u2OTYNe9wgCIw" Ids="ABvK9FhMrNeQCpNKCUZkxq,KOcNqDy8b5mPwgPM8ilJze" />
+            <Link Id="CPlIcMMR5PRLHkfaGqEDAX" Ids="FktEE8ztApYLAdN3FaeStb,TaANqFvyxsbLkyqq6Vpydt" />
+            <Link Id="RisxHQF6T6sNA9rBNt8Nr2" Ids="MN0IjnLXx4WPmeuLnFzGwv,JOsBGlOMiQCLcjWJc1FZfe" />
+            <Link Id="FfAtY7mhtVIPcZbUO1UpCT" Ids="BB4JJHcQvvOOWJ8LZu7xHU,NfEQRvrjaghLE2J1YbbM1p" IsHidden="true" />
+            <Link Id="HQpZTtKoEVkN1wpr4gTCjo" Ids="IwbxpUPctqYNH3P24XLph7,FktEE8ztApYLAdN3FaeStb" IsHidden="true" />
+            <Link Id="IOPW31MEEjELWg9qK4gTfG" Ids="GsKCEuwp37mNy87VFpRMCz,ABvK9FhMrNeQCpNKCUZkxq" IsHidden="true" />
+            <Link Id="DBWarRi4LEoPJb3dg1X0FY" Ids="IecvjudsGRjNn6K7WdHTLt,MN0IjnLXx4WPmeuLnFzGwv" IsHidden="true" />
+            <Link Id="KTBkVVMdWzaPEkMrjEmLB6" Ids="JmkyZjflsctPoCDIUZpOQD,V04Y3TtcWTGN7TMkTEg9oC" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ EditableBezierKnot (Join 2d) ************************
+
+-->
+        <Node Name="EditableBezierKnot (Join 2d)" Bounds="1359,26,146,142" Id="TMiMibJXgw3OkftPAQqu41">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="Df2GNoZwdCFPKD0PlTDuhK" ManuallySortedPins="true">
+            <Pin Id="U97ZoPOwNZFMCLnCjQodKZ" Name="Point" Kind="InputPin" />
+            <Pin Id="CNtGwZVkIhWLRr4A8OYkpZ" Name="Mode" Kind="InputPin" />
+            <Pin Id="Rk1KOmyEzTeO157T8m8zKA" Name="BezierKnot" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors.Bezier" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="TypeFlag" Name="EditableBezierKnot" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector2" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Node Bounds="1376,102,105,22" Id="RW15Cnk3EOoMw7shyw3sBp">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.EditableBezierKnot" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="EditableBezierKnot" />
+              </p:NodeReference>
+              <Pin Id="GZMsXmjv5TOQbl6rOOYJMX" Name="Input" Kind="StateInputPin" />
+              <Pin Id="TSsE0ofSR8WN6rLubSKMHm" Name="Point" Kind="InputPin" />
+              <Pin Id="MNlmSL3FPGwNzH6T8MPEEo" Name="Contol1" Kind="InputPin" />
+              <Pin Id="JEeVjqSOehiNpywsXoqcRx" Name="Control2" Kind="InputPin" />
+              <Pin Id="Gu2LN0Spk8RP8mEofZj9Jm" Name="Mode" Kind="InputPin" />
+              <Pin Id="TZ25UANLL6RL0SPS7eDzjd" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="R3Dk9LSyLwMPbStykSX9xS" Bounds="1399,42" />
+            <ControlPoint Id="UrWNlgABfEbNAYLFnB79ZK" Bounds="1459,42" />
+            <ControlPoint Id="B3OszJd8dFMNZzW7OhPOVK" Bounds="1373,149" />
+            <Link Id="HoqsdbdcXVFL0hQQiJaKdr" Ids="TZ25UANLL6RL0SPS7eDzjd,B3OszJd8dFMNZzW7OhPOVK" />
+            <Link Id="GpphugBITAkNThUmvWGIbI" Ids="R3Dk9LSyLwMPbStykSX9xS,TSsE0ofSR8WN6rLubSKMHm" />
+            <Link Id="AA4IQW83Y4XK9ii33YQUU8" Ids="R3Dk9LSyLwMPbStykSX9xS,MNlmSL3FPGwNzH6T8MPEEo" />
+            <Link Id="Ek31x1nShLaMg9MYkSrsvL" Ids="R3Dk9LSyLwMPbStykSX9xS,JEeVjqSOehiNpywsXoqcRx" />
+            <Link Id="DCioyVHZXq9M4oBs6XVVfT" Ids="UrWNlgABfEbNAYLFnB79ZK,Gu2LN0Spk8RP8mEofZj9Jm" />
+            <Link Id="CV5SP1EzW2RPuJ96T0GQWU" Ids="U97ZoPOwNZFMCLnCjQodKZ,R3Dk9LSyLwMPbStykSX9xS" IsHidden="true" />
+            <Link Id="DK55Q1Ib5w7QRyTIS1rLlZ" Ids="CNtGwZVkIhWLRr4A8OYkpZ,UrWNlgABfEbNAYLFnB79ZK" IsHidden="true" />
+            <Link Id="UGJ86LfkvK0LuaKYpoFVCI" Ids="B3OszJd8dFMNZzW7OhPOVK,Rk1KOmyEzTeO157T8m8zKA" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ EditableBezierKnot (Join 3d Controls) ************************
+
+-->
+        <Node Name="EditableBezierKnot (Join 3d Controls)" Bounds="822,215,329,176" Id="DZJ7rPt7heuNNwpklnfc8w">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="HB2HEW0ymeCNsZqBFMSuLU" ManuallySortedPins="true">
+            <Pin Id="RDQhwLqKwlmLVR7dbgxnyY" Name="Point" Kind="InputPin" />
+            <Pin Id="ODijiiQhNu7LbEKDDcr8bo" Name="Contol1" Kind="InputPin" />
+            <Pin Id="RSqjWtWDddoOPrx1CKVJZf" Name="Control2" Kind="InputPin" />
+            <Pin Id="LesNSW7QxIrMVB1HRsblcy" Name="Mode" Kind="InputPin" />
+            <Pin Id="TRX84eY9MBGMxUcgSqRRLz" Name="BezierKnot" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors.Bezier" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="TypeFlag" Name="EditableBezierKnot" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector3" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Node Bounds="934,313,105,22" Id="TgRlU3En4b7MY0N3SR5uoI">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.EditableBezierKnot" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="EditableBezierKnot" />
+              </p:NodeReference>
+              <Pin Id="O4rifMtp8jZQD77SNsjsmI" Name="Input" Kind="StateInputPin" />
+              <Pin Id="KcJllftQ52lPfCdxMgSgve" Name="Point" Kind="InputPin" />
+              <Pin Id="CwCCNaX9z5gPxbD3wSFOkM" Name="Contol1" Kind="InputPin" />
+              <Pin Id="Qix1OkYlO2lL5W7mCOQqNJ" Name="Control2" Kind="InputPin" />
+              <Pin Id="HbR1SCmW1c6PCy7O0cRgzd" Name="Mode" Kind="InputPin" />
+              <Pin Id="H3IVl3NQFERNJRPSgO5oIs" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="HXMfNGaNajoML2vHJulGyc" Bounds="836,231" />
+            <ControlPoint Id="DrpB3DhWKcRNTtXoX3tY6A" Bounds="904,231" />
+            <ControlPoint Id="MrN0bZU48ZiOs3AjZ2GeVI" Bounds="1024,231" />
+            <ControlPoint Id="LUQx7nR5KSUPB9f7Wmbtqg" Bounds="1105,231" />
+            <ControlPoint Id="IHGj06n0hC3QVdGgnxj1lF" Bounds="932,372" />
+            <Link Id="V0e4XjibmxiOdVhPo1avg8" Ids="HXMfNGaNajoML2vHJulGyc,KcJllftQ52lPfCdxMgSgve" />
+            <Link Id="HYuhAGq8NXBLTiRsuZWpKt" Ids="DrpB3DhWKcRNTtXoX3tY6A,CwCCNaX9z5gPxbD3wSFOkM" />
+            <Link Id="GJl3ixU6SoHLJacsuYXF3w" Ids="MrN0bZU48ZiOs3AjZ2GeVI,Qix1OkYlO2lL5W7mCOQqNJ" />
+            <Link Id="VludnAUICtTNfcl087YlVl" Ids="H3IVl3NQFERNJRPSgO5oIs,IHGj06n0hC3QVdGgnxj1lF" />
+            <Link Id="DClvcrnIseGP9zjxbcZFfn" Ids="LUQx7nR5KSUPB9f7Wmbtqg,HbR1SCmW1c6PCy7O0cRgzd" />
+            <Link Id="DElD6XEKUglMIVzvzyMmlJ" Ids="RDQhwLqKwlmLVR7dbgxnyY,HXMfNGaNajoML2vHJulGyc" IsHidden="true" />
+            <Link Id="J9oXGGD4yLiMgJiMVt966H" Ids="ODijiiQhNu7LbEKDDcr8bo,DrpB3DhWKcRNTtXoX3tY6A" IsHidden="true" />
+            <Link Id="U4w042FfBoCPgfOCSLmTXn" Ids="RSqjWtWDddoOPrx1CKVJZf,MrN0bZU48ZiOs3AjZ2GeVI" IsHidden="true" />
+            <Link Id="R8LZYmXhMxWQSfKuHPoUbS" Ids="LesNSW7QxIrMVB1HRsblcy,LUQx7nR5KSUPB9f7Wmbtqg" IsHidden="true" />
+            <Link Id="Eym2d39rCitOodurl42iXy" Ids="IHGj06n0hC3QVdGgnxj1lF,TRX84eY9MBGMxUcgSqRRLz" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ EditableBezierKnot (Join 3d) ************************
+
+-->
+        <Node Name="EditableBezierKnot (Join 3d)" Bounds="1338,215,147,139" Id="QT7eCe2kwSsLmsHAt3mJ1X">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="DEdHu9yU5fILr6Ox1TV62n" ManuallySortedPins="true">
+            <Pin Id="FhmFiwqBMvjN7xWZ71VfPx" Name="Point" Kind="InputPin" />
+            <Pin Id="JPeR8zIe0TqPE8KcUjHWzn" Name="Mode" Kind="InputPin" />
+            <Pin Id="JLWBqIA24dMMrunvXLdfpf" Name="BezierKnot" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors.Bezier" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="TypeFlag" Name="EditableBezierKnot" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector3" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Node Bounds="1356,276,105,22" Id="JrgG3gKtIh0OlzTNCrP2b0">
+              <p:NodeReference LastCategoryFullName="Editors.Bezier.EditableBezierKnot" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="EditableBezierKnot" />
+              </p:NodeReference>
+              <Pin Id="F5cIkUVsUnTQFUNdw4DxG1" Name="Input" Kind="StateInputPin" />
+              <Pin Id="LKkxnO4psUFMyAD9jPS7xI" Name="Point" Kind="InputPin" />
+              <Pin Id="G9jNDXwhkaZObUYfiP3KVi" Name="Contol1" Kind="InputPin" />
+              <Pin Id="Qi5DayEDAzDM6A4nyS8Mhb" Name="Control2" Kind="InputPin" />
+              <Pin Id="ErYpIYyz8iTLhgAnNWgqe6" Name="Mode" Kind="InputPin" />
+              <Pin Id="V5iq2p6d33GOF9eLbvqM3l" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="UuzPSEpsKWfLk1bOHVWH4Y" Bounds="1378,231" />
+            <ControlPoint Id="NfQdIqY7bpDOyVT5frblFQ" Bounds="1439,231" />
+            <ControlPoint Id="F2aSO6Gd6j0P7rnVyj73MV" Bounds="1352,335" />
+            <Link Id="CcSeYYJcp5fPlp027WygXz" Ids="V5iq2p6d33GOF9eLbvqM3l,F2aSO6Gd6j0P7rnVyj73MV" />
+            <Link Id="T0bCpWQgHPOLDW4SNTW6IE" Ids="UuzPSEpsKWfLk1bOHVWH4Y,LKkxnO4psUFMyAD9jPS7xI" />
+            <Link Id="O3tjLylXjlqOoZg6j6sGUE" Ids="UuzPSEpsKWfLk1bOHVWH4Y,G9jNDXwhkaZObUYfiP3KVi" />
+            <Link Id="CgAxz1uzWQmLKnoFJQQkCp" Ids="UuzPSEpsKWfLk1bOHVWH4Y,Qi5DayEDAzDM6A4nyS8Mhb" />
+            <Link Id="GgtTfGQkrFDLRN6Gy2rDvV" Ids="NfQdIqY7bpDOyVT5frblFQ,ErYpIYyz8iTLhgAnNWgqe6" />
+            <Link Id="Soh4YJJUN69OpGu4SI1kqs" Ids="FhmFiwqBMvjN7xWZ71VfPx,UuzPSEpsKWfLk1bOHVWH4Y" IsHidden="true" />
+            <Link Id="Ez7MVLPhu0vNQ6Y2vgzhPX" Ids="JPeR8zIe0TqPE8KcUjHWzn,NfQdIqY7bpDOyVT5frblFQ" IsHidden="true" />
+            <Link Id="S9QHtiL2iykNXXAaYjqyBP" Ids="F2aSO6Gd6j0P7rnVyj73MV,JLWBqIA24dMMrunvXLdfpf" IsHidden="true" />
+          </Patch>
+        </Node>
+      </Canvas>
+      <Canvas Id="UztlFmxz5UUPMKKnUsfHTG" Name="EditablePoint" Position="318,299" BordersChecked="false" CanvasType="Group">
+        <!--
+
+    ************************ EditablePoint (Split 3d) ************************
+
+-->
+        <Node Name="EditablePoint (Split 3d)" Bounds="760,200,519,238" Id="IOhsgIAMyxEMJBduK7ejYY">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="Vi9hHsuCdeCPdGASN235n1" ManuallySortedPins="true">
+            <Node Bounds="776,310,125,22" Id="NSlk0Eb5EPtMRiftYg34qq">
+              <p:NodeReference LastCategoryFullName="Editors.EditablePoint" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="OperationNode" Name="Split" />
+                <CategoryReference Kind="Category" Name="EditablePoint" />
+              </p:NodeReference>
+              <Pin Id="RKReGdTxYq6PSNb32oVpvB" Name="Input" Kind="InputPin" />
+              <Pin Id="NlIr5V6i1wmLt25mMFcvb0" Name="Position" Kind="OutputPin" />
+              <Pin Id="RQH32GEiQ0FNFyuGIPzfRM" Name="Locked" Kind="OutputPin" />
+              <Pin Id="Pzz77GIbzJrOyBVk0wOyA5" Name="Selected" Kind="OutputPin" />
+              <Pin Id="CWylUoy9MJ4P4kOMQnfkCw" Name="Hovered" Kind="OutputPin" />
+              <Pin Id="An5Dinz8iuqQVp5PqrR8nG" Name="KeyHovered" Kind="OutputPin" />
+              <Pin Id="IEq0TKw8nU4Mp7HpGlvJmp" Name="SelectionModifier" Kind="OutputPin" />
+              <Pin Id="HCWXoDngv1mNdC2fW3AURn" Name="Id" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="GGNunXGUOajMjmVs8CxUsh" Bounds="774,216" />
+            <ControlPoint Id="CVYrrr0kkPPPn58AF3ex3a" Bounds="774,416" />
+            <ControlPoint Id="A9p0ctYd4q8OusfJt4LQy5" Bounds="840,416" />
+            <ControlPoint Id="TavQnty2Q3mPpyBLAhVesB" Bounds="901,416" />
+            <ControlPoint Id="U00DdJI2j26LnkriOuatEf" Bounds="968,416" />
+            <ControlPoint Id="IgyIE6VCgsZNELguE3dy8P" Bounds="1138,419" />
+            <ControlPoint Id="AkfAW3sgZrVOThcZdVDxTh" Bounds="1242,419" />
+            <Link Id="QD7unwWJo48OtCI0aPdVLW" Ids="GGNunXGUOajMjmVs8CxUsh,RKReGdTxYq6PSNb32oVpvB" />
+            <Link Id="IHdMuc3OOdJNmx5RovzWoT" Ids="NlIr5V6i1wmLt25mMFcvb0,CVYrrr0kkPPPn58AF3ex3a" />
+            <Link Id="OBwO9LCYj70LXjIgsdiejO" Ids="RQH32GEiQ0FNFyuGIPzfRM,A9p0ctYd4q8OusfJt4LQy5" />
+            <Link Id="NeE8d8qqlG0OdezyGakgsA" Ids="Pzz77GIbzJrOyBVk0wOyA5,TavQnty2Q3mPpyBLAhVesB" />
+            <Link Id="AjVUBdP5fc4MlJyVx8JkXu" Ids="IEq0TKw8nU4Mp7HpGlvJmp,IgyIE6VCgsZNELguE3dy8P" />
+            <Link Id="R6K0zKTeeUwPfh3igw4YsY" Ids="HCWXoDngv1mNdC2fW3AURn,AkfAW3sgZrVOThcZdVDxTh" />
+            <Link Id="LBOJRz2TSDfNWIffoU0nZ4" Ids="RpouHbbIh5oPWemzW8iXfV,GGNunXGUOajMjmVs8CxUsh" IsHidden="true" />
+            <Link Id="Isvf2OuQpxkMqnLkVgO3ha" Ids="CVYrrr0kkPPPn58AF3ex3a,VxkzNfg162bMI99YzhjsUV" IsHidden="true" />
+            <Link Id="Dit6QbrUjxqMiXAz77FT2L" Ids="A9p0ctYd4q8OusfJt4LQy5,Jy6EqzCUvpCPqMTfJPDDnT" IsHidden="true" />
+            <Link Id="JPaAltvA2LzPtaqZZ6XM1r" Ids="TavQnty2Q3mPpyBLAhVesB,JSmkzTn5GNJQQXjA2FiKtE" IsHidden="true" />
+            <Link Id="QZdzDZtqlx1MU40iGF4dVE" Ids="U00DdJI2j26LnkriOuatEf,BZE14EFURJeOw0leoFxfYm" IsHidden="true" />
+            <Link Id="J5F1PdSsqNTQaaru9TzZXO" Ids="IgyIE6VCgsZNELguE3dy8P,QyeNnEK5QagNetdoeWrASc" IsHidden="true" />
+            <Link Id="ADfhowyY9evQRYtpn6hDux" Ids="AkfAW3sgZrVOThcZdVDxTh,Ba1JrLnWJKbOqHDhj62klL" IsHidden="true" />
+            <Link Id="CvlIGlaiyUyONgE3g6WsFe" Ids="CWylUoy9MJ4P4kOMQnfkCw,U00DdJI2j26LnkriOuatEf" />
+            <ControlPoint Id="M5jBhIEujuJOdrLHB5Wyy4" Bounds="1033,414" />
+            <Link Id="LlKnoilhjZpNdw88X3LpRO" Ids="An5Dinz8iuqQVp5PqrR8nG,M5jBhIEujuJOdrLHB5Wyy4" />
+            <Link Id="DsR0sON9sadL5W1JBIfbBb" Ids="M5jBhIEujuJOdrLHB5Wyy4,PNeTbijmGl3OtgxJfchpXX" IsHidden="true" />
+            <Pin Id="RpouHbbIh5oPWemzW8iXfV" Name="EditablePoint" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="TypeFlag" Name="EditablePoint" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector3" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="VxkzNfg162bMI99YzhjsUV" Name="Position" Kind="OutputPin" />
+            <Pin Id="Jy6EqzCUvpCPqMTfJPDDnT" Name="Locked" Kind="OutputPin" />
+            <Pin Id="JSmkzTn5GNJQQXjA2FiKtE" Name="Selected" Kind="OutputPin" />
+            <Pin Id="BZE14EFURJeOw0leoFxfYm" Name="Hovered" Kind="OutputPin" />
+            <Pin Id="PNeTbijmGl3OtgxJfchpXX" Name="KeyHovered" Kind="OutputPin" />
+            <Pin Id="QyeNnEK5QagNetdoeWrASc" Name="SelectionModifier" Kind="OutputPin" />
+            <Pin Id="Ba1JrLnWJKbOqHDhj62klL" Name="Id" Kind="OutputPin" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ EditablePoint (Split 2d) ************************
+
+-->
+        <Node Name="EditablePoint (Split 2d)" Bounds="660,516,519,242" Id="Jnw4eZiYURbPhwEIs9u66m">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="CctFmRMwXHfMihnjue8BbR" ManuallySortedPins="true">
+            <Node Bounds="773,622,125,22" Id="KXJDZ1OneUzLWQAncBX593">
+              <p:NodeReference LastCategoryFullName="Editors.EditablePoint" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="OperationNode" Name="Split" />
+                <CategoryReference Kind="Category" Name="EditablePoint" />
+              </p:NodeReference>
+              <Pin Id="T2Ikt4Frj8AP48ixYesQqM" Name="Input" Kind="InputPin" />
+              <Pin Id="VyHiffHz3oCLwhgXWn4H5D" Name="Position" Kind="OutputPin" />
+              <Pin Id="LKBtf5eZHH7Px0wLFuzfhT" Name="Locked" Kind="OutputPin" />
+              <Pin Id="U01FI3YybV5Lqo2POJMbLE" Name="Selected" Kind="OutputPin" />
+              <Pin Id="AGAHJnvvvAtLZ2NHIUyJ0j" Name="Hovered" Kind="OutputPin" />
+              <Pin Id="GuZvq8rJPp6OAH9CasNkZT" Name="KeyHovered" Kind="OutputPin" />
+              <Pin Id="BF7jkUEobw6LCOLeGNBAZ2" Name="SelectionModifier" Kind="OutputPin" />
+              <Pin Id="Vgrlbv78RLwMoJ1yqLEXgq" Name="Id" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="O3Ow70IbCmkOGcFFlAepwE" Bounds="772,532" />
+            <ControlPoint Id="N7AXzAHwmnQPhwOA2ToYzG" Bounds="674,739" />
+            <ControlPoint Id="TcVOvhsi9lJOsZYRv3nxV8" Bounds="739,738" />
+            <ControlPoint Id="GE6zQ42WMxCM7IEYtIDcAU" Bounds="800,738" />
+            <ControlPoint Id="A96GTSyAdNNM8rzkugEYdY" Bounds="867,738" />
+            <ControlPoint Id="OKiv9YhzAQsMNrucVg4UJd" Bounds="1027,731" />
+            <ControlPoint Id="VsmCRPKdHEcOILXJvgLqvI" Bounds="1142,731" />
+            <Link Id="Pl0oFxGyuPFLcNdjCuY3Yl" Ids="O3Ow70IbCmkOGcFFlAepwE,T2Ikt4Frj8AP48ixYesQqM" />
+            <Link Id="Qaal9qsmMEOLmpohWHgUH3" Ids="VyHiffHz3oCLwhgXWn4H5D,N7AXzAHwmnQPhwOA2ToYzG" />
+            <Link Id="OVQE6VSBbQCOCXPCGzGLbD" Ids="LKBtf5eZHH7Px0wLFuzfhT,TcVOvhsi9lJOsZYRv3nxV8" />
+            <Link Id="TFvygvc2ne8NHoE2i0VeMM" Ids="U01FI3YybV5Lqo2POJMbLE,GE6zQ42WMxCM7IEYtIDcAU" />
+            <Link Id="RANyCG8srKPNBvp8Us97gS" Ids="BF7jkUEobw6LCOLeGNBAZ2,OKiv9YhzAQsMNrucVg4UJd" />
+            <Link Id="M0w4PF43JueN1d3u9Ucsjp" Ids="Vgrlbv78RLwMoJ1yqLEXgq,VsmCRPKdHEcOILXJvgLqvI" />
+            <Link Id="ShUsFfJ30qQOaC6jDIK3yV" Ids="CTaj8vcybpYNmVD9CC05vA,O3Ow70IbCmkOGcFFlAepwE" IsHidden="true" />
+            <Link Id="DUUNVHk7tBKLdFL7zOf0UM" Ids="N7AXzAHwmnQPhwOA2ToYzG,DF7LEv3R7HpMybLozHbiIt" IsHidden="true" />
+            <Link Id="BEPRK1BzKRnLH4HYV99HPu" Ids="TcVOvhsi9lJOsZYRv3nxV8,NvW1bPp21RONwldVaaHrb8" IsHidden="true" />
+            <Link Id="IcPxiy2nwv2PGmoClXNfCQ" Ids="GE6zQ42WMxCM7IEYtIDcAU,SEI622quacoL52ESK9cLQj" IsHidden="true" />
+            <Link Id="M6FhljxWqH1LsrOpCe897l" Ids="A96GTSyAdNNM8rzkugEYdY,ICai4Ncs5bePbtug2vpudW" IsHidden="true" />
+            <Link Id="Qrju8dbq1LHOrm9MfW5xYq" Ids="OKiv9YhzAQsMNrucVg4UJd,FT4mO8uAW57L89ENxwfXSJ" IsHidden="true" />
+            <Link Id="Kl4eSdeegk9P3eDvboXUpS" Ids="VsmCRPKdHEcOILXJvgLqvI,RMIv3pWkFw0PQPJeL9DEbs" IsHidden="true" />
+            <Link Id="QkKs2NoB0IrL1R1q7pPuAJ" Ids="AGAHJnvvvAtLZ2NHIUyJ0j,A96GTSyAdNNM8rzkugEYdY" />
+            <ControlPoint Id="QmHGo7QN0mOOdgKZIm5P4f" Bounds="931,733" />
+            <Link Id="JHUm3YQBIepPO2JI5vqIIt" Ids="GuZvq8rJPp6OAH9CasNkZT,QmHGo7QN0mOOdgKZIm5P4f" />
+            <Link Id="Q1AA3O9X2mgQKrSfR5wxt3" Ids="QmHGo7QN0mOOdgKZIm5P4f,ADR1XcwY2zTQOE8QGfLquq" IsHidden="true" />
+            <Pin Id="CTaj8vcybpYNmVD9CC05vA" Name="EditablePoint" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="TypeFlag" Name="EditablePoint" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector2" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="DF7LEv3R7HpMybLozHbiIt" Name="Position" Kind="OutputPin" />
+            <Pin Id="NvW1bPp21RONwldVaaHrb8" Name="Locked" Kind="OutputPin" />
+            <Pin Id="SEI622quacoL52ESK9cLQj" Name="Selected" Kind="OutputPin" />
+            <Pin Id="ICai4Ncs5bePbtug2vpudW" Name="Hovered" Kind="OutputPin" />
+            <Pin Id="ADR1XcwY2zTQOE8QGfLquq" Name="KeyHovered" Kind="OutputPin" />
+            <Pin Id="FT4mO8uAW57L89ENxwfXSJ" Name="SelectionModifier" Kind="OutputPin" />
+            <Pin Id="RMIv3pWkFw0PQPJeL9DEbs" Name="Id" Kind="OutputPin" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ EditablePoint (Join 2d) ************************
+
+-->
+        <Node Name="EditablePoint (Join 2d)" Bounds="100,525,511,173" Id="CGYlq90yyi2O17c4poUQtj">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="TgOCkcemBdJP9YOfWloEzI" ManuallySortedPins="true">
+            <Node Bounds="204,626,145,22" Id="RxzsWLVMTYYNy45kxWGSKb">
+              <p:NodeReference LastCategoryFullName="Editors.EditablePoint" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="EditablePoint" />
+              </p:NodeReference>
+              <Pin Id="MhKpqwLZRZJOLEgpyBcRh0" Name="Input" Kind="StateInputPin" />
+              <Pin Id="MUHye09pyD8OKMVngPFtxn" Name="Position" Kind="InputPin" />
+              <Pin Id="GjbiZ9sDydxQX1DZ7i7wJS" Name="Locked" Kind="InputPin" />
+              <Pin Id="Dcj9eUQpHpGN9WcKUXXabH" Name="Selected" Kind="InputPin" />
+              <Pin Id="PZuVPMtOP1bMW7I6gHJ5UQ" Name="Hovered" Kind="InputPin" />
+              <Pin Id="DDHHHsX81pvP3c8iHvyG5l" Name="KeyHovered" Kind="InputPin" />
+              <Pin Id="LXZreQd517gMTKorE428R6" Name="SelectionModifier" Kind="InputPin" />
+              <Pin Id="M8VWj26Tx3jPNoGXL2r1QE" Name="Id" Kind="InputPin" />
+              <Pin Id="S9gJOFUmbF7N4m4oL2BgOq" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="LZ0n6qu4W1zMvojFKJ6cBM" Bounds="114,547" />
+            <ControlPoint Id="UeKbVfJ49PDPDw3kFmhfoF" Bounds="178,547" />
+            <ControlPoint Id="R9crtPGIeocPTlUir2XEkX" Bounds="237,547" />
+            <ControlPoint Id="GOjCpxh37cYOcb99Xs3BhL" Bounds="299,548" />
+            <ControlPoint Id="DjWVkTn8jY0NKVUxTHxUfG" Bounds="468,541" />
+            <ControlPoint Id="ELzLskMRV8vOjKVQUaMAJs" Bounds="574,541" />
+            <ControlPoint Id="IDOLat4yyE7Nuo6bjsh6TY" Bounds="206,679" />
+            <Link Id="Mq4c2hkMc8KMQbdpMF8Kk6" Ids="LZ0n6qu4W1zMvojFKJ6cBM,MUHye09pyD8OKMVngPFtxn" />
+            <Link Id="K1zj2SMloywNbAeW8hobGy" Ids="UeKbVfJ49PDPDw3kFmhfoF,GjbiZ9sDydxQX1DZ7i7wJS" />
+            <Link Id="SUvauUArcqFLxe0W6LUFAf" Ids="R9crtPGIeocPTlUir2XEkX,Dcj9eUQpHpGN9WcKUXXabH" />
+            <Link Id="Fy28TS2AwTLQI5RT5UTHGa" Ids="GOjCpxh37cYOcb99Xs3BhL,PZuVPMtOP1bMW7I6gHJ5UQ" />
+            <Link Id="PH1OLpEelsVMKWFRNYIBlp" Ids="S9gJOFUmbF7N4m4oL2BgOq,IDOLat4yyE7Nuo6bjsh6TY" />
+            <Link Id="C3jAXV0j52HOYbEiApcVSM" Ids="DjWVkTn8jY0NKVUxTHxUfG,LXZreQd517gMTKorE428R6" />
+            <Link Id="UqUc3uTgmveMLu3BiB6I4P" Ids="ELzLskMRV8vOjKVQUaMAJs,M8VWj26Tx3jPNoGXL2r1QE" />
+            <Link Id="QEMowenyrCHOyr1du3qxXx" Ids="RsJSOFtFSKFMH1BEcW5Clv,LZ0n6qu4W1zMvojFKJ6cBM" IsHidden="true" />
+            <Link Id="SkgJtrKLmtgMBQFxzSxmPn" Ids="Lhp4Zvpo6TUMwdF6XyVwNE,UeKbVfJ49PDPDw3kFmhfoF" IsHidden="true" />
+            <Link Id="S9U8XykAMBgNl06arAZrn3" Ids="UsXhFznCOeTQAjRDHKgMNr,R9crtPGIeocPTlUir2XEkX" IsHidden="true" />
+            <Link Id="TB7sZPk4d9oOPPZCu5BZsg" Ids="JRI39UGDgiBORRf3eAX39X,GOjCpxh37cYOcb99Xs3BhL" IsHidden="true" />
+            <Link Id="VGHIqb6vou1Mr9NeMLqXfo" Ids="VVq1b55tKkmLcP2tuF4zeD,DjWVkTn8jY0NKVUxTHxUfG" IsHidden="true" />
+            <Link Id="AeNHub9iZOeMT470gp83tf" Ids="BBMuaiTRIymMV0ib1Gyndm,ELzLskMRV8vOjKVQUaMAJs" IsHidden="true" />
+            <Link Id="Ty7pU3shMsQO4F1wV6s4xL" Ids="IDOLat4yyE7Nuo6bjsh6TY,UhqrYAfjoaLMoM9Qehc5vt" IsHidden="true" />
+            <ControlPoint Id="QHirLFDxlelLkOvzZhTMj4" Bounds="370,547" />
+            <Link Id="Kj8rb7txvBkO0wAa5qmc1z" Ids="QHirLFDxlelLkOvzZhTMj4,DDHHHsX81pvP3c8iHvyG5l" />
+            <Link Id="DWf77PZ8AmKOcQoLLLL020" Ids="V7mZ90CJiPFNliDjGxImeC,QHirLFDxlelLkOvzZhTMj4" IsHidden="true" />
+            <Pin Id="RsJSOFtFSKFMH1BEcW5Clv" Name="Position" Kind="InputPin" />
+            <Pin Id="Lhp4Zvpo6TUMwdF6XyVwNE" Name="Locked" Kind="InputPin" />
+            <Pin Id="UsXhFznCOeTQAjRDHKgMNr" Name="Selected" Kind="InputPin" />
+            <Pin Id="JRI39UGDgiBORRf3eAX39X" Name="Hovered" Kind="InputPin" />
+            <Pin Id="V7mZ90CJiPFNliDjGxImeC" Name="KeyHovered" Kind="InputPin" />
+            <Pin Id="VVq1b55tKkmLcP2tuF4zeD" Name="SelectionModifier" Kind="InputPin" />
+            <Pin Id="BBMuaiTRIymMV0ib1Gyndm" Name="Id" Kind="InputPin" />
+            <Pin Id="UhqrYAfjoaLMoM9Qehc5vt" Name="EditablePoint" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="TypeFlag" Name="EditablePoint" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector2" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ EditablePoint (Join 3d) ************************
+
+-->
+        <Node Name="EditablePoint (Join 3d)" Bounds="181,208,517,171" Id="STFJA164M3GPX0sdlKnzA8">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="IseTjRhhS9MLQkz4uch6DB" ManuallySortedPins="true">
+            <Node Bounds="293,301,145,22" Id="TMyAazgeMUVPX3ty9VTeRU">
+              <p:NodeReference LastCategoryFullName="Editors.EditablePoint" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="EditablePoint" />
+              </p:NodeReference>
+              <Pin Id="JwmFP6TQDnaLP9jTDCkdvK" Name="Input" Kind="StateInputPin" />
+              <Pin Id="QatvjPtGAmULhursyD7QlE" Name="Position" Kind="InputPin" />
+              <Pin Id="ULyarxlc2FpQQFGRMjUrmW" Name="Locked" Kind="InputPin" />
+              <Pin Id="BBxAyD2Tpj8P7tyv6AM9S3" Name="Selected" Kind="InputPin" />
+              <Pin Id="Vs9GMjEfZQWN7pgXheJ4KP" Name="Hovered" Kind="InputPin" />
+              <Pin Id="V176va8zldJMEQ51eOJK2s" Name="KeyHovered" Kind="InputPin" />
+              <Pin Id="Su27UjStEu3QZtaep4vQBw" Name="SelectionModifier" Kind="InputPin" />
+              <Pin Id="Ggs075T56ihP0ua4QPR2n5" Name="Id" Kind="InputPin" />
+              <Pin Id="UwXScJwfalJOSXeNPWaS3l" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="VpkZ3FQsW0VMS5m701WQQx" Bounds="195,228" />
+            <ControlPoint Id="Ig4XElaYwX3PsVL5aYqrpO" Bounds="259,228" />
+            <ControlPoint Id="O3atLdMwlYLMvwnIvPsEc4" Bounds="318,228" />
+            <ControlPoint Id="S7uKe2sTb1aL8jYTRcxTGV" Bounds="378,228" />
+            <ControlPoint Id="KXBxtR3WrRkNHp9y7tzlFy" Bounds="555,224" />
+            <ControlPoint Id="AY9v8oTgg6ROUzley5rI0b" Bounds="661,224" />
+            <ControlPoint Id="Q4dMIuRZXSHPURqscorojn" Bounds="296,360" />
+            <Link Id="PzuJ6hC6nOQQQlVkwiFCLe" Ids="VpkZ3FQsW0VMS5m701WQQx,QatvjPtGAmULhursyD7QlE" />
+            <Link Id="D5jhzNQtVPWL2NFim4GWnq" Ids="Ig4XElaYwX3PsVL5aYqrpO,ULyarxlc2FpQQFGRMjUrmW" />
+            <Link Id="VpsVPGFkeM7MNpXBYCG4KK" Ids="O3atLdMwlYLMvwnIvPsEc4,BBxAyD2Tpj8P7tyv6AM9S3" />
+            <Link Id="VKbE2PkDIN9PZYRRTn2fgp" Ids="S7uKe2sTb1aL8jYTRcxTGV,Vs9GMjEfZQWN7pgXheJ4KP" />
+            <Link Id="BBddJmBVHf7PQ7GRJy8vU8" Ids="UwXScJwfalJOSXeNPWaS3l,Q4dMIuRZXSHPURqscorojn" />
+            <Link Id="VV0EX9RB2d7PD7hWRs8PR6" Ids="KXBxtR3WrRkNHp9y7tzlFy,Su27UjStEu3QZtaep4vQBw" />
+            <Link Id="NIYlpq0byS8MF6ImNY9jWv" Ids="AY9v8oTgg6ROUzley5rI0b,Ggs075T56ihP0ua4QPR2n5" />
+            <Link Id="OsUcG8bgxgaO05XHxPgLOW" Ids="VoNs2obNoHzPNLkdVn3xKu,VpkZ3FQsW0VMS5m701WQQx" IsHidden="true" />
+            <Link Id="QJEG5vWNdvbMuWBH35MKEJ" Ids="T4PARKXgiBUPdVyWSm0pIZ,Ig4XElaYwX3PsVL5aYqrpO" IsHidden="true" />
+            <Link Id="AnJkyyoZDZ5MZsxgxMfJrD" Ids="NxKsSRxTT6cO8CglIQLQfY,O3atLdMwlYLMvwnIvPsEc4" IsHidden="true" />
+            <Link Id="LbKJF1Xtc4bO37oVf7GUg7" Ids="DbKh7c3T2s3MWlR7jOboIA,S7uKe2sTb1aL8jYTRcxTGV" IsHidden="true" />
+            <Link Id="Blxe6mK6WedPRijIqv1iD9" Ids="K4RgqrqPSj4LbXvuQTm4Je,KXBxtR3WrRkNHp9y7tzlFy" IsHidden="true" />
+            <Link Id="O9QuTPSJUNTMKxsjPwXZhG" Ids="KAZlKMj7FFtOq39k8kCTXQ,AY9v8oTgg6ROUzley5rI0b" IsHidden="true" />
+            <Link Id="Ax5F1PlFCVdN73zVVvOepw" Ids="Q4dMIuRZXSHPURqscorojn,AHqzpCBcDjSLiYfLnQRB9G" IsHidden="true" />
+            <ControlPoint Id="FEHV64mtachM7pCtJsh1vP" Bounds="448,227" />
+            <Link Id="Vi1APBS8D7VNbThglMC3NC" Ids="FEHV64mtachM7pCtJsh1vP,V176va8zldJMEQ51eOJK2s" />
+            <Link Id="HXxUnGWQqDIOKXpskM8lxi" Ids="JO4XG0wZX6gMmHU5p7uoNn,FEHV64mtachM7pCtJsh1vP" IsHidden="true" />
+            <Pin Id="VoNs2obNoHzPNLkdVn3xKu" Name="Position" Kind="InputPin" />
+            <Pin Id="T4PARKXgiBUPdVyWSm0pIZ" Name="Locked" Kind="InputPin" />
+            <Pin Id="NxKsSRxTT6cO8CglIQLQfY" Name="Selected" Kind="InputPin" />
+            <Pin Id="DbKh7c3T2s3MWlR7jOboIA" Name="Hovered" Kind="InputPin" />
+            <Pin Id="JO4XG0wZX6gMmHU5p7uoNn" Name="KeyHovered" Kind="InputPin" />
+            <Pin Id="K4RgqrqPSj4LbXvuQTm4Je" Name="SelectionModifier" Kind="InputPin" />
+            <Pin Id="KAZlKMj7FFtOq39k8kCTXQ" Name="Id" Kind="InputPin" />
+            <Pin Id="AHqzpCBcDjSLiYfLnQRB9G" Name="EditablePoint" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="TypeFlag" Name="EditablePoint" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector3" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ EditablePoint (3dFrom2d Internal) ************************
+
+-->
+        <Node Name="EditablePoint (3dFrom2d Internal)" Bounds="1205,510,209,239" Id="LEpsGRblKqPQbsxZavQEJa">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="PcIwi2pwLJaLuYGwDGlGUH" ManuallySortedPins="true">
+            <Node Bounds="1275,554,125,22" Id="K9WEOG9xPc6LMdCwiSpUSs">
+              <p:NodeReference LastCategoryFullName="Editors.EditablePoint" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="OperationNode" Name="Split" />
+                <CategoryReference Kind="Category" Name="EditablePoint" />
+              </p:NodeReference>
+              <Pin Id="In2DanJd10RQacVxlakV2S" Name="Input" Kind="InputPin" />
+              <Pin Id="NCVa3VB8G1FMma2zgNtxAF" Name="Position" Kind="OutputPin" />
+              <Pin Id="Cte5hamhogTMSKiMlZtDZh" Name="Locked" Kind="OutputPin" />
+              <Pin Id="JLDkda8p1g7PNS3wT5pyU8" Name="Selected" Kind="OutputPin" />
+              <Pin Id="QWJx7vFKXSsNVwJU8isORY" Name="Hovered" Kind="OutputPin" />
+              <Pin Id="S172agmRg7lLUITaTBEDma" Name="KeyHovered" Kind="OutputPin" />
+              <Pin Id="OcySgMifRNwOuwEabNpA5V" Name="SelectionModifier" Kind="OutputPin" />
+              <Pin Id="G6i168T2KAZN1znjm5Mvya" Name="Id" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="1257,676,145,22" Id="RJmP9fWkfXhLefgrRZC7eb">
+              <p:NodeReference LastCategoryFullName="Editors.EditablePoint" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="EditablePoint" />
+              </p:NodeReference>
+              <Pin Id="Oal1rRiIV9yMQcSiX3bNJC" Name="Input" Kind="InputPin" />
+              <Pin Id="ERKQYwUWYmoNeC943WEN7v" Name="Position" Kind="InputPin" />
+              <Pin Id="G5HMndK5Mp2P5AOvstOXBg" Name="Locked" Kind="InputPin" />
+              <Pin Id="QS41cco9OarOWjTbShm2CT" Name="Selected" Kind="InputPin" />
+              <Pin Id="AwxkD1FraoUOulNMjdKgb8" Name="Hovered" Kind="InputPin" />
+              <Pin Id="D1yu2Bo8hTrMKZIlHGfFLj" Name="KeyHovered" Kind="InputPin" />
+              <Pin Id="Spr02q29MaXMvI35dL8YXJ" Name="SelectionModifier" Kind="InputPin" />
+              <Pin Id="Kxx21eZguGJQHs9fUsZlNn" Name="Id" Kind="InputPin" />
+              <Pin Id="E5TQwy6hjeeMEoMuZDFSJJ" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="QWaTquQoGRSN44MS6KSJpL" Bounds="1276,526" />
+            <Link Id="PTVph9SPcIhN9Ifu1c3JVZ" Ids="QWaTquQoGRSN44MS6KSJpL,In2DanJd10RQacVxlakV2S" />
+            <Pin Id="QCgciewitYOPOpRF4923N7" Name="Input" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Editors" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="TypeFlag" Name="EditablePoint" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector2" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Link Id="L6ZJ379LXW8MVIn9ol6kry" Ids="QCgciewitYOPOpRF4923N7,QWaTquQoGRSN44MS6KSJpL" IsHidden="true" />
+            <Link Id="PmnWmEKshCOQSuoQDh1mnh" Ids="Cte5hamhogTMSKiMlZtDZh,G5HMndK5Mp2P5AOvstOXBg" />
+            <Link Id="BQgQ496e0JzPean8fhCnUW" Ids="JLDkda8p1g7PNS3wT5pyU8,QS41cco9OarOWjTbShm2CT" />
+            <Link Id="PvL0iebdKfcLcXZ7mGfYZ8" Ids="QWJx7vFKXSsNVwJU8isORY,AwxkD1FraoUOulNMjdKgb8" />
+            <Link Id="MuNhsPRE65HNbe9s6yiDDE" Ids="OcySgMifRNwOuwEabNpA5V,Spr02q29MaXMvI35dL8YXJ" />
+            <Link Id="LPGLYwnAJyTM5OwX1Kpvu0" Ids="G6i168T2KAZN1znjm5Mvya,Kxx21eZguGJQHs9fUsZlNn" />
+            <ControlPoint Id="Tl8U8Lsn3BFQLP8MlU7PhG" Bounds="1258,730" />
+            <Link Id="HzTF8ziYu1yM1hzPX4M1Lu" Ids="E5TQwy6hjeeMEoMuZDFSJJ,Tl8U8Lsn3BFQLP8MlU7PhG" />
+            <Pin Id="Gk6ro2STRTePx2DY06kAKQ" Name="Output" Kind="OutputPin" />
+            <Link Id="VuTU4OFpOgGQD8C25Q07L5" Ids="Tl8U8Lsn3BFQLP8MlU7PhG,Gk6ro2STRTePx2DY06kAKQ" IsHidden="true" />
+            <Node Bounds="1217,636,56,22" Id="SNZfFQqAcrTNiBGdq65Lem">
+              <p:NodeReference LastCategoryFullName="Editors.EditablePoint" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="OperationNode" Name="Create" />
+                <CategoryReference Kind="Category" Name="EditablePoint" />
+              </p:NodeReference>
+              <Pin Id="D7QRVX4eimiPCeY5504Up7" Name="Position" Kind="InputPin" />
+              <Pin Id="FWLUNVJQ3C7OQ7MIeZM5al" Name="Id" Kind="InputPin" />
+              <Pin Id="LqnUxROLEriLeRY3H1fWKd" Name="Output" Kind="StateOutputPin" />
+            </Node>
+            <Link Id="FyHeiUFIdsfPmpkO8RyzLl" Ids="G6i168T2KAZN1znjm5Mvya,FWLUNVJQ3C7OQ7MIeZM5al" />
+            <Link Id="DQa7mc3iosfQMNr8Eim8Xn" Ids="LqnUxROLEriLeRY3H1fWKd,Oal1rRiIV9yMQcSiX3bNJC" />
+            <Node Bounds="1274,598,57,13" Id="BBEH34FWAvALuhQLgnUsJl">
+              <p:NodeReference LastCategoryFullName="2D.Vector2" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="OperationNode" Name="ToVector3" />
+                <CategoryReference Kind="Category" Name="Vector2" />
+              </p:NodeReference>
+              <Pin Id="IskWQaai2t9QZQil1cll6r" Name="Input" Kind="InputPin" />
+              <Pin Id="BPpNKJqB49pQNsO5Yqkrl3" Name="Z" Kind="InputPin" />
+              <Pin Id="ANb8Vymu5F4P1ICR6V2Bl9" Name="Result" Kind="OutputPin" />
+            </Node>
+            <Link Id="SJlmIi3kKhPORwj2pjVf1j" Ids="NCVa3VB8G1FMma2zgNtxAF,IskWQaai2t9QZQil1cll6r" />
+            <Link Id="PG0uqicW22HOwzsgMiBvNE" Ids="ANb8Vymu5F4P1ICR6V2Bl9,ERKQYwUWYmoNeC943WEN7v" />
+            <Link Id="I5LIncmFO8ONS0fSKhoI7d" Ids="S172agmRg7lLUITaTBEDma,D1yu2Bo8hTrMKZIlHGfFLj" />
+          </Patch>
+        </Node>
+      </Canvas>
+      <!--
+
+    ************************ PointEditor (3d Internal) ************************
+
+-->
+      <Node Name="PointEditor (3d Internal)" Bounds="588,77" Id="SciqdzWrk9KMvr5qFYdgps">
+        <p:NodeReference>
+          <Choice Kind="ContainerDefinition" Name="Patch" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="DOprA7avmBxO9NNUwHEauS">
+          <Patch Id="UQaUTirAfXLPXz4xloYWgY" Name="Create" />
+          <Patch Id="B3PyrfFRl54O9xewqqiLXY" Name="Update">
+            <Pin Id="J1IAw1ZEBnCQJZuv7jf4wX" Name="Points To Add" Kind="InputPin" />
+            <Pin Id="Pw06sQyz9cKLdQ2RHprfDN" Name="Add" Kind="InputPin" />
+            <Pin Id="EM1KY7IKS6lMXRK7NAsUIf" Name="Clear" Kind="InputPin" />
+            <Pin Id="Dy53ajVz4tkNME2AvnDzcZ" Name="Locked" Kind="InputPin" />
+            <Pin Id="GUNMUy3kCqFNKFAR7BeSwE" Name="PointEditor Controls" Kind="InputPin" />
+            <Pin Id="RbmrfdIx0DqNfQeGPnMbQ7" Name="Gizmo Controls" Kind="InputPin" />
+            <Pin Id="CLqj4G3iP5hO8XaGI99C3M" Name="View Projection" Kind="InputPin" />
+            <Pin Id="K3VI3AkI0sIMGbXblJ3sSM" Name="Pick Size" Kind="InputPin" />
+            <Pin Id="PNKSLedZagQMiZonXfWhxp" Name="Step Size" Kind="InputPin" />
+            <Pin Id="FBr810x1n73NdYDIttJjM3" Name="Gizmo Size" Kind="InputPin" />
+            <Pin Id="DwZN5ptAYOVPikGkh6mSZM" Name="File Path" Kind="InputPin" />
+            <Pin Id="IKNaXGWXvUPP36poUFD38F" Name="Save" Kind="InputPin" />
+            <Pin Id="ALgfmEf9TB8Oe4BpaWUdht" Name="Load" Kind="InputPin" />
+            <Pin Id="QrMfcRHkQaIM4bPHn77oVS" Name="Camera Idle" Kind="InputPin" />
+            <Pin Id="D7MDbsMrxuwLsdmjapzENj" Name="PointEditor State" Kind="OutputPin" />
+            <Pin Id="JLbW2hgNZcjQcMQQY9xt7I" Name="Points" Kind="OutputPin" />
+            <Pin Id="EqBAhoSnYHUMB8a0L3KUBT" Name="Ids" Kind="OutputPin" />
+            <Pin Id="UoeRJOjJ83WPz8N9P93ANp" Name="Idle" Kind="OutputPin" />
+          </Patch>
+          <Canvas Id="IGH9qnzgim8OqQBacZ1JCo" CanvasType="Group">
+            <Node Bounds="428,356,265,13" Id="Q6jp5ayzjn6Ms4nCgvXiLP">
+              <p:NodeReference LastCategoryFullName="Editors.3D" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="ProcessNode" Name="PointEditor" />
+                <CategoryReference Kind="Category" Name="3D" />
+              </p:NodeReference>
+              <Pin Id="Gg1QC10haTpPOAaJS1e5QG" Name="Points To Add" Kind="InputPin" />
+              <Pin Id="U2NlNhhneiaQROLDnbROEw" Name="Add" Kind="InputPin" />
+              <Pin Id="N0s4yU26CTUNPNqTIQem91" Name="Clear" Kind="InputPin" />
+              <Pin Id="GfTbLsVWmiXPvma62RNZTo" Name="Locked" Kind="InputPin" />
+              <Pin Id="C5zJrktBkA3Pq9NfUpVtZb" Name="PointEditor Controls" Kind="InputPin" />
+              <Pin Id="Dyp6Y556gIxPd0lR49zkiy" Name="Gizmo Controls" Kind="InputPin" />
+              <Pin Id="I6nZ3n7OoxrNAzUr8jMLeQ" Name="View Projection" Kind="InputPin" />
+              <Pin Id="NC89ld2iqNEP5DdNK2x3zh" Name="Pick Size" Kind="InputPin" />
+              <Pin Id="MLIdk7Oq5n9LozNZQyi9VG" Name="Step Size" Kind="InputPin" />
+              <Pin Id="DaxlnYfjcoLM7Dl2Lsvegw" Name="Gizmo Size" Kind="InputPin" />
+              <Pin Id="RjfOQddF9RvOCxaUpNsuRt" Name="File Path" Kind="InputPin" />
+              <Pin Id="H68laK5WG39Mg2ijNU50Xu" Name="Load" Kind="InputPin" />
+              <Pin Id="NCkYldHEJVaQHMZI1TrZ1H" Name="Save" Kind="InputPin" />
+              <Pin Id="D3CO2nexrTONorNDShih6f" Name="Camera Idle" Kind="InputPin" />
+              <Pin Id="LV7S5qnHbjkNqp1u1Uncpp" Name="PointEditor State" Kind="OutputPin" />
+              <Pin Id="UOzgGennAiTMxKf1Z39qbJ" Name="Points" Kind="OutputPin" />
+              <Pin Id="OyYzxx4FecWMJMS4xClcTN" Name="Ids" Kind="OutputPin" />
+              <Pin Id="SXtsFYq5n4BPd4mfW8zfpD" Name="Idle" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="DBO8G4R4NJYNOfGfTBoUNc" Bounds="-2,213" />
+            <ControlPoint Id="JKdCBdHMCvoOss3TOOfSF0" Bounds="98,213" />
+            <ControlPoint Id="I5HVOy0c5qdMBZ4ed3RXii" Bounds="150,213" />
+            <ControlPoint Id="GjKOnXLQoS8PD3CLvy8Sn8" Bounds="202,213" />
+            <ControlPoint Id="KecZ3oy0lUgPRJBqUNqyE6" Bounds="304,213" />
+            <ControlPoint Id="FYc06ZzrBtkOJsxlEbEKUv" Bounds="556,208" />
+            <ControlPoint Id="EOEOZ2q8Ik3L7yDou8VG7q" Bounds="664,208" />
+            <ControlPoint Id="U1CTLLibgGvOPaHuuDkKnz" Bounds="732,208" />
+            <ControlPoint Id="Muaq0bLMc9eM7nKbHmoJDX" Bounds="937,204" />
+            <ControlPoint Id="Qb9ArXsGFTuNz8jEbJ79yX" Bounds="982,204" />
+            <ControlPoint Id="UbJbi3atCgpPBvQJMpcVjL" Bounds="267,430" />
+            <ControlPoint Id="JFKsCQhXo9NOTtccdcXhTB" Bounds="389,430" />
+            <ControlPoint Id="Sf504JXtE7AP4stxQOlDPH" Bounds="562,430" />
+            <ControlPoint Id="S8gtBqqXyhdQX1fBLaNP8r" Bounds="472,430" />
+            <ControlPoint Id="Rs4jRsxpSIBOHPzY6s52Zi" Bounds="872,205" />
+            <ControlPoint Id="OcnNultLRyJMtZaeRwzEWQ" Bounds="448,210" />
+            <ControlPoint Id="CuQG42ZrvhWNldh81zo2am" Bounds="1030,204" />
+            <ControlPoint Id="CtYAvQqnScXMUKUUfaDv08" Bounds="794,205" />
+          </Canvas>
+          <Link Id="PdqJhWFFQorPVea50eQlFR" Ids="J1IAw1ZEBnCQJZuv7jf4wX,DBO8G4R4NJYNOfGfTBoUNc" IsHidden="true" />
+          <Link Id="JZ9D9ZvpXTELnbeqdVx5Sc" Ids="Pw06sQyz9cKLdQ2RHprfDN,JKdCBdHMCvoOss3TOOfSF0" IsHidden="true" />
+          <Link Id="V2Zc3SfpijZOvs1n9ngM6i" Ids="EM1KY7IKS6lMXRK7NAsUIf,I5HVOy0c5qdMBZ4ed3RXii" IsHidden="true" />
+          <Link Id="Jkm7K4asXLEMm1z0QO5F2i" Ids="Dy53ajVz4tkNME2AvnDzcZ,GjKOnXLQoS8PD3CLvy8Sn8" IsHidden="true" />
+          <Link Id="JtcY8VidtUqNUr9c2sW7mM" Ids="GUNMUy3kCqFNKFAR7BeSwE,KecZ3oy0lUgPRJBqUNqyE6" IsHidden="true" />
+          <Link Id="KuRCqwj29u3PzRz3zWMUPP" Ids="CLqj4G3iP5hO8XaGI99C3M,FYc06ZzrBtkOJsxlEbEKUv" IsHidden="true" />
+          <Link Id="NM01ucmlLN9OWGwMGwfeuc" Ids="K3VI3AkI0sIMGbXblJ3sSM,EOEOZ2q8Ik3L7yDou8VG7q" IsHidden="true" />
+          <Link Id="CoYYxGqiDJALFL3I2oc8jg" Ids="PNKSLedZagQMiZonXfWhxp,U1CTLLibgGvOPaHuuDkKnz" IsHidden="true" />
+          <Link Id="Oxtdoe9ssiwLOVY5Ua45nB" Ids="IKNaXGWXvUPP36poUFD38F,Muaq0bLMc9eM7nKbHmoJDX" IsHidden="true" />
+          <Link Id="UrxFmozgsOENerCgUC3o7o" Ids="ALgfmEf9TB8Oe4BpaWUdht,Qb9ArXsGFTuNz8jEbJ79yX" IsHidden="true" />
+          <Link Id="FJi4vo7oKxZMUswSiqWRH5" Ids="UbJbi3atCgpPBvQJMpcVjL,D7MDbsMrxuwLsdmjapzENj" IsHidden="true" />
+          <Link Id="GLPyR8BQ5ZIQWskyq8r0wy" Ids="JFKsCQhXo9NOTtccdcXhTB,JLbW2hgNZcjQcMQQY9xt7I" IsHidden="true" />
+          <Link Id="UYeK9OErQCqLo4a8m21U1J" Ids="Sf504JXtE7AP4stxQOlDPH,UoeRJOjJ83WPz8N9P93ANp" IsHidden="true" />
+          <Link Id="RVbuLXltfhKNzEFFWXZfCV" Ids="S8gtBqqXyhdQX1fBLaNP8r,EqBAhoSnYHUMB8a0L3KUBT" IsHidden="true" />
+          <Link Id="POurDEgoIn8O4UXHpr6TRL" Ids="UOzgGennAiTMxKf1Z39qbJ,JFKsCQhXo9NOTtccdcXhTB" />
+          <Link Id="MTZn4I6WNr6LoHeaIttpg0" Ids="SXtsFYq5n4BPd4mfW8zfpD,Sf504JXtE7AP4stxQOlDPH" />
+          <Link Id="IKB6zFXA6srPWAzzcNTkjF" Ids="DBO8G4R4NJYNOfGfTBoUNc,Gg1QC10haTpPOAaJS1e5QG" />
+          <Link Id="DzJ6tmHUNHUO61X1Txc7Xr" Ids="JKdCBdHMCvoOss3TOOfSF0,U2NlNhhneiaQROLDnbROEw" />
+          <Link Id="NvIdSrm1DkoN2RRWXRIp81" Ids="I5HVOy0c5qdMBZ4ed3RXii,N0s4yU26CTUNPNqTIQem91" />
+          <Link Id="IYnSK2SQQwFNZGaDepRLrA" Ids="FYc06ZzrBtkOJsxlEbEKUv,I6nZ3n7OoxrNAzUr8jMLeQ" />
+          <Link Id="K7e0vVJLr2xNYeUVNLkcGm" Ids="EOEOZ2q8Ik3L7yDou8VG7q,NC89ld2iqNEP5DdNK2x3zh" />
+          <Link Id="HiN7IFKJG91MPLm35uk2t6" Ids="Muaq0bLMc9eM7nKbHmoJDX,NCkYldHEJVaQHMZI1TrZ1H" />
+          <Link Id="GQy1KklHamRMJkQD0ncwHC" Ids="Qb9ArXsGFTuNz8jEbJ79yX,H68laK5WG39Mg2ijNU50Xu" />
+          <Link Id="CVzDSZ0VohrLbMnN2ufSkV" Ids="KecZ3oy0lUgPRJBqUNqyE6,C5zJrktBkA3Pq9NfUpVtZb" />
+          <Link Id="CLx26pAalhePT44VMRh79v" Ids="GjKOnXLQoS8PD3CLvy8Sn8,GfTbLsVWmiXPvma62RNZTo" />
+          <Link Id="GvAlc6YQ9ZDPqxfgV5we4v" Ids="LV7S5qnHbjkNqp1u1Uncpp,UbJbi3atCgpPBvQJMpcVjL" />
+          <Link Id="UZMIRjOnkZiPKZxoz8V93b" Ids="U1CTLLibgGvOPaHuuDkKnz,MLIdk7Oq5n9LozNZQyi9VG" />
+          <Link Id="UQjgYs9ZRznMveUgvSEhaA" Ids="OyYzxx4FecWMJMS4xClcTN,S8gtBqqXyhdQX1fBLaNP8r" />
+          <ProcessDefinition Id="GStTADjNgDnMS9sJtlnWY7">
+            <Fragment Id="BfUrZI4XPWwMw594TE2QiT" Patch="UQaUTirAfXLPXz4xloYWgY" Enabled="true" />
+            <Fragment Id="ApF4SgdPKZyOUFnQHxNIxk" Patch="B3PyrfFRl54O9xewqqiLXY" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="I47mgwdnOi7LgO6quqClNs" Ids="Rs4jRsxpSIBOHPzY6s52Zi,RjfOQddF9RvOCxaUpNsuRt" />
+          <Link Id="P4QooBYjhnNOC511x0Dcln" Ids="DwZN5ptAYOVPikGkh6mSZM,Rs4jRsxpSIBOHPzY6s52Zi" IsHidden="true" />
+          <Link Id="QAvnC3ObRowMZ7e93ZuXIM" Ids="OcnNultLRyJMtZaeRwzEWQ,Dyp6Y556gIxPd0lR49zkiy" />
+          <Link Id="DQ9FM0kAK5QNKbumZNmT7R" Ids="RbmrfdIx0DqNfQeGPnMbQ7,OcnNultLRyJMtZaeRwzEWQ" IsHidden="true" />
+          <Link Id="Ebp6L6YfBBBNbCpIF2iJi9" Ids="CuQG42ZrvhWNldh81zo2am,D3CO2nexrTONorNDShih6f" />
+          <Link Id="B6kqKjeXlWVNuE05V0YEDb" Ids="QrMfcRHkQaIM4bPHn77oVS,CuQG42ZrvhWNldh81zo2am" IsHidden="true" />
+          <Link Id="BTdy5UovPyuMbsiVWMIGL7" Ids="CtYAvQqnScXMUKUUfaDv08,DaxlnYfjcoLM7Dl2Lsvegw" />
+          <Link Id="RjQ80iS2gKuM0yfMbxkKjW" Ids="FBr810x1n73NdYDIttJjM3,CtYAvQqnScXMUKUUfaDv08" IsHidden="true" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ PointEditor (2d Internal) ************************
+
+-->
+      <Node Name="PointEditor (2d Internal)" Bounds="133,76" Id="MlB2p1FJ40lNfNcsue9lsa">
+        <p:NodeReference>
+          <Choice Kind="ContainerDefinition" Name="Patch" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="TRpPOouHHGPLupO8iJW18X">
+          <Patch Id="GNzHZhX1ul0OElXHDJLH5A" Name="Create" />
+          <Patch Id="LzUifGmkDIMLsVfRYgJkhX" Name="Update">
+            <Pin Id="JA6u0Kjj28MMv6to4neibM" Name="Points To Add" Kind="InputPin" />
+            <Pin Id="SIHWjP9PdKxP2hglatOHXs" Name="Add" Kind="InputPin" />
+            <Pin Id="FfrartKd04ILZ3maEMBOxV" Name="Clear" Kind="InputPin" />
+            <Pin Id="FD8ry0XTZGUOAan3U12kfW" Name="Locked" Kind="InputPin" />
+            <Pin Id="PCXplSP4f6PQYsukfVWDiM" Name="PointEditor Controls" Kind="InputPin" />
+            <Pin Id="OG4D4NlDeC7PovHqLItUx5" Name="Gizmo Controls" Kind="InputPin" />
+            <Pin Id="AM0ObXg1JUMP3FXg9ZofS2" Name="View" Kind="InputPin" />
+            <Pin Id="FsbAUdtlxKQQbjkKAM1amj" Name="Camera Zoom" Kind="InputPin" />
+            <Pin Id="Ni9hNE2SrnhOCui4sB20OW" Name="Camera Idle" Kind="InputPin" />
+            <Pin Id="LNH8gTVyci7Ps0ggwcyRHD" Name="Pick Size" Kind="InputPin" />
+            <Pin Id="ILKZHK9IGKuNL47vopKsRM" Name="Step Size" Kind="InputPin" />
+            <Pin Id="REeX0OAYY1MNiLJwmpX9E0" Name="Gizmo Size" Kind="InputPin" />
+            <Pin Id="CvJIR06tiofLB3jLQa7gSC" Name="File Path" Kind="InputPin" />
+            <Pin Id="BqvFoc3J2mSOOt86Nks1Fx" Name="Save" Kind="InputPin" />
+            <Pin Id="A02zkgbmqGkNvk7yPcCk9w" Name="Load" Kind="InputPin" />
+            <Pin Id="QXKLGfQ0kyaNoHctnzdGwc" Name="PointEditor State" Kind="OutputPin" />
+            <Pin Id="GodsDiF9Mh5O2Yjdo3u6Oy" Name="Points" Kind="OutputPin" />
+            <Pin Id="QLvDhnIVXl2MFvGb42WIXd" Name="Ids" Kind="OutputPin" />
+            <Pin Id="Stp4JHusK6yQXX0rM71JIv" Name="Idle" Kind="OutputPin" />
+          </Patch>
+          <Canvas Id="CTZSo6PPQojOjeSVs09mrU" CanvasType="Group">
+            <Node Bounds="306,274,285,13" Id="CZOcO529zXVMdGQjJkUcRW">
+              <p:NodeReference LastCategoryFullName="Editors.2D" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="ProcessNode" Name="PointEditor" />
+                <CategoryReference Kind="Category" Name="2D" />
+              </p:NodeReference>
+              <Pin Id="LVktYmcST16L1XR86CoZA1" Name="Points To Add" Kind="InputPin" />
+              <Pin Id="QOOZQ8Mq1QiQCKr0ifG3mP" Name="Add" Kind="InputPin" />
+              <Pin Id="H8BZSjoKOZyOGd5wyGOZdk" Name="Clear" Kind="InputPin" />
+              <Pin Id="JUBHcJzS6SBOa3CJegNNIL" Name="Locked" Kind="InputPin" />
+              <Pin Id="I6vBpRrSONpPF6OgafRndB" Name="PointEditorControls" Kind="InputPin" />
+              <Pin Id="NhDmGhlnhV1PJ38Rqsk4Ys" Name="Gizmo Controls" Kind="InputPin" />
+              <Pin Id="Cd51ygxTpZbM64uUkZTuTj" Name="View" Kind="InputPin" />
+              <Pin Id="PIvEFeUh2sTQRrLyKxRK9b" Name="Camera Zoom" Kind="InputPin" />
+              <Pin Id="QFTtiUz3t0INR0RgbkhYUv" Name="Camera Idle" Kind="InputPin" />
+              <Pin Id="ThGkF5wLuDSN7vcykaIYt8" Name="Pick Size" Kind="InputPin" />
+              <Pin Id="CFd8bWugFNvL3H796wGOu1" Name="Step Size" Kind="InputPin" />
+              <Pin Id="BDVwJXMdjvmPWPpsgsnzvk" Name="Gizmo Size" Kind="InputPin" />
+              <Pin Id="MMhBosihOgwNTKukcHNHyd" Name="File Path" Kind="InputPin" />
+              <Pin Id="IpsrQFMlELaNRhFoGFpa4C" Name="Load" Kind="InputPin" />
+              <Pin Id="DPqvcaxAlvJO50e5MXP3eV" Name="Save" Kind="InputPin" />
+              <Pin Id="KVO5ANvbsbTMpxIdrZJ2WA" Name="PointEditor State" Kind="OutputPin" />
+              <Pin Id="O2P3TFtV6fSOddHi34ud7B" Name="Points" Kind="OutputPin" />
+              <Pin Id="MBnBehGNhkzMhBgogS7YYe" Name="Ids" Kind="OutputPin" />
+              <Pin Id="Idles4kcaWrMIFT3u5rbmP" Name="Idle" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="UGKEGcuKUOAMWbnen11b1S" Bounds="-178,145" />
+            <ControlPoint Id="B4H4xETZYLVP5keOJow9hH" Bounds="-85,144" />
+            <ControlPoint Id="C1punMUiDLpNw9DcSQkxn4" Bounds="-45,144" />
+            <ControlPoint Id="Fs8jqf7lkERN4sxX56DzCD" Bounds="7,145" />
+            <ControlPoint Id="OmMVn7YM8eNMAcA0tpvsRq" Bounds="61,145" />
+            <ControlPoint Id="DdRPw5UTZcNOKzqeUiq7c7" Bounds="289,143" />
+            <ControlPoint Id="A18MHlmSNRCQHO2eXmDQCz" Bounds="584,138" />
+            <ControlPoint Id="DxpoaeDRBkeQYF0uUuiNFZ" Bounds="658,138" />
+            <ControlPoint Id="R19yrVliL0jPtjjJ6fyXCG" Bounds="983,139" />
+            <ControlPoint Id="RcmY6f83hpyPR4jVYUR7pS" Bounds="131,349" />
+            <ControlPoint Id="EN0tENWDIQjPf1rMwe9rdn" Bounds="237,349" />
+            <ControlPoint Id="HnSqJl4FPx9QJJWEA1LsQJ" Bounds="309,349" />
+            <ControlPoint Id="ATT4dUAsWW8OxrJvydt4eA" Bounds="407,349" />
+            <ControlPoint Id="BXwZRNcjeUxNjJpIteRkXK" Bounds="863,139" />
+            <ControlPoint Id="DsnD13ur1APNHOXvVzCmEl" Bounds="937,140" />
+            <ControlPoint Id="EuX8oTQtdwDO5Z1cQYAnYk" Bounds="488,138" />
+            <ControlPoint Id="Oz6pZEPzWeQOxVqDJqjuN2" Bounds="181,145" />
+            <ControlPoint Id="M3qDQmDwjJdPbevNTVcYD1" Bounds="363,140" />
+            <ControlPoint Id="TimgHv2gcGdNVcWCbAwnAL" Bounds="767,140" />
+          </Canvas>
+          <Link Id="Rn0tCS8tg4jMU91uQHoD7R" Ids="JA6u0Kjj28MMv6to4neibM,UGKEGcuKUOAMWbnen11b1S" IsHidden="true" />
+          <Link Id="IfSUsnwYiifMP2gVeJxw9R" Ids="SIHWjP9PdKxP2hglatOHXs,B4H4xETZYLVP5keOJow9hH" IsHidden="true" />
+          <Link Id="EX0pRFNt2xJN6nl0jTkuck" Ids="FfrartKd04ILZ3maEMBOxV,C1punMUiDLpNw9DcSQkxn4" IsHidden="true" />
+          <Link Id="J8pef8ezJr1PJPBcBQStBB" Ids="FD8ry0XTZGUOAan3U12kfW,Fs8jqf7lkERN4sxX56DzCD" IsHidden="true" />
+          <Link Id="KnwuFul8VISLs6OysdJzHV" Ids="PCXplSP4f6PQYsukfVWDiM,OmMVn7YM8eNMAcA0tpvsRq" IsHidden="true" />
+          <Link Id="BgqNnFVy2trNNpJvrfV1lo" Ids="AM0ObXg1JUMP3FXg9ZofS2,DdRPw5UTZcNOKzqeUiq7c7" IsHidden="true" />
+          <Link Id="CHyD2fWxj46K91aRMXPmiF" Ids="LNH8gTVyci7Ps0ggwcyRHD,A18MHlmSNRCQHO2eXmDQCz" IsHidden="true" />
+          <Link Id="CDtnuqL0UVTOiq1wDEGNQ6" Ids="ILKZHK9IGKuNL47vopKsRM,DxpoaeDRBkeQYF0uUuiNFZ" IsHidden="true" />
+          <Link Id="PgPZXiT95RAOQJsZkMjyYf" Ids="A02zkgbmqGkNvk7yPcCk9w,R19yrVliL0jPtjjJ6fyXCG" IsHidden="true" />
+          <Link Id="R08wMMBjxMjLqw0a6u4obB" Ids="RcmY6f83hpyPR4jVYUR7pS,QXKLGfQ0kyaNoHctnzdGwc" IsHidden="true" />
+          <Link Id="CHaR1qLVmIxLHahqsu640U" Ids="EN0tENWDIQjPf1rMwe9rdn,GodsDiF9Mh5O2Yjdo3u6Oy" IsHidden="true" />
+          <Link Id="OHyyMmjVgUvPl1yF4OV45i" Ids="HnSqJl4FPx9QJJWEA1LsQJ,QLvDhnIVXl2MFvGb42WIXd" IsHidden="true" />
+          <Link Id="Tbu8EOuviIhOhRlrJWKH0J" Ids="ATT4dUAsWW8OxrJvydt4eA,Stp4JHusK6yQXX0rM71JIv" IsHidden="true" />
+          <Link Id="IQWeyy03EzWL6dEIjdOh78" Ids="O2P3TFtV6fSOddHi34ud7B,EN0tENWDIQjPf1rMwe9rdn" />
+          <Link Id="Jw0btY4GyzcOQLaYe4TpTz" Ids="A18MHlmSNRCQHO2eXmDQCz,ThGkF5wLuDSN7vcykaIYt8" />
+          <Link Id="Nud4EUs01cKQOegOmiQn3T" Ids="DdRPw5UTZcNOKzqeUiq7c7,Cd51ygxTpZbM64uUkZTuTj" />
+          <Link Id="MQF9kZKjgP3MzWvmvNjByq" Ids="C1punMUiDLpNw9DcSQkxn4,H8BZSjoKOZyOGd5wyGOZdk" />
+          <Link Id="MVvuJpaRVLXQWL3xCAzDM7" Ids="B4H4xETZYLVP5keOJow9hH,QOOZQ8Mq1QiQCKr0ifG3mP" />
+          <Link Id="KrJMmbV0L25MO7pUA6S5Tb" Ids="UGKEGcuKUOAMWbnen11b1S,LVktYmcST16L1XR86CoZA1" />
+          <Link Id="CRsj0fKEQMCOAH6EYdFI0R" Ids="Idles4kcaWrMIFT3u5rbmP,ATT4dUAsWW8OxrJvydt4eA" />
+          <Link Id="DoS8VtDBrwxNyjAjt80Wp9" Ids="R19yrVliL0jPtjjJ6fyXCG,IpsrQFMlELaNRhFoGFpa4C" />
+          <Link Id="QwKsvEK6mbbQBsf7xBWLW5" Ids="OmMVn7YM8eNMAcA0tpvsRq,I6vBpRrSONpPF6OgafRndB" />
+          <Link Id="GIl0yS0UB7SLnQu54v2aSE" Ids="Fs8jqf7lkERN4sxX56DzCD,JUBHcJzS6SBOa3CJegNNIL" />
+          <Link Id="T8Vn30alanxN81hyH0NC6F" Ids="KVO5ANvbsbTMpxIdrZJ2WA,RcmY6f83hpyPR4jVYUR7pS" />
+          <Link Id="K6NVX053oU9MpuevS1JGYB" Ids="DxpoaeDRBkeQYF0uUuiNFZ,CFd8bWugFNvL3H796wGOu1" />
+          <Link Id="KzXZ3XvQRVWLyLlFNYrUDA" Ids="MBnBehGNhkzMhBgogS7YYe,HnSqJl4FPx9QJJWEA1LsQJ" />
+          <ProcessDefinition Id="VXoeyigr6akLoLV9TpBlSM">
+            <Fragment Id="CpssVeeiKshQK8KJHHytCn" Patch="GNzHZhX1ul0OElXHDJLH5A" Enabled="true" />
+            <Fragment Id="Hmdf01HLIh3NLHX8JOgTKY" Patch="LzUifGmkDIMLsVfRYgJkhX" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="JbTf9wGdxNsLSKfNUN6QBU" Ids="BXwZRNcjeUxNjJpIteRkXK,MMhBosihOgwNTKukcHNHyd" />
+          <Link Id="EpPmlADgwEgQYqLIIbWown" Ids="CvJIR06tiofLB3jLQa7gSC,BXwZRNcjeUxNjJpIteRkXK" IsHidden="true" />
+          <Link Id="BThv01MU77PMNMC5ynfyjb" Ids="DsnD13ur1APNHOXvVzCmEl,DPqvcaxAlvJO50e5MXP3eV" />
+          <Link Id="FgU1l2qYHaEP0WlTP3Ko3G" Ids="BqvFoc3J2mSOOt86Nks1Fx,DsnD13ur1APNHOXvVzCmEl" IsHidden="true" />
+          <Link Id="C3nhqTAYJugOzOVtgrsxjb" Ids="EuX8oTQtdwDO5Z1cQYAnYk,QFTtiUz3t0INR0RgbkhYUv" />
+          <Link Id="NHGU992ZFhDPB0JRRQzJ8X" Ids="Ni9hNE2SrnhOCui4sB20OW,EuX8oTQtdwDO5Z1cQYAnYk" IsHidden="true" />
+          <Link Id="Hf2oTPz2LLPQJfYxSPCLmF" Ids="Oz6pZEPzWeQOxVqDJqjuN2,NhDmGhlnhV1PJ38Rqsk4Ys" />
+          <Link Id="N2KVm1jRNtgLAmXO8oMydP" Ids="OG4D4NlDeC7PovHqLItUx5,Oz6pZEPzWeQOxVqDJqjuN2" IsHidden="true" />
+          <Link Id="Rgy1YbPyBwjPeS1SFvFv4v" Ids="M3qDQmDwjJdPbevNTVcYD1,PIvEFeUh2sTQRrLyKxRK9b" />
+          <Link Id="VCy30bbOjaSOkwqsUWWRik" Ids="FsbAUdtlxKQQbjkKAM1amj,M3qDQmDwjJdPbevNTVcYD1" IsHidden="true" />
+          <Link Id="NhJHA1efZEhQHljXI9ITtZ" Ids="TimgHv2gcGdNVcWCbAwnAL,BDVwJXMdjvmPWPpsgsnzvk" />
+          <Link Id="LxmXngNPlRAMifiMUUT0gB" Ids="REeX0OAYY1MNiLJwmpX9E0,TimgHv2gcGdNVcWCbAwnAL" IsHidden="true" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ PointEditorControls (Internal) ************************
+
+-->
+      <Node Name="PointEditorControls (Internal)" Bounds="133,191" Id="OyVajZaV4LtPBa3ESD7FvN">
+        <p:NodeReference>
+          <Choice Kind="ContainerDefinition" Name="Patch" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="JcQEPHMODUxLSFLie54vIc">
+          <Patch Id="Fs5YyscmTm3PdmaT4AKsI9" Name="Create" />
+          <Patch Id="PRGKm43ncEtOOSFNLl7aRD" Name="Update">
+            <Pin Id="B2t9OrJjrnSNkspyvM7dZE" Name="Mouse Device" Kind="InputPin" />
+            <Pin Id="DpWXP11MIv2ND5BV1cwarQ" Name="Keyboard Device" Kind="InputPin" />
+            <Pin Id="FFbp5x1cV1GPEvFC9UYHZF" Name="Enabled" Kind="InputPin" />
+            <Pin Id="VtefGbEG6bsOtHgQRb43MA" Name="PointEditor Controls" Kind="OutputPin" />
+          </Patch>
+          <Canvas Id="QMFMQA1sHE8MnDskGG9XLk" CanvasType="Group">
+            <Node Bounds="215,257,116,13" Id="T6d8khWBszINTVxR6s7uCm">
+              <p:NodeReference LastCategoryFullName="Editors" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="ProcessNode" Name="PointEditorControls" />
+                <CategoryReference Kind="Category" Name="Editors" />
+              </p:NodeReference>
+              <Pin Id="CwZJ55qIe9NPXi5NJxrmrh" Name="Mouse Device" Kind="InputPin" />
+              <Pin Id="BlCITIUBUtdNLXCTADbyn0" Name="Keyboard Device" Kind="InputPin" />
+              <Pin Id="G7zkGfmXFpEL1Piay7RiSH" Name="Enabled" Kind="InputPin" />
+              <Pin Id="T4uNJX0oJBFMZZe6SdObvO" Name="PointEditor Controls" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="VpYY2WISPWHNAkgqLc6nk0" Bounds="187,195" />
+            <ControlPoint Id="CX85VQulBX6Nlw8XUOxKZq" Bounds="276,195" />
+            <ControlPoint Id="LVl4wSE2Es8MArqSeYJ77D" Bounds="390,195" />
+            <ControlPoint Id="TvrP1TnDauLLpXzHBRqwiq" Bounds="212,305" />
+          </Canvas>
+          <Link Id="SRjBO2F4yoFNdEvtdqtjjl" Ids="B2t9OrJjrnSNkspyvM7dZE,VpYY2WISPWHNAkgqLc6nk0" IsHidden="true" />
+          <Link Id="MhTKTDnV5NdOc28rG1YkhZ" Ids="DpWXP11MIv2ND5BV1cwarQ,CX85VQulBX6Nlw8XUOxKZq" IsHidden="true" />
+          <Link Id="LIYTsLKryIgPCcGweAyNLo" Ids="FFbp5x1cV1GPEvFC9UYHZF,LVl4wSE2Es8MArqSeYJ77D" IsHidden="true" />
+          <Link Id="IG8PJjt8irMNxRiLyzlVF2" Ids="TvrP1TnDauLLpXzHBRqwiq,VtefGbEG6bsOtHgQRb43MA" IsHidden="true" />
+          <Link Id="HfaXxOed53TQZ88edU055b" Ids="VpYY2WISPWHNAkgqLc6nk0,CwZJ55qIe9NPXi5NJxrmrh" />
+          <Link Id="Vq7QUpqeZNuQCwctHexnAY" Ids="CX85VQulBX6Nlw8XUOxKZq,BlCITIUBUtdNLXCTADbyn0" />
+          <Link Id="EXRMS1P3O5nPFmv3uHBTLV" Ids="T4uNJX0oJBFMZZe6SdObvO,TvrP1TnDauLLpXzHBRqwiq" />
+          <Link Id="VlCZGc8rybTNLMKm83w9ml" Ids="LVl4wSE2Es8MArqSeYJ77D,G7zkGfmXFpEL1Piay7RiSH" />
+          <ProcessDefinition Id="SLJNRbnfswjPwr9vJ2fmRH">
+            <Fragment Id="NRn4uBOPSyVNZzmR2MHYv4" Patch="Fs5YyscmTm3PdmaT4AKsI9" Enabled="true" />
+            <Fragment Id="KIFYyGWHVUzPnGKqrOPw7J" Patch="PRGKm43ncEtOOSFNLl7aRD" Enabled="true" />
+          </ProcessDefinition>
+        </Patch>
+      </Node>
+      <Canvas Id="IBrAjUz0sDIPgtTSeOkQUI" Name="PointEditorState" Position="130,298" CanvasType="Group">
+        <!--
+
+    ************************ PointEditorState (Split 3d) ************************
+
+-->
+        <Node Name="PointEditorState (Split 3d)" Bounds="796,227,671,228" Id="FXtqRjB1E5dLwyvOQxGOoi">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="CkEGLXM4i5MPHEAbTR6Wmo" ManuallySortedPins="true">
+            <Pin Id="KuwNcAIbjv3LhhfZmk1O15" Name="PointEditor State" Kind="InputPin" />
+            <Pin Id="VNjCjH7rw3FNeIo2hBhKvV" Name="EditablePoints" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Collections" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Spread" />
+                <FullNameCategoryReference ID="Collections" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="EditablePoint" />
+                    <p:TypeArguments>
+                      <TypeReference>
+                        <Choice Kind="TypeFlag" Name="Vector3" />
+                      </TypeReference>
+                    </p:TypeArguments>
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="Or9Em0oAdeIMmBlk8TCss4" Name="Pick Size" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Float32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="DuisCJWbWIWOx9Q7G3qqDp" Name="Editing" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="N3ptS16HgMQLAGE6AZTWwS" Name="Offset" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="KBawCK4xefRM0pj0arjTMF" Name="Scale" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="UbDYopOuvVhLPTK6c7NDun" Name="Rotate" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="THBVrl9Wq5NMrLXa68aB2U" Name="Translate" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Node Bounds="814,315,185,22" Id="C8FK2pRZVR0Lz5ahYvDWdA">
+              <p:NodeReference LastCategoryFullName="Editors.PointEditorState" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="OperationNode" Name="Split" />
+                <CategoryReference Kind="Category" Name="PointEditorState" />
+              </p:NodeReference>
+              <Pin Id="VLho7vYIfPLLISWvzPYZiX" Name="Input" Kind="InputPin" />
+              <Pin Id="I7wLWd37urvM1FcHEBS6OO" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="MYrJjmLiobANk9UVorEj6A" Name="EditablePoints" Kind="OutputPin" />
+              <Pin Id="I6UgqeQ15VvNRbbwne5hfC" Name="Pick Size" Kind="OutputPin" />
+              <Pin Id="MYXDLpa2KhNNj8AMf9qfqW" Name="Editing" Kind="OutputPin" />
+              <Pin Id="DkMFrjg9SAPN8boD0kuVtC" Name="Scaling" Kind="OutputPin" />
+              <Pin Id="LSQNBTWunFePA0rHDUOyRL" Name="Rotation" Kind="OutputPin" />
+              <Pin Id="H0zlknWUqiAMUcViakIlxl" Name="Translation" Kind="OutputPin" />
+              <Pin Id="KjWbqikqVyuN1Dyq7Pktex" Name="Offset" Kind="OutputPin" />
+              <Pin Id="Q5zS9avTnBOPgoE0v0Md5n" Name="Is Projection Space" Kind="OutputPin" />
+              <Pin Id="VkfIwkBKQsYQdbOcUZO4LZ" Name="GizmoState" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="KtgDUGmhAdlOqpWE1BIbZI" Bounds="812,243" />
+            <ControlPoint Id="ItA7UTgcx2zPUgCV6zEC91" Bounds="810,436" />
+            <ControlPoint Id="Q2lykfXvprjOEkTje9mhwe" Bounds="904,436" />
+            <ControlPoint Id="A905uJyAAJVPknE3Fd38XE" Bounds="974,436" />
+            <ControlPoint Id="JkLsRIkVrwfLcUyJyZ9HhR" Bounds="1052,436" />
+            <ControlPoint Id="Ax8QvT2vXnxQYfYLmzsaST" Bounds="1108,436" />
+            <ControlPoint Id="BKupuubGUyWOX9mGrVzqJn" Bounds="1161,436" />
+            <ControlPoint Id="EhH0arAFRQnOLn6jQCFxPQ" Bounds="1224,436" />
+            <Link Id="NvZZN2DqcMTPlf8DoxCXKQ" Ids="KtgDUGmhAdlOqpWE1BIbZI,VLho7vYIfPLLISWvzPYZiX" />
+            <Link Id="GukdasQjADePBL9vTccGV0" Ids="MYrJjmLiobANk9UVorEj6A,ItA7UTgcx2zPUgCV6zEC91" />
+            <Link Id="NkHjGK9wU9kO1VHdUIYyrR" Ids="H0zlknWUqiAMUcViakIlxl,EhH0arAFRQnOLn6jQCFxPQ" />
+            <Link Id="DFjzGC6z6GjOgDNBF5d1Tt" Ids="LSQNBTWunFePA0rHDUOyRL,BKupuubGUyWOX9mGrVzqJn" />
+            <Link Id="VOLQYr2oSRkOY1D2Nrp1bp" Ids="DkMFrjg9SAPN8boD0kuVtC,Ax8QvT2vXnxQYfYLmzsaST" />
+            <Link Id="CfQhkL8woeEPxXyzWGtKAD" Ids="KjWbqikqVyuN1Dyq7Pktex,JkLsRIkVrwfLcUyJyZ9HhR" />
+            <Link Id="EQSyXIyppxxPS7RiCCtbRv" Ids="MYXDLpa2KhNNj8AMf9qfqW,A905uJyAAJVPknE3Fd38XE" />
+            <Link Id="TtQhmp4F8t4Na6lZ5VwnOw" Ids="I6UgqeQ15VvNRbbwne5hfC,Q2lykfXvprjOEkTje9mhwe" />
+            <Link Id="RosABoNPphTL8P1xbW2syU" Ids="KuwNcAIbjv3LhhfZmk1O15,KtgDUGmhAdlOqpWE1BIbZI" IsHidden="true" />
+            <Link Id="OWkHNDBx3GWLSwO0VCj5jl" Ids="ItA7UTgcx2zPUgCV6zEC91,VNjCjH7rw3FNeIo2hBhKvV" IsHidden="true" />
+            <Link Id="TOuiX8HvbG1Nz6avYaLKn8" Ids="Q2lykfXvprjOEkTje9mhwe,Or9Em0oAdeIMmBlk8TCss4" IsHidden="true" />
+            <Link Id="QbiIAjK0uUXLaNLnOhgD9I" Ids="A905uJyAAJVPknE3Fd38XE,DuisCJWbWIWOx9Q7G3qqDp" IsHidden="true" />
+            <Link Id="Hx7hTgxXA4aMiEHAut77L0" Ids="JkLsRIkVrwfLcUyJyZ9HhR,N3ptS16HgMQLAGE6AZTWwS" IsHidden="true" />
+            <Link Id="EvIg7J1zaOfQCJdkivX3wS" Ids="Ax8QvT2vXnxQYfYLmzsaST,KBawCK4xefRM0pj0arjTMF" IsHidden="true" />
+            <Link Id="Uk3MCPim2opQH3tYLXfoez" Ids="BKupuubGUyWOX9mGrVzqJn,UbDYopOuvVhLPTK6c7NDun" IsHidden="true" />
+            <Link Id="LoZAAQ3FN45QN7VvUBcKPu" Ids="EhH0arAFRQnOLn6jQCFxPQ,THBVrl9Wq5NMrLXa68aB2U" IsHidden="true" />
+            <ControlPoint Id="EvEylAMpxwzOkY0tgDr7F8" Bounds="1289,436" />
+            <Link Id="VAwGvbjR5R3QO6W3W01lGv" Ids="Q5zS9avTnBOPgoE0v0Md5n,EvEylAMpxwzOkY0tgDr7F8" />
+            <Pin Id="PfAhlCuPcpHLaDaDY1pDQo" Name="Projection Space" Kind="OutputPin" />
+            <Link Id="IrSyycojlNfQJ6g1gofhw7" Ids="EvEylAMpxwzOkY0tgDr7F8,PfAhlCuPcpHLaDaDY1pDQo" IsHidden="true" />
+            <ControlPoint Id="AfMOXuxIbZBNcFqcUVlzqm" Bounds="1393,431" />
+            <Link Id="J54ClXJ2qWLQdkmVwthbLO" Ids="VkfIwkBKQsYQdbOcUZO4LZ,AfMOXuxIbZBNcFqcUVlzqm" />
+            <Pin Id="LUeB6LLRfEPQckdhRx180q" Name="GizmoState" Kind="OutputPin" />
+            <Link Id="Mv21ODaVB8dOpT3nAR8fBw" Ids="AfMOXuxIbZBNcFqcUVlzqm,LUeB6LLRfEPQckdhRx180q" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ PointEditorState (Split 2d) ************************
+
+-->
+        <Node Name="PointEditorState (Split 2d)" Bounds="118,225,645,216" Id="OUOetOgLVDRN9KaU9KqPKy">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="VIoOtYQDZoFON3Tv7YCxRB" ManuallySortedPins="true">
+            <Pin Id="EIcbYpbCuCVPbch4ifpVnU" Name="PointEditor State" Kind="InputPin" />
+            <Pin Id="O6lxxb4AFFiNEiWUvkRbVV" Name="EditablePoints" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Collections" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Spread" />
+                <FullNameCategoryReference ID="Collections" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="EditablePoint" />
+                    <p:TypeArguments>
+                      <TypeReference>
+                        <Choice Kind="TypeFlag" Name="Vector2" />
+                      </TypeReference>
+                    </p:TypeArguments>
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="L6d9u1TxUlBNTlumtebgC9" Name="Pick Size" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Float32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="GqMrIndMyi1L03CcVhZOMt" Name="Editing" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="UcUFeku7oM0NmQNAOtiHs4" Name="Offset" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="ErrFFKpZuulNVDf4U5MjEx" Name="Scale" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="LcVEFWAge26L0mY8Oqcxb5" Name="Rotate" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="USBGZOn6rShNwiFo2lb0OT" Name="Translate" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Node Bounds="196,324,185,22" Id="GepJSAZCiudLAcVcICIGxp">
+              <p:NodeReference LastCategoryFullName="Editors.PointEditorState" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="OperationNode" Name="Split" />
+                <CategoryReference Kind="Category" Name="PointEditorState" />
+              </p:NodeReference>
+              <Pin Id="EN3KwKHDkGsLrlvoe0MTHQ" Name="Input" Kind="InputPin" />
+              <Pin Id="IgnXXAeErXJPrq3FbfIzwY" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="Q9FZAeaDqWCOHS7kowaThM" Name="EditablePoints" Kind="OutputPin" />
+              <Pin Id="FUe7D7pzsb1MyTD0Bae3qe" Name="Pick Size" Kind="OutputPin" />
+              <Pin Id="VGGnMCBjXwUNnyMMey5A0E" Name="Editing" Kind="OutputPin" />
+              <Pin Id="Q9A4P3SiB7HLOSwVIzyuq8" Name="Scaling" Kind="OutputPin" />
+              <Pin Id="B4yaWejRwVGMGU1lTsQT6b" Name="Rotation" Kind="OutputPin" />
+              <Pin Id="MhILmkZauysK9nhdfJmhcZ" Name="Translation" Kind="OutputPin" />
+              <Pin Id="VA8hE2uTnCsNvS3HzKB31Z" Name="Offset" Kind="OutputPin" />
+              <Pin Id="U8Kag5ilMd8P3IIvEpI1ra" Name="Is Projection Space" Kind="OutputPin" />
+              <Pin Id="Ld88ZvnV4RiPYIQbbm2zPj" Name="GizmoState" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="MChCPzIljlPMOtSJd7iWi8" Bounds="194,241" />
+            <ControlPoint Id="SLaUwZ7lgmpOge566zWBpw" Bounds="132,422" />
+            <ControlPoint Id="PguW75WoQupLPewhTLWkle" Bounds="225,422" />
+            <ControlPoint Id="Er28W0jJeUJLauIP8bIhFR" Bounds="290,422" />
+            <ControlPoint Id="H2ibTGpTD0tNZyPAR20jm2" Bounds="350,422" />
+            <ControlPoint Id="OkTRqnWJXC3P0qXmP9JisR" Bounds="410,422" />
+            <ControlPoint Id="AxfsmE8et84MazwRaoyx9d" Bounds="462,422" />
+            <ControlPoint Id="OqZYT0WNQHdNygDPvmuQRF" Bounds="519,422" />
+            <Link Id="JnUBAqnUDAtPgC7Tz4ckCK" Ids="MChCPzIljlPMOtSJd7iWi8,EN3KwKHDkGsLrlvoe0MTHQ" />
+            <Link Id="TlUdTe9Th57M1MYvFPwRtI" Ids="Q9FZAeaDqWCOHS7kowaThM,SLaUwZ7lgmpOge566zWBpw" />
+            <Link Id="BNgbqU8AwiSP2ZQ1fx0E1z" Ids="MhILmkZauysK9nhdfJmhcZ,OqZYT0WNQHdNygDPvmuQRF" />
+            <Link Id="PS58wC0Tvp4M1d8Gb7z1t5" Ids="B4yaWejRwVGMGU1lTsQT6b,AxfsmE8et84MazwRaoyx9d" />
+            <Link Id="A6NBzUz4gCVO1rskUYL0pN" Ids="Q9A4P3SiB7HLOSwVIzyuq8,OkTRqnWJXC3P0qXmP9JisR" />
+            <Link Id="FFoCeEZAXWBOTUQ3IRysrN" Ids="VA8hE2uTnCsNvS3HzKB31Z,H2ibTGpTD0tNZyPAR20jm2" />
+            <Link Id="Tjna5aH2O7FOlgTsUPNaoN" Ids="VGGnMCBjXwUNnyMMey5A0E,Er28W0jJeUJLauIP8bIhFR" />
+            <Link Id="Cm4lCUYivz7NJLh5f4tYBN" Ids="FUe7D7pzsb1MyTD0Bae3qe,PguW75WoQupLPewhTLWkle" />
+            <Link Id="LcMy1x2dU7POwp9gIjUZmo" Ids="EIcbYpbCuCVPbch4ifpVnU,MChCPzIljlPMOtSJd7iWi8" IsHidden="true" />
+            <Link Id="FJF8nRs5WqvOP6X3zkn3A2" Ids="SLaUwZ7lgmpOge566zWBpw,O6lxxb4AFFiNEiWUvkRbVV" IsHidden="true" />
+            <Link Id="E8cVjsDOTfBQKIfpr2ksKT" Ids="PguW75WoQupLPewhTLWkle,L6d9u1TxUlBNTlumtebgC9" IsHidden="true" />
+            <Link Id="HDVgxZXUyOkLeeQd9ZW4j1" Ids="Er28W0jJeUJLauIP8bIhFR,GqMrIndMyi1L03CcVhZOMt" IsHidden="true" />
+            <Link Id="Kb2LFajfRy3M5NPhKueGPu" Ids="H2ibTGpTD0tNZyPAR20jm2,UcUFeku7oM0NmQNAOtiHs4" IsHidden="true" />
+            <Link Id="Oggc67eIfx1MeP1lIYdEP5" Ids="OkTRqnWJXC3P0qXmP9JisR,ErrFFKpZuulNVDf4U5MjEx" IsHidden="true" />
+            <Link Id="UEG4E5ss5RKQCA8l7HJPW4" Ids="AxfsmE8et84MazwRaoyx9d,LcVEFWAge26L0mY8Oqcxb5" IsHidden="true" />
+            <Link Id="TrctW1Vu6AjNXOddyH0XDn" Ids="OqZYT0WNQHdNygDPvmuQRF,USBGZOn6rShNwiFo2lb0OT" IsHidden="true" />
+            <ControlPoint Id="LfwZZQq0FeyPmTzMOUwvcc" Bounds="590,421" />
+            <Link Id="F8lfmELwG3nQU8NqZikjY5" Ids="U8Kag5ilMd8P3IIvEpI1ra,LfwZZQq0FeyPmTzMOUwvcc" />
+            <Pin Id="DM2wOYwrHQkPjMiaL727co" Name="Projection Space" Kind="OutputPin" />
+            <Link Id="CBacqWoCB2DQAJydqOSGFU" Ids="LfwZZQq0FeyPmTzMOUwvcc,DM2wOYwrHQkPjMiaL727co" IsHidden="true" />
+            <ControlPoint Id="FjL9vK0VIrpMcHDs0SjtuF" Bounds="689,419" />
+            <Link Id="NPuRzO08uPVL1EK8oAyH3O" Ids="Ld88ZvnV4RiPYIQbbm2zPj,FjL9vK0VIrpMcHDs0SjtuF" />
+            <Pin Id="NALVa5jv0s9OVijZDF9JYE" Name="GizmoState" Kind="OutputPin" />
+            <Link Id="IUS80e3QAMuMM5F6yQ8Qaq" Ids="FjL9vK0VIrpMcHDs0SjtuF,NALVa5jv0s9OVijZDF9JYE" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ PointEditorState (Join 3d Internal) ************************
+
+-->
+        <Node Name="PointEditorState (Join 3d Internal)" Bounds="778,24,662,159" Id="Ub5Ewhkuet6ORGvcKPUb9r">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="Ui646oRpXCsLgDwb6uAfAJ" ManuallySortedPins="true">
+            <Node Bounds="825,114,185,22" Id="QFw4kwPLlx4MDUpuJvfTRW">
+              <p:NodeReference LastCategoryFullName="Editors.PointEditorState" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="PointEditorState" />
+              </p:NodeReference>
+              <Pin Id="GgyxeAU5cq0O6e2dWxINpc" Name="Input" Kind="StateInputPin" />
+              <Pin Id="ObitEaBld0PMHPRN3gKbxl" Name="EditablePoints" Kind="InputPin" />
+              <Pin Id="VolrtttimwpPaoxSckNSwN" Name="Pick Size" Kind="InputPin" />
+              <Pin Id="Bc3VK1ygBkLPaGijTydRn3" Name="Editing" Kind="InputPin" />
+              <Pin Id="BlEf7fpkzPEN1OVJMdp8O7" Name="Scaling" Kind="InputPin" />
+              <Pin Id="CvMRsgWoD8WOLPLa8hg3Zs" Name="Rotation" Kind="InputPin" />
+              <Pin Id="HyB0wDJwSNvQCnY9Q3jpoG" Name="Translation" Kind="InputPin" />
+              <Pin Id="CnXfDDh78qPMfQ2O7vTZbq" Name="Offset" Kind="InputPin" />
+              <Pin Id="EMjxFEPW1gwPpxp7omrvVv" Name="Is Projection Space" Kind="InputPin" />
+              <Pin Id="BxENGKKampzQbujsU32pIX" Name="GizmoState" Kind="InputPin" />
+              <Pin Id="NUo2oBzWRbbNkaHwV3kTO7" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="NpVY38nYfw1QYDV3LYjeDu" Bounds="792,41" />
+            <ControlPoint Id="MfQILx32JwqO9bWyTH0bmG" Bounds="886,41" />
+            <ControlPoint Id="Lrd2gWP58MMN5fb5zDPSJb" Bounds="952,41" />
+            <ControlPoint Id="F6jTGsKQ94hQPCP51mn0FK" Bounds="1014,41" />
+            <ControlPoint Id="MLb6mrbTXfwQNOxjC5s5RV" Bounds="1072,41" />
+            <ControlPoint Id="QWSrBfrfdNSOSKk5NzNLkv" Bounds="1127,41" />
+            <ControlPoint Id="OwNAhfmTJpLNjsjP9p1zMh" Bounds="1192,41" />
+            <ControlPoint Id="Rclh7ofIbYXN4C7ELyaz6K" Bounds="824,164" />
+            <Link Id="AJBMfqOsP16MFihQmktglR" Ids="NUo2oBzWRbbNkaHwV3kTO7,Rclh7ofIbYXN4C7ELyaz6K" />
+            <Link Id="RxzJwENRlWQLTXfHTry91y" Ids="NpVY38nYfw1QYDV3LYjeDu,ObitEaBld0PMHPRN3gKbxl" />
+            <Link Id="OoCD5PZ8F8eOiTR4vXjp35" Ids="Lrd2gWP58MMN5fb5zDPSJb,Bc3VK1ygBkLPaGijTydRn3" />
+            <Link Id="IXtMJn1KCUFNSLXsqxxkGf" Ids="F6jTGsKQ94hQPCP51mn0FK,CnXfDDh78qPMfQ2O7vTZbq" />
+            <Link Id="CZiNCr0uyEZPhxXOI73D8J" Ids="OwNAhfmTJpLNjsjP9p1zMh,HyB0wDJwSNvQCnY9Q3jpoG" />
+            <Link Id="N7LwVBsUqeZOdc63FdUOuU" Ids="QWSrBfrfdNSOSKk5NzNLkv,CvMRsgWoD8WOLPLa8hg3Zs" />
+            <Link Id="S0rmLYKrm4fLKZiJkLofpe" Ids="MLb6mrbTXfwQNOxjC5s5RV,BlEf7fpkzPEN1OVJMdp8O7" />
+            <Link Id="LDR7S06DMxtNKNKThtEboL" Ids="MfQILx32JwqO9bWyTH0bmG,VolrtttimwpPaoxSckNSwN" />
+            <Link Id="CnrC3LQErJyQBtV6tda7uo" Ids="DANTbe4VyErNF7nn3X2cey,NpVY38nYfw1QYDV3LYjeDu" IsHidden="true" />
+            <Link Id="RBoPu7m6pSXLLnlFFIU8Wn" Ids="Ka0oVykUA0OPzbaD88t7Do,MfQILx32JwqO9bWyTH0bmG" IsHidden="true" />
+            <Link Id="SKO7Lg2KVjsOXGP0RyfilJ" Ids="U7JLmSVJrkiNiTKd0yGFcd,Lrd2gWP58MMN5fb5zDPSJb" IsHidden="true" />
+            <Link Id="REkFL06NNdbMQ4fmlU7RXL" Ids="DekNS3VgL0YLAwReIfrmZ0,F6jTGsKQ94hQPCP51mn0FK" IsHidden="true" />
+            <Link Id="SR1VystcTCTNT9tTOf8XO5" Ids="VQR9SEPS4rWMovkSijviKU,MLb6mrbTXfwQNOxjC5s5RV" IsHidden="true" />
+            <Link Id="F9aCZtG3RwVOvrVFmPpO83" Ids="BgOyc1sVlA7QSbJMZCtTpM,QWSrBfrfdNSOSKk5NzNLkv" IsHidden="true" />
+            <Link Id="PoJka8rYXEFOZAUG5SLbsx" Ids="Q0FgJY9zJftPF5S5NYo4I6,OwNAhfmTJpLNjsjP9p1zMh" IsHidden="true" />
+            <Link Id="VWimjEMwXONNnhi0jWb80v" Ids="Rclh7ofIbYXN4C7ELyaz6K,In5jDqeBpseOrTmdu6Y8ch" IsHidden="true" />
+            <ControlPoint Id="RpKJMwLQcJAOtCfe8gjHlC" Bounds="1267,40" />
+            <Link Id="JMJeSlgem4rN3zG173W6IW" Ids="RpKJMwLQcJAOtCfe8gjHlC,EMjxFEPW1gwPpxp7omrvVv" />
+            <Link Id="USkY5YB8qyaOnoiNgbjSd5" Ids="S8xbdl3dq1ePdADQLJdJXo,RpKJMwLQcJAOtCfe8gjHlC" IsHidden="true" />
+            <ControlPoint Id="CcME9wrrzUSNaXNmzbi5hE" Bounds="1366,40" />
+            <Link Id="I21RWmzPAmeLaeXrQsgSBL" Ids="AM6U4xMrrBaPPgF4prfKu9,CcME9wrrzUSNaXNmzbi5hE" IsHidden="true" />
+            <Link Id="EUxzTuN8ETuPbrZAiTbmEl" Ids="CcME9wrrzUSNaXNmzbi5hE,BxENGKKampzQbujsU32pIX" />
+            <Pin Id="DANTbe4VyErNF7nn3X2cey" Name="EditablePoints" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Collections" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Sequence" />
+                <FullNameCategoryReference ID="Collections" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="EditablePoint" />
+                    <p:TypeArguments>
+                      <TypeReference>
+                        <Choice Kind="TypeFlag" Name="Vector3" />
+                      </TypeReference>
+                    </p:TypeArguments>
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="Ka0oVykUA0OPzbaD88t7Do" Name="Pick Size" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Float32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="U7JLmSVJrkiNiTKd0yGFcd" Name="Editing" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="DekNS3VgL0YLAwReIfrmZ0" Name="Offset" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="VQR9SEPS4rWMovkSijviKU" Name="Scaling" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="BgOyc1sVlA7QSbJMZCtTpM" Name="Rotation" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="Q0FgJY9zJftPF5S5NYo4I6" Name="Translation" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="S8xbdl3dq1ePdADQLJdJXo" Name="Projection Space" Kind="InputPin" />
+            <Pin Id="AM6U4xMrrBaPPgF4prfKu9" Name="GizmoState" Kind="InputPin" />
+            <Pin Id="In5jDqeBpseOrTmdu6Y8ch" Name="PointEditorState" Kind="OutputPin" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ PointEditorState (Join 2d Internal) ************************
+
+-->
+        <Node Name="PointEditorState (Join 2d Internal)" Bounds="57,-17,688,186" Id="MWQ809DKKUHMk07NZjBTMS">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="VmdVqjeeYJlPFAm1vrphEi" ManuallySortedPins="true">
+            <Node Bounds="174,100,185,22" Id="R6Kp5sDqUw9OnPIt7Du9wo">
+              <p:NodeReference LastCategoryFullName="Editors.PointEditorState" LastSymbolSource="VL.Editors.vl">
+                <Choice Kind="OperationNode" Name="Join" />
+                <CategoryReference Kind="Category" Name="PointEditorState" />
+              </p:NodeReference>
+              <Pin Id="JlhivnjmoX3LQWxyOdi5Ii" Name="Input" Kind="StateInputPin" />
+              <Pin Id="LcZC55wRYiOMwcpayPJTlM" Name="EditablePoints" Kind="InputPin" />
+              <Pin Id="DUN47hDSVkAMgxf65sK73q" Name="Pick Size" Kind="InputPin" />
+              <Pin Id="F91qyiPswHBPfe4HqNxkPP" Name="Editing" Kind="InputPin" />
+              <Pin Id="U515LrmToMfOqWXdZEC6Xn" Name="Scaling" Kind="InputPin" />
+              <Pin Id="FhE1mzIaF5PN6zeuswBsnZ" Name="Rotation" Kind="InputPin" />
+              <Pin Id="IfkwbWtHHbIL8qqocWLpPj" Name="Translation" Kind="InputPin" />
+              <Pin Id="PBiRqRAYvSLL1keFdhOr4v" Name="Offset" Kind="InputPin" />
+              <Pin Id="EcTtkrtpK3mLbUCmo4sF3r" Name="Is Projection Space" Kind="InputPin" />
+              <Pin Id="KWQMYLwlATzL9HnUOjMsSn" Name="GizmoState" Kind="InputPin" />
+              <Pin Id="FMFGIobtUfxNLVkyMfo0Tg" Name="Output" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="Lvv6PoJPrTrMoityKntkye" Bounds="71,-1" />
+            <ControlPoint Id="So1KaBAdBLeM8IcPFyIOm2" Bounds="164,-1" />
+            <ControlPoint Id="JO5vcsb9CSUNcsBJElpLHG" Bounds="236,-1" />
+            <ControlPoint Id="Iy3erceR5oXPT57OBKO8YS" Bounds="298,-1" />
+            <ControlPoint Id="P6bdowHkJ27PaDjsB2h7Nz" Bounds="363,-1" />
+            <ControlPoint Id="G3Un6URnIX8QFQFeikeU1R" Bounds="426,-1" />
+            <ControlPoint Id="TxSA5Xzo4ZHPZCnt6MVNFo" Bounds="492,-1" />
+            <ControlPoint Id="PmenbIS6qMqOi6V9SUt62s" Bounds="172,150" />
+            <Link Id="K47nIrCKB7PNE87VUUl6WF" Ids="Lvv6PoJPrTrMoityKntkye,LcZC55wRYiOMwcpayPJTlM" />
+            <Link Id="QDcSz5YCLhNLgJChnzCy60" Ids="JO5vcsb9CSUNcsBJElpLHG,F91qyiPswHBPfe4HqNxkPP" />
+            <Link Id="LmSfg6HDhRKLqlC93Cr6o8" Ids="Iy3erceR5oXPT57OBKO8YS,PBiRqRAYvSLL1keFdhOr4v" />
+            <Link Id="Ehd5W26vH0qN7wf7V5gkH2" Ids="TxSA5Xzo4ZHPZCnt6MVNFo,IfkwbWtHHbIL8qqocWLpPj" />
+            <Link Id="Enl6BT5eATuQbh6Vsg0ugJ" Ids="G3Un6URnIX8QFQFeikeU1R,FhE1mzIaF5PN6zeuswBsnZ" />
+            <Link Id="EEQNuoOqHKxOqjgEye7bBJ" Ids="FMFGIobtUfxNLVkyMfo0Tg,PmenbIS6qMqOi6V9SUt62s" />
+            <Link Id="Og6qHWNMsp2MtSyYou12p3" Ids="P6bdowHkJ27PaDjsB2h7Nz,U515LrmToMfOqWXdZEC6Xn" />
+            <Link Id="JthrT6BArfDPpuAwVQ9jUX" Ids="So1KaBAdBLeM8IcPFyIOm2,DUN47hDSVkAMgxf65sK73q" />
+            <Link Id="FmuLcanAktaMtlYE7DSbgj" Ids="OrCMq3bhWK5NqZZSJyeSot,Lvv6PoJPrTrMoityKntkye" IsHidden="true" />
+            <Link Id="T4c5lRdJszQNYl4kAwWc7z" Ids="P4NNSxlemesN5ODn8exA4d,So1KaBAdBLeM8IcPFyIOm2" IsHidden="true" />
+            <Link Id="FazmdflV3ODNgsT2rLMxs9" Ids="Mt8MugWs5YUOvp22KBRIy3,JO5vcsb9CSUNcsBJElpLHG" IsHidden="true" />
+            <Link Id="HSAEQhE0TfBOadCa1tqd1Q" Ids="H7xqOzu3erYONHvo8M1K76,Iy3erceR5oXPT57OBKO8YS" IsHidden="true" />
+            <Link Id="JTBwxQEYy41M5S88ThyyRO" Ids="NeA1Ecf6JdCOGSPxvplTDV,P6bdowHkJ27PaDjsB2h7Nz" IsHidden="true" />
+            <Link Id="Usugz5Ck19QNWRYddrecvs" Ids="SUMFAV97qTpOLRqMQSDxQ9,G3Un6URnIX8QFQFeikeU1R" IsHidden="true" />
+            <Link Id="VhtdMCHEPSnMlawV3n1ZJd" Ids="DYGpG3R6XvtLlTjP3wunMw,TxSA5Xzo4ZHPZCnt6MVNFo" IsHidden="true" />
+            <Link Id="LkFW4nkO7SXPz5MHWlOq8t" Ids="PmenbIS6qMqOi6V9SUt62s,G0hqstgx0TFPxDDXB26W1D" IsHidden="true" />
+            <ControlPoint Id="GcyzikDpxhfNy9jXKokaYj" Bounds="570,-1" />
+            <Link Id="QcpefM6WxeLMNHMqi8VX1k" Ids="GcyzikDpxhfNy9jXKokaYj,EcTtkrtpK3mLbUCmo4sF3r" />
+            <Link Id="BOXR2eeEERYMHOIgeNP3py" Ids="DLmgX0nfH3oNbZY0g4GKvQ,GcyzikDpxhfNy9jXKokaYj" IsHidden="true" />
+            <ControlPoint Id="R8gE3IIug1cL2vCtUm41gp" Bounds="671,-1" />
+            <Link Id="OztmYGpUyy6LhESBgr1ChN" Ids="DYQGW3ZE7yoLxU08Thsf88,R8gE3IIug1cL2vCtUm41gp" IsHidden="true" />
+            <Link Id="S5g1JvqloFXORRPNkf870v" Ids="R8gE3IIug1cL2vCtUm41gp,KWQMYLwlATzL9HnUOjMsSn" />
+            <Pin Id="OrCMq3bhWK5NqZZSJyeSot" Name="EditablePoints" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Collections" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Sequence" />
+                <FullNameCategoryReference ID="Collections" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="EditablePoint" />
+                    <p:TypeArguments>
+                      <TypeReference>
+                        <Choice Kind="TypeFlag" Name="Vector2" />
+                      </TypeReference>
+                    </p:TypeArguments>
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="P4NNSxlemesN5ODn8exA4d" Name="Pick Size" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Float32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="Mt8MugWs5YUOvp22KBRIy3" Name="Editing" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="H7xqOzu3erYONHvo8M1K76" Name="Offset" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector2" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="NeA1Ecf6JdCOGSPxvplTDV" Name="Scaling" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="SUMFAV97qTpOLRqMQSDxQ9" Name="Rotation" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="DYGpG3R6XvtLlTjP3wunMw" Name="Translation" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="DLmgX0nfH3oNbZY0g4GKvQ" Name="Projection Space" Kind="InputPin" />
+            <Pin Id="DYQGW3ZE7yoLxU08Thsf88" Name="GizmoState" Kind="InputPin" />
+            <Pin Id="G0hqstgx0TFPxDDXB26W1D" Name="PointEditorState" Kind="OutputPin" />
+          </Patch>
+        </Node>
+      </Canvas>
+      <!--
+
+    ************************ Reader (BezierSpline) ************************
+
+-->
+      <Node Name="Reader (BezierSpline)" Category="VVVV.2d" Bounds="753,292" Id="QQv6OIjRpjBP4W3IS2qTim">
+        <p:NodeReference>
+          <Choice Kind="ContainerDefinition" Name="Patch" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="Qg5rIRfmE6NOEz66OR7rEu">
+          <Canvas Id="FIdl5cHDzxDPCUvtGILbIX" CanvasType="Group">
+            <Node Bounds="623,216,65,13" Id="Q94JGjtzXtvNaSrj5QpDY6">
+              <p:NodeReference LastCategoryFullName="Editors" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="ProcessNode" Name="Reader (Bezier 2d)" />
+                <FullNameCategoryReference ID="Editors" />
+              </p:NodeReference>
+              <Pin Id="AZVxhpJsMylNhrtbMfzQ38" Name="File Path" Kind="InputPin" />
+              <Pin Id="NyW8MmfP3LCLVKifd0qnQf" Name="Read" Kind="InputPin" />
+              <Pin Id="Fwea6sfuH4eQCzRJSf9Srb" Name="Result" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="GoWS7Eqz3EnN5sxbv55Q9U" Bounds="606,166" />
+            <ControlPoint Id="C6xm2pfmWT9QLBJkw0Wcsb" Bounds="692,164" />
+            <ControlPoint Id="KSntFBVPEb5M8d9Qgziqmf" Bounds="625,269" />
+          </Canvas>
+          <Patch Id="A976IJZyZpZOMzLMg0dhPF" Name="Create" />
+          <Patch Id="RkEI5tRvvFXLixXGLPEyQP" Name="Update">
+            <Pin Id="FwJTJmivLe3NFnmsy1fhy5" Name="Filename" Kind="InputPin" />
+            <Pin Id="TjgTC9yK4RfLmMm9udg8s2" Name="Read" Kind="InputPin" />
+            <Pin Id="Ud9lBIZfIslNbyKeXMCebX" Name="Result" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Math.Bezier" LastSymbolSource="VL.Bezier.Cubic.vl">
+                <Choice Kind="TypeFlag" Name="BezierSpline" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector2" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+          </Patch>
+          <ProcessDefinition Id="Ssyyvy8ZICyMiEMW0lr0rV">
+            <Fragment Id="S2fGeqwcv2eNPwgZp6wUak" Patch="A976IJZyZpZOMzLMg0dhPF" Enabled="true" />
+            <Fragment Id="K84Q7wuehZNQTWTnll54a6" Patch="RkEI5tRvvFXLixXGLPEyQP" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="GxMYvxArIcSPGzzVzZTaZN" Ids="GoWS7Eqz3EnN5sxbv55Q9U,AZVxhpJsMylNhrtbMfzQ38" />
+          <Link Id="D6GYYgtFAv7QSd7xzIBjL5" Ids="FwJTJmivLe3NFnmsy1fhy5,GoWS7Eqz3EnN5sxbv55Q9U" IsHidden="true" />
+          <Link Id="LVrsRK8F3YBM35OZE5rbrN" Ids="C6xm2pfmWT9QLBJkw0Wcsb,NyW8MmfP3LCLVKifd0qnQf" />
+          <Link Id="OtdqvA4gOwoNkk8vLfyxJW" Ids="TjgTC9yK4RfLmMm9udg8s2,C6xm2pfmWT9QLBJkw0Wcsb" IsHidden="true" />
+          <Link Id="DPccGXJu7joL6yawyb7Efn" Ids="KSntFBVPEb5M8d9Qgziqmf,Ud9lBIZfIslNbyKeXMCebX" IsHidden="true" />
+          <Link Id="H5PrHYbPcijMhQvq5XSz5i" Ids="Fwea6sfuH4eQCzRJSf9Srb,KSntFBVPEb5M8d9Qgziqmf" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Reader (BezierSpline) ************************
+
+-->
+      <Node Name="Reader (BezierSpline)" Category="VVVV.3d" Bounds="753,379" Id="MU1YaWJ08wLMZYp4kNZUQc">
+        <p:NodeReference>
+          <Choice Kind="ContainerDefinition" Name="Patch" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="PnM5AR7gdf9MUOYUAKSses">
+          <Canvas Id="VBdbaiDVenOORYjYcrhVI9" CanvasType="Group">
+            <Node Bounds="480,249,65,13" Id="HJZafdPvAG8NvKhKvKsR5M">
+              <p:NodeReference LastCategoryFullName="Editors" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="ProcessNode" Name="Reader (Bezier 3d)" />
+                <FullNameCategoryReference ID="Editors" />
+              </p:NodeReference>
+              <Pin Id="VePmOMf7JdMMoW4gJVoA0Z" Name="File Path" Kind="InputPin" />
+              <Pin Id="MsUMnQf0iK9L0o5QBpGcG4" Name="Read" Kind="InputPin" />
+              <Pin Id="IjPRnK2EE91LPxVhEjduXQ" Name="Result" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="FiRfvfuXE4mLOfyLzc5fuo" Bounds="404,188" />
+            <ControlPoint Id="V1DZAvsfB9TLL7Q25uCDFK" Bounds="511,189" />
+            <ControlPoint Id="EP2YnQmWVvcMjfippSPF09" Bounds="483,301" />
+          </Canvas>
+          <Patch Id="NMGNaMCtaG1PCMYwfmFUKS" Name="Create" />
+          <Patch Id="S56WBWRrNs1PR3UNr73IAB" Name="Update">
+            <Pin Id="MK98q3wGVnOObmI9mrR4Qy" Name="Filename" Kind="InputPin" />
+            <Pin Id="N5TR7St0b8rPXaAjRtjZR5" Name="Read" Kind="InputPin" />
+            <Pin Id="Rg1qSOhEYqFOk0sIFrvhNg" Name="Result" Kind="OutputPin">
+              <p:TypeAnnotation LastCategoryFullName="Math.Bezier" LastSymbolSource="VL.Bezier.Cubic.vl">
+                <Choice Kind="TypeFlag" Name="BezierSpline" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector3" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+          </Patch>
+          <ProcessDefinition Id="GJ7uXTS6mpTM8IX3xgJKFV">
+            <Fragment Id="PwhUEmNjd9aL1ykn8LvWxR" Patch="NMGNaMCtaG1PCMYwfmFUKS" Enabled="true" />
+            <Fragment Id="PtoIJ1qIrfSOfZpqjhS8Jn" Patch="S56WBWRrNs1PR3UNr73IAB" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="QIzJBUvQHarMcJNzyZCR19" Ids="FiRfvfuXE4mLOfyLzc5fuo,VePmOMf7JdMMoW4gJVoA0Z" />
+          <Link Id="OB3P6G4pb7UOON7APe5bfz" Ids="MK98q3wGVnOObmI9mrR4Qy,FiRfvfuXE4mLOfyLzc5fuo" IsHidden="true" />
+          <Link Id="KbBXzumTSbuLHXimwZSUvI" Ids="V1DZAvsfB9TLL7Q25uCDFK,MsUMnQf0iK9L0o5QBpGcG4" />
+          <Link Id="JVCzqGAKSdDNFiVpN6ha3C" Ids="N5TR7St0b8rPXaAjRtjZR5,V1DZAvsfB9TLL7Q25uCDFK" IsHidden="true" />
+          <Link Id="JFpygTPnzuCLb9C1Qdv4sR" Ids="IjPRnK2EE91LPxVhEjduXQ,EP2YnQmWVvcMjfippSPF09" />
+          <Link Id="GRF5M0Fc3ELQHKwbx1ZorR" Ids="EP2YnQmWVvcMjfippSPF09,Rg1qSOhEYqFOk0sIFrvhNg" IsHidden="true" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Writer (BezierSpline) ************************
+
+-->
+      <Node Name="Writer (BezierSpline)" Category="VVVV.3d" Bounds="753,419" Id="AVI5wf5zayxLiB7L8d4jSq">
+        <p:NodeReference>
+          <Choice Kind="ContainerDefinition" Name="Patch" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="S6JUIGxETX8QJpKaCpZTfj">
+          <Canvas Id="SSEShWfwnXlNt5X6vCXyoG" CanvasType="Group">
+            <Node Bounds="510,239,85,13" Id="SdnnXs1XfSZPZfuG7p9UVZ">
+              <p:NodeReference LastCategoryFullName="Editors" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="ProcessNode" Name="Writer (Bezier)" />
+                <FullNameCategoryReference ID="Editors" />
+              </p:NodeReference>
+              <Pin Id="Od39paQUZQqMTWWm3svzYk" Name="BezierSpline" Kind="InputPin" />
+              <Pin Id="F15Nb41PmniNkMSqNfqqqc" Name="File Path" Kind="InputPin" />
+              <Pin Id="U9HXPYECsyMOzDqveXkaxH" Name="Write" Kind="InputPin" />
+            </Node>
+            <ControlPoint Id="QHHhx9blHSgPHyQwjDjCC5" Bounds="382,162" />
+            <ControlPoint Id="SYmLeD7Pm9NLs9QSUkB3fB" Bounds="487,160" />
+            <ControlPoint Id="Tnhn8z68rPVM7cwyx51axW" Bounds="554,162" />
+          </Canvas>
+          <Patch Id="P3TzVGTFBJUNVM8ZfCfOyn" Name="Create" />
+          <Patch Id="EAcoNqaU27pNzDIU5iQISL" Name="Update">
+            <Pin Id="LMVYIdulvm5Nqv4tj7S9Hy" Name="Bezier Spline" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Math.Bezier" LastSymbolSource="VL.Bezier.Cubic.vl">
+                <Choice Kind="TypeFlag" Name="BezierSpline" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector3" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="D9yfioe3rahQOelEncusf0" Name="Filename" Kind="InputPin" />
+            <Pin Id="R3f2wPwMkMTMsOQ0zR6lxj" Name="Write" Kind="InputPin" />
+          </Patch>
+          <ProcessDefinition Id="TmqRho5VMWiN2wy12sU0PZ">
+            <Fragment Id="E3KV3V5j6mVOEU73dCfth7" Patch="P3TzVGTFBJUNVM8ZfCfOyn" Enabled="true" />
+            <Fragment Id="PqIOLMY72zyN8yZZZfrO1y" Patch="EAcoNqaU27pNzDIU5iQISL" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="Jvss3INpqmhLegrGovfcBU" Ids="QHHhx9blHSgPHyQwjDjCC5,Od39paQUZQqMTWWm3svzYk" />
+          <Link Id="UKqUjuto39WQaLp547H7hS" Ids="LMVYIdulvm5Nqv4tj7S9Hy,QHHhx9blHSgPHyQwjDjCC5" IsHidden="true" />
+          <Link Id="CNCCo4HuTISLdzEai5F3ZJ" Ids="SYmLeD7Pm9NLs9QSUkB3fB,F15Nb41PmniNkMSqNfqqqc" />
+          <Link Id="AQcJzvqSTfDLIzGvRzBFWb" Ids="D9yfioe3rahQOelEncusf0,SYmLeD7Pm9NLs9QSUkB3fB" IsHidden="true" />
+          <Link Id="CpZSfIuxQtLOC4WkhRPjV7" Ids="Tnhn8z68rPVM7cwyx51axW,U9HXPYECsyMOzDqveXkaxH" />
+          <Link Id="UlHLoVLxEyZP4o1lkaHiJW" Ids="R3f2wPwMkMTMsOQ0zR6lxj,Tnhn8z68rPVM7cwyx51axW" IsHidden="true" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Writer (BezierSpline) ************************
+
+-->
+      <Node Name="Writer (BezierSpline)" Category="VVVV.2d" Bounds="753,331" Id="DwpfXHmLdvJL6u6SpA1W1P">
+        <p:NodeReference>
+          <Choice Kind="ContainerDefinition" Name="Patch" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="SPlCjaCvQDrMAHKBzkNTR2">
+          <Canvas Id="JrZGHgPSdHAMW5QybxdIpY" CanvasType="Group">
+            <Node Bounds="664,281,85,13" Id="KAgqQpLWO6pQPWiIqbO7F3">
+              <p:NodeReference LastCategoryFullName="Editors" LastSymbolSource="VL.BezierEditor.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="ProcessNode" Name="Writer (Bezier)" />
+                <FullNameCategoryReference ID="Editors" />
+              </p:NodeReference>
+              <Pin Id="NzjF4lIF3yfMh1pKBiaDd6" Name="BezierSpline" Kind="InputPin" />
+              <Pin Id="NsEeM3ZHAPmL45AI4h2qlX" Name="File Path" Kind="InputPin" />
+              <Pin Id="KAcAZc9I1EuLO0aJViwdQN" Name="Write" Kind="InputPin" />
+            </Node>
+            <ControlPoint Id="Uh8Ii4m9ynXNdiLuNzOq21" Bounds="536,204" />
+            <ControlPoint Id="PaQwbGq2CNiPiMAUo1f5K9" Bounds="641,202" />
+            <ControlPoint Id="JroGUdogmPnPPYHdXcUxGo" Bounds="707,204" />
+          </Canvas>
+          <Patch Id="TADk8crDTDlPZ39vcdX4Vq" Name="Create" />
+          <Patch Id="Tfb6jdGxaYfQWutBvcvACa" Name="Update">
+            <Pin Id="UdaTCNWhmMQOU252k39XAU" Name="Bezier Spline" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Math.Bezier" LastSymbolSource="VL.Bezier.Cubic.vl">
+                <Choice Kind="TypeFlag" Name="BezierSpline" />
+                <p:TypeArguments>
+                  <TypeReference>
+                    <Choice Kind="TypeFlag" Name="Vector2" />
+                  </TypeReference>
+                </p:TypeArguments>
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="RksisKndpSEMUD2vriyK6u" Name="Filename" Kind="InputPin" />
+            <Pin Id="FghLO0ZdDAQPe3mUG1qTww" Name="Write" Kind="InputPin" />
+          </Patch>
+          <ProcessDefinition Id="GPMmkAK45OlLtgSIafJWeE">
+            <Fragment Id="EElpdx6kUUBQAAMO0mPfqU" Patch="TADk8crDTDlPZ39vcdX4Vq" Enabled="true" />
+            <Fragment Id="CNxZsgFGrUkPj1rrDAvYdR" Patch="Tfb6jdGxaYfQWutBvcvACa" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="CJc31cxpBuWQHkUcPYlQ6h" Ids="Uh8Ii4m9ynXNdiLuNzOq21,NzjF4lIF3yfMh1pKBiaDd6" />
+          <Link Id="CRiLwdzLhpZL0rRg4jR2ZT" Ids="UdaTCNWhmMQOU252k39XAU,Uh8Ii4m9ynXNdiLuNzOq21" IsHidden="true" />
+          <Link Id="QkOXB5Ob1TwM7h16yYfWo9" Ids="PaQwbGq2CNiPiMAUo1f5K9,NsEeM3ZHAPmL45AI4h2qlX" />
+          <Link Id="A1a6pxEX6sIO5ibF3egFEY" Ids="RksisKndpSEMUD2vriyK6u,PaQwbGq2CNiPiMAUo1f5K9" IsHidden="true" />
+          <Link Id="TlwzzLPmfuPOCLsg1ezXYs" Ids="JroGUdogmPnPPYHdXcUxGo,KAcAZc9I1EuLO0aJViwdQN" />
+          <Link Id="DFFTdoxANqdL0uxJTFd4q2" Ids="FghLO0ZdDAQPe3mUG1qTww,JroGUdogmPnPPYHdXcUxGo" IsHidden="true" />
+        </Patch>
+      </Node>
+    </Canvas>
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="I3jlYh2csTfLMJbqjAGbVX">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="TZPWkCNsHYkOQTvisQntKF">
+        <Canvas Id="CU1EITTqhRsLN5LkFIChw5" BordersChecked="false" CanvasType="Group" />
+        <Patch Id="NgL8fBhHSCKQYOYizrDS28" Name="Create" />
+        <Patch Id="GvFGkq30iAuL1W9ckAu0PL" Name="Update" />
+        <ProcessDefinition Id="KZSklsH85IoO2sRTggjfai">
+          <Fragment Id="IdIrz5zq7WLOKDf9HB4OPH" Patch="NgL8fBhHSCKQYOYizrDS28" Enabled="true" />
+          <Fragment Id="AQ2mDaSuqWXPicIfu8P3gc" Patch="GvFGkq30iAuL1W9ckAu0PL" Enabled="true" />
+        </ProcessDefinition>
+      </Patch>
+    </Node>
+  </Patch>
+  <DocumentDependency Id="EN02Mv1AjNrPxGORrQzy1n" Location="../../../VL.Editors.vl" />
+</Document>

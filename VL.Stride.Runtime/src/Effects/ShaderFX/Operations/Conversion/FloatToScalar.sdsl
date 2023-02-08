@@ -1,0 +1,10 @@
+﻿shader FloatToScalar : ComputeColor
+{
+    compose ComputeFloat Value;
+
+    override float4 Compute()
+    {
+        var x = Value.Compute();
+        return float4(x, x, x, x);
+    }
+};

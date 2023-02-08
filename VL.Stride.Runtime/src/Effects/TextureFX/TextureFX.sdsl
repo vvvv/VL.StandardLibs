@@ -1,0 +1,14 @@
+﻿shader TextureFX : ImageEffectShader, Camera, ShaderUtils
+{
+    //get input color of texture 0
+    stage float4 InTex0()
+    {
+        return Texture0.SampleLevel(Sampler0, streams.TexCoord, 0);
+    }
+
+    //get input color of texture 1
+    stage float4 InTex1()
+    {
+        return Texture1.SampleLevel(Sampler1, streams.TexCoord, 0);
+    }
+};

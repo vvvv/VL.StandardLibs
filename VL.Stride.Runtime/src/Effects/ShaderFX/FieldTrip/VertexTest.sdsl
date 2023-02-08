@@ -1,0 +1,12 @@
+shader VertexTest : ShaderBaseStream, Float4ToFloat4
+{
+    compose Float3ToFloat3 Function;
+
+   
+    override float4 Compute(float4 p)
+    {
+        p.xyz += Function.Compute(p);
+        return p;
+ 
+    }
+};

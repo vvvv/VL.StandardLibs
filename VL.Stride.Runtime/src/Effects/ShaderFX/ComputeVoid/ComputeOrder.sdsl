@@ -1,0 +1,12 @@
+﻿shader ComputeOrder : ComputeVoid
+{
+    compose ComputeVoid Computes[];
+
+    override void Compute()
+    {
+        foreach (var computeVoid in Computes)
+        {
+            computeVoid.Compute();
+        }
+    }
+};

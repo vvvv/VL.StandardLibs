@@ -1,0 +1,15 @@
+﻿shader WColor_DrawFX : VS_PS_Base, ColorBase, ShaderUtils
+{
+    override stage void VSMain()
+    {
+        float4 pos = streams.Position;
+        streams.Color = BitsToColor(pos.w);
+        pos.w = 1;
+        streams.ShadingPosition = mul(pos, WorldViewProjection);
+    }
+
+    override stage void PSMain() 
+    {
+        streams.ColorTarget = streams.Color;
+    }
+};

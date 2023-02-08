@@ -1,0 +1,14 @@
+﻿/// <summary>
+/// Defines a texture sampler.
+/// </summary>
+/// <remarks>
+/// SamplerName: generic LinkType - the name of the ParameterKey that will link to this sampler.
+/// </remarks>
+shader DeclSampler<LinkType SamplerName, MemberName ResourceGroupName>
+{
+    rgroup ResourceGroupName
+    {
+        [Link("SamplerName")]
+        stage SamplerState DynamicSampler;
+    }
+};

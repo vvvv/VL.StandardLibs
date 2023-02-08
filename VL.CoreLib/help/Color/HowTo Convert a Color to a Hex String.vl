@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="Fq6ld5y14BMLqQhfkNF5dB" LanguageVersion="2019.2.0-0354-2bcf04a678" Version="0.128">
+  <NugetDependency Id="HfkGrVVgnZsNVFBDyFKcKe" Location="VL.CoreLib" Version="2019.2.0-0354-g2bcf04a678" />
+  <Patch Id="P85SE5nNbYrMQdk1eOd1C3">
+    <Canvas Id="PZyXfNyN5ENN77CdlcP4GT" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="Br5yy80rBedOn3Frnun3HH">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="PHmxKkXlNuiP78jqX28vaC">
+        <Canvas Id="Bnb0gY2YjhgQMhsxpe2KjW" CanvasType="Group">
+          <Pad Id="O6w3mhEsLBeOJOhZ16GBxR" Comment="" Bounds="111,239,136,15" ShowValueBox="true" isIOBox="true" Value="1, 0.8431373, 0, 1">
+            <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="RGBA" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="G7jWJquRp28MKeRJ5a8BZT" Bounds="95,121,346,32" ShowValueBox="true" isIOBox="true" Value="Use the ToHex and ToHTML nodes!">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="109,298,46,19" Id="HsaNZI8bopXQZgmEp1bQG8">
+            <p:NodeReference LastCategoryFullName="Color.RGBA" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="ToHex" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="Oqc4zcdsw5FNCzS4Qs9UF8" Name="Color" Kind="InputPin" />
+            <Pin Id="RyPqzv0NrxCPjAO3hCC4sz" Name="Hex" Kind="OutputPin" />
+          </Node>
+          <Pad Id="UgTNj9Jk4FlQcZJ6wxrba1" Comment="Hex" Bounds="111,341,53,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="241,297,54,19" Id="B8wmCCA5W71M3wcZd9Q5Kp">
+            <p:NodeReference LastCategoryFullName="Color.RGBA" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="ToHTML" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="T8qHra9BB3nNLVxHIxyHyO" Name="Color" Kind="InputPin" />
+            <Pin Id="NbYvhvWyYRUL6QilGBqJq1" Name="HTML" Kind="OutputPin" />
+          </Node>
+          <Pad Id="VLWHKpfZrS9NzcjPzO6sI1" Comment="HTML" Bounds="243,341,60,15" ShowValueBox="true" isIOBox="true" />
+        </Canvas>
+        <Patch Id="BW6Q7VFSYQtLcMPHRel3ks" Name="Create" />
+        <Patch Id="G2YZApYZuKPNz7kaaj9qS0" Name="Update" />
+        <ProcessDefinition Id="UBeSzUTY2XmPDTaTT2rHwx">
+          <Fragment Id="R0TJBcoPiatOBSahNUxNn2" Patch="BW6Q7VFSYQtLcMPHRel3ks" Enabled="true" />
+          <Fragment Id="MpK6aubk56PPAjmT7apKnb" Patch="G2YZApYZuKPNz7kaaj9qS0" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="FrS3EsBokYUP3m3yG1i5JF" Ids="O6w3mhEsLBeOJOhZ16GBxR,Oqc4zcdsw5FNCzS4Qs9UF8" />
+        <Link Id="Iw9YKsYZlxdPVRMGTieOqk" Ids="RyPqzv0NrxCPjAO3hCC4sz,UgTNj9Jk4FlQcZJ6wxrba1" />
+        <Link Id="UrVHmuEF1ZMM4tVmnXgtCy" Ids="O6w3mhEsLBeOJOhZ16GBxR,T8qHra9BB3nNLVxHIxyHyO" />
+        <Link Id="TyT9EYhlGsnNFV4Dhls55x" Ids="NbYvhvWyYRUL6QilGBqJq1,VLWHKpfZrS9NzcjPzO6sI1" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="MPnURs3fFlKNqqfzMlTnyZ" Location="VL.Skia" Version="2019.2.0-0354-g2bcf04a678" />
+</Document>

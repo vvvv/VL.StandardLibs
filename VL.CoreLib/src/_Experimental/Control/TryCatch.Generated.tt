@@ -1,0 +1,197 @@
+﻿<#@ template debug="true" hostspecific="false" language="C#" #>
+<#@ assembly name="System" #>
+<#@ output extension=".cs" #>
+
+// Do not modify, this is generated code!
+
+using System;
+using System.Diagnostics;
+using VL.Core;
+
+namespace VL.Lib.Control
+{
+
+<# 
+var _numberOfInputs = 5; // THIS MUST BY SYNCED WITH TryCatch.Generated.tt
+for(var i=2; i<=_numberOfInputs; i++) { 
+
+        string typeParams = "";
+            for (var j=1; j<i; j++)
+                typeParams += "TOutput"+j + ", ";
+        typeParams += "TOutput"+i;
+
+        string dataParams = "";
+            for (var j=1; j<i; j++)
+                dataParams += "TData"+j + ", ";
+        dataParams += "TData"+i;
+
+#>
+
+    /// ---------------------------------------------------------------------------------------------------------
+    /// TRY <#=i#>
+    /// ---------------------------------------------------------------------------------------------------------
+
+	///<summary>
+	///Runs the given patch and returns whether it has been successful or not. Supports <#=i#> regular output pins
+	///</summary>
+    public class TryStateful<#=i#><TState> : TryStateful<TState>
+        where TState : class
+    {
+        public void Update< <#=typeParams#> >(
+            Func<TState> create,
+            Func<TState, Tuple<TState, <#=typeParams#>>> @try,
+<# for(var j = 1; j<i+1; j++) { #>
+            TOutput<#=j#> defaultOutput<#=j#>,
+            out TOutput<#=j#> output<#=j#>,
+<#}#>
+            bool reInitialize,
+            out bool success,
+            out string errorMessage)
+        {
+            Func<TState, Tuple<TState, Tuple<<#=typeParams#>>>> packedTry = (state) =>
+            {
+                var unpackedTry = @try(state);
+                return Tuple.Create(unpackedTry.Item1, Tuple.Create(
+<# for(var j = 2; j<i+1; j++) { #>
+                unpackedTry.Item<#=j#>,
+<#}#>
+                unpackedTry.Item<#=i+1#>
+                ));
+            };
+            var output = base.Update(create, packedTry, Tuple.Create(
+<# for(var j = 1; j<i; j++) { #>
+                defaultOutput<#=j#>,
+<#}#>
+                defaultOutput<#=i#>
+            ), reInitialize, out success, out errorMessage);
+
+<# for(var j = 1; j<i+1; j++) { #>
+            output<#=j#>=output.Item<#=j#>; 
+<#}#>
+        }
+    }
+
+    /// ---------------------------------------------------------------------------------------------------------
+    /// TRYCATCH <#=i#>
+    /// ---------------------------------------------------------------------------------------------------------
+
+	///<summary>
+	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports <#=i#> regular output pins
+	///</summary>
+    public class TryCatchStateful<#=i#><TState> : TryCatchStateful<TState>
+        where TState : class
+    {
+        public void Update< <#=typeParams#> >(
+            Func<TState> create,
+            Func<TState, Tuple<TState, <#=typeParams#>>> @try,
+            Func<TState, Exception, Tuple<TState, <#=typeParams#>>> @catch,
+            bool reInitialize,
+<#for(var j = 1; j<i; j++) { #>
+            out TOutput<#=j#> output<#=j#>,
+<#}#>
+            out TOutput<#=i#> output<#=i#>
+            )
+        {
+            Func<TState, Tuple<TState, Tuple< <#=typeParams#> >>> packedTry = (state) =>
+            {
+                var unpackedUpdate = @try(state);
+                return Tuple.Create(unpackedUpdate.Item1, Tuple.Create(
+<# for(var j = 2; j<i+1; j++) { #> 
+                unpackedUpdate.Item<#=j#>,
+<# } #>
+                unpackedUpdate.Item<#=i+1#>
+
+                ));
+            };
+
+            Func<TState, Exception, Tuple<TState, Tuple< <#=typeParams#> >>> packedCatch = (state, ex) =>
+            {
+                var unpackedUpdate = @catch(state, ex);
+                return Tuple.Create(unpackedUpdate.Item1, Tuple.Create(
+<# for(var j = 2; j<i+1; j++) { #> 
+                unpackedUpdate.Item<#=j#>,
+<# } #>
+                unpackedUpdate.Item<#=i+1#>
+
+                ));
+            };
+
+            var output = base.Update(create, packedTry, packedCatch, reInitialize);
+
+<# for(var j = 1; j<i+1; j++) { #>
+            output<#=j#>=output.Item<#=j#>; 
+<#}#>
+        }
+    }
+
+    /// ---------------------------------------------------------------------------------------------------------
+    /// TRYCATCHFINALLY <#=i#>
+    /// ---------------------------------------------------------------------------------------------------------
+
+	///<summary>
+	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports <#=i#> regular output pins
+	///</summary>
+    public class TryCatchFinallyStateful<#=i#><TState> : TryCatchFinallyStateful<TState>
+        where TState : class
+    {
+        public void Update< <#=typeParams#>, <#=dataParams#> >(
+            Func<TState> create,
+            Func<TState, Tuple<TState, <#=dataParams#>>> @try,
+            Func<TState, Exception, Tuple<TState, <#=dataParams#>>> @catch,
+            Func<TState, <#=dataParams#>, Tuple<TState, <#=typeParams#> >> @finally,
+            bool reInitialize,
+<#for(var j = 1; j<i; j++) { #>
+            out TOutput<#=j#> output<#=j#>,
+<#}#>
+            out TOutput<#=i#> output<#=i#>
+            )
+        {
+            Func<TState, Tuple<TState, Tuple< <#=dataParams#> >>> packedTry = (state) =>
+            {
+                var unpackedTry = @try(state);
+                return Tuple.Create(unpackedTry.Item1, Tuple.Create(
+<# for(var j = 2; j<i+1; j++) { #> 
+                unpackedTry.Item<#=j#>,
+<# } #>
+                unpackedTry.Item<#=i+1#>
+
+                ));
+            };
+
+            Func<TState, Exception, Tuple<TState, Tuple< <#=dataParams#> >>> packedCatch = (state, ex) =>
+            {
+                var unpackedCatch = @catch(state, ex);
+                return Tuple.Create(unpackedCatch.Item1, Tuple.Create(
+<# for(var j = 2; j<i+1; j++) { #> 
+                unpackedCatch.Item<#=j#>,
+<# } #>
+                unpackedCatch.Item<#=i+1#>
+
+                ));
+            };
+
+            Func<TState, Tuple< <#=dataParams#> >, Tuple<TState, Tuple< <#=typeParams#> >>> packedFinally =         
+            (state, dataTuple ) =>
+            {
+                var unpackedFinally = @finally
+                (state,<# for (var j=1; j<i; j++) { #> dataTuple.Item<#=j#>,<#}#> dataTuple.Item<#=i#>);
+                return Tuple.Create(unpackedFinally.Item1, Tuple.Create(
+<# for(var j = 2; j<i+1; j++) { #> 
+                unpackedFinally.Item<#=j#>,
+<# } #>
+                unpackedFinally.Item<#=i+1#>
+
+                ));
+            };
+
+            var output = base.Update(create, packedTry, packedCatch, packedFinally, reInitialize);
+
+<# for(var j = 1; j<i+1; j++) { #>
+            output<#=j#>=output.Item<#=j#>; 
+<#}#>
+        }
+    }
+
+
+<#}#>
+}

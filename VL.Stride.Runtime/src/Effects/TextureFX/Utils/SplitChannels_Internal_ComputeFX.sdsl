@@ -1,0 +1,37 @@
+﻿shader SplitChannels_Internal_ComputeFX : ComputeShaderBase
+{
+
+    Texture2D Tex;
+    int2 InputSize;
+
+    RWTexture2D<float> Channel0;
+    RWTexture2D<float> Channel1;
+    RWTexture2D<float> Channel2;
+    RWTexture2D<float> Channel3;
+
+    SamplerState TexSampler
+    {
+        Filter = MIN_MAG_MIP_POINT;
+        AddressU = clamp;
+        AddressV = clamp;
+        AddressW = clamp;
+        BorderColor = float4(0, 0, 0, 0);
+    };
+   	
+    override void Compute()
+    {
+        uint2 xy = streams.DispatchThreadId.xy;
+
+        if (any(xy >= InputSize))
+            return;
+
+        float2 uv = (xy + 0.5) / InputSize;
+        float4 col = Tex.SampleLevel(TexSampler, uv, 0);
+
+        Channel0[xy] = col.r;
+        Channel1[xy] = col.g;
+        Channel2[xy] = col.b;
+        Channel3[xy] = col.a;
+    }
+
+};    

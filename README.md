@@ -1,2 +1,99 @@
-# VL.StandardLibs
-Contains the standard libraries of vvvv
+# About VL
+VL is a visual programming language combining dataflow and object oriented programming. It is compatible with the [.NET](https://en.wikipedia.org/wiki/.NET_Framework) and [Mono](https://en.wikipedia.org/wiki/Mono_(software)) frameworks in that it can consume .NET/Mono libraries directly and its compiler builds to the [CIL](https://en.wikipedia.org/wiki/Common_Intermediate_Language).
+
+Notable features include:
+- patch your own types, dynamically instantiate them and manage them in
+collections (Sequence, Spread, Dictionary,..)
+- use If, ForEach, Repeat regions
+- use Generics, Delegates, Interfaces 
+- asynchronously react to input using the Observer design pattern
+- compute parts of a patch in Async regions
+
+VL is embedded into [vvvv](http://vvvv.org) as a first class patching language and later will be released with a standalone development environment. It is also planned to allow VL to be embedded in any other program where it would be a simple way to create plugins for that program.
+
+For an overview of the language check: 
+https://vvvv.org/documentation/vl
+
+# About this repository
+This repository holds sources of the libraries shipping with VL, including the VL.CoreLib and additional libraries maintained by the creators of VL. It is targeted at developers who want to fix/improve/add-to specifically these libraries. 
+
+The individual libraries are organized in directories. Each directory starting with "VL." holds the sources of one library. They can contain different things like managed and un-managed .dlls, .vl documents, assets,... Each library also can be built to a [Nuget](https://www.nuget.org/) and Nugets can be referenced as a dependency by .vl documents. 
+
+For the end-user, VL is already shipping with most of the libraries in this repository as individual nugets. As a developer, modifying these, you may prefer to work on the sources in this repository directly instead of having to exchange them with the libraries shipping with VL. This is possible through VLs idea of source-packages: VL understands both packed and source versions of a package, making it easy for developers to switch between the two without having to adapt individual dependency references in .vl documents. 
+
+## License
+Many VL sources in this repository are mere wrappers around original .NET libraries that come with their own open-source licenses. All VL sources in this repository are licensed under the [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0-standalone.html)
+
+# Using this repository
+Before using this repository in VL, you need to build it using Visual Studio 2015. 
+ - install the VisualStudio extension [NuProj](http://nuproj.net)
+ - Open [VL.Packs.sln](VL.Packs.sln) in your IDE. You will get warnings, stating that a few resources failed to load. Once you build the solution, those resources will be loaded via Nuget. To reload them, restart Visual Studio (or hit 'Reload package' on the missing packages), then rebuild.
+
+Now go on to Using source-packages to see how to use this repository instead of the packages in VL's \packs directory.
+
+## Using source-packages
+A directory holding one ore more sub-directories in the form of packages is called a *package-repository*. By specifying a package-repository path for VL you define a path that takes precedence in VLs search routine to find nugets. 
+
+Therefore by specifying the path to a local copy of this repository in vvvv's [args.txt](https://vvvv.org/documentation/commandline-parameters) like e.g:
+```
+/package-repositories C:\Users\foo\Documents\repos\vl-packs
+```
+VL is told do prefer nugets found in this path to nugets of the same name found in vvvvs own \packs directory. Like this you can conveniently switch between working directly with your versioned sources or binaries of the same name by simply setting (or not) the package-repository path.
+
+You can of course also set multiple paths if you want to maintain your own package-repository in a separate directory:
+```
+/package-repositories "C:\Users\foo\Documents\repos\vl-packs;C:\Users\foo\Documents\repos\my-vl-repo"
+```
+
+## Innards of a nuget
+For VL, a source-nuget in a directory is defined by two files:
+```
+- \<packDirectory>\<packDirectory>.nuspec, e.g: 
+\VL.Devices.Leap\VL.Devices.Leap.nuspec
+OR
+\VL.Devices.Leap\src\bin\$(Configuration)\net472\VL.Devices.Leap.nuspec
+
+- \<packDirectory>\<packDirectory>.vl, e.g:
+\VL.Devices.Leap\VL.Devices.Leap.vl
+```
+
+The .nuspec file describes a nuget in a simple text format as defined by the [Nuspec Reference](http://docs.nuget.org/Create/Nuspec-Reference). 
+
+The .VL file acts as the central entry point when using the nuget. It defines all actual nodes that you get by using the nuget: everything has to be either patched in there or marked as a 'forwarded dependency'.
+
+In order for nugets to work with VL you have to provide the following structure where of course all the directories are optional and only needed when actually used by a specific nuget:
+```
+\lib              //autogenerated. don't put anything here manually
+\lib-native       //for native/un-managed .dlls
+\src              //for c# sources
+\vvvv             //for anything only useful for vvvv (including .vl files that are only wrapping vl-nodes for vvvv)
+Prefix.Name.nuspec
+Prefix.Name.vl
+```
+
+With the following details for their sub-directories:
+- \lib-native has \x64 and \x86 sub-directories holding the respective versions of a .dll
+- \src typically would have a .sln and a .csproj plus additional .cs files
+- \vvvv has the typical vvvv-pack structure of \nodes \girlpower sub-directories
+
+## Creating your own nugets
+First create a directory named according to the scheme: YourPrefix.NugetName
+Then add stuff that you want to have in the nuget (.vl, .dll, \vvvv, \src, assets..) and export the final .nupkg using one of the 3 methods:
+
+- [nuget.exe commandline](http://docs.nuget.org/Consume/Command-Line-Reference)
+- [NuGet Package Explorer UI](http://docs.nuget.org/Create/using-a-gui-to-build-packages)
+- [NuProj](http://nuproj.net) VisualStudio extension which adds a new project-type to VisualStudio that creates the .nuspec file for you. 
+
+## Publishing nugets
+See [Upload Package](https://www.nuget.org/users/account/LogOn?ReturnUrl=%2Fpackages%2Fupload).
+
+## Consuming nugets
+Until a browser is shipping with VL, for now your best bet is to use the [NuGet commandline](docs.nuget.org/Consume/Command-Line-Reference).
+
+## Contributing to this repoitory
+### Adding new C# projects
+* Create .NETStandard library project
+* Right click it, chooce Edit in VS and replace netstandard with net472
+* Add <IsVLPackage>true</IsVLPackage>
+* Add <PackageId>$(AssemblyName)</PackageId>
+* Add <Description>Your package description</Description>

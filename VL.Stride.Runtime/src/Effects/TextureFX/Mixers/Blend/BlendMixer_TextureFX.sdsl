@@ -1,0 +1,19 @@
+﻿[Category("Mixer.Advanced")]
+[Summary("")]
+shader BlendMixer_TextureFX : TextureFX
+{
+    [Default(0.5)]
+    compose ComputeFloat Fader;
+
+    [Default(0.5, 0.5, 0.5, 0.5)]
+    compose ComputeFloat4 BlendResult;
+
+    stage override float4 Shading()
+    {
+        float4 backColor = InTex0();
+        float4 frontColor = InTex1();
+        float4 interColor = BlendResult.Compute();
+
+        return ShaderUtils.Lerp3(backColor, interColor, frontColor, Fader.Compute());
+    }
+};

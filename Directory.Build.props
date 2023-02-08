@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), '$(MSBuildThisFileDirectory)../'))"
+          Condition="Exists($([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), $(MSBuildThisFileDirectory)../)))" />
+  <PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageOutputPath>$(MsBuildThisFileDirectory)build\packages\</PackageOutputPath>
+    <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
+
+    <!-- Enable central package version feature https://devblogs.microsoft.com/nuget/introducing-central-package-management/ -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    
+    <!-- Package properties -->
+    <Year>$([System.DateTime]::Now.ToString('yyyy'))</Year>
+    <IncludeFrameworkReferencesInPackage>false</IncludeFrameworkReferencesInPackage>
+    <Authors>vvvv group</Authors>
+    <Owners>$(Authors)</Owners>
+    <Copyright>Copyright © $(Year) by $(Authors). All rights reserved.</Copyright>
+    <PackageProjectUrl>http://vvvv.org</PackageProjectUrl>
+    <Product>vvvv</Product>
+    
+  </PropertyGroup>
+  <!-- Disable package generation inside visual studio as it slows down build time alot -->
+  <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+</Project>

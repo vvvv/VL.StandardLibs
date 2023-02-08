@@ -1,0 +1,11 @@
+﻿shader LerpFloat : ComputeFloat
+{
+    compose ComputeFloat A;
+    compose ComputeFloat B;
+    compose ComputeFloat Scalar;
+
+    override float Compute()
+    {
+        return lerp(A.Compute(), B.Compute(), Scalar.Compute());
+    }
+};

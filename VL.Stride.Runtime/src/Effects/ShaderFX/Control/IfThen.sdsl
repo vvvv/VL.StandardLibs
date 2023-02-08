@@ -1,0 +1,11 @@
+﻿shader IfThen : ComputeVoid
+{
+    compose ComputeBool Condition;
+    compose ComputeVoid Then;
+
+    override void Compute()
+    {
+        if (Condition.Compute())
+            Then.Compute();
+    }
+};

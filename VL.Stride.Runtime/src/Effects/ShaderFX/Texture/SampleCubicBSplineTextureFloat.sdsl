@@ -1,0 +1,14 @@
+﻿shader SampleCubicBSplineTextureFloat<LinkType TextureName, MemberName TextureResourceGroupName, 
+    LinkType SamplerName, MemberName SamplerResourceGroupName> 
+        : ComputeFloat, 
+        DeclTexture<TextureName, TextureResourceGroupName>, 
+        DeclSampler<SamplerName, SamplerResourceGroupName>,
+        TextureUtils
+{
+    compose ComputeFloat2 TexCd;
+
+    override float Compute()
+    {
+        return SampleCubicBSpline(DynamicTexture, DynamicSampler, TexCd.Compute()).x;
+    }
+};

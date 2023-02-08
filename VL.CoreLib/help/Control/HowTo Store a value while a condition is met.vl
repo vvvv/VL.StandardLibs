@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="GavTtH7iqtzL94kSEX2eS7" LanguageVersion="2019.2.0-0370-3f76f958cb" Version="0.128">
+  <NugetDependency Id="UfWwXDWdynzMBKkxryoraE" Location="VL.CoreLib" Version="2019.2.0-0364-g50b796d937" />
+  <Patch Id="TBtRSEneOlaNfcsUCaEjKJ">
+    <Canvas Id="FfZogqT4TsqLYW33TpJF5z" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="CAxWQkGRypzOlFIzk6glbJ">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="L20Cx2KiPEIOYacwYQfKsh">
+        <Canvas Id="ArtUR3qfZ1EQA3VrmBZ7pt" CanvasType="Group">
+          <Pad Id="MvNJ8QSLseINqBCaB5fDFC" Bounds="145,133,117,32" ShowValueBox="true" isIOBox="true" Value="Use a S+H!">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="MFqyjclaYNJN7KFHv9uAAl" Bounds="145,171,326,39" ShowValueBox="true" isIOBox="true" Value="Sample and Hold - Passes on its input when Sample input is on, otherwise returns the last sampled value.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="164,348,40,19" Id="QHY5AMalK4fNDY7mfV4rcN">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="S+H" />
+              <CategoryReference Kind="Category" Name="Control" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="U6liWAVCBOfMYohdtYY6BC" Name="Value" Kind="InputPin" />
+            <Pin Id="GD3qoTmOIz8MoDWrvcV0zD" Name="Sample" Kind="InputPin" />
+            <Pin Id="NiWO5ECFVNcM9pca2sHMk0" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="LfOy5K4Ysw3LR85FaXWjp9" Comment="Sample" Bounds="246,300,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="164,282,54,19" Id="PvRT2ybnr3SMrbaJFtrUKc">
+            <p:NodeReference LastCategoryFullName="Math" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Random" />
+            </p:NodeReference>
+            <Pin Id="DvIJDUyfzniPDvbeNKcf4C" Name="From" Kind="InputPin" />
+            <Pin Id="KWQOYZPRwRaONqOmAzqwTJ" Name="To" Kind="InputPin" />
+            <Pin Id="OgiRBSU3aLqPaMiZgaaRY4" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="O5xgQn2pMHuQOjF05Yiylw" Comment="" Bounds="166,422,35,15" ShowValueBox="true" isIOBox="true">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
+        </Canvas>
+        <Patch Id="NYB5OHacYxkOOPD23vXD4h" Name="Create" />
+        <Patch Id="JbAajbzrn3aLqEusZiz6di" Name="Update" />
+        <ProcessDefinition Id="KVviEwD1IrzNdlTUeJo4tI">
+          <Fragment Id="FJBBg3nW3Y1N1zI1mE4r9p" Patch="NYB5OHacYxkOOPD23vXD4h" Enabled="true" />
+          <Fragment Id="AEPPrMakdGkOStqa2ypnfV" Patch="JbAajbzrn3aLqEusZiz6di" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="UGSHHPQriC4MvzSnllf7GO" Ids="LfOy5K4Ysw3LR85FaXWjp9,GD3qoTmOIz8MoDWrvcV0zD" />
+        <Link Id="Ns1tUzEb6ovOIXhCaCb9dl" Ids="OgiRBSU3aLqPaMiZgaaRY4,U6liWAVCBOfMYohdtYY6BC" />
+        <Link Id="OF0kRznirFlNKW0YgCEjqS" Ids="NiWO5ECFVNcM9pca2sHMk0,O5xgQn2pMHuQOjF05Yiylw" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="QEMwKLU4s5sL4MyeOKnK6U" Location="VL.Skia" Version="2019.2.0-0364-g50b796d937" />
+</Document>

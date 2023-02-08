@@ -1,0 +1,46 @@
+// source:
+// https://github.com/vvvv/vvvv-sdk/blob/develop/vvvv45/addonpack/lib/nodes/modules/TextureFX/Filter/PolarCoordinates/PolarCoordinates.fx
+// credits: mtallen, dep, Libero Spagnolini
+
+[Category("Filter")]
+[Summary("Converts an incoming texture's mapping coordinates from polar (or circular) space to cartesian space")]
+shader PolarToCartesian_TextureFX : FilterBase
+{
+    [Summary("Blend between source and destination coordinate systems")]
+    float Interpolation = 1.0f;
+    [Summary("Offsets the texture in the horizontal plane")]
+    float OffsetX = 0.0f;
+    [Summary("Offsets the texture in the vertical plane")]
+    float OffsetY = 0.0f;
+
+    // Helper functions
+    float2 polar(float2 coords)
+    {
+        coords = coords / 2.0;
+        coords += 0.5;
+        return coords;
+    }
+
+    float2 polarToCart(float2 coords)
+    {
+        float mag = coords[1];
+        float angle = -1.0 * coords[0] * 6.28319 + 1.57079633;
+
+        coords[0] = mag * cos(angle);
+        coords[1] = mag * sin(angle);
+        return coords;
+    }
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float2 coords = uv;
+        coords[0] = saturate(coords[0]) + 0.5;
+        coords[1] = saturate(coords[1]);
+        coords = polarToCart(coords);
+        coords = polar(coords);
+        coords = lerp(uv, coords, Interpolation) + float2(OffsetX, OffsetY);
+        float4 col = Texture0.Sample(LinearRepeatSampler, coords);
+        return col;
+    }
+};

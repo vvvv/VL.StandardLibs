@@ -1,0 +1,12 @@
+﻿shader TexCoordFromThreadId : ComputeFloat2, ComputeShaderBase
+{
+    //compose ComputeFloat2 TexSize;
+
+    override float2 Compute()
+    {
+        uint3 ti = streams.DispatchThreadId;
+        float2 texSize = float2(100, 100);
+        //float2 texSize = TexSize.Compute();
+        return float2(ti.x / texSize.x, ti.y / texSize.y);
+    }  
+};

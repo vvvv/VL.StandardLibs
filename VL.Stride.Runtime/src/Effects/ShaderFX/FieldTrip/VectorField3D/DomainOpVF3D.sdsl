@@ -1,0 +1,11 @@
+shader DomainOpVF3D : Float3ToFloat3
+{
+    compose Float3ToFloat3 VectorField;
+    compose Float3ToFloat3 Op;
+
+    override float3 Compute(float3 p)
+    {
+        p = Op.Compute(p);
+        return VectorField.Compute(p);
+    }
+};

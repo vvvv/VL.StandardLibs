@@ -1,0 +1,11 @@
+﻿shader DoFloat3 : ComputeFloat3
+{
+    compose ComputeVoid Before;
+    compose ComputeFloat3 Value;
+
+    override float3 Compute()
+    {
+        Before.Compute();
+        return Value.Compute();
+    }
+};

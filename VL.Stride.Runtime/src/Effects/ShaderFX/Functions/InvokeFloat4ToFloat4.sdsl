@@ -1,0 +1,10 @@
+﻿shader InvokeFloat4ToFloat4 : ComputeFloat4
+{
+    compose Float4ToFloat4 Funk;
+    compose ComputeFloat4 Arg;
+
+    override float4 Compute()
+    {
+        return Funk.Compute(Arg.Compute());
+    }
+};

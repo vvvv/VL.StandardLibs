@@ -1,0 +1,308 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="IkQhBjnFN3cQOq7QOIwfeg" LanguageVersion="2021.4.11.1302" Version="0.128">
+  <Patch Id="E2ZVCTPOeLHNGCBiL22Zi8">
+    <Canvas Id="Iffqc7ut6VzNIhmqD0iTs5" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="FO8kIB7enlVPW4ayeIuC4Q">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="NFGSF4tWuZhO8UrdvQZUBS">
+        <Canvas Id="JijfCmZ9V6AP6QuzGRu0X6" CanvasType="Group">
+          <!--
+
+    ************************ ThrowingExceptionOnDipose ************************
+
+-->
+          <Node Name="ThrowingExceptionOnDipose" Bounds="614,562" Id="StZU95U79cAMIbZFvysyHw">
+            <p:NodeReference>
+              <Choice Kind="ContainerDefinition" Name="Process" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <Patch Id="FBAKijWdC4YPqBVqiK7C9w">
+              <Canvas Id="EDpXGx0GrLHL8ZmrDrktHM" CanvasType="Group">
+                <Node Bounds="337,251" Id="EeEthqzYur2PtmYUo0NNHV">
+                  <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="VL.CoreLib.Experimental.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="Throw (Message)" />
+                  </p:NodeReference>
+                  <Pin Id="JDCUTBilN7xNXq29221OiS" Name="Message" Kind="InputPin" DefaultValue="Unhappy on Update" />
+                </Node>
+                <Pad Id="UYkzXPCBrIxLIgTj6J8o78" Comment="Message" Bounds="339,216,106,14" ShowValueBox="true" isIOBox="true" Value="Unhappy on Dispose">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                </Pad>
+              </Canvas>
+              <Patch Id="P4JjqQ7kyDuLv0WLALGY7w" Name="Create" />
+              <ProcessDefinition Id="JmYlY3zs3pVMDTHkk85qiy">
+                <Fragment Id="Uw8VjmTk01LLKAYOB1G449" Patch="P4JjqQ7kyDuLv0WLALGY7w" Enabled="true" />
+                <Fragment Id="Vr6KplkwIgMN3eKIyKPKRj" Patch="DL6FPrO6IZvPgf2NnsOEV2" Enabled="true" />
+              </ProcessDefinition>
+              <Patch Id="DL6FPrO6IZvPgf2NnsOEV2" Name="Update" />
+              <Patch Id="MrKwppDSo9fPg1ss7QKIxD" Name="Dispose" ParticipatingElements="EeEthqzYur2PtmYUo0NNHV,SoJb2BxVOPeL7e4yRNCVxo" />
+              <Link Id="SoJb2BxVOPeL7e4yRNCVxo" Ids="UYkzXPCBrIxLIgTj6J8o78,JDCUTBilN7xNXq29221OiS" />
+            </Patch>
+          </Node>
+          <Node Bounds="548,838,45,26" Id="SQCcemBDDGXQYRWJeL2tj9">
+            <p:NodeReference LastCategoryFullName="Reactive.Channel" LastSymbolSource="VL.Reactive.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <FullNameCategoryReference ID="Reactive.Channel" />
+              <Choice Kind="OperationCallFlag" Name="Value" />
+            </p:NodeReference>
+            <Pin Id="PcD3kuLqzeZLg81dQAZYYf" Name="Input" Kind="StateInputPin" />
+            <Pin Id="GyjZAcJbehVPxgRQxq41gq" Name="Output" Kind="StateOutputPin" />
+            <Pin Id="EKcp2SCqH8ZMnbO3rjWbMT" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="QBXjoLjFC2KL7UTAZoXzhq" Comment="Reset" Bounds="786,622,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation>
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="548,619,53,19" Id="SEN8g4QygmfLaDiEtlORxH">
+            <p:NodeReference LastCategoryFullName="Reactive" LastSymbolSource="VL.Reactive.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <FullNameCategoryReference ID="Reactive" />
+              <Choice Kind="ProcessAppFlag" Name="Channel" />
+            </p:NodeReference>
+            <Pin Id="OfymNHss0C6LTaWPsLgCHs" Name="Value" Kind="InputPin" />
+            <Pin Id="C7It8g1qNbIOzWWpkY6Dn9" Name="Output" Kind="OutputPin" />
+            <Pin Id="SA6eTJZa4tgQLYT0ZYXqEp" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="642,702,216,120" Id="SLYCuFWJAFXMVU8WhoLvwM">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+              <Choice Kind="ProcessAppFlag" Name="ManageProcess" />
+            </p:NodeReference>
+            <Pin Id="JLVngav1RzkOhibpGd6a87" Name="Enabled" Kind="InputPin" />
+            <Pin Id="EMVFBHRjqwsMLZDewfBjnG" Name="Lifespan" Kind="InputPin" DefaultValue="Long" />
+            <Pin Id="K0MADgL6lMpOk577gRnoU0" Name="Reset" Kind="InputPin" />
+            <Patch Id="TjvhawWpo4EMqSwOXVKrQa" ManuallySortedPins="true">
+              <Patch Id="OTKRcgfaTy7P2gLBpoLAqv" Name="Create" ManuallySortedPins="true" />
+              <Patch Id="SwOdu4hi4WVMb01kATIbrQ" Name="Update" ManuallySortedPins="true" />
+              <Node Bounds="673,722,173,80" Id="RRL507RVSSVL4WhJqXxKXT">
+                <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+                  <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+                  <Choice Kind="ProcessAppFlag" Name="Try" />
+                </p:NodeReference>
+                <Patch Id="FSyaZ3YqamVP5aCxhx9qgJ" ManuallySortedPins="true">
+                  <Patch Id="E9jI6l0WHXrOGhCbLQ77Uc" Name="Create" ManuallySortedPins="true" />
+                  <Patch Id="FjXkPuSom44M5Eb417yWzI" Name="Update" ManuallySortedPins="true" />
+                  <Node Bounds="685,754,149,19" Id="QaQ4uSmtiKfMRg1D9TFwwJ">
+                    <p:NodeReference LastCategoryFullName="Main" LastSymbolSource="callmenames-2022-11-03_02.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <Choice Kind="ProcessAppFlag" Name="ThrowingExceptionOnDipose" />
+                    </p:NodeReference>
+                    <Pin Id="MNUP4nZlEqLNeAVxat0Bjh" Name="Update" Kind="ApplyPin" />
+                  </Node>
+                </Patch>
+                <Pin Id="SJFK8eNxBkFPzVgWveUe5d" Name="User Exceptions Channel" Kind="InputPin" />
+                <Pin Id="Usuq4vxyMnGONJWXYrUu2Z" Name="Stick To Last Valid Outputs" Kind="InputPin" />
+                <Pin Id="J9xPKB9WQABQPxTOgiOirM" Name="Reset Region On Failure" Kind="InputPin" />
+                <Pin Id="TRIDDVzxebCOOYw3nW3W4M" Name="Success" Kind="OutputPin" />
+                <Pin Id="MQgII4fcdb6O2XDRngiBUX" Name="Failure" Kind="OutputPin" />
+                <Pin Id="Nm51h0xXGCjP2L1dYRmPCX" Name="Error Message" Kind="OutputPin" />
+                <Pin Id="AwiVZtyk13IO5f9gq3m6YF" Name="Exceptions" Kind="OutputPin" />
+              </Node>
+            </Patch>
+          </Node>
+          <Node Bounds="177,592,170,80" Id="RZpBqTeKpiwLHOLT33SU4w">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Try" />
+            </p:NodeReference>
+            <Patch Id="MgMDYhmaXczQcOt5Oi7Mbx" ManuallySortedPins="true">
+              <Patch Id="KV1N4XainrMNCLZ9Zq1rsa" Name="Create" ManuallySortedPins="true" />
+              <Patch Id="LvNcEyNSBFJLVTEV29IKxk" Name="Update" ManuallySortedPins="true" />
+              <Node Bounds="189,624,146,19" Id="SuioLzZ7EdXNIN2NwCuqfs">
+                <p:NodeReference LastCategoryFullName="Main" LastSymbolSource="callmenames-2022-11-03_02.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="ProcessAppFlag" Name="ThrowingExceptionOnCreate" />
+                </p:NodeReference>
+                <Pin Id="OgeGQa6AK41LCJ1mzRRBlW" Name="Update" Kind="ApplyPin" />
+              </Node>
+            </Patch>
+            <Pin Id="UOqXRjXNGsgL6suEdW0xtu" Name="User Exceptions Channel" Kind="InputPin" />
+            <Pin Id="IqebjtlnpxVPgWWPQUf2Kr" Name="Stick To Last Valid Outputs" Kind="InputPin" />
+            <Pin Id="Hga8RRygzd8LTKx2Mr6cB8" Name="Reset Region On Failure" Kind="InputPin" />
+            <Pin Id="IKw4Dmtrtp0NH51J0Wb0RP" Name="Success" Kind="OutputPin" />
+            <Pin Id="Ok40fYdis2LQNKGNjx6RbY" Name="Failure" Kind="OutputPin" />
+            <Pin Id="JaRTeIMlWijMWJwku0xUQz" Name="Error Message" Kind="OutputPin" />
+            <Pin Id="Axt76wyF6WYQTNgK994n63" Name="Exceptions" Kind="OutputPin" />
+          </Node>
+          <!--
+
+    ************************ ThrowingExceptionOnCreate ************************
+
+-->
+          <Node Name="ThrowingExceptionOnCreate" Bounds="177,562" Id="O14tKn1zPJCN9ntHzLPPRH">
+            <p:NodeReference>
+              <Choice Kind="ContainerDefinition" Name="Process" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <Patch Id="UUw6hS9r2QULLhTyueeG1L">
+              <Canvas Id="QxKFcnrC6p4PyLhtAA0MTf" CanvasType="Group">
+                <Node Bounds="409,325" Id="H9fLvr5rcwdL2L77s6uF88">
+                  <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="VL.CoreLib.Experimental.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="Throw (Message)" />
+                  </p:NodeReference>
+                  <Pin Id="GNGRKQMiwUBPJzMiEUZJtF" Name="Message" Kind="InputPin" DefaultValue="Unhappy on Update" />
+                </Node>
+                <Pad Id="Nas0sghmJVxP7WhzsEv6bJ" Comment="Message" Bounds="411,290,98,15" ShowValueBox="true" isIOBox="true" Value="Unhappy on Create">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                </Pad>
+              </Canvas>
+              <Patch Id="AA43h2aoEs1LJUBH9aSvDV" Name="Create" ParticipatingElements="SfinBw5opKmNTDlcpBPkjQ" />
+              <ProcessDefinition Id="OfdJX6VGR1IOeETm0jyVX8">
+                <Fragment Id="Ld5EF297BgOLhxGWOxWCJP" Patch="AA43h2aoEs1LJUBH9aSvDV" Enabled="true" />
+                <Fragment Id="RaGyJcnRYNSOiNF3dgUUCE" Patch="LhM9d0TzNNXPcZsKgSbr9I" Enabled="true" />
+              </ProcessDefinition>
+              <Patch Id="LhM9d0TzNNXPcZsKgSbr9I" Name="Update" ParticipatingElements="H9fLvr5rcwdL2L77s6uF88" />
+              <Patch Id="TqY2yfUj9S3PAeArEsIFl4" Name="Dispose" />
+              <Link Id="SfinBw5opKmNTDlcpBPkjQ" Ids="Nas0sghmJVxP7WhzsEv6bJ,GNGRKQMiwUBPJzMiEUZJtF" />
+            </Patch>
+          </Node>
+          <Node Bounds="410,208,173,80" Id="Hiscz2lMCBWQRoABWehjiI">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Try" />
+            </p:NodeReference>
+            <Patch Id="TVhy4qdi0pNP936ntLC3JR" ManuallySortedPins="true">
+              <Patch Id="AZMdIHvUacqOgPcuAH2a78" Name="Create" ManuallySortedPins="true" />
+              <Patch Id="TvUsVqj6yEjM0y4IgZeZ35" Name="Update" ManuallySortedPins="true" />
+              <Node Bounds="422,240,149,19" Id="CLOrAG3PfVAP6xisqvOPbn">
+                <p:NodeReference LastCategoryFullName="Main" LastSymbolSource="callmenames-2022-11-03_02.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="ProcessAppFlag" Name="ThrowingExceptionOnUpdate" />
+                </p:NodeReference>
+                <Pin Id="Lzj028QVzt2OrqW44W14XK" Name="Update" Kind="ApplyPin" />
+              </Node>
+            </Patch>
+            <Pin Id="BtSiT0DOTpRNG2uxkWOF7r" Name="User Exceptions Channel" Kind="InputPin" />
+            <Pin Id="K6aTwchtC4DM3L9QNIAC4s" Name="Stick To Last Valid Outputs" Kind="InputPin" />
+            <Pin Id="LGAH71cTLeWLNPDtZRDm9n" Name="Reset Region On Failure" Kind="InputPin" />
+            <Pin Id="FgvwAJPdOAmOMJoGPAh8Su" Name="Success" Kind="OutputPin" />
+            <Pin Id="UA51yt2oxtYPWp28OreWxA" Name="Failure" Kind="OutputPin" />
+            <Pin Id="SMcEzHHAkmxO9ogrIjESHU" Name="Error Message" Kind="OutputPin" />
+            <Pin Id="TOaP80eG1oSMkVRwn2FuRp" Name="Exceptions" Kind="OutputPin" />
+          </Node>
+          <!--
+
+    ************************ ThrowingExceptionOnUpdate ************************
+
+-->
+          <Node Name="ThrowingExceptionOnUpdate" Bounds="410,178" Id="L7SoPjb7KcaOKFZ2zLB9kR">
+            <p:NodeReference>
+              <Choice Kind="ContainerDefinition" Name="Process" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <Patch Id="LeaAdOPT1fVQE0FJlPewk6">
+              <Canvas Id="Tt1o1msydEpMIzGjzqHUsJ" CanvasType="Group">
+                <Node Bounds="337,251" Id="QTbDkELIDcGP5hR0s3rOzN">
+                  <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="VL.CoreLib.Experimental.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="Throw (Message)" />
+                  </p:NodeReference>
+                  <Pin Id="JcQdcuABQBVPw9TYCyM6Ii" Name="Message" Kind="InputPin" DefaultValue="Unhappy on Update" />
+                </Node>
+                <Pad Id="NBh5wp7FxnsLgmNILrHLhH" Comment="Message" Bounds="339,216,98,15" ShowValueBox="true" isIOBox="true" Value="Unhappy on Update">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                </Pad>
+              </Canvas>
+              <Patch Id="B5uGbrTVPddPlmNblDNnTJ" Name="Create" />
+              <ProcessDefinition Id="T2LZclJSwXSMtcKCq9Mfkr">
+                <Fragment Id="HTVLS9GTA6POeuyFUrT0pG" Patch="B5uGbrTVPddPlmNblDNnTJ" Enabled="true" />
+                <Fragment Id="UqBRA7gkLlfQPoVGpB85HP" Patch="UNhkv6HcckTLYcjel3vftl" Enabled="true" />
+              </ProcessDefinition>
+              <Patch Id="UNhkv6HcckTLYcjel3vftl" Name="Update" ParticipatingElements="QTbDkELIDcGP5hR0s3rOzN" />
+              <Patch Id="RPXON4LS2Y6Nf5MMwoI7Ly" Name="Dispose" />
+              <Link Id="NzgSewCUR51NHNrhaCBTjV" Ids="NBh5wp7FxnsLgmNILrHLhH,JcQdcuABQBVPw9TYCyM6Ii" />
+            </Patch>
+          </Node>
+          <Pad Id="RI91hdqKQ4FQJQf3gEkRT3" Comment="Success" Bounds="179,751,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Mxqo6jeRm6xL9n430WNpDo" Comment="Success" Bounds="412,363,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="QGZKpxwSSnDPlveUXbyNU5" Comment="" Bounds="524,324,98,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="316,709,54,19" Id="UNFp6H5fdt1PTTuRXDGafd">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OnOpen" />
+            </p:NodeReference>
+            <Pin Id="EWJUU1bLdyELWweuLvRsfe" Name="Simulate" Kind="InputPin" />
+            <Pin Id="JSlx8RXPVO5LG6XZxJ0jcm" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="287,742,36,19" Id="HpjxPz2H7NqOKMqZyFK0k7">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Control" NeedsToBeDirectParent="true" />
+              <Choice Kind="ProcessAppFlag" Name="S+H" />
+            </p:NodeReference>
+            <Pin Id="RVR4ajcoFbHOMXaJE6PpYb" Name="Value" Kind="InputPin" />
+            <Pin Id="O2b84JvM61bN5C2jvjig9n" Name="Sample" Kind="InputPin" />
+            <Pin Id="F86DQkfJKOPLYSNl8JK0LN" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="Aq0Hw3Hud2dNXnIMx5Wlhi" Comment="" Bounds="289,799,108,19" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="CwcjHTjC5ipO3vyRHF9W5A" Comment="" Bounds="628,883,198,62" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="VeUJbtFT1ptMUAAosB1Q1e" Bounds="599,501,213,19" ShowValueBox="true" isIOBox="true" Value="Catching an exception on Dispose">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Bwq3Pobtf66Pkrv6k5g9Uw" Bounds="162,501,213,19" ShowValueBox="true" isIOBox="true" Value="Catching an exception on Create">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Bk6IasrF9ogLoSHK0Va3c7" Bounds="392,123,213,19" ShowValueBox="true" isIOBox="true" Value="Catching an exception on Update">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="QGZ7I58eaTPNLI8yhu8LcA" Name="Create" />
+        <Patch Id="ALe9USFW9ajMis6zmOqwX0" Name="Update" />
+        <ProcessDefinition Id="GacHpjMnpf1L3DFNTSYPve">
+          <Fragment Id="Ls0txkpJM8BP8Yf6iyLNPu" Patch="QGZ7I58eaTPNLI8yhu8LcA" Enabled="true" />
+          <Fragment Id="KnD402QQ94HNI6S7FaNtOU" Patch="ALe9USFW9ajMis6zmOqwX0" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="H8ICJIPEyiyMoA2fTzlrXe" Ids="QBXjoLjFC2KL7UTAZoXzhq,K0MADgL6lMpOk577gRnoU0" />
+        <Link Id="UpYRVPrcg6KN0Ln7RZMfLK" Ids="C7It8g1qNbIOzWWpkY6Dn9,PcD3kuLqzeZLg81dQAZYYf" />
+        <Link Id="OeDZh9iBpJ8M1nF4OAT0cl" Ids="C7It8g1qNbIOzWWpkY6Dn9,SJFK8eNxBkFPzVgWveUe5d" />
+        <Link Id="GpzUDHrZzCxNSlE8RogXlT" Ids="IKw4Dmtrtp0NH51J0Wb0RP,RI91hdqKQ4FQJQf3gEkRT3" />
+        <Link Id="BaSVeZ28VjWNfOY9Hp5gjV" Ids="FgvwAJPdOAmOMJoGPAh8Su,Mxqo6jeRm6xL9n430WNpDo" />
+        <Link Id="NeRDjzj93NbM4NYBDU1iCw" Ids="SMcEzHHAkmxO9ogrIjESHU,QGZKpxwSSnDPlveUXbyNU5" />
+        <Link Id="SoDkQ8ixgsAPzpd6kjMgmn" Ids="JSlx8RXPVO5LG6XZxJ0jcm,O2b84JvM61bN5C2jvjig9n" />
+        <Link Id="QfA5BPLfSerN7V5ojGC7R2" Ids="JaRTeIMlWijMWJwku0xUQz,RVR4ajcoFbHOMXaJE6PpYb" />
+        <Link Id="Iaghn8YnG2NPeiklJd7kvi" Ids="F86DQkfJKOPLYSNl8JK0LN,Aq0Hw3Hud2dNXnIMx5Wlhi" />
+        <Link Id="FMVBVpMe3lHL0qD1ty4ALe" Ids="EKcp2SCqH8ZMnbO3rjWbMT,CwcjHTjC5ipO3vyRHF9W5A" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="EwUuP5LADxLL2SS7e9oaip" Location="VL.CoreLib" Version="2021.4.11-1228-gf15d2066ce" />
+</Document>

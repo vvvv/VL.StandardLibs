@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="LHubMrojciROWK8kqHxQly" LanguageVersion="2021.4.0.365" Version="0.128">
+  <Patch Id="J993qDGeassNjH78uEwNvM">
+    <Canvas Id="Tgac8O7g8WUP8stz709JHN" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="319,214" Id="Qe3M4hUMQqgNwO1N6xAwUc">
+      <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="Builtin">
+        <Choice Kind="ContainerDefinition" Name="Process" />
+      </p:NodeReference>
+      <Patch Id="Q4KYAHzeVz3LnA4p7z4zB8">
+        <Canvas Id="ThsLeEisveJPcXWHjJ9H0Z" CanvasType="Group">
+          <Node Bounds="423,553,85,19" Id="NqFYE87tXVINpKrsS3ztch">
+            <p:NodeReference LastCategoryFullName="IO" LastSymbolSource="VL.CoreLib.IO.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="FileWriter (String)" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="GfhlKGPVAwnLASGaTTvHqT" Name="File Path" Kind="InputPin" />
+            <Pin Id="LJ4kzxbCl3dPVJp1Om3oRK" Name="Data" Kind="InputPin" />
+            <Pin Id="TKt8PVMJLfDMt0WsZcc1P2" Name="Encoding" Kind="InputPin" />
+            <Pin Id="GWt8ZXpdC2fNU7MTqiDff4" Name="Append" Kind="InputPin" />
+            <Pin Id="GdXWAizMjJDN4r1NnS8CYR" Name="Write" Kind="InputPin" />
+          </Node>
+          <Pad Id="IBvc0nsszUfOfs2P1yljLf" Comment="File Path" Bounds="310,471,62,15" ShowValueBox="true" isIOBox="true" Value="String.txt">
+            <p:TypeAnnotation LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Path" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="AzSpCbo7OskLn6OJ0n97th" Comment="Write" Bounds="597,471,54,42" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="JuLHCBjGKqRPBb8ke4311D" Comment="Append" Bounds="485,474,40,31" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="384,203,67,13" Id="OxMblg7SDzEOxAGYT7b7nH">
+            <p:NodeReference LastCategoryFullName="System.DateTime" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="RecordType" Name="DateTime" />
+              <Choice Kind="OperationCallFlag" Name="Now" />
+            </p:NodeReference>
+            <Pin Id="FZJ5vzETiJRLkHFLCYusBa" Name="Now" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="384,258,48,22" Id="APL9a7h8EFqLyO854q8IMB">
+            <p:NodeReference LastCategoryFullName="System.DateTime" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="RecordType" Name="DateTime" />
+              <Choice Kind="OperationCallFlag" Name="ToString (Format)" />
+            </p:NodeReference>
+            <Pin Id="SMW8docSHb2MMyBR2L2X9P" Name="Input" Kind="StateInputPin" />
+            <Pin Id="JxFLebhN32WNSD5UsUSBjx" Name="Format" Kind="InputPin" />
+            <Pin Id="UNtcGVA6TH7LwtaHxJU5DI" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="MaBo2t0lxz0POFx3wp1cTV" Bounds="651,236,215,22" ShowValueBox="true" isIOBox="true" Value="Standard Date and Time Strings:">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="HGtIySK54FbLWC7ZPZRqxk" Bounds="649,262,349,22" ShowValueBox="true" isIOBox="true" Value="https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings?view=netframework-4.7.2">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="SKpEAJNw6AvOF6zzCjepYR" Comment="Format" Bounds="436,238,139,20" ShowValueBox="true" isIOBox="true" Value="dd-MM-yy \/ hh:mm:ss">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="442,327,25,13" Id="RgloZhlzXdTLif9Jk4NzNC">
+            <p:NodeReference LastCategoryFullName="Math" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="+" />
+            </p:NodeReference>
+            <Pin Id="FrPXsTjv0O2OcDXO6OOBeJ" Name="Input" Kind="InputPin" />
+            <Pin Id="By99fZo4TEpPlaztbFTElo" Name="Input 2" Kind="InputPin" />
+            <Pin Id="CmXuKOPvBZDP5v2C6OJJxl" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="504,277,48,13" Id="GWKWywGKLzuM8LbcsHzmtr">
+            <p:NodeReference LastCategoryFullName="Primitive.String" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="NewLine" />
+            </p:NodeReference>
+            <Pin Id="Th2AArKdJojN22GPlLV6wv" Name="New Line" Kind="OutputPin" />
+          </Node>
+          <Pad Id="N4HzK3j4JW5L4wdMid9hyr" Comment="String" Bounds="444,374,135,20" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="VrK9ZhZBI51OYPaT6v6Nkt" Bounds="691,469,203,42" ShowValueBox="true" isIOBox="true" Value="&lt; Hit Write to append a new string with a newline to a file.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="308,495,77,19" Id="Spd3DPRNqO4OJhCTQD5UB9">
+            <p:NodeReference LastCategoryFullName="HelpHelpers" LastSymbolSource="HelpHelpers.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="GetTempPath" />
+            </p:NodeReference>
+            <Pin Id="PYgraUxYuHROybAfcd1EI1" Name="Input" Kind="InputPin" />
+            <Pin Id="OLOy8r2dVDbOAvdIwKRCfh" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="MjFJ7fbMYJOQCHQx78Os9r" Bounds="119,469,164,74" ShowValueBox="true" isIOBox="true" Value="We just point to a temp folder to be sure we have rights to write a file.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Pwc1svoA5JdMegSWghBEA0" Comment="" Bounds="310,641,287,13" ShowValueBox="true" isIOBox="true" />
+        </Canvas>
+        <Patch Id="ScGb1anQliBQEuzymRusro" Name="Create" />
+        <Patch Id="PcT2WE30PNbObdDlM2ItuX" Name="Update" />
+        <ProcessDefinition Id="LJTKSwnFdlXOFAHC3AG76h">
+          <Fragment Id="ONHWTIJf5tiPM1xdMWlmPV" Patch="ScGb1anQliBQEuzymRusro" Enabled="true" />
+          <Fragment Id="SQx3OwHHYwPQSlLRmbAeyB" Patch="PcT2WE30PNbObdDlM2ItuX" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="ASbPseUQj2oPazUEWXimGb" Ids="IBvc0nsszUfOfs2P1yljLf,PYgraUxYuHROybAfcd1EI1" />
+        <Link Id="CmPgvTQu3rSPBiIQ2YNs9M" Ids="AzSpCbo7OskLn6OJ0n97th,GdXWAizMjJDN4r1NnS8CYR" />
+        <Link Id="DrSofBohuziO6VKSjH1qxf" Ids="JuLHCBjGKqRPBb8ke4311D,GWt8ZXpdC2fNU7MTqiDff4" />
+        <Link Id="EN98QfeGgQVOjsOAoowpp7" Ids="FZJ5vzETiJRLkHFLCYusBa,SMW8docSHb2MMyBR2L2X9P" />
+        <Link Id="S5zpqSfMruqPptpcT3M3ay" Ids="SKpEAJNw6AvOF6zzCjepYR,JxFLebhN32WNSD5UsUSBjx" />
+        <Link Id="UYzUMr3WBxGMhzbQ7XA5r1" Ids="UNtcGVA6TH7LwtaHxJU5DI,FrPXsTjv0O2OcDXO6OOBeJ" />
+        <Link Id="HBkUPQPcE3OO05w16GKWNL" Ids="Th2AArKdJojN22GPlLV6wv,By99fZo4TEpPlaztbFTElo" />
+        <Link Id="Ij0jfVDYTMCMXTolRC2zYU" Ids="CmXuKOPvBZDP5v2C6OJJxl,N4HzK3j4JW5L4wdMid9hyr" />
+        <Link Id="MoW1CWe9qaXLUTHR9zZg80" Ids="N4HzK3j4JW5L4wdMid9hyr,LJ4kzxbCl3dPVJp1Om3oRK" />
+        <Link Id="OLzhHeEJV3tPZkHx47Tbb9" Ids="OLOy8r2dVDbOAvdIwKRCfh,GfhlKGPVAwnLASGaTTvHqT" />
+        <Link Id="IcGRHiDMfUjLHdjufY8gHz" Ids="OLOy8r2dVDbOAvdIwKRCfh,Pwc1svoA5JdMegSWghBEA0" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="I8fCdivVlzZQHxgA4vtDii" Location="VL.CoreLib" Version="2021.4.0-0365-g698d9b47a2" />
+  <DocumentDependency Id="KBvfnXfDindMHb0f1PeljC" Location="../../HelpHelpers.vl" />
+</Document>

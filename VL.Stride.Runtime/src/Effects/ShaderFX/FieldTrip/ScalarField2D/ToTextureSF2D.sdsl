@@ -1,0 +1,21 @@
+shader ToTextureSF2D : ShaderBaseStream, Float2ToFloat4, Camera
+{
+    compose Float2ToFloat Function;
+
+   
+    override float4 Compute(float2 texCoord)
+    {
+        float2 p = texCoord * 2.0f - 1.0f;
+        p.y *= -1.0f ;
+
+        // seems these camm vars return zero
+
+        //p.x *= AspectRatio; 
+      
+      // float AR = ViewSize.x / ViewSize.y;
+        //p.x *= AR;
+
+        float result = Function.Compute(p);
+        return float4(result.xxx, 1);
+    }
+};

@@ -1,0 +1,274 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="S9HTdgrGBQhOEjRyr6EZUC" LanguageVersion="2019.2.0-0342-6bc9b61985" Version="0.128" IsTrusted="true">
+  <NugetDependency Id="Dvvj5W5yUk8MJ1rgYCiDjE" Location="VL.CoreLib" Version="2019.2.0-0342-g6bc9b61985" />
+  <Patch Id="OZ0wLldC3CIMFseK9B56R9">
+    <Canvas Id="UgBUalc8VRaQAHYSRpsoFZ" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="BRNPBEV538XPoypWgXUfo4">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="Lxn4yXpe0dyLr1voSKmtP5">
+        <Canvas Id="L5rtnc5IYP7QEY57UTviC6" CanvasType="Group">
+          <Pad Id="En9pjIlLDYuPzIcEqlsHzw" Bounds="99,83,357,193" ShowValueBox="true" isIOBox="true" Value="You receive some custom data like this:&#xD;&#xA;weather report as an XML. This example loads the data from the drive, but the data can come over the network.&#xD;&#xA;&#xD;&#xA;Make your own deserializer that will convert the data into your own object.&#xD;&#xA;&#xD;&#xA;If you want to serialize your own objects to some custom XML, you need to recreate this XML &quot;by hand&quot;, see XML Tutorials.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="UrYUI1FpiBWQU1XR8qEeAl" Bounds="570,104,318,41" ShowValueBox="true" isIOBox="true" Value="Deserialize cutom data">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">20</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="579,290,67,19" Id="QgbROIEVRvLPwGYMXlQNPW">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="XMLReader" />
+            </p:NodeReference>
+            <Pin Id="JyTnc6ygR4TORLAvCIcczr" Name="File Path" Kind="InputPin" />
+            <Pin Id="RH4NnOIQyxhMk0FibLYWzZ" Name="Read" Kind="InputPin" />
+            <Pin Id="SVEXOiur7phP3yy0saU1JE" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="NtTT4eM7PJ6N0pb2WivcW7" Comment="File Path" Bounds="581,186,225,-10" ShowValueBox="true" isIOBox="true" Value="..\..\Assets\Example.xml">
+            <p:TypeAnnotation LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Path" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="DhiQjn3IX9RMHwLJ1gNdW9" Comment="Read" Bounds="643,206,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="579,348,100,19" Id="QMGcCCyqH6KNzsl59uUAyo">
+            <p:NodeReference LastCategoryFullName="Main.HowTo Deserialize ThirdParty DataApplication" LastSymbolSource="HowTo Deserialize ThirdParty Data.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="MyDeserializer" />
+            </p:NodeReference>
+            <Pin Id="Vr06il6WftWMqoGLy2BB6w" Name="Input" Kind="InputPin" />
+            <Pin Id="InsdqtDuIhNMV51ZfDPs0H" Name="Output" Kind="OutputPin" />
+          </Node>
+          <!--
+
+    ************************ MyDeserializer ************************
+
+-->
+          <Node Name="MyDeserializer" Bounds="106,525,400,235" Id="BitVEXBARmYL0qUL1yDrdy">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="Builtin">
+              <Choice Kind="OperationDefinition" Name="Operation" />
+            </p:NodeReference>
+            <Patch Id="EJQ3ljhxw0PLEGFUpBNwt3">
+              <Node Bounds="118,686,72,26" Id="SRNmYWuBagCLM5dQsURgFs">
+                <p:NodeReference LastCategoryFullName="Main.Root.MyWeather" LastSymbolSource="Serialize-HowToDeserializeThirdPartyData.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <CategoryReference Kind="RecordType" Name="MyWeather" />
+                  <Choice Kind="OperationCallFlag" Name="Create" />
+                </p:NodeReference>
+                <Pin Id="T5RiMokisvNLy4qxoY88C3" Name="City" Kind="InputPin" />
+                <Pin Id="J5vJultzi6ZNsr10KgQ7Xr" Name="Temperature" Kind="InputPin" />
+                <Pin Id="HHXnXmyiHbSPNVYA2qxU4r" Name="Humidity" Kind="InputPin" />
+                <Pin Id="VoAhk0f4p3fMiZnXAIjJaR" Name="Output" Kind="StateOutputPin" />
+              </Node>
+              <Node Bounds="119,576,123,19" Id="VtXbHxKyUTzNTB2RqbpD5M">
+                <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="XPathGetAttributeValue" />
+                </p:NodeReference>
+                <Pin Id="HOPKLPZKI1vOc1q6rcOFVE" Name="Input" Kind="InputPin" />
+                <Pin Id="D7c61B9wJf4OJtoJUMUUBQ" Name="Expression" Kind="InputPin" />
+                <Pin Id="Fz4Rk5nvGw7LmRSroxpPdo" Name="Value" Kind="OutputPin" />
+                <Pin Id="G63nT4bjxLAPWRoB2De9mx" Name="Success" Kind="OutputPin" />
+              </Node>
+              <ControlPoint Id="NCkpdZRCaFQOhC7DtPfGcg" Bounds="121,551" />
+              <Link Id="Fc3Ovo9cQNuOpsoci9n61a" Ids="NCkpdZRCaFQOhC7DtPfGcg,HOPKLPZKI1vOc1q6rcOFVE" />
+              <Link Id="A6dNTMIK6vIOhoP9AL3YmL" Ids="RMru8KkNA0WOC2G0Gysorp,NCkpdZRCaFQOhC7DtPfGcg" IsHidden="true" />
+              <Pad Id="SkSZyHD9TjVN8DPyEOYpcV" Comment="Path" Bounds="239,553,148,15" ShowValueBox="true" isIOBox="true" Value="/current/city/@name">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                  <Choice Kind="TypeFlag" Name="String" />
+                </p:TypeAnnotation>
+              </Pad>
+              <ControlPoint Id="UleOilnkNL3Lg1QfQwMdpZ" Bounds="120,743" />
+              <Link Id="JCkboDrJEoCLp5Oi50fJiJ" Ids="VoAhk0f4p3fMiZnXAIjJaR,UleOilnkNL3Lg1QfQwMdpZ" />
+              <Link Id="LH7jldXJqmkNRSHyZeMCJ8" Ids="UleOilnkNL3Lg1QfQwMdpZ,TEjaTVM5hbgNVDk5yxD5aT" IsHidden="true" />
+              <Link Id="ANKjDK3OAiJPzIJ5RSqpbV" Ids="SkSZyHD9TjVN8DPyEOYpcV,D7c61B9wJf4OJtoJUMUUBQ" />
+              <Link Id="E7bnZdMzbbQQa9VPSp4OTl" Ids="Fz4Rk5nvGw7LmRSroxpPdo,T5RiMokisvNLy4qxoY88C3" />
+              <Pin Id="TEjaTVM5hbgNVDk5yxD5aT" Name="Output" Kind="OutputPin" Bounds="124,446" />
+              <Pin Id="RMru8KkNA0WOC2G0Gysorp" Name="Input" Kind="InputPin" Bounds="124,342" />
+              <Node Bounds="152,621,123,19" Id="PEYGqaBqLQ0PockgBiaICJ">
+                <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="XPathGetAttributeValue" />
+                </p:NodeReference>
+                <Pin Id="SWaKCkOM8DYOZ4geWrm72B" Name="Input" Kind="InputPin" />
+                <Pin Id="Kd3KXnbhX3MMIGJTtOk9mE" Name="Expression" Kind="InputPin" />
+                <Pin Id="OWVFaG54wrJMdZUDhtdF0n" Name="Value" Kind="OutputPin" />
+                <Pin Id="Bz13Gk1FPmtPebKIDOhJLZ" Name="Success" Kind="OutputPin" />
+              </Node>
+              <Pad Id="UtD7Hx15fZULvFC5xyRIoe" Comment="Path" Bounds="272,598,148,15" ShowValueBox="true" isIOBox="true" Value="/current/temperature/@value">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                  <Choice Kind="TypeFlag" Name="String" />
+                </p:TypeAnnotation>
+              </Pad>
+              <Link Id="AU04D4IJVxXOsYtpg5OWwz" Ids="UtD7Hx15fZULvFC5xyRIoe,Kd3KXnbhX3MMIGJTtOk9mE" />
+              <Link Id="Tcn8gZO0O1aLljE3drGYJz" Ids="NCkpdZRCaFQOhC7DtPfGcg,SWaKCkOM8DYOZ4geWrm72B" />
+              <Link Id="Rj0h0ntGifFOBB7a7MEzIT" Ids="OWVFaG54wrJMdZUDhtdF0n,J5vJultzi6ZNsr10KgQ7Xr" />
+              <Node Bounds="185,656,123,19" Id="S4QbihtgPihMADn3VZGu0Y">
+                <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="XPathGetAttributeValue" />
+                </p:NodeReference>
+                <Pin Id="Oz0ugLByYgHMxxE8JRM2lZ" Name="Input" Kind="InputPin" />
+                <Pin Id="UfTNXIZdckzMkINpIyKNA8" Name="Expression" Kind="InputPin" />
+                <Pin Id="P6vGmrqCmEGORWyym9XtJi" Name="Value" Kind="OutputPin" />
+                <Pin Id="Og56a2ERkdzOq5Yuh0B0vW" Name="Success" Kind="OutputPin" />
+              </Node>
+              <Pad Id="Ud8aWd9ibNOMIIhVsPVjRV" Comment="Path" Bounds="305,633,148,15" ShowValueBox="true" isIOBox="true" Value="/current/humidity/@value">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                  <Choice Kind="TypeFlag" Name="String" />
+                </p:TypeAnnotation>
+              </Pad>
+              <Link Id="PG0dZIXUzpAOXmmodWL1Bs" Ids="Ud8aWd9ibNOMIIhVsPVjRV,UfTNXIZdckzMkINpIyKNA8" />
+              <Link Id="LF7yeieJ9zjPMSrhWxV9SH" Ids="P6vGmrqCmEGORWyym9XtJi,HHXnXmyiHbSPNVYA2qxU4r" />
+              <Link Id="MGX1WdC0y8XN1j7a6Xn9np" Ids="NCkpdZRCaFQOhC7DtPfGcg,Oz0ugLByYgHMxxE8JRM2lZ" />
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ MyWeather ************************
+
+-->
+          <Node Name="MyWeather" Bounds="106,443" Id="JgwU18lyhVyM3QQmm5a4Aq">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="Builtin">
+              <Choice Kind="RecordDefinition" Name="Record" />
+            </p:NodeReference>
+            <Patch Id="IX8zbLyvqQ1LSdSix06Jzt">
+              <Canvas Id="PC43FoMp32lOydXq70BFUF" CanvasType="Group">
+                <Pad Id="TTdnIB417djQa8fyIqScQX" SlotId="CGdh7sMfDXlNHJBEzZUUJX" Bounds="357,170" />
+                <Pad Id="GqFZQlKxHNVMw8CXNBwMmy" SlotId="FN8JKFvEyBNM6Q55SPHhLY" Bounds="475,170" />
+                <Pad Id="HJtENml4FpxPUvSWEcZnLV" SlotId="HJNgu9uguHeO7frYzp3tRF" Bounds="579,171" />
+                <ControlPoint Id="UMuRd1phrtTNceaqolyBd2" Bounds="579,141" />
+                <ControlPoint Id="UDpTpoW4KHPM5eC98PskcP" Bounds="579,201" />
+                <ControlPoint Id="NPdnQlPJ69LMmSV8Hhhkjp" Bounds="475,140" />
+                <ControlPoint Id="GmZdF3Ky67jLizvOeUtFen" Bounds="475,200" />
+                <ControlPoint Id="HUiiYE2HttLNZgDJ4VgR5k" Bounds="357,140" />
+                <ControlPoint Id="BhaN24Woz3OPDJmtOumjv7" Bounds="357,200" />
+              </Canvas>
+              <Patch Id="SXT9chEEkFFOpHrLixtpJF" Name="Create">
+                <Pin Id="AKNRX1n4wReN1TSweXO4IH" Name="City" Kind="InputPin" />
+                <Pin Id="AcFX0rFSyGqMsQryzI89WP" Name="Temperature" Kind="InputPin" />
+                <Pin Id="VMB6xfx8OjKQBbatpj0G37" Name="Humidity" Kind="InputPin" />
+              </Patch>
+              <ProcessDefinition Id="T1L1MIbhWLlL6BPqBioo8q" IsHidden="true">
+                <Fragment Id="EkjLEEk5DPlLfXNpjOZTGh" Patch="SXT9chEEkFFOpHrLixtpJF" Enabled="true" />
+                <Fragment Id="P4NcMBMx5JWOgViUxXuDRG" Patch="K30gmyl6ghNOkLhHFKLMlj" Enabled="true" />
+              </ProcessDefinition>
+              <Slot Id="CGdh7sMfDXlNHJBEzZUUJX" Name="City">
+                <p:TypeAnnotation>
+                  <Choice Kind="TypeFlag" Name="String" />
+                </p:TypeAnnotation>
+              </Slot>
+              <Slot Id="FN8JKFvEyBNM6Q55SPHhLY" Name="Temperature">
+                <p:TypeAnnotation>
+                  <Choice Kind="TypeFlag" Name="Float32" />
+                </p:TypeAnnotation>
+              </Slot>
+              <Slot Id="HJNgu9uguHeO7frYzp3tRF" Name="Humidity">
+                <p:TypeAnnotation>
+                  <Choice Kind="TypeFlag" Name="Integer32" />
+                </p:TypeAnnotation>
+              </Slot>
+              <Link Id="IDouG60JGYtMZMrdpiVEWw" Ids="VMB6xfx8OjKQBbatpj0G37,UMuRd1phrtTNceaqolyBd2" IsHidden="true" />
+              <Link Id="PujjRr7KZyDQBq8L0J4CC7" Ids="UMuRd1phrtTNceaqolyBd2,HJtENml4FpxPUvSWEcZnLV" />
+              <Patch Id="K30gmyl6ghNOkLhHFKLMlj" Name="Split">
+                <Pin Id="FSfoVLCuptxPb4YsgPfqxZ" Name="City" Kind="OutputPin" />
+                <Pin Id="FPBXdpk0r7OMOHfR3YFry1" Name="Temperature" Kind="OutputPin" />
+                <Pin Id="MC2aoY7kzpAPt5SIDdJM5u" Name="Humidity" Kind="OutputPin" />
+              </Patch>
+              <Link Id="M3K5SNYGBz7NoLxrKANRu2" Ids="UDpTpoW4KHPM5eC98PskcP,MC2aoY7kzpAPt5SIDdJM5u" IsHidden="true" />
+              <Link Id="HTZN01V7VCYMET2F4i8ucZ" Ids="HJtENml4FpxPUvSWEcZnLV,UDpTpoW4KHPM5eC98PskcP" />
+              <Link Id="Nv5urtMMYzQNCmmEWfUwUB" Ids="AcFX0rFSyGqMsQryzI89WP,NPdnQlPJ69LMmSV8Hhhkjp" IsHidden="true" />
+              <Link Id="H2Mh7EWTPCOMIuctARqDJA" Ids="NPdnQlPJ69LMmSV8Hhhkjp,GqFZQlKxHNVMw8CXNBwMmy" />
+              <Link Id="My3hJTrLOeUQPSKqx2swDz" Ids="GmZdF3Ky67jLizvOeUtFen,FPBXdpk0r7OMOHfR3YFry1" IsHidden="true" />
+              <Link Id="HeDaBb9uyd3OucytZDcVjF" Ids="GqFZQlKxHNVMw8CXNBwMmy,GmZdF3Ky67jLizvOeUtFen" />
+              <Link Id="Jh9rjOxDshaOUlTWdi4Odq" Ids="AKNRX1n4wReN1TSweXO4IH,HUiiYE2HttLNZgDJ4VgR5k" IsHidden="true" />
+              <Link Id="KSAQ1hIOSgOPZW3peoCmAF" Ids="HUiiYE2HttLNZgDJ4VgR5k,TTdnIB417djQa8fyIqScQX" />
+              <Link Id="L9Z3kiBuzCaL2wWl2CqAVp" Ids="BhaN24Woz3OPDJmtOumjv7,FSfoVLCuptxPb4YsgPfqxZ" IsHidden="true" />
+              <Link Id="MMiiCuftWwCL6cxDMtadBS" Ids="TTdnIB417djQa8fyIqScQX,BhaN24Woz3OPDJmtOumjv7" />
+            </Patch>
+          </Node>
+          <Node Bounds="579,414,72,26" Id="T60OWAgwhHNLeVvRL2pf2c">
+            <p:NodeReference LastCategoryFullName="Main.Root.MyWeather" LastSymbolSource="Serialize-HowToDeserializeThirdPartyData.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="RecordType" Name="MyWeather" />
+              <Choice Kind="OperationCallFlag" Name="Split" />
+            </p:NodeReference>
+            <Pin Id="IaNDzTcuSkZQY4FVEDCYow" Name="Input" Kind="StateInputPin" />
+            <Pin Id="Pgdx8uZciFdOWGHOQkBjlH" Name="City" Kind="OutputPin" />
+            <Pin Id="BtlJ0zMd3F9NaxS0V0TaZ9" Name="Temperature" Kind="OutputPin" />
+            <Pin Id="Ve5ArOgawy2LITn57WHU4Z" Name="Humidity" Kind="OutputPin" />
+          </Node>
+          <Pad Id="QESIObmw9eIMeshPHefjqd" Comment="City" Bounds="581,505,57,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="VnhjHYG2kocQNsp7w9b0VC" Comment="Temperature" Bounds="615,483,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="HGXRa7dSokVOF5JkYaodso" Comment="Humidity" Bounds="648,461,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="BmE4gtGZx33MyToOrePs6P" Bounds="95,396,131,19" ShowValueBox="true" isIOBox="true" Value="This is your object.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="OUSXhiUGeymNE1CASR0yko" Bounds="95,473,211,19" ShowValueBox="true" isIOBox="true" Value="This is your custom deserializer.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="641,249,54,19" Id="UJV7svP29zgLHE3uQsiUw1">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OnOpen" />
+            </p:NodeReference>
+            <Pin Id="DTEZqe6hYU2PbwySZ4rS0l" Name="Simulate" Kind="InputPin" />
+            <Pin Id="FgBFanXcLvJLeJkJxaLDKc" Name="Output" Kind="OutputPin" />
+          </Node>
+        </Canvas>
+        <Patch Id="Gqu5qZYRThrOmSAeQCu8oj" Name="Create" />
+        <Patch Id="ERObDkSrVWdL6jGGQX0Sup" Name="Update" />
+        <ProcessDefinition Id="VrhPlR2tLSsPLNnH4lY7ai">
+          <Fragment Id="OqKtLQdEk89Mj7OeZtjIUC" Patch="Gqu5qZYRThrOmSAeQCu8oj" Enabled="true" />
+          <Fragment Id="VtVzwAwTSEdQCdZ83r0cID" Patch="ERObDkSrVWdL6jGGQX0Sup" Enabled="true" />
+          <Fragment Id="QDBT6wS1kNcOCaKOc79TvV" Patch="BitVEXBARmYL0qUL1yDrdy" />
+        </ProcessDefinition>
+        <Link Id="KFrGFN75xMNOfTrxZk7lF0" Ids="NtTT4eM7PJ6N0pb2WivcW7,JyTnc6ygR4TORLAvCIcczr" />
+        <Link Id="SgOA8sRXSM9NjPTDBxcS4q" Ids="SVEXOiur7phP3yy0saU1JE,Vr06il6WftWMqoGLy2BB6w" />
+        <Link Id="FPS40491mGbQFFv78a49AT" Ids="InsdqtDuIhNMV51ZfDPs0H,IaNDzTcuSkZQY4FVEDCYow" />
+        <Link Id="O0LObQlI5S9LRvlzTfH94S" Ids="Pgdx8uZciFdOWGHOQkBjlH,QESIObmw9eIMeshPHefjqd" />
+        <Link Id="VFUhZDB3xT4OdIUCYKvtmV" Ids="BtlJ0zMd3F9NaxS0V0TaZ9,VnhjHYG2kocQNsp7w9b0VC" />
+        <Link Id="Ba6BKYBVwhlQd57gvTC7c6" Ids="Ve5ArOgawy2LITn57WHU4Z,HGXRa7dSokVOF5JkYaodso" />
+        <Link Id="CJigii2GXrOLFGuVTRXsJr" Ids="DhiQjn3IX9RMHwLJ1gNdW9,DTEZqe6hYU2PbwySZ4rS0l" />
+        <Link Id="HQQS5AGg0svLbojEE5oQ1d" Ids="FgBFanXcLvJLeJkJxaLDKc,RH4NnOIQyxhMk0FibLYWzZ" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="Hv5O0INwG5VNWwN967gJfr" Location="VL.Core" Version="2019.2.0-0342-g6bc9b61985" />
+</Document>

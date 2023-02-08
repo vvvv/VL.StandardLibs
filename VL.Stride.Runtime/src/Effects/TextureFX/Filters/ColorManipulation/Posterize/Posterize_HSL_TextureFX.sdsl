@@ -1,0 +1,12 @@
+﻿[Category("Filter")]
+[Summary("")]
+shader Posterize_HSL_TextureFX : Posterize_RGB_TextureFX
+{
+    stage override float4 Posterizer(float4 c, float2 vp)
+    {
+        c.rgb = base.RGBtoHSL(c.rgb);
+        c = base.Posterizer(c,vp);
+        c.rgb = base.HSLtoRGB(c.rgb);
+        return c;
+    }
+};

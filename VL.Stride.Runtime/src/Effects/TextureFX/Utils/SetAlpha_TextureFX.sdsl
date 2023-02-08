@@ -1,0 +1,28 @@
+﻿[Category("Utils")]
+[Tags("mask")]
+shader SetAlpha_TextureFX : TextureFX
+{
+    [Default(1, 1, 1, 1)]
+    compose ComputeFloat4 AlphaMask;
+
+    [EnumType("VL.Stride.Effects.TextureFX.AlphaChannel")]
+    uint AlphaChannel = 1;
+
+    float Opacity = 1;
+
+    stage override float4 Shading()
+    {
+        float3 col = InTex0().rgb;
+        float4 alphaMask = AlphaMask.Compute();
+        float alpha;
+
+        if (AlphaChannel == 0) alpha = (alphaMask.r + alphaMask.g + alphaMask.b + alphaMask.a) / 4;
+        else if (AlphaChannel == 1) alpha = alphaMask.r;
+        else if (AlphaChannel == 2) alpha = alphaMask.g;
+        else if (AlphaChannel == 3) alpha = alphaMask.b;
+        else if (AlphaChannel == 4) alpha = alphaMask.a;
+
+        alpha *= Opacity;
+        return float4(col, alpha);
+    }
+};

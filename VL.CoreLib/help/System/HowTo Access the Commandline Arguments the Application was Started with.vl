@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="SOjYtbr3YhRMh462tfts4h" LanguageVersion="2019.2.0-0354-2bcf04a678" Version="0.128">
+  <NugetDependency Id="HfkGrVVgnZsNVFBDyFKcKe" Location="VL.CoreLib" Version="2019.2.0-0354-g2bcf04a678" />
+  <Patch Id="P85SE5nNbYrMQdk1eOd1C3">
+    <Canvas Id="PZyXfNyN5ENN77CdlcP4GT" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="Br5yy80rBedOn3Frnun3HH">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="PHmxKkXlNuiP78jqX28vaC">
+        <Canvas Id="Bnb0gY2YjhgQMhsxpe2KjW" CanvasType="Group">
+          <Pad Id="PfptQ1fJJO0Ltu1ISpiOHU" Bounds="201,120,195,32" ShowValueBox="true" isIOBox="true" Value="Use the Args node!">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="218,220,45,19" Id="RnxHIgL9NsjQIqQgbxYFPd">
+            <p:NodeReference LastCategoryFullName="System" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Args" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="RjhupJQZR8pNFGwv0FNVEB" Name="Update" Kind="InputPin" />
+            <Pin Id="PaKS4iUGBWYNgaDJ7ZBXfc" Name="Exe Name" Kind="OutputPin" />
+            <Pin Id="IGABFRJ0H8VMDrd2VFmyri" Name="List" Kind="OutputPin" />
+            <Pin Id="LHR3DkzuPfJNXBekViuOfa" Name="Dictionary" Kind="OutputPin" />
+          </Node>
+          <Pad Id="CMOoeJp4n72NTok1JTxLVH" Comment="Exe Name" Bounds="220,290,140,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="NwKDj2TZCBeOhIeA1o86fM" Comment="Arguments as list" Bounds="240,329,194,65" ShowValueBox="true" isIOBox="true">
+            <p:Value>
+              <Item></Item>
+            </p:Value>
+          </Pad>
+          <Node Bounds="258,585,71,26" Id="PzHZcJ6e9FHLwdYteCql02">
+            <p:NodeReference LastCategoryFullName="Collections.Dictionary" LastSymbolSource="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="TryGetValue" />
+              <CategoryReference Kind="RecordType" Name="Dictionary" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="Ot8FWToNXdrLZ7sYCJDqdi" Name="Input" Kind="StateInputPin" />
+            <Pin Id="IvVwDwbKmGXORgAckvY8lW" Name="Key" Kind="InputPin" />
+            <Pin Id="EOoIw32FUXPOVvDdn8Wn6r" Name="Result" Kind="OutputPin" />
+            <Pin Id="Nv52BmFlzUBNgYJ3qBjUSU" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="SmHODD9wqxPLAREyL1ZKOJ" Comment="Value" Bounds="326,650,82,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="SGW1eSCdMAfQYZKwxsZ0g5" Comment="Argument" Bounds="326,558,64,15" ShowValueBox="true" isIOBox="true" Value="-myArg">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="T0tXOqgwwJULVyrSfYIvy1" Comment="" Bounds="260,635,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="NWMt2P5ZyO2PBSroD1G1qk" Bounds="265,466,328,77" ShowValueBox="true" isIOBox="true" Value="Apart from the list, the arguments and their values are also returned as a dictionary. Note though that this assumes each argument starting with - or -- has a maximum of one value!">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="E9dTDB0qEVOLDvZRb5nXM9" Bounds="201,151,272,42" ShowValueBox="true" isIOBox="true" Value="Args returns the commandline arguments the application was started with">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="BW6Q7VFSYQtLcMPHRel3ks" Name="Create" />
+        <Patch Id="G2YZApYZuKPNz7kaaj9qS0" Name="Update" />
+        <ProcessDefinition Id="UBeSzUTY2XmPDTaTT2rHwx">
+          <Fragment Id="R0TJBcoPiatOBSahNUxNn2" Patch="BW6Q7VFSYQtLcMPHRel3ks" Enabled="true" />
+          <Fragment Id="MpK6aubk56PPAjmT7apKnb" Patch="G2YZApYZuKPNz7kaaj9qS0" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="M9tchVWuXu7O6mxro4FhDA" Ids="PaKS4iUGBWYNgaDJ7ZBXfc,CMOoeJp4n72NTok1JTxLVH" />
+        <Link Id="FK8esGd8afmPrqn4RiTTuq" Ids="IGABFRJ0H8VMDrd2VFmyri,NwKDj2TZCBeOhIeA1o86fM" />
+        <Link Id="TuC5nwBREJ8Ms94HJTdLWp" Ids="LHR3DkzuPfJNXBekViuOfa,Ot8FWToNXdrLZ7sYCJDqdi" />
+        <Link Id="PjACZvd4kZ9PyxW05eiY7t" Ids="Nv52BmFlzUBNgYJ3qBjUSU,SmHODD9wqxPLAREyL1ZKOJ" />
+        <Link Id="DZHEDjGMvl4M8ayGES5fRG" Ids="SGW1eSCdMAfQYZKwxsZ0g5,IvVwDwbKmGXORgAckvY8lW" />
+        <Link Id="HHr1fO3w2ILLeEd6F3hJNB" Ids="EOoIw32FUXPOVvDdn8Wn6r,T0tXOqgwwJULVyrSfYIvy1" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="MPnURs3fFlKNqqfzMlTnyZ" Location="VL.Skia" Version="2019.2.0-0354-g2bcf04a678" />
+</Document>

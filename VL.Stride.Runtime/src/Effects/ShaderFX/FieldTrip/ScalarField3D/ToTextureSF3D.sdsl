@@ -1,0 +1,11 @@
+﻿shader ToTextureSF3D : ShaderBaseStream, Float3ToFloat4, Camera
+{
+    compose Float3ToFloat Function;
+
+   
+    override float4 Compute(float3 p)
+    {
+        float result = Function.Compute(p);
+        return float4(result.xxx, 1);
+    }
+};

@@ -1,0 +1,221 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="Bb6mG7p9TRaQTu3mrqr9z0" LanguageVersion="2019.2.0-0342-6bc9b61985" Version="0.128" IsTrusted="true">
+  <Patch Id="J993qDGeassNjH78uEwNvM">
+    <Canvas Id="Tgac8O7g8WUP8stz709JHN" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="319,214" Id="Qe3M4hUMQqgNwO1N6xAwUc">
+      <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="Builtin">
+        <Choice Kind="ContainerDefinition" Name="Process" />
+      </p:NodeReference>
+      <Patch Id="Q4KYAHzeVz3LnA4p7z4zB8">
+        <Canvas Id="ThsLeEisveJPcXWHjJ9H0Z" CanvasType="Group">
+          <Pad Id="LDmoO0RERMqNVIb4wDSZzb" Bounds="34,222,233,63" ShowValueBox="true" isIOBox="true" Value="If you need to access a particular element or an attribute from XML document use XPath nodes.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="468,221,67,19" Id="JJkDnl03V41OmE6a0ZP222">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="XMLReader" />
+            </p:NodeReference>
+            <Pin Id="FRhZjGIqedcQLWjmrZixJG" Name="File Path" Kind="InputPin" />
+            <Pin Id="QomFl69CkWjLjw7prD72Ka" Name="Read" Kind="InputPin" />
+            <Pin Id="N3G1IwXfyW4NoIUEvOe5cl" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="QP437yenuksOgRpx4d1eZH" Comment="File Path" Bounds="308,153,159,15" ShowValueBox="true" isIOBox="true" Value="..\..\Assets\Example.xml">
+            <p:TypeAnnotation LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Path" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="OMzilDjXWS5QKZ2zvvrDFc" Comment="Read" Bounds="544,142,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="257,361,82,19" Id="ItBcSZSNUxAP4sngeecdlQ">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="XPathGetValue" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="EI2ccnD1jQ5PZLbJ8jG6Ln" Name="Input" Kind="InputPin" />
+            <Pin Id="Cdnkn0hZE8iLbw4MSu7mbl" Name="Path" Kind="InputPin" />
+            <Pin Id="Qtfii1Z3nk2Nh1skWIzIve" Name="Value" Kind="OutputPin" />
+            <Pin Id="OgH4ZZlbxkuLvgmPFjpgzU" Name="Success" Kind="OutputPin" />
+          </Node>
+          <Pad Id="SVFuWR50m3IO5gYisfi6jX" Comment="Path" Bounds="336,330,123,15" ShowValueBox="true" isIOBox="true" Value="/current/city/country">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="ABPU6PPyvW6OXk0oyMpE9U" Comment="" Bounds="229,412,67,15" ShowValueBox="true" isIOBox="true">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="VYyyz0xWBjjLgPrPsPgoG9" Comment="Success" Bounds="360,398,35,37" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="MlQGZI23SEePlM71QWnQYg" Bounds="232,452,140,25" ShowValueBox="true" isIOBox="true" Value="Element's value">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">12</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="564,359,82,19" Id="K2Yq1LmLVtlMUybzsoMtzV">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="XPathGetAttributeValue" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="MPHNjIvM4jXMH4ae1VXuw7" Name="Input" Kind="InputPin" />
+            <Pin Id="DXpD3UfquZlNzLZ8Cgem8l" Name="Expression" Kind="InputPin" />
+            <Pin Id="TrTvcnrt2nZOeGgfwkYJM3" Name="Value" Kind="OutputPin" />
+            <Pin Id="FO33wnbSGOSMA7kiG4v3hp" Name="Success" Kind="OutputPin" />
+          </Node>
+          <Pad Id="C1sXxOTOK7VMc8ZtCsVXeK" Comment="Path" Bounds="684,336,173,15" ShowValueBox="true" isIOBox="true" Value="/current/city/sun/@rise">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="Qm4Sp4f6cWmMnpBU3iIamZ" Comment="Success" Bounds="711,394,35,37" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="KkLxOTL7Wm8Nddf3vZ0uGp" Bounds="235,571,74,19" ShowValueBox="true" isIOBox="true" Value="See also:">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="245,599,87,19" Id="KYb4Ad6BDymNfNdZGN3VbU">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="XPathGetValues" />
+            </p:NodeReference>
+            <Pin Id="V0cAHqBDQbJMrP3BDii6pH" Name="Input" Kind="InputPin" />
+            <Pin Id="CHpsKlmraUdOsL1Gef7aI9" Name="Path" Kind="InputPin" />
+            <Pin Id="Avw4tGvzcUnQCXEkNHNapP" Name="Values" Kind="OutputPin" />
+            <Pin Id="B0XTlCFtV38OySGHeBTgaf" Name="Success" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="245,637,123,19" Id="Vcr36Emmv1JLUJMHnOtBHL">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="XPathGetAttributeValue" />
+            </p:NodeReference>
+            <Pin Id="BQenbk0Wv63LeVy2OEtap9" Name="Input" Kind="InputPin" />
+            <Pin Id="KHWRoQHHY2aQNqiGWVZfkw" Name="Expression" Kind="InputPin" />
+            <Pin Id="UGgPcRbXliZQCfSvOKsKoy" Name="Value" Kind="OutputPin" />
+            <Pin Id="Bd9wdyPjVp0NxgR6EvZh0D" Name="Success" Kind="OutputPin" />
+          </Node>
+          <Pad Id="UA8xYlsHzpeNghqD0MR5Zb" Bounds="556,452,140,25" ShowValueBox="true" isIOBox="true" Value="Attribute's value">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">12</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Rn8KUBETtU5PjcLeMtxcXI" Bounds="232,479,480,61" ShowValueBox="true" isIOBox="true" Value="Note, VL doesn't know how to interpret the data stored in element's / attributes. It can be floats, integeres, strings etc...&#xD;&#xA;Create a pad, middleclick it and set the Type. In this example the type is String.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="KJ2PqQfRN0SOzLBsCt0EdH" Comment="" Bounds="536,410,132,15" ShowValueBox="true" isIOBox="true">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="542,184,54,19" Id="RfYitljwyE4OMYpOm92BQt">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OnOpen" />
+            </p:NodeReference>
+            <Pin Id="ASdlWRr5R2qOfrBgMFvyPB" Name="Simulate" Kind="InputPin" />
+            <Pin Id="MwCEs37oZ3IM1XuzATjhMg" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="420,599,104,26" Id="LjUIB10xU0LM5LVtrLAGzH">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="XPathSelectElement" />
+            </p:NodeReference>
+            <Pin Id="Mc9yUORsFVyO0OJRGsw6ex" Name="Input" Kind="InputPin" />
+            <Pin Id="S9aZQ7S6VayNevieJ4baBt" Name="Expression" Kind="InputPin" />
+            <Pin Id="O6i9d4qgzpyLweZW2Wx6TB" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="419,637,109,19" Id="F7qKI9LeGEdPYZTAeWSpcl">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="XPathSelectElements" />
+            </p:NodeReference>
+            <Pin Id="SI3hHO6ivKJLKgbqTsnvVr" Name="Input" Kind="InputPin" />
+            <Pin Id="I9t5wKrdKx9M5sp3yxPtjP" Name="Expression" Kind="InputPin" />
+            <Pin Id="Baa9R0ux6PrPqwDSGHrMtG" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="558,599,65,26" Id="Ek26QwXJfO7PQKyoWdfOfd">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="XElement (Split)" />
+            </p:NodeReference>
+            <Pin Id="Qdk3MpB1b6FLChMGuSy5hn" Name="Input" Kind="InputPin" />
+            <Pin Id="Olyt6NajisyOekqLTrqmkT" Name="Name" Kind="OutputPin" />
+            <Pin Id="NOP48ArkNa5QPrT6S5GTbz" Name="Value" Kind="OutputPin" />
+            <Pin Id="VnxpXGRBJjkNpaXvfhPzUH" Name="Children" Kind="OutputPin" />
+            <Pin Id="Jj7JAdfxUXhNjucUsjR9UF" Name="Attributes" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="557,637,63,26" Id="BfXMjhCPkm5K99Gxlb7MPG">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="XAttribute (Split)" />
+            </p:NodeReference>
+            <Pin Id="RAuh2cmTpmsM4SyUgk65iU" Name="Input" Kind="InputPin" />
+            <Pin Id="V33NS3bhKJmOaVlqeUGKV1" Name="Name" Kind="OutputPin" />
+            <Pin Id="Eqy3j0i9SIVPuzuc72kLTR" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="GbGwdKwENFBLbPYuyH3NBo" Comment="Expression" Bounds="521,576,35,15" ShowValueBox="true" isIOBox="true" Value="/">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+        </Canvas>
+        <Patch Id="ScGb1anQliBQEuzymRusro" Name="Create" />
+        <Patch Id="PcT2WE30PNbObdDlM2ItuX" Name="Update" />
+        <ProcessDefinition Id="LJTKSwnFdlXOFAHC3AG76h">
+          <Fragment Id="ONHWTIJf5tiPM1xdMWlmPV" Patch="ScGb1anQliBQEuzymRusro" Enabled="true" />
+          <Fragment Id="SQx3OwHHYwPQSlLRmbAeyB" Patch="PcT2WE30PNbObdDlM2ItuX" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="CnqvnxaC9PCORaVHmcS8Mu" Ids="QP437yenuksOgRpx4d1eZH,FRhZjGIqedcQLWjmrZixJG" />
+        <Link Id="ALIjY3dPiHVOfXGsqRTnbG" Ids="N3G1IwXfyW4NoIUEvOe5cl,EI2ccnD1jQ5PZLbJ8jG6Ln" />
+        <Link Id="Dy5co5fV2VqPKCzONNyuc3" Ids="SVFuWR50m3IO5gYisfi6jX,Cdnkn0hZE8iLbw4MSu7mbl" />
+        <Link Id="C0doGOlA33RNgAE5tpHv9e" Ids="Qtfii1Z3nk2Nh1skWIzIve,ABPU6PPyvW6OXk0oyMpE9U" />
+        <Link Id="GZcK5vIuaF2MeHrJCvXRnR" Ids="OgH4ZZlbxkuLvgmPFjpgzU,VYyyz0xWBjjLgPrPsPgoG9" />
+        <Link Id="M7mBM3VKGKqM4m1aDYnGrj" Ids="FO33wnbSGOSMA7kiG4v3hp,Qm4Sp4f6cWmMnpBU3iIamZ" />
+        <Link Id="Uu7QKduWnCfQXgxgEWo8Un" Ids="N3G1IwXfyW4NoIUEvOe5cl,MPHNjIvM4jXMH4ae1VXuw7" />
+        <Link Id="Jc1cpILHFzoPTZtq6amQYR" Ids="C1sXxOTOK7VMc8ZtCsVXeK,DXpD3UfquZlNzLZ8Cgem8l" />
+        <Link Id="G1T0XHYWDStL0AoIrwKt0T" Ids="TrTvcnrt2nZOeGgfwkYJM3,KJ2PqQfRN0SOzLBsCt0EdH" />
+        <Link Id="EeVi2QBEP0FLj72HIOBVEg" Ids="MwCEs37oZ3IM1XuzATjhMg,QomFl69CkWjLjw7prD72Ka" />
+        <Link Id="HK8QtVd1ISBPMKbCYme08x" Ids="OMzilDjXWS5QKZ2zvvrDFc,ASdlWRr5R2qOfrBgMFvyPB" />
+        <Link Id="RZvkePRsTTPN8kSL3qrRIs" Ids="GbGwdKwENFBLbPYuyH3NBo,S9aZQ7S6VayNevieJ4baBt" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="I8fCdivVlzZQHxgA4vtDii" Location="VL.CoreLib" Version="2019.2.0-0342-g6bc9b61985" />
+</Document>

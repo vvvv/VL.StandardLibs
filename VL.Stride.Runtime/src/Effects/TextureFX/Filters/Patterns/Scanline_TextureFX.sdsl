@@ -1,0 +1,25 @@
+﻿[Category("Filter")]
+[Summary("")]
+shader Scanline_TextureFX : FilterBase
+{
+    float Brightness = 1;
+    float2 Amount = float2(1, 1);
+    float2 RedShift;
+    float2 GreenShift;
+    float2 BlueShift;
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+
+        float RedH = sin(RedShift.x + uv.y * Amount.x * 100);
+        float GreenH = sin(GreenShift.x + uv.y * Amount.x * 100);
+        float BlueH = sin(BlueShift.x + uv.y * Amount.x * 100);
+        
+        float RedV = sin(RedShift.y + uv.x * Amount.y * 100);
+        float GreenV = sin(GreenShift.y + uv.x * Amount.y * 100);
+        float BlueV = sin(BlueShift.y + uv.x * Amount.y * 100);
+
+        return float4(tex0col.r * RedH * RedV * Brightness, tex0col.g * GreenH * GreenV * Brightness, tex0col.b * BlueH * BlueV * Brightness, 1.0);
+    }
+};        

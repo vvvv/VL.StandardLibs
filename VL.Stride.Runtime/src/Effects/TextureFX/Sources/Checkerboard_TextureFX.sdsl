@@ -1,0 +1,34 @@
+[TextureSource]
+[Category("Source")]
+[Summary("Creates a checkerboard pattern")]
+[Tags("chessboard")]
+shader Checkerboard_TextureFX : TextureFX
+{
+    int2 CellCount = int2(8, 8);
+
+    [Color]
+    float4 Black = float4(0, 0, 0, 1);
+    [Color]
+    float4 White = float4(1, 1, 1, 1);
+
+    stage override float4 Shading()
+    {
+        //compute size
+        float2 stepHV = 1 / float2(CellCount.x, CellCount.y);
+        float2 uv = streams.TexCoord;
+
+        //compute black|white
+        float2 cHV = abs(uv) / stepHV;
+        cHV = cHV % 2 >= 1;
+
+        //special treatment for texcoords < 0
+        int2 b = uv < 0 ? -1 : 0;
+        cHV -= b;
+
+        //xor horizontal and vertical stripes
+        bool chess = (cHV.x + cHV.y) % 2;
+
+        //missuse a lerp to decide between color 1 and color 2
+        return lerp(Black, White, chess);
+    }
+};

@@ -1,0 +1,32 @@
+shader JuliaSDF : SDF3D
+{
+    compose ComputeFloat4 Pars;
+
+    override float Compute(float3 p)
+    {
+        float4 pars = Pars.Compute();
+        uint iter = 16;
+
+        float4 z = float4(p,0.0);
+        float md2 = 1.0;
+        float mz2 = dot(z,z);
+
+        float4 trap = float4(abs(z.xyz),dot(z,z));
+
+        for( uint i=0; i<iter; i++)
+        {
+            // |dz|^2 -> 4*|dz|^2
+            md2 *= 4.0*mz2;
+        
+            // z -> z2 + c
+            z = float4( z.x*z.x-dot(z.yzw,z.yzw),
+                      2.0*z.x*z.yzw ) + pars;
+
+            trap = min( trap, float4(abs(z.xyz),dot(z,z)) );
+
+            mz2 = dot(z,z);
+            if(mz2>4.0) break;
+        }
+         return 0.25*sqrt(mz2/md2)*log(mz2);
+    }
+};

@@ -1,0 +1,14 @@
+﻿shader SampleCubicCatmullRomTextureFloat3<LinkType TextureName, MemberName TextureResourceGroupName, 
+    LinkType SamplerName, MemberName SamplerResourceGroupName> 
+        : ComputeFloat3, 
+        DeclTexture<TextureName, TextureResourceGroupName>, 
+        DeclSampler<SamplerName, SamplerResourceGroupName>,
+        TextureUtils
+{
+    compose ComputeFloat2 TexCd;
+
+    override float3 Compute()
+    {
+        return SampleCubicCatmullRom(DynamicTexture, DynamicSampler, TexCd.Compute()).xyz;
+    }
+};

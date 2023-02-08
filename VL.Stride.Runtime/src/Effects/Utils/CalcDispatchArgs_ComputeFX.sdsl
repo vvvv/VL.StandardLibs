@@ -1,0 +1,14 @@
+﻿shader CalcDispatchArgs_ComputeFX : ComputeShaderBase
+{
+    Buffer<float4> CounterBuffer;
+    RWBuffer<uint> ArgsBuffer;
+
+    int ThreadGroupSize = 64;
+
+    override void Compute()
+    {
+        ArgsBuffer[0] = max((ArgsBuffer[0] + ThreadGroupSize - 1) / ThreadGroupSize, 1);
+        ArgsBuffer[1] = max((ArgsBuffer[1] + ThreadGroupSize - 1) / ThreadGroupSize, 1);
+        ArgsBuffer[2] = max((ArgsBuffer[2] + ThreadGroupSize - 1) / ThreadGroupSize, 1);
+    }   
+};

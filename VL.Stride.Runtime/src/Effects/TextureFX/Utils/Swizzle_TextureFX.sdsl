@@ -1,0 +1,23 @@
+[Category("Utils")]
+[Summary("Rearranges the color channels")]
+[Tags("convert")]
+shader Swizzle_TextureFX : TextureFX
+{
+    [EnumType("VL.Stride.Effects.TextureFX.TextureChannel")]
+    int  Channel0 = 0;
+    [EnumType("VL.Stride.Effects.TextureFX.TextureChannel")]
+    int  Channel1 = 1;
+    [EnumType("VL.Stride.Effects.TextureFX.TextureChannel")]
+    int  Channel2 = 2;
+    [EnumType("VL.Stride.Effects.TextureFX.TextureChannel")]
+    int  Channel3 = 3;
+  
+    stage override float4 Shading()
+    {        
+        float4 col = InTex0();
+    
+        float4 newCol = float4 (col[Channel1], col[Channel2], col[Channel3], col[Channel0]);
+    
+        return newCol;
+    }
+};

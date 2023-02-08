@@ -1,0 +1,28 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Mixer/Dissolve.tfx
+
+[Category("Mixer")]
+[Tags("blend fade compose mix")]
+[Summary("Blend between two textures using a rough pixely effect")]
+shader Dissolve_TextureFX : MixerBase
+{
+    float4 Mix(float4 tex0col, float4 tex1col, float fader)
+    {
+        float2 uv = streams.TexCoord;
+
+        float noise = dot(Texture2.SampleLevel(Sampler2, uv, 0), 0.33);
+
+        float4 col;
+
+        if((saturate(noise)-.5)*.99 + .5 > fader)
+        {
+            col = tex0col;
+        }
+        else
+        {
+            col = tex1col;
+        }
+
+        return col;
+    }
+};

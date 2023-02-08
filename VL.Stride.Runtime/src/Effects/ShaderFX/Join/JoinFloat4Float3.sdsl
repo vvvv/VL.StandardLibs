@@ -1,0 +1,10 @@
+﻿shader JoinFloat4Float3 : ComputeFloat4
+{
+    compose ComputeFloat3 v;
+    compose ComputeFloat w;
+
+    override float4 Compute()
+    {
+        return float4(v.Compute(), w.Compute());
+    }
+};

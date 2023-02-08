@@ -1,0 +1,11 @@
+shader DomainOpSF3D : Float3ToFloat
+{
+    compose Float3ToFloat ScalarField;
+    compose Float3ToFloat3 Op;
+
+    override float Compute(float3 p)
+    {
+        p = Op.Compute(p);
+        return ScalarField.Compute(p);
+    }
+};

@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="Hj50KIp6ymGMRK7MvEcetD" LanguageVersion="2021.4.0.460" Version="0.128">
+  <NugetDependency Id="NA9i6kQmDFvOYLhFn8H4G1" Location="VL.CoreLib" Version="2021.4.0-0454-g78e865b66f" />
+  <Patch Id="SasSQ1DCnl5NcVJJZ5237V">
+    <Canvas Id="GpzXlOvYIcsO7ZVu7OHMPP" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="E3Ez89ObhxDNeOwEHuZQVD">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="VgHbpGk36omLJYaPlB4bBf">
+        <Canvas Id="HlIYmViyrNIN9GvdWRauSX" CanvasType="Group">
+          <Pad Id="FLrm6i27glJNJIee4NXt99" Bounds="91,115,292,120" ShowValueBox="true" isIOBox="true" Value="Use this node, configured exactly the same way on the server and clients. &#xD;&#xA;&#xD;&#xA;Depending on whether the node runs on the PC with the specified server IP or not, the node represents the server, or a client.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="DnVJNpCTTTzMj7WeQeStGj" Comment="The synced clock" Bounds="109,546,111,43" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="NcUnXmFS06vNbvCEUKCdmI" Comment="Server Address" Bounds="109,278,95,6" ShowValueBox="true" isIOBox="true" Value="127.0.0.1">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="107,341,71,19" Id="FEmPwdwDDGBM56aHkG8v5L">
+            <p:NodeReference LastCategoryFullName="IO" LastSymbolSource="VL.Sync.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="ClockSyncer" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="PWEZQHyUAt8OJn4IldqhMl" Name="Server Address" Kind="InputPin" />
+            <Pin Id="PAdy5jUE03eOn21v4bleI0" Name="Port" Kind="InputPin" />
+            <Pin Id="SRBPqkKBQMPMA8B1tmV6x4" Name="Enabled" Kind="InputPin" DefaultValue="True" />
+            <Pin Id="VCdREHkTs3BMZ0AqQmi3dn" Name="Output" Kind="OutputPin" />
+            <Pin Id="E75eKyuK2TIOE6lNkIyGGv" Name="Socket is Open" Kind="OutputPin" />
+            <Pin Id="KBixxma9SBLQXzPFgs6IoH" Name="On Data" Kind="OutputPin" />
+          </Node>
+          <Pad Id="IwjIUNYwDw2QXUcXJRAuPq" Comment="On Data" Bounds="175,390,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="BolDiJK3qwyMExyLQTJBVu" Bounds="218,409,168,41" ShowValueBox="true" isIOBox="true" Value="Blinks when server and client are communicating">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="S72NlI6JuKLMywrsnUF882" Comment="Socket is Open" Bounds="142,477,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Hl8Oi5Hj6wBPsAozaJ04G7" Bounds="449,308,261,19" ShowValueBox="true" isIOBox="true" Value="What's happening under the hood:">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="LCT493A1cVCO9UzDIlw3Pi" Bounds="449,332,280,190" ShowValueBox="true" isIOBox="true" Value="1) The clients send a periodic ping to the server asking for its time&#xD;&#xA;&#xD;&#xA;2) The server receives periodic pings from clients and responds with its own time&#xD;&#xA;&#xD;&#xA;3) The clients receive back the time from the server and converge their time smoothly to the servers time">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="VAiUTLRZG77QcPLq6i9dYD" Comment="Port" Bounds="142,312,35,15" ShowValueBox="true" isIOBox="true" Value="5555">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="155,819,145,19" Id="TUnbZJ2yxZKO054IDNyOQ0">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Renderer" />
+            </p:NodeReference>
+            <Pin Id="ORqHR6eL1BxLFiqg8r7xIA" Name="Bounds" Kind="InputPin" DefaultValue="1142, 104, 502, 413" />
+            <Pin Id="GOhHVjKgbs5MpOAhb8DADw" Name="Input" Kind="InputPin" />
+            <Pin Id="VzYHA5hrJIfNvWQ3luPg1R" Name="Color" Kind="InputPin" />
+            <Pin Id="N1LUOp5XxJhOTa4oKb2Ung" Name="Clear" Kind="InputPin" />
+            <Pin Id="SGD5MNc7tPmP5QwCaOWleS" Name="Space" Kind="InputPin" />
+            <Pin Id="Vb74403wbejNpehKZUetW9" Name="Show Cursor" Kind="InputPin" />
+            <Pin Id="VexyETR18BTNUyA0bZ2w9w" Name="VSync" Kind="InputPin" DefaultValue="False" />
+            <Pin Id="CQOqFkjLjQ9LQ07HcYOwRK" Name="Enabled" Kind="InputPin" />
+            <Pin Id="UaexanQlco2OdSDBlaZTm8" Name="Form" Kind="OutputPin" />
+            <Pin Id="JA7vTUeOq7iQWk9ANFIxKU" Name="ClientBounds" Kind="OutputPin" />
+            <Pin Id="BW8UqkQR35hOH1NUrzCY7j" Name="Render Time" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="175,776,85,19" Id="N76ZazddnhsPqZ3beIoS3G">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layers" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Rectangle" />
+            </p:NodeReference>
+            <Pin Id="BqcT0BuJVEIMUdMzL1BMQe" Name="Position" Kind="InputPin" />
+            <Pin Id="DfmCSxMxNzcLofeFN4Cyga" Name="Size" Kind="InputPin" />
+            <Pin Id="DHbwgmfQHKSMV4934lukE5" Name="Anchor" Kind="InputPin" />
+            <Pin Id="GXPkriyyB6vO3d8ksrkHSU" Name="Paint" Kind="InputPin" />
+            <Pin Id="TMvZ8VHYr14PzJ4gMrUK1U" Name="Enabled" Kind="InputPin" />
+            <Pin Id="MtcEI1WIaiqNTftZJXIiZu" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="196,621,54,26" Id="SHELZGjH1vaNyH87pYhzBN">
+            <p:NodeReference LastCategoryFullName="Animation.IClock" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Seconds" />
+              <CategoryReference Kind="MutableInterfaceType" Name="IClock" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="TWjbT01EVUyNDN6pWXbscZ" Name="Input" Kind="StateInputPin" />
+            <Pin Id="JqXbDOfnsaYNSPRv5OzGuh" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="196,665,35,19" Id="SuzUbjZnOaHLPqq4MpNWUD">
+            <p:NodeReference LastCategoryFullName="Math" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Frac" />
+            </p:NodeReference>
+            <Pin Id="MScw4GxQN2qMXfy3iPfLPT" Name="Input" Kind="InputPin" />
+            <Pin Id="D69c3GHBmNjNPKCgFf5424" Name="Whole Part" Kind="OutputPin" />
+            <Pin Id="MrYyyJcbMT7NpzxYwbJUAW" Name="Fractional Part" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="196,702,57,19" Id="ChQCcD3zA0xQbGgYIri2PM">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Changed" />
+            </p:NodeReference>
+            <Pin Id="KPophkyegmmOLijoRFz12Y" Name="Value" Kind="InputPin" />
+            <Pin Id="EJKgBOxbTujLLXSiqcqALz" Name="Result" Kind="OutputPin" />
+            <Pin Id="PvvB3ql959yNnM82IdyA1e" Name="Unchanged" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="196,739,65,19" Id="FzRzn9YXWSnLHOVQSpcZwh">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="MonoFlop (FrameBased)" />
+            </p:NodeReference>
+            <Pin Id="HAJgiSSfRGpMobOjNanmqy" Name="Set" Kind="InputPin" />
+            <Pin Id="Pu2LZ2xvRejNQ6WoiRHZeM" Name="Frames" Kind="InputPin" DefaultValue="2" />
+            <Pin Id="VmIWtUSoiVDPaRrr1f042P" Name="Retriggerable" Kind="InputPin" />
+            <Pin Id="A0qD9hKlVw9MpcNHTRrqmG" Name="Reset" Kind="InputPin" />
+            <Pin Id="Jr1RCVmUElkPpR4gZ8BO3s" Name="Value" Kind="OutputPin" />
+            <Pin Id="UvA4lgb9h83QMzfRzMTdr3" Name="Inverse Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="PL9GfMwtdhDMD0WpP3xo6w" Bounds="314,712,293,46" ShowValueBox="true" isIOBox="true" Value="&lt; Visually compare the flashing quads on client and server. They should be in tight sync.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="G0STrbFJEy0LiKM8iiWoZB" Name="Create" />
+        <Patch Id="Kqqc3Z6qvjhOamR4aIT6Wf" Name="Update" />
+        <ProcessDefinition Id="BIoVIyLyjaVLSiK9j6blkH">
+          <Fragment Id="Ep8SS7W6QePNsFDgIa0T4g" Patch="G0STrbFJEy0LiKM8iiWoZB" Enabled="true" />
+          <Fragment Id="ILs1JdcvNsLMOC3VFC2kCD" Patch="Kqqc3Z6qvjhOamR4aIT6Wf" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="U9xv66U5lnDMjfx2uH5Hxk" Ids="NcUnXmFS06vNbvCEUKCdmI,PWEZQHyUAt8OJn4IldqhMl" />
+        <Link Id="Ez0iyy71Ac4PsX238Hgdyo" Ids="VCdREHkTs3BMZ0AqQmi3dn,DnVJNpCTTTzMj7WeQeStGj" />
+        <Link Id="MM8GTrHnwlBLAGwdo6BFpq" Ids="KBixxma9SBLQXzPFgs6IoH,IwjIUNYwDw2QXUcXJRAuPq" />
+        <Link Id="Mi5T7waO4MSMbVanbFKd5m" Ids="E75eKyuK2TIOE6lNkIyGGv,S72NlI6JuKLMywrsnUF882" />
+        <Link Id="IfPKE6PRMQPNMMWW5YHpos" Ids="VAiUTLRZG77QcPLq6i9dYD,PAdy5jUE03eOn21v4bleI0" />
+        <Link Id="IJ4G0OqVRHhN6NvAvk21UB" Ids="MtcEI1WIaiqNTftZJXIiZu,GOhHVjKgbs5MpOAhb8DADw" />
+        <Link Id="N9WyqxwoOxNO4wJNqg2FJ0" Ids="DnVJNpCTTTzMj7WeQeStGj,TWjbT01EVUyNDN6pWXbscZ" />
+        <Link Id="RxlXUrkpNMXP9zUFQVXJg2" Ids="JqXbDOfnsaYNSPRv5OzGuh,MScw4GxQN2qMXfy3iPfLPT" />
+        <Link Id="IYAtZQkoCWtOhtnCL9hiYB" Ids="D69c3GHBmNjNPKCgFf5424,KPophkyegmmOLijoRFz12Y" />
+        <Link Id="JshAEHP5xVfNf4sArwpef6" Ids="EJKgBOxbTujLLXSiqcqALz,HAJgiSSfRGpMobOjNanmqy" />
+        <Link Id="KEJyqLcoykhQKruK4H4F9W" Ids="Jr1RCVmUElkPpR4gZ8BO3s,TMvZ8VHYr14PzJ4gMrUK1U" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="LTKUu1ooNEAM0V989lPD2u" Location="VL.CoreLib" Version="2021.4.0-0454-g78e865b66f" />
+  <NugetDependency Id="LWmte65184nOj4WVXwn70X" Location="VL.Skia" Version="2021.4.0-0454-g78e865b66f" />
+</Document>

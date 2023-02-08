@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="GavTtH7iqtzL94kSEX2eS7" LanguageVersion="2019.2.0-0354-2bcf04a678" Version="0.128">
+  <NugetDependency Id="UfWwXDWdynzMBKkxryoraE" Location="VL.CoreLib" Version="2019.2.0-0354-g2bcf04a678" />
+  <Patch Id="TBtRSEneOlaNfcsUCaEjKJ">
+    <Canvas Id="FfZogqT4TsqLYW33TpJF5z" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="CAxWQkGRypzOlFIzk6glbJ">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="L20Cx2KiPEIOYacwYQfKsh">
+        <Canvas Id="ArtUR3qfZ1EQA3VrmBZ7pt" CanvasType="Group">
+          <Pad Id="MvNJ8QSLseINqBCaB5fDFC" Bounds="145,133,158,32" ShowValueBox="true" isIOBox="true" Value="Use a Toggle!">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="161,350,52,19" Id="QYmHDOcotO2MXRB8LxwMcA">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Toggle" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="CS6FqLLM5e2MML6elWTjdZ" Name="Flip" Kind="InputPin" />
+            <Pin Id="Qda7Zfq6C8ANHddHwXRHvD" Name="Reset" Kind="ApplyPin" />
+            <Pin Id="NQutAP6hTkJOCbq80NkBT1" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="OVc6yjOS1tdML5XmlJLlyY" Comment="State" Bounds="163,427,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="GkvPIMHT3GgN95epX4rR9G" Comment="Flip" Bounds="163,281,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="443,302,45,19" Id="C6EEl20FbytMFLbF3vzKoW">
+            <p:NodeReference LastCategoryFullName="Animation" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="LFO" />
+            </p:NodeReference>
+            <Pin Id="A5DojoNC8ovQBWdQEGxZlZ" Name="Period" Kind="InputPin" />
+            <Pin Id="HEYswHOduvOLgJDxDo5TlJ" Name="Pause" Kind="InputPin" />
+            <Pin Id="QhuNNUvP1PdLvWbhd8Qehm" Name="Reset" Kind="ApplyPin" />
+            <Pin Id="C8n2T1h5hSCP8Ac12xiNUC" Name="Phase" Kind="OutputPin" />
+            <Pin Id="AzaZQ1qRuS5Pbt9H8MRMbt" Name="On New Cycle" Kind="OutputPin" />
+            <Pin Id="KgBi2JgMnsFM4MC42HYvHM" Name="Cycles" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="463,368,52,19" Id="J9194LVNY5QLCazk9roQf8">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Toggle" />
+            </p:NodeReference>
+            <Pin Id="D2wuF0PAKF2LYN5vvip7cw" Name="Flip" Kind="InputPin" />
+            <Pin Id="TRFZPYpMdzJN3FyXEd41JX" Name="Reset" Kind="ApplyPin" />
+            <Pin Id="CL7T1QigMVeLCSfd0pbqKB" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="QCqhrI7llxSOvmdkN5aRXh" Comment="" Bounds="465,439,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="KRErfZFnAtnQdw9WJozyO6" Comment="Reset" Bounds="513,337,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="MFqyjclaYNJN7KFHv9uAAl" Bounds="145,171,321,38" ShowValueBox="true" isIOBox="true" Value="This acts like a light-switch: Bang once to turn it on, bang another time to turn it off again.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="HAh0ltGuT3bNVAZVlOHeLG" Bounds="560,359,303,40" ShowValueBox="true" isIOBox="true" Value="&lt; Use the reset input to reset the Toggle's output to 0 at any time.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="NYB5OHacYxkOOPD23vXD4h" Name="Create" />
+        <Patch Id="JbAajbzrn3aLqEusZiz6di" Name="Update" />
+        <ProcessDefinition Id="KVviEwD1IrzNdlTUeJo4tI">
+          <Fragment Id="FJBBg3nW3Y1N1zI1mE4r9p" Patch="NYB5OHacYxkOOPD23vXD4h" Enabled="true" />
+          <Fragment Id="AEPPrMakdGkOStqa2ypnfV" Patch="JbAajbzrn3aLqEusZiz6di" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="CXSC9TNEGnoLqIc31jIjWq" Ids="GkvPIMHT3GgN95epX4rR9G,CS6FqLLM5e2MML6elWTjdZ" />
+        <Link Id="AxDLYtSlkP7OgAESicM5Bu" Ids="NQutAP6hTkJOCbq80NkBT1,OVc6yjOS1tdML5XmlJLlyY" />
+        <Link Id="IGjRXqrNdGaLN1NNzpMkIC" Ids="AzaZQ1qRuS5Pbt9H8MRMbt,D2wuF0PAKF2LYN5vvip7cw" />
+        <Link Id="BPLqxFFpSWHO40bw4elSuh" Ids="CL7T1QigMVeLCSfd0pbqKB,QCqhrI7llxSOvmdkN5aRXh" />
+        <Link Id="OxGc7eu8MEiO4jqdc7ltvq" Ids="KRErfZFnAtnQdw9WJozyO6,TRFZPYpMdzJN3FyXEd41JX" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="QEMwKLU4s5sL4MyeOKnK6U" Location="VL.Skia" Version="2019.2.0-0354-g2bcf04a678" />
+</Document>

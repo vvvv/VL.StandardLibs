@@ -1,0 +1,22 @@
+[Category("Utils")]
+[Summary("Resizes a Texture with the specified interpolation filter")]
+[OutputSize(1024, 1024)]
+shader Resize_TextureFX : TextureFX, TextureUtils
+{
+    [EnumType("VL.Stride.Effects.TextureFX.ResizeInterpolationType")]
+    uint Mode = 1;
+
+    stage override float4 Shading()
+    {
+        switch (Mode)
+        {
+            case 0: return Texture0.Sample(PointSampler, streams.TexCoord);
+            case 1: return Texture0.Sample(LinearSampler, streams.TexCoord);
+            case 2: return SampleCubicBSpline(Texture0, LinearSampler, streams.TexCoord);
+            case 3: return SampleCubicCatmullRom(Texture0, LinearSampler, streams.TexCoord);
+            // case 4: return SampleLanczos2(Texture0, streams.TexCoord);
+        }
+
+        return 1;
+    }
+};

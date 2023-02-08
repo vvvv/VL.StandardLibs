@@ -1,0 +1,21 @@
+// source:
+// https://discourse.vvvv.org/t/deinterlace-in-opencv-videoin-dx11/14110/9
+
+[Category("Filter")]
+[Summary("")]
+shader DeInterlace_TextureFX : FilterBase
+{
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float4 col = Texture0.Sample(Sampler0, uv);
+        
+        float2 h = float2 (0, Texture0TexelSize.y);
+        
+        float4 col1 = Texture0.Sample(Sampler0, uv - h);
+        float4 col2 = Texture0.Sample(Sampler0, uv + h);
+
+        col = (col*2 + col1 + col2)/4;
+        return col;
+    }
+};

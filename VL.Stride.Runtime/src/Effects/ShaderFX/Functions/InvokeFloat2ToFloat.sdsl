@@ -1,0 +1,10 @@
+﻿shader InvokeFloat2ToFloat : ComputeFloat
+{
+    compose Float2ToFloat Funk;
+    compose ComputeFloat2 Arg;
+
+    override float Compute()
+    {
+        return Funk.Compute(Arg.Compute());
+    }
+};

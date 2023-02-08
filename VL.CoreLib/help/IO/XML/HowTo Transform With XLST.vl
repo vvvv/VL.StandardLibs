@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="UZRiEMwX7KoP2bnICBDN97" LanguageVersion="2019.2.0-0342-6bc9b61985" Version="0.128" IsTrusted="true">
+  <Patch Id="J993qDGeassNjH78uEwNvM">
+    <Canvas Id="Tgac8O7g8WUP8stz709JHN" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="319,214" Id="Qe3M4hUMQqgNwO1N6xAwUc">
+      <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="Builtin">
+        <Choice Kind="ContainerDefinition" Name="Process" />
+      </p:NodeReference>
+      <Patch Id="Q4KYAHzeVz3LnA4p7z4zB8">
+        <Canvas Id="ThsLeEisveJPcXWHjJ9H0Z" CanvasType="Group">
+          <Pad Id="QyXd2uVaYIyQOVMcLq29q6" Bounds="322,164,181,31" ShowValueBox="true" isIOBox="true" Value="XML Document">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">15</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="510,669,38,19" Id="G9yDSGMgrGrLYPp2bzuIXi">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="XSLT" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="NgJTutPAfOfNrzfw5xTha2" Name="Input" Kind="InputPin" />
+            <Pin Id="SkNOSEdGlx8PkZiskRVvCY" Name="Xsl" Kind="InputPin" />
+            <Pin Id="R7fpAx1DQBsLVfmVJCN638" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="Nz1LypNZ43pLaUNHCQAmLk" Comment="Xsl" Bounds="648,258,380,345" ShowValueBox="true" isIOBox="true" Value="&lt;?xml version=&quot;1.0&quot;?&gt;&#xD;&#xA;&lt;xsl:stylesheet xmlns:xsl=&quot;http://www.w3.org/1999/XSL/Transform&quot; version=&quot;1.0&quot;&gt;&#xD;&#xA;  &lt;xsl:template match=&quot;/&quot;&gt;&#xD;&#xA;    &lt;HTML&gt;&#xD;&#xA;      &lt;HEAD&gt;&#xD;&#xA;        &lt;TITLE&gt;&lt;xsl:value-of select=&quot;Root/@attr1&quot;/&gt;&lt;/TITLE&gt;&#xD;&#xA;      &lt;/HEAD&gt;&#xD;&#xA;      &lt;BODY&gt;&#xD;&#xA;        &lt;H3&gt;Attributes of the Root&lt;/H3&gt;&#xD;&#xA;             &lt;xsl:for-each select=&quot;Root/@*&quot;&gt;&#xD;&#xA;                &lt;p&gt; &#xD;&#xA;                   &lt;xsl:value-of select=&quot;name()&quot;/&gt;&#xD;&#xA;                &lt;/p&gt;&#xD;&#xA;             &lt;/xsl:for-each&gt;        &#xD;&#xA;        &lt;H3&gt;Value of the Deepest Element&lt;/H3&gt;&#xD;&#xA;             &lt;p&gt;&#xD;&#xA;                &lt;xsl:value-of select=&quot;Root/Child/Deepest&quot;/&gt;&#xD;&#xA;             &lt;/p&gt;&#xD;&#xA;      &lt;/BODY&gt;&#xD;&#xA;    &lt;/HTML&gt;&#xD;&#xA;  &lt;/xsl:template&gt;&#xD;&#xA;&lt;/xsl:stylesheet&gt;">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="AqKtrS31hUeQS7gerhBIyB" Comment="" Bounds="512,734,481,195" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="ApGyxWcirB0NG42CJQLTfV" Bounds="324,219,187,103" ShowValueBox="true" isIOBox="true" Value="&lt;Root attr1=&quot;Hello&quot; attr2=&quot;42.0&quot;&gt;&#xD;&#xA;  &lt;Child&gt;1st&lt;/Child&gt;&#xD;&#xA;  &lt;Child&gt;&#xD;&#xA;    &lt;Deepest&gt;I'm here&lt;/Deepest&gt;&#xD;&#xA;  &lt;/Child&gt;&#xD;&#xA;&lt;/Root&gt;">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="322,409,41,19" Id="VWPMoXjz5sCMnTi5SqQ41Q">
+            <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Parse" />
+              <CategoryReference Kind="Category" Name="XML" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="OUKcsTKNNNPPZIccVnSnnC" Name="Text" Kind="InputPin" />
+            <Pin Id="VnyWfyUInyKOBhKXlJ2Q3f" Name="Options" Kind="InputPin" />
+            <Pin Id="BHq3pqYlwXeM9LW8WSZseT" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="C0z2eS2atDMPE5gyYoSRVG" Bounds="324,470,181,23" ShowValueBox="true" isIOBox="true" Value="&lt; XML Document">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <ControlPoint Id="TSMZ6Tp952MNLjqJFzALoN" Bounds="324,501" />
+          <Pad Id="CpmFfRfh9RsPSi5ngbRGmT" Bounds="650,164,181,31" ShowValueBox="true" isIOBox="true" Value="XSLT Style Sheet">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">15</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="HmTkcgP9lj3LTSrVHJBJz2" Bounds="649,206,356,43" ShowValueBox="true" isIOBox="true" Value="Defines how the XML will be transformed.&#xD;&#xA;In this example an HTML is built from the XML Document.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="TUmB8ODAxvwNEhVuBmdx4m" Bounds="324,381,66,19" ShowValueBox="true" isIOBox="true" Value="&lt; String">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="PQD2XMavjNrMKcdU38gHwu" Bounds="525,732,77,31" ShowValueBox="true" isIOBox="true" Value="HTML">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">15</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="ScGb1anQliBQEuzymRusro" Name="Create" />
+        <Patch Id="PcT2WE30PNbObdDlM2ItuX" Name="Update" />
+        <ProcessDefinition Id="LJTKSwnFdlXOFAHC3AG76h">
+          <Fragment Id="ONHWTIJf5tiPM1xdMWlmPV" Patch="ScGb1anQliBQEuzymRusro" Enabled="true" />
+          <Fragment Id="SQx3OwHHYwPQSlLRmbAeyB" Patch="PcT2WE30PNbObdDlM2ItuX" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="VCKoyI0RgCSMeP74DMx1M3" Ids="R7fpAx1DQBsLVfmVJCN638,AqKtrS31hUeQS7gerhBIyB" />
+        <Link Id="OX4aJZYL1NNMETpqCFcJyu" Ids="ApGyxWcirB0NG42CJQLTfV,OUKcsTKNNNPPZIccVnSnnC" />
+        <Link Id="BMoBFrdjS1LQScaoIzHUXB" Ids="BHq3pqYlwXeM9LW8WSZseT,TSMZ6Tp952MNLjqJFzALoN,NgJTutPAfOfNrzfw5xTha2" />
+        <Link Id="HLCbYVzTMKwNyOHWFY6NjI" Ids="Nz1LypNZ43pLaUNHCQAmLk,SkNOSEdGlx8PkZiskRVvCY" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="I8fCdivVlzZQHxgA4vtDii" Location="VL.CoreLib" Version="2019.2.0-0342-g6bc9b61985" />
+</Document>

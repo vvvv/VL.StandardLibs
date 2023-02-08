@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>..\lib</OutputPath>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+
+    <VLPackageBasePath>..\</VLPackageBasePath>
+	<Description>A GUI library for Skia</Description>
+	<PackageTags>widgets, button, slider, layout</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ImGui.NET">
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.Skia\src\VL.Skia.csproj" />
+    <ProjectReference Include="..\..\VL.ImGui\src\VL.ImGui.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.ImGui.Generator\VL.ImGui.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(DebugGenerator)'  == 'true' ">
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Exclude the output of source generators from the compilation -->
+    <Compile Remove="Generated\**\*.cs" />
+    <None Include="Generated\**\*.cs" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,15 @@
+﻿shader ShaderFXGraph : VS_PS_Base
+{
+    compose ComputeFloat4 VertexRoot;
+    compose ComputeFloat4 PixelRoot;
+
+    stage override void VSMain()
+    {
+        streams.ShadingPosition = VertexRoot.Compute();
+    }
+
+    stage override void PSMain()
+    {
+        streams.ColorTarget = PixelRoot.Compute();
+    }
+};

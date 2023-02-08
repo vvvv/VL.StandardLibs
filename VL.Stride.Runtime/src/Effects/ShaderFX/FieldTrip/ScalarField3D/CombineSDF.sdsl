@@ -1,0 +1,11 @@
+shader CombineSDF : SDF3D
+{
+    compose Float3ToFloat SDF1;
+    compose Float3ToFloat SDF2;
+    compose FloatFloatToFloat Op;
+
+    override float Compute(float3 p)
+    {
+        return Op.Compute(SDF1.Compute(p), SDF2.Compute(p));
+    }
+};

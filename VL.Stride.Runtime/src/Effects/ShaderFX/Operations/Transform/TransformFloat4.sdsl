@@ -1,0 +1,10 @@
+﻿shader TransformFloat4 : ComputeFloat4
+{
+    compose ComputeFloat4 Left;
+    compose ComputeMatrix Right;
+
+    override float4 Compute()
+    {
+        return mul(Left.Compute(), Right.Compute());
+    }
+};

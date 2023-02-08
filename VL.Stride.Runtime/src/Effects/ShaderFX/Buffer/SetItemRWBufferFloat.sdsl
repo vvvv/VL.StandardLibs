@@ -1,0 +1,10 @@
+﻿shader SetItemRWBufferFloat<LinkType BufferName, MemberName BufferResourceGroupName> : ComputeVoid, DeclRWBufferFloat<BufferName, BufferResourceGroupName>
+{
+    compose ComputeFloat Value;
+    compose ComputeUInt Index;
+
+    override void Compute()
+    {
+        DynamicRWBuffer[Index.Compute()] = Value.Compute();
+    }
+};

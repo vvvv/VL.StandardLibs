@@ -1,0 +1,14 @@
+﻿shader IfThenElse : ComputeVoid
+{
+    compose ComputeBool Condition;
+    compose ComputeVoid Then;
+    compose ComputeVoid Else;
+
+    override void Compute()
+    {
+        if (Condition.Compute())
+            Then.Compute();
+        else
+            Else.Compute();
+    }
+};

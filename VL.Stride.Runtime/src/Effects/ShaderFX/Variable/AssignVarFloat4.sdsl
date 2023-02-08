@@ -1,0 +1,9 @@
+﻿shader AssignVarFloat4<MemberName VarName> : ComputeVoid, StreamVariableFloat4<VarName>
+{
+    compose ComputeFloat4 Value;
+
+    override void Compute()
+    {
+        streams.VarName = Value.Compute();
+    }
+};

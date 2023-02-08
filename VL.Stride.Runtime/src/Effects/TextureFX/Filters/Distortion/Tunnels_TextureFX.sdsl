@@ -1,0 +1,60 @@
+﻿[Category("Filter")]
+[Summary("")]
+shader Tunnels_TextureFX : FilterBase
+{
+	[EnumType("VL.Stride.Effects.TextureFX.TunnelType")]
+    int Type;
+
+	float Time;
+	float Rotation = 0;
+	float Distance = 0.5f;
+	float Offset = 0.0f;
+	float FogDistance = 0.5f;
+	[Color] float4 FogColor = float4(0,0,0,1);
+
+	float3 TunnelSquare(float2 p)
+	{
+		float2 pRot = r2dCyc(p, Rotation);
+		float2 uv;
+		float r = pow(pow(pRot.x*pRot.x,3) + pow(pRot.y*pRot.y,3), 1.0/(Distance*8));
+		uv.x = .5*Time + 0.5/r;
+		uv.y = (atan2(pRot.y,pRot.x)/3.1416+Offset);
+		return float3(uv, r);
+	}
+
+	float3 TunnelCylinder(float2 p)
+	{
+		float2 uv;
+		float a = atan2(p.y,p.x);
+		float r = sqrt(dot(p,p))*(1-Distance);
+		uv.x = .5*Time+.5/r;
+		uv.y = (a/(3.1416))+Rotation;
+		return float3(uv, r);
+	}
+
+	float3 TunnelFly(float2 p)
+	{
+		float2 uv;
+		float an = Rotation;
+		float x = p.x*cos(an)-p.y*sin(an);
+		float y = p.x*sin(an)+p.y*cos(an);  	
+		uv.x = .25*x/abs(y)*Distance+(Offset+0.5);
+		uv.y = .25*Time + .25/abs(y)*Distance;	
+		return float3(uv, y);
+	}
+
+	float4 Filter(float4 tex0col)
+	{
+		float2 p = -1.0 + 2.0 * streams.TexCoord;
+		float3 tunnel;	
+		switch((uint)Type%3)
+        {
+            case 0 : tunnel = TunnelSquare(p); break;
+            case 1 : tunnel = TunnelCylinder(p); break;
+            case 2 : tunnel = TunnelFly(p); break;
+        }
+		float4 col = Texture0.SampleLevel(Sampler0, tunnel.xy, 0);
+		float fog = 1/(1+(FogDistance*10.0) * pow(tunnel.z/Distance, 2));
+		return lerp(col, FogColor, fog);
+	}
+};

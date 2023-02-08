@@ -1,0 +1,10 @@
+﻿shader DistanceFloat3 : ComputeFloat
+{
+    compose ComputeFloat3 Left;
+    compose ComputeFloat3 Right;
+
+    override float Compute()
+    {
+        return distance(Left.Compute(), Right.Compute());
+    }
+};

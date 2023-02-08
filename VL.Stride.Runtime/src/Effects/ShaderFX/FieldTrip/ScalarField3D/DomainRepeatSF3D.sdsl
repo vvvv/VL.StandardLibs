@@ -1,0 +1,10 @@
+shader DomainRepeatSF3D : Float3ToFloat3, HappySDF
+{
+    compose ComputeFloat3 Size;
+    override float3 Compute(float3 p)
+    {
+        pMod3(p, Size.Compute());
+        return p;
+    }
+};
+

@@ -1,0 +1,16 @@
+[Category("Utils.Advanced")]
+[Summary("Can be used to make a copy of a texture with a different format.")]
+[DontConvertToLinearOnRead]
+[DontConvertToSRgbOnWrite]
+shader PassThrough_TextureFX : TextureFX
+{
+    stage override float4 Shading()
+    {
+        int3 texel = 0;
+        Texture0.GetDimensions(texel.x, texel.y);
+
+        texel.xy *= streams.TexCoord;
+
+        return Texture0.Load(texel);
+    }
+};

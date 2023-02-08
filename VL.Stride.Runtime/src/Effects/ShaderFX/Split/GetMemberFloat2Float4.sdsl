@@ -1,0 +1,9 @@
+﻿shader GetMemberFloat2Float4<MemberName Member> : ComputeFloat4
+{
+    compose ComputeFloat2 Value;
+
+    override float4 Compute()
+    {
+        return Value.Compute().Member;
+    }
+};

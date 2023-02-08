@@ -1,0 +1,11 @@
+﻿shader VertexIDStream
+{
+    stage stream uint VertexID_VS : SV_VertexID;
+    stage stream uint VertexID;
+
+    // needs to be called in the vertex stage, the SV_VertexID semantic is not allowed in other stages
+    stage void AssignVertexID()
+    {
+        streams.VertexID = streams.VertexID_VS;
+    }
+};

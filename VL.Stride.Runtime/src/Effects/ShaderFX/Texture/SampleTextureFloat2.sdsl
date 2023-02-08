@@ -1,0 +1,13 @@
+﻿shader SampleTextureFloat2<LinkType TextureName, MemberName TextureResourceGroupName, 
+    LinkType SamplerName, MemberName SamplerResourceGroupName> 
+        : ComputeFloat2, 
+        DeclTexture<TextureName, TextureResourceGroupName>, 
+        DeclSampler<SamplerName, SamplerResourceGroupName>
+{
+    compose ComputeFloat2 TexCd;
+
+    override float2 Compute()
+    {
+        return DynamicTexture.Sample(DynamicSampler, TexCd.Compute()).xy;
+    }  
+};

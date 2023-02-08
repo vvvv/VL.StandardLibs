@@ -1,0 +1,34 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Mixer/Ripple.tfx
+
+[Category("Mixer")]
+[Tags("blend fade compose mix")]
+[Summary("Blend between two textures using a cheesy ripple effect")]
+shader Ripple_TextureFX : MixerBase
+{
+    float Frequency = 20.0f;
+    float Speed = 10.0f;
+    float Amplitude = 0.05f;
+    float2 Center = float2(0.5f, 0.5f); 
+
+    float4 Mix(float4 tex0col, float4 tex1col, float fader)
+    {
+        float2 uv = streams.TexCoord;
+        
+        float2 toUV = uv - Center;
+        float distanceFromCenter = length(toUV);
+        float2 normToUV = toUV / distanceFromCenter;
+
+        float wave = cos(Frequency * distanceFromCenter - Speed * fader);
+        float offset1 = fader * wave * Amplitude;
+        float offset2 = (1.0 - fader) * wave * Amplitude;
+        
+        float2 newUV1 = Center + normToUV * (distanceFromCenter + offset1);
+        float2 newUV2 = Center + normToUV * (distanceFromCenter + offset2);
+        
+        float4 c1 = Texture0.SampleLevel(Sampler0, newUV1, 0); 
+        float4 c2 = Texture1.SampleLevel(Sampler1, newUV2, 0);
+
+        return lerp(c1, c2, fader);
+    }
+};

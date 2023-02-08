@@ -1,0 +1,11 @@
+﻿shader DelegateFloat3ToFloat<MemberName ArgName, MemberName ResultName> : Float3ToFloat, StreamVariableFloat3<ArgName>, StreamVariableFloat<ResultName>
+{
+    compose ComputeVoid Body;
+
+    override float Compute(float3 arg)
+    {
+        streams.ArgName = arg;
+        Body.Compute();
+        return streams.ResultName;
+    }
+};

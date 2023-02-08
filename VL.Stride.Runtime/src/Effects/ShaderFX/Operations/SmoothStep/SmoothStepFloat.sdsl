@@ -1,0 +1,11 @@
+﻿shader SmoothStepFloat : ComputeFloat
+{
+    compose ComputeFloat Min;
+    compose ComputeFloat Max;
+    compose ComputeFloat X;
+
+    override float Compute()
+    {
+        return smoothstep(Min.Compute(), Max.Compute(), X.Compute());
+    }
+};

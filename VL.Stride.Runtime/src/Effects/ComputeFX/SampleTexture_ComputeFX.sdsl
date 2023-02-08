@@ -1,0 +1,39 @@
+shader SampleTexture_ComputeFX : ComputeShaderBase
+{
+    uint Count = 1;
+    float SampleLevel;
+    bool ConvertToSRgb;
+
+    Buffer<float2> PosBuffer;
+    RWStructuredBuffer<float4> ColorsBuffer;
+
+    Texture2D Tex;
+    SamplerState TexSampler
+    {
+        Filter = MIN_MAG_MIP_POINT;
+        AddressU = clamp;
+        AddressV = clamp;
+        AddressW = clamp;
+        BorderColor = float4(0, 0, 0, 0);
+    };
+   	
+    override void Compute()
+    {
+        if (ConvertToSRgb) // let the compiler generate two versions of the shader
+        {
+            uint sampleID = streams.DispatchThreadId.x;
+            if (sampleID >= Count) return;
+            float2 uv = PosBuffer[sampleID];
+            float4 col = Tex.SampleLevel(TexSampler, uv, SampleLevel);
+            ColorsBuffer[sampleID] = ColorUtilityTemp.LinearToSRgbPrecise(col);
+        }
+        else
+        {
+            uint sampleID = streams.DispatchThreadId.x;
+            if (sampleID >= Count) return;
+            float2 uv = PosBuffer[sampleID];
+            ColorsBuffer[sampleID] = Tex.SampleLevel(TexSampler, uv, SampleLevel);
+        }
+    }
+
+};    

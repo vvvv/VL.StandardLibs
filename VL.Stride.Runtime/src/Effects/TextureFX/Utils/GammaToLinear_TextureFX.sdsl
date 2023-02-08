@@ -1,0 +1,14 @@
+[Category("Utils.Advanced")]
+[Summary("Converts a texture from gamma to linear color space")]
+[Remarks("Recommended output format should have 16 or 32 bit per color channel.")]
+[Tags("convert")]
+[OutputFormat("R16G16B16A16_Float")]
+shader GammaToLinear_TextureFX : TextureFX
+{
+    float Gamma = 2.2f;
+    
+    stage override float4 Shading()
+    {
+        return ColorUtilityTemp.GammaToLinear(InTex0(), Gamma);
+    }
+};

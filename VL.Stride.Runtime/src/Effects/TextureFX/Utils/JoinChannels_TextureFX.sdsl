@@ -1,0 +1,31 @@
+﻿[TextureSource]
+[Category("Utils")]
+[Tags("set r g b a")]
+shader JoinChannels_TextureFX : TextureFX
+{
+    [Summary("The first channel, usually red")]
+    [Default(1)]
+    compose ComputeFloat Channel0;
+
+    [Summary("The second channel, usually green")]
+    [Default(1)]
+    compose ComputeFloat Channel1;
+
+    [Summary("The third channel, usually blue")]
+    [Default(1)]
+    compose ComputeFloat Channel2;
+
+    [Summary("The fourth channel, usually alpha")]
+    [Default(1)]
+    compose ComputeFloat Channel3;
+
+    stage override float4 Shading()
+    {
+        return float4(
+            Channel0.Compute(),
+            Channel1.Compute(),
+            Channel2.Compute(),
+            Channel3.Compute()
+        );
+    }
+};

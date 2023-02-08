@@ -1,0 +1,12 @@
+﻿shader DivModUInt : ComputeInt2
+{
+    compose ComputeUInt Left;
+    compose ComputeUInt Right;
+
+    override int2 Compute()
+    {
+        uint i = Left.Compute();
+        uint w = Right.Compute();
+        return int2(i % w, i / w);
+    }
+};

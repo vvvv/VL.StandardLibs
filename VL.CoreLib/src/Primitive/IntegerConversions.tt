@@ -1,0 +1,329 @@
+﻿<#@ template debug="true" hostspecific="false" language="C#" #>
+<#@ assembly name="System" #>
+<#@ output extension=".cs" #>
+// Do not modify, this is generated code:
+using System;
+using System.Globalization;
+using VL.Core;
+using System.Linq; 
+
+namespace VL.Lib.Primitive
+{
+	/// <summary>
+    /// Convertions between number types.
+    /// </summary>
+	public static class IntegerConversions 
+	{
+		// Unchecked conversions
+<# // This code runs in the text template:
+	var allIntTypes = new string [] {"sbyte", "byte", "char", "short", "ushort", "int", "uint", "long", "ulong", "float", "double" };
+	var allVLToNodeNames = new string [] {"Int8", "Byte", "Char", "Int16", "UInt16", "Int32", "UInt32", "Int64", "UInt64", "Float32", "Float64" };
+	var allVLTypeTextNames = new string [] {"Integer8", "Byte", "Char", "Integer16", "unsigned Integer16", "Integer32", "unsigned Integer32", "Integer64", "unsigned Integer64", "Float32", "Float64" };
+
+	foreach (var fromIntType in allIntTypes)
+	{ 
+		var i = 0;
+		foreach (var toIntType in allIntTypes)
+		{	
+			
+#>
+		/// <summary>
+        /// Unchecked bitwise copy to <#= allVLTypeTextNames[i] #>.
+        /// </summary>
+		public static <#= toIntType #> BitsTo<#= allVLToNodeNames[i] #>(this <#= fromIntType #> input)
+		{
+			unchecked
+			{
+				return (<#= toIntType #>)input;
+			}
+		}
+
+<#			
+			i++;
+		}
+#>
+
+
+<#
+	}
+#>
+
+
+
+        //Checked conversions (Adaptive)
+<#		
+	{
+	    var i = 0;
+		foreach (var toIntType in allIntTypes)
+		{	
+#>
+		/// <summary>
+        /// Range checked value conversion to <#= allVLTypeTextNames[i] #>. 
+		/// Throws an overflow exception if the value does not fit into the target type.
+        /// </summary>
+        public static <#= toIntType #> To<#= allVLToNodeNames[i] #><T>(T input)
+		{
+            throw new NotImplementedException();
+		}
+
+<#			
+			i++;
+		}
+	}	
+#>
+
+        
+
+		//Checked conversions
+<#		
+	{
+	    var i = 0;
+		foreach (var toIntType in allIntTypes)
+		{	
+#>
+		/// <summary>
+        /// Range checked value conversion to <#= allVLTypeTextNames[i] #>. 
+		/// Throws an overflow exception if the value does not fit into the target type.
+        /// </summary>
+		public static <#= toIntType #> To<#= allVLToNodeNames[i] #>(this bool input)
+		{
+			return input ? (<#= toIntType #>)1 : (<#= toIntType #>)0;
+		}
+
+<#			
+			i++;
+		}
+	}	
+#>
+
+
+
+<#		
+	foreach (var fromIntType in allIntTypes)
+	{ 
+		var i = 0;
+		foreach (var toIntType in allIntTypes)
+		{	
+#>
+		/// <summary>
+        /// Range checked value conversion to <#= allVLTypeTextNames[i] #>. 
+		/// Throws an overflow exception if the value does not fit into the target type.
+        /// </summary>
+		public static <#= toIntType #> To<#= allVLToNodeNames[i] #>(this <#= fromIntType #> input)
+		{
+			return (<#= toIntType #>)input;
+		}
+
+<#					
+			i++;
+		}
+#>
+
+
+<#
+	}
+#>
+
+
+		//to hex string, byte and sbyte are optimized in Byte.cs
+
+		/// <summary>
+        /// Gets the hex representation as a string
+        /// </summary>
+		public static string ToHexString(this char input, bool leadingZeroes)
+		{
+			unchecked
+			{
+				if(leadingZeroes)
+					return ((ushort)input).ToString("X4");
+				else
+					return ((ushort)input).ToString("X");
+			}
+		}
+
+<#		
+var intToHexTypes = new string [] { "short", "ushort", "int", "uint", "long", "ulong" };
+var intToHexTypesPlaces = new int [] { 4, 4, 8, 8, 16, 16 };
+var j = 0;
+	foreach (var fromIntType in intToHexTypes)
+	{
+#>
+		/// <summary>
+        /// Gets the hex representation as a string
+        /// </summary>		
+		public static string ToHexString(this <#= fromIntType #> input, bool leadingZeroes)
+		{
+			if(leadingZeroes)
+				return input.ToString("X<#= intToHexTypesPlaces[j] #>");
+			else
+				return input.ToString("X");
+		}
+
+<#
+		j++;
+	}
+#>
+
+		//TryParse hex string, byte and sbyte are optimized in Byte.cs
+
+		/// <summary>
+        /// Parses a hex string to a char
+        /// </summary>
+		public static bool TryParseHex(string input, out char value)
+		{
+			unchecked
+			{
+				if (input.StartsWith("0x"))
+					input = input.Substring(2);
+
+				ushort val;
+				var success = ushort.TryParse(input, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out val);
+				if (success)
+				{
+					value = (char)val;
+					return true;
+				}
+				else
+				{
+					value = default(char);
+					return false;
+				}
+			}
+		}
+
+<#		
+var VLCategories = new string [] { "Integer16", "Integer16 (Unsigned)", "Integer32", "Integer32 (Unsigned)", "Integer64", "Integer64 (Unsigned)" };
+j = 0;
+	foreach (var toIntType in intToHexTypes)
+	{
+#>
+		/// <summary>
+        /// Parses a hex string to an integer
+        /// </summary>
+		public static bool TryParseHex(string input, out <#= toIntType #> value)
+		{
+
+		   if (input.StartsWith("0x"))
+                input = input.Substring(2);
+
+			var success = <#= toIntType #>.TryParse(input, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out value);
+			if (success)
+			{
+				return true;
+			}
+			else
+			{
+				value = default(<#= toIntType #>);
+				return false;
+			}
+		}
+
+<#
+		j++;
+	}
+#>
+
+
+		//to binary string
+<#		
+var intToBinaryTypes = new string [] {"byte", "short", "int", "long" };
+var intToBinaryTypesBits = new int [] {8, 16, 32, 64 };
+j = 0;
+	foreach (var fromIntType in intToBinaryTypes)
+	{
+#>
+		/// <summary>
+        /// Gets a binary representation as a string
+        /// </summary>
+		public static string ToString(this <#= fromIntType #> input, bool leadingZeroes)
+		{
+			if(leadingZeroes)
+				return Convert.ToString(input, 2).PadLeft(<#= intToBinaryTypesBits[j] #>, '0');
+			else
+				return Convert.ToString(input, 2);
+		}
+
+<#
+		j++;
+	}
+var intToBinaryConvertTypes = new string [] {"sbyte", "char", "ushort", "uint", "ulong" };
+var toConvertTypes = new string [] {"byte", "short", "short", "int", "long" };
+var toConvertTypesBits = new int [] {8, 16, 16, 32, 64 };
+j = 0;
+	foreach (var fromIntType in intToBinaryConvertTypes)
+	{
+#>
+		/// <summary>
+        /// Gets a binary representation as a string
+        /// </summary>
+		public static string ToString(this <#= fromIntType #> input, bool leadingZeroes)
+		{
+			unchecked
+			{
+				if(leadingZeroes)
+					return Convert.ToString((<#= toConvertTypes[j] #>)input, 2).PadLeft(<#= toConvertTypesBits[j] #>, '0');
+				else
+					return Convert.ToString((<#= toConvertTypes[j] #>)input, 2);
+			}
+		}
+
+<#
+		j++;
+	}
+#>
+
+		//binary string to integer
+
+		/// <summary>
+        /// Parses a binary string to an integer, note that leading '0x' is not allowed
+        /// </summary>
+		public static bool TryParseBin(string input, out char value)
+		{
+
+			try
+			{
+				unchecked
+				{
+					value = (char)Convert.ToUInt16(input, 2);
+					return true;
+				}
+			}
+			catch
+			{
+				value = default(char);
+				return false;
+			}
+		}
+
+<#		
+var binToIntTypes = new string [] { "sbyte", "byte", "short", "ushort", "int", "uint", "long", "ulong" };
+var binParseVLCategories = new string [] {"Integer8", "Byte", "Integer16", "Integer16 (Unsigned)", "Integer32", "Integer32 (Unsigned)", "Integer64", "Integer64 (Unsigned)" };
+var dotNetIntNames = new string [] {"SByte", "Byte", "Int16", "UInt16", "Int32", "UInt32", "Int64", "UInt64" };
+j = 0;
+	foreach (var toIntType in binToIntTypes)
+	{
+#>
+		/// <summary>
+        /// Parses a binary string to an integer, note that leading '0x' is not allowed
+        /// </summary>
+		public static bool TryParseBin(string input, out <#= toIntType #> value)
+		{
+			try
+			{
+				value = Convert.To<#= dotNetIntNames[j] #>(input, 2);
+				return true;
+			}
+			catch
+			{
+				value = default(<#= toIntType #>);
+				return false;
+			}
+		}
+
+<#
+		j++;
+	}
+#>
+
+	}
+}

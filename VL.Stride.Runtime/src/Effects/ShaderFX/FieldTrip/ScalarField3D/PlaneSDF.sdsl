@@ -1,0 +1,10 @@
+shader PlaneSDF : SDF3D, HappySDF
+{
+    compose ComputeFloat Offset;
+    compose ComputeFloat3 Orientation;
+
+    override float Compute(float3 p)
+    {
+        return fPlane(p, -Offset.Compute(), Orientation.Compute());
+    }
+};

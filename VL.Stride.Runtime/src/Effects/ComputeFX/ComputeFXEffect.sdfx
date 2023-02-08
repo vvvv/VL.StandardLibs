@@ -1,0 +1,20 @@
+using Stride.Rendering.ComputeEffect;
+
+namespace VL.Stride.Effects.ComputeFX
+{
+    effect ComputeFXEffect
+    {
+        using params ComputeEffectShaderKeys;
+        using params EffectNodeBaseKeys;
+                
+        mixin macro ThreadNumberX = ComputeEffectShaderKeys.ThreadNumbers.X;
+        mixin macro ThreadNumberY = ComputeEffectShaderKeys.ThreadNumbers.Y;            
+        mixin macro ThreadNumberZ = ComputeEffectShaderKeys.ThreadNumbers.Z;
+
+        // base effect for computing
+        mixin ComputeShaderBase;
+
+        // user computing effect
+        mixin EffectNodeBaseKeys.EffectNodeBaseShader;
+    };
+}

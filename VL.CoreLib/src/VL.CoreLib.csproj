@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>VL.Lib</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageId>VL.CoreLib</PackageId>
+    <Description>The VL core node library.</Description>
+    <VLPackageBasePath>..\</VLPackageBasePath>
+    <Company>vvvv</Company>
+    <Authors>vvvv, Dominik Koller, Natan Sinigaglia, Woeishi Lean</Authors>
+    <PackageProjectUrl>https://vvvv.org</PackageProjectUrl>
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FsPickler" />
+    <PackageReference Include="FsPickler.Json" />
+    <PackageReference Include="MathNet.Numerics" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SixLabors.Fonts" />
+    <PackageReference Include="System.IO.Ports" />
+    <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Management" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Primitive\IntegerConversions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IntegerConversions.cs</LastGenOutput>
+    </None>
+    <None Update="_Experimental\Control\TryCatch.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TryCatch.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="_Experimental\Control\TryCatchStateless.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TryCatchStateless.Generated.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Primitive\IntegerConversions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>IntegerConversions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="_Experimental\Control\TryCatch.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TryCatch.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="_Experimental\Control\TryCatchStateless.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TryCatchStateless.Generated.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,79 @@
+﻿shader SuppressDiagonals_DrawFX : VS_PS_Base, ColorBase, ShaderUtils
+{
+    [Color]
+    stage float4 ColorInput = float4(1, 1, 1, 1);
+
+    override stage void VSMain()
+    {
+        // Just passing the object position thru
+        streams.ShadingPosition = streams.Position;
+    }
+
+    [maxvertexcount(6)]
+    void GSMain(triangle Input input[3], inout LineStream<Output> gsout)
+    {   
+        //Grab triangles positions
+        float3 t1 = input[0].ShadingPosition.xyz;
+        float3 t2 = input[1].ShadingPosition.xyz;
+        float3 t3 = input[2].ShadingPosition.xyz;
+    
+        //Compute lines
+        float3 l1 = t2 - t1;
+        float3 l2 = t3 - t2;
+        float3 l3 = t3 - t1;
+    
+        //Compute edge length
+        float dl1 = dot(l1, l1);
+        float dl2 = dot(l2, l2);
+        float dl3 = dot(l3, l3);
+    
+        //Get max length
+        float maxdistsqr = max(max(dl1, dl2), dl3);
+    
+        /*Append if lower than max length
+        please note that will not work with all goemetries,
+        but for grid/boxes/spheres type of topology this is a very simple
+        way. Also note this is not optimized, 
+        code is quite expanded for readability*/
+    
+        if (dl1 < maxdistsqr)
+        {
+            streams.ShadingPosition = mul(float4(t1, 1), WorldViewProjection);
+            gsout.Append(streams);
+    
+            streams.ShadingPosition = mul(float4(t2, 1), WorldViewProjection);
+            gsout.Append(streams);
+        
+            gsout.RestartStrip();
+        }
+        
+        if (dl2 < maxdistsqr)
+        {
+            streams.ShadingPosition = mul(float4(t3, 1), WorldViewProjection);
+            gsout.Append(streams);
+    
+            streams.ShadingPosition = mul(float4(t2, 1), WorldViewProjection);
+            gsout.Append(streams);
+        
+            gsout.RestartStrip();
+        }
+    
+    
+        if (dl3 < maxdistsqr)
+        {
+            streams.ShadingPosition = mul(float4(t3, 1), WorldViewProjection);
+            gsout.Append(streams);
+    
+            streams.ShadingPosition = mul(float4(t1, 1), WorldViewProjection);
+            gsout.Append(streams);
+        
+            gsout.RestartStrip();
+        }
+    
+    }
+
+    override stage void PSMain() 
+    {
+        streams.ColorTarget = ColorInput * ColorInput.a;
+    }
+};

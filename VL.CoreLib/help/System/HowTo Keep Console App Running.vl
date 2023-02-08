@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="Kw7CERGuqLkOTgRA4n888b" LanguageVersion="2021.4.4.739" Version="0.128">
+  <NugetDependency Id="IsAr9xt7cA7LaJ7zgkgrAa" Location="VL.CoreLib" Version="2021.4.4-0740-gc4444f5262" />
+  <Patch Id="VzvXPk7KmKeN8uesEdQ5bk">
+    <Canvas Id="QHuGE2ST4CmQOuDFGqJ98X" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="DR5TCN1m6LxOrJPdsyCp6l">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="UA0DB35XdIzQJRMJeCPeZi">
+        <Canvas Id="Isd6kRlUt1vMFW4IcaZvQH" CanvasType="Group">
+          <Node Bounds="229,181,79,19" Id="T0wb0CMfXYVPkxKECFMdRd">
+            <p:NodeReference LastCategoryFullName="Main" LastSymbolSource="KeepAppAlive.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="KeepAppAlive" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="IAy36e0FtZqNUicZDAv2Qy" Name="Is Alive" Kind="InputPin" />
+          </Node>
+          <Node Bounds="230,114,45,19" Id="SvNEcCMEwdcPZJnwWoWqJ7">
+            <p:NodeReference LastCategoryFullName="Animation" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="LFO" />
+            </p:NodeReference>
+            <Pin Id="SC5nIqDK92fMLauXbhz13J" Name="Period" Kind="InputPin" />
+            <Pin Id="HrN85GsRzLfLaQahw37vtK" Name="Pause" Kind="InputPin" />
+            <Pin Id="E6gaAQMs0tsLHBHxGaj9jC" Name="Reset" Kind="ApplyPin" />
+            <Pin Id="SxINxmKVY9xNxwaifZ0fvb" Name="Phase" Kind="OutputPin" />
+            <Pin Id="Dah7ZdHG7c7OxYyl3BKtic" Name="On New Cycle" Kind="OutputPin" />
+            <Pin Id="F432FGw8opWNJ1VYGFS8VL" Name="Cycles" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="229,147,25,19" Id="TIGHJHpQ1WoO038YAQmrJI">
+            <p:NodeReference LastCategoryFullName="Math" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="&lt;" />
+            </p:NodeReference>
+            <Pin Id="Uv62BFRknAeN2PHxhxqE5e" Name="Input" Kind="InputPin" />
+            <Pin Id="HJteMbkCmUOO8qLp51YmWu" Name="Input 2" Kind="InputPin" DefaultValue="3">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Integer32" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="AZu1n7hTEtANOWZbwe2V16" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="TVbCFcFZaKkQHQHucqNf7i" Bounds="271,152,172,19" ShowValueBox="true" isIOBox="true" Value="Kill the app after 3 seconds">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="226,437,58,26" Id="PdJaWFtlzIJN3R0BE0HDiV">
+            <p:NodeReference LastCategoryFullName="System.Console" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="WriteLine" />
+            </p:NodeReference>
+            <Pin Id="TrzEfeTTE8eLZKVzqva0AK" Name="Value" Kind="InputPin" />
+            <Pin Id="K2BoRQa7CRhMLA1jhKRZQk" Name="Apply" Kind="InputPin" />
+          </Node>
+          <Node Bounds="226,274,36,19" Id="D4sessOp3JkLn1SAeKW4Cq">
+            <p:NodeReference LastCategoryFullName="System.DateTime" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="RecordType" Name="DateTime" />
+              <Choice Kind="OperationCallFlag" Name="Now" />
+            </p:NodeReference>
+            <Pin Id="G9G4c8jvA15O5xwmVdmltj" Name="Now" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="226,369,55,26" Id="AGn5FbROVguPtyNEDGtf1w">
+            <p:NodeReference LastCategoryFullName="System.DateTime" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="RecordType" Name="DateTime" />
+              <Choice Kind="OperationCallFlag" Name="ToString (Format)" />
+            </p:NodeReference>
+            <Pin Id="LcRIUTKtMqQQNmwIZdVyeU" Name="Input" Kind="StateInputPin" />
+            <Pin Id="N5wmRhwIr8uOHU195k2gch" Name="Format" Kind="InputPin" />
+            <Pin Id="AKXKCjBDQcqMYqEgoRdRU9" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="306,376,57,19" Id="IU33cuyehcOOGH9CQzQkYY">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Changed" />
+            </p:NodeReference>
+            <Pin Id="QlBNl8YAuTuQLYPcUXKgy3" Name="Value" Kind="InputPin" />
+            <Pin Id="GIMmqNbJBQUMnRA1pERLKP" Name="Result" Kind="OutputPin" />
+            <Pin Id="Mq4stwciBy5PvX2xJrJkhX" Name="Unchanged" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="306,320,51,26" Id="JN7U9TBzV8bMU1KYHcTAbt">
+            <p:NodeReference LastCategoryFullName="System.DateTime" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="RecordType" Name="DateTime" />
+              <Choice Kind="OperationCallFlag" Name="Second" />
+            </p:NodeReference>
+            <Pin Id="KmccIPR33UePTD1ydl5DM2" Name="Input" Kind="StateInputPin" />
+            <Pin Id="HZv82LEsecKNLOkZQVM0SE" Name="Second" Kind="OutputPin" />
+          </Node>
+          <Pad Id="GOmgBmHWaK2Pul1iuMUoQL" Comment="" Bounds="228,416,110,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="QiqJFzsvOWXL13bEiJlOrd" Bounds="129,31,251,28" ShowValueBox="true" isIOBox="true" Value="Use the KeepAppAlive node">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">13</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="RZFYJKqyBNJNHbgmRxVpaN" Name="Create" />
+        <Patch Id="BXvFi2P1VJ4M5Q08WTZOD2" Name="Update" />
+        <ProcessDefinition Id="MVugJFG6qezQBoKFKVMkpj">
+          <Fragment Id="THXXJyC3uXXOosqJtx7P9K" Patch="RZFYJKqyBNJNHbgmRxVpaN" Enabled="true" />
+          <Fragment Id="HD5hSYASE03OdxM45lYn2l" Patch="BXvFi2P1VJ4M5Q08WTZOD2" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="Q3vspe1NTjgOdWywcJNI2b" Ids="F432FGw8opWNJ1VYGFS8VL,Uv62BFRknAeN2PHxhxqE5e" />
+        <Link Id="A0tpwxx5kUzNr4Y5VhbRr0" Ids="AZu1n7hTEtANOWZbwe2V16,IAy36e0FtZqNUicZDAv2Qy" />
+        <Link Id="C9mbwQkZT96NUaFNNVnlO8" Ids="G9G4c8jvA15O5xwmVdmltj,LcRIUTKtMqQQNmwIZdVyeU" />
+        <Link Id="SJ9bXUARyVxMO7Zi3QGhdS" Ids="GIMmqNbJBQUMnRA1pERLKP,K2BoRQa7CRhMLA1jhKRZQk" />
+        <Link Id="PSsjObrVvccPe51qdMEfSJ" Ids="G9G4c8jvA15O5xwmVdmltj,KmccIPR33UePTD1ydl5DM2" />
+        <Link Id="U4wCTSZGE7GP8Kd7KFFUQG" Ids="HZv82LEsecKNLOkZQVM0SE,QlBNl8YAuTuQLYPcUXKgy3" />
+        <Link Id="BxUNPTE3PCtOMpODLoVlUp" Ids="AKXKCjBDQcqMYqEgoRdRU9,GOmgBmHWaK2Pul1iuMUoQL" />
+        <Link Id="Ah0LBRPDliFQAGdFct8xP3" Ids="GOmgBmHWaK2Pul1iuMUoQL,TrzEfeTTE8eLZKVzqva0AK" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="CqC5ITYzSg8LgzV6jM4K5e" Location="VL.CoreLib" Version="2021.4.4-0740-gc4444f5262" />
+</Document>

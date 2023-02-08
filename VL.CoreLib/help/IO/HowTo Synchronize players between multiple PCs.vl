@@ -1,0 +1,276 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="HUniTpdmWC4QPLUNlK2Plo" LanguageVersion="2021.4.0.497" Version="0.128">
+  <NugetDependency Id="NA9i6kQmDFvOYLhFn8H4G1" Location="VL.CoreLib" Version="2021.4.0-0497-g3edb2ef3ed" />
+  <Patch Id="SasSQ1DCnl5NcVJJZ5237V">
+    <Canvas Id="GpzXlOvYIcsO7ZVu7OHMPP" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="E3Ez89ObhxDNeOwEHuZQVD">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="VgHbpGk36omLJYaPlB4bBf">
+        <Canvas Id="HlIYmViyrNIN9GvdWRauSX" CanvasType="Group">
+          <Pad Id="DnVJNpCTTTzMj7WeQeStGj" Comment="The Syncer" Bounds="508,729,29,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="506,437,85,19" Id="FEmPwdwDDGBM56aHkG8v5L">
+            <p:NodeReference LastCategoryFullName="IO" LastSymbolSource="VL.Sync.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="PlayerSyncer" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="NK1OxEUpetuNupV6wT58gn" Name="Server Address" Kind="InputPin" />
+            <Pin Id="PAdy5jUE03eOn21v4bleI0" Name="Port" Kind="InputPin" />
+            <Pin Id="PxwxkpHBTRcLs08KS2FOZr" Name="Constant Offset" Kind="InputPin" />
+            <Pin Id="LPSGfUiSfhBOlLttYfY3UC" Name="Seek Threshold" Kind="InputPin" />
+            <Pin Id="ReJ4cxNzV1DN4R2u4Lrsin" Name="Enabled" Kind="InputPin" />
+            <Pin Id="VCdREHkTs3BMZ0AqQmi3dn" Name="Output" Kind="OutputPin" />
+            <Pin Id="VpsFAg8Q3TMNI4BqvgBocv" Name="Socket is Open" Kind="OutputPin" />
+            <Pin Id="KBixxma9SBLQXzPFgs6IoH" Name="On Data" Kind="OutputPin" />
+          </Node>
+          <Pad Id="IwjIUNYwDw2QXUcXJRAuPq" Comment="On Data" Bounds="588,484,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="BolDiJK3qwyMExyLQTJBVu" Bounds="629,503,177,57" ShowValueBox="true" isIOBox="true" Value="Blinks when server and client are communicating">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="S72NlI6JuKLMywrsnUF882" Comment="Socket is Open" Bounds="548,563,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="PUXG6XQzpjbNuuH0d3YLAw" Comment="Port" Bounds="528,402,35,15" ShowValueBox="true" isIOBox="true" Value="6666">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="QLwaSEgRRzxPtfej891kkQ" Comment="Constant Offset" Bounds="647,396,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Float64" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="KcObyFMbRXxOewtceLr9ES" Comment="Seek Threshold" Bounds="647,416,35,15" ShowValueBox="true" isIOBox="true" Value="0.0999999977648258">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Float64" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="OAvH0KHFOGPNz5GDfe2gD7" Bounds="790,347,258,139" ShowValueBox="true" isIOBox="true" Value="Constant Offset&#xD;&#xA;Allows to define an offset the client stream has to the servers stream position.&#xD;&#xA;&#xD;&#xA;Seek Threshold&#xD;&#xA;If the servers and clients times diverge too much, a seek is triggered.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="77,794,285,19" Id="JXiRJZP6ic1NVxd8myqGHN">
+            <p:NodeReference LastCategoryFullName="Video" LastSymbolSource="VL.Stride.Graphics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="ImagePlayer (Stride)" />
+            </p:NodeReference>
+            <Pin Id="LMjKRAVFCUDLtnI3iuxWOO" Name="New Clock" Kind="InputPin" />
+            <Pin Id="NS3qqkqKnJ0QVj894vNHsZ" Name="Directory" Kind="InputPin" />
+            <Pin Id="UAjNatm2GM5PRVifpT3z3R" Name="Search Pattern" Kind="InputPin" />
+            <Pin Id="KZmh22jiuhvQbPx2C7CIGL" Name="Rescan Directory" Kind="InputPin" />
+            <Pin Id="E7O3gbr60B3MrxtnDNThAL" Name="Movie FPS" Kind="InputPin" />
+            <Pin Id="HRH763WZJzYMRHTlsMnhJQ" Name="Display FPS" Kind="InputPin" />
+            <Pin Id="J1NEJBMxzyHP33sjOTZUYf" Name="Preload Count" Kind="InputPin" />
+            <Pin Id="AffoPq9aEHAQMpLtCmPrlx" Name="Rate" Kind="InputPin" />
+            <Pin Id="D1ET7VWhBeALw1kY6XYsVg" Name="Play" Kind="InputPin" />
+            <Pin Id="NVOi0hYLEdtQQLQzbDEcmA" Name="Seek" Kind="InputPin" />
+            <Pin Id="Tn9k32mpsCEOk9oJVxk0i9" Name="Seek Time" Kind="InputPin" />
+            <Pin Id="Bdn8Aq0CpboOLMRPlGd2o3" Name="Loop" Kind="InputPin" />
+            <Pin Id="MHpmtGI4iB8NC4LwaLxWiy" Name="Loop Start Time" Kind="InputPin" />
+            <Pin Id="PCCbX6AQyIQP4COni8XVA4" Name="Loop End Time" Kind="InputPin" DefaultValue="-1" />
+            <Pin Id="FXHzLl17IIfN9foERBSIsP" Name="Sync" Kind="InputPin" />
+            <Pin Id="MIGpnGIxEkOLSVaVFrbgdJ" Name="Output" Kind="OutputPin" />
+            <Pin Id="GURYi78UknJOEseByx4dfj" Name="On Scanning Complete" Kind="OutputPin" />
+            <Pin Id="UHvhfEaGOYKPz9BcvD5IBY" Name="Position" Kind="OutputPin" />
+            <Pin Id="LeaZRV53t8YNwjjo2a2Th9" Name="Duration" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="77,493,71,19" Id="AtAUjMe0DbwNXB0l4sa2gF">
+            <p:NodeReference LastCategoryFullName="IO" LastSymbolSource="VL.Sync.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="ClockSyncer" />
+            </p:NodeReference>
+            <Pin Id="UPEsjNJDCn6PqSObgAZaRp" Name="Server Address" Kind="InputPin" />
+            <Pin Id="ArmfiZ42X2tOmDR29db7WE" Name="Port" Kind="InputPin" />
+            <Pin Id="MT5zXagD9OFLr9TriAhFV3" Name="Enabled" Kind="InputPin" />
+            <Pin Id="R9rFuvhNrYLNnliPqqkrda" Name="Output" Kind="OutputPin" />
+            <Pin Id="Mj1xggpJuwrLkekpRQG0aR" Name="Socket is Open" Kind="OutputPin" />
+            <Pin Id="E0TwtIkMfbaQYVrQ1m9xwA" Name="On Data" Kind="OutputPin" />
+          </Node>
+          <Pad Id="MRvV77J0rsrMaEHyrumti6" Bounds="152,499,221,79" ShowValueBox="true" isIOBox="true" Value="Player synching always also needs clock synching. When synching multiple players, make them all use one global ClockSyncer!">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="R6KO8eYTnSqQYYMFtjTCTP" Bounds="90,80,358,198" ShowValueBox="true" isIOBox="true" Value="Configure the TexturePlayer node to show its &quot;New Clock&quot; and &quot;Sync&quot; inputs. Connect a ClockSyncer and a PlayerSyncer respectively.&#xD;&#xA;&#xD;&#xA;Use the ClockSyncer and PlayerSyncer configured exactly the same way on the server and clients. &#xD;&#xA;&#xD;&#xA;Depending on whether these nodes run on the PC with the specified server IP or not, the node represents the server, or a client.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="DmHsAwCgFMlPkgZQOWAQeo" Comment="Server Address" Bounds="79,425,94,15" ShowValueBox="true" isIOBox="true" Value="192.168.178.107">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="55,893,225,19" Id="IwVozUqUirPQG8mYZZuN6g">
+            <p:NodeReference LastCategoryFullName="Stride.Textures" LastSymbolSource="VL.Stride.Rendering.TextureFX.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="TextureWindow" />
+            </p:NodeReference>
+            <Pin Id="TKwCWYctiD0LzNPijuJdRm" Name="Bounds" Kind="InputPin" DefaultValue="1147, 93, 772, 432" />
+            <Pin Id="GrLd9KlzuFePXenc0B11am" Name="Input" Kind="InputPin" />
+            <Pin Id="MahxJhZW1k1N8Ig2Oz8nvY" Name="Title" Kind="InputPin" />
+            <Pin Id="MQ1bRIbJ2JUNZB6TC2vFne" Name="Clear Color" Kind="InputPin" />
+            <Pin Id="EvnQFJREOtgNgLC02DevFf" Name="Clear" Kind="InputPin" />
+            <Pin Id="OiaCcFGLoFLOeRmEBnj4VC" Name="Is Premultiplied Alpha" Kind="InputPin" />
+            <Pin Id="JICEe6RwWdgLuQnIaWdqzK" Name="Scaling Mode" Kind="InputPin" />
+            <Pin Id="Tp4Am62oouoOKIccEnvWR6" Name="Enable Keyboard Shortcuts" Kind="InputPin" />
+            <Pin Id="IlAOhUmUZWPMOK9jJAOFtr" Name="Enabled" Kind="InputPin" />
+            <Pin Id="SHU5CAcpTe5PAgY3dz6jfx" Name="Show Info String" Kind="InputPin" />
+            <Pin Id="CWU1hSorsxPMt0tmBIdjGH" Name="Output" Kind="OutputPin" />
+            <Pin Id="JYQAe29q1qLP13Qw2TpVk3" Name="Client Bounds" Kind="OutputPin" />
+            <Pin Id="L5qdefBiu7mLmAum8CNmVA" Name="Input Source" Kind="OutputPin" />
+            <Pin Id="AO68RX8sH3cMLkZnyptoBZ" Name="Present Interval" Kind="InputPin" />
+          </Node>
+          <Pad Id="MxKBzmn7e4qOs0gr5XDwDC" Comment="Directory" Bounds="101,696,140,15" ShowValueBox="true" isIOBox="true" Value="..\..\..\..\..\..\..\..\..\Temp\\">
+            <p:TypeAnnotation LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Path" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:pathtype p:Assembly="VL.Core" p:Type="VL.Core.PathType">Directory</p:pathtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="UE4YddncQT6OFwRRki5B5g" Comment="Play" Bounds="339,606,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="Boolean" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="MhjcfOo6GGNNcbpJehycWQ" Comment="Search Pattern" Bounds="113,718,35,15" ShowValueBox="true" isIOBox="true" Value="*.dds">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="IJoNCl5aVsuPvjbIv6DG5y" Comment="Loop Start Time" Bounds="339,661,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="BxQFneUpRfFLkbIOCkymwc" Comment="Loop End Time" Bounds="339,679,35,15" ShowValueBox="true" isIOBox="true" Value="-1">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="HPx4RG97BTrLQVUnBpNOii" Comment="Loop" Bounds="339,697,35,15" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="Boolean" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="BM4JEtum2L1OvkyWtvYAPJ" Comment="Seek Time" Bounds="339,733,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="Pq7R6TV7GtxNtELssWOaU0" Comment="Seek" Bounds="339,751,35,24" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="Boolean" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="VX4U5zbMXoHLHDZg7UfvG1" Comment="Port" Bounds="112,466,35,15" ShowValueBox="true" isIOBox="true" Value="5555">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="Og0DaQcHhRXLHHlT3DtZKv" Comment="Present Interval" Bounds="277,868,76,15" ShowValueBox="true" isIOBox="true" Value="Default">
+            <p:TypeAnnotation LastCategoryFullName="Stride.Graphics" LastSymbolSource="Stride.Graphics.dll">
+              <Choice Kind="TypeFlag" Name="PresentInterval" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="Odt43TpbMdANTysUowE7nU" Bounds="541,751,244,89" ShowValueBox="true" isIOBox="true" Value="When a syncer is connected, on a client the Play, Loop and Seek inputs are ignored, as those control parameters are received from the server.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="IyhtoKospiCMoEcgH6g5RF" Comment="Position" Bounds="266,833,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Kn2BOLA4DmtLBUuyyiNvW5" Bounds="90,279,251,19" ShowValueBox="true" isIOBox="true" Value="For more general info on video sync, see:">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="VYeEt0dIcKjOVRjUQEl4gr" Bounds="90,299,330,19" ShowValueBox="true" isIOBox="true" Value="https://thegraybook.vvvv.org/reference/best-practice/video-synchronization.html">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Link</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="G0STrbFJEy0LiKM8iiWoZB" Name="Create" />
+        <Patch Id="Kqqc3Z6qvjhOamR4aIT6Wf" Name="Update" />
+        <ProcessDefinition Id="BIoVIyLyjaVLSiK9j6blkH">
+          <Fragment Id="Ep8SS7W6QePNsFDgIa0T4g" Patch="G0STrbFJEy0LiKM8iiWoZB" Enabled="true" />
+          <Fragment Id="ILs1JdcvNsLMOC3VFC2kCD" Patch="Kqqc3Z6qvjhOamR4aIT6Wf" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="Ez0iyy71Ac4PsX238Hgdyo" Ids="VCdREHkTs3BMZ0AqQmi3dn,DnVJNpCTTTzMj7WeQeStGj" />
+        <Link Id="MM8GTrHnwlBLAGwdo6BFpq" Ids="KBixxma9SBLQXzPFgs6IoH,IwjIUNYwDw2QXUcXJRAuPq" />
+        <Link Id="Hv3PrP4WOs2LMuX8lRxx0S" Ids="VpsFAg8Q3TMNI4BqvgBocv,S72NlI6JuKLMywrsnUF882" />
+        <Link Id="GD5ZMC3m2USPZhQrDWWXEN" Ids="QLwaSEgRRzxPtfej891kkQ,PxwxkpHBTRcLs08KS2FOZr" />
+        <Link Id="BATcrV9UtiJQCXXSJbPUxg" Ids="KcObyFMbRXxOewtceLr9ES,LPSGfUiSfhBOlLttYfY3UC" />
+        <Link Id="D4knmE7AHtROOhvWkhYNAQ" Ids="R9rFuvhNrYLNnliPqqkrda,LMjKRAVFCUDLtnI3iuxWOO" />
+        <Link Id="FkWKa2Vxj6hN9oddsic5PH" Ids="DmHsAwCgFMlPkgZQOWAQeo,UPEsjNJDCn6PqSObgAZaRp" />
+        <Link Id="QKMHQzxfan3OhMZyS0JWmd" Ids="PUXG6XQzpjbNuuH0d3YLAw,PAdy5jUE03eOn21v4bleI0" />
+        <Link Id="ULTK7lPFeUSPPiIBu7w88t" Ids="MIGpnGIxEkOLSVaVFrbgdJ,GrLd9KlzuFePXenc0B11am" />
+        <Link Id="CX5X532fZv0PJ5vQm5DM7F" Ids="MxKBzmn7e4qOs0gr5XDwDC,NS3qqkqKnJ0QVj894vNHsZ" />
+        <Link Id="Dmmb79mHUl9LfdwXvEaKlx" Ids="DmHsAwCgFMlPkgZQOWAQeo,NK1OxEUpetuNupV6wT58gn" />
+        <Link Id="StE7D5Pdjz5P1g9I0D670U" Ids="MhjcfOo6GGNNcbpJehycWQ,UAjNatm2GM5PRVifpT3z3R" />
+        <Link Id="M3pNIVRw8H8PtooAEpCL2M" Ids="IJoNCl5aVsuPvjbIv6DG5y,MHpmtGI4iB8NC4LwaLxWiy" />
+        <Link Id="TltDqFNbXjhOoN38qycbfa" Ids="BxQFneUpRfFLkbIOCkymwc,PCCbX6AQyIQP4COni8XVA4" />
+        <Link Id="K1wlQx8rwoROChrVlA583X" Ids="HPx4RG97BTrLQVUnBpNOii,Bdn8Aq0CpboOLMRPlGd2o3" />
+        <Link Id="An09ORbZvkMO8D8k7IaR7B" Ids="BM4JEtum2L1OvkyWtvYAPJ,Tn9k32mpsCEOk9oJVxk0i9" />
+        <Link Id="O1c3TbzC4irOonJCYljViP" Ids="Pq7R6TV7GtxNtELssWOaU0,NVOi0hYLEdtQQLQzbDEcmA" />
+        <Link Id="B84usUyQ8dsQWR8TS9cVJB" Ids="VX4U5zbMXoHLHDZg7UfvG1,ArmfiZ42X2tOmDR29db7WE" />
+        <Link Id="EAfQXLDC8orPoXSweU3014" Ids="Og0DaQcHhRXLHHlT3DtZKv,AO68RX8sH3cMLkZnyptoBZ" />
+        <Link Id="ImlFJILa1sxPHvAAQSmVoN" Ids="UE4YddncQT6OFwRRki5B5g,D1ET7VWhBeALw1kY6XYsVg" />
+        <Link Id="RyHSlgRnmfPPQOncsWeGXL" Ids="DnVJNpCTTTzMj7WeQeStGj,FXHzLl17IIfN9foERBSIsP" />
+        <Link Id="Qt4uE5t1c47QI1eEnTOyBq" Ids="UHvhfEaGOYKPz9BcvD5IBY,IyhtoKospiCMoEcgH6g5RF" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="LTKUu1ooNEAM0V989lPD2u" Location="VL.CoreLib" Version="2021.4.0-0497-g3edb2ef3ed" />
+  <NugetDependency Id="Ii3I21ZdxMULBwJxa8xejk" Location="VL.Stride" Version="2021.4.0-0497-g3edb2ef3ed" />
+</Document>

@@ -1,0 +1,15 @@
+﻿shader NoiseFloat3ToFloat : Float3ToFloat 
+{
+    compose ComputeFloat Frequency;
+    compose ComputeFloat3 DomainOffset;
+    compose ComputeFloat Amplitude;
+    compose ComputeFloat Center;
+
+    compose Float3ToFloat NoiseFunc;
+
+    override float Compute(float3 p)
+    {
+        p = p * Frequency.Compute() + DomainOffset.Compute();
+        return NoiseFunc.Compute(p) * Amplitude.Compute() + Center.Compute();
+    }
+};

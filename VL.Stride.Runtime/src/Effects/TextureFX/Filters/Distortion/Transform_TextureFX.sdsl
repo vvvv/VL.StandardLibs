@@ -1,0 +1,28 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/TransformTexture.tfx
+
+[Category("Filter")]
+[Summary("")]
+shader Transform_TextureFX : FilterBase, TextureUtils
+{
+    float4x4 Transform;
+    SamplerState CustomSampler;
+
+    [EnumType("VL.Stride.Shaders.ShaderFX.SampleMode")]
+    uint InterpolationMode = 0;
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = mul(float4((streams.TexCoord * 2 - 1) * float2(1,-1) * .5, 0, 1), Transform).xy * float2(1,-1) + 0.5;
+
+        switch (InterpolationMode)
+        {
+            case 0: return Texture0.Sample(CustomSampler, uv);
+            case 1: return SampleCubicBSpline(Texture0, CustomSampler, uv);
+            case 2: return SampleCubicCatmullRom(Texture0, CustomSampler, uv);
+            // case 4: return SampleLanczos2(Texture0, uv);
+        }
+
+        return 1;
+    }
+};

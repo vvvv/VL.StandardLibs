@@ -1,0 +1,43 @@
+﻿shader GlowBase : FilterBase
+{
+    float Amount = 1.0f;
+    float Shape = 0.0f;
+    float HighlightBoost = 0.0f;
+    float Exposure = 1.0f;
+    float Saturation = 1.0f;
+    float AutoExposureFactor = 0.0f;
+    float MaxRadius = 1.0f;
+    float PreBlurWidth = 8.0f;
+
+    static const float PW = 4.0f;
+    static const float PW0 = 7.0;
+    
+    float mx(float3 c) 
+    {
+        return max(c.x, max(c.y, c.z));
+    }
+    
+    float2 r2dlocal(float2 x, float a)
+    {
+        a *= acos(-1) * 2;
+        return float2(cos(a) * x.x + sin(a) * x.y, cos(a) * x.y - sin(a) * x.x);
+    }
+
+    float3 safenormalize(float3 x)
+    {
+        x = lerp(x, x + .00001, x == 0);
+        return normalize(x);
+    }
+
+    float PreGamma() 
+    {
+        return pow(2, HighlightBoost);
+    }
+
+    abstract float4 GlowPass();
+
+    float4 Filter(float4 tex0col)
+    {
+        return GlowPass();
+    }
+};

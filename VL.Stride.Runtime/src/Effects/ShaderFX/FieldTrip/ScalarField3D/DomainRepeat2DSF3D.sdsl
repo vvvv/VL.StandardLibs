@@ -1,0 +1,10 @@
+shader DomainRepeat2DSF3D : Float3ToFloat3, HappySDF
+{
+    compose ComputeFloat2 Size;
+    override float3 Compute(float3 p)
+    {
+        pMod2(p.xz, Size.Compute());  // how to handle swizzling in cases like this?  And also enums in general?
+        return p;
+    }
+};
+

@@ -1,0 +1,53 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/Magnify.tfx
+
+// tried to access PI in Effects\Common\Utils couldn't get it to work
+#define PI (3.1415926535897932384626433832795);
+
+[Category("Filter")]
+[Summary("")]
+shader Magnify_TextureFX : FilterBase
+{
+
+    float2 Center = float2(0.5f, 0.5f);
+    float InnerRadius = 0.25f;
+    float Magnification = 2.0f;
+    float OuterRadius = 0.5f;
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        
+        float2 center2pixel = uv - Center;
+        float distance = length(center2pixel);
+        float4 color;
+        float2 samplePoint;
+    
+        if (distance < OuterRadius)
+        {
+            if (distance < InnerRadius)
+            {
+                samplePoint = Center + (center2pixel/Magnification);
+            }
+            else 
+            {
+                float radiusDiff = OuterRadius - InnerRadius;
+                
+                float ratio = (distance - InnerRadius)/radiusDiff;
+                ratio *= PI;
+               
+                float adjustedRatio = cos(ratio);
+                adjustedRatio += 1;
+                adjustedRatio /= 2;
+            
+                samplePoint = ((Center + center2pixel/Magnification) * adjustedRatio) + (uv * (1-adjustedRatio));
+            }
+        }
+        else
+        {
+            samplePoint = uv;
+        }
+        
+        return Texture0.Sample(Sampler0, samplePoint);	
+    }
+};

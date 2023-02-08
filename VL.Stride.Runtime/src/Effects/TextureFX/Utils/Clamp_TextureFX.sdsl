@@ -1,0 +1,12 @@
+[Category("Utils")]
+[Summary("Clamps the values in a given range")]
+shader Clamp_TextureFX : FilterBase
+{
+    float4 Min;
+    float4 Max = float4(1, 1, 1, 1);
+  
+    float4 Filter(float4 tex0col)
+    {
+        return clamp(tex0col, Min, Max);
+    }
+};

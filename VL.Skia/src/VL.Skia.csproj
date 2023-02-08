@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- We pack native dll in our own NuGet package -->
+    <ShouldIncludeNativeSkiaSharp>False</ShouldIncludeNativeSkiaSharp>
+    <VLPackageBasePath>..\</VLPackageBasePath>
+    <PackageId>$(AssemblyName)</PackageId>
+    <Description>A 2d graphics rendering library</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+    <PackageTags>2d, renderer, gpu, image, gif, svg, pdf, text, touch, imageplayer, video, lottie, skottie</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\ext\win-x64\*.dll">
+      <!-- For vvvv the file goes directly to the output - only way for native library lookup to find it (without having to write custom code) -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <!-- As a package we can make use of nuget's asset system, it will make the proper entry in the *.deps.json file for the native library lookup to work -->
+      <PackagePath>runtimes\win-x64\native\%(Filename)%(Extension)</PackagePath>
+      <!-- We don't wanna see them in VS -->
+      <Visible>false</Visible>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SharpDX.Direct3D11" />
+    <PackageReference Include="SkiaSharp.Skottie" ExcludeAssets="build;buildTransitive" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
+    <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Renderer.cs" />
+    <Compile Update="Renderer.Designer.cs">
+      <DependentUpon>Renderer.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Control.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Renderer.resx">
+      <DependentUpon>Renderer.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

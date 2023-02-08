@@ -1,0 +1,12 @@
+[Category("Utils.Advanced")]
+[Summary("Converts a texture from sRGB to linear color space")]
+[Remarks("This node is only necessary if the texture pixel data is encoded in sRGB but the format doesn't reflect that. Input format shouldn't have _SRgb suffix.")]
+[Tags("convert")]
+[OutputFormat("R16G16B16A16_Float")]
+shader SRgbToLinear_Precise_TextureFX : TextureFX
+{
+    stage override float4 Shading()
+    {
+        return ColorUtilityTemp.SRgbToLinearPrecise(InTex0());
+    }
+};

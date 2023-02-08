@@ -1,0 +1,19 @@
+﻿shader FbMFloat2ToFloat : Float2ToFloat, HappyNoise
+{
+    compose ComputeFloat Persistence;
+    compose ComputeFloat Lacunarity;
+    compose ComputeUInt Octaves;
+    compose Float2ToFloat BasisFunction;
+
+
+    override float Compute(float2 p)
+    {
+        float pers = Persistence.Compute();
+        float lun = Persistence.Compute();
+        uint octaves = Octaves.Compute();
+
+
+        //FBM(Result, BasisFunction.Compute(), p, pers, lun, octaves); macro won't work with compostion, would be cooler to do as region anyway
+       // return Result;
+    }
+};

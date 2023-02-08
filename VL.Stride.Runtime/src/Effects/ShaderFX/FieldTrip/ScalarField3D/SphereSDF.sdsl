@@ -1,0 +1,10 @@
+﻿shader SphereSDF : SDF3D, HappySDF
+{
+    compose ComputeFloat Radius;
+    compose ComputeFloat3 Position;
+
+    override float Compute(float3 p)
+    {
+        return fSphere(p - Position.Compute(),  Radius.Compute());
+    }
+};

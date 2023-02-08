@@ -1,0 +1,11 @@
+shader UnionStairsSDF : FloatFloatToFloat, HappySDF
+{
+
+    compose ComputeFloat Width;
+    compose ComputeFloat Count;
+
+    override float Compute(float a, float b)
+    {
+        return fOpUnionStairs(a, b, Width.Compute(), Count.Compute());
+    }
+};

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageId>$(AssemblyName)</PackageId>
+    <Description>Windows specific extensions to the base VL.Stride.Runtime package</Description>
+    <Authors>vvvv and open-source contributors</Authors>
+    <Company>vvvv</Company>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\*.vl" Pack="true" PackagePath=" " />
+    <!-- Setting AutoGen metadata is a hack to avoid getting picked up by asset compiler -->
+    <None Include="..\help\**\*" Link="help\%(RecursiveDir)%(Filename)%(Extension)" Pack="true" AutoGen="false" PackagePath="help\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
+    <PackageReference Include="Stride.Assets" />
+    <PackageReference Include="Stride.Assets.Models" />
+    <!-- A pure package dependency so on install all VL packages come in -->
+    <PackageReference Include="Stride.TextureConverter" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(InPrivateRepo)' == 'true'">
+    <ProjectReference Include="..\..\..\..\VL.Skia\src\VL.Skia.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(InPrivateRepo)' != 'true'">
+    <PackageReference Include="VL.Skia" PrivateAssets="all" />
+  </ItemGroup>
+  
+  <Target Name="IncludeStridePackageContent" BeforeTargets="InferPackageContents" DependsOnTargets="_StridePrepareAssetsForPack">
+    <Message Importance="high" Text="Called Stride package targets" />
+  </Target>
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.Stride.Runtime\src\VL.Stride.Runtime.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

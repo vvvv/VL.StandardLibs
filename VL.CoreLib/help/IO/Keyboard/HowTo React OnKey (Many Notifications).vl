@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="VW20djnjwBOMrqgmTNWZql" LanguageVersion="2019.2.0-0342-6bc9b61985" Version="0.128" IsTrusted="true">
+  <NugetDependency Id="AFjlJ19CzXKM0wBzxUG4tP" Location="VL.CoreLib" Version="2019.2.0-0342-g6bc9b61985" />
+  <Patch Id="FRDG5QxzZuFNi7cWEdM3fP">
+    <Canvas Id="OnYxf7hlnQHNBSlNLJ9J8n" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="IcDwzLESMIVQOv5kWg2N4p">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="U4dsE9jvnfRMBHgvTGakjr">
+        <Canvas Id="ITat0VrPGhgNMVwGTn5NbY" CanvasType="Group">
+          <Node Bounds="306,807,125,19" Id="Jzn5Hdmcu7eOtxh61IFIPO">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Renderer" />
+            </p:NodeReference>
+            <Pin Id="IC4QLhcAlNtPfKgPbRZw1J" Name="Bounds" Kind="InputPin" DefaultValue="1018, 54, 600, 400">
+              <p:TypeAnnotation LastCategoryFullName="System.Drawing" LastSymbolSource="System.Drawing.dll">
+                <Choice Kind="TypeFlag" Name="Rectangle" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="QSyGimGrfxmLOVMKjPjmxE" Name="Bound to Document" Kind="InputPin" DefaultValue="True">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="U48Sae1cM1OMfv2MkUxMcq" Name="Input" Kind="InputPin" />
+            <Pin Id="B4LnzhiWVzFNt0ZHm51WI4" Name="Color" Kind="InputPin" DefaultValue="0.24, 0.24, 0.24, 1">
+              <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="RGBA" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="IxzDJab0pEaLZZStWgy9fR" Name="Clear" Kind="InputPin" />
+            <Pin Id="R4QHOUeqoKnLruaxaCZGTc" Name="Space" Kind="InputPin" />
+            <Pin Id="NNcrOsl7j4tMnZRvFkzFaM" Name="Show Cursor" Kind="InputPin" />
+            <Pin Id="T5W2Kmu2k87LjHZBZd5UoU" Name="VSync" Kind="InputPin" />
+            <Pin Id="EMI716gHJ5UMxcf10HUsPs" Name="Enabled" Kind="InputPin" />
+            <Pin Id="Rwb41D5f4MAMABO4SwpQ7J" Name="Form" Kind="OutputPin" />
+            <Pin Id="MGBExJlaJCAL0lMAkdqbQR" Name="ClientBounds" Kind="OutputPin" />
+            <Pin Id="SMjGA6qWkMiQQZAmiqR8wI" Name="Render Time" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="346,130,65,19" Id="R67hWmxQzbmLdyauH5z3ea">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastSymbolSource="VL.Skia.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Console" />
+            </p:NodeReference>
+            <Pin Id="RgTzZfxvgy2PwNBK1bZLkv" Name="Output" Kind="OutputPin" />
+            <Pin Id="Ff5V92MDkIdM4PlnS4NA1T" Name="Mouse" Kind="OutputPin" />
+            <Pin Id="HnfEdKW1c6QM86PySpo2cM" Name="Keyboard" Kind="OutputPin" />
+            <Pin Id="QBP8lvu6jFOPZgG3a2CqhV" Name="Notifications" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="444,202,74,26" Id="TpcHaNZh4KMLxCEaD79Mgp">
+            <p:NodeReference LastCategoryFullName="IO.Keyboard.KeyboardDevice" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Notifications" />
+              <CategoryReference Kind="MutableInterfaceType" Name="KeyboardDevice" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="NZhPelwp0WELB3AycceyRX" Name="Input" Kind="StateInputPin" />
+            <Pin Id="QDusJ4IfqoqLDi2vA5Iy5a" Name="Notifications" Kind="OutputPin" />
+          </Node>
+          <Pad Id="Tzg6RNToKCMPG2wRi9KZPu" Bounds="20,134,286,89" ShowValueBox="true" isIOBox="true" Value="In this use-case of the Reactive way of responding to the keystrokes is the ability to react on several keystrokes happened between two frames (and not only the last one).">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="DaH44WNREsLONjdATnRadS" Bounds="555,619,243,75" ShowValueBox="true" isIOBox="true" Value="&lt; Press simultaniously several keys on the keyboard in the Renderer.&#xD;&#xA;They appear as a spread here.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="444,526,36,19" Id="Cw2bSuKLGwLO68uM3TTkhr">
+            <p:NodeReference LastCategoryFullName="Reactive" LastSymbolSource="VL.Reactive.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="S+H" />
+              <CategoryReference Kind="Category" Name="Reactive" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="KAcU0zWaTHVLyZ7pXfCRM2" Name="Async Notifications" Kind="InputPin" />
+            <Pin Id="K7W07jak7i8MQ2kxXTy83F" Name="Notifications" Kind="OutputPin" />
+            <Pin Id="ImaDHec9LPcNHXrBSaqIOV" Name="On Data" Kind="OutputPin" />
+          </Node>
+          <Pad Id="C5bUyoVWMpDMToxqn7d57r" Bounds="484,534,101,19" ShowValueBox="true" isIOBox="true" Value="S+H [Reactive] ">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="RAaaT5KyLWdL1ympj2BFNw" Comment="" Bounds="446,574,100,169" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="444,321,206,173" Id="KfS2v4ywFX9MxE9unqUEAu">
+            <p:NodeReference LastCategoryFullName="Reactive" LastSymbolSource="VL.Reactive.vl">
+              <Choice Kind="ProcessAppFlag" Name="ForEach (Keep)" />
+              <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+            </p:NodeReference>
+            <Pin Id="ATHB26uzN58QFGgNdI29Er" Name="Messages" Kind="InputPin" />
+            <Pin Id="DMoD2m4tcWvPd6O2ZCglSc" Name="Reset" Kind="InputPin" />
+            <Pin Id="MKUSwf3LwBWP07M6SiY7mD" Name="Result" Kind="OutputPin" />
+            <Patch Id="VEJAFZDviL2MJdDcUq1Xud" ManuallySortedPins="true">
+              <Patch Id="Q0r4pagbzFiMv61KpRrlmS" Name="Create" ManuallySortedPins="true" />
+              <Patch Id="Q9eI1ahuxs2QU4122pC7Tv" Name="Update" ManuallySortedPins="true">
+                <Pin Id="UAwGtpvXDL1QXNwcW7gKjb" Name="Notification" Kind="InputPin" />
+                <Pin Id="EDH8Yl6uLCMNjVKnfQcnpL" Name="Output" Kind="OutputPin" />
+                <Pin Id="ECM4K8ixiRFNwdRu06TRlb" Name="Keep" Kind="OutputPin" />
+              </Patch>
+              <ControlPoint Id="FHZTJkp8hkYNY7VGT6IxNA" Bounds="456,329" />
+              <ControlPoint Id="Hgwk0tRXKmwOXV0XzYvupk" Bounds="458,487" />
+              <ControlPoint Id="BuDvn2QovFXQZlHJtEutfZ" Bounds="570,485" />
+              <Node Bounds="456,393,89,26" Id="UpZc6B8gN9yLAKzaBEeLFY">
+                <p:NodeReference LastCategoryFullName="IO.Keyboard.KeyCodeNotification" LastSymbolSource="CoreLibBasics.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <CategoryReference Kind="RecordType" Name="KeyCodeNotification" />
+                  <Choice Kind="OperationCallFlag" Name="KeyCode" />
+                </p:NodeReference>
+                <Pin Id="NoL69YtHm9XPbtKq3H25Oc" Name="Input" Kind="StateInputPin" />
+                <Pin Id="AisgEnPH3GbPaDbPrKo9cV" Name="Key Code" Kind="OutputPin" />
+              </Node>
+              <Node Bounds="456,433,70,26" Id="KPR7P5UWOmoORpotDz7tJ4">
+                <p:NodeReference LastCategoryFullName="IO.Keyboard.Keys" LastSymbolSource="CoreLibBasics.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="ToKeyName" />
+                </p:NodeReference>
+                <Pin Id="QPdmkblp8G1LUzG8SE8sg4" Name="Input" Kind="StateInputPin" />
+                <Pin Id="Kq6lBrC4De4NLNUzSWyufo" Name="Result" Kind="OutputPin" />
+              </Node>
+              <Node Bounds="567,390,71,26" Id="TVfrhiRjqNEN7bUnZevifU">
+                <p:NodeReference LastCategoryFullName="IO.Keyboard.KeyNotification" LastSymbolSource="CoreLibBasics.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="IsKeyDown" />
+                </p:NodeReference>
+                <Pin Id="DrJUSTIhuUgOrJrI0yv1cF" Name="Input" Kind="StateInputPin" />
+                <Pin Id="Px63qZMNTf9OZgOiUgz3DK" Name="Is Key Down" Kind="OutputPin" />
+              </Node>
+            </Patch>
+          </Node>
+          <Node Bounds="767,201,81,19" Id="VOzFX2VA8fCNtlTLSnkvYM">
+            <p:NodeReference LastCategoryFullName="IO.Keyboard" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="KeyboardState" />
+            </p:NodeReference>
+            <Pin Id="TZqWnlhTVR4OrPAS8TvPT4" Name="Keyboard Device" Kind="InputPin" />
+            <Pin Id="UaMklvll6cOQSjdBbBmp5w" Name="Pressed Keys" Kind="OutputPin" />
+          </Node>
+          <Pad Id="KOshBqNOsLJM6kaYbzzTkO" Comment="Pressed Keys" Bounds="768,274,81,157" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="444,259,82,19" Id="T7u4N4U0AWZO78XCIQiUxk">
+            <p:NodeReference LastCategoryFullName="Reactive" LastSymbolSource="VL.Reactive.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OfType" />
+              <CategoryReference Kind="Category" Name="Reactive" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="AvrZ3BLEeRFNn5O6LF1qTG" Name="Value" Kind="InputPin" />
+            <Pin Id="KfMxb7EEBeEL46Rgjk8eDM" Name="Result" Kind="OutputPin" />
+            <Pin Id="ClcibwOoaCAQGx9wlfeKi5" Name="Changed" Kind="OutputPin" />
+          </Node>
+          <Pad Id="UsfCi0Q4LQBNSClBhfKdpp" Bounds="527,266,125,19" ShowValueBox="true" isIOBox="true" Value="OfType [Reactive] ">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="EFJOo03xezQMkdJyoLHufj" Name="Create" />
+        <Patch Id="OSltp7ZUZbGOnc9seK7FgG" Name="Update" />
+        <ProcessDefinition Id="EtVftwd8UynOnMtXbZok6w">
+          <Fragment Id="NO2JWaPbPRTNacy7O2Hrli" Patch="EFJOo03xezQMkdJyoLHufj" Enabled="true" />
+          <Fragment Id="EerdH7dU3WJPyYNT4LPoeW" Patch="OSltp7ZUZbGOnc9seK7FgG" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="MS2itlIngoyP1ILQw9VF4M" Ids="HnfEdKW1c6QM86PySpo2cM,NZhPelwp0WELB3AycceyRX" />
+        <Link Id="Kqr9wld2NtpPZsR3VFt48F" Ids="K7W07jak7i8MQ2kxXTy83F,RAaaT5KyLWdL1ympj2BFNw" />
+        <Link Id="DeuW12HjSt9NpsjyACGgJj" Ids="UAwGtpvXDL1QXNwcW7gKjb,FHZTJkp8hkYNY7VGT6IxNA" IsHidden="true" />
+        <Link Id="T8MHfEC8uvvOFbEho48Qib" Ids="Hgwk0tRXKmwOXV0XzYvupk,EDH8Yl6uLCMNjVKnfQcnpL" IsHidden="true" />
+        <Link Id="O7RSDX5bWqvN24BzgXz3Qp" Ids="BuDvn2QovFXQZlHJtEutfZ,ECM4K8ixiRFNwdRu06TRlb" IsHidden="true" />
+        <Link Id="S4BdICnFHGsPtmZ5eL6oAN" Ids="FHZTJkp8hkYNY7VGT6IxNA,DrJUSTIhuUgOrJrI0yv1cF" />
+        <Link Id="NKVJhRpGgLiNAYECyzWL9N" Ids="MKUSwf3LwBWP07M6SiY7mD,KAcU0zWaTHVLyZ7pXfCRM2" />
+        <Link Id="FMSxfARu6e8O2e1ohsr7IH" Ids="HnfEdKW1c6QM86PySpo2cM,TZqWnlhTVR4OrPAS8TvPT4" />
+        <Link Id="KvnHUFvnB8pNJs5FqqzWs8" Ids="UaMklvll6cOQSjdBbBmp5w,KOshBqNOsLJM6kaYbzzTkO" />
+        <Link Id="PD3B0ZieZWDO5VtMy2uOcQ" Ids="RgTzZfxvgy2PwNBK1bZLkv,U48Sae1cM1OMfv2MkUxMcq" />
+        <Link Id="DWZnU0VzmctMlGoB9jnsVG" Ids="AisgEnPH3GbPaDbPrKo9cV,QPdmkblp8G1LUzG8SE8sg4" />
+        <Link Id="G28xa086vVHNrIPq4QjtHN" Ids="Kq6lBrC4De4NLNUzSWyufo,Hgwk0tRXKmwOXV0XzYvupk" />
+        <Link Id="Lx6zqbeKPozLSklW1wFp0z" Ids="Px63qZMNTf9OZgOiUgz3DK,BuDvn2QovFXQZlHJtEutfZ" />
+        <Link Id="KDTSRRIRSo2PWXlXRcTGmE" Ids="QDusJ4IfqoqLDi2vA5Iy5a,AvrZ3BLEeRFNn5O6LF1qTG" />
+        <Link Id="NmCJO76LfQCP3fYavmAAfv" Ids="FHZTJkp8hkYNY7VGT6IxNA,NoL69YtHm9XPbtKq3H25Oc" />
+        <Link Id="Av1V2v2j21yLkWn0YDTp6a" Ids="KfMxb7EEBeEL46Rgjk8eDM,ATHB26uzN58QFGgNdI29Er" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="RNwZGQnJwFvMLumxtJxfSj" Location="VL.Core" Version="2019.2.0-0342-g6bc9b61985" />
+  <NugetDependency Id="DTahaNWVEEjOo4ybP1DX56" Location="VL.Skia" Version="2019.2.0-0342-g6bc9b61985" />
+</Document>

@@ -1,0 +1,22 @@
+using Stride.Rendering.ComputeEffect;
+
+namespace VL.Stride.Effects.ComputeFX
+{
+    params ComputeFXGraphKeys
+    {
+        ShaderSource ComputeFXRoot;
+    }
+
+    effect ComputeFXGraphEffect
+    {
+        using params ComputeFXGraphKeys;
+        using params ComputeEffectShaderKeys;
+                
+        mixin macro ThreadNumberX = ComputeEffectShaderKeys.ThreadNumbers.X;
+        mixin macro ThreadNumberY = ComputeEffectShaderKeys.ThreadNumbers.Y;            
+        mixin macro ThreadNumberZ = ComputeEffectShaderKeys.ThreadNumbers.Z;
+
+        mixin ComputeFXGraph;
+        mixin ComputeFXGraphKeys.ComputeFXRoot;
+    };
+}

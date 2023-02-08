@@ -1,0 +1,137 @@
+﻿<#@ template debug="true" hostspecific="false" language="C#" #>
+<#@ assembly name="System" #>
+<#@ output extension=".cs" #>
+
+// Do not modify, this is generated code!
+
+using System;
+using System.Diagnostics;
+using VL.Core;
+
+namespace VL.Lib.Control
+{
+    partial class TryCatchUtils
+    {
+<# var _numberOfInputs = 5;
+
+        for(var i=2; i<=_numberOfInputs; i++) { 
+
+            string paramsTry = "";
+            for (var j=1; j<i; j++)
+                paramsTry += "TOutput"+j + ", ";
+            paramsTry += "TOutput"+i;
+
+            string outParamsTry = "";
+            for (var j=1; j<i; j++)
+                outParamsTry += "out TOutput"+j + " output" + j + ", ";
+            outParamsTry += "out TOutput"+i + " output" + i;
+
+            string defaultTry = "";
+            for (var j=1; j<i; j++)
+                defaultTry += "TOutput"+j + " defaultOutput"+j + ", ";
+            defaultTry += "TOutput"+i + " defaultOutput"+i;
+
+            string dataParamsFinally = "";
+            for (var j=1; j<i; j++)
+                dataParamsFinally += "TData"+j + ", ";
+            dataParamsFinally += "TData"+i;
+#>
+    /// ---------------------------------------------------------------------------------------------------------
+    /// TRY <#=i#>
+    /// ---------------------------------------------------------------------------------------------------------
+    
+	///<summary>
+	///Runs the given stateless patch and returns whether it has been successful or not. Supports <#=i#> regular outputs
+	///</summary> 
+        public static void Try<#=i#><<#=paramsTry#>>(
+        Func<Tuple< <#=paramsTry#> >> @try, 
+        <#=defaultTry#>, 
+        <#=outParamsTry#>, 
+        out bool success, 
+        out string errorMessage)
+        {
+            success = true;
+            errorMessage = "";
+            try
+            {
+                var result = @try();
+<# for (var j=1; j<i+1; j++) { #>
+                output<#= j #> = result.Item<#= j #>;
+<# } #>
+            }
+            catch (Exception e)
+            {
+                success = false;
+                errorMessage = e.InnermostException().Message;
+
+<# for (var j=1; j<i+1; j++) { #>
+                output<#= j #> = defaultOutput<#= j #>;
+<# } #>
+            }
+        }
+
+    /// ---------------------------------------------------------------------------------------------------------
+    /// TRYCATCH <#=i#>
+    /// ---------------------------------------------------------------------------------------------------------
+
+	///<summary>
+	///Runs the given stateless patch, runs Catch instead if it has been unsuccessful. Supports <#=i#> regular outputs
+	///</summary> 
+    public static void TryCatch<#=i#><<#=paramsTry#>>(
+        Func<Tuple< <#=paramsTry#> >> @try,
+        Func<Exception, Tuple< <#=paramsTry#> >> @catch, 
+        <#=outParamsTry#>)
+        {
+            try
+            {
+                var result = @try();
+<# for (var j=1; j<i+1; j++) { #>
+                output<#= j #> = result.Item<#= j #>;
+<# } #>
+            }
+            catch (Exception e)
+            {
+                var result = @catch(e);
+<# for (var j=1; j<i+1; j++) { #>
+                output<#= j #> = result.Item<#= j #>;
+<# } #>
+            }
+        }
+
+/// ---------------------------------------------------------------------------------------------------------
+    /// TRYCATCHFINALLY <#=i#>
+    /// ---------------------------------------------------------------------------------------------------------
+
+	///<summary>
+	///Runs the given stateless patch, runs Catch instead if it has been unsuccessful. Guarantees to run Finally afterwards. Supports <#=i#> regular outputs
+	///</summary>
+    public static void TryCatchFinally<#=i#>< <#=paramsTry#>, <#=dataParamsFinally#> >(
+        Func<Tuple< <#=dataParamsFinally#> >> @try,
+        Func<Exception, Tuple< <#=dataParamsFinally#> >> @catch, 
+        Func<Tuple< <#=dataParamsFinally#> >, Tuple< <#=paramsTry#> >> @finally,
+        <#=outParamsTry#>)
+        {
+
+            Tuple< <#=dataParamsFinally#> > inter = null;
+            Tuple< <#=paramsTry#> > final;
+            try
+            {
+                inter = @try();
+            }
+            catch (Exception e)
+            {
+                inter = @catch(e);
+            }
+            finally
+            {
+                final = @finally(inter);
+            }
+<# for (var j=1; j<i+1; j++) { #>
+            output<#= j #> = final.Item<#= j #>;
+<# } #>
+        }
+
+
+<# }#>
+    }
+}

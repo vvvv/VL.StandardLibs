@@ -1,0 +1,102 @@
+[Summary("Simulates the head movement of the trails")]
+shader HeadSimulation_ComputeFX : ComputeShaderBase, ShaderUtils, TrailHeadStruct, Global, HappyNoise
+{
+    StructuredBuffer<float4> RandomValues;
+    StructuredBuffer<float4> Colors;
+	RWStructuredBuffer<TrailHead> Heads; // state
+
+    float Speed = 0.01f;
+    float Mass = 0.5f;
+    int Quantization = 2;
+
+    float3 QuantizeDirection1(float3 v)
+    {
+        float3 sigV = sign(v);
+        float3 absV = abs(v);
+
+        float m = min(min(absV.x, absV.y), absV.z);
+
+        absV /= m;
+        absV -= 1;
+        return normalize(absV) * sigV;
+    }
+
+    float3 QuantizeDirection2(float3 v)
+    {
+        float3 sigV = sign(v);
+        float3 absV = abs(v);
+
+        float m = min(min(absV.x, absV.y), absV.z);
+
+        absV -= m;
+        absV = absV > 0 ? 1 : 0;
+        return normalize(absV) * sigV;
+    }
+
+    float3 QuantizeDirection3(float3 v)
+    {
+        float3 sigV = sign(v);
+        float3 absV = abs(v);
+
+        float m = max(max(absV.x, absV.y), absV.z);
+
+        absV /= m;
+        absV = floor(absV);
+        return absV * sigV;
+    }
+
+    override void Compute()
+    {
+        uint index = streams.DispatchThreadId.x;
+        
+        // get last frame
+        TrailHead p = Heads[index];
+
+        // random values
+        float4 rnd = RandomValues[index];
+
+        // fixed life time
+        float lifetime = abs(rnd.w) * 10 + 5;
+
+        float dt = 0.04; //fixed time step
+        // float dt = min(TimeStep, 0.04); // real-time time step
+        float dt2 = dt * dt;
+        p.Age += dt / lifetime;
+
+        // reset
+        if (p.Age > 1)
+        {
+            p.Pos = rnd.xyz * 2;
+            p.OldPos = p.Pos - rnd.xyz * 0.01;
+            p.Age = 0;
+            p.Col = ColorUtility.ToLinear(Colors[index % 3]);
+        }
+
+        // get force from noise vector field
+        float4 noise = simplexGrad(p.Pos.xyz * 0.8 + Time * 0.01);
+
+        // calc acceleration
+        float3 acc = noise.yzw * 0.8;
+        
+        // verlet integration
+        float3 oldPos = p.OldPos;
+        p.OldPos = p.Pos;
+
+        float3 v = (p.Pos - oldPos) * Mass + acc * dt2;
+
+        // quantize direction
+        switch (Quantization % 4)
+        {
+            case 0: v = normalize(v); break;
+            case 1: v = QuantizeDirection1(v); break;
+            case 2: v = QuantizeDirection2(v); break;
+            case 3: v = QuantizeDirection3(v); break;
+        }
+
+        // advance position
+        p.Pos += v * Speed;
+
+        // write back state
+        Heads[index] = p;
+    }
+};

@@ -1,0 +1,14 @@
+﻿[Category("Utils")]
+[Tags("r g b a")]
+[OutputFormat("R32_Float")]
+shader GetChannel_TextureFX : FilterBase
+{
+    [Summary("The channel to retreive from the input texture")]
+    [EnumType("VL.Stride.Effects.TextureFX.TextureChannel")]
+    uint TextureChannel;
+
+    float4 Filter(float4 tex0col)
+    {
+        return tex0col[TextureChannel];
+    }
+};

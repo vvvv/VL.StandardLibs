@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="V8YyegaqSA2PTr46UHjj6o" LanguageVersion="2019.2.0-0364-c2e5170031" Version="0.128">
+  <NugetDependency Id="KXfuuQjumacOHNWF1OtvUV" Location="VL.CoreLib" Version="2019.2.0-0364-gc2e5170031" />
+  <Patch Id="QfXTVTCxV1gMWyHgu5Y3lt">
+    <Canvas Id="U928rOzEGt4LjpOzLHEvDT" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="E9E4QLyy5dvOzo4NKM7gL5">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="RPhnkjiWsIfLt3STki1iB1">
+        <Canvas Id="IxizgiVqlSdNZhGDRSQmgR" CanvasType="Group">
+          <Pad Id="GYYjDhN7boRLUVTPyL96iA" Bounds="119,145,216,30" ShowValueBox="true" isIOBox="true" Value="Use an IndexOf node!">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="URFEXD6U1AYQA2z0mBPzCW" Bounds="119,183,205,62" ShowValueBox="true" isIOBox="true" Value="To get the index of the item in the spread or -1 if the item is not in the spread.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="RaifOdaHZU9NjKtwV2ydze" Comment="" Bounds="387,229,141,95" ShowValueBox="true" isIOBox="true">
+            <p:TypeAnnotation LastCategoryFullName="Collections" LastSymbolSource="VL.Collections.vl">
+              <Choice Kind="TypeFlag" Name="Spread" />
+              <p:TypeArguments>
+                <TypeReference LastCategoryFullName="Color" LastSymbolSource="CoreLibBasics.vl">
+                  <Choice Kind="TypeFlag" Name="RGBA" />
+                </TypeReference>
+              </p:TypeArguments>
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:showentryindex p:Type="Boolean">true</p:showentryindex>
+              <p:showvalue p:Type="Boolean">true</p:showvalue>
+            </p:ValueBoxSettings>
+            <p:Value>
+              <Item>1, 0, 0, 1</Item>
+              <Item>0, 0, 1, 1</Item>
+              <Item>0, 0, 1, 1</Item>
+              <Item>0, 0, 1, 1</Item>
+              <Item>0, 0.5019608, 0, 1</Item>
+            </p:Value>
+          </Pad>
+          <Pad Id="RV2RvBRogwzPCvFBTJq2RN" Bounds="615,145,231,29" ShowValueBox="true" isIOBox="true" Value="Use a Contains node!">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="RA5n7sv6QM9QUk7wEQarcR" Bounds="615,183,177,42" ShowValueBox="true" isIOBox="true" Value="To only find out if an items is contained in the spread.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="143,486,52,26" Id="U1reGQe9QOvMrxZ5g3FODt">
+            <p:NodeReference LastCategoryFullName="Collections.Spread" LastSymbolSource="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="RecordType" Name="Spread" />
+              <Choice Kind="OperationCallFlag" Name="IndexOf" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="Uw3gmXoO5PZPtZjduDHJLB" Name="Input" Kind="StateInputPin" />
+            <Pin Id="UC3jhBFE5rkO5s53VSbLK2" Name="Item" Kind="InputPin" />
+            <Pin Id="QMVoemsfmNDMRG4EGFLzFP" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="652,486,56,26" Id="CD1Bk3nFLAuQJLPwtQggVc">
+            <p:NodeReference LastCategoryFullName="Collections.Spread" LastSymbolSource="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Contains" />
+              <CategoryReference Kind="RecordType" Name="Spread" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="IRomsIyYL0dMU8hzGI6B8A" Name="Input" Kind="StateInputPin" />
+            <Pin Id="KrnHa2llnNjMAVM4jBUfQA" Name="Item" Kind="InputPin" />
+            <Pin Id="RpIaau0v9HSOrDWOsuEKLi" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="CHgXdhAPBpyLA18NzNTXcl" Comment="Item" Bounds="192,463,136,15" ShowValueBox="true" isIOBox="true" Value="0, 0.5019608, 0, 1">
+            <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="RGBA" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="ClHbIgzsVChPHqqfZ8C9J0" Comment="" Bounds="145,545,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="AawMT2NPx2SMCCLZJhiFxS" Comment="Item" Bounds="705,463,136,15" ShowValueBox="true" isIOBox="true" Value="0, 0, 1, 1">
+            <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="RGBA" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="AjoTY3DkgIsPFhNVLfQHxA" Comment="" Bounds="654,545,35,35" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="311,712,85,19" Id="UYhZld5SVLkL9LIQjmtcNb">
+            <p:NodeReference LastCategoryFullName="Collections" LastSymbolSource="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="BinarySearch" />
+              <CategoryReference Kind="Category" Name="Collections" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="KeBdpxz1mCJPWfpxQKWz7k" Name="Input" Kind="InputPin" />
+            <Pin Id="Nl4ZSnnH12MMpWj2iR62ds" Name="Search Key" Kind="InputPin" />
+            <Pin Id="HGej292PcjOOerCiSmzI1Z" Name="Lower Value" Kind="OutputPin" />
+            <Pin Id="UR2vFKsB5dqPFWiGzimtky" Name="Upper value" Kind="OutputPin" />
+            <Pin Id="SYMQbeP2TkDP5XTQXYkWl2" Name="Lower Index" Kind="OutputPin" />
+            <Pin Id="IKj92Hrcf08OfFACNZF1se" Name="Upper Index" Kind="OutputPin" />
+            <Pin Id="IvIpAHfOmz6P2vSL90INCT" Name="Success" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="610,710,88,95" Id="IKCQvyH4kvmMcRuwl40HwE">
+            <p:NodeReference LastCategoryFullName="Collections" LastSymbolSource="VL.Collections.vl">
+              <CategoryReference Kind="Category" Name="Collections" />
+              <Choice Kind="OperationCallFlag" Name="IndexOf (KeySelector)" />
+              <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
+            </p:NodeReference>
+            <Pin Id="ACEn1yopjpTO4Xqi4o8yse" Name="Input" Kind="InputPin" />
+            <Pin Id="Up78b4CTpFgNL4ZI3gD9wJ" Name="Key" Kind="InputPin" />
+            <Pin Id="UV4bnzkADVFMuCrCmJEuiz" Name="Index" Kind="OutputPin" />
+            <Pin Id="NCdu522PVCJQcF1O7SGwlF" Name="Success" Kind="OutputPin" />
+            <Patch Id="JjztCWyITDhMSBfAr5cpoW" Name="Key Selector" ManuallySortedPins="true">
+              <Pin Id="HfyAbfIgjFqOPAuNKlvwwQ" Name="Input" Kind="InputPin" />
+              <Pin Id="GQl5HmLwcErMLHzMnaoHJr" Name="Result" Kind="OutputPin" />
+              <ControlPoint Id="F3IQFKf5WgBLgN3KCDjCK6" Bounds="614,718" />
+              <ControlPoint Id="Q0tXxaBb4CyP97IEgWP41k" Bounds="655,798" />
+            </Patch>
+          </Node>
+          <Node Bounds="464,713,88,95" Id="HcH63eKL5Q5NMLRlBka3bP">
+            <p:NodeReference LastCategoryFullName="Collections" LastSymbolSource="VL.Collections.vl">
+              <Choice Kind="OperationCallFlag" Name="Search (KeySelector)" />
+              <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
+            </p:NodeReference>
+            <Pin Id="LJkUAs7gaK9L6lsNCv7I4j" Name="Input" Kind="InputPin" />
+            <Pin Id="V0sXcgvzDN8OC8h6yqRgMf" Name="Default Value" Kind="InputPin" />
+            <Pin Id="LdwL1ZRXzjDQUfA0Zt2TOa" Name="Key" Kind="InputPin" />
+            <Pin Id="LRofXYe4EogMQSRsh2X45O" Name="Result" Kind="OutputPin" />
+            <Pin Id="VuVe8JV0ZFgMmWgHHlC4FA" Name="Index" Kind="OutputPin" />
+            <Pin Id="AxSTdPCKKGDPx3DFu23Jk4" Name="Success" Kind="OutputPin" />
+            <Patch Id="Ucsz8HLOYhNMoLU0jdIrjy" Name="Key Selector" ManuallySortedPins="true">
+              <Pin Id="GRMoRE0r94XPCyVFcU74g7" Name="Input" Kind="InputPin" />
+              <Pin Id="VmnSgYtR8lWMIJNE3TPkkR" Name="Result" Kind="OutputPin" />
+              <ControlPoint Id="U1TMkGSW9CrMXzx4GAwdmF" Bounds="468,721" />
+              <ControlPoint Id="H1F91ocAztZOaIpjMbKIaO" Bounds="468,801" />
+            </Patch>
+          </Node>
+          <Node Bounds="311,743,46,19" Id="UfpCIyHqh1KQYK4wNS3riB">
+            <p:NodeReference LastCategoryFullName="Collections" LastSymbolSource="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Search" />
+            </p:NodeReference>
+            <Pin Id="RaK3utPTtxEMSVG1F3apPW" Name="Input" Kind="InputPin" />
+            <Pin Id="CPVh9LtUAoIMBqyhCh2Bly" Name="Default Value" Kind="InputPin" />
+            <Pin Id="H8ZuypzXngOOn3MIqkfnf6" Name="Item" Kind="InputPin" />
+            <Pin Id="PJJSN4yewlgOMwdVcvlqtj" Name="Result" Kind="OutputPin" />
+            <Pin Id="G3ui4eamayUNuelTRqQ0GU" Name="Index" Kind="OutputPin" />
+            <Pin Id="OksSLEO5vRdMQyKeHRzh6B" Name="Success" Kind="OutputPin" />
+          </Node>
+          <Pad Id="RbAQowcxClZMySO7YOh8U8" Bounds="304,681,60,19" ShowValueBox="true" isIOBox="true" Value="See also:">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="GHtBwe4EK97PJpQ8wjnTkb" Name="Create" />
+        <Patch Id="IMKBHyxwzMFOG8s1J9VqA6" Name="Update" />
+        <ProcessDefinition Id="AuTHusIrAjmN9zJp6jugH8">
+          <Fragment Id="An3XskUfKogO4TCINOipwk" Patch="GHtBwe4EK97PJpQ8wjnTkb" Enabled="true" />
+          <Fragment Id="Vj5jvtcuyW6P59cMoDlyiD" Patch="IMKBHyxwzMFOG8s1J9VqA6" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="GMN7BX3ATbhNwdR81mQJKD" Ids="RaifOdaHZU9NjKtwV2ydze,Uw3gmXoO5PZPtZjduDHJLB" />
+        <Link Id="EWYbtPZ6wYXLKa6SzTEWbJ" Ids="CHgXdhAPBpyLA18NzNTXcl,UC3jhBFE5rkO5s53VSbLK2" />
+        <Link Id="UXBvOdVwmSfMzbzYogJfBj" Ids="QMVoemsfmNDMRG4EGFLzFP,ClHbIgzsVChPHqqfZ8C9J0" />
+        <Link Id="Jr91r8si0lKNWgdaR3mAwc" Ids="RaifOdaHZU9NjKtwV2ydze,IRomsIyYL0dMU8hzGI6B8A" />
+        <Link Id="SZGd02MrOHxPX71vYR6emm" Ids="AawMT2NPx2SMCCLZJhiFxS,KrnHa2llnNjMAVM4jBUfQA" />
+        <Link Id="MVueKS1fIGaK9W3NCrseRz" Ids="RpIaau0v9HSOrDWOsuEKLi,AjoTY3DkgIsPFhNVLfQHxA" />
+        <Link Id="Qmjp3Qr6tjBMQXdOeP0XIn" Ids="HfyAbfIgjFqOPAuNKlvwwQ,F3IQFKf5WgBLgN3KCDjCK6" IsHidden="true" />
+        <Link Id="OoGVYOYIdgVNbJx6KG93li" Ids="Q0tXxaBb4CyP97IEgWP41k,GQl5HmLwcErMLHzMnaoHJr" IsHidden="true" />
+        <Link Id="LJud07QWSfPOUBARC7XM09" Ids="GRMoRE0r94XPCyVFcU74g7,U1TMkGSW9CrMXzx4GAwdmF" IsHidden="true" />
+        <Link Id="B5OOrLRl1ZlMIIxziv0iVL" Ids="H1F91ocAztZOaIpjMbKIaO,VmnSgYtR8lWMIJNE3TPkkR" IsHidden="true" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="PTGGt2vIbCrMOzW6dEKKqU" Location="VL.Skia" Version="2019.2.0-0364-gc2e5170031" />
+</Document>

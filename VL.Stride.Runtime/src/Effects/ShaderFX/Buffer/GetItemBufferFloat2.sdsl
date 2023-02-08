@@ -1,0 +1,9 @@
+﻿shader GetItemBufferFloat2<LinkType BufferName, MemberName BufferResourceGroupName> : ComputeFloat2, DeclBufferFloat2<BufferName, BufferResourceGroupName>
+{
+    compose ComputeUInt Index;
+
+    override float2 Compute()
+    {
+        return DynamicBuffer[Index.Compute()];
+    }   
+};

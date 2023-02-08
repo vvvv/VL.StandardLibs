@@ -1,0 +1,124 @@
+shader TransformUtils : HappyTransform
+{
+    void TransformTSWithInverse(float3 translation, float3 scaling, out float4x4 m, out float4x4 im)
+    {
+        float3 inverseScaling = 1.0 / scaling;
+
+        m = identity4x4();
+        im = identity4x4();
+
+        // scale rows
+        m[0][0] = scaling.x;
+        m[1][1] = scaling.y;
+        m[2][2] = scaling.z;
+
+        // set position
+        m[3].xyz = translation.xyz;
+
+        // inv position
+        im[3].xyz = -translation.xyz * inverseScaling;
+        
+        // inv scale
+        im[0][0] = inverseScaling.x;
+        im[1][1] = inverseScaling.y;
+        im[2][2] = inverseScaling.z;
+    }
+
+    void TransformTRWithInverse(float3 translation, float3 rotation, out float4x4 m, out float4x4 im)
+    {
+        im = identity4x4();
+
+        // calc rotation
+        m = rot4x4(rotation);
+        float4x4 inverseRotation = transpose(m);
+
+        // set position
+        m[3].xyz = translation.xyz;
+
+        // inv position
+        im[3].xyz = -translation.xyz;
+        
+        // inv rotation
+        im = mul(im, inverseRotation);
+    }
+
+    // quaternion rotation
+    void TransformTRWithInverse(float3 translation, float4 rotation, out float4x4 m, out float4x4 im)
+    {
+        im = identity4x4();
+
+        // calc rotation
+        m = qRot4x4(rotation);
+        float4x4 inverseRotation = transpose(m);
+
+        // set position
+        m[3].xyz = translation.xyz;
+
+        // inv position
+        im[3].xyz = -translation.xyz;
+        
+        // inv rotation
+        im = mul(im, inverseRotation);
+    }
+
+    void TransformTRSWithInverse(float3 translation, float3 rotation, float3 scaling, out float4x4 m, out float4x4 im)
+    {
+        float3 inverseScaling = 1.0 / scaling;
+
+        im = identity4x4();
+
+        // calc rotation
+        m = rot4x4(rotation);
+        float4x4 inverseRotation = transpose(m);
+
+        // scale rows
+        m[0] *= scaling.x;
+        m[1] *= scaling.y;
+        m[2] *= scaling.z;
+
+        // set position
+        m[3].xyz = translation.xyz;
+
+        // inv position
+        im[3].xyz = -translation.xyz;
+        
+        // inv rotation
+        im = mul(im, inverseRotation);
+
+        // inv scale
+        im._11_21_31_41 *= inverseScaling.x;
+        im._12_22_32_42 *= inverseScaling.y;
+        im._13_23_33_43 *= inverseScaling.z;
+    }
+
+    // quaternion rotation
+    void TransformTRSWithInverse(float3 translation, float4 rotation, float3 scaling, out float4x4 m, out float4x4 im)
+    {
+        float3 inverseScaling = 1.0 / scaling;
+
+        im = identity4x4();
+
+        // calc rotation
+        m = qRot4x4(rotation);
+        float4x4 inverseRotation = transpose(m);
+
+        // scale rows
+        m[0] *= scaling.x;
+        m[1] *= scaling.y;
+        m[2] *= scaling.z;
+
+        // set position
+        m[3].xyz = translation.xyz;
+
+        // inv position
+        im[3].xyz = -translation.xyz;
+        
+        // inv rotation
+        im = mul(im, inverseRotation);
+
+        // inv scale
+        im._11_21_31_41 *= inverseScaling.x;
+        im._12_22_32_42 *= inverseScaling.y;
+        im._13_23_33_43 *= inverseScaling.z;
+    }
+};

@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="A93NI5InptZPJ7UPcm6evP" LanguageVersion="2019.2.0-0354-2bcf04a678" Version="0.128">
+  <NugetDependency Id="Pdwi7eJLF93NDbynZh5tNB" Location="VL.CoreLib" Version="2019.2.0-0354-g2bcf04a678" />
+  <Patch Id="BFeHf229CNdQZYNuoWvSNw">
+    <Canvas Id="OHBhKxype2ALATNlngbqoB" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="JGdgWLeaEAPMU3RiuEk8mC">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="V6VXzrdcRRXMCAVt3BlN9A">
+        <Canvas Id="F9xJb5pn6HwLCkB8Vh5Vaa" CanvasType="Group">
+          <Pad Id="F1OWhZcr5kjQdAcHrH6BXa" Comment="Input Signal" Bounds="144,210,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="SdCLkL8v71kNMOY0OovN88" Bounds="130,100,170,30" ShowValueBox="true" isIOBox="true" Value="Use a TogEdge!">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="142,264,56,19" Id="UFh8mYs3imHMPBTtr7qVGh">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="TogEdge" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="R1ITGyFHMJMQJLQnclV20v" Name="Value" Kind="InputPin" />
+            <Pin Id="HVBvlac8tuJMmtrVJVENF2" Name="Up Edge" Kind="OutputPin" />
+            <Pin Id="LFsaHQoH0iuOm3zVGrXE4B" Name="Down Edge" Kind="OutputPin" />
+          </Node>
+          <Pad Id="IIMWuLhE7NoNptRmnMXTm8" Comment="Up Edge" Bounds="144,474,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="NbmO79LgV2MMF3TUteOvg0" Comment="Down Edge" Bounds="249,475,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="247,410,65,19" Id="P26IPNRvHzYP0LK2dTIdoJ">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="MonoFlop" />
+            </p:NodeReference>
+            <Pin Id="C0uQKIBryugNJF0zM2M1v2" Name="Set" Kind="InputPin" />
+            <Pin Id="LV5XPFfj4cjLg7WZzBZZrI" Name="Time" Kind="InputPin" />
+            <Pin Id="CtI9v4kj4UjOKuqwfBK96d" Name="Retriggerable" Kind="InputPin" />
+            <Pin Id="DH6v6NOsM6kQWmPbgmYjM9" Name="Reset" Kind="InputPin" />
+            <Pin Id="RmaKqPqT9n6OBee8MWDtx8" Name="Value" Kind="OutputPin" />
+            <Pin Id="I57g4RmLDJtOx0fdSch5Jl" Name="Inverse Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="142,409,65,19" Id="IGg33iS3YfDMMQ61d3FcYR">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="MonoFlop" />
+            </p:NodeReference>
+            <Pin Id="CpCmCZktefVMLdiEfUJ49h" Name="Set" Kind="InputPin" />
+            <Pin Id="Eg7BmLlrit9NBzAPdJsQpd" Name="Time" Kind="InputPin" />
+            <Pin Id="CesjUo6CP5yP4PrtTDYFN8" Name="Retriggerable" Kind="InputPin" />
+            <Pin Id="GHWSQw8JnZiNMqx8NeMIfX" Name="Reset" Kind="InputPin" />
+            <Pin Id="VwF8IBlbE1IPyfR7hDCiBB" Name="Value" Kind="OutputPin" />
+            <Pin Id="VW7GIbUCYEnLhmUqxuEJ3f" Name="Inverse Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="UaC4kKAUH6ALTOJDWahoq5" Bounds="149,302,283,39" ShowValueBox="true" isIOBox="true" Value="&lt; Bangs for 1 frame when the input changes from 0 to 1, ie on an 'Up Edge'.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="NcH6ccZX1RDMRnsevu2iIy" Bounds="244,359,279,40" ShowValueBox="true" isIOBox="true" Value="&lt; Bangs for 1 frame when the input changes from 1 down to 0, ie on an 'Down Edge'.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="TMFMkcZDcYUNKxGjByaXt0" Name="Create" />
+        <Patch Id="JXnEepVfp1ZPHJ6XEXlYmq" Name="Update" />
+        <ProcessDefinition Id="PFgKBkpW7PUPHAbbTibV8o">
+          <Fragment Id="PqNb0bMJ2LpMa4yVn8UEkg" Patch="TMFMkcZDcYUNKxGjByaXt0" Enabled="true" />
+          <Fragment Id="ODUmKAYIE3gQLd6PgibatE" Patch="JXnEepVfp1ZPHJ6XEXlYmq" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="DxWc2kZof71MmMgSY3rV9o" Ids="F1OWhZcr5kjQdAcHrH6BXa,R1ITGyFHMJMQJLQnclV20v" />
+        <Link Id="TykUUaTJKvVPRJmy6AQRuE" Ids="LFsaHQoH0iuOm3zVGrXE4B,C0uQKIBryugNJF0zM2M1v2" />
+        <Link Id="SECU2sFN8m4N8OgAtw5h8L" Ids="RmaKqPqT9n6OBee8MWDtx8,NbmO79LgV2MMF3TUteOvg0" />
+        <Link Id="Gba72Uvmqy8N0gX0OxoVy4" Ids="HVBvlac8tuJMmtrVJVENF2,CpCmCZktefVMLdiEfUJ49h" />
+        <Link Id="P9Ur02ozeZZLPnUFDUViIs" Ids="VwF8IBlbE1IPyfR7hDCiBB,IIMWuLhE7NoNptRmnMXTm8" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="DpfZjzYVeVBPuxHMXkx929" Location="VL.Skia" Version="2019.2.0-0354-g2bcf04a678" />
+</Document>

@@ -1,0 +1,38 @@
+// source:
+// https://github.com/vvvv/vvvv-sdk/blob/develop/vvvv45/addonpack/lib/nodes/modules/TextureFX/Filter/Sharpen/Sharpen.fx
+
+[Category("Filter")]
+[Summary("")]
+[WantsMips("Texture0")]
+shader Sharpen_TextureFX : FilterBase
+{
+    float Amount = 0.1f;
+    float Radius = 0.0f;
+    float Saturation = 0.0f;
+    float Gamma = 0.0f;
+  
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float2 R = ViewSize;
+
+        float4 col = Texture0.SampleLevel(Sampler0, uv, 0);
+    
+        float maxl = log2(max(R.x, R.y)) + 0.5;
+        float4 sh = 0;
+   
+        sh.rgb += (Texture0.SampleLevel(Sampler0, uv, 0 + maxl * saturate(Radius)) 
+                 - Texture0.SampleLevel(Sampler0, uv, 1 + maxl * saturate(Radius))) 
+                 * 128 * Amount/pow(2, Radius/max(R.x, R.y) * pow(2,maxl*Radius));
+    
+        sh.rgb = lerp(dot(sh.rgb, 1.0) / 3.0, sh.rgb, Saturation);
+    
+        sh.rgb = sign(sh.rgb) * pow(abs(sh.rgb)*5, pow(2,Gamma*2))/5;
+        
+        sh /= 1 + col;
+
+        col.rgb *= pow(2,sh);
+    
+        return col;
+    }
+};

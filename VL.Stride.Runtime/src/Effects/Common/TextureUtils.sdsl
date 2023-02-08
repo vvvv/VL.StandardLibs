@@ -1,0 +1,344 @@
+﻿shader TextureUtils : Texturing, ShaderUtils
+{
+
+    // ----------- fast Expanded 9-tab filter used in Call of Duty and Stride
+    float4 SampleExpanded(in Texture2D tex, in float2 uv)
+    {
+        // "call of duty"-type of h4x4 checker box, but reduced to 9 picks instead of 13:
+        float2 jitters[] = {
+            float2(-2.0, 0.0),
+            float2(0.0, 0.0),
+            float2(2.0, 0.0),
+            float2(-1.0, 1.0),
+            float2(1.0, 1.0),
+            float2(-1.0, -1.0),
+            float2(1.0, -1.0),
+            float2(0.0, 2.0),
+            float2(0.0, -2.0)
+        };
+
+        float w, h;
+        tex.GetDimensions(w, h);
+        float2 texelSize = 1.0 / float2(w, h);
+
+        float weightSum = 0;
+        float4 color = 0;
+
+        [unroll]
+        for (uint j = 0; j < 9; ++j)
+        {
+            float2 jitter = jitters[j];
+            float dist = max(abs(jitter.x), abs(jitter.y));
+            float weight = 3 - dist;
+            float2 samplePos = streams.TexCoord + jitter * texelSize;
+            color += weight * tex.Sample(LinearSampler, samplePos);
+            weightSum += weight;
+        }
+        
+        return color / weightSum;
+    }
+
+    // ----------- very fast cubic B-Spline 4-tab filter from GPU Gems
+    float4 SampleCubicBSpline(in Texture2D tex, in SamplerState linearSampler, in float2 uv)
+    {
+        float w, h;
+        tex.GetDimensions(w, h);
+        return SampleTextureBicubic(tex, linearSampler, uv, float2(w, h));
+    }
+
+    float3 BSplineFilter(float x)
+    {
+        x = frac(x);
+        x = 1 - x;
+        float x2 = x*x;
+        float x3 = x2*x;
+        float w0 = (  -x3 + 3*x2 - 3*x + 1)/6.0;
+        float w1 = ( 3*x3 - 6*x2       + 4)/6.0;
+        float w2 = (-3*x3 + 3*x2 + 3*x + 1)/6.0;
+        float w3 = x3/6.0;
+
+        float h0 = 1 - w1/(w0+w1) + x;
+        float h1 = 1 + w3/(w2+w3) - x;
+
+        return float3(h0, h1, w0+w1);
+    }
+
+    //texture lookup
+    float4 SampleTextureBicubic(in Texture2D tex, in SamplerState linearSampler, in float2 uv, in float2 texSize)
+    {
+        //pixel size XY
+        float2 pix = 1.0/texSize;
+
+        // float2 w = uv * texSize - 0.5;
+        float2 w = uv * texSize - 0.5;
+
+        // fetch offsets and weights from filter texture
+        float3 hg_x = BSplineFilter( w.x );
+        float3 hg_y = BSplineFilter( w.y );
+
+        float2 e_x = float2(pix.x, 0);
+        float2 e_y = float2(0, pix.y);
+
+        // determine linear sampling coordinates
+        float2 coord_source10 = uv + hg_x.x * e_x;
+        float2 coord_source00 = uv - hg_x.y * e_x;
+        float2 coord_source11 = coord_source10 + hg_y.x * e_y;
+        float2 coord_source01 = coord_source00 + hg_y.x * e_y;
+        coord_source10 = coord_source10 - hg_y.y * e_y;
+        coord_source00 = coord_source00 - hg_y.y * e_y;
+
+        // fetch four linearly interpolated inputs
+        float4 tex_source00 = tex.SampleLevel(linearSampler, coord_source00, 0);
+        float4 tex_source10 = tex.SampleLevel(linearSampler, coord_source10, 0);
+        float4 tex_source01 = tex.SampleLevel(linearSampler, coord_source01, 0);
+        float4 tex_source11 = tex.SampleLevel(linearSampler, coord_source11, 0);
+
+        // weight along y direction
+        tex_source00 = lerp( tex_source00, tex_source01, hg_y.z );
+        tex_source10 = lerp( tex_source10, tex_source11, hg_y.z );
+
+        // weight along x direction
+        tex_source00 = lerp( tex_source00, tex_source10, hg_x.z );
+
+        return tex_source00;
+    }
+
+    [Optional]
+    [Asset("Textures/bicubic_filterkernel")]
+    stage Texture2D BicubicFilterKernel;
+
+    float4 SampleCubicBSplineLUT(in Texture2D tex, in float2 uv)
+    {
+        float w, h;
+        tex.GetDimensions(w, h);
+        return SampleTextureBicubicLUT(tex, BicubicFilterKernel, Sampler0, uv, float2(w, h));
+    }
+
+    float4 SampleTextureBicubicLUT(in Texture2D tex, in Texture2D kernel, in SamplerState linearSampler, in float2 uv, in float2 texSize)
+    {
+
+        //pixel size XY
+        float2 pix = 1.0/texSize;
+
+        //calc filter texture coordinates
+        float2 w = uv * texSize - 0.5;
+
+        // fetch offsets and weights from filter function
+        float3 hg_x = kernel.SampleLevel(RepeatSampler, float2(w.x, 0), 0).xyz;
+        float3 hg_y = kernel.SampleLevel(RepeatSampler, float2(w.y, 0), 0).xyz;
+
+        float2 e_x = float2(pix.x, 0);
+        float2 e_y = float2(0, pix.y);
+
+        // determine linear sampling coordinates
+        float2 coord_source10 = uv + hg_x.x * e_x;
+        float2 coord_source00 = uv - hg_x.y * e_x;
+        float2 coord_source11 = coord_source10 + hg_y.x * e_y;
+        float2 coord_source01 = coord_source00 + hg_y.x * e_y;
+        coord_source10 = coord_source10 - hg_y.y * e_y;
+        coord_source00 = coord_source00 - hg_y.y * e_y;
+
+        // fetch four linearly interpolated inputs
+        float4 tex_source00 = tex.SampleLevel(Sampler0, coord_source00, 0);
+        float4 tex_source10 = tex.SampleLevel(Sampler0, coord_source10, 0);
+        float4 tex_source01 = tex.SampleLevel(Sampler0, coord_source01, 0);
+        float4 tex_source11 = tex.SampleLevel(Sampler0, coord_source11, 0);
+
+        // weight along y direction
+        tex_source00 = lerp( tex_source00, tex_source01, hg_y.z );
+        tex_source10 = lerp( tex_source10, tex_source11, hg_y.z );
+
+        // weight along x direction
+        tex_source00 = lerp( tex_source00, tex_source10, hg_x.z );
+
+        return tex_source00;
+    }
+
+    // ----------- fast cubic Catmull-Rom 9-tab filter from https://vec3.ca/bicubic-filtering-in-fewer-taps/
+    float4 SampleCubicCatmullRom(in Texture2D tex, in SamplerState linearSampler, in float2 uv)
+    {
+        float w, h;
+        tex.GetDimensions(w, h);
+        return SampleTextureCatmullRom(tex, linearSampler, uv, float2(w, h));
+    }
+
+    // Samples a texture with Catmull-Rom filtering, using 9 texture fetches instead of 16.
+    float4 SampleTextureCatmullRom(in Texture2D tex, in SamplerState linearSampler, in float2 uv, in float2 texSize)
+    {
+        // We're going to sample a a 4x4 grid of texels surrounding the target UV coordinate. We'll do this by rounding
+        // down the sample location to get the exact center of our "starting" texel. The starting texel will be at
+        // location [1, 1] in the grid, where [0, 0] is the top left corner.
+        float2 samplePos = uv * texSize;
+        float2 texPos1 = floor(samplePos - 0.5f) + 0.5f;
+
+        // Compute the fractional offset from our starting texel to our original sample location, which we'll
+        // feed into the Catmull-Rom spline function to get our filter weights.
+        float2 f = samplePos - texPos1;
+
+        // Compute the Catmull-Rom weights using the fractional offset that we calculated earlier.
+        // These equations are pre-expanded based on our knowledge of where the texels will be located,
+        // which lets us avoid having to evaluate a piece-wise function.
+        float2 w0 = f * (-0.5f + f * (1.0f - 0.5f * f));
+        float2 w1 = 1.0f + f * f * (-2.5f + 1.5f * f);
+        float2 w2 = f * (0.5f + f * (2.0f - 1.5f * f));
+        float2 w3 = f * f * (-0.5f + 0.5f * f);
+
+        // Work out weighting factors and sampling offsets that will let us use bilinear filtering to
+        // simultaneously evaluate the middle 2 samples from the 4x4 grid.
+        float2 w12 = w1 + w2;
+        float2 offset12 = w2 / w12;
+
+        // Compute the final UV coordinates we'll use for sampling the texture
+        float2 texPos0 = texPos1 - 1;
+        float2 texPos3 = texPos1 + 2;
+        float2 texPos12 = texPos1 + offset12 ;
+
+        texPos0 /= texSize;
+        texPos3 /= texSize;
+        texPos12 /= texSize;
+
+        float4 result = 0.0f;
+        result += tex.SampleLevel(linearSampler, float2(texPos0.x, texPos0.y), 0.0f) * w0.x * w0.y;
+        result += tex.SampleLevel(linearSampler, float2(texPos12.x, texPos0.y), 0.0f) * w12.x * w0.y;
+        result += tex.SampleLevel(linearSampler, float2(texPos3.x, texPos0.y), 0.0f) * w3.x * w0.y;
+
+        result += tex.SampleLevel(linearSampler, float2(texPos0.x, texPos12.y), 0.0f) * w0.x * w12.y;
+        result += tex.SampleLevel(linearSampler, float2(texPos12.x, texPos12.y), 0.0f) * w12.x * w12.y;
+        result += tex.SampleLevel(linearSampler, float2(texPos3.x, texPos12.y), 0.0f) * w3.x * w12.y;
+
+        result += tex.SampleLevel(linearSampler, float2(texPos0.x, texPos3.y), 0.0f) * w0.x * w3.y;
+        result += tex.SampleLevel(linearSampler, float2(texPos12.x, texPos3.y), 0.0f) * w12.x * w3.y;
+        result += tex.SampleLevel(linearSampler, float2(texPos3.x, texPos3.y), 0.0f) * w3.x * w3.y;
+
+        return result;
+    }
+
+    // ----------- Lanczos filter by Hyllian
+    static const float lanczos2_window_sinc = 0.4;
+    static const float lanczos2_sinc = 1.0;
+    static const float lanczos2_ar_strength = 0.65;
+    static const float lanczos2_res = 0.98;
+    static const float3 dtt = float3(65536.0, 255.0, 1.0);
+
+    // A=0.5, B=0.825 is the best jinc approximation for x<2.5. if B=1.0, it's a lanczos filter.
+    // Increase A to get more blur. Decrease it to get a sharper picture.
+    // B = 0.825 to get rid of dithering. Increase B to get a fine sharpness, though dithering returns.
+
+    float4 text2D(in Texture2D tex, in float2 uv)
+    {
+        return tex.SampleLevel(LinearSampler, uv, 0);
+    }
+
+
+    float4 reduce4(float3 A, float3 B, float3 C, float3 D)
+    {
+        return mul(float3x4(A, B, C, D), dtt);
+    }
+
+    // Calculates the distance between two points
+    float d(float2 pt1, float2 pt2)
+    {
+        float2 v = pt2 - pt1;
+        return sqrt(dot(v, v));
+    }
+
+    float3 min4(float3 a, float3 b, float3 c, float3 d)
+    {
+        return min(a, min(b, min(c, d)));
+    }
+
+    float3 max4(float3 a, float3 b, float3 c, float3 d)
+    {
+        return max(a, max(b, max(c, d)));
+    }
+
+    float4 resampler(float4 x)
+    {
+        float wa = lanczos2_window_sinc * Pi;
+        float wb = lanczos2_sinc * Pi;
+        float wab = wa * wb;
+        return x == float4(0, 0, 0, 0) ?  float4(wab, wab, wab, wab) : sin(x * wa) * sin(x * wb) / (x * x);
+    }
+
+    float4 SampleLanczos2(in Texture2D text, in float2 uv)
+    {
+        float3 color;
+        float3 E;
+        float2 qt_TexCoord0 = uv;
+
+        float2 dx = float2(1.0, 0.0);
+        float2 dy = float2(0.0, 1.0);
+
+        float w, h;
+        text.GetDimensions(w, h);
+        float2 texture_size = float2(w, h);
+
+        float2 pc = qt_TexCoord0 * texture_size / lanczos2_res;
+        float2 tex = (floor(pc) + float2(0.5, 0.5)) * lanczos2_res / texture_size;
+
+        float2 tc = (floor(pc-float2(0.5,0.5))+float2(0.5,0.5));
+
+        float4x4 weights;
+        weights[0] = resampler(float4(d(pc, tc	-dx	-dy), d(pc, tc		 -dy), d(pc, tc	+dx	-dy), d(pc, tc+2.0*dx	-dy)));
+        weights[1] = resampler(float4(d(pc, tc	-dx	 ), d(pc, tc		  ), d(pc, tc	+dx	 ), d(pc, tc+2.0*dx	 )));
+        weights[2] = resampler(float4(d(pc, tc	-dx	+dy), d(pc, tc		 +dy), d(pc, tc	+dx	+dy), d(pc, tc+2.0*dx	+dy)));
+        weights[3] = resampler(float4(d(pc, tc	-dx+2.0*dy), d(pc, tc	 +2.0*dy), d(pc, tc	+dx+2.0*dy), d(pc, tc+2.0*dx+2.0*dy)));
+
+        dx = dx * lanczos2_res / texture_size;
+        dy = dy * lanczos2_res / texture_size;
+        tc = tc * lanczos2_res / texture_size;
+
+        // reading the texels
+
+        float3 c00 = text2D(text, tc	-dx	-dy).xyz;
+        float3 c10 = text2D(text, tc		 -dy).xyz;
+        float3 c20 = text2D(text, tc	+dx	-dy).xyz;
+        float3 c30 = text2D(text, tc+2.0*dx	-dy).xyz;
+        float3 c01 = text2D(text, tc	-dx	 ).xyz;
+        float3 c11 = text2D(text, tc		  ).xyz;
+        float3 c21 = text2D(text, tc	+dx	 ).xyz;
+        float3 c31 = text2D(text, tc+2.0*dx	 ).xyz;
+        float3 c02 = text2D(text, tc	-dx	+dy).xyz;
+        float3 c12 = text2D(text, tc		 +dy).xyz;
+        float3 c22 = text2D(text, tc	+dx	+dy).xyz;
+        float3 c32 = text2D(text, tc+2.0*dx	+dy).xyz;
+        float3 c03 = text2D(text, tc	-dx+2.0*dy).xyz;
+        float3 c13 = text2D(text, tc	 +2.0*dy).xyz;
+        float3 c23 = text2D(text, tc	+dx+2.0*dy).xyz;
+        float3 c33 = text2D(text, tc+2.0*dx+2.0*dy).xyz;
+
+        color = E = text2D(text, qt_TexCoord0).xyz;
+
+        float3 F6 = text2D(text, tex +dx+0.25*dx+0.25*dy).xyz;
+        float3 F7 = text2D(text, tex +dx+0.25*dx-0.25*dy).xyz;
+        float3 F8 = text2D(text, tex +dx-0.25*dx-0.25*dy).xyz;
+        float3 F9 = text2D(text, tex +dx-0.25*dx+0.25*dy).xyz;
+
+        float3 H6 = text2D(text, tex +0.25*dx+0.25*dy+dy).xyz;
+        float3 H7 = text2D(text, tex +0.25*dx-0.25*dy+dy).xyz;
+        float3 H8 = text2D(text, tex -0.25*dx-0.25*dy+dy).xyz;
+        float3 H9 = text2D(text, tex -0.25*dx+0.25*dy+dy).xyz;
+
+        float4 f0 = reduce4(F6, F7, F8, F9);
+        float4 h0 = reduce4(H6, H7, H8, H9);
+
+        //  Get min/max samples
+        float3 min_sample = min4(c11, c21, c12, c22);
+        float3 max_sample = max4(c11, c21, c12, c22);
+
+        color = mul(weights[0], transpose(float3x4(c00, c10, c20, c30)));
+        color += mul(weights[1], transpose(float3x4(c01, c11, c21, c31)));
+        color += mul(weights[2], transpose(float3x4(c02, c12, c22, c32)));
+        color += mul(weights[3], transpose(float3x4(c03, c13, c23, c33)));
+        color = color / dot(mul(float4(1, 1, 1, 1), weights), float4(1, 1, 1, 1));
+
+        // Anti-ringing
+        float3 aux = color;
+        color = clamp(color, min_sample, max_sample);
+
+        color = lerp(aux, color, lanczos2_ar_strength);
+
+        float alpha = text2D(text, qt_TexCoord0).a;
+        return float4(color, alpha);
+    }
+};

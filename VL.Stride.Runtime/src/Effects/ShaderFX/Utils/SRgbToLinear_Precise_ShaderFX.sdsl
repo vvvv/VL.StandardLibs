@@ -1,0 +1,9 @@
+﻿shader SRgbToLinear_Precise_ShaderFX : ComputeFloat4
+{
+    compose ComputeFloat4 SRgb;
+
+    override float4 Compute()
+    {
+        return ColorUtilityTemp.SRgbToLinearPrecise(SRgb.Compute());
+    }
+};

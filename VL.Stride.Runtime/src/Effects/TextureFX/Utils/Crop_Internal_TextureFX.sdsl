@@ -1,0 +1,27 @@
+[Category("Utils")]
+[Summary("Crops an area out of a Texture")]
+[OutputSize(512, 512)]
+shader Crop_Internal_TextureFX : TextureFX, TextureUtils
+{
+    float2 TopLeft;
+    float2 Size = float2(1, 1);
+
+    [EnumType("VL.Stride.Effects.TextureFX.ResizeInterpolationType")]
+    uint Mode = 0;
+
+    stage override float4 Shading()
+    {
+        float2 uv = streams.TexCoord * Size + TopLeft;
+    
+        switch (Mode)
+        {
+            case 0: return Texture0.Sample(PointSampler, uv);
+            case 1: return Texture0.Sample(LinearSampler, uv);
+            case 2: return SampleCubicBSpline(Texture0, LinearSampler, uv);
+            case 3: return SampleCubicCatmullRom(Texture0, LinearSampler, uv);
+            // case 4: return SampleLanczos2(Texture0, uv);
+        }
+
+        return 1;
+    }
+};

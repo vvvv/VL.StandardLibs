@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), '$(MSBuildThisFileDirectory)../'))"
+          Condition="Exists($([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), $(MSBuildThisFileDirectory)../)))" />
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  
+  <ItemGroup Condition="$(VLPackageBasePath) != ''">
+    <Content Include="$(VLPackageBasePath)*.vl" PackagePath="%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="$(VLPackageBasePath)Assets\**" PackagePath="Assets\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="Assets" />
+    <Content Include="$(VLPackageBasePath)help\**" PackagePath="help\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="help" />
+    <Content Include="$(VLPackageBasePath)vvvv\**" PackagePath="vvvv\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="vvvv" />
+    <Content Remove="$(VLPackageBasePath)**\*.vl.dll" />
+  </ItemGroup>
+
+  <!-- Workaround to specifiy aliases for PackageReference - taken from https://github.com/NuGet/Home/issues/4989 -->
+  <Target Name="AddPackageAliases" BeforeTargets="ResolveReferences" Outputs="%(PackageReference.Identity)">
+    <PropertyGroup>
+      <AliasPackageReference>@(PackageReference->'%(Identity)')</AliasPackageReference>
+      <AliasName>@(PackageReference->'%(Alias)')</AliasName>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)'=='$(AliasPackageReference)'">
+        <Aliases>$(AliasName)</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
+
+  <!-- https://github.com/dotnet/sdk/issues/1458#issuecomment-401497095 -->
+  <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml"
+          AfterTargets="ResolveReferences">
+    <ItemGroup>
+      <!-- Only include pdb files when building in Debug -->
+      <ReferenceCopyLocalPaths
+        Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdb')"
+        Condition="'$(Configuration)' == 'Debug'
+                    and '%(ReferenceCopyLocalPaths.NuGetPackageId)' != ''
+                    and Exists('%(RootDir)%(Directory)%(Filename).pdb')" />
+      <!-- We always want the documentation files - so help texts on nodes work properly -->
+      <ReferenceCopyLocalPaths
+        Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')"
+        Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != ''
+                    and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
+    </ItemGroup>
+  </Target>
+
+  <!-- From https://stackoverflow.com/questions/17461175/how-to-get-all-the-metadata-keys-for-any-itemgroup-item -->
+  <UsingTask
+  TaskName="GetMetadataTask"
+  TaskFactory="RoslynCodeTaskFactory"
+  AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
+    <ParameterGroup>
+      <MyItemGroup ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <MetadataString Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+          StringBuilder command = new StringBuilder();
+          foreach (ITaskItem item in MyItemGroup )
+          {
+              command.AppendFormat("ItemName={0}\r\n", item);
+              foreach (string parameter in item.MetadataNames)
+              {
+                  command.AppendFormat("  {0}={1}\r\n", parameter, item.GetMetadata(parameter));
+              }
+              command.AppendFormat("\r\n");
+          }
+          MetadataString = command.ToString();
+      ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <!-- From https://stackoverflow.com/questions/12039434/obtain-file-sizes-in-msbuild-script -->
+  <UsingTask TaskName="GetFileSize" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <TotalSize ParameterType="System.Int64" Output="true"/>
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        long l = 0;
+        foreach (var item in Files) {
+            var fi = new FileInfo(item.ItemSpec);
+            l += fi.Length;
+        }
+        TotalSize = l;
+]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <!-- Remove Stride content files from non-entry points -->
+  <Target Name="_RemoveStrideDependencyContentFiles" AfterTargets="_StrideCopyContent">
+    <ItemGroup>
+      <Content Remove="@(_StrideDependencyContent)" Condition=" '$(StrideIsExecutable)' == '' or '$(StrideIsExecutable)' == 'false' " />
+    </ItemGroup>
+  </Target>
+</Project>

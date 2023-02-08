@@ -1,0 +1,15 @@
+﻿shader FilterBase : TextureFX
+{
+    [Default(1, 1, 1, 1)]
+    [Summary("Allows to control the blending between the input texture and the result of the filter. Per channel.")]
+    compose ComputeFloat4 Control;
+
+    abstract float4 Filter(float4 tex0col);
+
+    stage override float4 Shading()
+    {
+        float4 col = InTex0();
+
+        return lerp(col, Filter(col), Control.Compute());
+    }
+};

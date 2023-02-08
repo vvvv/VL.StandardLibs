@@ -1,0 +1,10 @@
+﻿shader MultiplyUInt : ComputeUInt
+{
+    compose ComputeUInt Left;
+    compose ComputeUInt Right;
+
+    override uint Compute()
+    {
+        return Left.Compute() * Right.Compute();
+    }
+};

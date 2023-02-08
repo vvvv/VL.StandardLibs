@@ -1,0 +1,27 @@
+shader MaterialCompiling : ComputeColor, Global, Texturing
+{
+    cbuffer PerMaterial
+    {
+        [Color]
+        float4 OriginalColor;
+
+        bool HasTexture;
+    }
+
+    rgroup PerMaterial
+    {
+        stage Texture2D OriginalTexture;
+    }
+
+    // method computing color
+    override float4 Compute()
+    {
+        float factor = sin(Global.Time * 6.0f) * 0.25f + 0.25f;
+        
+        float4 color = HasTexture ? OriginalTexture.Sample(LinearSampler, streams.TexCoord) : OriginalColor;
+        float4 reloadColor = float4(0.25f, 1.0f, 0.25f, 1.0f);
+
+        // High frequency glow to let user know effect is reloading
+        return lerp(color, reloadColor, factor);
+    }
+};

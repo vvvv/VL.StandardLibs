@@ -1,0 +1,35 @@
+﻿shader InstancedMeshStreamOut_DrawFX : InstanceWorldBuffer
+{
+    stream uint InstanceID : SV_InstanceID;
+    stream float4 ShadingPosition : SV_Position;
+
+    stream float3 Position : POSITION;
+    stream float3 Normal : NORMAL;
+    stream float2 TexCoord : TEXCOORD;
+
+    void VSMain() 
+    {
+        float4x4 iw = InstanceWorld[streams.InstanceID].Matrix;
+        streams.ShadingPosition = mul(float4(streams.Position.xyz, 1), iw);
+        streams.Normal = mul(float4(streams.Normal.xyz, 0), iw).xyz;
+        streams.TexCoord = streams.TexCoord;
+    }
+
+    void AppendVertex(Input In, inout TriangleStream<Output> triangleStream)
+    {
+        streams.ShadingPosition = In.ShadingPosition;
+        streams.Normal = In.Normal;
+        streams.TexCoord = In.TexCoord;
+        triangleStream.Append(streams);
+    }
+
+    [StreamOutput("SV_Position.xyz;NORMAL.xyz;TEXCOORD.xy")]
+    [maxvertexcount(3)]
+    void GSMain(triangle Input input[3], inout TriangleStream<Output> triangleStream) 
+    {
+        for(int i=0; i < 3; i++)
+        {
+            AppendVertex(input[i], triangleStream);
+        }
+    }
+};

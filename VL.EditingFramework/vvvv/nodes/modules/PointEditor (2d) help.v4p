@@ -1,0 +1,605 @@
+<!DOCTYPE PATCH  SYSTEM "http://vvvv.org/versions/vvvv50alpha36.1.dtd" >
+   <PATCH nodename="C:\Work\vvvv-private\public-vl\VL.EditingFramework\vvvv\nodes\modules\PointEditor (2d) help.v4p" systemname="PointEditor" filename="C:\Users\joreg\Documents\repos\vvvv\vvvv45\packs\VLIntegration\girlpower\UI\PointEditor\PointEditor.v4p" scrollx="0" scrolly="-360">
+   <BOUNDS type="Window" left="6660" top="0" width="14025" height="9885">
+   </BOUNDS>
+   <PACK Name="addonpack" Version="36.0.0">
+   </PACK>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="12" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="5265" top="2430" width="480" height="480">
+   </BOUNDS>
+   <BOUNDS type="Node" left="5265" top="2430" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Y Input Value" slicecount="1" visible="1" values="0">
+   </PIN>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Boolean">
+   </PIN>
+   <PIN pinname="Behavior" slicecount="1" values="Bang">
+   </PIN>
+   <PIN pinname="X Input Value" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="Y Output Value" visible="1">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="45" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="5250" top="2145" width="660" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="5250" top="2145" width="510" height="240">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="Clear">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="46" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="180" top="525" width="2850" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="180" top="525" width="3060" height="705">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|Editor for transforming 2D point clouds in the Renderer|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE componentmode="InABox" id="47" nodename="IOBox (String)" systemname="IOBox (String)">
+   <BOUNDS height="270" left="165" top="120" type="Node" width="915">
+   </BOUNDS>
+   <BOUNDS height="375" left="165" top="120" type="Box" width="2025">
+   </BOUNDS>
+   <BOUNDS height="160" left="870" top="11220" type="Window" width="215">
+   </BOUNDS>
+   <PIN pinname="Input String" slicecount="1" visible="0" encoded="0" values="|PointEditor (2d)|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="Size" slicecount="1" values="12">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="59" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="195" top="1500" width="2055" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="195" top="1500" width="3345" height="1860">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|- doubleclick to add points&cr;&lf;- click or click-drag to select points&cr;&lf;- press Q and Shift+Q to step through points&cr;&lf;- press Space to select hovered point&cr;&lf;- press DEL to delete selected points&cr;&lf;- press arrow keys to nudge points&cr;&lf;- press G turn On/Off Transform Gizmo|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   <PIN pinname="Descriptive Name" slicecount="1" values="||">
+   </PIN>
+   </NODE>
+   <NODE systemname="Group (EX9)" nodename="Group (EX9)" componentmode="Hidden" id="65">
+   <BOUNDS type="Node" left="7425" top="6540" width="540" height="270">
+   </BOUNDS>
+   <PIN pinname="Layer 1" visible="1" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Layer 2" visible="1" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Layer" visible="1">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="78" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="1710" top="4665" width="8775" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="1710" top="4665" width="2535" height="1005">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|&lt; In a boygrouping scenario insert this module between PointEditor and PointEditorView and boygroup everything below it.|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE systemname="PointEditorState (EditingFramework 2d Boygroup)" filename="PointEditorState (EditingFramework 2d Boygroup).v4p" nodename="PointEditorState (EditingFramework 2d Boygroup)" componentmode="Hidden" id="94">
+   <BOUNDS type="Node" left="240" top="4695" width="100" height="100">
+   </BOUNDS>
+   <BOUNDS type="Window" left="9360" top="1560" width="7170" height="6375">
+   </BOUNDS>
+   </NODE>
+   <NODE systemname="PointEditorView (DX9 2d)" filename="DX9\PointEditorView (DX9 2d).v4p" nodename="PointEditorView (DX9 2d)" componentmode="Hidden" id="100">
+   <BOUNDS type="Node" left="4575" top="6075" width="100" height="100">
+   </BOUNDS>
+   <BOUNDS type="Box" left="4575" top="6075" width="6420" height="5805">
+   </BOUNDS>
+   <BOUNDS type="Window" left="5910" top="3060" width="18120" height="11730">
+   </BOUNDS>
+   <PIN pinname="PointEditor State" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Show Line" slicecount="1" visible="1" values="1">
+   </PIN>
+   <PIN pinname="Projection Space" slicecount="1" visible="1" values="0">
+   </PIN>
+   <PIN pinname="Show Center" slicecount="1" values="1">
+   </PIN>
+   <PIN pinname="Show OSD" slicecount="1" values="1">
+   </PIN>
+   <PIN pinname="Show Gizmo" slicecount="1" values="1">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="100" srcpinname="Layer" dstnodeid="65" dstpinname="Layer 1">
+   </LINK>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="101" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="7095" top="2430" width="435" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="7095" top="2430" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Y Input Value" slicecount="1" visible="1" values="0.01">
+   </PIN>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Y Output Value" visible="1">
+   </PIN>
+   <PIN pinname="X Input Value" slicecount="1" values="0">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="103" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="8220" top="2430" width="480" height="480">
+   </BOUNDS>
+   <BOUNDS type="Node" left="8220" top="2430" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Y Input Value" slicecount="1" visible="1" values="0">
+   </PIN>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Boolean">
+   </PIN>
+   <PIN pinname="Behavior" slicecount="1" values="Bang">
+   </PIN>
+   <PIN pinname="X Input Value" slicecount="1" values="0">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="104" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="8820" top="2430" width="480" height="480">
+   </BOUNDS>
+   <BOUNDS type="Node" left="8820" top="2430" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Y Input Value" slicecount="1" visible="1" values="0">
+   </PIN>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Boolean">
+   </PIN>
+   <PIN pinname="Behavior" slicecount="1" values="Bang">
+   </PIN>
+   <PIN pinname="X Input Value" slicecount="1" values="0">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="105" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="8160" top="2145" width="600" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="8160" top="2145" width="420" height="255">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="Save">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="106" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="8790" top="2145" width="630" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="8790" top="2145" width="405" height="240">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="Load">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="108" systemname="IOBox (String)">
+   <BOUNDS type="Box" left="7770" top="1695" width="1245" height="270">
+   </BOUNDS>
+   <BOUNDS type="Node" left="7770" top="1695" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Input String" slicecount="1" visible="1" values="Points2D.xml">
+   </PIN>
+   <PIN pinname="Default" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="File Mask" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Maximum Characters" slicecount="1" values="-1">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="Filename">
+   </PIN>
+   <PIN pinname="Output String" visible="1">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="109" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="5220" top="5415" width="480" height="480">
+   </BOUNDS>
+   <BOUNDS type="Node" left="5220" top="5415" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Y Input Value" slicecount="1" visible="1" values="1">
+   </PIN>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Boolean">
+   </PIN>
+   <PIN pinname="Behavior" slicecount="1" values="Toggle">
+   </PIN>
+   <PIN pinname="X Input Value" slicecount="1" values="1">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="109" srcpinname="Y Output Value" dstnodeid="100" dstpinname="Show Line">
+   </LINK>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="110" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="5775" top="5490" width="990" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="5775" top="5490" width="990" height="270">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|&lt; Show Line|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="112" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="870" top="3510" width="1485" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="870" top="3510" width="1485" height="270">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|for more infos see:|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="113" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="6315" top="2145" width="885" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="6315" top="2145" width="660" height="255">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|Pick Size|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="114" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="7050" top="2145" width="915" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="7050" top="2145" width="720" height="270">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|Step Size|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="115" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="5955" top="780" width="480" height="480">
+   </BOUNDS>
+   <BOUNDS type="Node" left="5955" top="780" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Y Input Value" slicecount="1" visible="1" values="1">
+   </PIN>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Boolean">
+   </PIN>
+   <PIN pinname="Behavior" slicecount="1" values="Toggle">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="116" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="6510" top="810" width="2040" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="6510" top="810" width="1695" height="465">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|&lt; Allow adding points via DoubleClick|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE systemname="Cursor (DX9)" filename="DX9\Cursor (DX9).v4p" nodename="Cursor (DX9)" componentmode="Hidden" id="118">
+   <BOUNDS type="Node" left="8580" top="6075" width="100" height="100">
+   </BOUNDS>
+   <BOUNDS type="Box" left="8580" top="6075">
+   </BOUNDS>
+   <PIN pinname="Selection" slicecount="1" values="0">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="118" srcpinname="Layer" dstnodeid="65" dstpinname="Layer 2">
+   </LINK>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="119" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="11985" top="4620" width="3840" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="11985" top="4620" width="1530" height="705">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|&lt; Optionally constrain editing to a specific renderer|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="121" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="6390" top="2430" width="405" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="6390" top="2430" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Y Input Value" slicecount="1" visible="1" values="0.05">
+   </PIN>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="130" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="5445" top="4425" width="1440" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="5445" top="4425" width="1635" height="255">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|Spread of 2D Points|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="128" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="6375" top="4125" width="1440" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="6375" top="4125" width="1035" height="270">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|Points Ids|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="133" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="6405" top="3885" width="645" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="6405" top="3885" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Integer">
+   </PIN>
+   <PIN pinname="Y Input Value" slicecount="15" values="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15">
+   </PIN>
+   </NODE>
+   <NODE systemname="PointEditor (2d)" filename="PointEditor (2d).v4p" nodename="PointEditor (2d).v4p" componentmode="Hidden" id="135" border="1">
+   <BOUNDS type="Node" left="4590" top="3105" width="4590" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="1725" top="1470" width="5730" height="3270">
+   </BOUNDS>
+   <BOUNDS type="Window" left="4965" top="555" width="15360" height="9870">
+   </BOUNDS>
+   <PIN pinname="PointsXY" visible="1" slicecount="2" values="0,0">
+   </PIN>
+   <PIN pinname="Points To AddXY" slicecount="2" values="0,0">
+   </PIN>
+   <PIN pinname="Add" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="Camera State" slicecount="1" visible="1" values="||">
+   </PIN>
+   <PIN pinname="Editor Window Handle" visible="1" slicecount="1" values="723508">
+   </PIN>
+   <PIN pinname="Step Size" visible="1" slicecount="1" values="0.01">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="12" srcpinname="Y Output Value" dstnodeid="135" dstpinname="Clear">
+   </LINK>
+   <LINK srcnodeid="135" srcpinname="State" dstnodeid="100" dstpinname="State">
+   </LINK>
+   <LINK srcnodeid="101" srcpinname="Y Output Value" dstnodeid="135" dstpinname="Step SizeXY">
+   </LINK>
+   <LINK srcnodeid="103" srcpinname="Y Output Value" dstnodeid="135" dstpinname="Save">
+   </LINK>
+   <LINK srcnodeid="104" srcpinname="Y Output Value" dstnodeid="135" dstpinname="Load">
+   </LINK>
+   <LINK srcnodeid="108" srcpinname="Output String" dstnodeid="135" dstpinname="Filename">
+   </LINK>
+   <LINK srcnodeid="115" srcpinname="Y Output Value" dstnodeid="135" dstpinname="DoubleClick To Add">
+   </LINK>
+   <LINK srcnodeid="135" srcpinname="Idle" dstnodeid="118" dstpinname="Selection">
+   </LINK>
+   <LINK srcnodeid="121" srcpinname="Y Output Value" dstnodeid="135" dstpinname="Pick Size">
+   </LINK>
+   <LINK srcnodeid="135" srcpinname="Ids" dstnodeid="133" dstpinname="Y Input Value">
+   </LINK>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="136" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="5490" top="3885" width="795" height="480">
+   </BOUNDS>
+   <BOUNDS type="Node" left="5490" top="3885" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Rows" slicecount="1" values="2">
+   </PIN>
+   <PIN pinname="Y Input Value" slicecount="2" values="0,">
+   </PIN>
+   <PIN pinname="Vector Size" slicecount="1" values="2">
+   </PIN>
+   <PIN pinname="Default" slicecount="1" values="|0, 0|">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="135" srcpinname="PointsXY" dstnodeid="136" dstpinname="Y Input Value">
+   </LINK>
+   <NODE systemname="IOBox (String)" nodename="IOBox (String)" componentmode="InABox" id="137">
+   <BOUNDS type="Node" left="885" top="3795" width="100" height="100">
+   </BOUNDS>
+   <BOUNDS type="Box" left="885" top="3795" width="1965" height="240">
+   </BOUNDS>
+   <PIN pinname="String Type" slicecount="1" values="Filename">
+   </PIN>
+   <PIN pinname="Input String" slicecount="1" values="EditingFramework.v4p">
+   </PIN>
+   </NODE>
+   <NODE id="96" systemname="Camera (Transform 2d)" filename="Camera (Transform 2d).v4p" nodename="Camera (Transform 2d)" componentmode="Hidden">
+   <BOUNDS type="Node" left="9270" top="1065" width="100" height="100">
+   </BOUNDS>
+   <BOUNDS type="Box" left="9270" top="1065">
+   </BOUNDS>
+   <BOUNDS type="Window" left="4680" top="2775" width="13485" height="7170">
+   </BOUNDS>
+   <PIN pinname="Minimum Zoom" visible="1" slicecount="1" values="0.1">
+   </PIN>
+   <PIN pinname="Inverse View" visible="1">
+   </PIN>
+   <PIN pinname="View" visible="1">
+   </PIN>
+   <PIN pinname="Idle" visible="1">
+   </PIN>
+   <PIN pinname="CameraState" visible="1">
+   </PIN>
+   <PIN pinname="Camera State" visible="1" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Zoom" visible="1">
+   </PIN>
+   <PIN pinname="Editor Window Handle" visible="1">
+   </PIN>
+   <PIN pinname="Window Handle" visible="1" slicecount="1" values="0">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="138" systemname="IOBox (String)">
+   <BOUNDS type="Node" left="7740" top="1425" width="600" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="7740" top="1425" width="795" height="255">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="Filename">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <PACK Name="dx11" Version="0.7.2">
+   </PACK>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="142">
+   <BOUNDS type="Node" left="510" top="7005" width="6120" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="510" top="7005" width="3345" height="495">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="|Note, the Editor can be used also with DX11, check this helppatch:|">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   </NODE>
+   <NODE systemname="IOBox (String)" nodename="IOBox (String)" componentmode="InABox" id="148">
+   <BOUNDS type="Node" left="510" top="7545" width="100" height="100">
+   </BOUNDS>
+   <BOUNDS type="Box" left="510" top="7545" width="3450" height="240">
+   </BOUNDS>
+   <PIN pinname="String Type" slicecount="1" values="Filename">
+   </PIN>
+   <PIN pinname="Input String" slicecount="1" values="|DX11\PointEditorView (DX11 2d) help.v4p|">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="149">
+   <BOUNDS type="Node" left="495" top="6420" width="435" height="270">
+   </BOUNDS>
+   <BOUNDS type="Box" left="495" top="6420" width="1260" height="525">
+   </BOUNDS>
+   <PIN pinname="Input String" visible="0" slicecount="1" values="DX11">
+   </PIN>
+   <PIN pinname="Output String" visible="0">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="MultiLine">
+   </PIN>
+   <PIN pinname="Size" slicecount="1" values="20">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="96" srcpinname="Camera State" dstnodeid="135" dstpinname="Camera State">
+   </LINK>
+   <LINK srcnodeid="101" srcpinname="Y Output Value" dstnodeid="135" dstpinname="Step Size">
+   </LINK>
+   <PACK Name="VVVV.Packs" Version="0.2.0">
+   </PACK>
+   <NODE systemname="RENDERER (EX9)" nodename="Renderer (EX9)" componentmode="InAWindow" id="150">
+   <BOUNDS type="Node" left="8265" top="7110" width="100" height="100">
+   </BOUNDS>
+   <BOUNDS type="Box" left="8265" top="7110" width="2400" height="1800">
+   </BOUNDS>
+   <BOUNDS type="Window" left="0" top="0" width="6870" height="6000">
+   </BOUNDS>
+   <PIN pinname="Windowed Antialiasing Quality Level" slicecount="1" values="3">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="65" srcpinname="Layer" dstnodeid="150" dstpinname="Layers">
+   </LINK>
+   <LINK srcnodeid="150" srcpinname="Window Handle" dstnodeid="96" dstpinname="Editor Window Handle" linkstyle="Bezier">
+   <LINKPOINT x="13250" y="10765">
+   </LINKPOINT>
+   <LINKPOINT x="11965" y="20">
+   </LINKPOINT>
+   </LINK>
+   <LINK srcnodeid="150" srcpinname="Window Handle" dstnodeid="96" dstpinname="Window Handle" linkstyle="Bezier">
+   <LINKPOINT x="12920" y="10645">
+   </LINKPOINT>
+   <LINKPOINT x="12265" y="20">
+   </LINKPOINT>
+   </LINK>
+   <LINK srcnodeid="96" srcpinname="View" dstnodeid="150" dstpinname="View">
+   </LINK>
+   </PATCH>

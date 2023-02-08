@@ -1,0 +1,16 @@
+﻿shader NoiseFloat2ToFloat : Float2ToFloat, HappyNoise
+{
+    compose ComputeFloat Frequency;
+    compose ComputeFloat2 DomainOffset;
+    compose ComputeFloat Amplitude;
+    compose ComputeFloat Center;
+
+    compose Float2ToFloat NoiseFunc;
+
+    override float Compute(float2 p)
+    {
+        p = p * Frequency.Compute() + DomainOffset.Compute();
+        return NoiseFunc.Compute(p) * Amplitude.Compute() + Center.Compute();
+        //TODO add bias and inflection controls
+    }
+};

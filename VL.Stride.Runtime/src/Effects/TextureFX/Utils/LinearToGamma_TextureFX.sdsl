@@ -1,0 +1,14 @@
+[Category("Utils")]
+[Summary("Converts a texture from linear to gamma color space")]
+[Remarks("This is usually the last color transformation before a texture in linear color space gets displayed on screen.")]
+[Tags("convert")]
+[OutputFormat("R16G16B16A16_Float")]
+shader LinearToGamma_TextureFX : TextureFX
+{
+    float Gamma = 2.2f;
+    
+    stage override float4 Shading()
+    {
+        return ColorUtilityTemp.LinearToGamma(InTex0(), Gamma);
+    }
+};

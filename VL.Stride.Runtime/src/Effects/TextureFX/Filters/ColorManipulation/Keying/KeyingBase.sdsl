@@ -1,0 +1,34 @@
+﻿shader KeyingBase : TextureFX
+{
+    // the variables to tweak the keying
+    float2 MaskRange = float2(0.005f, 0.1f);
+
+    bool Invert;
+
+    // method to calculate the mask with soft edge
+    float CalcMask(float dist)
+    {
+        if (dist < MaskRange.x)
+            return 0.0;
+        else if (dist < MaskRange.y)
+            return (dist - MaskRange.x)/(MaskRange.y - MaskRange.x);
+        else
+            return 1.0;
+    }
+
+    // the distance function
+    abstract float CalcKeyDist(float4 col);
+
+    stage override float4 Shading()
+    {
+        float4 col = InTex0();
+
+        // get distance to key
+        float dist = CalcKeyDist(col);
+
+        // get mask
+        float mask = CalcMask(dist);
+
+        return Invert ? 1 - mask : mask;
+    }
+};

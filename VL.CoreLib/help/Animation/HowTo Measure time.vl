@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="Th9MqpJIIvPNkjByCsff17" LanguageVersion="2019.2.0-0360-25896fb839" Version="0.128">
+  <NugetDependency Id="EXSarmQOA0jLuLfmcPJ7L0" Location="VL.CoreLib" Version="2019.2.0-0360-g25896fb839" />
+  <Patch Id="PBAGejD56L0Nqowjt0FNpe">
+    <Canvas Id="F3aX5hIKyj4LmLqAbhTVg9" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="L6m0FcmJJ7IMGmjnbkA0I8">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="RjfpjGJ7JcnMfcUlUqUg05">
+        <Canvas Id="Dxs2gKJkyy6LlirT8WWbQ7" CanvasType="Group">
+          <Node Bounds="170,385,63,19" Id="TL5UQKvtuZ4MFTzeV0x9lA">
+            <p:NodeReference LastCategoryFullName="Animation" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Stopwatch" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="AbgShy9PDHzNeNkNrxjUBA" Name="Enabled" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="AynrtdkaB8yNz5OiXK6Joh" Name="Reset" Kind="InputPin" />
+            <Pin Id="Q2hv5dSFXkeQCgEirv4D7h" Name="Time" Kind="OutputPin" />
+          </Node>
+          <Pad Id="KBVI4evW4QPPDNy0DvsM53" Comment="Enabled" Bounds="172,257,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="AvW3kayJc0uQQl9gCQwnxd" Comment="Reset" Bounds="229,339,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Jo127pJkHt0MvS2sQkZnf5" Comment="Time in s" Bounds="172,543,58,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="BB5kweq9t4PNj3H1efBmqV" Bounds="110,107,183,31" ShowValueBox="true" isIOBox="true" Value="Use a Stopwatch!">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Atvty8HKxcjMyVVKfTRcwD" Bounds="111,145,167,19" ShowValueBox="true" isIOBox="true" Value="Measures time in seconds.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="330,447,77,19" Id="Bjx7QEOGbNENuHZMFWkop5">
+            <p:NodeReference LastCategoryFullName="System.TimeSpan" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="FromSeconds" />
+              <CategoryReference Kind="RecordType" Name="TimeSpan" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="V1W7hkLupZWQA5toCEruNL" Name="Value" Kind="InputPin" />
+            <Pin Id="Q9gOdzOXIt7QRf6IyLcKpw" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="S0VUtHWo7szQZ87hefv7VO" Bounds="262,257,159,42" ShowValueBox="true" isIOBox="true" Value="&lt; Toggle to start/pause recording of time">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="OAxKrC4wiqbLBviQK3DwZk" Comment="Format" Bounds="447,466,67,15" ShowValueBox="true" isIOBox="true" Value="hh\:mm\:ss">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="330,489,55,19" Id="NkTwTaeUD72OgQrJr5G0U4">
+            <p:NodeReference LastCategoryFullName="System.TimeSpan" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="ToString (Format)" />
+              <CategoryReference Kind="RecordType" Name="TimeSpan" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="PHsZXWcpufPPa19Ux7fLRM" Name="Input" Kind="InputPin" />
+            <Pin Id="TubQNZdUO43MDuBwBn5DfS" Name="Format" Kind="InputPin" />
+            <Pin Id="GxDWalwm3DIOydz1IRRm4C" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="MYUOYn53SUuOv9WahVVzMM" Comment="" Bounds="332,543,66,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="MSyYtt3UCwxN0sR6dfwKWI" Bounds="516,503,217,19" ShowValueBox="true" isIOBox="true" Value="https://docs.microsoft.com/en-us/dotnet/api/system.timespan.tostring?redirectedfrom=MSDN&amp;view=netframework-4.8#System_TimeSpan_ToString_System_String_">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Link</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="UYViUASmyW7NjmSQqpkTZg" Bounds="516,484,119,19" ShowValueBox="true" isIOBox="true" Value="Formating options">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="SVdCvmC8VLGPTg9qPiFYtw" Name="Create" />
+        <Patch Id="Q5yoCkbptyNMC1t5zPERma" Name="Update" />
+        <ProcessDefinition Id="TFtS2L9OypRLvhDkMNEzgS">
+          <Fragment Id="ENR7kTglUEAPxeAebpellv" Patch="SVdCvmC8VLGPTg9qPiFYtw" Enabled="true" />
+          <Fragment Id="CIcwkL8pUUMPUdmsPdMHFA" Patch="Q5yoCkbptyNMC1t5zPERma" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="Fgl8k5m2hl4OzIBv5mw9st" Ids="KBVI4evW4QPPDNy0DvsM53,AbgShy9PDHzNeNkNrxjUBA" />
+        <Link Id="KLSmOWgB0b9NRCXgEeLBQ4" Ids="AvW3kayJc0uQQl9gCQwnxd,AynrtdkaB8yNz5OiXK6Joh" />
+        <Link Id="MMs2dcsCgR4OnAFuv3yQFc" Ids="Q2hv5dSFXkeQCgEirv4D7h,Jo127pJkHt0MvS2sQkZnf5" />
+        <Link Id="Fg3vsQ9rC7BNqlvUrg0NDw" Ids="Q2hv5dSFXkeQCgEirv4D7h,V1W7hkLupZWQA5toCEruNL" />
+        <Link Id="PvTA0XlGkKTLuaezwMZotN" Ids="Q9gOdzOXIt7QRf6IyLcKpw,PHsZXWcpufPPa19Ux7fLRM" />
+        <Link Id="LH36VRGSlTqLizyEwCgZ27" Ids="GxDWalwm3DIOydz1IRRm4C,MYUOYn53SUuOv9WahVVzMM" />
+        <Link Id="PgepbX2b0GcNTB8KiZV9p7" Ids="OAxKrC4wiqbLBviQK3DwZk,TubQNZdUO43MDuBwBn5DfS" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="BZ51g2XJtXSLzvdv9z3Fwe" Location="VL.Skia" Version="2019.2.0-0360-g25896fb839" />
+</Document>

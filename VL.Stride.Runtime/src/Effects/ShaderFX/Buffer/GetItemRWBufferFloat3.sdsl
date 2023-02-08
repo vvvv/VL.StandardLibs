@@ -1,0 +1,10 @@
+﻿shader GetItemRWBufferFloat3<LinkType BufferName, MemberName BufferResourceGroupName> : ComputeFloat3, DeclRWBufferFloat3<BufferName, BufferResourceGroupName>
+{
+    compose ComputeUInt Index;
+
+    override float3 Compute()
+    {
+        return DynamicRWBuffer[Index.Compute()];
+    }
+   
+};

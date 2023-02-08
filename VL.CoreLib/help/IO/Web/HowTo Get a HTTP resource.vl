@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="HYAlQPedD0INlviomEzTkB" LanguageVersion="2021.4.0.155" Version="0.128">
+  <NugetDependency Id="U11z996go9hN8vdPMFWG2u" Location="VL.CoreLib" Version="2021.4.0-0155-ge76e2cfa20" />
+  <Patch Id="IxI3B8eRpdFNOANfWY12RY">
+    <Canvas Id="CKdKzy4LSeYNMP1lxJ5dXd" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="FXTCGwoSo6uNI7yinqkxtw">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="O06IDSiDTaqNavvBT7G8yc">
+        <Canvas Id="SKfLRhr5M8EOLV3UfZ45qq" CanvasType="Group">
+          <Node Bounds="280,262,125,19" Id="VqBu7x68frGPsM09DML9i7">
+            <p:NodeReference LastCategoryFullName="IO.HTTP" LastSymbolSource="VL.HTTP.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="HTTPGet" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="QLbtMeaW68iPyBsqW6cm9o" Name="URL" Kind="InputPin" />
+            <Pin Id="LZIQRhrt7xZMW0kPCcAu9J" Name="Headers" Kind="InputPin" />
+            <Pin Id="CybjEwM5dWMLccf5X8QmrY" Name="Username" Kind="InputPin" />
+            <Pin Id="J8a64JeEOvVLiOIKcRGO3X" Name="Password" Kind="InputPin" />
+            <Pin Id="AGm8nkL0rVwQXZh318W3SF" Name="Refresh" Kind="InputPin" />
+            <Pin Id="CLQ47fqR5m1OjXu3Xi0gOS" Name="Result" Kind="OutputPin" />
+            <Pin Id="O8nrw7PNGCJMv7fyHIWz7n" Name="In Progress" Kind="OutputPin" />
+          </Node>
+          <Pad Id="MIOsg8oVJscMYcPuVjRGXC" Comment="URL" Bounds="281,154,242,15" ShowValueBox="true" isIOBox="true" Value="https://vvvv.org/web-api/user-location">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="280,351,165,207" Id="UAwMifhsVXWQLdBhbDna0z">
+            <p:NodeReference LastCategoryFullName="Reactive" LastSymbolSource="VL.Reactive.vl">
+              <Choice Kind="ProcessAppFlag" Name="ForEach" />
+              <CategoryReference Kind="Category" Name="Reactive" NeedsToBeDirectParent="true" />
+              <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+            </p:NodeReference>
+            <Pin Id="R71mJFC1pGaOHFoMZPGMA3" Name="Messages" Kind="InputPin" />
+            <Pin Id="E2pAtKvvh2wPX6oLeIymPd" Name="Reset" Kind="InputPin" />
+            <Pin Id="A8cQaC1MQgRPaGdLwTnyMb" Name="Result" Kind="OutputPin" />
+            <Patch Id="CUSkpd5wcp5PHj431NQfCy" ManuallySortedPins="true">
+              <Patch Id="S046tJW2jxKLKVj51gel08" Name="Create" ManuallySortedPins="true" />
+              <Patch Id="CggmVkQSIQaN5ZScaywZUz" Name="Update" ManuallySortedPins="true">
+                <Pin Id="S61No1u0ySJLJDKqf71t9z" Name="Input 1" Kind="InputPin" />
+                <Pin Id="CK4JkdCinwWM2wLhthx0nF" Name="Output" Kind="OutputPin" />
+              </Patch>
+              <ControlPoint Id="UfSwezHuUT7N4qU8fuVnXo" Bounds="294,359" />
+              <ControlPoint Id="KClR1CllYFENk88fRFYFEr" Bounds="348,551" />
+              <Node Bounds="346,457,37,19" Id="T1kUl0UulhjLU5hK1PQKxY">
+                <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <CategoryReference Kind="Category" Name="XML" NeedsToBeDirectParent="true" />
+                  <Choice Kind="OperationNode" Name="Parse (XDocument)" />
+                </p:NodeReference>
+                <Pin Id="A0VdCciE7w2QPPOu8W9oGx" Name="Text" Kind="InputPin" />
+                <Pin Id="GXJtEvR3qr6MZnLvOFo5Bh" Name="Options" Kind="InputPin" />
+                <Pin Id="BLUnFC5ukAYMbjKuQyci9m" Name="Result" Kind="OutputPin" />
+              </Node>
+              <Node Bounds="292,374,57,26" Id="ThnXyrYpVImMQqO0PKn5Vf">
+                <p:NodeReference LastCategoryFullName="IO.HTTP.HTTPGet2.HTTPResult" LastSymbolSource="VL.HTTP.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <CategoryReference Kind="RecordType" Name="HTTPResult" />
+                  <Choice Kind="OperationCallFlag" Name="Split" />
+                </p:NodeReference>
+                <Pin Id="T0s3tJ1vC48LmnHvds0n1D" Name="Input" Kind="StateInputPin" />
+                <Pin Id="HPfAh7zqGi5QLficUwsnsa" Name="Status" Kind="OutputPin" />
+                <Pin Id="CXT0mhCECkoQMx9mx6xNBa" Name="Header" Kind="OutputPin" />
+                <Pin Id="RUoNvkAwfCPNPzpBS1RL9H" Name="Body" Kind="OutputPin" />
+              </Node>
+              <Node Bounds="345,416,63,19" Id="Kiqsf0VEyMrNevhUSeNJcF">
+                <p:NodeReference LastCategoryFullName="Primitive.String" LastSymbolSource="CoreLibBasics.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="FromBytes" />
+                  <CategoryReference Kind="StringType" Name="String" NeedsToBeDirectParent="true" />
+                </p:NodeReference>
+                <Pin Id="FootEkbiVBWMiHi7UbJ4R3" Name="Input" Kind="StateInputPin" />
+                <Pin Id="NUO3dCHQdmoN9e5kgmTRJg" Name="Encoding" Kind="InputPin" />
+                <Pin Id="KQG1kOln24AQLd8R8cWVzZ" Name="Result" Kind="OutputPin" />
+              </Node>
+              <Node Bounds="346,506,87,19" Id="Ba026uGO5wOPzEHiozB1TE">
+                <p:NodeReference LastCategoryFullName="System.XML" LastSymbolSource="VL.Xml.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="XPathGetValues" />
+                </p:NodeReference>
+                <Pin Id="VQIP3480Fw4Mb7pjzam560" Name="Input" Kind="InputPin" />
+                <Pin Id="OiqYMT3i7R4QUjYQQUrO8Y" Name="Path" Kind="InputPin" DefaultValue="country">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                </Pin>
+                <Pin Id="Twj64cjvwJiLZ5J8cUCFF5" Name="Values" Kind="OutputPin" />
+                <Pin Id="NnoHQvXyiFPPfs6suRbrdB" Name="Success" Kind="OutputPin" />
+              </Node>
+            </Patch>
+          </Node>
+          <Pad Id="IwLaEA4LUHWMx9AnvCat4B" Comment="In Progress" Bounds="402,299,35,35" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="280,586,65,19" Id="IRJyij1kK9MPufd1hSuxnx">
+            <p:NodeReference LastCategoryFullName="Reactive" LastSymbolSource="VL.Reactive.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="HoldLatest" />
+            </p:NodeReference>
+            <Pin Id="EHfLyOQ2NOhMGUFw5XljxK" Name="Async Notifications" Kind="InputPin" />
+            <Pin Id="BE9mrUy8ZeeLtkND0U7N4T" Name="Reset" Kind="InputPin" DefaultValue="False">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="RkSCjkzeOCaNkalw2jqqAQ" Name="Value" Kind="OutputPin" />
+            <Pin Id="Ms2UaDqiVRpQZdNN3MaDS1" Name="On Data" Kind="OutputPin" />
+          </Node>
+          <Pad Id="UuFjMPx4cH5O5A2Lvce21V" Comment="" Bounds="282,648,102,95" ShowValueBox="true" isIOBox="true">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="Spread" />
+              <p:TypeArguments>
+                <TypeReference>
+                  <Choice Kind="TypeFlag" Name="String" />
+                </TypeReference>
+              </p:TypeArguments>
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="MCr1F0pXisFOOAd64K22Tx" Comment="Refresh" Bounds="403,223,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="KtUqlbIJNIGNMN5iHtOHoz" Comment="Path" Bounds="468,471,91,15" ShowValueBox="true" isIOBox="true" Value="/users/user/name">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="NTBr0gS1PhZLFwBqhuwjQT" Bounds="612,219,77,25" ShowValueBox="true" isIOBox="true" Value="Headers">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">12</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="CO9UdpgiG6MP9PD0L0NgTH" Bounds="612,263,270,132" ShowValueBox="true" isIOBox="true" Value="The Headers input takes a spread of strings in the form of:&#xD;&#xA;&#xD;&#xA;name:value&#xD;&#xA;&#xD;&#xA;But beware, there are some headers which cannot be specified here, see:">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="ESvdA87PGMPQVuEmw9LZ8q" Bounds="612,397,282,19" ShowValueBox="true" isIOBox="true" Value="https://docs.microsoft.com/en-us/dotnet/api/system.net.httpwebrequest.headers?view=net-5.0#remarks">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Link</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="VNqCfpBjvEAMCX5UCi6j2p" Bounds="612,425,305,89" ShowValueBox="true" isIOBox="true" Value="The current implementation of HTTPGet cannot set those at all. In case you need them, you'll have to either roll your own HTTPGet (rightclick -&gt; open...) or use a nuget like RestSharp.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="UqAdcLZBp9wNmf81Lu4L44" Name="Create" />
+        <Patch Id="AyF4cHNbvKOLyFmhuJZd7L" Name="Update" />
+        <ProcessDefinition Id="KWMlTJ4HUKfPS6eP7bpGxO">
+          <Fragment Id="T0TanpTDFjILem2B2GDfhr" Patch="UqAdcLZBp9wNmf81Lu4L44" Enabled="true" />
+          <Fragment Id="PODVGrslc4WMCosVpWETZF" Patch="AyF4cHNbvKOLyFmhuJZd7L" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="RnUEJX1HgBUMZFtUkU2gOg" Ids="MIOsg8oVJscMYcPuVjRGXC,QLbtMeaW68iPyBsqW6cm9o" />
+        <Link Id="GciliRJU0XbM3DCZVrrKFv" Ids="S61No1u0ySJLJDKqf71t9z,UfSwezHuUT7N4qU8fuVnXo" IsHidden="true" />
+        <Link Id="Bnglh7zuBEzO78KnNdZcMJ" Ids="KClR1CllYFENk88fRFYFEr,CK4JkdCinwWM2wLhthx0nF" IsHidden="true" />
+        <Link Id="NBFAeEwAj0ePnuKnxwugYB" Ids="CLQ47fqR5m1OjXu3Xi0gOS,R71mJFC1pGaOHFoMZPGMA3" />
+        <Link Id="Vu0hYapdxGsQHTRlQCktzW" Ids="O8nrw7PNGCJMv7fyHIWz7n,IwLaEA4LUHWMx9AnvCat4B" />
+        <Link Id="PSBZK4jIL6bLoYGaQyQH4r" Ids="UfSwezHuUT7N4qU8fuVnXo,T0s3tJ1vC48LmnHvds0n1D" />
+        <Link Id="Ft6uo1mw32bMuY6hWDbnnV" Ids="RUoNvkAwfCPNPzpBS1RL9H,FootEkbiVBWMiHi7UbJ4R3" />
+        <Link Id="Fl7WspE9qvNNHxPNbM0HUx" Ids="A8cQaC1MQgRPaGdLwTnyMb,EHfLyOQ2NOhMGUFw5XljxK" />
+        <Link Id="VKwKuICY1riMk3ziwEzjH4" Ids="MCr1F0pXisFOOAd64K22Tx,AGm8nkL0rVwQXZh318W3SF" />
+        <Link Id="VVshspeWf6sQELvzHG2OzM" Ids="Twj64cjvwJiLZ5J8cUCFF5,KClR1CllYFENk88fRFYFEr" />
+        <Link Id="IVdDc8swKL6LQ3y0hJHXFL" Ids="RkSCjkzeOCaNkalw2jqqAQ,UuFjMPx4cH5O5A2Lvce21V" />
+        <Link Id="MNMPe2H4vK0M57UXd9pWcd" Ids="KtUqlbIJNIGNMN5iHtOHoz,OiqYMT3i7R4QUjYQQUrO8Y" />
+        <Link Id="Dy1riq3i6udPuovk6gUrDY" Ids="BLUnFC5ukAYMbjKuQyci9m,VQIP3480Fw4Mb7pjzam560" />
+        <Link Id="Ry1FaPF0zbnNv1IdUSqyr0" Ids="KQG1kOln24AQLd8R8cWVzZ,A0VdCciE7w2QPPOu8W9oGx" />
+      </Patch>
+    </Node>
+  </Patch>
+</Document>

@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="SjPFA3jJHXQMvChtZkPvMX" LanguageVersion="2019.2.0-0342-6bc9b61985" Version="0.128" IsTrusted="true">
+  <Patch Id="J993qDGeassNjH78uEwNvM">
+    <Canvas Id="Tgac8O7g8WUP8stz709JHN" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="319,214" Id="Qe3M4hUMQqgNwO1N6xAwUc">
+      <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="Builtin">
+        <Choice Kind="ContainerDefinition" Name="Process" />
+      </p:NodeReference>
+      <Patch Id="Q4KYAHzeVz3LnA4p7z4zB8">
+        <Canvas Id="ThsLeEisveJPcXWHjJ9H0Z" CanvasType="Group">
+          <Node Bounds="366,321,65,19" Id="O9AEkUIhcP5Ln8dQnJV4si">
+            <p:NodeReference LastCategoryFullName="IO" LastSymbolSource="VL.CoreLib.IO.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="File" />
+            </p:NodeReference>
+            <Pin Id="ImJdVN5M7MrOwXivUcbTt0" Name="File Path" Kind="InputPin" />
+            <Pin Id="Pcos3iNc5IJLp3qDaRaVeN" Name="File Mode" Kind="InputPin" />
+            <Pin Id="O5ggUhg5Ts1PxZbAWDaDlO" Name="File Access" Kind="InputPin" />
+            <Pin Id="GVZwQ31ekA7N8cvE02reCS" Name="File Share" Kind="InputPin" />
+            <Pin Id="FVRk00xbmMVMJmSgveGcEG" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="Six8eztFHBiQbA6RpNxggB" SlotId="NCwBnPUiMW7N0kS2bW5kmX" Bounds="369,421" />
+          <Pad Id="VkiYl2pk6BqL1D6G9sSOjC" Comment="File Path" Bounds="368,145,90,15" ShowValueBox="true" isIOBox="true" Value="Text.txt">
+            <p:TypeAnnotation LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Path" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="LL0sih7ouoXOognrRoiGKm" Comment="File Mode" Bounds="389,247,93,19" ShowValueBox="true" isIOBox="true" Value="OpenOrCreate">
+            <p:TypeAnnotation LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="FileMode" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="Oeq2Qb6EFZNNoiyv8yJjxH" Comment="File Access" Bounds="409,275,74,19" ShowValueBox="true" isIOBox="true" Value="ReadWrite">
+            <p:TypeAnnotation LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="FileAccess" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="ExkrTj86e5wLTE2WtW3JrO" Comment="File Share" Bounds="428,304,77,19" ShowValueBox="true" isIOBox="true" Value="ReadWrite">
+            <p:TypeAnnotation LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="FileShare" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Overlay Id="T2Y9R1fQT3dLONwu2yHVEm" Name="Open a handle to a File" Bounds="341,84,381,296">
+            <p:ColorIndex p:Type="Int32">0</p:ColorIndex>
+          </Overlay>
+          <Pad Id="Er4FH9JSZVnLRmImGI7bSE" Bounds="375,398,435,57" ShowValueBox="true" isIOBox="true" Value="This filehandle can be stored in a field and passed around the patch.&#xD;&#xA;Different parts of the patch can then read or write to this file.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Overlay Id="PHnuxi88oHYLO7318knGaa" Name="Write chunk" Bounds="202,496,715,332">
+            <p:ColorIndex p:Type="Int32">0</p:ColorIndex>
+          </Overlay>
+          <Node Bounds="368,733,85,19" Id="McZcXuyMb2GM7jsO5yUNQc">
+            <p:NodeReference LastCategoryFullName="IO.Stream" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="ClassType" Name="Stream" />
+              <Choice Kind="ProcessAppFlag" Name="Writer" />
+            </p:NodeReference>
+            <Pin Id="E1NPVciXc6kPnhqih6lmX2" Name="Input" Kind="InputPin" />
+            <Pin Id="SVTzRYlrlc1Pel0Tc5DzhM" Name="Data" Kind="InputPin" />
+            <Pin Id="AtdTI4cCKcsLSFZU3eYwLv" Name="Offset" Kind="InputPin" />
+            <Pin Id="OYC4AdnzCdHNonZf0bqzZY" Name="Write" Kind="InputPin" />
+            <Pin Id="FCnDb9gz8VzQRfvMxGQSGm" Name="Abort" Kind="InputPin" />
+            <Pin Id="M0IkDiTB7TaO6HzznwINHa" Name="Progress" Kind="OutputPin" />
+            <Pin Id="OxIEh2tvZIgMvhUVFLuG1t" Name="In Progress" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="388,584,52,19" Id="IO0pWm3wtadNv54dkm6yP4">
+            <p:NodeReference LastCategoryFullName="Primitive.String" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="ToBytes" />
+              <CategoryReference Kind="StringType" Name="String" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="D2vq3vuVUs7Ob0Gr2HK2oj" Name="Input" Kind="StateInputPin" />
+            <Pin Id="EcPUnmJbtLrNyoH5j2eDvq" Name="Encoding" Kind="InputPin" />
+            <Pin Id="M8lDFA1qnxHLnibi7riZxD" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="388,627,83,26" Id="DCbHrWnNuMkQWKHwnOAZ8T">
+            <p:NodeReference LastCategoryFullName="Collections.Spread" LastSymbolSource="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="FromSequence" />
+              <CategoryReference Kind="RecordType" Name="Spread" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="Dfv6geYhKvBMKgrfMTiDla" Name="Input" Kind="StateInputPin" />
+            <Pin Id="NlcbhtIV5BuLpw1MkhiqHs" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="Ju2wYAVHrbBMPdDBThYJX0" Comment="Write" Bounds="504,687,48,30" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="VouHVeSvauMOciDKQqGfnk" Comment="Progress" Bounds="333,776,33,19" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="MWy2Llt3RDZO8H4OxYFKb3" Comment="In Progress" Bounds="469,779,40,19" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="OBCQsHS9D5cNISZnk6BvWg" Comment="" Bounds="390,551,74,15" ShowValueBox="true" isIOBox="true" Value=" I'm a chunk.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="616,549,35,26" Id="Gxfcfr0eGrUOSZtkq3ohEp">
+            <p:NodeReference LastCategoryFullName="IO.Path" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Size" />
+              <CategoryReference Kind="RecordType" Name="Path" NeedsToBeDirectParent="true">
+                <p:OuterCategoryReference Name="IO" NeedsToBeDirectParent="true" />
+              </CategoryReference>
+            </p:NodeReference>
+            <Pin Id="POtO1IPiwejNdKnyl6f8c2" Name="Input" Kind="StateInputPin" />
+            <Pin Id="PixxhpLqlXkQcFWls5L88Z" Name="Size" Kind="OutputPin" />
+          </Node>
+          <Pad Id="LAoQ6ImJbJVLsoFIY9ZRjl" Comment="Size" Bounds="618,597,36,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="JKqq3j6zr6kP9owebYmpjs" Bounds="689,549,196,80" ShowValueBox="true" isIOBox="true" Value="Use the Size [IO.Path] to get&#xD;&#xA;the size of the file if you want&#xD;&#xA;to write some bytes to its end (use it as an Offset).">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="366,178,81,19" Id="MHpAQncAmHiLcriNdlNPQz">
+            <p:NodeReference LastCategoryFullName="HelpHelpers" LastSymbolSource="HelpHelpers.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="GetTempPath" />
+            </p:NodeReference>
+            <Pin Id="PnnBj8f2WQNNp8YaJjxhBq" Name="Input" Kind="InputPin" />
+            <Pin Id="Aylv0GZZbBROY02puck1Jl" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="HtZQX4q6biSQZViwDnLhFK" Bounds="32,280,169,84" ShowValueBox="true" isIOBox="true" Value="We copy the asset to the temp folder just to be sure we have rights to write the file.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Fe3Cv0Owws4N9vQIrKUbcH" Comment="File Path" Bounds="46,181,142,15" ShowValueBox="true" isIOBox="true" Value="..\..\Assets\Text.txt">
+            <p:TypeAnnotation LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Path" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="44,243,77,19" Id="UJ1e7zEMgSzOWYF3QLH7vk">
+            <p:NodeReference LastCategoryFullName="HelpHelpers" LastSymbolSource="HelpHelpers.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="CopyToTemp" />
+            </p:NodeReference>
+            <Pin Id="LAOU4IDUN77NZ0NygqwdQU" Name="Input" Kind="InputPin" />
+            <Pin Id="HAvq1a6m59vOrfJ83v3iaI" Name="Apply" Kind="InputPin" />
+          </Node>
+          <Node Bounds="116,206,54,19" Id="RrnrZaHN7X9O1Yr5JZ9pDu">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OnOpen" />
+            </p:NodeReference>
+            <Pin Id="TtBo7ws34KtOzVpQyhn1OI" Name="Simulate" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <Choice Kind="TypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="O7hDaRvLB0vOa2inylNvv1" Name="Output" Kind="OutputPin" />
+          </Node>
+        </Canvas>
+        <Patch Id="ScGb1anQliBQEuzymRusro" Name="Create" ParticipatingElements="KfE9gudqXsBMBxsE12RXe3" />
+        <Patch Id="PcT2WE30PNbObdDlM2ItuX" Name="Update" ParticipatingElements="TfuuCHwJwhxMvJG7FUZX4d" />
+        <ProcessDefinition Id="LJTKSwnFdlXOFAHC3AG76h">
+          <Fragment Id="ONHWTIJf5tiPM1xdMWlmPV" Patch="ScGb1anQliBQEuzymRusro" Enabled="true" />
+          <Fragment Id="SQx3OwHHYwPQSlLRmbAeyB" Patch="PcT2WE30PNbObdDlM2ItuX" Enabled="true" />
+        </ProcessDefinition>
+        <Slot Id="NCwBnPUiMW7N0kS2bW5kmX" Name="My File Handle" />
+        <Link Id="TYqSXk0leOYQD0IrKoPtfc" Ids="FVRk00xbmMVMJmSgveGcEG,Six8eztFHBiQbA6RpNxggB" />
+        <Link Id="OzxwvrILzxXLVREnbq5q18" Ids="VkiYl2pk6BqL1D6G9sSOjC,PnnBj8f2WQNNp8YaJjxhBq" />
+        <Link Id="EKegat8EsdLMqPVxuw0cGM" Ids="LL0sih7ouoXOognrRoiGKm,Pcos3iNc5IJLp3qDaRaVeN" />
+        <Link Id="DxKfJQzzqmOP5dwTSIeLa1" Ids="Oeq2Qb6EFZNNoiyv8yJjxH,O5ggUhg5Ts1PxZbAWDaDlO" />
+        <Link Id="R08SM9qkLiBN4C33Sb6b5a" Ids="ExkrTj86e5wLTE2WtW3JrO,GVZwQ31ekA7N8cvE02reCS" />
+        <Link Id="OJJVZGwCCR4LhxFGpTiakR" Ids="M8lDFA1qnxHLnibi7riZxD,Dfv6geYhKvBMKgrfMTiDla" />
+        <Link Id="FtijaBmjsWXPI225MAA1bD" Ids="Ju2wYAVHrbBMPdDBThYJX0,OYC4AdnzCdHNonZf0bqzZY" />
+        <Link Id="PeymAF0PmjGMlTXTC2Ll0F" Ids="M0IkDiTB7TaO6HzznwINHa,VouHVeSvauMOciDKQqGfnk" />
+        <Link Id="EMh2HHFiU5EPjso9EVOJE1" Ids="OxIEh2tvZIgMvhUVFLuG1t,MWy2Llt3RDZO8H4OxYFKb3" />
+        <Link Id="ISsRHQpEFnNM3QlpCGqM7m" Ids="OBCQsHS9D5cNISZnk6BvWg,D2vq3vuVUs7Ob0Gr2HK2oj" />
+        <Link Id="JTfiOVE5LcDQbJEYkUJq7o" Ids="Six8eztFHBiQbA6RpNxggB,E1NPVciXc6kPnhqih6lmX2" />
+        <Link Id="QtCL0ZBCIHZNZKKa13TZlO" Ids="NlcbhtIV5BuLpw1MkhiqHs,SVTzRYlrlc1Pel0Tc5DzhM" />
+        <Link Id="ICuVQ5lE8TqLMWpLIJyNQj" Ids="PixxhpLqlXkQcFWls5L88Z,LAoQ6ImJbJVLsoFIY9ZRjl" />
+        <Link Id="SThc8Bz8CZCMxSfN7LThAY" Ids="Aylv0GZZbBROY02puck1Jl,ImJdVN5M7MrOwXivUcbTt0" />
+        <Link Id="JLYaTg8uw7wNSNYcNNbpfr" Ids="Aylv0GZZbBROY02puck1Jl,POtO1IPiwejNdKnyl6f8c2" />
+        <Link Id="TfuuCHwJwhxMvJG7FUZX4d" Ids="Fe3Cv0Owws4N9vQIrKUbcH,LAOU4IDUN77NZ0NygqwdQU" />
+        <Link Id="RqpQ3kDqs7pNEASPBq7Xt9" Ids="PixxhpLqlXkQcFWls5L88Z,AtdTI4cCKcsLSFZU3eYwLv" />
+        <Link Id="KfE9gudqXsBMBxsE12RXe3" Ids="O7hDaRvLB0vOa2inylNvv1,HAvq1a6m59vOrfJ83v3iaI" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="I8fCdivVlzZQHxgA4vtDii" Location="VL.CoreLib" Version="2019.2.0-0342-g6bc9b61985" />
+  <DocumentDependency Id="Loe13bkEvS0Oe8ulaPPl0j" Location="../../HelpHelpers.vl" />
+</Document>

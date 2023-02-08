@@ -1,0 +1,27 @@
+﻿[Category("Utils")]
+[Tags("replace r g b a")]
+shader SetChannel_TextureFX : FilterBase
+{
+    [Summary("The value to replace")]
+    [Default(1)]
+    compose ComputeFloat Channel;
+
+    [Summary("The channel of the input texture to replace")]
+    [EnumType("VL.Stride.Effects.TextureFX.TextureChannel")]
+    uint TextureChannel;
+
+    float4 Filter(float4 tex0col)
+    {
+        float channel = Channel.Compute();
+
+        switch (TextureChannel)
+        {
+            case 0 : tex0col.r = channel; break;
+            case 1 : tex0col.g = channel; break;
+            case 2 : tex0col.b = channel; break;
+            case 3 : tex0col.a = channel; break;
+        }
+
+        return tex0col;
+    }
+};

@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeReferencedAssembliesInPackage</TargetsForTfmSpecificBuildOutput>
+    
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageId>$(AssemblyName)</PackageId>
+    <Description>Cross-platform base package</Description>
+    <PackageTags></PackageTags>
+    <RootNamespace>VL.Stride</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Authors>vvvv and open-source contributors</Authors>
+    <Company>vvvv</Company>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="..\*.vl" Pack="true" PackagePath=" " />
+    <!-- Setting AutoGen metadata is a hack to avoid getting picked up by asset compiler -->
+    <None Include="..\help\**\*" Link="help\%(RecursiveDir)%(Filename)%(Extension)" Pack="true" AutoGen="false" PackagePath="help\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <!-- A pure package dependency so on install all VL packages come in -->
+    <PackageReference Include="Stride.Core" />
+    <PackageReference Include="Stride.Core.Yaml" />
+    <PackageReference Include="Stride.Core.Assets.CompilerApp" IncludeAssets="build;buildTransitive" />
+    <PackageReference Include="Stride.Engine" />
+    <PackageReference Include="Stride.Navigation" />
+    <PackageReference Include="Stride.Particles" />
+    <PackageReference Include="Stride.Physics" />
+    <PackageReference Include="Stride.UI" />
+    <PackageReference Include="Stride.Video" />
+    <PackageReference Include="Stride.VirtualReality" />
+  </ItemGroup>
+  <Target Name="IncludeStridePackageContent" BeforeTargets="InferPackageContents" DependsOnTargets="_StridePrepareAssetsForPack">
+    <Message Importance="high" Text="Called Stride package targets" />
+  </Target>
+  <Target Name="IncludeReferencedAssembliesInPackage" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <!-- Include assemblies from transitive package references https://github.com/NuGet/Home/issues/5103 -->
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'vvvv.geometry3Sharp'" />
+    </ItemGroup>
+  </Target>
+  <ItemGroup Condition="'$(InPrivateRepo)' == 'true'">
+    <ProjectReference Include="..\..\..\..\VL.Core\src\VL.Core.csproj" />
+    <ProjectReference Include="..\..\..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(InPrivateRepo)' != 'true'">
+    <PackageReference Include="VL.Core" />
+    <PackageReference Include="VL.CoreLib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="vvvv.geometry3Sharp">
+      <HintPath>..\dependencies\vvvv.geometry3Sharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="**\*.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>%(Filename).sdsl</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="**\*.sdsl">
+      <LastGenOutput>%(Filename).sdsl.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Effects\Demos\DrawParticles.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\Demos\ParticleStructPos4Vel4.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\Demos\Simulation.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\EffectNodeBaseKeys.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>%(Filename)</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Effects\HappyLibs\HappyRaymarch.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\HappyLibs\HappySDF.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\ShaderFX\ComputeValue\ComputeTexture2D.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\ShaderFX\ComputeValue\ComputeTexture2DArray.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\ShaderFX\TextureFXEffect.sdfx.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>%(Filename)</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Blur\Blur_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\RampColor_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Blur\Blur_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Blur_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Blur\BoxBlurBase.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Blur\BoxBlur_HorizontalPass_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Blur\BoxBlur_VerticalPass_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\BackgroundSubstraction_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ChannelKeying\ChannelKeyingBase.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ChannelKeying\ChannelKeying_Alpha_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ChannelKeying\ChannelKeying_Blue_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ChannelKeying\ChannelKeying_Green_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ChannelKeying\ChannelKeying_Luma_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ChannelKeying\ChannelKeying_Red_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ChannelKeying\ChannelKeying_Saturation_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorConvert\ColorConvertBase.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorConvert\ColorConvert_Alpha_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorConvert\ColorConvert_Blue_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorConvert\ColorConvert_Green_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorConvert\ColorConvert_HSV2RGB_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorConvert\ColorConvert_Hue_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorConvert\ColorConvert_Red_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorConvert\ColorConvert_RGB2HSV_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorConvert\ColorConvert_Saturation_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorConvert\ColorConvert_Value_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\Colorize_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorMap\ColorMapBase.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorMap\ColorMap_HueSat_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorMap\ColorMap_HueValue_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorMap\ColorMap_Hue_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorMap\ColorMap_Luma_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorMap\ColorMap_RedBlue_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorMap\ColorMap_RGBA_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorMap\ColorMap_SatValue_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorMap\ColorMap_Tone_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorMap\ColorMap_Value_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorRamp\ColorRamp_Hue_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ColorRamp_Hue_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorRamp\ColorRamp_Luma_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ColorRamp_Luma_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorRamp\ColorRamp_RGB_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorRamp\ColorRamp_Saturation_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ColorRamp_Saturation_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\ColorRamp\ColorRampBase.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ColorRampBase.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\Keying\ChromaKey_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ChromaKey_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\Levels\Levels_ClampBoth_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Levels_ClampBoth_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\Levels\Levels_ClampBottom_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Levels_ClampBottom_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\Levels\Levels_ClampNone_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Levels_ClampNone_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\Levels\Levels_ClampTop_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Levels_ClampTop_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\ColorManipulation\Levels\LevelsBase.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>LevelsBase.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\Bump\BumpBase.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\Bump\Bump_Directional_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\Bump\Bump_Point_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\Coordinates\CoordinatesBase.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\Coordinates\Coordinates_Cartesian_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\Coordinates\Coordinates_Polar_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\Coordinates_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\Tunnels\TunnelsBase.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TunnelsBase.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\Tunnels\Tunnels_Cylinder_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Tunnels_Cylinder_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\Tunnels\Tunnels_Fly_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Tunnels_Fly_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\Tunnels\Tunnels_Square_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Tunnels_Square_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Distortion\UVOffset_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Glow\SimpleBloom_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Patterns\Pixelate_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Pixelate_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Filters\Scanline_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Mixers\Blend\ComputeColorInverse.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ComputeColorInverse.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Mixers\Mix_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Sources\Electricity_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Sources\Noise_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Noise_Internal_TextureFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Sources\Stripes_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\TextureFX\TextureFXGraphEffect - Kopie.sdfx.cs">
+      <DesignTime>True</DesignTime>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Effects\TextureFX\Utils\Swizzle_Internal_TextureFX.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Effects\Utils\CalcDispatchArgs.sdsl.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Update="Rendering\Materials\FallbackMaterial\SceneEditorParameters.sdfx.cs">
+      <DesignTime>True</DesignTime>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Rendering\Materials\FallbackMaterial\StrideEditorForwardShadingEffect.sdfx.cs">
+      <DesignTime>True</DesignTime>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Effects\ShaderFX\TextureFXEffect.sdfx">
+      <LastGenOutput>TextureFXEffect.sdfx.cs</LastGenOutput>
+    </None>
+    <None Update="Effects\TextureFX\Filters\ColorManipulation\ColorRamp\ColorRamp_RGB_Internal_TextureFX.sdsl">
+      <LastGenOutput>%(Filename).sdsl.cs</LastGenOutput>
+    </None>
+    <None Update="Effects\TextureFX\Filters\ColorManipulation\Keying\ChromaKey_Internal_TextureFX.sdsl">
+      <LastGenOutput>ChromaKey_Internal_TextureFX.sdsl.cs</LastGenOutput>
+    </None>
+    <None Update="Effects\TextureFX\Filters\ColorManipulation\Levels\Levels_ClampNone_Internal_TextureFX.sdsl">
+      <LastGenOutput>%(Filename).sdsl.cs</LastGenOutput>
+    </None>
+    <None Update="Effects\TextureFX\Filters\Distortion\UVOffset_TextureFX.sdsl">
+      <LastGenOutput>UVOffset_TextureFX.sdsl.cs</LastGenOutput>
+    </None>
+    <None Update="Effects\TextureFX\Mixers\Blend\ComputeColorInverse.sdsl">
+      <Generator>XenkoShaderKeyGenerator</Generator>
+    </None>
+    <None Update="Effects\TextureFX\Mixers\Mix_TextureFX.sdsl">
+      <LastGenOutput>%(Filename).sdsl.cs</LastGenOutput>
+    </None>
+    <None Update="Effects\TextureFX\TextureFXGraphEffect - Kopie.sdfx">
+      <LastGenOutput>TextureFXGraphEffect - Kopie.sdfx.cs</LastGenOutput>
+    </None>
+    <None Update="Effects\TextureFX\Utils\Swizzle_Internal_TextureFX.sdsl">
+      <LastGenOutput>Swizzle_Internal_TextureFX.sdsl.cs</LastGenOutput>
+    </None>
+    <None Update="Rendering\Materials\FallbackMaterial\SceneEditorParameters.sdfx">
+      <LastGenOutput>SceneEditorParameters.sdfx.cs</LastGenOutput>
+    </None>
+    <None Update="Rendering\Materials\FallbackMaterial\StrideEditorForwardShadingEffect.sdfx">
+      <LastGenOutput>StrideEditorForwardShadingEffect.sdfx.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.5.103">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

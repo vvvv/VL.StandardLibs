@@ -1,0 +1,15 @@
+﻿//Example of a custom blend operation.
+shader ComputeColorInverse : ComputeFloat4
+{
+    compose ComputeColor color1;
+    compose ComputeColor color2;
+
+    override float4 Compute()
+    {
+        float4 backColor = color1.Compute();
+        float4 frontColor = color2.Compute();
+        float3 centerColor = ((1-backColor.rgb) + (1-frontColor.rgb)) * 0.5;
+        return BlendUtils.BasicBlend(backColor, frontColor, centerColor);
+    }
+
+};

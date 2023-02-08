@@ -1,0 +1,13 @@
+﻿shader GetLinearDispatchThreadId : ComputeUInt, ComputeShaderBase
+{   
+    override uint Compute()
+    {
+        uint3 ti = streams.DispatchThreadId;
+        uint3 gc = streams.ThreadGroupCount;
+        
+        uint sy = gc.x * streams.ThreadCountX;
+        uint sz = sy * gc.y * streams.ThreadCountY;
+
+        return ti.z * sz + ti.y * sy + ti.x;
+    }  
+};

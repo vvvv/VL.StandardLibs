@@ -1,0 +1,30 @@
+﻿[Category("Filter")]
+[Summary("")]
+shader Posterize_RGB_TextureFX : FilterBase
+{
+    float4 Levels = float4(4,4,4,4);
+    bool Alpha = false;
+    float4 Dithering = float4(0,0,0,0);
+    float Smooth = 0.1f;
+    float4 Phase = float4(0,0,0,0);
+
+    stage float4 Posterizer(float4 c, float2 vp)
+    {
+        float4 ph=(Phase);
+        c=c*max(Levels,0)+Dithering*(1-Smooth)*dot(vp%2,float2(.75,.25))*frac(c*max(Levels,0));
+        c+=ph;
+        return (floor(c)-ph+saturate((frac(c)-.5)/(.00001+Smooth)+.5))/(max(Levels,0)+.000000001);
+    }
+
+    float4 Filter(float4 tex0col)
+    {
+        float4 c = tex0col;
+        float2 vp = streams.TexCoord;
+        float pa = c.a;
+        c = Posterizer(c,vp);
+        if(!Alpha)c.a=pa;
+        return c;
+    }
+};
+
+

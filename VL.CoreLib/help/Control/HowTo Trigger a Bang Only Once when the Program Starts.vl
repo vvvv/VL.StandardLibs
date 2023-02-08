@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="C2vqbtoStWoOI1eKIKZBBM" LanguageVersion="2019.2.0-0354-2bcf04a678" Version="0.128">
+  <NugetDependency Id="Pdwi7eJLF93NDbynZh5tNB" Location="VL.CoreLib" Version="2019.2.0-0354-g2bcf04a678" />
+  <Patch Id="BFeHf229CNdQZYNuoWvSNw">
+    <Canvas Id="OHBhKxype2ALATNlngbqoB" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="JGdgWLeaEAPMU3RiuEk8mC">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="V6VXzrdcRRXMCAVt3BlN9A">
+        <Canvas Id="F9xJb5pn6HwLCkB8Vh5Vaa" CanvasType="Group">
+          <Node Bounds="205,291,54,19" Id="GEsBUL7W1aFO1qSdiPjEaL">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OnOpen" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="H5v0bIB5B2iQbItncZ6Iom" Name="Simulate" Kind="InputPin" />
+            <Pin Id="Ooyrg7UiZbFM487c8ul2zt" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="205,420,65,19" Id="QUSAKIF1h4MPHqmHdMSakh">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="MonoFlop" />
+            </p:NodeReference>
+            <Pin Id="QQSKYIvpJi4La4O3CqBzTm" Name="Set" Kind="InputPin" />
+            <Pin Id="LpV3ZfZ8TvQMArES6yQumD" Name="Time" Kind="InputPin" />
+            <Pin Id="RD13qOmI75yMj45VJACaqA" Name="Retriggerable" Kind="InputPin" />
+            <Pin Id="FxsIqfw7NyxMTMWXptawMA" Name="Reset" Kind="InputPin" />
+            <Pin Id="UiOokCe7mo1MpFpNh7CfUt" Name="Value" Kind="OutputPin" />
+            <Pin Id="NTXVFDFzyKCPiOO3ZGFhPC" Name="Inverse Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="OrmHXOjKoNoOTTBdxgGCM5" Bounds="213,331,302,62" ShowValueBox="true" isIOBox="true" Value="&lt; OnOpen returns a single bang the first time it is executed after the program is started. Use this to initialize things once.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="F1OWhZcr5kjQdAcHrH6BXa" Comment="Simulate" Bounds="207,227,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="UdNZRLYZEMxLWoy331rOxF" Bounds="307,225,190,41" ShowValueBox="true" isIOBox="true" Value="&lt; You can manually retrigger the bang to simulate it.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Gp92n04g2CxO1YtTGR9UPh" Comment="" Bounds="207,468,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Inh5WSRhhD6POFJRCg3ttD" Bounds="181,139,223,27" ShowValueBox="true" isIOBox="true" Value="Use an OnOpen node!">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="TMFMkcZDcYUNKxGjByaXt0" Name="Create" />
+        <Patch Id="JXnEepVfp1ZPHJ6XEXlYmq" Name="Update" />
+        <ProcessDefinition Id="PFgKBkpW7PUPHAbbTibV8o">
+          <Fragment Id="PqNb0bMJ2LpMa4yVn8UEkg" Patch="TMFMkcZDcYUNKxGjByaXt0" Enabled="true" />
+          <Fragment Id="ODUmKAYIE3gQLd6PgibatE" Patch="JXnEepVfp1ZPHJ6XEXlYmq" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="Rhj440tINc9QVWqcrgSQGL" Ids="Ooyrg7UiZbFM487c8ul2zt,QQSKYIvpJi4La4O3CqBzTm" />
+        <Link Id="FWEjM2A1dTbPYVc5d1Za6o" Ids="F1OWhZcr5kjQdAcHrH6BXa,H5v0bIB5B2iQbItncZ6Iom" />
+        <Link Id="KO0aEkEFE0KQDvM0UkBfMS" Ids="UiOokCe7mo1MpFpNh7CfUt,Gp92n04g2CxO1YtTGR9UPh" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="DpfZjzYVeVBPuxHMXkx929" Location="VL.Skia" Version="2019.2.0-0354-g2bcf04a678" />
+</Document>

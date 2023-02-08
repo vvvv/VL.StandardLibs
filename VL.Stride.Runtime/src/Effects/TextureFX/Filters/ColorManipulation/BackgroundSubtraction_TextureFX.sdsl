@@ -1,0 +1,29 @@
+// source:
+// https://github.com/vvvv/vvvv-sdk/blob/develop/vvvv45/addonpack/lib/nodes/modules/TextureFX/Filter/BackgroundSubtraction/BackgroundSubtraction.fx
+
+[Category("Filter")]
+[Summary("")]
+shader BackgroundSubtraction_TextureFX : FilterBase
+{
+    float Threshold = 0.05f;
+    float Softness = 0.05f;
+    bool Invert;
+   
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+    
+        float4 image = Texture0.Sample(Sampler0, uv);
+        float4 background = Texture1.Sample(Sampler1, uv);
+        float4 col = image;
+    
+        col.a = smoothstep(Threshold, Threshold + Softness + .000001, length(image.rgb - background.rgb));
+        
+        if(Invert)
+        {
+            col.a = 1 - col.a;
+        }
+
+        return col;
+    }
+};

@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="G9Bh0dSdXkcOXrJaxQBWVA" LanguageVersion="2020.2.2.272" Version="0.128">
+  <NugetDependency Id="NFrnXZLqk2pQWzyjHn8MgY" Location="VL.CoreLib" Version="2020.2.2-0271-ga6c3f1446f" />
+  <Patch Id="NElc0xTKMNqNtiuh0NQjRt">
+    <Canvas Id="Um06ItK36AXLJwhdRjfCAB" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="Gxch8MNxUXZMnX1cf2YVPn">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="QMLfmocioxVMHD0URDTUvH">
+        <Canvas Id="T2mpJCmEqQGOdyCFwjsfTq" CanvasType="Group">
+          <Node Bounds="382,294,25,19" Id="SnOSiD5VBVsMLOCdWgl4om">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="S" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <Pin Id="F9hERVVsDCsPHmM6Az2McZ" Name="Channel" Kind="InputPin" />
+            <Pin Id="FnxWwTHmA7dLF3615pwj7g" Name="Value" Kind="InputPin" />
+            <Pin Id="K6PzKGAoEuNQcmqufIeU1K" Name="Active" Kind="OutputPin" />
+          </Node>
+          <Pad Id="V78dTbaOYLmNkU8jXw8QLq" Comment="Channel (this can be any object)" Bounds="384,237,64,16" ShowValueBox="true" isIOBox="true" Value="MyChannel">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="BMYPoeTbjXWOzr1ebY4EpC" Comment="Value (this should match what the receiver expects)" Bounds="404,274,35,15" ShowValueBox="true" isIOBox="true" Value="0.42">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="379,464,25,19" Id="RBQwIf8BJ65OSyajIoge5X">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="R" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <Pin Id="MTEjCQyonwpMBF7yfHDiQt" Name="Channel" Kind="InputPin" />
+            <Pin Id="CGgIroSjEKHPC1OJxkJ8sY" Name="Fallback Value" Kind="InputPin" />
+            <Pin Id="PIIpB1a8SEoQRKiAJuwuHx" Name="Value" Kind="OutputPin" />
+            <Pin Id="NwmvtAypD8dNDunIPLiipj" Name="Success" Kind="OutputPin" />
+          </Node>
+          <Pad Id="ENyhOIGstW6NfbydwcvAEP" Comment="Fallback Value (if no sender exists)" Bounds="401,447,32,15" ShowValueBox="true" isIOBox="true" Value="0">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="Float32" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="SCDODWik83HNbLNanVAXa2" Comment="Success" Bounds="401,506,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="ShUhmUXvDPeNH9n3mGhAhz" Comment="Channel (this should be the same object as the sender channel)" Bounds="381,407,67,15" ShowValueBox="true" isIOBox="true" Value="MyChannel">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="SefjZKjjkyLLJPF00RJscV" Comment="Active" Bounds="384,338,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="FkNuhvupT55QXFbmUyJ3bh" Comment="" Bounds="381,544,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="BDPbUxgAQjoM9yRrFWHsq3" Bounds="568,472,173,34" ShowValueBox="true" isIOBox="true" Value="(the fallback value is also handy to define the type of the receiver)">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">7</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="MT1jTjqIP0zNoH9d1PtJBs" Bounds="404,604,434,221" ShowValueBox="true" isIOBox="true" Value="In this example the Reciever gets executed first. It complains about that because&#xD;&#xA;* in the first frame there is no value&#xD;&#xA;* in all other frames it receives the value of the last frame.&#xD;&#xA;&#xD;&#xA;Often, however, a Receiver is in a patch that depends on the patch that contains the Sender. For these cases there will be no frame delay. If this is important to you, consider creating such a dataflow dependency.&#xD;&#xA;&#xD;&#xA;In future versions of the language there will be light-weight constructs to sort the execution. Promissed.&#xD;&#xA;">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="119,727,25,19" Id="Qfol3XcSEnuMEovsQLvZwK">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="R" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <Pin Id="OqgMk4dAzTTQC1IzHlRJPj" Name="Channel" Kind="InputPin" />
+            <Pin Id="Iwd6OErhHfBLS0ZK8pqODq" Name="Fallback Value" Kind="InputPin" />
+            <Pin Id="UIywuqqKSnFLmKLPOELQpi" Name="Value" Kind="OutputPin" />
+            <Pin Id="ThTA9cU1XGjLyogSakYirk" Name="Success" Kind="OutputPin" />
+          </Node>
+          <Pad Id="EATr8mlSAHYLQh0bGuuwI7" Comment="" Bounds="121,670,67,15" ShowValueBox="true" isIOBox="true" Value="MyChannel">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="INdzXCypg5gPkN2kgjju67" Bounds="121,808,149,43" ShowValueBox="true" isIOBox="true" Value="1, 1, 1, 1">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="RGBA" />
+              <FullNameCategoryReference ID="Color" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="MDITA5QXBCaNKxahji3JGE" Bounds="150,733,93,44" ShowValueBox="true" isIOBox="true" Value="incompatible data">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="QtJ6dpGkYvgMuH6r7GbTbP" Name="Create" />
+        <Patch Id="KzBErfLhGXVLdKMNuGTSA4" Name="Update" />
+        <ProcessDefinition Id="Ol0uM5X6udCOCLEFniohtC">
+          <Fragment Id="PtGIDxOTZc5M0oMcwYxTbw" Patch="QtJ6dpGkYvgMuH6r7GbTbP" Enabled="true" />
+          <Fragment Id="P544kCXjmXILPMGMWLXafl" Patch="KzBErfLhGXVLdKMNuGTSA4" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="Eg6CBBbr5L8PPHti8AKSAo" Ids="V78dTbaOYLmNkU8jXw8QLq,F9hERVVsDCsPHmM6Az2McZ" />
+        <Link Id="IZl1mV5chHDOUrZBt6CRv5" Ids="BMYPoeTbjXWOzr1ebY4EpC,FnxWwTHmA7dLF3615pwj7g" />
+        <Link Id="TQqqd4gOBWlLERgBP8gcdH" Ids="ENyhOIGstW6NfbydwcvAEP,CGgIroSjEKHPC1OJxkJ8sY" />
+        <Link Id="D5zTy0iEF0UNqBd62QSo3G" Ids="NwmvtAypD8dNDunIPLiipj,SCDODWik83HNbLNanVAXa2" />
+        <Link Id="GR8vuheh2kANE0cXoyPSTm" Ids="ShUhmUXvDPeNH9n3mGhAhz,MTEjCQyonwpMBF7yfHDiQt" />
+        <Link Id="QeITE9w3VX2PTOZhBm802G" Ids="K6PzKGAoEuNQcmqufIeU1K,SefjZKjjkyLLJPF00RJscV" />
+        <Link Id="RQaCvTu9pBKP3Qh8S0Asfi" Ids="PIIpB1a8SEoQRKiAJuwuHx,FkNuhvupT55QXFbmUyJ3bh" />
+        <Link Id="AIl2rx47ca8QDOlYU6QqJl" Ids="EATr8mlSAHYLQh0bGuuwI7,OqgMk4dAzTTQC1IzHlRJPj" />
+        <Link Id="BgUVfajbILmPofiU3yqOnT" Ids="UIywuqqKSnFLmKLPOELQpi,INdzXCypg5gPkN2kgjju67" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="QRnLJXrdVV9MTK2egYIe8U" Location="VL.Skia" Version="2020.2.2-0271-ga6c3f1446f" />
+</Document>

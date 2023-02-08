@@ -1,0 +1,42 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/BlurGlow.tfx
+
+[Category("Filter")]
+[Summary("")]
+[WantsMips("Texture0")]
+shader BlurGlow_TextureFX : FilterBase
+{
+    float Shape= 0.5f;
+    float Brightness = 2.0f;
+    float Radius = 0.5f;
+    bool Alpha = false;
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 R = ViewSize;
+        float2 uv = streams.TexCoord;
+
+        float lod = log2(max(R.x, R.y));
+
+        float4 col = 0;
+        float kk = 0;
+
+        for(float i = 0; i < min(lod - (1 - Radius * lod), 14); i++)
+        {
+            float4 nc = Texture0.SampleLevel(Sampler0, uv, 1+i);
+            float k = pow(2, i * Shape - lod + 1) * saturate(Radius * lod - i + 1);
+            col += nc * k;
+            kk += k;
+        }
+
+        col /= kk;
+        col.rgb *= Brightness;
+        
+        if(!Alpha)
+        {
+            col.a = Texture0.SampleLevel(Sampler0, uv, 0).a;
+        }
+        
+        return col;
+    }
+};

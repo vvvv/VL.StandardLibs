@@ -1,0 +1,29 @@
+// source:
+// https://github.com/vvvv/vvvv-sdk/blob/develop/vvvv45/addonpack/lib/nodes/modules/TextureFX/Filter/Anaglyph/Anaglyph.fx
+
+[Category("Filter")]
+[Summary("")]
+[WantsMips("Texture1")]
+shader Anaglyph_TextureFX : FilterBase
+{
+    float Boost = 1.0f;
+    float Distance = 0.1f;
+    float MapBlur = 0.1f;
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float2 R = ViewSize;
+        
+        float lod = 1 + saturate(MapBlur) * log2(max(R.x, R.y));
+        float2 off = float2(Boost, 0)/256.;
+        float4 map = Texture1.SampleLevel(Sampler1, uv, lod);
+        float depth = map.x-Distance;
+        
+        float4 col = 0;
+        col.ra += Texture0.Sample(Sampler0, uv-off * depth).ra;
+        col.gba += Texture0.Sample(Sampler0, uv+off * depth).gba;
+        
+        return col;
+    }
+};
