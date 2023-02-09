@@ -4,8 +4,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <OutputPath>..\lib</OutputPath>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeReferencedAssembliesInPackage</TargetsForTfmSpecificBuildOutput>
-    
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <!-- Ensures dependencies are present https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support -->
+    <EnableDynamicLoading>true</EnableDynamicLoading>
     
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageId>$(AssemblyName)</PackageId>

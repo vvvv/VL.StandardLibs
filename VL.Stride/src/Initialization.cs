@@ -21,6 +21,12 @@ namespace VL.Stride.Lib
     {
         public Initialization()
         {
+            if (UseSDL)
+            {
+                // Use .NET standard native library loading mechanism (before Silk.NET or Stride try their custom ones which don't work for us)
+                // Only this overload raises the AssemblyLoadContext.ResolvingUnmanagedDll event
+                NativeLibrary.Load("SDL2.dll", typeof(Initialization).Assembly, default);
+            }
         }
 
         // Remove once tested enough
