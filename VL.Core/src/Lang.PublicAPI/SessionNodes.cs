@@ -44,6 +44,8 @@ namespace VL.Lang.PublicAPI
         public static void ShowPatchOfNode(UniqueId nodeID)
             => Current?.ShowPatchOfNode(nodeID);
 
+        public static Keys OneUp => Current?.OneUp ?? Keys.None;
+
         /// <summary>
         /// Add a message for one frame. 
         /// </summary>
