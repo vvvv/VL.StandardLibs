@@ -3,7 +3,6 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), '$(MSBuildThisFileDirectory)../'))"
           Condition="Exists($([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), $(MSBuildThisFileDirectory)../)))" />
   <PropertyGroup>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageOutputPath>$(MsBuildThisFileDirectory)build\packages\</PackageOutputPath>
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
 
@@ -19,9 +18,5 @@
     <PackageProjectUrl>http://vvvv.org</PackageProjectUrl>
     <Product>vvvv</Product>
     
-  </PropertyGroup>
-  <!-- Disable package generation inside visual studio as it slows down build time alot -->
-  <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' == 'true'">
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 </Project>

@@ -14,17 +14,6 @@
     <PackageTags>2d, renderer, gpu, image, gif, svg, pdf, text, touch, imageplayer, video, lottie, skottie</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\ext\win-x64\*.dll">
-      <!-- For vvvv the file goes directly to the output - only way for native library lookup to find it (without having to write custom code) -->
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <!-- As a package we can make use of nuget's asset system, it will make the proper entry in the *.deps.json file for the native library lookup to work -->
-      <PackagePath>runtimes\win-x64\native\%(Filename)%(Extension)</PackagePath>
-      <!-- We don't wanna see them in VS -->
-      <Visible>false</Visible>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="SharpDX.Direct3D11" />
     <PackageReference Include="SkiaSharp.Skottie" ExcludeAssets="build;buildTransitive" />
   </ItemGroup>
