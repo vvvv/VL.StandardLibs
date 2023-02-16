@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
@@ -117,14 +118,14 @@ namespace System.Collections.Generic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T SingleOrDefaultIfNoneOrMany<T>(this ImmutableArray<T> collection)
+        public static T? SingleOrDefaultIfNoneOrMany<T>(this ImmutableArray<T> collection)
         {
             if (collection.Length == 1)
                 return collection[0];
             return default(T);
         }
 
-        public static T SingleOrDefaultIfNoneOrMany<T>(this IEnumerable<T> collection)
+        public static T? SingleOrDefaultIfNoneOrMany<T>(this IEnumerable<T> collection)
         {
             var enumerator = collection.GetEnumerator();
             if (!enumerator.MoveNext()) return default(T); //one movenext shall return true
@@ -193,7 +194,7 @@ namespace System.Collections.Generic
         /// <param name="sequence">The sequence to test.</param>
         /// <param name="array">The underlying array.</param>
         /// <returns>True if the array could be fetched.</returns>
-        public static bool TryGetArray<T>(this IEnumerable<T> sequence, out T[] array)
+        public static bool TryGetArray<T>(this IEnumerable<T> sequence, out T[]? array)
         {
             if (sequence is T[] _array)
             {
@@ -331,11 +332,10 @@ namespace System.Collections.Generic
 
     public static class DictionaryExtensions1
     {
-        public static T ValueOrNull<TKey, T>(this IReadOnlyDictionary<TKey, T> dict, TKey key)
+        public static T? ValueOrNull<TKey, T>(this IReadOnlyDictionary<TKey, T> dict, TKey key)
             where T : class
         {
-            T value;
-            if (dict.TryGetValue(key, out value))
+            if (dict.TryGetValue(key, out var value))
                 return value;
             else
                 return null;
@@ -343,25 +343,23 @@ namespace System.Collections.Generic
 
         public static IEnumerable<T> ValueOrNone<TKey, T>(this IReadOnlyDictionary<TKey, T> dict, TKey key)
         {
-            T value;
-            if (dict.TryGetValue(key, out value))
+            if (dict.TryGetValue(key, out var value))
                 yield return value;
         }
 
-        public static TValue ValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dict, TKey key, TValue defaultValue = default(TValue))
+        public static TValue? ValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dict, TKey key, TValue? defaultValue = default(TValue))
         {
-            TValue value;
-            if (dict.TryGetValue(key, out value))
+            if (dict.TryGetValue(key, out var value))
                 return value;
             else
                 return defaultValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TValue ValueOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue defaultValue = default(TValue))
+        public static TValue? ValueOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue? defaultValue = default(TValue))
+            where TKey : notnull
         {
-            TValue value;
-            if (dict.TryGetValue(key, out value))
+            if (dict.TryGetValue(key, out var value))
                 return value;
             else
                 return defaultValue;
@@ -371,9 +369,9 @@ namespace System.Collections.Generic
         /// create the value if not already stored for that key
         /// </summary>
         public static TValue EnsureValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> creator)
+            where TKey : notnull
         {
-            TValue value;
-            if (!dictionary.TryGetValue(key, out value))
+            if (!dictionary.TryGetValue(key, out var value))
             {
                 value = creator(key);
                 dictionary[key] = value;
@@ -443,7 +441,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// if count = 0 returns a default(T)
         /// </summary>
-        public static T ClampedElementAtOrDefault<T>(this IList<T> input, ref int index)
+        public static T? ClampedElementAtOrDefault<T>(this IList<T> input, ref int index)
         {
             if (input.Count == 0)
                 return default(T);
@@ -453,7 +451,7 @@ namespace System.Collections.Generic
 
         static class InternalArrayAccessor<T>
         {
-            static Func<List<T>, T[]> getInternalArray;
+            static Func<List<T>, T[]>? getInternalArray;
 
             public static T[] GetInternalArray(List<T> list)
             {
@@ -526,7 +524,7 @@ namespace System.Reflection
 {
     public static class ReflectionExtensions
     {
-        public static T GetCustomAttributeSafe<T>(this Assembly assembly) where T : Attribute
+        public static T? GetCustomAttributeSafe<T>(this Assembly assembly) where T : Attribute
         {
             try
             {
@@ -562,7 +560,7 @@ namespace System.Reflection
             }
         }
 
-        public static T GetCustomAttributeSafe<T>(this Type type) where T : Attribute
+        public static T? GetCustomAttributeSafe<T>(this Type type) where T : Attribute
         {
             try
             {
@@ -612,7 +610,7 @@ namespace System.Collections.Immutable
         /// <param name="second"></param>
         /// <param name="comparer"></param>
         /// <returns></returns>
-        public static bool SequenceEqual<TSource>(this ImmutableStack<TSource> first, ImmutableStack<TSource> second, IEqualityComparer<TSource> comparer = null)
+        public static bool SequenceEqual<TSource>(this ImmutableStack<TSource> first, ImmutableStack<TSource> second, IEqualityComparer<TSource>? comparer = null)
         {
             if (first == null)
                 throw new ArgumentNullException(nameof(first));
@@ -638,7 +636,7 @@ namespace System.Collections.Immutable
     {
         static class DelegateCache<T>
         {
-            static Func<ImmutableArray<T>.Builder, T[]> getInternalArray;
+            static Func<ImmutableArray<T>.Builder, T[]>? getInternalArray;
 
             public static T[] GetInternalArray(ImmutableArray<T>.Builder builder)
             {
@@ -700,7 +698,7 @@ namespace System
             return source[index];
         }
 
-        public static T ElementAtOrDefault<T>(this ReadOnlySpan<T> source, int index)
+        public static T? ElementAtOrDefault<T>(this ReadOnlySpan<T> source, int index)
         {
             if (index >= 0 && index < source.Length)
                 return source[index];
@@ -717,3 +715,4 @@ namespace System
         }
     }
 }
+#nullable restore
