@@ -249,7 +249,7 @@ namespace {typeSymbol.ContainingNamespace}
                 {{                    
                     {string.Join($"{Environment.NewLine}{indent}", outputDescriptions)}
                 }};
-                return _c.NewNode(_inputs, _outputs, c =>
+                return _c.Node(_inputs, _outputs, c =>
                 {{
                     var s = new {typeSymbol.Name}();
                     {ctx}
