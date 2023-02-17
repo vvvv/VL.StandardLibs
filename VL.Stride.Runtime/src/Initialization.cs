@@ -40,7 +40,7 @@ namespace VL.Stride.Core
                 ((FileSystemProvider)VirtualFileSystem.ApplicationData).ChangeBasePath(dataDir);
             else
             {
-                dataDir = Path.Combine(thisDirectory, "..", "..", "..", "VL.Stride", "lib", "net6.0", "data");
+                dataDir = Path.Combine(thisDirectory, "..", "..", "..", "VL.Stride", "lib", "net6.0-windows", "data");
                 if (Directory.Exists(dataDir))
                     ((FileSystemProvider)VirtualFileSystem.ApplicationData).ChangeBasePath(dataDir);
             }

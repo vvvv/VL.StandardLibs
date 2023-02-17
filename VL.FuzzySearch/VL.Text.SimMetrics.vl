@@ -1,0 +1,759 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="Q2hkq2dyP13NaENHCi4CLy" LanguageVersion="2021.4.6.772" Version="0.128">
+  <Patch Id="PVUrnX6kWZCPTTWEJcCOd2">
+    <Canvas Id="DyZaVd9YauFPpJIxbWXMJV" DefaultCategory="Text" CanvasType="FullCategory">
+      <Canvas Id="UwHxAVR3WXpNTkrasyVx8A" Name="Metrics" Position="339,264">
+        <!--
+
+    ************************ Levenshtein ************************
+
+-->
+        <Node Name="Levenshtein" Bounds="439,481" Id="OJrvV9iNlszM3NMnpNJNBc" Summary="Implements the basic Levenshtein algorithm providing a similarity measure between two strings">
+          <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
+            <Choice Kind="ContainerDefinition" Name="Process" />
+          </p:NodeReference>
+          <Patch Id="FEN4bNJNy2lNL1hM6MR0Lf">
+            <Canvas Id="HXAaGNxV8MsL9EiHafxjGt" CanvasType="Group">
+              <Node Bounds="445,294" Id="PZWzoR1MwyXOuUeICh4B9J">
+                <p:NodeReference LastCategoryFullName="Main.Levenstein" LastSymbolSource="MyFuzzyLevenstein.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="Create" />
+                  <CategoryReference Kind="ClassType" Name="Levenstein" NeedsToBeDirectParent="true" />
+                </p:NodeReference>
+                <Pin Id="PeVeX14Yc5oPJczHhpm8ZC" Name="Output" Kind="StateOutputPin" />
+              </Node>
+              <Pad Id="Ir8xnXGlyQLP24NudO06xR" Bounds="447,346" />
+              <ControlPoint Id="J3pLzMwsJPeOkNz84JnTdj" Bounds="447,391" />
+            </Canvas>
+            <ProcessDefinition Id="DY93VKkQOcOQYkg8HPYnUs">
+              <Fragment Id="Hgbxc25Q6W1MpnIdItXJc2" Patch="OoRzLUqzLurLCMSyt0NCsW" Enabled="true" />
+              <Fragment Id="UEWccg7xebkQFVN6WxxpvP" Patch="U4pZodPzR9AO8ZadIQRrFI" Enabled="true" />
+            </ProcessDefinition>
+            <Link Id="AnSdW9FZNVZQLaMv790fAd" Ids="PeVeX14Yc5oPJczHhpm8ZC,Ir8xnXGlyQLP24NudO06xR" />
+            <Link Id="A4GsupryazCLgchXFmm1o0" Ids="J3pLzMwsJPeOkNz84JnTdj,AaOSgG3kG4JO1YKovZRJAv" IsHidden="true" />
+            <Link Id="A9yVMViDjT8PGuW6prPsa1" Ids="Ir8xnXGlyQLP24NudO06xR,J3pLzMwsJPeOkNz84JnTdj" />
+            <Patch Id="OoRzLUqzLurLCMSyt0NCsW" Name="Create" ParticipatingElements="AnSdW9FZNVZQLaMv790fAd" />
+            <Patch Id="U4pZodPzR9AO8ZadIQRrFI" Name="Get">
+              <Pin Id="AaOSgG3kG4JO1YKovZRJAv" Name="Output" Kind="OutputPin">
+                <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+                  <Choice Kind="TypeFlag" Name="IStringMetric" />
+                </p:TypeAnnotation>
+              </Pin>
+            </Patch>
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ ChapmanMeanLength ************************
+
+-->
+        <Node Name="ChapmanMeanLength" Bounds="439,446" Id="NAsvC5tzRDsMKMGoq8eG8C" Summary="Implements the Chapman Mean Length algorithm provides a similarity measure between two strings from size of the mean length of the vectors - this approach is suppossed to be used to determine which metrics may be best to apply rather than giveing a valid response itself">
+          <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
+            <Choice Kind="ContainerDefinition" Name="Process" />
+          </p:NodeReference>
+          <Patch Id="QiHbGysSKVbPYazIbQqb8h">
+            <Canvas Id="Av12sR2SmlMMt4j4L7D3vR" CanvasType="Group">
+              <Node Bounds="445,294" Id="OQEF1LfdZKNOgaNlISOzaJ">
+                <p:NodeReference LastCategoryFullName="FuzzySearch.ChapmanMeanLength" LastSymbolSource="MyFuzzyLevenstein.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="Create" />
+                  <CategoryReference Kind="ClassType" Name="ChapmanMeanLength" NeedsToBeDirectParent="true" />
+                </p:NodeReference>
+                <Pin Id="BqRTVfnkKxUNLhkG7EjeeN" Name="Output" Kind="StateOutputPin" />
+              </Node>
+              <Pad Id="Jt7H6frXgG0Mado5BaYSWd" Bounds="447,346" />
+              <ControlPoint Id="RAl744zrDHzMsEIP91xLjq" Bounds="447,391" />
+            </Canvas>
+            <ProcessDefinition Id="RdSMAm1NsenP0mxdOp1oFr">
+              <Fragment Id="I3sStHGy7l8MY4lvLbOJGm" Patch="GHpqd5b0iOmNcV8UIliSD6" Enabled="true" />
+              <Fragment Id="Ggwxi2qLZJvN7pJQ9cS6mP" Patch="JeZZi22LRf6NMTvTeBhIXK" Enabled="true" />
+            </ProcessDefinition>
+            <Link Id="RUuFXx4qqR4NHqzzkf9gSI" Ids="BqRTVfnkKxUNLhkG7EjeeN,Jt7H6frXgG0Mado5BaYSWd" />
+            <Link Id="ReW6UhMPW44QQMhsCuuyfs" Ids="RAl744zrDHzMsEIP91xLjq,AqZdl7otnqCMUS76mwnAbC" IsHidden="true" />
+            <Link Id="SRL6FCGZ3smLfc3Rc4x6ST" Ids="Jt7H6frXgG0Mado5BaYSWd,RAl744zrDHzMsEIP91xLjq" />
+            <Patch Id="GHpqd5b0iOmNcV8UIliSD6" Name="Create" ParticipatingElements="RUuFXx4qqR4NHqzzkf9gSI" />
+            <Patch Id="JeZZi22LRf6NMTvTeBhIXK" Name="Get">
+              <Pin Id="AqZdl7otnqCMUS76mwnAbC" Name="Output" Kind="OutputPin">
+                <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+                  <Choice Kind="TypeFlag" Name="IStringMetric" />
+                </p:TypeAnnotation>
+              </Pin>
+            </Patch>
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ ChapmanLengthDeviation ************************
+
+-->
+        <Node Name="ChapmanLengthDeviation" Bounds="439,411" Id="JLvV853tCs2M4p8ov3jSsH" Summary="Implements the Chapman Length Deviation algorithm whereby the length deviation of the word strings is used to determine if the strings are similar in size - This apporach is not intended to be used single handedly but rather alongside other approaches">
+          <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
+            <Choice Kind="ContainerDefinition" Name="Process" />
+          </p:NodeReference>
+          <Patch Id="Gw2pOruDSjbLcA49pE2Wy9">
+            <Canvas Id="DdkH8iHVABBNBsND8YNTLw" CanvasType="Group">
+              <Node Bounds="445,294" Id="U9ItVKnS2ATOLBcu9r20KI">
+                <p:NodeReference LastCategoryFullName="FuzzySearch.ChapmanLengthDeviation" LastSymbolSource="MyFuzzyLevenstein.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="Create" />
+                  <CategoryReference Kind="ClassType" Name="ChapmanLengthDeviation" NeedsToBeDirectParent="true" />
+                </p:NodeReference>
+                <Pin Id="JmyRtPERbFOMH5qgTigs42" Name="Output" Kind="StateOutputPin" />
+              </Node>
+              <Pad Id="Olv9UGhE3XqNlmFHE7daEd" Bounds="447,346" />
+              <ControlPoint Id="JIsnSsMlwKFNEhHZGlFpoG" Bounds="447,391" />
+            </Canvas>
+            <ProcessDefinition Id="Esa2JTxlehGOgp1UUZqJKn">
+              <Fragment Id="MvU5Yx2oZvDQdWtlAyoHj8" Patch="NmQ2oVO7gmsLMxCX4fITIj" Enabled="true" />
+              <Fragment Id="AAh1mJdQG5rMeefaHtAlm3" Patch="QVAzHkDWT0rQOMEs2NEQtO" Enabled="true" />
+            </ProcessDefinition>
+            <Link Id="TxUQRtx3DRfPLJyQUtK5x1" Ids="JmyRtPERbFOMH5qgTigs42,Olv9UGhE3XqNlmFHE7daEd" />
+            <Link Id="P7dQgzMvvCrO171KPVbp29" Ids="JIsnSsMlwKFNEhHZGlFpoG,EhVkpsoIMMuOWrVj79ShMo" IsHidden="true" />
+            <Link Id="SJIFO5FAPw2NOYXQpOMmA3" Ids="Olv9UGhE3XqNlmFHE7daEd,JIsnSsMlwKFNEhHZGlFpoG" />
+            <Patch Id="NmQ2oVO7gmsLMxCX4fITIj" Name="Create" ParticipatingElements="TxUQRtx3DRfPLJyQUtK5x1" />
+            <Patch Id="QVAzHkDWT0rQOMEs2NEQtO" Name="Get">
+              <Pin Id="EhVkpsoIMMuOWrVj79ShMo" Name="Output" Kind="OutputPin">
+                <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+                  <Choice Kind="TypeFlag" Name="IStringMetric" />
+                </p:TypeAnnotation>
+              </Pin>
+            </Patch>
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ Jaro ************************
+
+-->
+        <Node Name="Jaro" Bounds="441,518" Id="DrcW6V6F6QmOXG2v7r86Hc" Summary="Implements the Jaro algorithm providing a similarity measure between two strings allowing character transpositions to a degree">
+          <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
+            <Choice Kind="ContainerDefinition" Name="Process" />
+          </p:NodeReference>
+          <Patch Id="CFwCG8iqcMiOahTEfZ2rQD">
+            <Canvas Id="E8k5ouai4M2QBJY8qjuMOb" CanvasType="Group">
+              <Node Bounds="445,294" Id="QugX7e3ALdqMGTwsFOLqtT">
+                <p:NodeReference LastCategoryFullName="FuzzySearch.Jaro" LastSymbolSource="MyFuzzyLevenstein.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="Create" />
+                  <CategoryReference Kind="ClassType" Name="Jaro" NeedsToBeDirectParent="true" />
+                </p:NodeReference>
+                <Pin Id="E3LtTnIg4e8LjPIWKCgEVO" Name="Output" Kind="StateOutputPin" />
+              </Node>
+              <Pad Id="MfbjwObX8TIL7hlnTMVqdo" Bounds="447,346" />
+              <ControlPoint Id="GyADnOFQfvgL63Evp5OEDa" Bounds="447,391" />
+            </Canvas>
+            <ProcessDefinition Id="GsZ0VNTcjPvOy0uwU1GmM6">
+              <Fragment Id="R0vFSDDN5YsQAup5kUcnN9" Patch="UMpOlcMsPgrOc4muYFVNLJ" Enabled="true" />
+              <Fragment Id="Btl7jfZlX6dOSPWJPofWfs" Patch="QnyQsOptR8TNHWoongxAf3" Enabled="true" />
+            </ProcessDefinition>
+            <Link Id="Cu0nFaNlefmP57NQUpVCbo" Ids="E3LtTnIg4e8LjPIWKCgEVO,MfbjwObX8TIL7hlnTMVqdo" />
+            <Link Id="VZUYTll7qxnPMdMpigd1eD" Ids="GyADnOFQfvgL63Evp5OEDa,GEckv0XAJanMXeW6ttf7xL" IsHidden="true" />
+            <Link Id="DG3bkdKAZ3XNXWEJ3dvvCR" Ids="MfbjwObX8TIL7hlnTMVqdo,GyADnOFQfvgL63Evp5OEDa" />
+            <Patch Id="UMpOlcMsPgrOc4muYFVNLJ" Name="Create" ParticipatingElements="Cu0nFaNlefmP57NQUpVCbo" />
+            <Patch Id="QnyQsOptR8TNHWoongxAf3" Name="Get">
+              <Pin Id="GEckv0XAJanMXeW6ttf7xL" Name="Output" Kind="OutputPin">
+                <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+                  <Choice Kind="TypeFlag" Name="IStringMetric" />
+                </p:TypeAnnotation>
+              </Pin>
+            </Patch>
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ JaroWinkler ************************
+
+-->
+        <Node Name="JaroWinkler" Bounds="441,553" Id="Qz1VyqzW42QN7Z3jdFYX0t" Summary="Implements the Jaro-Winkler algorithm providing a similarity measure between two strings allowing character transpositions to a degree adjusting the weighting for common prefixes">
+          <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
+            <Choice Kind="ContainerDefinition" Name="Process" />
+          </p:NodeReference>
+          <Patch Id="SWIQfodBVzPN0rrmWTYr0F">
+            <Canvas Id="GUVjcGGy6stNYJITfF9uDh" CanvasType="Group">
+              <Node Bounds="445,294" Id="GR2oW1k2dWUPvTtCLvxO7X">
+                <p:NodeReference LastCategoryFullName="FuzzySearch.JaroWinkler" LastSymbolSource="MyFuzzyLevenstein.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="Create" />
+                  <CategoryReference Kind="ClassType" Name="JaroWinkler" NeedsToBeDirectParent="true" />
+                </p:NodeReference>
+                <Pin Id="UrsaLTu9fGCPmTf628JMOt" Name="Output" Kind="StateOutputPin" />
+              </Node>
+              <Pad Id="J9BJyLfwebyPlyvxp1rXeN" Bounds="447,346" />
+              <ControlPoint Id="ImXpJ1zSTZwM73lf7hOVoq" Bounds="447,391" />
+            </Canvas>
+            <ProcessDefinition Id="KEjSqbn3XZDOLSLEu5ORRT">
+              <Fragment Id="EmYf1jdDuOQOkX83mYGXHX" Patch="NL5Mn95hC8WMyaOg2oIME4" Enabled="true" />
+              <Fragment Id="UVrxmKVhNY3OCGifovH3Dc" Patch="UFde35JAHc3M9YGMWyPEqB" Enabled="true" />
+            </ProcessDefinition>
+            <Link Id="EUjnm9x6b2mPcYEEGmdv1B" Ids="UrsaLTu9fGCPmTf628JMOt,J9BJyLfwebyPlyvxp1rXeN" />
+            <Link Id="QiCypNWYNHoOfaPoeRzOMZ" Ids="ImXpJ1zSTZwM73lf7hOVoq,JqeZktVaBcXL1K3rDQYV1P" IsHidden="true" />
+            <Link Id="Hp3bOznD2nHMRJUSY12ikf" Ids="J9BJyLfwebyPlyvxp1rXeN,ImXpJ1zSTZwM73lf7hOVoq" />
+            <Patch Id="NL5Mn95hC8WMyaOg2oIME4" Name="Create" ParticipatingElements="EUjnm9x6b2mPcYEEGmdv1B" />
+            <Patch Id="UFde35JAHc3M9YGMWyPEqB" Name="Get">
+              <Pin Id="JqeZktVaBcXL1K3rDQYV1P" Name="Output" Kind="OutputPin">
+                <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+                  <Choice Kind="TypeFlag" Name="IStringMetric" />
+                </p:TypeAnnotation>
+              </Pin>
+            </Patch>
+          </Patch>
+        </Node>
+        <Canvas Id="CBWLzWPK7VhN8kFi6n287y" Name="Experimental" Position="671,411">
+          <!--
+
+    ************************ BlockDistance ************************
+
+-->
+          <Node Name="BlockDistance" Bounds="458,268" Id="ChgRU4uGRHlOnnQOfxuh83">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
+              <Choice Kind="ContainerDefinition" Name="Process" />
+            </p:NodeReference>
+            <Patch Id="M2Wf0aTQnbrP3YorvG8M3X">
+              <Canvas Id="QuuKRRnd9K4QASuob8soCy" CanvasType="Group">
+                <Node Bounds="445,294" Id="NXeay0gI38gPdHii7lKpOD">
+                  <p:NodeReference LastCategoryFullName="FuzzySearch.BlockDistance" LastSymbolSource="MyFuzzyLevenstein.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="Create" />
+                    <CategoryReference Kind="ClassType" Name="BlockDistance" NeedsToBeDirectParent="true" />
+                    <PinReference Kind="InputPin" Name="Tokeniser To Use" />
+                  </p:NodeReference>
+                  <Pin Id="PjDJpCMP8zuMWa3MvHVF8L" Name="Tokeniser To Use" Kind="InputPin" />
+                  <Pin Id="USvfdN3EWrcQcGUm7jEmPP" Name="Output" Kind="StateOutputPin" />
+                </Node>
+                <Pad Id="BrTFUapwkq9OnmnLyknemj" Bounds="447,346" />
+                <ControlPoint Id="QP2YJN2IbyDNHZdQBZgJTn" Bounds="447,391" />
+              </Canvas>
+              <ProcessDefinition Id="GQJtxdhNysQOv4gvaQvj87">
+                <Fragment Id="VNj3ntn7KDoMdPDKOVSzX2" Patch="ClqZt2jWtlgM4SXUHIcZPr" Enabled="true" />
+                <Fragment Id="SpAp9rMDKEdLtp7wq4gvxJ" Patch="Kibx546VHWbLGqlQw0ta3q" Enabled="true" />
+              </ProcessDefinition>
+              <Link Id="UVIqvP7Qlr6NlUQvuSuzKO" Ids="USvfdN3EWrcQcGUm7jEmPP,BrTFUapwkq9OnmnLyknemj" />
+              <Link Id="MQMDZZCHL4KMdw6Y5BvNv2" Ids="QP2YJN2IbyDNHZdQBZgJTn,OM2JEkYe706LyXOecZMfQP" IsHidden="true" />
+              <Link Id="FNLkEETAq5nK9rIi0yHY1P" Ids="BrTFUapwkq9OnmnLyknemj,QP2YJN2IbyDNHZdQBZgJTn" />
+              <Patch Id="ClqZt2jWtlgM4SXUHIcZPr" Name="Create" ParticipatingElements="UVIqvP7Qlr6NlUQvuSuzKO" />
+              <Patch Id="Kibx546VHWbLGqlQw0ta3q" Name="Get">
+                <Pin Id="OM2JEkYe706LyXOecZMfQP" Name="Output" Kind="OutputPin">
+                  <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+                    <Choice Kind="TypeFlag" Name="IStringMetric" />
+                  </p:TypeAnnotation>
+                </Pin>
+              </Patch>
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ CosineSimilarity ************************
+
+-->
+          <Node Name="CosineSimilarity" Bounds="458,304" Id="BzbuyZpQ0EQL3oTG0jTgna">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
+              <Choice Kind="ContainerDefinition" Name="Process" />
+            </p:NodeReference>
+            <Patch Id="FLZBXdxf4wXM5NCPdTjbq9">
+              <Canvas Id="FLcO0u7OlqBMXxjjBd8yRr" CanvasType="Group">
+                <Node Bounds="445,294" Id="OF0BvcGywtPNeozb9ODUKN">
+                  <p:NodeReference LastCategoryFullName="FuzzySearch.CosineSimilarity" LastSymbolSource="MyFuzzyLevenstein.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="Create" />
+                    <CategoryReference Kind="ClassType" Name="CosineSimilarity" NeedsToBeDirectParent="true" />
+                    <PinReference Kind="InputPin" Name="Tokeniser To Use" />
+                  </p:NodeReference>
+                  <Pin Id="NA7Xibo6THAQAx5yVBV5LM" Name="Tokeniser To Use" Kind="InputPin" />
+                  <Pin Id="KzdsQ4QOjyRPnBM0DyRXBT" Name="Output" Kind="StateOutputPin" />
+                </Node>
+                <Pad Id="HAjfVH4QYAHO8vtrtWfEmH" Bounds="447,346" />
+                <ControlPoint Id="S62nlK8vzbkNmOvEiI5m8z" Bounds="447,391" />
+              </Canvas>
+              <ProcessDefinition Id="Jl3EQafrwySMKPqvxfGH1G">
+                <Fragment Id="T0GISfpukcxNAfOTGGf1p4" Patch="PmACujN2wiFLg6f0Oxup49" Enabled="true" />
+                <Fragment Id="FvGidLsYTpzOAlPonU7f5s" Patch="KWUEeKRF0RwPtIq8DZdk1x" Enabled="true" />
+              </ProcessDefinition>
+              <Link Id="VHxP3aWzLBRLdSH5CBxs6n" Ids="KzdsQ4QOjyRPnBM0DyRXBT,HAjfVH4QYAHO8vtrtWfEmH" />
+              <Link Id="JOjYybqAvwsN2n6QHdlDoC" Ids="S62nlK8vzbkNmOvEiI5m8z,JthlLulXrawQOwTYpRL5TE" IsHidden="true" />
+              <Link Id="CuQl8J7bbbYOVJjxpEeUPb" Ids="HAjfVH4QYAHO8vtrtWfEmH,S62nlK8vzbkNmOvEiI5m8z" />
+              <Patch Id="PmACujN2wiFLg6f0Oxup49" Name="Create" ParticipatingElements="VHxP3aWzLBRLdSH5CBxs6n" />
+              <Patch Id="KWUEeKRF0RwPtIq8DZdk1x" Name="Get">
+                <Pin Id="JthlLulXrawQOwTYpRL5TE" Name="Output" Kind="OutputPin">
+                  <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+                    <Choice Kind="TypeFlag" Name="IStringMetric" />
+                  </p:TypeAnnotation>
+                </Pin>
+              </Patch>
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ DiceSimilarity ************************
+
+-->
+          <Node Name="DiceSimilarity" Bounds="458,340" Id="K2wlsa7dCqKLHM44uddjlv">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
+              <Choice Kind="ContainerDefinition" Name="Process" />
+            </p:NodeReference>
+            <Patch Id="V1SEUrcUvcCObn8wwZX5AH">
+              <Canvas Id="ApyjisoXUHBNpSdg5ohFD5" CanvasType="Group">
+                <Node Bounds="445,294" Id="UQWQuCbPFXvPOX4faCQB8l">
+                  <p:NodeReference LastCategoryFullName="FuzzySearch.DiceSimilarity" LastSymbolSource="MyFuzzyLevenstein.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="Create" />
+                    <CategoryReference Kind="ClassType" Name="DiceSimilarity" NeedsToBeDirectParent="true" />
+                    <PinReference Kind="InputPin" Name="Tokeniser To Use" />
+                  </p:NodeReference>
+                  <Pin Id="TMFe6ZHbS1uMlF1EesCDI6" Name="Tokeniser To Use" Kind="InputPin" />
+                  <Pin Id="Rmr78zYXlsjLRJmGrhuukn" Name="Output" Kind="StateOutputPin" />
+                </Node>
+                <Pad Id="Qf5cuGvBfRDMNNTSBlTCdC" Bounds="447,346" />
+                <ControlPoint Id="ItpRCsUFykwMS9DvazmQjQ" Bounds="447,391" />
+              </Canvas>
+              <ProcessDefinition Id="VcPyviFG74kOA6CT9Xx9xp">
+                <Fragment Id="TtZxMzJvsigNcWSpFKPogS" Patch="O5Al0rhqtoDMoNgWNDlNq4" Enabled="true" />
+                <Fragment Id="T4wnyrl9rXHP9yHh2PFUll" Patch="MCKC6AXGQVtMbwaJpJLucR" Enabled="true" />
+              </ProcessDefinition>
+              <Link Id="AYb3mJBvW7rMAtLnUipfbF" Ids="Rmr78zYXlsjLRJmGrhuukn,Qf5cuGvBfRDMNNTSBlTCdC" />
+              <Link Id="Q0ouB1gNdntMk79LNexSuh" Ids="ItpRCsUFykwMS9DvazmQjQ,SeCIsRiF2v6P5WiMJPIcdq" IsHidden="true" />
+              <Link Id="PaFwTFScAguLWoNNNVn6xJ" Ids="Qf5cuGvBfRDMNNTSBlTCdC,ItpRCsUFykwMS9DvazmQjQ" />
+              <Patch Id="O5Al0rhqtoDMoNgWNDlNq4" Name="Create" ParticipatingElements="AYb3mJBvW7rMAtLnUipfbF" />
+              <Patch Id="MCKC6AXGQVtMbwaJpJLucR" Name="Get">
+                <Pin Id="SeCIsRiF2v6P5WiMJPIcdq" Name="Output" Kind="OutputPin">
+                  <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+                    <Choice Kind="TypeFlag" Name="IStringMetric" />
+                  </p:TypeAnnotation>
+                </Pin>
+              </Patch>
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ EuclideanDistance ************************
+
+-->
+          <Node Name="EuclideanDistance" Bounds="458,376" Id="Fh2iyUkOKysOk9oMAkXBfl">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
+              <Choice Kind="ContainerDefinition" Name="Process" />
+            </p:NodeReference>
+            <Patch Id="PUQHDnGYYpBM4xsoHxRBtY">
+              <Canvas Id="KvNRrC0zwcdMgKFDiNtAkn" CanvasType="Group">
+                <Node Bounds="445,294" Id="TTq0iRWbaYmLguae5TMHPv">
+                  <p:NodeReference LastCategoryFullName="FuzzySearch.EuclideanDistance" LastSymbolSource="MyFuzzyLevenstein.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="Create" />
+                    <CategoryReference Kind="ClassType" Name="EuclideanDistance" NeedsToBeDirectParent="true" />
+                    <PinReference Kind="InputPin" Name="Tokeniser To Use" />
+                  </p:NodeReference>
+                  <Pin Id="KX7dTWoi1WqL5M7w8Ov3Yn" Name="Tokeniser To Use" Kind="InputPin" />
+                  <Pin Id="KcyDslxtAgEM4NGUKG8mEe" Name="Output" Kind="StateOutputPin" />
+                </Node>
+                <Pad Id="HnnFuh3NQt9L32ia77frcG" Bounds="447,346" />
+                <ControlPoint Id="NyyJHP7xrx5OEAZdKpxDN7" Bounds="447,391" />
+              </Canvas>
+              <ProcessDefinition Id="HBHYkVddencNNWTbNzERhd">
+                <Fragment Id="KGSbALlpbwZOp5XTT3y0pf" Patch="UhNegEt2CnvPuFBeFsJw77" Enabled="true" />
+                <Fragment Id="HyHIS9E62hpLacAEXgtr7l" Patch="VCTuz4hAZMuNTV0NIjT6wY" Enabled="true" />
+              </ProcessDefinition>
+              <Link Id="AGsYs87ry4XQSZ4C1SyC7Q" Ids="KcyDslxtAgEM4NGUKG8mEe,HnnFuh3NQt9L32ia77frcG" />
+              <Link Id="Q82RFlxgoalLniLzpfmYOI" Ids="NyyJHP7xrx5OEAZdKpxDN7,KpAhrkTLJCOP8VKUISgQB0" IsHidden="true" />
+              <Link Id="I8BwKgzs7lcM5WAPIExqYO" Ids="HnnFuh3NQt9L32ia77frcG,NyyJHP7xrx5OEAZdKpxDN7" />
+              <Patch Id="UhNegEt2CnvPuFBeFsJw77" Name="Create" ParticipatingElements="AGsYs87ry4XQSZ4C1SyC7Q" />
+              <Patch Id="VCTuz4hAZMuNTV0NIjT6wY" Name="Get">
+                <Pin Id="KpAhrkTLJCOP8VKUISgQB0" Name="Output" Kind="OutputPin">
+                  <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+                    <Choice Kind="TypeFlag" Name="IStringMetric" />
+                  </p:TypeAnnotation>
+                </Pin>
+              </Patch>
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ JaccardSimilarity ************************
+
+-->
+          <Node Name="JaccardSimilarity" Bounds="458,412" Id="UvYtmqMATKKOgPrzUo1U3a">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
+              <Choice Kind="ContainerDefinition" Name="Process" />
+            </p:NodeReference>
+            <Patch Id="VqfGq4X1W0ILvJhKtlZYwp">
+              <Canvas Id="NTxBVwUWneRPCPQAh48QJD" CanvasType="Group">
+                <Node Bounds="445,294" Id="HqSklBEtOZMLlQamjW8EAr">
+                  <p:NodeReference LastCategoryFullName="FuzzySearch.JaccardSimilarity" LastSymbolSource="MyFuzzyLevenstein.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="Create" />
+                    <CategoryReference Kind="ClassType" Name="JaccardSimilarity" NeedsToBeDirectParent="true" />
+                    <PinReference Kind="InputPin" Name="Tokeniser To Use" />
+                  </p:NodeReference>
+                  <Pin Id="GUcMecKGfJpOwg4AgzUQAc" Name="Tokeniser To Use" Kind="InputPin" />
+                  <Pin Id="IxcLcyLVQLZNOcA8VH1cuW" Name="Output" Kind="StateOutputPin" />
+                </Node>
+                <Pad Id="MND8O9izzEXLQFVbLy6ZNQ" Bounds="447,346" />
+                <ControlPoint Id="IXyhpv5KdTeOLi1TC1Nntw" Bounds="447,391" />
+              </Canvas>
+              <ProcessDefinition Id="LpraEB2wCWsO2RDLPMfHgf">
+                <Fragment Id="ItrrhPzUZB6OQ0FK4nxWKr" Patch="FM8qrFt0BD1LKm7t9bVlcd" Enabled="true" />
+                <Fragment Id="NCN5iYj9xyhQN9BG4vClZQ" Patch="JRUMnF0tuCYOKdK6AreQ7R" Enabled="true" />
+              </ProcessDefinition>
+              <Link Id="V4ylbiwKK7nP75b49afH54" Ids="IxcLcyLVQLZNOcA8VH1cuW,MND8O9izzEXLQFVbLy6ZNQ" />
+              <Link Id="HlXxloDKhl1NJ4GjZulU3F" Ids="IXyhpv5KdTeOLi1TC1Nntw,KW1sevPIMDPPT2AhLVf3vg" IsHidden="true" />
+              <Link Id="Iu9fkdo0MR3PaMXcdJ0CPK" Ids="MND8O9izzEXLQFVbLy6ZNQ,IXyhpv5KdTeOLi1TC1Nntw" />
+              <Patch Id="FM8qrFt0BD1LKm7t9bVlcd" Name="Create" ParticipatingElements="V4ylbiwKK7nP75b49afH54" />
+              <Patch Id="JRUMnF0tuCYOKdK6AreQ7R" Name="Get">
+                <Pin Id="KW1sevPIMDPPT2AhLVf3vg" Name="Output" Kind="OutputPin">
+                  <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+                    <Choice Kind="TypeFlag" Name="IStringMetric" />
+                  </p:TypeAnnotation>
+                </Pin>
+              </Patch>
+            </Patch>
+          </Node>
+          <Pad Id="CSalfcC53iULoj41NJSGT6" Bounds="447,186,200,42" ShowValueBox="true" isIOBox="true" Value="Tokenisers for these nodes are still not Forwarded.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <!--
+
+    ************************ NeedlemanWunch ************************
+
+-->
+          <Node Name="NeedlemanWunch" Bounds="460,448" Id="SddzYkDQtxNNgOIHGBmKPn" Summary="Implements the Needleman-Wunch algorithm providing an edit distance based similarity measure between two strings">
+            <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
+              <Choice Kind="ContainerDefinition" Name="Process" />
+            </p:NodeReference>
+            <Patch Id="H1ooh1zcLI1PBtnHinoo8s">
+              <Canvas Id="CcucfoMqFtiNM7SWhkUeti" CanvasType="Group">
+                <Node Bounds="445,294" Id="L3VBRgOjPW2Lc62ypJtZcv">
+                  <p:NodeReference LastCategoryFullName="SimMetricsCore.Metric.NeedlemanWunch" LastSymbolSource="SimMetricsCore.dll">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="Create" />
+                    <CategoryReference Kind="AssemblyCategory" Name="NeedlemanWunch" NeedsToBeDirectParent="true" />
+                    <PinReference Kind="InputPin" Name="Cost Function" />
+                    <PinReference Kind="InputPin" Name="Cost G" />
+                  </p:NodeReference>
+                  <Pin Id="ARUzlbz1K2nM8Z9Aw8AGeN" Name="Cost G" Kind="InputPin" />
+                  <Pin Id="Vyd5NFLnAjuPAijVcbOrg7" Name="Cost Function" Kind="InputPin" />
+                  <Pin Id="BRVcGVBzSG4NIIF27wcoiB" Name="Output" Kind="StateOutputPin" />
+                </Node>
+                <Pad Id="UuPQMsRGomWPs5tu6yqnAF" Bounds="447,346" />
+                <ControlPoint Id="Me3108hK8rmNlwMNGtuq9K" Bounds="447,391" />
+              </Canvas>
+              <ProcessDefinition Id="V7IZrfh5oAGMICstphNQoH">
+                <Fragment Id="I4c2VHOp8N2LgX9Xuq1qdq" Patch="G5LdefeDeL4L4byhGHdXRj" Enabled="true" />
+                <Fragment Id="L5gDfrvNjaLNlimlCubeuv" Patch="OnyrKJTiPIZNu7mRXH07iE" Enabled="true" />
+              </ProcessDefinition>
+              <Link Id="DEVYlGhHGYOOFFMHXSDG6Z" Ids="BRVcGVBzSG4NIIF27wcoiB,UuPQMsRGomWPs5tu6yqnAF" />
+              <Link Id="NtxezaaI8nMMtKMbG1GI3N" Ids="Me3108hK8rmNlwMNGtuq9K,DFcnziSMf19NfyZ9nyhtkZ" IsHidden="true" />
+              <Link Id="F5dD5PGrLydLScZgl1H3so" Ids="UuPQMsRGomWPs5tu6yqnAF,Me3108hK8rmNlwMNGtuq9K" />
+              <Patch Id="G5LdefeDeL4L4byhGHdXRj" Name="Create" ParticipatingElements="DEVYlGhHGYOOFFMHXSDG6Z" />
+              <Patch Id="OnyrKJTiPIZNu7mRXH07iE" Name="Get">
+                <Pin Id="DFcnziSMf19NfyZ9nyhtkZ" Name="Output" Kind="OutputPin">
+                  <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+                    <Choice Kind="TypeFlag" Name="IStringMetric" />
+                  </p:TypeAnnotation>
+                </Pin>
+              </Patch>
+            </Patch>
+          </Node>
+        </Canvas>
+        <Pad Id="NJaEKNwRlmjPTBWHZ9clF3" Bounds="577,269,225,23" ShowValueBox="true" isIOBox="true" Value="&lt; Use this to measure the Similarity">
+          <p:TypeAnnotation>
+            <Choice Kind="TypeFlag" Name="String" />
+          </p:TypeAnnotation>
+          <p:ValueBoxSettings>
+            <p:fontsize p:Type="Int32">9</p:fontsize>
+            <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+          </p:ValueBoxSettings>
+        </Pad>
+        <Pad Id="Q3KiGX3I8a2PAkHiKP0wSg" Bounds="430,357,67,19" ShowValueBox="true" isIOBox="true" Value="Metrics">
+          <p:TypeAnnotation>
+            <Choice Kind="TypeFlag" Name="String" />
+          </p:TypeAnnotation>
+          <p:ValueBoxSettings>
+            <p:fontsize p:Type="Int32">9</p:fontsize>
+            <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+          </p:ValueBoxSettings>
+        </Pad>
+        <!--
+
+    ************************ IStringMetric ************************
+
+-->
+        <Node Name="IStringMetric" Bounds="440,293" Id="SsnOJNEW9Q9OZ5OWrUlcD7">
+          <p:NodeReference>
+            <Choice Kind="ForwardDefinition" Name="Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.API" LastSymbolSource="SimMetricsCore.dll">
+            <Choice Kind="TypeFlag" Name="IStringMetric" />
+          </p:TypeAnnotation>
+          <Patch Id="Lz9vLamrJyAOxx0L3bKLYY">
+            <Canvas Id="F71p7BJzRYbP2Mjz4YnXoX" CanvasType="Group">
+              <!--
+
+    ************************ GetSimilarity ************************
+
+-->
+              <Node Name="GetSimilarity" Bounds="529,231,155,115" Id="MUQvGBDeAM5PLZNUv2lyqw">
+                <p:NodeReference>
+                  <Choice Kind="OperationDefinition" Name="Operation" />
+                  <FullNameCategoryReference ID="Primitive" />
+                </p:NodeReference>
+                <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+                <Patch Id="PH2LpNxMtLdOEMDYc3tRT4">
+                  <Node Bounds="541,254,74,26" AutoConnect="true" Id="VDz90qAV3smM1NPxUEttTH">
+                    <p:NodeReference LastCategoryFullName="SimMetricsCore.API.IStringMetric" LastSymbolSource="SimMetricsCore.dll">
+                      <Choice Kind="OperationNode" Name="GetSimilarity" />
+                      <FullNameCategoryReference ID="SimMetricsCore.API.IStringMetric" />
+                    </p:NodeReference>
+                    <Pin Id="Q7dIAUX8EdkLSPAPd6Ed6Y" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="E5BIQAC9vy1LPfMSyuLqsJ" Name="First Word" Kind="InputPin" />
+                    <Pin Id="Sf4U8nkzmMBLyQ31FjpHxz" Name="Second Word" Kind="InputPin" />
+                    <Pin Id="Viz5Qo17SUyOL5WFka6yV7" Name="Output" Kind="StateOutputPin" />
+                    <Pin Id="IKe2v54sntNPcYy5rnIlhh" Name="Result" Kind="OutputPin" />
+                  </Node>
+                  <Node Bounds="610,292,62,19" Id="LguIxkS0aO3MHsMquaHWIG">
+                    <p:NodeReference LastCategoryFullName="System.Conversion" LastSymbolSource="CoreLibBasics.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <Choice Kind="OperationCallFlag" Name="ToFloat32" />
+                    </p:NodeReference>
+                    <Pin Id="I5A7bQHLH06PachtzaRpIq" Name="Input" Kind="InputPin" />
+                    <Pin Id="G1q3n7X1RN4Mp3fAjVb1mx" Name="Result" Kind="OutputPin" />
+                  </Node>
+                  <Link Id="BXkNdQCHLzfQAFzrSrw640" Ids="IKe2v54sntNPcYy5rnIlhh,I5A7bQHLH06PachtzaRpIq" />
+                  <Pin Id="BdvrbMILDaCNgkwSFHQrqt" Name="Input" Kind="InputPin" />
+                  <Pin Id="L49QVfZLFjlQL300ml3eOn" Name="First Word" Kind="InputPin" />
+                  <Pin Id="IMTvPcYc7pVOx3hYNiSoJD" Name="Second Word" Kind="InputPin" />
+                  <Pin Id="C4IcXFyLuClPLDq7dEula3" Name="Output" Kind="OutputPin" />
+                  <ControlPoint Id="UsFzmxZ6HCOL4oYKhi9PzJ" Bounds="612,329" />
+                  <Link Id="MGujaqs4JWSMZK4PZBxlHw" Ids="G1q3n7X1RN4Mp3fAjVb1mx,UsFzmxZ6HCOL4oYKhi9PzJ" />
+                  <Pin Id="Q5Rla9ur9q5LQfpnvpvEbr" Name="Result" Kind="OutputPin" Bounds="530,314" />
+                  <Link Id="IMyezZ4CvKQPjKjftiteap" Ids="UsFzmxZ6HCOL4oYKhi9PzJ,Q5Rla9ur9q5LQfpnvpvEbr" IsHidden="true" />
+                </Patch>
+              </Node>
+            </Canvas>
+            <ProcessDefinition Id="HS3EksYuDXcN5mNdfd4zL8" IsHidden="true">
+              <Fragment Id="BCbX7tTVqGFOfFzjxw4ptx" Patch="MUQvGBDeAM5PLZNUv2lyqw" />
+            </ProcessDefinition>
+          </Patch>
+        </Node>
+      </Canvas>
+      <Canvas Id="RBTfs0jCcfzO5VHkBeiWAd" Name="Advanced" Position="340,302">
+        <Canvas Id="JcbEnhHCOhOMfieLk0DcEY" Name="Metrics" Position="397,236">
+          <Pad Id="DTbpapyZVsONTZeIgY4ZP8" Bounds="358,203,81,19" ShowValueBox="true" isIOBox="true" Value="//Forwards">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <!--
+
+    ************************ Levenstein ************************
+
+-->
+          <Node Name="Levenstein" Bounds="371,333" Id="Jd3yMqqn8l9Me4DKc5V9z8">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.Metric" LastSymbolSource="SimMetricsCore.dll">
+              <Choice Kind="TypeFlag" Name="Levenstein" />
+            </p:TypeAnnotation>
+            <Patch Id="PSeKDqOXauaLS3oQCWbNdP">
+              <Canvas Id="BTFWidmqs4bNBN12hE5I47" BordersChecked="false" CanvasType="Group" />
+              <ProcessDefinition Id="Ea4AOqGeihLQQsdo5Yvy3G" IsHidden="true" />
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ ChapmanLengthDeviation ************************
+
+-->
+          <Node Name="ChapmanLengthDeviation" Bounds="371,261" Id="VnZdzRMtELWPWpeuyKDMSE">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.Metric" LastSymbolSource="SimMetricsCore.dll">
+              <Choice Kind="TypeFlag" Name="ChapmanLengthDeviation" />
+            </p:TypeAnnotation>
+            <Patch Id="JrQacRD0xdUOIX12QtI1tc">
+              <Canvas Id="P4Uocb61Ne8NNneIn1dV9Y" BordersChecked="false" CanvasType="Group" />
+              <ProcessDefinition Id="VMb6xK35ohAMo5EdWOXLon" IsHidden="true" />
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ ChapmanMeanLength ************************
+
+-->
+          <Node Name="ChapmanMeanLength" Bounds="371,297" Id="BDhNT8EqMegNwucWITkYAy">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.Metric" LastSymbolSource="SimMetricsCore.dll">
+              <Choice Kind="TypeFlag" Name="ChapmanMeanLength" />
+            </p:TypeAnnotation>
+            <Patch Id="HoyaALJVtxyLTuQorMG1Z8">
+              <Canvas Id="ADvGdGmT6tvP4cL7cWFaS5" BordersChecked="false" CanvasType="Group" />
+              <ProcessDefinition Id="TXEqZUO8n1TL2103WhSe7k" IsHidden="true" />
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ BlockDistance ************************
+
+-->
+          <Node Name="BlockDistance" Bounds="371,369" Id="HKABFvKtFdTP56UHWyojxm">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.Metric" LastSymbolSource="SimMetricsCore.dll">
+              <Choice Kind="TypeFlag" Name="BlockDistance" />
+            </p:TypeAnnotation>
+            <Patch Id="ByJO35R3YH4Ocs7auM066N">
+              <Canvas Id="K6gc3mVSDOSMFkvZDyNAqR" BordersChecked="false" CanvasType="Group" />
+              <ProcessDefinition Id="HhiKKhNUPi5OZUxKWIEg4C" IsHidden="true" />
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ CosineSimilarity ************************
+
+-->
+          <Node Name="CosineSimilarity" Bounds="371,405" Id="OsIoPoOoHkTQQctGkVAcCN">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.Metric" LastSymbolSource="SimMetricsCore.dll">
+              <Choice Kind="TypeFlag" Name="CosineSimilarity" />
+            </p:TypeAnnotation>
+            <Patch Id="IxY4emd0fLtMZmyiyhgEKK">
+              <Canvas Id="AoYusbpMUEvLt46UtALyej" BordersChecked="false" CanvasType="Group" />
+              <ProcessDefinition Id="MT1NmMVfvsON6gRFETvvvI" IsHidden="true" />
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ DiceSimilarity ************************
+
+-->
+          <Node Name="DiceSimilarity" Bounds="371,441" Id="KmiP1NHk8YSMITc3tVqZFR">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.Metric" LastSymbolSource="SimMetricsCore.dll">
+              <Choice Kind="TypeFlag" Name="DiceSimilarity" />
+            </p:TypeAnnotation>
+            <Patch Id="IEJMEaFfDArMiwQfjPEia7">
+              <Canvas Id="QvwNOaJZcupM1q9VA2Agk4" BordersChecked="false" CanvasType="Group" />
+              <ProcessDefinition Id="PJc5Rw4oXYjOTh1FhMos2V" IsHidden="true" />
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ EuclideanDistance ************************
+
+-->
+          <Node Name="EuclideanDistance" Bounds="371,477" Id="DufFIMMGw5pPgbAmjjSvSx">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.Metric" LastSymbolSource="SimMetricsCore.dll">
+              <Choice Kind="TypeFlag" Name="EuclideanDistance" />
+            </p:TypeAnnotation>
+            <Patch Id="D5ari8xZ9GbOCezIC5Zf6E">
+              <Canvas Id="MnYmPC5boSaPXh36BS4Ont" BordersChecked="false" CanvasType="Group" />
+              <ProcessDefinition Id="RzdPVawjNGxNlNt2Qz8Qtq" IsHidden="true" />
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ JaccardSimilarity ************************
+
+-->
+          <Node Name="JaccardSimilarity" Bounds="371,513" Id="SQHCIyAmFK3NKePVMtqT2C">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.Metric" LastSymbolSource="SimMetricsCore.dll">
+              <Choice Kind="TypeFlag" Name="JaccardSimilarity" />
+            </p:TypeAnnotation>
+            <Patch Id="TSmsHObqSXIMRXzGoasdPj">
+              <Canvas Id="Byu7jkfE2ceObMwViDcZhP" BordersChecked="false" CanvasType="Group" />
+              <ProcessDefinition Id="JvXm7DfinzZPscJjgZNJQw" IsHidden="true" />
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ Jaro ************************
+
+-->
+          <Node Name="Jaro" Bounds="371,549" Id="KMud5MgeSftNq95rsNFNHr">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.Metric" LastSymbolSource="SimMetricsCore.dll">
+              <Choice Kind="TypeFlag" Name="Jaro" />
+            </p:TypeAnnotation>
+            <Patch Id="VrMZo9ijSpmMJ73gnIAiRE">
+              <Canvas Id="StV4675eOqrOSeuxXAHPz9" BordersChecked="false" CanvasType="Group" />
+              <ProcessDefinition Id="U2g8DMbBDmnOPoLU5CvLyu" IsHidden="true" />
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ JaroWinkler ************************
+
+-->
+          <Node Name="JaroWinkler" Bounds="371,585" Id="RQ0tr47n9XKMLPdqt4ZdM4">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <FullNameCategoryReference ID="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="SimMetricsCore.Metric" LastSymbolSource="SimMetricsCore.dll">
+              <Choice Kind="TypeFlag" Name="JaroWinkler" />
+            </p:TypeAnnotation>
+            <Patch Id="MuN78XSaxXCNul51bP15FO">
+              <Canvas Id="V49M35ummFqNJtsIaTpTbw" BordersChecked="false" CanvasType="Group" />
+              <ProcessDefinition Id="RRhQxFzNc3eOGtEFtelWUh" IsHidden="true" />
+            </Patch>
+          </Node>
+        </Canvas>
+      </Canvas>
+    </Canvas>
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="Bhs4SL1pMxOPqTWtYYsSWP">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="DvE0204ZNqoMO7zHJvlx4E">
+        <Canvas Id="TOkrfgSQPuPMdTdT3voiXu" CanvasType="Group" />
+        <Patch Id="BXXCM9vvI27NlbDi1NuA3s" Name="Create" />
+        <Patch Id="Ra1uXwSPshsPvDWRMDz2xz" Name="Update" />
+        <ProcessDefinition Id="AL3s7fcZIV3PRhmerYZ2eQ">
+          <Fragment Id="BoSEfvNfcdTP7LE2u5HCzQ" Patch="BXXCM9vvI27NlbDi1NuA3s" Enabled="true" />
+          <Fragment Id="NXJ1qJmcoFTOUtbyFzdbqP" Patch="Ra1uXwSPshsPvDWRMDz2xz" Enabled="true" />
+        </ProcessDefinition>
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="GvfIf55Ri2KPvJ4o2Za6wl" Location="VL.CoreLib" Version="2021.4.6-0770-g08180d89e8" />
+  <PlatformDependency Id="P9Sdn6RF1fDPZXTiL37XGk" Location="SimMetricsCore.dll" />
+</Document>
