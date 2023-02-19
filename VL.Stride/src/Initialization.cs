@@ -70,6 +70,8 @@ namespace VL.Stride.Lib
                         // SDL_PumpEvents shall not run the message loop (Translate/Dispatch) - already done by windows forms
                         // This calls also needs to be done after the Stride loaded the native SDL library - otherwise crash
                         Sdl.GetApi().SetHint(Sdl.HintWindowsEnableMessageloop, "0");
+                        // Stride sets this flag (doesn't say why). Let's reset it as it is quite common for our render windows to not have focus.
+                        Sdl.GetApi().SetHint(Sdl.HintMouseFocusClickthrough, "0");
                         // Add a message filter which intercepts WM_CHAR messages the Windows Forms loop would otherwise drop because it doesn't know the SDL created windows.
                         Application.AddMessageFilter(messageFilter = new MessageFilter());
                     }
