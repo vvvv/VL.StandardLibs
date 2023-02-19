@@ -170,7 +170,7 @@ namespace VL.Skia
             Icon = Properties.Resources.QuadIcon;
             StartPosition = FormStartPosition.Manual;
 
-            FControl = new SkiaGLControl() { TouchEnabled = true };
+            FControl = new SkiaGLControl();
             FControl.Dock = DockStyle.Fill;
             FControl.OnRender += FControl_OnRender;
             Controls.Add(FControl);
@@ -263,8 +263,10 @@ namespace VL.Skia
 
             try
             {
-                if (Visible && HasValidLayer)
-                    Input?.Notify(n, FControl.CallerInfo);
+                if (Visible && HasValidLayer && Input != null)
+                {
+                    n.Handled = Input.Notify(n, FControl.CallerInfo);
+                }
             }
             catch (Exception exception)
             {

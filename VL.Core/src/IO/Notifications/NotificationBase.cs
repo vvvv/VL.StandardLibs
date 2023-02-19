@@ -11,6 +11,8 @@
             ModifierKeys = modifierKeys;
         }
 
+        public bool Handled { get; set; }
+
         public bool AltKey => (ModifierKeys & Keys.Alt) != 0;
         public bool ShiftKey => (ModifierKeys & Keys.Shift) != 0;
         public bool CtrlKey => (ModifierKeys & Keys.Control) != 0;

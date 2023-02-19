@@ -45,11 +45,6 @@ namespace VL.Skia
 
         protected override void OnHandleCreated(EventArgs e)
         {
-            if (TouchEnabled)
-            {
-                Utils.RegisterTouchWindow(Handle, 0);
-            }
-
             DestroySurface();
 
             renderContext?.Dispose();

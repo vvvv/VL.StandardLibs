@@ -10,6 +10,8 @@ namespace VL.Lib.IO.Notifications
     {
         object Sender { get; }
 
+        bool Handled { get; set; }
+
         INotification WithSender(object sender);
 
         INotification Transform(INotificationSpaceTransformer transformer);

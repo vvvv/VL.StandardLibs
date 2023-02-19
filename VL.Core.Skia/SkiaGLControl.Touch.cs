@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Windows.Input;
 using VL.Lang.PublicAPI;
 using VL.Lib.IO.Notifications;
 
@@ -14,8 +15,6 @@ namespace VL.Skia
 
         public IObservable<TouchNotification> TouchNotifications => touchNotifications;
 
-        public bool TouchEnabled { get; set; }
-
         protected override void WndProc(ref Message m)
         {
             try
@@ -23,8 +22,44 @@ namespace VL.Skia
                 bool handled;
                 switch (m.Msg)
                 {
-                    case Utils.WM_TOUCH:
-                        handled = DecodeTouch(ref m);
+                    // https://devblogs.microsoft.com/oldnewthing/20210728-00/?p=105487
+                    case Utils.WM_POINTERDOWN:
+                    case Utils.WM_POINTERUPDATE:
+                    case Utils.WM_POINTERUP:
+                        var pointerId = Utils.GET_POINTERID_WPARAM((ulong)m.WParam);
+                        if (Utils.GetPointerType(pointerId, out var type) && type == Utils.PointerInputType.PT_TOUCH)
+                        {
+                            Utils.GetPointerTouchInfo(pointerId, out var touchInfo);
+                            var pointerInfo = touchInfo.pointerInfo;
+
+                            TouchNotificationKind kind;
+                            if (m.Msg == Utils.WM_POINTERDOWN)
+                                kind = TouchNotificationKind.TouchDown;
+                            else if (m.Msg == Utils.WM_POINTERUP)
+                                kind = TouchNotificationKind.TouchUp;
+                            else
+                                kind = TouchNotificationKind.TouchMove;
+
+
+                            var contactArea = new Size(touchInfo.rcContactRight - touchInfo.rcContactLeft, touchInfo.rcContactBottom - touchInfo.rcContactTop);
+
+                            var notification = new TouchNotification(
+                                kind,
+                                position: PointToClient(new Point(pointerInfo.ptPixelLocationX, pointerInfo.ptPixelLocationY)).ToVector2(),
+                                clientArea: ClientSize.ToVector2(),
+                                id: (int)pointerInfo.pointerId,
+                                primary: pointerInfo.pointerFlags.HasFlag(Utils.PointerFlags.POINTER_FLAG_PRIMARY),
+                                contactArea: contactArea.ToVector2(),
+                                touchDeviceID: pointerInfo.sourceDevice.ToInt64(),
+                                modifierKeys: ModifierKeys.ToOurs(),
+                                sender: this);
+
+                            touchNotifications.OnNext(notification);
+
+                            handled = notification.Handled;
+                        }
+                        else
+                            handled = false;
                         break;
                     default:
                         handled = false;
@@ -33,8 +68,8 @@ namespace VL.Skia
 
                 if (handled)
                     m.Result = new IntPtr(1);
-
-                base.WndProc(ref m);
+                else
+                    base.WndProc(ref m);
             }
             catch (Exception e)
             {
@@ -45,102 +80,133 @@ namespace VL.Skia
                     throw;
             }
         }
-
-        static int touchInputByteSize = Marshal.SizeOf(typeof(TOUCHINPUT));
-
-        private bool DecodeTouch(ref Message m)
-        {
-            var inputCount = (m.WParam.ToInt32() & 0xffff);
-            var touchPoints = new TOUCHINPUT[inputCount];
-
-            if (!Utils.GetTouchInputInfo(m.LParam, inputCount, touchPoints, touchInputByteSize))
-            {
-                return false;
-            }
-
-            try
-            {
-                foreach (var touchPoint in touchPoints)
-                {
-                    TouchNotificationKind kind;
-                    if ((touchPoint.dwFlags & Utils.TOUCHEVENTF_DOWN) != 0)
-                        kind = TouchNotificationKind.TouchDown;
-                    else if ((touchPoint.dwFlags & Utils.TOUCHEVENTF_UP) != 0)
-                        kind = TouchNotificationKind.TouchUp;
-                    else
-                        kind = TouchNotificationKind.TouchMove;
-
-                    var contactArea = (touchPoint.dwMask & Utils.TOUCHINPUTMASKF_CONTACTAREA) > 0
-                        ? new Size(touchPoint.cxContact / 100, touchPoint.cyContact / 100)
-                        : Size.Empty;
-
-                    var notification = new TouchNotification(
-                        kind,
-                        position: PointToClient(new Point(touchPoint.x / 100, touchPoint.y / 100)).ToVector2(),
-                        clientArea: ClientSize.ToVector2(),
-                        id: touchPoint.dwID,
-                        primary: (touchPoint.dwFlags & Utils.TOUCHEVENTF_PRIMARY) > 0,
-                        contactArea: contactArea.ToVector2(),
-                        touchDeviceID: touchPoint.hSource.ToInt64(),
-                        modifierKeys: (VL.Lib.IO.Keys)ModifierKeys,
-                        sender: this);
-
-                    touchNotifications.OnNext(notification);
-                }
-
-                return true;
-            }
-            finally
-            {
-                Utils.CloseTouchInputHandle(m.LParam);
-            }
-        }
     }
 
     static class Utils
     {
-        public const int WM_TOUCH = 0x0240;
+        public const int WM_POINTERDOWN = 0x0246;
+        public const int WM_POINTERUP = 0x0247;
+        public const int WM_POINTERUPDATE = 0x0245;
+        public const int WM_POINTERWHEEL = 0x024E;
+        public const int WM_POINTERHWHEEL = 0x024F;
 
-        // Touch event flags ((TOUCHINPUT.dwFlags) [winuser.h]
-        public const int TOUCHEVENTF_MOVE = 0x0001;
-        public const int TOUCHEVENTF_DOWN = 0x0002;
-        public const int TOUCHEVENTF_UP = 0x0004;
-        public const int TOUCHEVENTF_INRANGE = 0x0008;
-        public const int TOUCHEVENTF_PRIMARY = 0x0010;
-        public const int TOUCHEVENTF_NOCOALESCE = 0x0020;
-        public const int TOUCHEVENTF_PEN = 0x0040;
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool GetPointerType(uint pointerId, out PointerInputType pointerType);
 
-        // Touch input mask values (TOUCHINPUT.dwMask) [winuser.h]
-        public const int TOUCHINPUTMASKF_TIMEFROMSYSTEM = 0x0001; // the dwTime field contains a system generated value
-        public const int TOUCHINPUTMASKF_EXTRAINFO = 0x0002; // the dwExtraInfo field is valid
-        public const int TOUCHINPUTMASKF_CONTACTAREA = 0x0004; // the cxContact and cyContact fields are valid
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool GetPointerTouchInfo(uint pointerId, out POINTER_TOUCH_INFO touchInfo);
 
+        [Flags]
+        public enum TouchFlags
+        {
+            TOUCH_FLAG_NONE = 0x00000000
+        }
 
-        [DllImport("user32")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool RegisterTouchWindow(IntPtr hWnd, ulong ulFlags);
+        [Flags]
+        public enum TouchMask
+        {
+            TOUCH_MASK_NONE = 0x00000000,
+            TOUCH_MASK_CONTACTAREA = 0x00000001,
+            TOUCH_MASK_ORIENTATION = 0x00000002,
+            TOUCH_MASK_PRESSURE = 0x00000004,
+        }
 
-        [DllImport("user32")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetTouchInputInfo(IntPtr hTouchInput, int cInputs, [In, Out] TOUCHINPUT[] pInputs, int cbSize);
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct POINTER_TOUCH_INFO
+        {
+            public POINTER_INFO pointerInfo;
+            public TouchFlags touchFlags;
+            public TouchMask touchMask;
+            public int rcContactLeft;
+            public int rcContactTop;
+            public int rcContactRight;
+            public int rcContactBottom;
+            public int rcContactRawLeft;
+            public int rcContactRawTop;
+            public int rcContactRawRight;
+            public int rcContactRawBottom;
+            public uint orientation;
+            public uint pressure;
+        }
 
-        [DllImport("user32")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern void CloseTouchInputHandle(IntPtr lParam);
-    }
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct POINTER_INFO
+        {
+            public PointerInputType pointerType;
+            public uint pointerId;
+            public uint frameId;
+            public PointerFlags pointerFlags;
+            public IntPtr sourceDevice;
+            public IntPtr hwndTarget;
+            public int ptPixelLocationX;
+            public int ptPixelLocationY;
+            public int ptHimetricLocationX;
+            public int ptHimetricLocationY;
+            public int ptPixelLocationRawX;
+            public int ptPixelLocationRawY;
+            public int ptHimetricLocationRawX;
+            public int ptHimetricLocationRawY;
+            public uint dwTime;
+            public uint historyCount;
+            public int inputData;
+            public ModifierKeys dwKeyStates;
+            public ulong PerformanceCount;
+            public PointerButtonChangeType ButtonChangeType;
+        }
 
-    [StructLayout(LayoutKind.Sequential)]
-    struct TOUCHINPUT
-    {
-        public int x;
-        public int y;
-        public IntPtr hSource;
-        public int dwID;
-        public int dwFlags;
-        public int dwMask;
-        public int dwTime;
-        public IntPtr dwExtraInfo;
-        public int cxContact;
-        public int cyContact;
+        public enum PointerInputType
+        {
+            PT_NONE = 0x00000000,
+            PT_POINTER = 0x00000001,
+            PT_TOUCH = 0x00000002,
+            PT_PEN = 0x00000003,
+            PT_MOUSE = 0x00000004,
+            PT_TOUCHPAD = 0x00000005
+        }
+
+        [Flags]
+        public enum PointerFlags
+        {
+            POINTER_FLAG_NONE = 0x00000000,
+            POINTER_FLAG_NEW = 0x00000001,
+            POINTER_FLAG_INRANGE = 0x00000002,
+            POINTER_FLAG_INCONTACT = 0x00000004,
+            POINTER_FLAG_FIRSTBUTTON = 0x00000010,
+            POINTER_FLAG_SECONDBUTTON = 0x00000020,
+            POINTER_FLAG_THIRDBUTTON = 0x00000040,
+            POINTER_FLAG_FOURTHBUTTON = 0x00000080,
+            POINTER_FLAG_FIFTHBUTTON = 0x00000100,
+            POINTER_FLAG_PRIMARY = 0x00002000,
+            POINTER_FLAG_CONFIDENCE = 0x00000400,
+            POINTER_FLAG_CANCELED = 0x00000800,
+            POINTER_FLAG_DOWN = 0x00010000,
+            POINTER_FLAG_UPDATE = 0x00020000,
+            POINTER_FLAG_UP = 0x00040000,
+            POINTER_FLAG_WHEEL = 0x00080000,
+            POINTER_FLAG_HWHEEL = 0x00100000,
+            POINTER_FLAG_CAPTURECHANGED = 0x00200000,
+            POINTER_FLAG_HASTRANSFORM = 0x00400000
+        }
+
+        public enum PointerButtonChangeType : ulong
+        {
+            POINTER_CHANGE_NONE,
+            POINTER_CHANGE_FIRSTBUTTON_DOWN,
+            POINTER_CHANGE_FIRSTBUTTON_UP,
+            POINTER_CHANGE_SECONDBUTTON_DOWN,
+            POINTER_CHANGE_SECONDBUTTON_UP,
+            POINTER_CHANGE_THIRDBUTTON_DOWN,
+            POINTER_CHANGE_THIRDBUTTON_UP,
+            POINTER_CHANGE_FOURTHBUTTON_DOWN,
+            POINTER_CHANGE_FOURTHBUTTON_UP,
+            POINTER_CHANGE_FIFTHBUTTON_DOWN,
+            POINTER_CHANGE_FIFTHBUTTON_UP
+        }
+
+        public static ushort LOWORD(ulong l) { return (ushort)(l & 0xFFFF); }
+        public static ushort HIWORD(ulong l) { return (ushort)((l >> 16) & 0xFFFF); }
+        public static ushort GET_POINTERID_WPARAM(ulong wParam) { return LOWORD(wParam); }
+        public static ushort GET_X_LPARAM(ulong lp) { return LOWORD(lp); }
+        public static ushort GET_Y_LPARAM(ulong lp) { return HIWORD(lp); }
     }
 }
