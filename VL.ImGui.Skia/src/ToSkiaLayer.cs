@@ -490,6 +490,10 @@ namespace VL.ImGui
                         };
                     }
 
+                    // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
+                    var pos = mouseNotification.PositionInWorldSpace.FromHectoToImGui();
+                    _io.AddMousePosEvent(pos.X, pos.Y);
+
                     switch (mouseNotification.Kind)
                     {
                         case MouseNotificationKind.MouseDown:
@@ -497,10 +501,6 @@ namespace VL.ImGui
                             break;
                         case MouseNotificationKind.MouseUp:
                             _io.AddMouseButtonEvent(button, false);
-                            break;
-                        case MouseNotificationKind.MouseMove:
-                            var _ = mouseNotification.PositionInWorldSpace.FromHectoToImGui();
-                            _io.AddMousePosEvent(_.X, _.Y);
                             break;
                         case MouseNotificationKind.MouseWheel:
                             if (mouseNotification is MouseWheelNotification wheel)
@@ -520,7 +520,7 @@ namespace VL.ImGui
                 }
                 else if (notification is TouchNotification touchNotification)
                 {
-                    // TODO
+                    // ImGui has no touch - we rely on the mouse emulation of the event system
                 }
 
                 foreach (var layer in _context.Layers)

@@ -17,13 +17,16 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiInputTextFlags Flags { private get; set; }
 
+        int lastframeValue;
+
         internal override void UpdateCore(Context context)
         {
             var value = Update();
 
             ref var x = ref value.X;
-            if (ImGuiNET.ImGui.InputInt4(Context.GetLabel(this, Label), ref x, Flags))
+            if (ImGuiNET.ImGui.InputInt4(Context.GetLabel(this, Label), ref x, Flags) && x != lastframeValue)
                 Value = Unsafe.As<int, Int4>(ref x);
+            lastframeValue = x;
         }
     }
 }

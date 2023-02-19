@@ -16,11 +16,14 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiInputTextFlags Flags { private get; set; }
 
+        string lastframeValue;
+
         internal override void UpdateCore(Context context)
         {
             var value = Update() ?? string.Empty;
-            if (ImGuiNET.ImGui.InputTextMultiline(Context.GetLabel(this, Label), ref value, (uint)MaxLength, Size.FromHectoToImGui(), Flags))
+            if (ImGuiNET.ImGui.InputTextMultiline(Context.GetLabel(this, Label), ref value, (uint)MaxLength, Size.FromHectoToImGui(), Flags) && value != lastframeValue)
                 Value = value;
+            lastframeValue = value;
         }
     }
 }

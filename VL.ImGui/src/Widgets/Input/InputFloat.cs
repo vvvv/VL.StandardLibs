@@ -20,11 +20,14 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiInputTextFlags Flags { private get; set; }
 
+        float lastframeValue;
+
         internal override void UpdateCore(Context context)
         {
             var value = Update();
-            if (ImGuiNET.ImGui.InputFloat(Context.GetLabel(this, Label), ref value, Step, StepFast, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+            if (ImGuiNET.ImGui.InputFloat(Context.GetLabel(this, Label), ref value, Step, StepFast, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags) && value != lastframeValue)
                 Value = value;
+            lastframeValue = value;
         }
     }
 }
