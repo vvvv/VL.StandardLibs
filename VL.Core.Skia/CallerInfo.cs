@@ -9,7 +9,7 @@ namespace VL.Skia
     /// </summary>
     public record class CallerInfo
     {
-        public static SKMatrix Identity = SKMatrix.MakeIdentity();
+        public static SKMatrix Identity = SKMatrix.CreateIdentity();
         public static readonly CallerInfo Default = new CallerInfo(null, new SKCanvas(new SKBitmap()),
             Identity, new SKRect(0, 0, 1920, 1080), null);
 

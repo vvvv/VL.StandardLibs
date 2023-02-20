@@ -47,7 +47,7 @@ namespace VL.Skia
         /// <summary>
         /// The Bounds of the rendering
         /// </summary>
-        RectangleF? Bounds { get; }
+        new RectangleF? Bounds { get; }
     }
 
     /// <summary>
