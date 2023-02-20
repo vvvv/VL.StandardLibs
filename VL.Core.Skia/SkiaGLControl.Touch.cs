@@ -51,7 +51,7 @@ namespace VL.Skia
                                 primary: pointerInfo.pointerFlags.HasFlag(Utils.PointerFlags.POINTER_FLAG_PRIMARY),
                                 contactArea: contactArea.ToVector2(),
                                 touchDeviceID: pointerInfo.sourceDevice.ToInt64(),
-                                modifierKeys: ModifierKeys.ToOurs(),
+                                modifierKeys: (VL.Lib.IO.Keys)ModifierKeys,
                                 sender: this);
 
                             touchNotifications.OnNext(notification);
