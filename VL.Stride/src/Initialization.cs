@@ -129,7 +129,7 @@ namespace VL.Stride.Lib
             });
 
             // Older code paths (like CEF) use obsolete IVLFactory.CreateService(NodeContext => IResourceProvider<Game>)
-            factory.RegisterService<NodeContext, IResourceProvider<Game>>(ctx => ctx.GetGameProvider());
+            factory.RegisterService<NodeContext, IResourceProvider<Game>>(ctx => ServiceRegistry.Current.GetGameProvider());
 
             services.RegisterProvider(game =>
             {
