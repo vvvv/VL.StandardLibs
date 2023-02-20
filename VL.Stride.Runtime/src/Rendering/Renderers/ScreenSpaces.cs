@@ -2,6 +2,7 @@
 using Stride.Core.Mathematics;
 using Stride.Rendering;
 using VL.Lib.Mathematics;
+using VL.UI.Core;
 
 namespace VL.Stride.Rendering
 {
@@ -58,18 +59,6 @@ namespace VL.Stride.Rendering
         internal const float NearDefault = -100f;
         internal const float FarDefault  = 100f;
 
-        static float FDIPFactor = -1;
-        public static float DIPFactor
-        {
-            get
-            {
-                if (FDIPFactor == -1)
-                    using (var g = System.Drawing.Graphics.FromHwnd(IntPtr.Zero))
-                        FDIPFactor = g.DpiX / 96;
-                return FDIPFactor;
-            }
-        }
-
         internal static void GetWithinScreenSpaceTransformation(Rectangle viewportBounds, Sizing sizing,
             RectangleAnchor origin, float near, float far, out Matrix transformation)
         {
@@ -84,8 +73,8 @@ namespace VL.Stride.Rendering
                     transformation.M22 = 200f / viewportBounds.Height;
                     break;
                 case Sizing.DIP:
-                    transformation.M11 = DIPFactor * 200f / viewportBounds.Width;
-                    transformation.M22 = DIPFactor * 200f / viewportBounds.Height;
+                    transformation.M11 = DIPHelpers.DIPFactor() * 200f / viewportBounds.Width;
+                    transformation.M22 = DIPHelpers.DIPFactor() * 200f / viewportBounds.Height;
                     break;
                 default:
                     throw new NotImplementedException();
@@ -292,7 +281,7 @@ namespace VL.Stride.Rendering
             var position = -Offset;
             var scaling = Scale;
             if (Units == ScreenSpaceUnits.DIP)
-                scaling *= ScreenSpaces.DIPFactor;   
+                scaling *= DIPHelpers.DIPFactor();
             var viewPort = context.RenderContext.ViewportState.Viewport0;
             var viewPortSize = new Vector2(viewPort.Size.X * 0.01f, viewPort.Size.Y * 0.01f);
             var size = viewPortSize / scaling;

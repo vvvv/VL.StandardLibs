@@ -26,7 +26,7 @@ namespace VL.Stride.Shaders.ShaderFX.Functions
             }
         }
 
-        public IEnumerable<KeyValuePair<string, IComputeNode>> Inputs { get; private set; }
+        public new IEnumerable<KeyValuePair<string, IComputeNode>> Inputs { get; private set; }
         public SetVar<TIn> Arg { get; }
         public SetVar<TOut> Result { get; }
 

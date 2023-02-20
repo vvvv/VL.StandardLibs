@@ -16,7 +16,7 @@ namespace VL.Stride.Rendering
     public class EntityRendererRenderFeature : RootRenderFeature
     {
         /// <summary>
-        /// A property key to get the current parent transformation from the <see cref="RenderContext.Tags"/>.
+        /// A property key to get the current parent transformation from the <see cref="ComponentBase.Tags"/> property of the render context.
         /// </summary>
         public static readonly PropertyKey<Matrix> CurrentParentTransformation = new PropertyKey<Matrix>("EntityRendererRenderFeature.CurrentParentTransformation", typeof(Matrix), DefaultValueMetadata.Static(Matrix.Identity, keepDefaultValue: true));
 

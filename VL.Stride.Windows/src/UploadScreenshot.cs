@@ -12,7 +12,7 @@ namespace VL.Stride.Windows
     {
         private static Uri CPictureUploadUri = new Uri("https://vvvv.org/web-api/picture-upload");
 
-        private static MD5CryptoServiceProvider FMd5 = new MD5CryptoServiceProvider();
+        private static MD5 FMd5 = MD5.Create();
 
         public static string ToMD5(string input)
         {

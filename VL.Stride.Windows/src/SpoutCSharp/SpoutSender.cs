@@ -72,7 +72,7 @@ namespace VL.Stride.Spout
                     success = false;
                 }
             }
-            catch (AbandonedMutexException e)
+            catch (AbandonedMutexException)
             {
                 success = true;    
             }
@@ -107,7 +107,7 @@ namespace VL.Stride.Spout
             {
                 mutex.WaitOne(SpoutWaitTimeout);
             }
-            catch (AbandonedMutexException e)
+            catch (AbandonedMutexException)
             {
                 //Log.Add(e);     
             }

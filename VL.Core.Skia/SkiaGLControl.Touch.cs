@@ -149,7 +149,7 @@ namespace VL.Skia
             public uint dwTime;
             public uint historyCount;
             public int inputData;
-            public ModifierKeys dwKeyStates;
+            public uint dwKeyStates;
             public ulong PerformanceCount;
             public PointerButtonChangeType ButtonChangeType;
         }

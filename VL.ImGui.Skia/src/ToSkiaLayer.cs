@@ -51,7 +51,7 @@ namespace VL.ImGui
         float _uiScaling;
         Spread<FontConfig> _fonts = Spread<FontConfig>.Empty;
 
-        CallerInfo _lastCallerInfo;
+        CallerInfo? _lastCallerInfo;
         ImDrawDataPtr _drawDataPtr;
         bool _readyToBeDrawn;
 
@@ -250,12 +250,6 @@ namespace VL.ImGui
                 atlas.TexID = paintHandle.Ptr;
             }
 
-            [DllImport("gdi32.dll")]
-            static extern uint GetFontData(IntPtr hdc, uint dwTable, uint dwOffset, [Out] byte[] lpvBuffer, uint cbData);
-
-            [DllImport("gdi32.dll", EntryPoint = "SelectObject")]
-            static extern IntPtr SelectObject([In] IntPtr hdc, [In] IntPtr hgdiobj);
-
             static IntPtr GetGlypthRange(ImFontAtlasPtr atlas, GlyphRange glyphRange)
             {
                 return glyphRange switch
@@ -448,7 +442,9 @@ namespace VL.ImGui
         public CallerInfo PushTransformation(CallerInfo caller, SKMatrix relative)
         {
             SKMatrix target = caller.Transformation;
+#pragma warning disable CS0618 // Type or member is obsolete
             SKMatrix.PreConcat(ref target, ref relative);
+#pragma warning restore CS0618 // Type or member is obsolete
             return caller.WithTransformation(target);
         }
 

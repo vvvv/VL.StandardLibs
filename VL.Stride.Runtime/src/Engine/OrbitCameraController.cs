@@ -19,7 +19,6 @@ namespace MyGame
 
         private Vector3 upVector;
         private Vector3 translation;
-        private Vector3 interest;
         private float yaw;
         private float pitch;
         private float orbitYaw;

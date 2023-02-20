@@ -1,37 +1,23 @@
 ﻿using Stride.Core;
 using Stride.Core.Extensions;
-using Stride.Core.IO;
 using Stride.Core.Mathematics;
-using Stride.Core.Serialization.Contents;
 using Stride.Graphics;
 using Stride.Rendering;
-using Stride.Rendering.ComputeEffect;
-using Stride.Rendering.Images;
 using Stride.Rendering.Materials;
 using Stride.Shaders;
-using Stride.Shaders.Compiler;
 using Stride.Shaders.Parser;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reflection;
 using VL.Core;
 using VL.Core.Diagnostics;
-using VL.Model;
-using VL.Stride.Core;
-using VL.Stride.Graphics;
 using VL.Stride.Effects;
-using VL.Stride.Engine;
-using VL.Stride.Rendering.ComputeEffect;
 using VL.Stride.Shaders;
 using VL.Stride.Shaders.ShaderFX;
-using Microsoft.VisualStudio.Threading;
-using Stride.Core.Diagnostics;
 
 namespace VL.Stride.Rendering
 {

@@ -29,6 +29,7 @@ namespace VL.Stride.Rendering
         /// <param name="vertexPositions">The vertex positions.</param>
         /// <param name="triangleIndices">The triangle indices.</param>
         /// <param name="vertexNormals">The vertex normals.</param>
+        /// <param name="isLefthanded"></param>
         public static void CalculateVertexNormals(Vector3[] vertexPositions, int[] triangleIndices, Vector3[] vertexNormals, bool isLefthanded)
         {
 

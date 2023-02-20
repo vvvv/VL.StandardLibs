@@ -168,9 +168,6 @@ namespace VL.Stride.Shaders
                 soStrides[streamOutputElement.Stream] += streamOutputElement.ComponentCount * sizeof(float);
             }
 
-
-            SharpDX.Direct3D11.StreamOutputElement[] soElements;
-
             var soElems = new List<SharpDX.Direct3D11.StreamOutputElement>();
             foreach (var streamOutputElement in reflection.ShaderStreamOutputDeclarations)
             {

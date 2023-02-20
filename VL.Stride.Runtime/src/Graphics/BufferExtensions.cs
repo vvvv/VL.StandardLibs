@@ -372,7 +372,7 @@ namespace VL.Stride.Graphics
         /// <param name="doNotWait">if set to <c>true</c> this method will return immediately if the resource is still being used by the GPU for writing. Default is false</param>
         /// <param name="offsetInBytes"></param>
         /// <param name="lengthInBytes"></param>
-        /// <returns><c>true</c> if data was correctly retrieved, <c>false</c> if <see cref="doNotWait"/> flag was true and the resource is still being used by the GPU for writing.</returns>
+        /// <returns><c>true</c> if data was correctly retrieved, <c>false</c> if <paramref name="doNotWait"/> flag was true and the resource is still being used by the GPU for writing.</returns>
         /// <remarks>
         /// This method is only working when called from the main thread that is accessing the main <see cref="GraphicsDevice"/>.
         /// This method creates internally a stagging resource if this buffer is not already a stagging resouce, copies to it and map it to memory. Use method with explicit staging resource
@@ -416,14 +416,13 @@ namespace VL.Stride.Graphics
         /// <summary>
         /// Copies the content of this buffer to an array of data.
         /// </summary>
-        /// <typeparam name="TData">The type of the T data.</typeparam>
         /// <param name="thisBuffer"></param>
         /// <param name="commandList">The command list.</param>
         /// <param name="toData">The destination array to receive a copy of the buffer datas.</param>
         /// <param name="doNotWait">if set to <c>true</c> this method will return immediately if the resource is still being used by the GPU for writing. Default is false</param>
         /// <param name="offsetInBytes"></param>
         /// <param name="lengthInBytes"></param>
-        /// <returns><c>true</c> if data was correctly retrieved, <c>false</c> if <see cref="doNotWait"/> flag was true and the resource is still being used by the GPU for writing.</returns>
+        /// <returns><c>true</c> if data was correctly retrieved, <c>false</c> if <paramref name="doNotWait"/> flag was true and the resource is still being used by the GPU for writing.</returns>
         /// <remarks>
         /// This method is only working when called from the main thread that is accessing the main <see cref="GraphicsDevice"/>.
         /// This method creates internally a stagging resource if this buffer is not already a stagging resouce, copies to it and map it to memory. Use method with explicit staging resource

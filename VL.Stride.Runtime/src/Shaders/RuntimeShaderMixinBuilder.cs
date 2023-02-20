@@ -76,6 +76,20 @@ namespace VL.Stride.Shaders
             return field?.GetValue(null) as ParameterKey;
         }
 
+        public override void Visit(EffectBlock effectBlock)
+        {
+            var previousBlock = currentBlock;
+            currentBlock = effectBlock;
+            try
+            {
+                base.Visit(effectBlock);
+            }
+            finally
+            {
+                currentBlock = previousBlock;
+            }
+        }
+
         public override void Visit(UsingStatement usingStatement)
         {
             usings.Add(usingStatement.Name.ToString());

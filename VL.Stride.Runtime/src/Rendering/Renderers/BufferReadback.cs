@@ -26,7 +26,7 @@ namespace VL.Stride.Rendering
         DataPointer pinnedResult;
         SerialDisposable pinDisposer = new SerialDisposable(); 
 
-        public Buffer Input { get; set; }
+        public new Buffer Input { get; set; }
         Buffer inputBuffer;
 
         private int frameDelayCount;

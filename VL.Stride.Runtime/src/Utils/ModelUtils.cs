@@ -37,6 +37,7 @@ namespace VL.Stride.Utils
             /// </summary>
             /// <param name="meshDrawDatas">The mesh draw datas.</param>
             /// <param name="can32BitIndex">A flag stating if 32 bit index buffers.</param>
+            /// <param name="commandList"></param>
             public static unsafe MeshDraw MergeDrawData(IList<MeshDraw> meshDrawDatas, bool can32BitIndex, CommandList commandList)
             {
                 if (meshDrawDatas.Count == 0)
@@ -345,6 +346,7 @@ namespace VL.Stride.Utils
             /// </summary>
             /// <param name="meshDrawDatas">The list of meshes to group.</param>
             /// <param name="can32BitIndex">A flag stating if 32 bit index buffers are allowed</param>
+            /// <param name="commandList"></param>
             /// <returns>The list of merged meshes.</returns>
             public static List<MeshDraw> GroupDrawData(this IList<MeshDraw> meshDrawDatas, bool can32BitIndex, CommandList commandList)
             {

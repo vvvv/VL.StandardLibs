@@ -17,7 +17,7 @@ namespace VL.Stride.Shaders.ShaderFX
             this.Value = value;
         }
 
-        public IComputeValue<Vector4> Value { get; }
+        public new IComputeValue<Vector4> Value { get; }
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
         {

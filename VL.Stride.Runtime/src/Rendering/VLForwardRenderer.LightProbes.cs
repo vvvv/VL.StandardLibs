@@ -55,6 +55,7 @@ namespace VL.Stride.Rendering
         /// <summary>
         /// Bake lightprobes into buffers compatible with <see cref="LightProbeRenderer"/>
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="drawContext">The drawing context</param>
         private unsafe void BakeLightProbes(RenderContext context, RenderDrawContext drawContext)
         {

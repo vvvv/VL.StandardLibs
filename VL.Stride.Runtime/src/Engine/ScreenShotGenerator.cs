@@ -11,7 +11,7 @@ namespace VL.Stride.Engine
         /// Request a screenshot and save it to disc.
         /// </summary>
         /// <param name="game">The game.</param>
-        /// <param name="screenShotUrl">The screenshot URL.</param>
+        /// <param name="screenshotUrl">The screenshot URL.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="pixelFormat">The pixel format.</param>
@@ -64,7 +64,7 @@ namespace VL.Stride.Engine
                     graphicsContext.Allocator.ReleaseReference(renderTarget);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 status = false;
             }

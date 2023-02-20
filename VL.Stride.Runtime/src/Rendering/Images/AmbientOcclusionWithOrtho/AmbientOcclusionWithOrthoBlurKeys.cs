@@ -7,7 +7,7 @@ using System.Linq;
 namespace VL.Stride.Rendering.Images
 {
     /// <summary>
-    /// Keys used by <see cref="AmbientOcclusionWithOrthoBlur"/> and AmbientOcclusionWithOrthoBlurEffect sdfx
+    /// Keys used by <see cref="AmbientOcclusionWithOrtho"/> and AmbientOcclusionWithOrthoBlurEffect sdfx
     /// </summary>
     internal static class AmbientOcclusionWithOrthoBlurKeys
     {

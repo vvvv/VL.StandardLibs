@@ -20,8 +20,7 @@ namespace VL.Stride.Engine
     {
         public static IEnumerable<IVLNodeDescription> GetNodeDescriptions(IVLNodeDescriptionFactory factory)
         {
-            var strideCategory = "Stride";
-            var strideCategoryAdvanced = "Stride.Advanced";
+            var strideCategoryAdvanced = $"Stride.Advanced";
 
             yield return new CustomNodeDesc<SceneInstanceSystem>(factory,
                 ctor: nodeContext =>

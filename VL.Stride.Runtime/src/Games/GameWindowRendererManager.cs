@@ -67,8 +67,6 @@ namespace VL.Stride.Games
 
         private DisplayOrientation currentWindowOrientation;
 
-        private bool beginDrawOk;
-
         private IGraphicsDeviceFactory graphicsDeviceFactory;
 
         private bool isReallyFullScreen;
@@ -82,8 +80,6 @@ namespace VL.Stride.Games
         /// <summary>
         /// Initializes a new instance of the <see cref="GraphicsDeviceManager" /> class.
         /// </summary>
-        /// <param name="game">The game.</param>
-        /// <exception cref="System.ArgumentNullException">The game instance cannot be null.</exception>
         internal GameWindowRendererManager()
         {
             lockDeviceCreation = new object();

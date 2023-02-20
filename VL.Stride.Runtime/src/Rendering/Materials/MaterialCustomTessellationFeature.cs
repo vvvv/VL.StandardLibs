@@ -29,6 +29,7 @@ namespace VL.Stride.Rendering.Materials
         /// </summary>
         /// <userdoc>
         /// This is the name of the stream that will be arive in HSMain, HSConstantMain and DSMain.
+        /// </userdoc>
         [DataMember(40)]
         [Display("TessellationShadere")]
         public IComputeNode TessellationShader { get; set; }

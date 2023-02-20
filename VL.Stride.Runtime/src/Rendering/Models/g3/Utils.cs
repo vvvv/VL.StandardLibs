@@ -16,6 +16,7 @@ namespace VL.Stride.Rendering.Models
         /// <param name="meshGenerator">A g3 SimpleMesh instance</param>
         /// <param name="name">The model name</param>
         /// <param name="UVScale">UV scale factor as a Vector2</param>
+        /// <param name="yOffset"></param>
         /// <returns>An equivalent Stride GeometricMeshData</returns>
         public static GeometricMeshData<VertexPositionNormalTexture> ToGeometricMeshData(MeshGenerator meshGenerator, string name, Vector2 UVScale, float yOffset = 0f)
         {
@@ -42,9 +43,7 @@ namespace VL.Stride.Rendering.Models
         /// <returns>A geomtry3Sharp Vector3d</returns>
         public static Vector3d ToVector3d(Vector3 vector)
         {
-            if (vector != null)
-                return new Vector3d(vector.X, vector.Y, vector.Z);
-            return Vector3d.Zero;
+            return new Vector3d(vector.X, vector.Y, vector.Z);
         }
 
         /// <summary>
@@ -73,9 +72,7 @@ namespace VL.Stride.Rendering.Models
         /// <returns>A geomtry3Sharp Vector2d</returns>
         public static Vector2d ToVector2d(Vector2 vector)
         {
-            if (vector != null)
-                return new Vector2d(vector.X, vector.Y);
-            return Vector2d.Zero;
+            return new Vector2d(vector.X, vector.Y);
         }
 
         /// <summary>
