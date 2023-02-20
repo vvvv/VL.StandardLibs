@@ -2,6 +2,7 @@
 <Project>
   <Import Project="$([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), '$(MSBuildThisFileDirectory)../'))"
           Condition="Exists($([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), $(MSBuildThisFileDirectory)../)))" />
+  
   <PropertyGroup>
     <PackageOutputPath>$(MsBuildThisFileDirectory)build\packages\</PackageOutputPath>
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
@@ -16,7 +17,14 @@
     <Owners>$(Authors)</Owners>
     <Copyright>Copyright © $(Year) by $(Authors). All rights reserved.</Copyright>
     <PackageProjectUrl>http://vvvv.org</PackageProjectUrl>
-    <Product>vvvv</Product>
-    
+    <Product>vvvv</Product>  
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(GitRepoRoot)' == ''">
+    <PackageReference Include="Nerdbank.GitVersioning">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  
 </Project>

@@ -2,12 +2,6 @@
 <Project>
   <Import Project="$([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), '$(MSBuildThisFileDirectory)../'))"
           Condition="Exists($([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), $(MSBuildThisFileDirectory)../)))" />
-  <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
   
   <ItemGroup Condition="$(VLPackageBasePath) != ''">
     <Content Include="$(VLPackageBasePath)*.vl" PackagePath="%(RecursiveDir)%(Filename)%(Extension)" />
