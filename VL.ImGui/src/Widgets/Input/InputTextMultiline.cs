@@ -16,7 +16,7 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiInputTextFlags Flags { private get; set; }
 
-        string lastframeValue;
+        string? lastframeValue;
 
         internal override void UpdateCore(Context context)
         {

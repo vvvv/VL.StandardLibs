@@ -23,7 +23,7 @@ namespace VL.ImGui
                 }
                 finally
                 {
-                    Style?.Reset();
+                    Style?.Reset(context);
                 }
             }
         }

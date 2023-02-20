@@ -1,11 +1,11 @@
 ﻿namespace VL.ImGui.Widgets
 {
-    [GenerateNode(Category = "ImGui.Commands", GenerateRetained = false, IsStylable = false)]
     /// <summary>
     /// Set popup state to open. See Flags for available opening options.
     /// Don't call every frame!
-    //  If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
+    ///  If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
     /// </summary>
+    [GenerateNode(Category = "ImGui.Commands", GenerateRetained = false, IsStylable = false)]
     internal partial class OpenPopup : Widget
     {
         public string? Label { private get; set; }

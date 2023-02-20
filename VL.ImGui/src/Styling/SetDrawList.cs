@@ -23,19 +23,19 @@ namespace VL.ImGui.Styling
 
         internal override void SetCore(Context context)
         {
-            previousDrawList = Context.Current.DrawList;
-            previousDrawListPtr = Context.Current.DrawListPtr;
-            previousOffset = Context.Current.DrawListOffset;
+            previousDrawList = context.DrawList;
+            previousDrawListPtr = context.DrawListPtr;
+            previousOffset = context.DrawListOffset;
 
-            Context.Current.SetDrawList(DrawList);
+            context.SetDrawList(DrawList);
         }
 
-        public override void Reset()
+        public override void Reset(Context context)
         {
-            Context.Current.DrawList = previousDrawList;
-            Context.Current.DrawListPtr = previousDrawListPtr;
-            Context.Current.DrawListOffset = previousOffset;
-            base.Reset();
+            context.DrawList = previousDrawList;
+            context.DrawListPtr = previousDrawListPtr;
+            context.DrawListOffset = previousOffset;
+            base.Reset(context);
         }
     }
 }

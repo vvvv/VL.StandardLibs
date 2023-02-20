@@ -17,13 +17,13 @@
             SetCore(context);
         }
 
-        public virtual void Reset()
+        public virtual void Reset(Context context)
         {
             if (colorCount > 0)
                 ImGui.PopStyleColor(colorCount);
             if (valueCount > 0)
                 ImGui.PopStyleVar(valueCount);
-            Input?.Reset();
+            Input?.Reset(context);
         }
 
         internal abstract void SetCore(Context context);

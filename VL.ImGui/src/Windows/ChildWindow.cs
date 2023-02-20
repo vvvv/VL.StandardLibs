@@ -19,8 +19,8 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// For each independent axis of 'size': 
         /// ==0.0f: use remaining host window size 
-        /// >0.0f: fixed size 
-        /// <0.0f: use remaining window size minus abs(size) 
+        /// &gt;0.0f: fixed size 
+        /// &lt;0.0f: use remaining window size minus abs(size) 
         /// Each axis can use a different mode, e.g. (0,400).
         /// </summary>
         public Vector2 Size { get; set; }

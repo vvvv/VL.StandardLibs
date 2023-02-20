@@ -1,9 +1,9 @@
 ﻿namespace VL.ImGui.Widgets
 {
-    [GenerateNode(Category = "ImGui.Commands", GenerateRetained = false, IsStylable = false)]
     /// <summary>
     /// Retrieve text data from the clipboard
     /// </summary>
+    [GenerateNode(Category = "ImGui.Commands", GenerateRetained = false, IsStylable = false)]
     internal partial class GetClipboardText : ChannelWidget<string>
     {
 

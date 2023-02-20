@@ -1,9 +1,9 @@
 ﻿namespace VL.ImGui.Widgets
 {
-    [GenerateNode(Category = "ImGui.Commands", GenerateRetained = false, IsStylable = false)]
     /// <summary>
     /// Submit one header cell manually (rarely used)
     /// </summary>
+    [GenerateNode(Category = "ImGui.Commands", GenerateRetained = false, IsStylable = false)]
     internal partial class TableHeader : Widget
     {
 

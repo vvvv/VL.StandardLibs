@@ -1,9 +1,9 @@
 ﻿namespace VL.ImGui.Widgets
 {
-    [GenerateNode(Category = "ImGui.Commands", GenerateRetained = false, IsStylable = false)]
     /// <summary>
     /// Capture a text into clipboard.
     /// </summary>
+    [GenerateNode(Category = "ImGui.Commands", GenerateRetained = false, IsStylable = false)]
     internal partial class SetClipboardText : Widget
     {
 

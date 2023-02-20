@@ -1,9 +1,9 @@
 ﻿namespace VL.ImGui.Widgets
 {
-    [GenerateNode(Category = "ImGui.Commands", GenerateRetained = false, IsStylable = false)]
     /// <summary>
     /// Submit all headers cells based on data provided to TableSetupColumn() + submit context menu
     /// </summary>
+    [GenerateNode(Category = "ImGui.Commands", GenerateRetained = false, IsStylable = false)]
     internal partial class TableHeadersRow : Widget
     {
 

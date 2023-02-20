@@ -4,6 +4,6 @@
     {
         void Set(Context context);
 
-        void Reset();
+        void Reset(Context context);
     }
 }
