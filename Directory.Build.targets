@@ -105,7 +105,7 @@
   <!-- Remove glslLangValidator.exe (stemming from Stride.Shaders.Compiler) from our packages -->
   <Target Name="_RemoveGlslLangValidatorFromPackage" BeforeTargets="_GetPackageFiles">
     <ItemGroup>
-      <Content Update="%(Filename) == 'glslLangValidator'">
+      <Content Condition="'%(Content.Filename)' == 'glslangValidator'">
         <Pack>false</Pack>
       </Content>
     </ItemGroup>
