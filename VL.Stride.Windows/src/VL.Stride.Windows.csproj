@@ -18,7 +18,7 @@
     <None Include="..\help\**\*" Link="help\%(RecursiveDir)%(Filename)%(Extension)" Pack="true" AutoGen="false" PackagePath="help\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Stride.Assets" />
+    <PackageReference Include="Stride.Assets" GeneratePathProperty="true" />
     <PackageReference Include="Stride.Assets.Models" />
     <!-- A pure package dependency so on install all VL packages come in -->
     <PackageReference Include="Stride.TextureConverter" />
@@ -31,6 +31,16 @@
   <Target Name="IncludeStridePackageContent" BeforeTargets="InferPackageContents" DependsOnTargets="_StridePrepareAssetsForPack">
     <Message Importance="high" Text="Called Stride package targets" />
   </Target>
+
+  <ItemGroup>
+    <None Include="$(PkgStride_Assets)\contentFiles\any\net6.0-windows7.0\ffmpeg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(PkgStride_Assets)\contentFiles\any\net6.0-windows7.0\msdfgen.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\VL.Stride.Runtime\src\VL.Stride.Runtime.csproj" />
   </ItemGroup>
