@@ -9,6 +9,10 @@
     <Content Remove="$(VLPackageBasePath)**\*.vl.dll" />
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(IsPackable)' != 'false' ">
+    <None Include="$(MsBuildThisFileDirectory)build\nugeticon.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
   <!-- Workaround to specifiy aliases for PackageReference - taken from https://github.com/NuGet/Home/issues/4989 -->
   <Target Name="AddPackageAliases" BeforeTargets="ResolveReferences" Outputs="%(PackageReference.Identity)">
     <PropertyGroup>
