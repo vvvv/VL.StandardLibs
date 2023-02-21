@@ -262,7 +262,7 @@ namespace {typeSymbol.ContainingNamespace}
                         {string.Join($"{Environment.NewLine}{indent2}", outputs)}
                     }};
                     {nodeDecl}
-                }}, summary: ""{summary}"");
+                }}, summary: @""{summary}"");
             }}, tags: ""{tags}"");
         }}
     }}
