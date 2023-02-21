@@ -1,12 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
-  <Import Project="$([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), '$(MSBuildThisFileDirectory)../'))"
-          Condition="Exists($([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), $(MSBuildThisFileDirectory)../)))" />
-  
+
   <PropertyGroup>
     <PackageOutputPath>$(MsBuildThisFileDirectory)build\packages\</PackageOutputPath>
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
     <NoWarn>$(NoWarn)1591;</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Must be turned off or publishing from inside VS fails -->
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 
     <!-- Enable central package version feature https://devblogs.microsoft.com/nuget/introducing-central-package-management/ -->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
@@ -18,14 +20,29 @@
     <Owners>$(Authors)</Owners>
     <Copyright>Copyright © $(Year) by $(Authors). All rights reserved.</Copyright>
     <PackageProjectUrl>http://vvvv.org</PackageProjectUrl>
-    <Product>vvvv</Product>  
+    <Product>vvvv</Product>
+    <PackageIcon>nugeticon.png</PackageIcon>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(GitRepoRoot)' == ''">
+  <!-- Read the version information from our private repo (for now) -->
+  <PropertyGroup Condition="Exists('$(MsBuildThisFileDirectory)..\version.json')">
+    <GitRepoRoot>$(MSBuildThisFileDirectory)..\</GitRepoRoot>
+    <!-- https://github.com/dotnet/Nerdbank.GitVersioning/blob/master/doc/msbuild.md -->
+    <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)..\</GitVersionBaseDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <!-- Disable pdb files in Release builds -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>None</DebugType>
+    <AllowedReferenceRelatedFileExtensions>.xml</AllowedReferenceRelatedFileExtensions>
+  </PropertyGroup>
   
 </Project>
