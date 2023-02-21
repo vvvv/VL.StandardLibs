@@ -101,4 +101,14 @@
       <Content Remove="@(_StrideDependencyContent)" Condition=" '$(StrideIsExecutable)' == '' or '$(StrideIsExecutable)' == 'false' " />
     </ItemGroup>
   </Target>
+
+  <!-- Remove glslLangValidator.exe (stemming from Stride.Shaders.Compiler) from our packages -->
+  <Target Name="_RemoveGlslLangValidatorFromPackage" BeforeTargets="_GetPackageFiles">
+    <ItemGroup>
+      <Content Update="%(Filename) == 'glslLangValidator'">
+        <Pack>false</Pack>
+      </Content>
+    </ItemGroup>
+  </Target>
+  
 </Project>
