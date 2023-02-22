@@ -190,6 +190,9 @@ namespace VL.ImGui
                 var size = Math.Clamp(font.Size * 100 /* hecto pixel */ * scaling, 1, short.MaxValue);
 
                 var family = SystemFonts.Families.FirstOrDefault(f => f.Name == font.FamilyName.Value);
+                if (family.Name is null)
+                    continue;
+
                 var systemFont = family.CreateFont((float)(size * 0.75f) /* PT */, font.FontStyle);
                 if (!systemFont.TryGetPath(out var path))
                     continue;
