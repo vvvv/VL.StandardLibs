@@ -1,16 +1,33 @@
-This repository holds the standard libraries for [vvvv](https://visualprogramming.net), a visual live-programming environment for .NET. It is targeted at developers who want to fix/improve/add-to specifically these libraries. 
+![vvvv](docs/vvvv.png)
 
-The individual libraries are organized in directories. Each directory starting with "VL." holds the sources of one library. Each library is built to a [NuGet](https://www.nuget.org/) and NuGets can be referenced as a dependency by .vl documents. 
+Welcome to the repository of standard libraries for vvvv!
+
+vvvv is a visual live-programming environment for .NET. To learn more about it, see:
+- [visualprogramming.net](https://visualprogramming.net)
+- [Documentation](https://thegraybook.vvvv.org/)
+- [Video Tutorials](https://www.youtube.com/vvvvtv42)
+- [Discussion Forum](https://discourse.vvvv.org/)
+- [Chat](https://matrix.to/#/#vvvv:matrix.org)
+
+![vvvv](docs/vvvvIO.png)
 
 ## Working with this repository
+
+If you're merely using vvvv, this repository is not for you. It is only useful for developers who want to fix/improve/add-to libraries that are part of this repository.
+
+The individual libraries are organized in directories. Each directory starting with "VL." holds the sources of one library. 
+
 Working with this repository requires two steps:
 - Build `VL.StandardLibs.sln` using Visual Studio 2022
 - Run vvvv with this directory as a [source package-repository](https://thegraybook.vvvv.org/reference/extending/contributing.html)
 
 ## Contributing to this repository
-- Consider starting a discussion around your proposed changed in an issue, before starting your work
-- Keep the pull-request as minimal as possible
-- Sign the CLA
+
+Before getting to work, please start a discussion around your proposed changes in an issue, to:
+- Make sure that no one else is working on that same topic already
+- Lay out your plans and discuss them with others to make sure your idea is properly architectured and would fit well with the project
+
+After creating a pull request and if it's your first time contributing, the [CLA assistant](https://github.com/cla-assistant) will ask you to sign the [Contributor License Agreement](docs/ContributorLicenseAgreement.md).
 
 ## License
-Many VL sources in this repository are mere wrappers around original .NET libraries that come with their own open-source licenses. If not specified otherwise, sources in this repository are licensed under the [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0-standalone.html).
+Many VL sources in this repository are mere wrappers around original .NET libraries that come with their own open-source licenses. If not specified otherwise, sources in this repository are licensed under the [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0-standalone.html). Contributors need to sign the [Contributor License Agreement](docs/ContributorLicenseAgreement.md).
