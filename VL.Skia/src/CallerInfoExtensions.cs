@@ -15,8 +15,7 @@ namespace VL.Skia
         public static CallerInfo PushTransformation(this CallerInfo callerInfo, SKMatrix relative)
         {
             SKMatrix target = callerInfo.Transformation;
-            SKMatrix.PreConcat(ref target, ref relative);
-            return callerInfo with { Transformation = target };
+            return callerInfo with { Transformation = target.PreConcat(relative) };
         }
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace VL.Skia
         internal static SKMatrix GetWithinSpaceTransformation(SKRect viewportBounds, Sizing sizing = Sizing.ManualSize, 
             float width = 0, float height = 2, RectangleAnchor origin = RectangleAnchor.Center)
         {
-            SKMatrix transformation = SKMatrix.MakeIdentity();
+            SKMatrix transformation = SKMatrix.CreateIdentity();
             switch (sizing)
             {
                 case Sizing.ManualSize:

@@ -222,7 +222,7 @@ namespace VL.Skia
                         }
                     }
                 }
-                return SKImage.FromPixelData(
+                return SKImage.FromPixels(
                     info: new SKImageInfo(info.Width, info.Height, SKColorType.Gray8),
                     data: pixels,
                     rowBytes: info.Width);
@@ -240,7 +240,7 @@ namespace VL.Skia
                     var pDst = (byte*)pixels.Data.ToPointer();
                     ConvertFromBGRXToBGRA(pixelCount, pSrc, pDst);
                 }
-                return SKImage.FromPixelData(
+                return SKImage.FromPixels(
                     info: new SKImageInfo(info.Width, info.Height, SKColorType.Bgra8888),
                     data: pixels,
                     rowBytes: info.Width * 4);       
@@ -288,7 +288,7 @@ namespace VL.Skia
                     ConvertFrom24To32(pixelCount, pSrc, pDst);
                 }
                 var colorType = info.Format == PixelFormat.R8G8B8 ? SKColorType.Rgba8888 : SKColorType.Bgra8888;
-                return SKImage.FromPixelData(
+                return SKImage.FromPixels(
                     info: new SKImageInfo(info.Width, info.Height, colorType),
                     data: pixels,
                     rowBytes: info.Width*4);

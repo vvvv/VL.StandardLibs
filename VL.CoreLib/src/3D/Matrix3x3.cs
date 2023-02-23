@@ -47,7 +47,6 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Stride.Core;
 using Stride.Core.Mathematics;
 
 namespace VL.Lib.Mathematics
@@ -61,7 +60,7 @@ namespace VL.Lib.Mathematics
         /// <summary>
         /// The size of the <see cref="Matrix3x3"/> type, in bytes.
         /// </summary>
-        public static readonly int SizeInBytes = Utilities.SizeOf<Matrix3x3>();
+        public static readonly int SizeInBytes = Unsafe.SizeOf<Matrix3x3>();
 
         /// <summary>
         /// A <see cref="Matrix3x3"/> with all of its components set to zero.

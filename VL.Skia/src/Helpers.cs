@@ -1,17 +1,12 @@
 ﻿using SkiaSharp;
-using System.Drawing;
-using VL.Lib.IO.Notifications;
-using VL.Lib.Basics.Resources;
+using System;
 
 namespace VL.Skia
 {
     static public class SKMatrixHelpers
     {
-        public static SKMatrix Multiply(this SKMatrix input, ref SKMatrix input2)
-        {
-            SKMatrix.PostConcat(ref input, ref input2);
-            return input;
-        }
+        public static SKMatrix Multiply(this SKMatrix input, ref SKMatrix input2) => input.PostConcat(input2);
+
         public static SKMatrix SetScaleX(this SKMatrix matrix, float value)
         {
             matrix.ScaleX = value;
@@ -59,7 +54,7 @@ namespace VL.Skia
         }
         public static SKMatrix MakeSKMatrix(float ScaleX, float SkewX, float TransX, float SkewY, float ScaleY, float TransY, float Persp0, float Persp1, float Persp2)
         {
-            SKMatrix matrix = SKMatrix.MakeIdentity();
+            SKMatrix matrix = SKMatrix.CreateIdentity();
             matrix.ScaleX = ScaleX;
             matrix.SkewX = SkewX;
             matrix.TransX = TransX;
@@ -130,7 +125,7 @@ namespace VL.Skia
         //}
 
         public static readonly ILayer DefaultLayer = new LinkedLayerBase();
-        public static SKMatrix IdentityMatrix = SKMatrix.MakeIdentity();
+        public static SKMatrix IdentityMatrix = SKMatrix.CreateIdentity();
     }
 
 
@@ -141,7 +136,7 @@ namespace VL.Skia
 
         public static void SafeDispose(this SKObject input)
         {
-            if (input != null && input.Handle != null)
+            if (input != null && input.Handle != IntPtr.Zero)
                 input.Dispose();
         }       
     }

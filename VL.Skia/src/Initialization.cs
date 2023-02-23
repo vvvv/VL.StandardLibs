@@ -24,7 +24,7 @@ namespace VL.Skia
                     fragmented: true,
                     init: bc =>
                 {
-                    return bc.NewNode(
+                    return bc.Node(
                         inputs: new[] { bc.Pin("Resource Cache Limit", typeof(int), RenderContext.ResourceCacheLimit, "The maximum number of bytes of video memory that can be held in the cache") },
                         outputs: new[] { bc.Pin("Output", typeof(GRContext)) },
                         summary: "Allows to retrieve and configure the underlying backend 3D API context of the current thread",
