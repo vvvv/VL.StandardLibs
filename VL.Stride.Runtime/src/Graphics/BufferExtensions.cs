@@ -357,7 +357,7 @@ namespace VL.Stride.Graphics
         /// <exception cref="System.ArgumentException">If the size is invalid</exception>
         public static int CalculateElementCount<TData>(this Buffer input) where TData : struct
         {
-            var dataStrideInBytes = Utilities.SizeOf<TData>();
+            var dataStrideInBytes = Unsafe.SizeOf<TData>();
 
             return input.SizeInBytes / dataStrideInBytes;
         }
@@ -410,7 +410,7 @@ namespace VL.Stride.Graphics
         public static bool GetData<TData>(this Buffer thisBuffer, CommandList commandList, Buffer staginBuffer, TData[] toData, bool doNotWait = false, int offsetInBytes = 0, int lengthInBytes = 0) where TData : struct
         {
             using (var pinner = new GCPinner(toData))
-                return thisBuffer.GetData(commandList, staginBuffer, new DataPointer(pinner.Pointer, toData.Length * Utilities.SizeOf<TData>()), doNotWait, offsetInBytes, lengthInBytes);
+                return thisBuffer.GetData(commandList, staginBuffer, new DataPointer(pinner.Pointer, toData.Length * Unsafe.SizeOf<TData>()), doNotWait, offsetInBytes, lengthInBytes);
         }
 
         /// <summary>
@@ -457,7 +457,7 @@ namespace VL.Stride.Graphics
         /// <remarks>
         /// This method is only working when called from the main thread that is accessing the main <see cref="GraphicsDevice"/>.
         /// </remarks>
-        public static bool GetData(this Buffer thisBuffer, CommandList commandList, Buffer stagingBuffer, DataPointer toData, bool doNotWait = false, int offsetInBytes = 0, int lengthInBytes = 0)
+        public static unsafe bool GetData(this Buffer thisBuffer, CommandList commandList, Buffer stagingBuffer, DataPointer toData, bool doNotWait = false, int offsetInBytes = 0, int lengthInBytes = 0)
         {
             // Check size validity of data to copy to
             if (toData.Pointer == IntPtr.Zero || toData.Size != thisBuffer.SizeInBytes)
@@ -473,7 +473,7 @@ namespace VL.Stride.Graphics
             {
                 if (mappedResource.DataBox.DataPointer != IntPtr.Zero)
                 {
-                    Utilities.CopyMemory(toData.Pointer, mappedResource.DataBox.DataPointer, toData.Size);
+                    Unsafe.CopyBlockUnaligned(toData.Pointer.ToPointer(), mappedResource.DataBox.DataPointer.ToPointer(), (uint)toData.Size);
                 }
                 else
                 {

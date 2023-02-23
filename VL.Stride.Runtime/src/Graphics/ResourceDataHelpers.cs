@@ -2,6 +2,7 @@
 using Stride.Graphics;
 using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using VL.Lib.Basics.Imaging;
 using VL.Lib.Collections;
@@ -134,7 +135,7 @@ namespace VL.Stride.Graphics
             Pinner = pnr;
 
             OffsetInBytes = offsetInBytes;
-            var tSize = Utilities.SizeOf<T>();
+            var tSize = Unsafe.SizeOf<T>();
             SizeInBytes = sizeInBytes > 0 ? sizeInBytes : memory.Length * tSize;
             ElementSizeInBytes = elementSizeInBytes > 0 ? elementSizeInBytes : tSize;
             RowSizeInBytes = rowSizeInBytes;
@@ -251,7 +252,7 @@ namespace VL.Stride.Graphics
             var count = input.Count;
             if (count > 0)
             {
-                byteStride = Utilities.SizeOf<T>();
+                byteStride = Unsafe.SizeOf<T>();
                 sizeInBytes = byteStride * count;
 
                 pinner = new GCPinner(input);
@@ -272,7 +273,7 @@ namespace VL.Stride.Graphics
             if (count > 0)
             {
                 input.AsMemory();
-                byteStride = Utilities.SizeOf<T>();
+                byteStride = Unsafe.SizeOf<T>();
                 sizeInBytes = byteStride * count;
 
                 pinner = new GCPinner(input);

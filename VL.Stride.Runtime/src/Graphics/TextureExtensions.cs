@@ -52,7 +52,8 @@ namespace VL.Stride.Graphics
         /// See the unmanaged documentation about Map/UnMap for usage and restrictions.
         /// </remarks>
         /// <returns>The GPU buffer.</returns>
-        public static unsafe Texture SetData<TData>(this Texture texture, CommandList commandList, Spread<TData> fromData, int arraySlice, int mipSlice, ResourceRegion? region) where TData : struct
+        public static unsafe Texture SetData<TData>(this Texture texture, CommandList commandList, Spread<TData> fromData, int arraySlice, int mipSlice, ResourceRegion? region) 
+            where TData : unmanaged
         {
             var immutableArray = fromData._array;
             var array = Unsafe.As<ImmutableArray<TData>, TData[]>(ref immutableArray);
@@ -92,7 +93,7 @@ namespace VL.Stride.Graphics
         {
             using var src = File.OpenRead(file);
             var ptr = Utilities.AllocateMemory((int)src.Length);
-            using var dst = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), 0, (int)src.Length, FileAccess.ReadWrite);
+            using var dst = new UnmanagedMemoryStream((byte*)ptr, 0, (int)src.Length, FileAccess.ReadWrite);
             src.CopyTo(dst);
             var dataBuffer = new DataPointer(ptr, (int)dst.Length);
             using var image = Image.Load(dataBuffer, makeACopy: false, loadAsSRGB: loadAsSRGB);

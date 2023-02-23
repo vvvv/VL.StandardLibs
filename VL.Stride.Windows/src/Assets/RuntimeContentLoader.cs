@@ -79,8 +79,8 @@ namespace VL.Stride.Assets
         /// Initializes a new instance of the <see cref="RuntimeContentLoader"/> class
         /// </summary>
         /// <param name="gameDispatcher">The dispatcher to the game thread.</param>
+        /// <param name="runtimDatabase"></param>
         /// <param name="logger">The logger to use to log operations.</param>
-        /// <param name="asset">The asset associated with this instance.</param>
         /// <param name="game">The editor game associated with this instance.</param>
         public RuntimeContentLoader(IDispatcherService gameDispatcher, IRuntimeDatabase runtimDatabase, ILogger logger, Game game)
         {

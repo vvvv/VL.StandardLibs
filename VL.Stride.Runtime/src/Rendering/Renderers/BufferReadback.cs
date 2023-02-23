@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Disposables;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Stride.Core;
 using Stride.Graphics;
@@ -190,7 +191,7 @@ namespace VL.Stride.Rendering
                     result = new T[input.CalculateElementCount<T>()];
                     var handle = new GCPinner(result);
                     pinDisposer.Disposable = handle;
-                    pinnedResult = new DataPointer(handle.Pointer, result.Length * Utilities.SizeOf<T>());
+                    pinnedResult = new DataPointer(handle.Pointer, result.Length * Unsafe.SizeOf<T>());
 
                     for (int i = 0; i < FrameDelayCount; i++)
                     {
