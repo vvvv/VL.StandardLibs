@@ -1,13 +1,10 @@
-![vvvv](docs/vvvv.png)
-
-Welcome to the repository of standard libraries for vvvv!
-
-vvvv is a visual live-programming environment for .NET. To learn more about it, see:
-- [visualprogramming.net](https://visualprogramming.net)
-- [Documentation](https://thegraybook.vvvv.org/)
-- [Video Tutorials](https://www.youtube.com/vvvvtv42)
-- [Discussion Forum](https://discourse.vvvv.org/)
-- [Chat](https://matrix.to/#/#vvvv:matrix.org)
+<div align="center">
+  <a href="https://visualprogramming.net">
+    <img src="docs/vvvv.png" width="150px" height="auto">
+  </a>
+</div>
+<div align="center"><a href="https://thegraybook.vvvv.org">Documentation</a>&emsp;■&emsp;<a href="https://www.youtube.com/vvvvtv42">Tutorials</a>&emsp;■&emsp;<a href="https://visualprogramming.net/#Blog">Blog</a>&emsp;■&emsp;<a href="https://discourse.vvvv.org/">Forum</a>&emsp;■&emsp;<a href="https://matrix.to/#/#vvvv:matrix.org">Chat</a></div>
+<h1 align="center">Standard Libraries for vvvv</h1>
 
 ![vvvv](docs/vvvvIO.png)
 
