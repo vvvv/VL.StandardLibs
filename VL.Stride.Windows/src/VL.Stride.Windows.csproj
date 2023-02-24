@@ -18,6 +18,10 @@
     <None Include="..\help\**\*" Link="help\%(RecursiveDir)%(Filename)%(Extension)" Pack="true" AutoGen="false" PackagePath="help\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Reference directly to solve version conflict -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
+    
     <PackageReference Include="Stride.Assets" GeneratePathProperty="true" />
     <PackageReference Include="Stride.Assets.Models" />
     <!-- A pure package dependency so on install all VL packages come in -->

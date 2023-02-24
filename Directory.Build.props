@@ -12,7 +12,8 @@
 
     <!-- Enable central package version feature https://devblogs.microsoft.com/nuget/introducing-central-package-management/ -->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <!-- This flag causes the generated nuget to take dependencies on all transitive packages and would therefor blow up our zip file (InstallPackages target in Build.cs) -->
+    <!--<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>-->
     
     <!-- Package properties -->
     <Year>$([System.DateTime]::Now.ToString('yyyy'))</Year>
