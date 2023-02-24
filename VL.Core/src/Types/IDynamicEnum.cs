@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -8,6 +9,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using VL.Core;
+using VL.Lang.PublicAPI;
 
 namespace VL.Lib.Collections
 {
@@ -401,7 +403,7 @@ namespace VL.Lib.Collections
         //actual work
         private IReadOnlyList<string> SetNewEntries()
         {
-            var map = GetEntries();
+            var map = GetEntriesSafe();
             IReadOnlyList<string> entries;
 
             //set entries and return result
@@ -412,6 +414,19 @@ namespace VL.Lib.Collections
 
             FEntriesLookup = map;
             return Entries = entries;
+
+            IReadOnlyDictionary<string, object> GetEntriesSafe()
+            {
+                try
+                {
+                    return GetEntries();
+                }
+                catch (Exception e)
+                {
+                    IDevSession.Current?.ReportException(e);
+                    return new Dictionary<string, object>();
+                }
+            }
         }        
     }
 
