@@ -220,6 +220,9 @@ namespace VL.Skia
 
         protected override void WndProc(ref Message m)
         {
+            if (IDevSession.Current.IsHDEMessage(m))
+                return;
+
             try
             {
                 base.WndProc(ref m);

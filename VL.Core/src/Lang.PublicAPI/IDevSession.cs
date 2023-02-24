@@ -58,6 +58,8 @@ namespace VL.Lang.PublicAPI
 
         // HACK: Used by Renderer [Skia] node only, we should be able to get rid of it once we have some sort of unified view over our windows
         Keys OneUp { get; }
+
+        bool IsHDEMessage(object obj) => false;
     }
 }
 #nullable restore
