@@ -71,7 +71,8 @@ namespace VL.Stride.Assets
 
         internal static RuntimeDatabase Create(Game game)
         {
-            var builder = new AssetBuilderService(Path.Combine(PlatformFolders.ApplicationBinaryDirectory, "data"));
+            var dataDir = VL.Stride.Core.Initialization.GetPathToAssetDatabase() ?? Path.Combine(PlatformFolders.ApplicationBinaryDirectory, "data");
+            var builder = new AssetBuilderService(dataDir);
             var logger = new LoggerResult();
             return new RuntimeDatabase(logger, builder, game);
         }
