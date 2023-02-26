@@ -727,7 +727,7 @@ namespace VL.Core
             return stack;
         }
 
-        static bool TryGetValueByExpression<T>(IVLObject instance, string expression, T defaultValue, out T value)
+        static bool TryGetValueByExpression<T>(this IVLObject instance, string expression, T defaultValue, out T value)
         {
             if (string.IsNullOrWhiteSpace(expression))
             {
@@ -779,14 +779,14 @@ namespace VL.Core
 
             if (TryParseValueIndexer(expression, out var propertyName, out var index))
             {
-                if (instance.TryGetValue(propertyName, null, out ISpread spread))
-                    return instance.WithValue(propertyName, spread.SetItem(index, value));
+                if (instance.TryGetValueByExpression(propertyName, null, out ISpread spread))
+                    return instance.WithValueFromExpression(propertyName, spread.SetItem(index, value));
                 return instance;
             }
             if (TryParseStringIndexer(expression, out propertyName, out var key))
             {
-                if (instance.TryGetValue(propertyName, null, out IDictionary dict))
-                    return instance.WithValue(propertyName, SetItem(dict, key, value));
+                if (instance.TryGetValueByExpression(propertyName, null, out IDictionary dict))
+                    return instance.WithValueFromExpression(propertyName, SetItem(dict, key, value));
                 return instance;
             }
 
