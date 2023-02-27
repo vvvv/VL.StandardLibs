@@ -18,7 +18,5 @@ Before getting to work, please start a discussion around your proposed changes i
 - Make sure that no one else is working on that same topic already
 - Lay out your plans and discuss them with others to make sure your idea is properly architectured and would fit well with the project
 
-After creating a pull request and if it's your first time contributing, the [CLA assistant](https://github.com/cla-assistant) will ask you to sign the [Contributor License Agreement](docs/ContributorLicenseAgreement.md).
-
 ## License
 Many VL sources in this repository are mere wrappers around original .NET libraries that come with their own open-source licenses. If not specified otherwise, sources in this repository are licensed under the [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0-standalone.html).
