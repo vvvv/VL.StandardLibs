@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using VL.Core;
-using VL.Lang.PublicAPI;
 
 namespace VL.Lib.Collections
 {
@@ -423,7 +422,7 @@ namespace VL.Lib.Collections
                 }
                 catch (Exception e)
                 {
-                    IDevSession.Current?.ReportException(e);
+                    Trace.TraceError(e.ToString());
                     return new Dictionary<string, object>();
                 }
             }
