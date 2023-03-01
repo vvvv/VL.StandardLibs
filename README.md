@@ -2,7 +2,8 @@
 
 ![vvvv](docs/vvvvIO.png)
 
-To learn more about vvvv, visit: [visualprogramming.net](https://visualprogramming.net).
+To learn more about vvvv, visit: [visualprogramming.net](https://visualprogramming.net).  
+For dev-talk around libraries in this repository join our [VL.StandardLibs chat](https://matrix.to/#/#VL.StandardLibs:matrix.org).
 
 ## Working with this repository
 
