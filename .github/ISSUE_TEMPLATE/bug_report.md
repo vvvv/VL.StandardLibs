@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
+If you're a casual user of vvvv we kindly ask you to post feature requests in the [vvvv Forum](https://discourse.vvvv.org/c/vvvv-gamma/feature/30) instead of here. Issues here should only be created by people potentially working on this repository.
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
