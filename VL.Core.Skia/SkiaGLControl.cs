@@ -34,6 +34,8 @@ namespace VL.Skia
 
         public bool VSync { get; set; }
 
+        public bool DirectCompositionEnabled { get; init; }
+
         public SkiaGLControl()
         {
             SetStyle(ControlStyles.Opaque, true);
@@ -41,6 +43,17 @@ namespace VL.Skia
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             DoubleBuffered = false;
             ResizeRedraw = true;
+        }
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var createParams = base.CreateParams;
+                if (DirectCompositionEnabled)
+                    createParams.ExStyle |= (int)Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE.WS_EX_NOREDIRECTIONBITMAP;
+                return createParams;
+            }
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -52,7 +65,7 @@ namespace VL.Skia
             // Retrieve the render context. Doing so in the constructor can lead to crashes when running unit tests with headless machines.
             renderContext = RenderContext.ForCurrentThread();
 
-            eglSurface = EglContext?.CreatePlatformWindowSurface(Handle);
+            eglSurface = EglContext?.CreatePlatformWindowSurface(Handle, DirectCompositionEnabled);
             lastSetVSync = default;
 
             base.OnHandleCreated(e);
@@ -72,8 +85,11 @@ namespace VL.Skia
         {
             if (EglContext != null)
             {
-                eglSurface?.Dispose();
-                eglSurface = EglContext.CreatePlatformWindowSurface(Handle);
+                if (!DirectCompositionEnabled)
+                {
+                    eglSurface?.Dispose();
+                    eglSurface = EglContext.CreatePlatformWindowSurface(Handle, DirectCompositionEnabled);
+                }
                 lastSetVSync = default;
             }
 
