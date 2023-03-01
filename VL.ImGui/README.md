@@ -1,6 +1,6 @@
 # VL.ImGui
 
-A node set around [ImGui](https://github.com/ocornut/imgui). The mesh produced by ImGui gets rendered with VL.Skia and the input notifications of VL.Skia get translated to ImGui.
+A node set around [ImGui](https://github.com/ocornut/imgui). Use the `VL.ImGui.Skia` package to render the UI in Skia.
 
 Most of the nodes get generated with a [C# source generator](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview).
 It can be configured with the `GenerateNode` attribute.
