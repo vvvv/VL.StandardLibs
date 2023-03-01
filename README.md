@@ -1,6 +1,6 @@
 # Standard Libraries for vvvv
 
-![vvvv](docs/vvvvIO.png)
+![vvvv](.github/vvvvIO.png)
 
 To learn more about vvvv, visit: [visualprogramming.net](https://visualprogramming.net).  
 For dev-talk around libraries in this repository join our [VL.StandardLibs chat](https://matrix.to/#/#VL.StandardLibs:matrix.org).
@@ -17,4 +17,4 @@ Working with this repository requires two steps:
 
 ## Contributing to this repository
 
-Please see our [Contribution Guide](docs/CONTRIBUTING.md).
+Please see our [Contribution Guide](.github/CONTRIBUTING.md).
