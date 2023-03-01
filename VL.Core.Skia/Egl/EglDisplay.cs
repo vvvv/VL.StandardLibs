@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Windows.Win32;
 
 using EGLDisplay = System.IntPtr;
 
@@ -19,7 +20,7 @@ namespace VL.Skia.Egl
             return eglDisplay;
         }
 
-        public static EglDisplay GetPlatformDefault()
+        public static EglDisplay GetPlatformDefault(bool createNewDevice)
         {
             int[] defaultDisplayAttributes = new[]
             {
@@ -75,11 +76,52 @@ namespace VL.Skia.Egl
                 ?? TryCreate(warpDisplayAttributes)
                 ?? throw new Exception("Failed to initialize EGL");
 
-            static EglDisplay TryCreate(int[] displayAttributes)
+            unsafe EglDisplay TryCreate(int[] displayAttributes)
             {
-                var display = NativeEgl.eglGetPlatformDisplayEXT(NativeEgl.EGL_PLATFORM_ANGLE_ANGLE, NativeEgl.EGL_DEFAULT_DISPLAY, displayAttributes);
+                EGLDisplay display;
+
+                if (createNewDevice && OperatingSystem.IsWindows())
+                {
+                    // Use a dummy window to create a device context
+                    using var moduleHandle = PInvoke.GetModuleHandle(default(string));
+
+                    var hwnd = PInvoke.CreateWindowEx(
+                        Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE.WS_EX_APPWINDOW,
+                        "Static",
+                        "EglDisplay",
+                        Windows.Win32.UI.WindowsAndMessaging.WINDOW_STYLE.WS_OVERLAPPED,
+                        PInvoke.CW_USEDEFAULT,
+                        PInvoke.CW_USEDEFAULT,
+                        PInvoke.CW_USEDEFAULT,
+                        PInvoke.CW_USEDEFAULT,
+                        default,
+                        default,
+                        hInstance: moduleHandle,
+                        default);
+
+                    if (hwnd == default)
+                        throw new Exception("Failed to create window");
+
+                    try
+                    {
+                        var hdc = PInvoke.GetDC(hwnd);
+                        if (hdc == default)
+                            throw new Exception("Failed to retrieve HDC from window");
+
+                        display = NativeEgl.eglGetPlatformDisplayEXT(NativeEgl.EGL_PLATFORM_ANGLE_ANGLE, hdc, displayAttributes);
+                    }
+                    finally
+                    {
+                        PInvoke.DestroyWindow(hwnd);
+                    }
+                }
+                else
+                {
+                    display = NativeEgl.eglGetPlatformDisplayEXT(NativeEgl.EGL_PLATFORM_ANGLE_ANGLE, NativeEgl.EGL_DEFAULT_DISPLAY, displayAttributes);
+                }
+
                 if (display == default)
-                    throw new Exception("Failed to get EGL display");
+                    return null;
 
                 if (TryInitialize(display, out var eglDisplay))
                     return eglDisplay;
