@@ -1,3 +1,3 @@
 # VL.Core.Skia
 
-Skia basics that are used by the vvvv editor and other libraries.
+Skia basics that are used by vvvv itself and libraries.
