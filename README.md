@@ -19,7 +19,7 @@ At this point you've replaced all libraries shipping with your vvvv installation
 
 - `--editable-packages VL.Stride.*;VL.Skia`
 
-Like this you can specify individual (or a range of) libraries that will be excluded from precompilation so that you can work on them.
+Like this you still get the fast startup-time for all the other libraries that you don't work on.
 
 ## Contributing to this repository
 
