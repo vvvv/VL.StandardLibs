@@ -15,9 +15,11 @@ Here are the steps required to work with this repository
 - Build `VL.StandardLibs.sln` using Visual Studio 2022
 - Run vvvv with this directory as a [source package-repository](https://thegraybook.vvvv.org/reference/extending/contributing.html)
 
-At this point you've replaced all libraries shipping with your vvvv installation with the ones in the repository. This means you're now running them "from source" and could e.g. switch to other branches. Still at this point you'll not be able to edit files! To enable editing of files for specific libraries you now have to run vvvv with another commandline argument that specifies which of the libraries you want to work on, like so:
+At this point you've replaced all libraries shipping with your vvvv installation with the ones in the repository. This means you're now running them "from source" and could e.g. switch to other branches. Still at this point you'll not be able to edit files, because by default they are precompiled! To enable editing of files for specific libraries you now have to run vvvv with another commandline argument that specifies which of the libraries you want to work on, like so:
 
-- `--editable-packages VL.Stride.*,VL.Skia`
+- `--editable-packages VL.Stride.*;VL.Skia`
+
+Like this you can specify individual (or a range of) libraries that will be excluded from precompilation so that you can work on them.
 
 ## Contributing to this repository
 
