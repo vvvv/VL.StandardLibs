@@ -9,6 +9,7 @@ using Buffer = Stride.Graphics.Buffer;
 using StridePixelFormat = Stride.Graphics.PixelFormat;
 using VLPixelFormat = VL.Lib.Basics.Imaging.PixelFormat;
 using Stride.Core;
+using System.IO.MemoryMappedFiles;
 
 namespace VL.Stride.Graphics
 {
@@ -91,13 +92,39 @@ namespace VL.Stride.Graphics
         /// </summary>
         public static unsafe Texture Load(GraphicsDevice device, string file, TextureFlags textureFlags = TextureFlags.ShaderResource, GraphicsResourceUsage usage = GraphicsResourceUsage.Immutable, bool loadAsSRGB = false)
         {
-            using var src = File.OpenRead(file);
-            var ptr = Utilities.AllocateMemory((int)src.Length);
-            using var dst = new UnmanagedMemoryStream((byte*)ptr, 0, (int)src.Length, FileAccess.ReadWrite);
-            src.CopyTo(dst);
-            var dataBuffer = new DataPointer(ptr, (int)dst.Length);
-            using var image = Image.Load(dataBuffer, makeACopy: false, loadAsSRGB: loadAsSRGB);
-            return Texture.New(device, image, textureFlags, usage);
+            if (string.Equals(Path.GetExtension(file), ".dds", StringComparison.OrdinalIgnoreCase))
+            {
+                // Sadly we can use this code path only for dds - other formats trigger a code path in Stride which will call Utilities.FreeMemory on our pointer crashing the app
+                using var fileStream = File.OpenRead(file);
+                using var mappedFile = MemoryMappedFile.CreateFromFile(fileStream, mapName: null, capacity: 0, access: MemoryMappedFileAccess.Read, inheritability: HandleInheritability.None, leaveOpen: true);
+                using var accessor = mappedFile.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
+
+                byte* pointer = null;
+                accessor.SafeMemoryMappedViewHandle.AcquirePointer(ref pointer);
+
+                if (pointer is null)
+                    return null;
+
+                try
+                {
+                    // Do NOT dispose the image - it would call FreeMemory on the provided pointer
+                    var image = Image.Load(new IntPtr(pointer), (int)fileStream.Length, makeACopy: false, loadAsSRGB: loadAsSRGB);
+                    return Texture.New(device, image, textureFlags, usage);
+                }
+                finally
+                {
+                    accessor.SafeMemoryMappedViewHandle.ReleasePointer();
+                }
+            }
+            else
+            {
+                using var src = File.OpenRead(file);
+                var ptr = Utilities.AllocateMemory((int)src.Length);
+                using var dst = new UnmanagedMemoryStream((byte*)ptr, 0, (int)src.Length, FileAccess.ReadWrite);
+                src.CopyTo(dst);
+                using var image = Image.Load(new IntPtr(ptr), (int)dst.Length, makeACopy: false, loadAsSRGB: loadAsSRGB);
+                return Texture.New(device, image, textureFlags, usage);
+            }
         }
 
         // TODO: Can be deleted once backported (Stride commit 92512973841694bcfe96bcee23bf3b94ef75b4d4)
