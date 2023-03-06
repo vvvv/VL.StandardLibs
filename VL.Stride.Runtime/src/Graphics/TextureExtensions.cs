@@ -91,12 +91,12 @@ namespace VL.Stride.Graphics
         /// </summary>
         public static unsafe Texture Load(GraphicsDevice device, string file, TextureFlags textureFlags = TextureFlags.ShaderResource, GraphicsResourceUsage usage = GraphicsResourceUsage.Immutable, bool loadAsSRGB = false)
         {
-            using var src = File.OpenRead(file);
+            const int bufferSize = 1024 * 1024 * 8;
+            using var src = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, FileOptions.SequentialScan);
             var ptr = Utilities.AllocateMemory((int)src.Length);
             using var dst = new UnmanagedMemoryStream((byte*)ptr, 0, (int)src.Length, FileAccess.ReadWrite);
-            src.CopyTo(dst);
-            var dataBuffer = new DataPointer(ptr, (int)dst.Length);
-            using var image = Image.Load(dataBuffer, makeACopy: false, loadAsSRGB: loadAsSRGB);
+            src.CopyTo(dst, bufferSize);
+            using var image = Image.Load(new IntPtr(ptr), (int)dst.Length, makeACopy: false, loadAsSRGB: loadAsSRGB);
             return Texture.New(device, image, textureFlags, usage);
         }
 
