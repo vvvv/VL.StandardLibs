@@ -1,4 +1,5 @@
-﻿using Stride.Core.Mathematics;
+﻿using ImGuiNET;
+using Stride.Core.Mathematics;
 using System.Runtime.CompilerServices;
 using VL.Core.EditorAttributes;
 
@@ -17,16 +18,26 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiInputTextFlags Flags { private get; set; }
 
-        int lastframeValue;
+        Int3 lastframeValue;
 
         internal override void UpdateCore(Context context)
         {
             var value = Update();
+            if (InputInt3.CleanedUpAPI(Context.GetLabel(this, Label), ref value, Flags) && value != lastframeValue)
+                Value = value;
+            lastframeValue = value;
+        }
 
-            ref var x = ref value.X;
-            if (ImGuiNET.ImGui.InputInt3(Context.GetLabel(this, Label), ref x, Flags) && x != lastframeValue)
-                Value = Unsafe.As<int, Int3>(ref x);
-            lastframeValue = x;
+
+        public static bool CleanedUpAPI(string label, ref Int3 v, ImGuiInputTextFlags flags)
+        {
+            ref var x = ref v.X;
+            if (ImGuiNET.ImGui.InputInt3(label, ref x, flags))
+            {
+                v = Unsafe.As<int, Int3>(ref x);
+                return true;
+            }
+            return false;
         }
     }
 }
