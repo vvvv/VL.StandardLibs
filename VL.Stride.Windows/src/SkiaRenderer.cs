@@ -65,7 +65,14 @@ namespace VL.Stride.Windows
                 // SimpleStupidTestRendering();
 
                 // Setup a skia surface around the currently set render target
-                using var surface = CreateSkSurface(skiaRenderContext.SkiaContext, renderTarget, GraphicsDevice.ColorSpace == ColorSpace.Linear);
+                // Note: Since Stride switched to the new flip model, the backbuffer has a non-srgb format and only the views have a srgb format.
+                // See for example https://walbourn.github.io/care-and-feeding-of-modern-swapchains/ where it explains that this is the recommended
+                // setup in DirectX 11 and even required in DirectX 12.
+                // If the resource is in a non-srgb format colors and alpha blending work correctly.
+                // However if it is not, we can only fix the colors by telling Skia to write in srgb - the alpha blending will stay broken.
+                // TODO: find link in forum and Skia discussion group
+                var useLinearColorSpace = ((PixelFormat)nativeTempRenderTarget.Description.Format).IsSRgb();
+                using var surface = CreateSkSurface(skiaRenderContext.SkiaContext, renderTarget, useLinearColorSpace);
 
                 // Render
                 var canvas = surface.Canvas;
