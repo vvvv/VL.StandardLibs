@@ -174,11 +174,6 @@ namespace VL.Stride
             return new StrideNode<TInstance>(context, this);
         }
 
-        public bool OpenEditor()
-        {
-            return false;
-        }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             throw new NotImplementedException();

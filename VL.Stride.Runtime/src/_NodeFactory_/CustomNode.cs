@@ -191,11 +191,6 @@ namespace VL.Stride
             return node;
         }
 
-        public bool OpenEditor()
-        {
-            return false;
-        }
-
         public CustomNodeDesc<TInstance> AddInput<T>(string name, Func<TInstance, T> getter, Action<TInstance, T> setter, string summary = default, string remarks = default, bool isVisible = true)
         {
             inputs.Add(new CustomPinDesc(name, summary, remarks)

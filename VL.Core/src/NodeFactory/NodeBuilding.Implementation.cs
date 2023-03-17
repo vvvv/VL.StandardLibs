@@ -118,7 +118,7 @@ namespace VL.Core
                 return FImpl.Value.CreateInstance(buildContext);
             }
 
-            public bool OpenEditor() => FImpl.Value.OpenEditor();
+            public Func<bool>? OpenEditorAction => FImpl.Value.OpenEditorAction;
 
             public override string ToString()
             {
@@ -208,7 +208,7 @@ namespace VL.Core
             public readonly ImmutableArray<IVLPinDescription> Outputs;
             public readonly Func<NodeInstanceBuildContext, IVLNode> CreateInstance;
             public readonly ImmutableArray<Message> Messages;
-            public readonly Func<bool> OpenEditor;
+            public readonly Func<bool>? OpenEditorAction;
             public readonly string? Summary;
             public readonly string? Remarks;
             public readonly string? Tags;
@@ -219,7 +219,7 @@ namespace VL.Core
                 ImmutableArray<IVLPinDescription> outputs, 
                 Func<NodeInstanceBuildContext, IVLNode> createInstance, 
                 ImmutableArray<Message> messages = default, 
-                Func<bool>? openEditor = default,
+                Func<bool>? openEditorAction = default,
                 string? summary = default,
                 string? remarks = default,
                 string? tags = default,
@@ -229,7 +229,7 @@ namespace VL.Core
                 Outputs = !outputs.IsDefault ? outputs : ImmutableArray<IVLPinDescription>.Empty;
                 CreateInstance = createInstance ?? throw new ArgumentNullException(nameof(createInstance));
                 Messages = !messages.IsDefault ? messages : ImmutableArray<Message>.Empty;
-                OpenEditor = openEditor ?? (() => false);
+                OpenEditorAction = openEditorAction;
                 Summary = summary;
                 Remarks = remarks;
                 Tags = tags;
@@ -256,7 +256,7 @@ namespace VL.Core
                 IEnumerable<IVLPinDescription> outputs,
                 Func<NodeInstanceBuildContext, IVLNode> newNode,
                 IEnumerable<Message>? messages = default,
-                Func<bool>? openEditor = default,
+                Func<bool>? openEditorAction = default,
                 string? summary = default,
                 string? remarks = default,
                 string? filePath = default)
@@ -266,7 +266,7 @@ namespace VL.Core
                     outputs?.ToImmutableArray() ?? ImmutableArray<IVLPinDescription>.Empty,
                     newNode,
                     messages: messages?.ToImmutableArray() ?? default,
-                    openEditor: openEditor,
+                    openEditorAction: openEditorAction,
                     summary: summary,
                     remarks: remarks,
                     filePath: filePath);
@@ -302,7 +302,7 @@ namespace VL.Core
                     outputs?.ToImmutableArray() ?? ImmutableArray<IVLPinDescription>.Empty,
                     newNode,
                     messages: messages?.ToImmutableArray() ?? default,
-                    openEditor: openEditor,
+                    openEditorAction: openEditor,
                     summary: summary,
                     remarks: remarks);
             }

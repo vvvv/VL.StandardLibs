@@ -27,7 +27,12 @@ namespace VL.Core
         IObservable<object> Invalidated { get; }
 
         IVLNode CreateInstance(NodeContext context);
-        bool OpenEditor();
+
+        /// <summary>
+        /// Return a function that tries opening the editor and returns true when successfull. 
+        /// null when it's clear early-on that there is no editor. This is the default implementation.
+        /// </summary>
+        Func<bool>? OpenEditorAction => null;
     }
 }
 #nullable restore

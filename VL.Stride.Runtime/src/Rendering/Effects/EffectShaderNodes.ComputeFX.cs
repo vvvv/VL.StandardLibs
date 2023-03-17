@@ -108,7 +108,7 @@ namespace VL.Stride.Rendering
                                     gameHandle.Dispose();
                                 });
                         },
-                        openEditor: () => OpenEditor(getFilePath)
+                        openEditorAction: () => OpenEditor(getFilePath)
                     );
                 });
         }

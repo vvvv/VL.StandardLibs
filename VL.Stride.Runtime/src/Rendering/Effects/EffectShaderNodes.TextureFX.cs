@@ -197,7 +197,7 @@ namespace VL.Stride.Rendering
                                     gameHandle.Dispose();
                                 });
                         },
-                        openEditor: () => OpenEditor(getFilePath)
+                        openEditorAction: () => OpenEditor(getFilePath)
                     );
                 });
         }
@@ -478,7 +478,7 @@ namespace VL.Stride.Rendering
                                     shaderNode.Dispose();
                                 });
                         },
-                        openEditor: () => shaderDescription.OpenEditor()
+                        openEditorAction: shaderDescription.OpenEditorAction
                     );
                 });
         }
