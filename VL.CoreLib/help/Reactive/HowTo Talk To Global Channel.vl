@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" Id="FNp7oVgTa0FQB06r06h90w" LanguageVersion="2022.5.0-0696-g73767f5671" Version="0.128">
+  <NugetDependency Id="VAfHYlLhO8AMV1lqIWCZOE" Location="VL.CoreLib" Version="2022.5.0-0696-g73767f5671" />
+  <Patch Id="JLHZ1cVYh5tPSBf9kOUon9">
+    <Canvas Id="Gv6AOC6DJebQLJLEAg2IuZ" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="A9gIOYjuvV8PlqpXEBMhXB">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="NPrUYr3Vn65OhJGgmHk8kP">
+        <Canvas Id="GKBMbDDvoCROlCfLe71JUT" CanvasType="Group">
+          <Node Bounds="363,205,33,19" Id="AIes0SSWUcCMpN9u03PTe6">
+            <p:NodeReference LastCategoryFullName="Reactive.GlobalChannels" LastDependency="Reactive">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="GlobalChannels" />
+              <Choice Kind="ProcessNode" Name="Foo" />
+            </p:NodeReference>
+            <Pin Id="OSjR1REitkOPTHthPVIX8K" Name="Channel" Kind="OutputPin" />
+            <Pin Id="DDjNTQRStPxOyPXekoADwF" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="359,390,55,26" Id="JymOAUOhhakMEebJtzwpzW">
+            <p:NodeReference LastCategoryFullName="Reactive.Channel" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="ClassType" Name="Channel" NeedsToBeDirectParent="true" />
+              <Choice Kind="OperationCallFlag" Name="SetValue" />
+            </p:NodeReference>
+            <Pin Id="Lo8yybNsv1oPQbWF84v2nB" Name="Input" Kind="StateInputPin" />
+            <Pin Id="G3NgJnfXIrlOmfZGVq7N6Q" Name="Value" Kind="InputPin" DefaultValue="0.6300001, 0.305676, 0.0062999725, 1" />
+            <Pin Id="CIzEx5Lw8MmQaXoORJpfhM" Name="Output" Kind="StateOutputPin" />
+            <Pin Id="DrImZxONupQL3jCjBXLDo2" Name="Apply" Kind="InputPin" />
+          </Node>
+          <Pad Id="B8yDDdyS0VwNtKmPuZiVSX" Comment="Apply" Bounds="439,343,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="NvBbQylF7UfLqiHWQo1I76" Comment="" Bounds="643,321,136,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="DEH3iCS0CY0LW1sQCMsJBD" Bounds="147,323,131,23" ShowValueBox="true" isIOBox="true" Value="GlobalChannels.txt">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="597,454,116,26" Id="BoXXpo1rmMSL053Pl4Vc2V">
+            <p:NodeReference LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="ReScanGlobaChannels" />
+            </p:NodeReference>
+            <Pin Id="Rz0wh1HMptNNSov9g1rqr7" Name="Apply" Kind="InputPin" />
+          </Node>
+          <Pad Id="Q22cVsNNkCQNMCygJAax2Y" Comment="Apply" Bounds="625,405,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="CPjqaGO113jPocorJ7hdE9" Name="Create" />
+        <Patch Id="F4CiIuwbKLVQCMVruCdLWc" Name="Update" />
+        <ProcessDefinition Id="EG3N2dQHUonNw5pLFX4lrM">
+          <Fragment Id="QnPcOd9JcelQYXBWyDr9LW" Patch="CPjqaGO113jPocorJ7hdE9" Enabled="true" />
+          <Fragment Id="SfdQURNO3h0MgIRVlEPkmP" Patch="F4CiIuwbKLVQCMVruCdLWc" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="SmumhYogWqCMy8korYQFng" Ids="B8yDDdyS0VwNtKmPuZiVSX,DrImZxONupQL3jCjBXLDo2" />
+        <Link Id="LZVzp3jDsn0OQWlc0swa4U" Ids="OSjR1REitkOPTHthPVIX8K,Lo8yybNsv1oPQbWF84v2nB" />
+        <Link Id="JAYibLxwAJqNICSKEqbtRx" Ids="DDjNTQRStPxOyPXekoADwF,NvBbQylF7UfLqiHWQo1I76" />
+        <Link Id="Hvoac0mg5fDN8lyuo5zrfl" Ids="Q22cVsNNkCQNMCygJAax2Y,Rz0wh1HMptNNSov9g1rqr7" />
+      </Patch>
+    </Node>
+  </Patch>
+</Document>

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using VL.Core;
 using VL.Core.CompilerServices;
+using VL.Core.Reactive;
 
 [assembly: AssemblyInitializer(typeof(VL.Lib.VL_CoreLib_Initializer))]
 
@@ -24,6 +25,7 @@ namespace VL.Lib
         protected override void RegisterServices(IVLFactory factory)
         {
             Mathematics.Serialization.RegisterSerializers(factory);
+            ChannelHubNodeBuilding.RegisterGeneratedNodes(factory);
         }
 
         class SingleConverter : System.ComponentModel.SingleConverter

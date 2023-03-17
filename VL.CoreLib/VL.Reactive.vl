@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="AeLw27X3UZTPbUKzkJqoag" LanguageVersion="2022.5.0-0685-ga251664bc1" Version="0.128">
+<Document xmlns:p="property" Id="AeLw27X3UZTPbUKzkJqoag" LanguageVersion="2022.5.0-0696-g73767f5671" Version="0.128">
   <Patch Id="R1hgnY3rx8dQUrxE9sHqpq">
     <Canvas Id="IZD4vCZBBJGPV5bGjq6SQa" DefaultCategory="Reactive" CanvasType="FullCategory">
       <!--
@@ -13816,6 +13816,45 @@
           </ProcessDefinition>
         </Patch>
       </Node>
+      <Canvas Id="QnL7DrEdYn9PkNSgMsgWSI" Name="ChannelHub" Position="828,942">
+        <!--
+
+    ************************ ReScanGlobaChannels ************************
+
+-->
+        <Node Name="ReScanGlobaChannels" Bounds="351,170,205,123" Id="HyhXVh7l4ydLRTWCRKvpOB">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+          <Patch Id="L7ejcAJzmZmODRd0CouMDy">
+            <Node Bounds="363,193,116,19" AutoConnect="true" Id="LggELN8bLZBQcDxoRFREBj">
+              <p:NodeReference LastCategoryFullName="VL.Core.Reactive.ChannelHubNodeBuilding" LastDependency="VL.Core.dll">
+                <Choice Kind="OperationNode" Name="ReScanGlobaChannels" />
+                <FullNameCategoryReference ID="VL.Core.Reactive.ChannelHubNodeBuilding" />
+              </p:NodeReference>
+              <Pin Id="I0RdrpO596VN8g09bXrUz4" Name="Re Scan Globa Channels" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="379,247,55,26" Id="PDTk1XpGNy9M53ve3Una8N">
+              <p:NodeReference LastCategoryFullName="Reactive.Channel" LastDependency="VL.Reactive.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="ClassType" Name="Channel" NeedsToBeDirectParent="true" />
+                <Choice Kind="OperationCallFlag" Name="SetValue" />
+              </p:NodeReference>
+              <Pin Id="KqpY8Lp6K0vOgN9wNQMfei" Name="Input" Kind="StateInputPin" />
+              <Pin Id="IyWyIf4HlFYMgwQbGeIEE5" Name="Value" Kind="InputPin" />
+              <Pin Id="SO4Iu64jNm2LgZmTkBpBUV" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="GKaXSsOkI9pLgdqVn2RNMH" Name="Apply" Kind="InputPin" />
+            </Node>
+            <ControlPoint Id="NU5Soa90KqHOxJwHNEH5mP" Bounds="507,205" />
+            <Link Id="GWXJkuhrOvxO2T0NB2XqT6" Ids="NU5Soa90KqHOxJwHNEH5mP,GKaXSsOkI9pLgdqVn2RNMH" />
+            <Link Id="CYyBsQIUVKlO5rkiuaQahF" Ids="RuV4Gq8i2CDNHsdX9YPNTb,NU5Soa90KqHOxJwHNEH5mP" IsHidden="true" />
+            <Link Id="NUZ2EBiNuQWQQfuSdKEiNP" Ids="I0RdrpO596VN8g09bXrUz4,KqpY8Lp6K0vOgN9wNQMfei" />
+            <Pin Id="RuV4Gq8i2CDNHsdX9YPNTb" Name="Apply" Kind="InputPin" Bounds="507,204" DefaultValue="False" />
+          </Patch>
+        </Node>
+      </Canvas>
     </Canvas>
     <!--
 
