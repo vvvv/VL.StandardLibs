@@ -25,7 +25,10 @@ namespace VL.Lib
         protected override void RegisterServices(IVLFactory factory)
         {
             Mathematics.Serialization.RegisterSerializers(factory);
-            ChannelHubNodeBuilding.RegisterGeneratedNodes(factory);
+
+            factory.RegisterAppComponent<IChannelHub>(() => new ChannelHub(factory));
+            //ServiceRegistry.Current.RegisterService(new ChannelHub());
+            //ChannelHubNodeBuilding.GenerateNodesByConfigFile(factory, reScanGlobalChannels: default);
         }
 
         class SingleConverter : System.ComponentModel.SingleConverter

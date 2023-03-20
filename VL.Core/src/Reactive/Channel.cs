@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -15,6 +17,10 @@ namespace VL.Lib.Reactive
         public abstract object Object { get; set; }
         public abstract Channel<object> ChannelOfObject { get; }
         public abstract Channel<IReadOnlyCollection<Attribute>> Attributes { get; }
+
+        public ICollection Components => components;
+
+        List<object> components = new List<object>();
 
         public IObservable<object> ToObservableOfObject()
         {
@@ -33,6 +39,8 @@ namespace VL.Lib.Reactive
         {
             return Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues.ClrType)) as Channel;
         }
+
+        public T TryGetComponent<T>() => components.OfType<T>().FirstOrDefault();
 
         public abstract void Dispose();
 
