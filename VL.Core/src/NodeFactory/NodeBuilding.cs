@@ -36,14 +36,6 @@ namespace VL.Core
             Func<IVLNodeDescriptionFactory, FactoryImpl> init)
         {
             var nodeFactoryCache = services.GetService<NodeFactoryCache>();
-            return NewNodeFactory(nodeFactoryCache, identifier, init);
-        }
-
-        internal static IVLNodeDescriptionFactory NewNodeFactory(
-            NodeFactoryCache nodeFactoryCache,
-            string identifier,
-            Func<IVLNodeDescriptionFactory, FactoryImpl> init)
-        {
             return nodeFactoryCache.GetOrAdd(identifier, () =>
             {
                 return new DelegateNodeDescriptionFactory(nodeFactoryCache, identifier, init);

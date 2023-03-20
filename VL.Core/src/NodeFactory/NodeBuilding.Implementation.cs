@@ -20,17 +20,18 @@ namespace VL.Core
             public DelegateNodeDescriptionFactory(
                 NodeFactoryCache cache,
                 string identifier,
-                Func<IVLNodeDescriptionFactory, FactoryImpl> nodesFactory)
+                Func<IVLNodeDescriptionFactory, FactoryImpl> nodesFactory,
+                string? filePath = null)
             {
                 FCache = cache;
                 Identifier = identifier;
-                Owner = nodesFactory.Method.Module.Assembly;
+                FilePath = filePath ?? nodesFactory.Method.DeclaringType?.Assembly.Location;
                 FImpl = new Lazy<FactoryImpl>(() => nodesFactory(this), LazyThreadSafetyMode.ExecutionAndPublication);
             }
 
-            public Assembly Owner { get; }
-
             public string Identifier { get; }
+
+            public string? FilePath { get; }
 
             public ImmutableArray<IVLNodeDescription> NodeDescriptions => FImpl.Value.Nodes;
 
@@ -42,7 +43,10 @@ namespace VL.Core
                 if (factory != null)
                 {
                     var identifier = $"{Identifier} ({path})";
-                    return NewNodeFactory(FCache, identifier, factory);
+                    return FCache.GetOrAdd(identifier, () =>
+                    {
+                        return new DelegateNodeDescriptionFactory(FCache, identifier, factory, filePath: path);
+                    });
                 }
                 return null;
             }
