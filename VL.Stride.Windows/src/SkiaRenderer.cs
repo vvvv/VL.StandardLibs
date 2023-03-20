@@ -65,14 +65,7 @@ namespace VL.Stride.Windows
                 // SimpleStupidTestRendering();
 
                 // Setup a skia surface around the currently set render target
-                // Note: Since Stride switched to the new flip model, the backbuffer has a non-srgb format and only the views have a srgb format.
-                // See for example https://walbourn.github.io/care-and-feeding-of-modern-swapchains/ where it explains that this is the recommended
-                // setup in DirectX 11 and even required in DirectX 12.
-                // If the resource is in a non-srgb format colors and alpha blending work correctly.
-                // However if it is not, we can only fix the colors by telling Skia to write in srgb - the alpha blending will stay broken.
-                // TODO: find link in forum and Skia discussion group
-                var useLinearColorSpace = ((PixelFormat)nativeTempRenderTarget.Description.Format).IsSRgb();
-                using var surface = CreateSkSurface(skiaRenderContext.SkiaContext, renderTarget, useLinearColorSpace);
+                using var surface = CreateSkSurface(skiaRenderContext.SkiaContext, renderTarget);
 
                 // Render
                 var canvas = surface.Canvas;
@@ -90,7 +83,7 @@ namespace VL.Stride.Windows
             }
         }
 
-        SKSurface CreateSkSurface(GRContext context, Texture texture, bool isLinearColorspace)
+        SKSurface CreateSkSurface(GRContext context, Texture texture)
         {
             var colorType = GetColorType(texture.ViewFormat);
             NativeGles.glGetIntegerv(NativeGles.GL_FRAMEBUFFER_BINDING, out var framebuffer);
@@ -111,12 +104,42 @@ namespace VL.Stride.Windows
                 stencilBits: stencil,
                 glInfo: glInfo);
 
+            var useLinearColorspace = false;
+            if (GraphicsDevice.ColorSpace == ColorSpace.Linear && IsLinear(texture.ViewFormat) && GetResourceFormat(texture) == texture.ViewFormat)
+            {
+                // Output looks correct in the following cases:
+                // - Rendering to swap chain, the render target is non-srgb while the view is srgb
+                // - Rendering to a typeless texture with a srgb view
+                // In those cases we can assume the hardware is taking care of interpreting the bits correctly.
+
+                // In all other cases we can somewhat "fix" the colors by telling Skia to use a linear colorspace,
+                // but alpha blending is still somewhat broken leading to wrong output. For example use the "Randomwalk" Skia help patch.
+                
+                // Blending results are even worse when using a floating point texture. This also seems independent of the used color space.
+
+                // TODO: Should we change the default of the RenderTexture node to use a typeless format? Or at least adjust the SkiaTexture node?
+                // TODO: Re-evaluate this part once Skia has the srgb flags (see comment in https://discourse.vvvv.org/t/combining-stride-and-skia-render-engine/19798/8)
+                useLinearColorspace = true;
+            }
+
             return SKSurface.Create(
                 context, 
                 renderTarget, 
                 GRSurfaceOrigin.TopLeft, 
                 colorType, 
-                colorspace: isLinearColorspace ? srgbLinearColorspace : srgbColorspace);
+                colorspace: useLinearColorspace ? srgbLinearColorspace : srgbColorspace);
+        }
+
+        static bool IsLinear(PixelFormat pixelFormat) => pixelFormat.IsSRgb() || pixelFormat.IsHDR();
+
+        static PixelFormat GetResourceFormat(Texture texture)
+        {
+            // Since Stride switched to the new flip model, the backbuffer has a non-srgb format and only the view has a srgb format.
+            // See for example https://walbourn.github.io/care-and-feeding-of-modern-swapchains/ where it explains that this is the recommended
+            // setup in DirectX 11 and even required in DirectX 12.
+            // Stride hides that fact from us, we therefor need to query the underlying API.
+            var nativeTexture = SharpDXInterop.GetNativeResource(texture) as Texture2D;
+            return nativeTexture != null ? (PixelFormat)nativeTexture.Description.Format : texture.Format;
         }
 
         static SKColorType GetColorType(PixelFormat format)
