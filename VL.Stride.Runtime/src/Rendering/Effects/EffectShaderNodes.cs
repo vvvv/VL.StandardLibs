@@ -226,5 +226,29 @@ namespace VL.Stride.Rendering
 
             string GetFilePath(string effectName) => EffectUtils.GetPathOfSdslShader(effectName, fileProvider);
         }
+
+        private static ParameterPinDescription CreatePinDescription(in ParameterKeyInfo keyInfo, HashSet<string> usedNames, ShaderMetadata shaderMetadata, bool? isOptionalOverride = default)
+        {
+            return CreatePinDescription(keyInfo.Key, keyInfo.Count, usedNames, shaderMetadata, isOptionalOverride);
+        }
+
+        private static ParameterPinDescription CreatePinDescription(ParameterKey key, int count, HashSet<string> usedNames, ShaderMetadata shaderMetadata, bool? isOptionalOverride = default)
+        {
+            var typeInPatch = shaderMetadata.GetPinType(key, out var runtimeDefaultValue, out var compilationDefaultValue);
+            shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);
+
+            if (isOptionalOverride.HasValue)
+                isOptional |= isOptionalOverride.Value;
+
+            return new ParameterPinDescription(usedNames, key, count,
+                compilationDefaultValue: compilationDefaultValue,
+                typeInPatch: typeInPatch,
+                runtimeDefaultValue: runtimeDefaultValue)
+            {
+                IsVisible = !isOptional,
+                Summary = summary,
+                Remarks = remarks
+            };
+        }
     }
 }

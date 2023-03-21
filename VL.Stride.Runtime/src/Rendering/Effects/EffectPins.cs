@@ -78,36 +78,45 @@ namespace VL.Stride.Rendering
         public readonly int Count;
         public readonly bool IsPermutationKey;
 
-        public ParameterPinDescription(HashSet<string> usedNames, ParameterKey key, int count = 1, object defaultValue = null, bool isPermutationKey = false, string name = null, Type typeInPatch = null)
+        // This value gets passed to the live pin - for example SetVar<Vector4> (and not just the plain vector)
+        public readonly object RuntimeDefaultValue;
+
+        public ParameterPinDescription(HashSet<string> usedNames, ParameterKey key, int count = 1, object compilationDefaultValue = null, bool isPermutationKey = false, string name = null, Type typeInPatch = null, object runtimeDefaultValue = null)
         {
             Key = key;
             IsPermutationKey = isPermutationKey;
             Count = count;
             Name = name ?? key.GetPinName(usedNames);
             var elementType = typeInPatch ?? key.PropertyType;
-            defaultValue = defaultValue ?? key.DefaultValueMetadata?.GetDefaultValue();
+            compilationDefaultValue = compilationDefaultValue ?? key.DefaultValueMetadata?.GetDefaultValue();
             // TODO: This should be fixed in Stride
             if (key.PropertyType == typeof(Matrix))
-                defaultValue = Matrix.Identity;
+                compilationDefaultValue = Matrix.Identity;
             if (count > 1)
             {
                 Type = elementType.MakeArrayType();
                 var arr = Array.CreateInstance(elementType, count);
                 for (int i = 0; i < arr.Length; i++)
-                    arr.SetValue(defaultValue, i);
+                    arr.SetValue(compilationDefaultValue, i);
                 DefaultValueBoxed = arr;
             }
             else
             {
                 Type = elementType;
-                DefaultValueBoxed = defaultValue;
+                DefaultValueBoxed = compilationDefaultValue;
             }
+            RuntimeDefaultValue = runtimeDefaultValue ?? DefaultValueBoxed;
         }
 
         public override string Name { get; }
         public override Type Type { get; }
+
+        // The plain value read by the compiler, for example in case of IComputeValue<Vector4> this would be just the vector itself
         public override object DefaultValueBoxed { get; }
-        public override IVLPin CreatePin(GraphicsDevice graphicsDevice, ParameterCollection parameters) => EffectPins.CreatePin(graphicsDevice, parameters, Key, Count, IsPermutationKey, DefaultValueBoxed, Type);
+        public override IVLPin CreatePin(GraphicsDevice graphicsDevice, ParameterCollection parameters)
+        {
+            return EffectPins.CreatePin(graphicsDevice, parameters, Key, Count, IsPermutationKey, RuntimeDefaultValue, Type);
+        }
 
         public override string ToString()
         {

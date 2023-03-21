@@ -50,9 +50,7 @@ namespace VL.Stride.Rendering
                             continue;
                         }
 
-                        var typeInPatch = shaderMetadata.GetPinType(key, out var boxedDefaultValue);
-                        shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);
-                        _inputs.Add(new ParameterPinDescription(usedNames, key, parameter.Count, defaultValue: boxedDefaultValue, typeInPatch: typeInPatch) { IsVisible = !isOptional, Summary = summary, Remarks = remarks });
+                        _inputs.Add(CreatePinDescription(in parameter, usedNames, shaderMetadata));
                     }
 
                     // local input values
@@ -67,13 +65,7 @@ namespace VL.Stride.Rendering
                             continue;
                         }
 
-                        var typeInPatch = shaderMetadata.GetPinType(key, out var boxedDefaultValue);
-                        if (boxedDefaultValue == null)
-                            boxedDefaultValue = key.DefaultValueMetadata.GetDefaultValue();
-
-                        shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);
-
-                        _inputs.Add(new ParameterPinDescription(usedNames, key, 1, defaultValue: boxedDefaultValue, typeInPatch: typeInPatch) { IsVisible = !isOptional, Summary = summary, Remarks = remarks });
+                        _inputs.Add(CreatePinDescription(key, 1, usedNames, shaderMetadata));
                     }
 
                     if (needsWorld)

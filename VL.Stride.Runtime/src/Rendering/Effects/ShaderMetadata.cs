@@ -39,6 +39,7 @@ namespace VL.Stride.Rendering
         public List<string> WantsMips { get; private set; }
 
         public List<string> DontConvertToLinearOnRead{ get; private set; }
+
         public bool DontConvertToSRgbOnOnWrite { get; private set; }
 
         public void GetPixelFormats(out PixelFormat outputFormat, out PixelFormat renderFormat)
@@ -227,20 +228,26 @@ namespace VL.Stride.Rendering
         /// <summary>
         /// Gets the type of the pin, if overwritten by an attribute, e.g. int -> enum.
         /// </summary>
-        public Type GetPinType(ParameterKey key, out object boxedDefaultValue)
+        public Type GetPinType(ParameterKey key, out object runtimeDefaultValue, out object compilationDefaultValue)
         {
-            boxedDefaultValue = null;
+            runtimeDefaultValue = null;
+            compilationDefaultValue = null;
+
             if (pinEnumTypes.TryGetValue(key.Name, out var enumTypeName))
             {
-                boxedDefaultValue = enumTypeName.defaultValue;
+                runtimeDefaultValue = compilationDefaultValue = enumTypeName.defaultValue;
                 return enumTypeName.typeName;
             }
 
-            if (key.PropertyType == typeof(ShaderSource) && ParsedShader != null)
+            if (ParsedShader is null)
+                return null;
+
+            if (key.PropertyType == typeof(ShaderSource))
             {
                 if (ParsedShader.CompositionsWithBaseShaders.TryGetValue(key.GetVariableName(), out var composition))
                 {
-                    boxedDefaultValue = composition.GetDefaultComputeNode(forPatch: true);
+                    compilationDefaultValue = composition.CompilationDefaultValue;
+                    runtimeDefaultValue = composition.GetDefaultComputeNode(forPatch: true);
                     if (knownShaderFXTypes.TryGetValue(composition.TypeName, out var type))
                     {
                         return type;
