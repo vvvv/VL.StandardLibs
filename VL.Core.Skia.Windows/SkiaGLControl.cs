@@ -1,7 +1,6 @@
 ﻿using System;
 using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
-using VL.Core;
 using System.Windows.Forms;
 using SkiaSharp;
 using Vector2 = Stride.Core.Mathematics.Vector2;
@@ -19,7 +18,7 @@ namespace VL.Skia
         private SKCanvas canvas;
         private bool? lastSetVSync;
 
-        internal CallerInfo CallerInfo = CallerInfo.Default;
+        public CallerInfo CallerInfo { get; private set; } =  CallerInfo.Default;
 
         internal EglContext EglContext => renderContext?.EglContext;
 
@@ -124,12 +123,12 @@ namespace VL.Skia
                     surface?.Dispose();
                     surface = CreateSkSurface(renderContext, size.Width, size.Height);
                     canvas = surface.Canvas;
+                    CallerInfo = CallerInfo.InRenderer(size.Width, size.Height, canvas, renderContext.SkiaContext);
                 }
 
                 // Render
                 using (new SKAutoCanvasRestore(canvas, true))
                 {
-                    CallerInfo = CallerInfo.InRenderer(size.Width, size.Height, canvas, renderContext.SkiaContext);
                     OnPaint(CallerInfo);
                 }
                 surface.Flush();

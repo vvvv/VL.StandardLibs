@@ -241,14 +241,14 @@ namespace VL.Skia
             }
         }
 
-        private void FControl_OnRender(CallerInfo obj)
+        private void FControl_OnRender(CallerInfo callerInfo)
         {
             using var _ = FServiceRegistry?.MakeCurrentIfNone();
 
             try
             {
                 if (!FFirstRenderCall && Visible && HasValidLayer)
-                    Input?.Render(FControl.CallerInfo);
+                    Input?.Render(callerInfo);
                 FFirstRenderCall = false;
             }
             catch (Exception exception)

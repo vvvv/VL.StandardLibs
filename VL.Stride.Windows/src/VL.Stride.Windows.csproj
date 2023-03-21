@@ -27,10 +27,6 @@
     <!-- A pure package dependency so on install all VL packages come in -->
     <PackageReference Include="Stride.TextureConverter" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\VL.Skia\src\VL.Skia.csproj" />
-  </ItemGroup>
   
   <Target Name="IncludeStridePackageContent" BeforeTargets="InferPackageContents" DependsOnTargets="_StridePrepareAssetsForPack">
     <Message Importance="high" Text="Called Stride package targets" />
@@ -46,6 +42,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\..\VL.Core.Skia\VL.Core.Skia.csproj" />
     <ProjectReference Include="..\..\VL.Stride.Runtime\src\VL.Stride.Runtime.csproj" />
   </ItemGroup>
 </Project>
