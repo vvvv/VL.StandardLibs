@@ -21,17 +21,13 @@ namespace VL.Lib.IO.Socket
         public bool IsOpen => FCurrentProvider?.SinkCount > 0;
 
         /// <summary>
-        /// Gets or sets whether the socket is active.
-        /// </summary>
-        public bool Enabled { get; set; } = true;
-
-        /// <summary>
         /// Configures the internally managed socket provider.
         /// </summary>
         /// <param name="localEndPoint">The local end point to use.</param>
         /// <param name="bind">Whether or not to bind the socket.</param>
+        /// <param name="enabled">Whether or not the socket is active.</param>
         /// <returns>A socket provider which can be used by multiple threads in parallel.</returns>
-        public IResourceProvider<NetSocket> Update(IPEndPoint localEndPoint, bool bind)
+        public IResourceProvider<NetSocket> Update(IPEndPoint localEndPoint, bool bind, bool enabled = true)
         {
             if (!NetUtils.Equals(localEndPoint, FLocalIPEndPoint) || bind != FBind)
             {
@@ -47,7 +43,7 @@ namespace VL.Lib.IO.Socket
                     return socket;
                 }).ShareInParallel().Monitor();
             }
-            if (Enabled)
+            if (enabled)
                 return FCurrentProvider;
             return null;
         }
