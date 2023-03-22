@@ -111,7 +111,7 @@ namespace VL.Stride.Rendering
                                 isOptional = true;
                             }
 
-                            _inputs.Add(CreatePinDescription(in parameter, usedNames, shaderMetadata, isOptionalOverride: isOptional));
+                            _inputs.Add(CreatePinDescription(in parameter, usedNames, shaderMetadata, name: pinName, isOptionalOverride: isOptional));
                         }
                     }
 
