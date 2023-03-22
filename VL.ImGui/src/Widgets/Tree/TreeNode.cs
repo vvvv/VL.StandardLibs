@@ -10,26 +10,26 @@ namespace VL.ImGui.Widgets
         public string? Label { get; set; }
 
         /// <summary>
-        /// Returns true if the TreeNode is open (not collapsed). Set to true to open the TreeNode.
+        /// Returns true if the TreeNode is opened. Set to true to open the TreeNode.
         /// </summary>
-        public Channel<bool>? IsOpen { private get; set; }
-        ChannelFlange<bool> IsOpenFlange = new ChannelFlange<bool>(false);
+        public Channel<bool>? Open { private get; set; }
+        ChannelFlange<bool> OpenFlange = new ChannelFlange<bool>(true);
         /// <summary>
-        /// Returns true if the TreeNode is open (not collapsed). 
+        /// Returns true if the TreeNode is opened. 
         /// </summary>
-        public bool _IsOpen => IsOpenFlange.Value;
+        public bool _IsOpen => OpenFlange.Value;
 
         public ImGuiNET.ImGuiTreeNodeFlags Flags { private get; set; }
 
         internal override void UpdateCore(Context context)
         {
-            var isOpen = IsOpenFlange.Update(IsOpen);
+            var isOpen = OpenFlange.Update(Open);
 
             ImGuiNET.ImGui.SetNextItemOpen(isOpen);
 
             isOpen = ImGuiNET.ImGui.TreeNodeEx(Context.GetLabel(this, Label), Flags);
 
-            IsOpenFlange.Value = isOpen;
+            OpenFlange.Value = isOpen;
 
             if (isOpen)
             {

@@ -21,19 +21,20 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// Returns true if the Popup is open. Set to true to open the Popup.
         /// </summary>
-        public Channel<bool>? IsOpen { private get; set; }
-        ChannelFlange<bool> IsOpenFlange = new ChannelFlange<bool>(false);
+        public Channel<bool>? Open { private get; set; }
+        ChannelFlange<bool> OpenFlange = new ChannelFlange<bool>(false);
+
         /// <summary>
         /// Returns true if the Popup is open. 
         /// </summary>
-        public bool _IsOpen => IsOpenFlange.Value;
+        public bool _IsVisible => OpenFlange.Value;
 
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
         internal override void UpdateCore(Context context)
         {
             var position = PositionFlange.Update(Position, out bool positionChanged);
-            var isOpen = IsOpenFlange.Update(IsOpen, out bool visibilityChanged);
+            var isOpen = OpenFlange.Update(Open, out bool visibilityChanged);
             var label = Context.GetLabel(this, Label);
 
             if (visibilityChanged)
@@ -53,7 +54,7 @@ namespace VL.ImGui.Widgets
 
                 isOpen = ImGui.BeginPopup(label);
 
-                IsOpenFlange.Value = isOpen;
+                OpenFlange.Value = isOpen;
                 if (isOpen)
                 {
                     try

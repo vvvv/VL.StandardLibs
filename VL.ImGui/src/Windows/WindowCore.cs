@@ -1,6 +1,7 @@
 ﻿using Stride.Core.Mathematics;
 using ImGuiNET;
 using VL.Lib.Reactive;
+using System.Reactive;
 
 namespace VL.ImGui.Windows
 {
@@ -13,7 +14,10 @@ namespace VL.ImGui.Windows
 
         public string Name { get; set; } = "Window";
 
-        public bool HasCloseButton { get; set; } = true;
+        /// <summary>
+        /// If set the window will have a close button which will push to the channel once clicked.
+        /// </summary>
+        public Channel<Unit> Closing { get; set; } = DummyChannel<Unit>.Instance;
 
         /// <summary>
         /// Bounds of the Window.
@@ -60,12 +64,12 @@ namespace VL.ImGui.Windows
 
                 ImGui.SetNextWindowCollapsed(collapsed);
 
-                if (HasCloseButton)
+                if (Closing.IsValid())
                 {
                     var visible = true;
-                    var returnValue = ImGui.Begin(Name, ref visible, Flags);
-                    OpenFlange.Value = visible;
-                    IsVisible = returnValue && visible;
+                    IsVisible = ImGui.Begin(Name, ref visible, Flags);
+                    if (!visible)
+                        Closing.Value = default;
                 }
                 else
                 {
@@ -74,7 +78,7 @@ namespace VL.ImGui.Windows
 
                 try
                 {
-                    CollapsedFlange.Value = !IsVisible;
+                    CollapsedFlange.Value = ImGui.IsWindowCollapsed();
 
                     if (IsVisible)
                     {

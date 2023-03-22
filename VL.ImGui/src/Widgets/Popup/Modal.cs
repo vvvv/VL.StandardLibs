@@ -1,5 +1,6 @@
 ﻿using Stride.Core.Mathematics;
 using VL.Lib.Reactive;
+using System.Reactive;
 
 namespace VL.ImGui.Widgets
 {
@@ -17,9 +18,9 @@ namespace VL.ImGui.Widgets
         public string? Label { get; set; }
 
         /// <summary>
-        /// Display a regular close button.
+        /// If set the Popup will have a close button which will push to the channel once clicked.
         /// </summary>
-        public bool HasCloseButton { get; set; } = true;
+        public Channel<Unit> Closing { get; set; } = DummyChannel<Unit>.Instance;
 
         /// <summary>
         /// Bounds of the Window.
@@ -30,28 +31,22 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// Returns true if the Modal Window is open. Set to true to open the Modal Window.
         /// </summary>
-        public Channel<bool>? IsOpen { private get; set; }
-        ChannelFlange<bool> IsOpenFlange = new ChannelFlange<bool>(false);
+        public Channel<bool>? Open { private get; set; }
+        ChannelFlange<bool> OpenFlange = new ChannelFlange<bool>(true);
         /// <summary>
-        /// Returns true if the Modal Window is open. 
+        /// Returns true if the Popup is visible.
         /// </summary>
-        public bool _IsOpen => IsOpenFlange.Value;
+        public bool _IsVisible => OpenFlange.Value;
 
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
         internal override void UpdateCore(Context context)
         {
             var bounds = BoundsFlange.Update(Bounds, out bool boundsChanged);
-            var isOpen = IsOpenFlange.Update(IsOpen, out bool hasChanged);
+            var isOpen = OpenFlange.Update(Open, out bool visibilityChanged);
             var label = Context.GetLabel(this, Label);
 
-            if (boundsChanged)
-            {
-                ImGui.SetNextWindowPos(bounds.TopLeft.FromHectoToImGui());
-                ImGui.SetNextWindowSize(bounds.Size.FromHectoToImGui());
-            }
-
-            if (hasChanged)
+            if (visibilityChanged)
             {
                 if (isOpen)
                     ImGui.OpenPopup(label);
@@ -60,24 +55,32 @@ namespace VL.ImGui.Widgets
             }
 
             if (isOpen)
-            {        
-                if (HasCloseButton)
+            {
+                if (boundsChanged)
+                {
+                    ImGui.SetNextWindowPos(bounds.TopLeft.FromHectoToImGui());
+                    ImGui.SetNextWindowSize(bounds.Size.FromHectoToImGui());
+                }
+
+                if (Closing.IsValid())
                 {
                     // From Imgui Demo:
                     // ...Also demonstrate passing a bool* to BeginPopupModal(), this will create a regular close button which
                     // will close the popup. Note that the visibility state of popups is owned by imgui, so the input value
                     // of the bool actually doesn't matter here.
-                    // https://github.com/ocornut/imgui/blob/2d38bc99b3b0013952d3d390397297083b767972/imgui_demo.cpp
+                    // https://github.com/ocornut/imgui/blob/2d38bc99b3b0013952d3d390397297083b767972/imgui_demo.cpp#L3535
 
                     var unusedOpen = true;
                     isOpen = ImGui.BeginPopupModal(label, ref unusedOpen, Flags);
+                    if (!unusedOpen)
+                        Closing.Value = default;
                 }
                 else
                 {
                     isOpen = ImGui.BeginPopupModal(label);
                 }
 
-                IsOpenFlange.Value = isOpen;
+                OpenFlange.Value = isOpen;
                 if (isOpen)
                 {
                     try
