@@ -13,10 +13,10 @@ namespace VL.ImGui.Widgets
         public string? Label { get; set; }
 
         /// <summary>
-        /// Bounds of the Window.
+        /// Position of the Popup.
         /// </summary>
-        public Channel<RectangleF>? Bounds { private get; set; }
-        ChannelFlange<RectangleF> BoundsFlange = new ChannelFlange<RectangleF>(new RectangleF(0f, 0f, 1f, 1f));
+        public Channel<Vector2>? Position { private get; set; }
+        ChannelFlange<Vector2> PositionFlange = new ChannelFlange<Vector2>(new Vector2());
 
         /// <summary>
         /// Returns true if the Popup is open. Set to true to open the Popup.
@@ -32,17 +32,11 @@ namespace VL.ImGui.Widgets
 
         internal override void UpdateCore(Context context)
         {
-            var bounds = BoundsFlange.Update(Bounds, out bool boundsChanged);
-            var isOpen = IsOpenFlange.Update(IsOpen, out bool hasChanged);
+            var position = PositionFlange.Update(Position, out bool positionChanged);
+            var isOpen = IsOpenFlange.Update(IsOpen, out bool visibilityChanged);
             var label = Context.GetLabel(this, Label);
 
-            if (boundsChanged)
-            {
-                ImGui.SetNextWindowPos(bounds.TopLeft.FromHectoToImGui());
-                ImGui.SetNextWindowSize(bounds.Size.FromHectoToImGui());
-            }
-
-            if (hasChanged)
+            if (visibilityChanged)
             {
                 if (isOpen)
                     ImGui.OpenPopup(label);
@@ -52,6 +46,11 @@ namespace VL.ImGui.Widgets
 
             if (isOpen)
             {
+                if (positionChanged || visibilityChanged)
+                {
+                    ImGui.SetNextWindowPos(position.FromHectoToImGui());
+                }
+
                 isOpen = ImGui.BeginPopup(label);
 
                 IsOpenFlange.Value = isOpen;

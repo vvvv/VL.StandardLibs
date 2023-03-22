@@ -72,7 +72,7 @@ namespace VL.ImGui
             }
         }
 
-        public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig> fonts)
+        public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig> fonts, IStyle? Style)
         {
             if (_lastCallerInfo is null)
                 return this;
@@ -101,7 +101,8 @@ namespace VL.ImGui
                         var viewPort = ImGui.GetMainViewport();
                         ImGui.SetNextWindowPos(viewPort.WorkPos);
                         ImGui.SetNextWindowSize(viewPort.WorkSize);
-
+                        
+                        Style?.Set(_context);
                         ImGui.Begin(Context.GetLabel(this, null),
                             ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
                             ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
@@ -129,6 +130,7 @@ namespace VL.ImGui
                     if (DefaultWindow)
                     {
                         ImGui.End();
+                        Style?.Reset(_context);
                     }
 
                     // Render (builds mesh with texture coordinates)
