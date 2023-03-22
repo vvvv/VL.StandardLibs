@@ -28,18 +28,18 @@ namespace VL.ImGui.Widgets
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
         /// <summary>
-        /// Returns true if the Window is open (not fully clipped). 
+        /// Returns true if content is visible.
         /// </summary>
-        public bool IsOpen { get;  private set; }
+        public bool ContentIsVisible { get; private set; } = false;
 
         internal override void UpdateCore(Context context)
         {
 
-            IsOpen = ImGui.BeginChild(Context.GetLabel(this, Label), Size.FromHectoToImGui(), HasBorder, Flags);
+            ContentIsVisible = ImGui.BeginChild(Context.GetLabel(this, Label), Size.FromHectoToImGui(), HasBorder, Flags);
             
             try
             {
-                if (IsOpen)
+                if (ContentIsVisible)
                 {
                     context?.Update(Content);
                 }
