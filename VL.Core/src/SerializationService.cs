@@ -29,27 +29,28 @@ namespace VL.Core
         /// <returns>True if an instance of the given type can be serialized.</returns>
         public abstract bool CanSerialize(IVLFactory factory, Type forType);
 
-        public object Serialize(NodeContext nodeContext, object value, Type staticType, bool includeDefaults, bool forceElement)
+        public object Serialize(NodeContext nodeContext, object value, Type staticType, bool includeDefaults, bool forceElement, bool pathsAreRelativeToDocument)
         {
-            return Serialize(nodeContext, value, staticType, throwOnError: true, includeDefaults, forceElement, out _);
+            return Serialize(nodeContext, value, staticType, throwOnError: true, includeDefaults, forceElement, pathsAreRelativeToDocument, out _);
         }
 
-        public object Serialize(NodeContext nodeContext, object value, Type staticType, bool includeDefaults, bool forceElement, out IReadOnlyList<string> errorMessages)
+        public object Serialize(NodeContext nodeContext, object value, Type staticType, bool includeDefaults, bool forceElement, bool pathsAreRelativeToDocument, out IReadOnlyList<string> errorMessages)
         {
-            return Serialize(nodeContext, value, staticType, throwOnError: false, includeDefaults, forceElement, out errorMessages);
+            return Serialize(nodeContext, value, staticType, throwOnError: false, includeDefaults, forceElement, pathsAreRelativeToDocument, out errorMessages);
         }
 
-        protected abstract object Serialize(NodeContext nodeContext, object value, Type staticType, bool throwOnError, bool includeDefaults, bool forceElement, out IReadOnlyList<string> errorMessages);
-        public object Deserialize(NodeContext nodeContext, object content, Type type)
+        protected abstract object Serialize(NodeContext nodeContext, object value, Type staticType, bool throwOnError, bool includeDefaults, bool forceElement, bool pathsAreRelativeToDocument, out IReadOnlyList<string> errorMessages);
+
+        public object Deserialize(NodeContext nodeContext, object content, Type type, bool pathsAreRelativeToDocument)
         {
-            return Deserialize(nodeContext, content, type, throwOnError: true, out _);
+            return Deserialize(nodeContext, content, type, throwOnError: true, pathsAreRelativeToDocument, out _);
         }
 
-        public object Deserialize(NodeContext nodeContext, object content, Type type, out IReadOnlyList<string> errorMessages)
+        public object Deserialize(NodeContext nodeContext, object content, Type type, bool pathsAreRelativeToDocument, out IReadOnlyList<string> errorMessages)
         {
-            return Deserialize(nodeContext, content, type, throwOnError: false, out errorMessages);
+            return Deserialize(nodeContext, content, type, throwOnError: false, pathsAreRelativeToDocument, out errorMessages);
         }
 
-        protected abstract object Deserialize(NodeContext nodeContext, object content, Type type, bool throwOnError, out IReadOnlyList<string> errorMessages);
+        protected abstract object Deserialize(NodeContext nodeContext, object content, Type type, bool throwOnError, bool pathsAreRelativeToDocument, out IReadOnlyList<string> errorMessages);
     }
 }
