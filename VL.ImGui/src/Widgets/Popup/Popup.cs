@@ -21,45 +21,48 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// Returns true if the Popup is open. Set to true to open the Popup.
         /// </summary>
-        public Channel<bool>? Open { private get; set; }
-        ChannelFlange<bool> OpenFlange = new ChannelFlange<bool>(false);
+        public Channel<bool>? Visible { private get; set; }
+        ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(false);
 
         /// <summary>
-        /// Returns true if the Popup is open. 
+        /// Returns true if content is visible. 
         /// </summary>
-        public bool _IsVisible => OpenFlange.Value;
+        public bool ContentIsVisible { get; private set; } = false;
 
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
         internal override void UpdateCore(Context context)
         {
             var position = PositionFlange.Update(Position, out bool positionChanged);
-            var isOpen = OpenFlange.Update(Open, out bool visibilityChanged);
+            var visible = VisibleFlange.Update(Visible, out bool visibilityChanged);
             var label = Context.GetLabel(this, Label);
+            ContentIsVisible = false;
 
             if (visibilityChanged)
             {
-                if (isOpen)
+                if (visible)
                     ImGui.OpenPopup(label);
                 else
                     ImGui.CloseCurrentPopup();
             }
 
-            if (isOpen)
+            if (positionChanged || visibilityChanged)
             {
-                if (positionChanged || visibilityChanged)
-                {
-                    ImGui.SetNextWindowPos(position.FromHectoToImGui());
-                }
+                ImGui.SetNextWindowPos(position.FromHectoToImGui());
+            }
 
-                isOpen = ImGui.BeginPopup(label);
+            if (visible)
+            {
 
-                OpenFlange.Value = isOpen;
-                if (isOpen)
+                ContentIsVisible = ImGui.BeginPopup(label);
+                VisibleFlange.Value = ContentIsVisible;
+
+                if (ContentIsVisible)
                 {
                     try
                     {
                         context?.Update(Content);
+                        PositionFlange.Value = ImGui.GetWindowPos().ToVLHecto();
                     }
                     finally
                     {

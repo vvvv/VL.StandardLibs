@@ -31,8 +31,8 @@ namespace VL.ImGui.Windows
         /// We bend the original lib here, because in ImGui it can't be used to set visibility of the window.
         /// https://github.com/ocornut/imgui/blob/5bb287494096461f90eb5d18135f7c4809efd2f5/imgui.h#L320
         /// 
-        public Channel<bool>? Open { private get; set; }
-        ChannelFlange<bool> OpenFlange = new ChannelFlange<bool>(true);
+        public Channel<bool>? Visible { private get; set; }
+        ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(true);
 
         /// <summary>
         /// Returns true if the Window is collapsed. Set to true to collapse the window.
@@ -41,17 +41,24 @@ namespace VL.ImGui.Windows
         ChannelFlange<bool> CollapsedFlange = new ChannelFlange<bool>(false);
 
         /// <summary>
-        /// Returns true if the Window is visible (open, not collapsed and not fully clipped). 
+        /// Returns true if content is visible.
         /// </summary>
-        public bool IsVisible { get; private set; } = false;
+        public bool ContentIsVisible { get; private set; } = false;
+
+        /// <summary>
+        /// Returns true if close button is clicked. 
+        /// </summary>
+        public bool CloseClicked { get; private set; } = false;
 
         public ImGuiWindowFlags Flags { get; set; }
 
         internal override void UpdateCore(Context context)
         {
-            var open = OpenFlange.Update(Open);
+            var visible = VisibleFlange.Update(Visible);
+            CloseClicked = false;
+            ContentIsVisible = false;
 
-            if (open)
+            if (visible)
             {
                 var bounds = BoundsFlange.Update(Bounds, out bool boundsChanged);
                 var collapsed = CollapsedFlange.Update(Collapsed);
@@ -66,23 +73,31 @@ namespace VL.ImGui.Windows
 
                 if (Closing.IsValid())
                 {
-                    var visible = true;
-                    IsVisible = ImGui.Begin(Name, ref visible, Flags);
-                    if (!visible)
+                    var isVisible = true;
+                    ContentIsVisible = ImGui.Begin(Name, ref isVisible, Flags);
+                    if (!isVisible)
+                    {
                         Closing.Value = default;
+                        CloseClicked = true;
+                    }
+                        
                 }
                 else
                 {
-                    IsVisible = ImGui.Begin(Name, Flags);
+                    ContentIsVisible = ImGui.Begin(Name, Flags);
                 }
 
                 try
                 {
                     CollapsedFlange.Value = ImGui.IsWindowCollapsed();
 
-                    if (IsVisible)
+                    if (ContentIsVisible)
                     {
                         context.Update(Content);
+
+                        var pos = ImGui.GetWindowPos().ToVLHecto();
+                        var size = ImGui.GetWindowSize().ToVLHecto();
+                        BoundsFlange.Value = new RectangleF(pos.X, pos.Y, size.X, size.Y);
                     }
                 }
                 finally

@@ -20,46 +20,52 @@ namespace VL.ImGui.Widgets
         /// </summary>
         public Channel<bool>? Visible { private get; set; }
         ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(true);
-        /// <summary>
-        /// Returns true if the Header is displayed.
-        /// </summary>
-        public bool _IsVisible => VisibleFlange.Value;
 
         /// <summary>
-        /// Returns true if the Header is opened (not collapsed). Set to true to open the Header.
+        /// Returns true if the Header is collapsed. Set to true to collapse the Header.
         /// </summary>
-        public Channel<bool>? Open { private get; set; }
-        ChannelFlange<bool> OpenFlange = new ChannelFlange<bool>(false);
+        public Channel<bool>? Collapsed { private get; set; }
+        ChannelFlange<bool> CollapsedFlange = new ChannelFlange<bool>(false);
 
         /// <summary>
-        /// Returns true if the Header is opened (visible and not collapsed). 
+        /// Returns true if content is visible. 
         /// </summary>
-        public bool _IsOpen => OpenFlange.Value;
+        public bool ContentIsVisible { get; private set; } = false;
+
+        /// <summary>
+        /// Returns true if close button is clicked. 
+        /// </summary>
+        public bool CloseClicked { get; private set; } = false;
 
         public ImGuiNET.ImGuiTreeNodeFlags Flags { private get; set; }
 
         internal override void UpdateCore(Context context)
         {
-            var isVisible = VisibleFlange.Update(Visible);
+            var visible = VisibleFlange.Update(Visible);
+            CloseClicked = false;
+            ContentIsVisible = false;
 
-            if (isVisible)
+            if (visible)
             {
-                var isOpen= OpenFlange.Update(Open);
-                ImGuiNET.ImGui.SetNextItemOpen(isOpen);
+                var collapsed = CollapsedFlange.Update(Collapsed);
+                ImGuiNET.ImGui.SetNextItemOpen(!collapsed);
 
                 if (Closing.IsValid())
                 {
-                    var visible = true;
-                    isOpen = ImGuiNET.ImGui.CollapsingHeader(Context.GetLabel(this, Label), ref visible, Flags);
-                    if (!visible)
+                    var isVisible = true;
+                    ContentIsVisible = ImGuiNET.ImGui.CollapsingHeader(Context.GetLabel(this, Label), ref isVisible, Flags);
+                    if (!isVisible)
+                    {
                         Closing.Value = default;
+                        CloseClicked = true;
+                    }      
                 }
                 else
-                    isOpen = ImGuiNET.ImGui.CollapsingHeader(Context.GetLabel(this, Label), Flags);
+                    ContentIsVisible = ImGuiNET.ImGui.CollapsingHeader(Context.GetLabel(this, Label), Flags);
 
-                OpenFlange.Value = isOpen;
+                CollapsedFlange.Value = !ContentIsVisible;
 
-                if (isOpen)
+                if (ContentIsVisible)
                 {
                     context?.Update(Content);
                 }

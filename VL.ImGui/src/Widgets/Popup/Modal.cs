@@ -31,37 +31,45 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// Returns true if the Modal Window is open. Set to true to open the Modal Window.
         /// </summary>
-        public Channel<bool>? Open { private get; set; }
-        ChannelFlange<bool> OpenFlange = new ChannelFlange<bool>(true);
+        public Channel<bool>? Visible { private get; set; }
+        ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(false);
+        
         /// <summary>
-        /// Returns true if the Popup is visible.
+        /// Returns true if content is visible.
         /// </summary>
-        public bool _IsVisible => OpenFlange.Value;
+        public bool ContentIsVisible { get; private set; } = false;
+
+        /// <summary>
+        /// Returns true if close button is clicked. 
+        /// </summary>
+        public bool CloseClicked { get; private set; } = false;
 
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
         internal override void UpdateCore(Context context)
         {
+            var visible = VisibleFlange.Update(Visible, out bool visibilityChanged);
             var bounds = BoundsFlange.Update(Bounds, out bool boundsChanged);
-            var isOpen = OpenFlange.Update(Open, out bool visibilityChanged);
             var label = Context.GetLabel(this, Label);
+            CloseClicked = false;
+            ContentIsVisible = false;
 
             if (visibilityChanged)
             {
-                if (isOpen)
+                if (visible)
                     ImGui.OpenPopup(label);
                 else
                     ImGui.CloseCurrentPopup();
             }
 
-            if (isOpen)
+            if (boundsChanged || visibilityChanged)
             {
-                if (boundsChanged)
-                {
-                    ImGui.SetNextWindowPos(bounds.TopLeft.FromHectoToImGui());
-                    ImGui.SetNextWindowSize(bounds.Size.FromHectoToImGui());
-                }
+                ImGui.SetNextWindowPos(bounds.TopLeft.FromHectoToImGui());
+                ImGui.SetNextWindowSize(bounds.Size.FromHectoToImGui());
+            }
 
+            if (visible)
+            {
                 if (Closing.IsValid())
                 {
                     // From Imgui Demo:
@@ -70,22 +78,31 @@ namespace VL.ImGui.Widgets
                     // of the bool actually doesn't matter here.
                     // https://github.com/ocornut/imgui/blob/2d38bc99b3b0013952d3d390397297083b767972/imgui_demo.cpp#L3535
 
-                    var unusedOpen = true;
-                    isOpen = ImGui.BeginPopupModal(label, ref unusedOpen, Flags);
-                    if (!unusedOpen)
+                    var isVisible = true;
+                    ContentIsVisible = ImGui.BeginPopupModal(label, ref isVisible, Flags);
+                    if (!isVisible)
+                    {
                         Closing.Value = default;
+                        CloseClicked = true;
+                    }
+                        
                 }
                 else
                 {
-                    isOpen = ImGui.BeginPopupModal(label);
+                    ContentIsVisible = ImGui.BeginPopupModal(label);
                 }
 
-                OpenFlange.Value = isOpen;
-                if (isOpen)
+                VisibleFlange.Value = ContentIsVisible;
+
+                if (ContentIsVisible)
                 {
                     try
                     {
                         context?.Update(Content);
+
+                        var pos = ImGui.GetWindowPos().ToVLHecto();
+                        var size = ImGui.GetWindowSize().ToVLHecto();
+                        BoundsFlange.Value = new RectangleF(pos.X, pos.Y, size.X, size.Y);
                     }
                     finally
                     {
