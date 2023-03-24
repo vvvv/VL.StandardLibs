@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Reactive.Disposables;
 using VL.Core;
 using VL.Core.CompilerServices;
 using VL.Core.Reactive;
@@ -26,9 +27,22 @@ namespace VL.Lib
         {
             Mathematics.Serialization.RegisterSerializers(factory);
 
-            factory.RegisterAppComponent<IChannelHub>(() => new ChannelHub(factory));
-            //ServiceRegistry.Current.RegisterService(new ChannelHub());
-            //ChannelHubNodeBuilding.GenerateNodesByConfigFile(factory, reScanGlobalChannels: default);
+            // did we get called by runtime?
+            if (ServiceRegistry.IsCurrent() && ServiceRegistry.Current.GetService<IAppHost>() != null)
+            {
+                // make sure the channelhub exists for the app / entry point
+                IAppHost.RegisterAppComponent<IChannelHub>(() => new ChannelHub());
+
+                // make sure all channels of config exist in app-channelhub.
+                var basePath = PathProviderUtils.GetApplicationBasePath();
+                var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(basePath);
+                if (watcher != null)
+                    ((ChannelHub)IChannelHub.HubForApp).MustHaveDescriptive = watcher.Descriptions;
+            }
+
+            // registering node factory producing nodes for global channels is necessary in any case.
+            // compiler needs it to output correct code. target code calls into the nodes. So they need to be present as well.
+            ChannelHubNodeBuilding.RegisterChannelHubNodeFactoryTriggeredViaConfigFile(factory);
         }
 
         class SingleConverter : System.ComponentModel.SingleConverter

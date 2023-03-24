@@ -4,75 +4,67 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.IO;
+using System.Reactive.Linq;
 
 namespace VL.Core.Reactive
 {
-    public record ChannelBuildDescription(string name, Type type);
-
-
     public static class ChannelHubNodeBuilding
     {
-
-        [Obsolete]
-        internal static void GenerateNodesByConfigFile(IVLFactory factory, Channel<object> reScanGlobalChannels)
+        internal static void RegisterChannelHubNodeFactoryTriggeredViaConfigFile(IVLFactory factory)
         {
-            var descriptions = new List<ChannelBuildDescription>
-            {
-                new ChannelBuildDescription("A", typeof(float)),
-                new ChannelBuildDescription("B", typeof(object))
-            };
+            // the ChannelHub in question is not available at compile time.
+            // if there would be always be only one, we could react on channelhub changes immediatly.
+            // as we opted for one channelhub per entry-point & configfiles, we only can react on file changes for now.
+            
+            // we can't react on renames like this. would be nice if that would be an option in the future (and replace node applications).
+            // for that we'd need either:
+            // * a guid per channel
+            // * or a channel being described by an element in the document (with serializedID) instead of via config file
+            // * or access to a global channel hub (not per entry-point) + subscribing to an actual rename event at that live channelhub.
 
+            var descriptions = new List<ChannelBuildDescription>();
             factory.RegisterNodeFactory(NodeBuilding.NewNodeFactory(factory, "VL.CoreLib.GlobalsChannels", descfactory =>
             {
-                var nodes = descriptions.Select(d => GetNodeDescription(descfactory, d, reScanGlobalChannels)).ToImmutableArray();
+                var nodes = descriptions.Select(d => GetNodeDescription(descfactory, d, invalidateChannelNode: default, null)).ToImmutableArray();
                 return NodeBuilding.NewFactoryImpl(nodes, forPath: p =>
                 {
-                    var path = Path.Combine(p, "GlobalChannels.txt");
+                    var path = ChannelHubConfigWatcher.GetConfigFilePath(p); 
                     if (!File.Exists(path))
                         return null;
 
                     return _ =>
                     {
-                        var lines = File.ReadLines(path);
-                        return NodeBuilding.NewFactoryImpl(GetProperDescriptions(factory, descfactory, lines, reScanGlobalChannels).ToImmutableArray());
+                        var watcher = ChannelHubConfigWatcher.GetWatcherForPath(path);
+                        return NodeBuilding.NewFactoryImpl(
+                            nodes:       watcher.Descriptions.Value.Select(cd => GetNodeDescription(descfactory, cd, invalidateChannelNode: default, watcher)).ToImmutableArray(), 
+                            invalidated: watcher.Descriptions.Skip(1));
                     };
                 });
             }));
-
-            IEnumerable<IVLNodeDescription> GetProperDescriptions(IVLFactory factory, 
-                IVLNodeDescriptionFactory descfactory, IEnumerable<string> lines, Channel<object> invalidateChannelNode)
-            {
-                foreach (var l in lines)
-                {
-                    var _ = l.Split(':');
-                    var t = factory.GetTypeByName(_[1]);
-                    if (t != null)
-                        yield return GetNodeDescription(descfactory, new ChannelBuildDescription(name: _[0], t), invalidateChannelNode);
-                }
-            }
         }
 
         internal static IVLNodeDescription GetNodeDescription(IVLNodeDescriptionFactory descfactory, 
-            ChannelBuildDescription channelBuildDescription, Channel<object> invalidateChannelNode)
+            ChannelBuildDescription channelBuildDescription, IObservable<object> invalidateChannelNode, ChannelHubConfigWatcher watcher)
         {
             return descfactory.NewNodeDescription(
-                channelBuildDescription.name, 
+                channelBuildDescription.Name, 
                 "Reactive.GlobalChannels", 
                 fragmented: false, 
                 invalidated: invalidateChannelNode, 
                 init: context =>
             {
-                var c = Channel.CreateChannelOfType(channelBuildDescription.type);
                 var _inputs = new IVLPinDescription[]
                 {
                 };
                 var _outputs = new[]
                 {
-                    context.Pin("Channel", c.GetType()),
-                    context.Pin("Value", channelBuildDescription.type),
-                };
+                    context.Pin("Channel", Channel.CreateChannelOfType(channelBuildDescription.Type).GetType()),
+                    context.Pin("Value", channelBuildDescription.Type),
+                }; 
+
                 return context.Node(_inputs, _outputs, buildcontext =>
                 {
+                    var c = IChannelHub.HubForApp.TryAddChannel(channelBuildDescription.Name, channelBuildDescription.Type);
                     var inputs = new IVLPin[]
                     {
                     };

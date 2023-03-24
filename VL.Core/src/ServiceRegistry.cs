@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
 
 namespace VL.Core
 {
@@ -105,22 +106,30 @@ namespace VL.Core
     {
         public static T GetService<T>(this IServiceProvider serviceProvider) where T : class => serviceProvider.GetService(typeof(T)) as T;
 
-        public static T GetOrAddService<T>(this ServiceRegistry serviceRegistry, Func<T> factory) where T : class
+        public static T GetOrAddService<T>(this ServiceRegistry serviceRegistry, Func<T> factory, bool manageLifetime) where T : class
         {
             lock (serviceRegistry)
             {
                 var service = serviceRegistry.GetService<T>();
                 if (service is null)
                     serviceRegistry.RegisterService(service = factory());
+                if (manageLifetime && service is IDisposable disposableService)
+                    serviceRegistry.GetService<CompositeDisposable>().Add(disposableService);
                 return service;
             }
         }
 
-        public static ServiceRegistry EnsureService<TService>(this ServiceRegistry serviceRegistry, Func<TService> factory) where TService : class
+        [Obsolete("Use the overload where you need to commit to a lifetime")]
+        public static T GetOrAddService<T>(this ServiceRegistry serviceRegistry, Func<T> factory) where T : class
         {
-            var service = serviceRegistry.GetService<TService>();
-            if (service is null)
-                serviceRegistry.RegisterService(factory());
+            // up to now lifetime wasn't managed
+            return serviceRegistry.GetOrAddService(factory, manageLifetime: false);
+        }
+
+        public static ServiceRegistry EnsureService<TService>(this ServiceRegistry serviceRegistry, Func<TService> factory) where TService : class
+        {            
+            // up to now lifetime wasn't managed
+            serviceRegistry.GetOrAddService(factory, manageLifetime: false);
             return serviceRegistry;
         }
 

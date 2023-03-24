@@ -5,6 +5,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Reactive.Linq;
 
 #nullable enable
 
@@ -71,6 +72,8 @@ namespace VL.Core.Reactive
     /// </summary>
     public interface IChannelHub
     {
+        IDictionary<string, Channel> Channels { get; }
+
         Channel? TryGetChannel(string key);
         
         Channel? TryAddChannel(string key, Type typeOfValues);
@@ -94,6 +97,8 @@ namespace VL.Core.Reactive
             using var _ = BeginChange();
             action(this);
         }
+
+        static IChannelHub HubForApp => IAppHost.GetAppComponent<IChannelHub>();
     }
 
     //public interface IChannelDescriptionProvider
@@ -105,37 +110,39 @@ namespace VL.Core.Reactive
     public class ChannelHub : IChannelHub, IDisposable
     {
         int lockCount = 0;
+        int revision = 0;
+        int revisionOnLockTaken = 0;
         public Subject<object> onChannelsChanged = new Subject<object>();
         public IObservable<object> OnChannelsChanged => onChannelsChanged;
 
-        ConcurrentDictionary<string, Channel> Channels = new ConcurrentDictionary<string, Channel>();
 
-        public ChannelHub(IVLFactory factory)
+        IDisposable? MustHaveDescriptiveSubscription;
+        public IObservable<IEnumerable<ChannelBuildDescription>> MustHaveDescriptive
         {
-            factory.RegisterNodeFactory(NodeBuilding.NewNodeFactory(
-                factory,
-                "VL.CoreLib.GlobalsChannels",
-                descfactory =>
-                {
-                    var nodes = GetDescriptions(
-                        descfactory,
-                        invalidateChannelNode: default // node doesn't get invalidated. Channel gets rebuilt if type changes.
-                        ).ToImmutableArray();
-                    return NodeBuilding.NewFactoryImpl(
-                        nodes,
-                        invalidated: OnChannelsChanged); // node collection gets invalidated whenever channel collection changes
-                }));
-
-            IEnumerable<IVLNodeDescription> GetDescriptions(IVLNodeDescriptionFactory descfactory, Channel<object>? invalidateChannelNode)
+            set
             {
-                foreach (var c in Channels)
-                    yield return ChannelHubNodeBuilding.GetNodeDescription(descfactory,
-                        new ChannelBuildDescription(name: c.Key, c.Value.ClrTypeOfValues), invalidateChannelNode);
+                MustHaveDescriptiveSubscription?.Dispose();
+                MustHaveDescriptiveSubscription = value.Subscribe(descriptions =>
+                {
+                    ((IChannelHub)this).BatchUpdate(_ =>
+                    {
+                        // make sure all channels of the descriptive configuration exist.
+                        // we don't delete channels that are not listed as the user might have added some more programmatically.
+                        // the config only describes those that shall be there on startup.
+                        foreach (var d in descriptions)
+                            TryAddChannel(d.Name, d.Type);
+                    });
+                });
             }
-        }
+        } 
+
+        internal ConcurrentDictionary<string, Channel> Channels = new ConcurrentDictionary<string, Channel>();
+        IDictionary<string, Channel> IChannelHub.Channels => Channels;
 
         public IDisposable BeginChange()
         {
+            if (lockCount == 0)
+                revisionOnLockTaken = revision;
             lockCount++;
             return Disposable.Create(EndChange);
         }
@@ -143,14 +150,14 @@ namespace VL.Core.Reactive
         void EndChange()
         {
             lockCount--;
-            if (lockCount == 0)
+            if (lockCount == 0 && revisionOnLockTaken != revision)
                 onChannelsChanged.OnNext(this);
         }
 
         public Channel? TryAddChannel(string key, Type typeOfValues)
         {
             using var _ = BeginChange();
-            var c = Channels.GetOrAdd(key, _ => Channel.CreateChannelOfType(typeOfValues));
+            var c = Channels.GetOrAdd(key, _ => { var c = Channel.CreateChannelOfType(typeOfValues); revision++; return c; });
             if (c.ClrTypeOfValues != typeOfValues)
                 return default;
             // discuss if replacing with new type is an option or should always occur.
@@ -168,7 +175,11 @@ namespace VL.Core.Reactive
         {
             using var _ = BeginChange();
             var gotRemoved = Channels.TryRemove(key, out var c);
-            c?.Dispose(); // might not really be necessary, but let's clean up for now. We are at least the ones who created the channels.
+            if (c != null)
+            {
+                revision++;
+                c.Dispose();// might not really be necessary, but let's clean up for now. We are at least the ones who created the channels.
+            }
             return gotRemoved;
         }
 
@@ -176,16 +187,26 @@ namespace VL.Core.Reactive
         {
             using var _ = BeginChange();
             var gotRemoved = Channels.TryRemove(key, out var c);
-            c?.Dispose();
-            return TryAddChannel(newKey, c.ClrTypeOfValues);
+            if (c != null)
+            {
+                revision++;
+                c.Dispose();
+                return TryAddChannel(newKey, c.ClrTypeOfValues);
+            }
+            return null;
         }
 
         public Channel? TryChangeType(string key, Type typeOfValues)
         {
             using var _ = BeginChange();
             var gotRemoved = Channels.TryRemove(key, out var c);
-            c?.Dispose();
-            return TryAddChannel(key, typeOfValues);
+            if (c != null)
+            {
+                revision++;
+                c.Dispose();
+                return TryAddChannel(key, typeOfValues);
+            }
+            return null;
         }
 
         public void Dispose()
@@ -194,10 +215,12 @@ namespace VL.Core.Reactive
                 using var _ = BeginChange();
                 var cs = Channels.Values;
                 Channels.Clear();
+                revision++;
                 foreach (var c in cs)
                     c.Dispose();
             }
             onChannelsChanged.Dispose();
+            MustHaveDescriptiveSubscription?.Dispose();
         }
     }
 }
