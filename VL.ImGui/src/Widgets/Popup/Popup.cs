@@ -13,53 +13,56 @@ namespace VL.ImGui.Widgets
         public string? Label { get; set; }
 
         /// <summary>
-        /// Bounds of the Window.
+        /// Position of the Popup.
         /// </summary>
-        public Channel<RectangleF>? Bounds { private get; set; }
-        ChannelFlange<RectangleF> BoundsFlange = new ChannelFlange<RectangleF>(new RectangleF(0f, 0f, 1f, 1f));
+        public Channel<Vector2>? Position { private get; set; }
+        ChannelFlange<Vector2> PositionFlange = new ChannelFlange<Vector2>(new Vector2());
 
         /// <summary>
         /// Returns true if the Popup is open. Set to true to open the Popup.
         /// </summary>
-        public Channel<bool>? IsOpen { private get; set; }
-        ChannelFlange<bool> IsOpenFlange = new ChannelFlange<bool>(false);
+        public Channel<bool>? Visible { private get; set; }
+        ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(false);
+
         /// <summary>
-        /// Returns true if the Popup is open. 
+        /// Returns true if content is visible. 
         /// </summary>
-        public bool _IsOpen => IsOpenFlange.Value;
+        public bool ContentIsVisible { get; private set; } = false;
 
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
         internal override void UpdateCore(Context context)
         {
-            var bounds = BoundsFlange.Update(Bounds, out bool boundsChanged);
-            var isOpen = IsOpenFlange.Update(IsOpen, out bool hasChanged);
+            var position = PositionFlange.Update(Position, out bool positionChanged);
+            var visible = VisibleFlange.Update(Visible, out bool visibilityChanged);
             var label = Context.GetLabel(this, Label);
+            ContentIsVisible = false;
 
-            if (boundsChanged)
+            if (visibilityChanged)
             {
-                ImGui.SetNextWindowPos(bounds.TopLeft.FromHectoToImGui());
-                ImGui.SetNextWindowSize(bounds.Size.FromHectoToImGui());
-            }
-
-            if (hasChanged)
-            {
-                if (isOpen)
+                if (visible)
                     ImGui.OpenPopup(label);
                 else
                     ImGui.CloseCurrentPopup();
             }
 
-            if (isOpen)
+            if (positionChanged || visibilityChanged)
             {
-                isOpen = ImGui.BeginPopup(label);
+                ImGui.SetNextWindowPos(position.FromHectoToImGui());
+            }
 
-                IsOpenFlange.Value = isOpen;
-                if (isOpen)
+            if (visible)
+            {
+
+                ContentIsVisible = ImGui.BeginPopup(label);
+                VisibleFlange.Value = ContentIsVisible;
+
+                if (ContentIsVisible)
                 {
                     try
                     {
                         context?.Update(Content);
+                        PositionFlange.Value = ImGui.GetWindowPos().ToVLHecto();
                     }
                     finally
                     {
