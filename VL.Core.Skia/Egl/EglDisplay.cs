@@ -80,7 +80,7 @@ namespace VL.Skia.Egl
             {
                 EGLDisplay display;
 
-                if (createNewDevice && OperatingSystem.IsWindows())
+                if (createNewDevice && OperatingSystem.IsWindowsVersionAtLeast(5, 1, 2600))
                 {
                     // Use a dummy window to create a device context
                     using var moduleHandle = PInvoke.GetModuleHandle(default(string));

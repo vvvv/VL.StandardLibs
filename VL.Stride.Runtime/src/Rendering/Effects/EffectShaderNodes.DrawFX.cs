@@ -72,10 +72,7 @@ namespace VL.Stride.Rendering
 
                 if (shaderMetadata != null)
                 {
-                    var typeInPatch = shaderMetadata.GetPinType(key, out var boxedDefaultValue);
-                    shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);
-                    _inputs.Add(new ParameterPinDescription(usedNames, key, parameter.Count, defaultValue: boxedDefaultValue, typeInPatch: typeInPatch)
-                    { IsVisible = !isOptional, Summary = summary, Remarks = remarks });
+                    _inputs.Add(CreatePinDescription(in parameter, usedNames, shaderMetadata));
                 }
                 else
                 { //binary shader

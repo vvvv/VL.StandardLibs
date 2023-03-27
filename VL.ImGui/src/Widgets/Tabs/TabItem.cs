@@ -1,4 +1,5 @@
 ﻿using VL.Lib.Reactive;
+using System.Reactive;
 
 namespace VL.ImGui.Widgets
 {
@@ -11,62 +12,77 @@ namespace VL.ImGui.Widgets
         public string? Label { get; set; }
 
         /// <summary>
-        /// Display an additional small close button 
+        /// If set the Tab will have a close button which will push to the channel once clicked.
         /// </summary>
-        public bool HasCloseButton { get; set; } = true;
+        public Channel<Unit> Closing { get; set; } = DummyChannel<Unit>.Instance;
 
         /// <summary>
         /// Returns true if the Tab is displayed. Set to true to display the Tab.
         /// </summary>
-        public Channel<bool>? IsVisible { private get; set; }
-        ChannelFlange<bool> IsVisibleFlange = new ChannelFlange<bool>(true);
-        /// <summary>
-        /// Returns true if the Tab is displayed.
-        /// </summary>
-        public bool _IsVisible => IsVisibleFlange.Value;
+        public Channel<bool>? Visible { private get; set; }
+        ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(true);
 
         /// <summary>
         /// Returns true if the Tab is activated/selected. Set to true to activate the Tab.
         /// </summary>
-        public Channel<bool>? IsActive { private get; set; }
-        ChannelFlange<bool> IsActiveFlange = new ChannelFlange<bool>(false);
+        public Channel<bool>? Active { private get; set; }
+        ChannelFlange<bool> ActiveFlange = new ChannelFlange<bool>(false);
+
         /// <summary>
-        /// Returns true if the Tab is activated/selected. 
+        /// Returns true if content is visible. 
         /// </summary>
-        public bool _IsActive => IsActiveFlange.Value;
+        public bool ContentIsVisible { get; private set; } = false;
+
+        /// <summary>
+        /// Returns true if close button is clicked. 
+        /// </summary>
+        public bool CloseClicked { get; private set; } = false;
 
 
         public ImGuiNET.ImGuiTabItemFlags Flags { private get; set; }
 
         internal override void UpdateCore(Context context)
         {
-            var isVisible = IsVisibleFlange.Update(IsVisible);
-            var isActive = IsActiveFlange.Update(IsActive, out var activateHasChanged);
+            var visible = VisibleFlange.Update(Visible);
+            var isActive = ActiveFlange.Update(Active, out var activateHasChanged);
             var gotActivated = activateHasChanged && isActive;
             var flags = Flags;
+            CloseClicked = false;
+            ContentIsVisible = false;
 
-            if (isVisible && gotActivated)
-                flags |= ImGuiNET.ImGuiTabItemFlags.SetSelected;
-
-            if (HasCloseButton || flags != ImGuiNET.ImGuiTabItemFlags.None)
+            if (visible)
             {
-                isActive = ImGuiNET.ImGui.BeginTabItem(Context.GetLabel(this, Label), ref isVisible, flags);
-                IsVisibleFlange.Value = isVisible; // close button might have been pressed
-            }
-            else
-                isActive = ImGuiNET.ImGui.BeginTabItem(Context.GetLabel(this, Label));
+                if (gotActivated)
+                    flags |= ImGuiNET.ImGuiTabItemFlags.SetSelected;
 
-            IsActiveFlange.Value = isActive;
-
-            if (isActive)
-            {
-                try
+                if (Closing.IsValid() || flags != ImGuiNET.ImGuiTabItemFlags.None)
                 {
-                    context.Update(Content);
+                    var isVisible = true;
+                    isActive = ImGuiNET.ImGui.BeginTabItem(Context.GetLabel(this, Label), ref isVisible, flags);
+                    if (!isVisible)
+                    {
+                        Closing.Value = default;
+                        CloseClicked = true;
+                        VisibleFlange.Value = false;
+                    }
+                        
                 }
-                finally
+                else
+                    isActive = ImGuiNET.ImGui.BeginTabItem(Context.GetLabel(this, Label));
+
+                ActiveFlange.Value = isActive;
+                ContentIsVisible = isActive;
+
+                if (isActive)
                 {
-                    ImGuiNET.ImGui.EndTabItem();
+                    try
+                    {
+                        context.Update(Content);
+                    }
+                    finally
+                    {
+                        ImGuiNET.ImGui.EndTabItem();
+                    }
                 }
             }
         }

@@ -105,15 +105,13 @@ namespace VL.Stride.Rendering
                                 usedNames.Add(pinName);
                                 isOptional = true;
                             }
-                                // also make other samplers from Texturing shader optional
-                                else if (key.PropertyType == typeof(SamplerState) && key.Name.StartsWith("Texturing."))
+                            // also make other samplers from Texturing shader optional
+                            else if (key.PropertyType == typeof(SamplerState) && key.Name.StartsWith("Texturing."))
                             {
                                 isOptional = true;
                             }
 
-                            var pinTypeInPatch = shaderMetadata.GetPinType(key, out var boxedDefaultValue);
-                            shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptionalAttr);
-                            _inputs.Add(new ParameterPinDescription(usedNames, key, parameter.Count, name: pinName, defaultValue: boxedDefaultValue, typeInPatch: pinTypeInPatch) { IsVisible = !(isOptional || isOptionalAttr), Summary = summary, Remarks = remarks });
+                            _inputs.Add(CreatePinDescription(in parameter, usedNames, shaderMetadata, name: pinName, isOptionalOverride: isOptional));
                         }
                     }
 

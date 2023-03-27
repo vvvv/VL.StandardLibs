@@ -32,8 +32,17 @@ namespace VL.Stride.Rendering
 
         public static bool TryGetAttribute(this Variable v, string attrName, out AttributeDeclaration attribute)
         {
-            attribute = v.Attributes.OfType<AttributeDeclaration>().Where(a => a.Name.Text == ShaderMetadata.DefaultName).FirstOrDefault();
-            return attribute != null;
+            foreach (var a in v.Attributes)
+            {
+                if (a is AttributeDeclaration decl && decl.Name.Text == attrName)
+                {
+                    attribute = decl;
+                    return true;
+                }
+            }
+
+            attribute = null;
+            return false;
         }
 
         public static string GetKeyName(this Variable v, ClassType shader)

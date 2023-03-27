@@ -11,6 +11,8 @@ namespace VL.Core
     {
         string Identifier { get; }
 
+        string? FilePath => null;
+
         ImmutableArray<IVLNodeDescription> NodeDescriptions { get; }
 
         IObservable<object> Invalidated { get; }

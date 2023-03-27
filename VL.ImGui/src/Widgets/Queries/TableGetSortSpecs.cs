@@ -1,6 +1,7 @@
-﻿// Works only in Immediate mode, fails if the Table doesn't have `Sortable` flag.
+﻿// Works only in Immediate mode
 
 using ImGuiNET;
+using VL.Core.Utils;
 using VL.Lib.Collections;
 
 namespace VL.ImGui.Widgets
@@ -17,13 +18,22 @@ namespace VL.ImGui.Widgets
         {
             var specs = ImGuiNET.ImGui.TableGetSortSpecs();
 
-            var b = Spread.CreateBuilder<TableColumnSortSpecs>(specs.SpecsCount);
-            var x = new ReadOnlySpan<ImGuiTableColumnSortSpecs>(specs.Specs, specs.SpecsCount);
-            foreach (var s in x)
-                b.Add(new TableColumnSortSpecs(s.ColumnUserID, s.ColumnIndex, s.SortOrder, s.SortDirection));
-            Value = b.ToSpread();
+            // Null in case the table doesn't have the `Sortable` flag
+            if (specs.NativePtr != null)
+            {
+                // The builder will take care of re-using the existing spread if the specs didn't change
+                var builder = CollectionBuilders.GetBuilder(Value, specs.SpecsCount);
+                var x = new ReadOnlySpan<ImGuiTableColumnSortSpecs>(specs.Specs, specs.SpecsCount);
+                foreach (var s in x)
+                    builder.Add(new TableColumnSortSpecs(s.ColumnUserID, s.ColumnIndex, s.SortOrder, s.SortDirection));
+                Value = builder.Commit();
+            }
+            else
+            {
+                Value = Spread<TableColumnSortSpecs>.Empty;
+            }
         }
     }
 
-    public record TableColumnSortSpecs(uint ColumnUserID, short ColumnIndex, short SortOrder, ImGuiSortDirection SortDirection);
+    public record struct TableColumnSortSpecs(uint ColumnUserID, short ColumnIndex, short SortOrder, ImGuiSortDirection SortDirection);
 }

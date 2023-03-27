@@ -49,12 +49,7 @@ namespace VL.Stride.Rendering
 
                     foreach (var parameter in GetParameters(_effect))
                     {
-                        var key = parameter.Key;
-                        var name = key.Name;
-
-                        var typeInPatch = shaderMetadata.GetPinType(key, out var boxedDefaultValue);
-                        shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);
-                        _inputs.Add(new ParameterPinDescription(usedNames, key, parameter.Count, defaultValue: boxedDefaultValue, typeInPatch: typeInPatch) { IsVisible = !isOptional, Summary = summary, Remarks = remarks });
+                        _inputs.Add(CreatePinDescription(in parameter, usedNames, shaderMetadata));
                     }
 
                     IVLPinDescription _enabledInput;

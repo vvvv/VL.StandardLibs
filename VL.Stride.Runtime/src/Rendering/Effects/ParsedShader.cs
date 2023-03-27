@@ -212,14 +212,7 @@ namespace VL.Stride.Rendering
             {
                 if (knownShaderFXTypeInputs.TryGetValue(TypeName, out var compDefault))
                 {
-                    var boxedDefaultValue = compDefault.BoxedDefault;
-
-                    if (Variable.TryGetAttribute(ShaderMetadata.DefaultName, out var attribute))
-                    {
-                        boxedDefaultValue = attribute.ParseBoxed(compDefault.ValueType);
-                    }
-
-                    var def = compDefault.Factory(boxedDefaultValue);
+                    var def = compDefault.Factory(CompilationDefaultValue);
                     defaultComputeNode = def.func;
                     defaultGetter = def.getter;
                     return forPatch ? defaultComputeNode : defaultGetter ?? defaultComputeNode;
@@ -233,6 +226,24 @@ namespace VL.Stride.Rendering
                 return null;
             }
         }
+
+        public object CompilationDefaultValue
+        {
+            get
+            {
+                if (cachedCompilationDefaultValue != null)
+                    return cachedCompilationDefaultValue;
+
+                if (!knownShaderFXTypeInputs.TryGetValue(TypeName, out var typeDefault))
+                    return null;
+
+                if (!Variable.TryGetAttribute(ShaderMetadata.DefaultName, out var attribute))
+                    return cachedCompilationDefaultValue = typeDefault.BoxedDefault;
+
+                return cachedCompilationDefaultValue = attribute.ParseBoxed(typeDefault.ValueType);
+            }
+        }
+        object cachedCompilationDefaultValue;
 
         public ShaderSource GetDefaultShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)
         {

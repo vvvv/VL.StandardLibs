@@ -1,12 +1,13 @@
-﻿using System;
+﻿#nullable enable
+using Microsoft.FSharp.Core;
+using System;
 using System.Diagnostics;
 using System.Net.Sockets;
+using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using VL.Core;
 using VL.Lib.Basics.Resources;
-using VL.Lib.Threading;
 using NetSocket = System.Net.Sockets.Socket;
 
 namespace VL.Lib.IO.Socket
@@ -16,10 +17,10 @@ namespace VL.Lib.IO.Socket
     /// </summary>
     public class DatagramSender : IDisposable
     {
-        CancellationTokenSource FCancellation = new CancellationTokenSource();
-        object FLocalSocketProvider;
-        object FDatagrams;
-        Task FCurrentTask;
+        private readonly SerialDisposable FSubscription = new SerialDisposable();
+
+        object? FLocalSocketProvider;
+        object? FDatagrams;
 
         public DatagramSender(NodeContext nodeContext)
         {
@@ -36,45 +37,36 @@ namespace VL.Lib.IO.Socket
             {
                 FLocalSocketProvider = localSocket;
                 FDatagrams = datagrams;
-                Stop(0);
                 if (localSocket != null)
-                    Start(localSocket, datagrams);
+                    FSubscription.Disposable = Subscribe(localSocket, datagrams);
+                else
+                    FSubscription.Disposable = null;
             }
         }
 
-        void Start(IResourceProvider<NetSocket> provider, IObservable<Datagram> datagrams)
+        IDisposable Subscribe(IResourceProvider<NetSocket> provider, IObservable<Datagram> datagrams)
         {
-            FCancellation = new CancellationTokenSource();
-            var token = FCancellation.Token;
-            FCurrentTask = Task.Run(async () =>
-            {
-                while (!token.IsCancellationRequested)
+            return Observable.Using(
+                () => new AsyncSocketHelper(provider),
+                x =>
                 {
-                    using (var handle = await provider.GetHandleAsync(token, 100))
-                    using (var args = new SocketAsyncEventArgs())
-                    {
-                        var socket = handle.Resource;
-                        if (socket == null)
-                            return;
+                    var args = x.Args;
+                    var awaitable = x.Awaitable;
+                    var socket = x.Socket;
+                    if (socket is null)
+                        return Observable.Empty<Unit>();
 
-                        args.SetBuffer(new byte[0x20000], 0, 0x20000);
-                        var awaitable = new SocketAwaitable(args);
-
-                        // Return the handle on cancellation
-                        token.Register(handle.Dispose);
-
-                        foreach (var datagram in datagrams.ToEnumerable())
+                    return datagrams
+                        .ObserveOn(Scheduler.Default)
+                        .SelectMany(async datagram =>
                         {
-                            if (token.IsCancellationRequested)
-                                break;
-
                             try
                             {
                                 var sentBytes = 0;
                                 var data = datagram.PayloadArray;
                                 while (sentBytes < data.Length)
                                 {
-                                    var bytesToSend = Math.Min(args.Buffer.Length, data.Length - sentBytes);
+                                    var bytesToSend = Math.Min(args.Buffer!.Length, data.Length - sentBytes);
                                     Buffer.BlockCopy(data, sentBytes, args.Buffer, 0, bytesToSend);
                                     args.SetBuffer(0, bytesToSend);
                                     args.RemoteEndPoint = datagram.RemoteEndPoint;
@@ -91,23 +83,44 @@ namespace VL.Lib.IO.Socket
                             catch (Exception e)
                             {
                                 RuntimeGraph.ReportException(e);
-                                break;
                             }
-                        }
-                    }
-                }
-            }, token);
-        }
 
-        private void Stop(int timeout)
-        {
-            FCurrentTask?.CancelAndDispose(FCancellation, timeout);
-            FCurrentTask = null;
+                            return default(Unit);
+                        });
+                })
+                .SubscribeOn(Scheduler.Default)
+                .Subscribe();
         }
 
         void IDisposable.Dispose()
         {
-            Stop(1);
+            FSubscription.Dispose();
+        }
+
+        sealed class AsyncSocketHelper : IDisposable
+        {
+            private readonly CompositeDisposable disposables = new CompositeDisposable();
+
+            public AsyncSocketHelper(IResourceProvider<NetSocket> provider)
+            {
+                var handle = provider.GetHandle().DisposeBy(disposables);
+                Socket = handle.Resource;
+                Args = new SocketAsyncEventArgs().DisposeBy(disposables);
+                Args.SetBuffer(new byte[0x20000], 0, 0x20000);
+                Awaitable = new SocketAwaitable(Args);
+            }
+
+            public NetSocket Socket { get; }
+
+            public SocketAsyncEventArgs Args { get; }
+
+            public SocketAwaitable Awaitable { get; }
+
+            public void Dispose()
+            {
+                disposables.Dispose();
+            }
         }
     }
 }
+#nullable restore
