@@ -30,14 +30,11 @@ namespace VL.Lib
             // did we get called by runtime?
             if (ServiceRegistry.IsCurrent() && ServiceRegistry.Current.GetService<IAppHost>() != null)
             {
-                // make sure the channelhub exists for the app / entry point
-                IAppHost.RegisterAppComponent<IChannelHub>(() => new ChannelHub());
-
                 // make sure all channels of config exist in app-channelhub.
                 var basePath = PathProviderUtils.GetApplicationBasePath();
                 var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(basePath);
                 if (watcher != null)
-                    ((ChannelHub)IChannelHub.HubForApp).MustHaveDescriptive = watcher.Descriptions;
+                    ((ChannelHub)ChannelHub.HubForApp).MustHaveDescriptive = watcher.Descriptions;
             }
 
             // registering node factory producing nodes for global channels is necessary in any case.

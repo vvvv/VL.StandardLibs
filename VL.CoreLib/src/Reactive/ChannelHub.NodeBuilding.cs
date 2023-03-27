@@ -64,7 +64,7 @@ namespace VL.Core.Reactive
 
                 return context.Node(_inputs, _outputs, buildcontext =>
                 {
-                    var c = IChannelHub.HubForApp.TryAddChannel(channelBuildDescription.Name, channelBuildDescription.Type);
+                    var c = ChannelHub.HubForApp.TryAddChannel(channelBuildDescription.Name, channelBuildDescription.Type);
                     var inputs = new IVLPin[]
                     {
                     };
