@@ -520,23 +520,6 @@ namespace VL.Core
             return false;
         }
 
-        public static bool TryGetValueIncludingAllFields<T>(this IVLObject instance, uint id, T defaultValue, out T value)
-        {
-            var property = instance.Type.AllProperties.FirstOrDefault(p => p.Id == id);
-            if (property != null)
-            {
-                var v = property.GetValue(instance);
-                if (v is T)
-                {
-                    value = (T)v;
-                    return true;
-                }
-            }
-            value = defaultValue;
-            return false;
-        }
-
-
         /// <summary>
         /// Tries to set the value of the given property and returns a new instance (if it is a record) with the set value.
         /// </summary>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using VL.Lib.Collections;
 
 namespace VL.Core
@@ -58,9 +59,9 @@ namespace VL.Core
         Spread<IVLPropertyInfo> Properties { get; }
 
         /// <summary>
-        /// The user defined and system generated properties of this type.
+        /// The fields of this type. Includes backing fields for user properties, process nodes and other needed state.
         /// </summary>
-        Spread<IVLPropertyInfo> AllProperties { get; }
+        Spread<FieldInfo> Fields { get; }
 
         /// <summary>
         /// Returns the property with the given name.
