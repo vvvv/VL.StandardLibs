@@ -457,15 +457,13 @@ namespace VL.ImGui
         {
             using (_context.MakeCurrent())
             {
-                if (notification is NotificationBase n)
-                {
-                    _io.KeyAlt = n.AltKey;
-                    _io.KeyCtrl = n.CtrlKey;
-                    _io.KeyShift = n.ShiftKey;
-                }
-
                 if (notification is KeyNotification keyNotification)
                 {
+                    // Submit modifiers, see https://github.com/ocornut/imgui/blob/master/backends/imgui_impl_win32.cpp#L620
+                    _io.AddKeyEvent(ImGuiKey.ModCtrl, keyNotification.CtrlKey);
+                    _io.AddKeyEvent(ImGuiKey.ModShift, keyNotification.ShiftKey);
+                    _io.AddKeyEvent(ImGuiKey.ModAlt, keyNotification.AltKey);
+
                     if (keyNotification is KeyCodeNotification keyCodeNotification)
                     {
                         _io.AddKeyEvent(ToImGuiKey(keyCodeNotification.KeyCode), keyCodeNotification.IsKeyDown);
