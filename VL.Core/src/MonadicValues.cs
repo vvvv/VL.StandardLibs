@@ -48,6 +48,11 @@ namespace VL.Core
     public interface IMonadBuilder<TValue, TMonad>
     {
         TMonad Return(TValue value);
+
+        /// <summary>
+        /// Called when the system has no value yet. This is usually true for unconnected input pins.
+        /// </summary>
+        TMonad Default(TValue defaultValue) => Return(defaultValue);
     }
 
     public static class MonadicUtils
