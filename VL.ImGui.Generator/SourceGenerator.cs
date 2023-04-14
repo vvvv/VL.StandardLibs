@@ -272,33 +272,28 @@ namespace {typeSymbol.ContainingNamespace}
 
         private static string GetDocEntry(ISymbol symbol, string tag = "summary", string name = null)
         {
-            var rawComment = new StringBuilder();
-            foreach (var s in symbol.DeclaringSyntaxReferences)
-            {
-                foreach (var t in s.GetSyntax().GetLeadingTrivia())
-                {
-                    if (t.IsKind(SyntaxKind.SingleLineCommentTrivia))
-                    {
-                        rawComment.AppendLine(t.ToString().TrimStart('/', ' '));
-                    }
-                }
-            }
+            var xml = symbol.GetDocumentationCommentXml();
 
-            if (rawComment.Length == 0)
+            if (xml is null || xml.Length == 0)
                 return null;
 
             try
             {
-                var x = XElement.Parse($"<X>{rawComment}</X>");
+                var x = XElement.Parse(xml);
                 if (name != null)
-                    return x.Elements(tag).FirstOrDefault(e => e.Attribute("name")?.Value == name)?.ToString();
+                    return Trim(x.Elements(tag).FirstOrDefault(e => e.Attribute("name")?.Value == name)?.ToString());
                 else
-                    return x.Element(tag)?.Value.ToString().Trim('\n').Replace("\"", "\"\"");
+                    return Trim(x.Element(tag)?.Value.ToString());
             }
             catch (Exception)
             {
                 return null;
             }
+        }
+
+        static string Trim(string s)
+        {
+            return s?.Trim('\n', '\r', ' ').Replace("\"", "\"\"");
         }
 
         static readonly Regex FCamelCasePattern = new Regex("[a-z][A-Z0-9]", RegexOptions.Compiled);
