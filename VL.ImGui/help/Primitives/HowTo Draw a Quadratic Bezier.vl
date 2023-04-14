@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="REXoQnYkAPpMj5P1YFgzII" LanguageVersion="2022.5.0-0261-d97a44c3ea" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="G6SeDINhx50OfZLx5kCSyq" LanguageVersion="2022.5.0-0785-g501a43ba3a" Version="0.128">
   <Patch Id="K6jOtX5z4AOM2g6L5teo07">
     <Canvas Id="HuM0Neyl9P0P3djIwL4nYf" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -15,7 +15,7 @@
       <Patch Id="RxrvDdUu4cvOBXbi4KngKc">
         <Canvas Id="PuJjSWeZNf5OSPyulV1tEs" CanvasType="Group">
           <Node Bounds="95,469,165,19" Id="FMXgMbAgSJqPjBIGChZQvH">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastSymbolSource="VL.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastDependency="VL.Skia.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
@@ -33,7 +33,7 @@
             <Pin Id="Fi9FymljmNXQYNmU2h76Xz" Name="Render Time" Kind="OutputPin" />
           </Node>
           <Pad Id="TaMQlku23WmQVo2CUQzIWo" Bounds="67,131,459,37" ShowValueBox="true" isIOBox="true" Value="HowTo draw a Quadratic Bezier">
-            <p:TypeAnnotation>
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -42,18 +42,25 @@
             </p:ValueBoxSettings>
           </Pad>
           <Node Bounds="135,190,278,243" Id="Qt1hdfcbi91L5gX5iBfDVA">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastSymbolSource="VL.ImGui.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastDependency="VL.ImGui.Skia.vl">
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
+            <Pin Id="TlMcSLCL33vMblY1Zi4cgR" Name="Docking Enabled" Kind="InputPin" />
+            <Pin Id="IbDyuMNYR1kPcPc5Fcw2YD" Name="Fonts" Kind="InputPin" />
+            <Pin Id="QdY4yxF6BJ5NZN5UCSTqUQ" Name="Add Fullscreen Window" Kind="InputPin" />
+            <Pin Id="Nwa07K3dBuZNvp26NOq2IN" Name="Fullscreen Window Style" Kind="InputPin" />
+            <Pin Id="UswwFPhpHlUQGnWHSbFh1P" Name="Use Skia Space" Kind="InputPin" />
+            <Pin Id="Sw8WCU5TbkrMdrevFqutFJ" Name="Output" Kind="OutputPin" />
             <Patch Id="NgJDK2YyZ4qOK43dYs0B2d" ManuallySortedPins="true">
               <Patch Id="CVp1jsdDgRwOmHITphjljk" Name="Create" ManuallySortedPins="true" />
               <Patch Id="Qa1cnEHYOM7NZ5FHeqRaxI" Name="Update" ManuallySortedPins="true" />
               <Node Bounds="147,394,179,19" Id="I4WJwlopeLUMgUil8vb2Aj">
-                <p:NodeReference LastCategoryFullName="ImGui.Primitives" LastSymbolSource="VL.ImGUI.Nodes" LastDependency="VL.ImGui.vl">
+                <p:NodeReference LastCategoryFullName="ImGui.Primitives" LastDependency="VL.ImGui.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessNode" Name="Bezier (Quadratic)" />
                 </p:NodeReference>
+                <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
                 <Pin Id="AZwnwEvwCgLNfoEyuh7yLZ" Name="Context" Kind="InputPin" />
                 <Pin Id="CsOeH8Al9VqPz6Oim1UUDS" Name="Point 1" Kind="InputPin" />
                 <Pin Id="FPbtTT1NMuzNGaD682iNy2" Name="Point 2" Kind="InputPin" />
@@ -65,39 +72,36 @@
                 <Pin Id="IugfhXJLOxWQEAvV3TdN7d" Name="Context" Kind="OutputPin" />
               </Node>
               <Pad Id="R3UYbDVM71uMNk1GfsZKVW" Comment="Color" Bounds="273,354,20,15" ShowValueBox="true" isIOBox="true" Value="1, 1, 1, 1">
-                <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="Color" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="RGBA" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="LcUctvINtQ4LP8xFZwUeu8" Comment="Thickness" Bounds="298,376,35,15" ShowValueBox="true" isIOBox="true" Value="0.02">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="System.Runtime.dll">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="Float32" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="BN1t8RBAzlVPxRrkSnI34o" Comment="Point 1" Bounds="172,218,35,28" ShowValueBox="true" isIOBox="true" Value="0, 0.5">
-                <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="Stride.Core.Mathematics.dll">
                   <Choice Kind="TypeFlag" Name="Vector2" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="FFRo05KQu34PiwAVeGIlFH" Comment="Point 2" Bounds="198,257,41,28" ShowValueBox="true" isIOBox="true" Value="1, -0.5">
-                <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="Stride.Core.Mathematics.dll">
                   <Choice Kind="TypeFlag" Name="Vector2" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="QFOkIefslMDO7cRkxryjCW" Comment="Point 3" Bounds="224,292,41,28" ShowValueBox="true" isIOBox="true" Value="2, 0.5">
-                <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="Stride.Core.Mathematics.dll">
                   <Choice Kind="TypeFlag" Name="Vector2" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="SlO2bUDAOO2LY3BuyDktKE" Comment="Segments Count" Bounds="249,330,35,15" ShowValueBox="true" isIOBox="true" Value="0">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="System.Runtime.dll">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="Integer32" />
                 </p:TypeAnnotation>
               </Pad>
             </Patch>
-            <Pin Id="TlMcSLCL33vMblY1Zi4cgR" Name="Docking Enabled" Kind="InputPin" />
-            <Pin Id="UswwFPhpHlUQGnWHSbFh1P" Name="Use Skia Space" Kind="InputPin" />
-            <Pin Id="Sw8WCU5TbkrMdrevFqutFJ" Name="Output" Kind="OutputPin" />
           </Node>
         </Canvas>
         <Patch Id="DOR8YfYVKNAOTpcsIcbHHK" Name="Create" />
