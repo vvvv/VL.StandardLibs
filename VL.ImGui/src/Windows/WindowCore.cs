@@ -2,6 +2,7 @@
 using ImGuiNET;
 using VL.Lib.Reactive;
 using System.Reactive;
+using System.Reflection.Emit;
 
 namespace VL.ImGui.Windows
 {
@@ -12,7 +13,7 @@ namespace VL.ImGui.Windows
     {
         public Widget? Content { get; set; }
 
-        public string Name { get; set; } = "Window";
+        public string? Name { get; set; }
 
         /// <summary>
         /// If set the window will have a close button which will push to the channel once clicked.
@@ -74,7 +75,7 @@ namespace VL.ImGui.Windows
                 if (Closing.IsValid())
                 {
                     var isVisible = true;
-                    ContentIsVisible = ImGui.Begin(Name, ref isVisible, Flags);
+                    ContentIsVisible = ImGui.Begin(Context.GetLabel(this, Name), ref isVisible, Flags);
                     if (!isVisible)
                     {
                         Closing.Value = default;
@@ -84,7 +85,7 @@ namespace VL.ImGui.Windows
                 }
                 else
                 {
-                    ContentIsVisible = ImGui.Begin(Name, Flags);
+                    ContentIsVisible = ImGui.Begin(Context.GetLabel(this, Name), Flags);
                 }
 
                 try
