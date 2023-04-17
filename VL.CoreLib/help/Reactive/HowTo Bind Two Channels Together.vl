@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="BwIIXTbfqfBMj6TtzlDTq0" LanguageVersion="2022.5.0-0778-g41d7625912" Version="0.128">
+  <Patch Id="Degf4WbpHhMNx1LVbOjlnm">
+    <Canvas Id="MiSPUflagbXNS2ZJpSIhho" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="Qd2TGKw8hxLQNSR9sW1TxP">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="PszBsKGbilHNWaUEefg6kF">
+        <Canvas Id="ORQCXYMzgkoOZjcp6O7bcc" CanvasType="Group">
+          <Pad Id="ESNP3usbJPcO2zhLDpNNUB" Bounds="76,257,266,69" ShowValueBox="true" isIOBox="true" Value="Choose what happens on initialization. Select `UseA` and restart the patch (hit F9): `B` gets a value from `A` right away.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="BbFvBP3YlltPKGGjsMbKDn" Bounds="77,110,268,30" ShowValueBox="true" isIOBox="true" Value="Use Merge node">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="550,403,65,19" Id="GTX7WkcRDnOMnfeI25JR89">
+            <p:NodeReference LastCategoryFullName="Reactive.Channel" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="ClassType" Name="Channel" NeedsToBeDirectParent="true" />
+              <Choice Kind="ProcessAppFlag" Name="Merge" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="IjFZVnewzZ0LrBBmjXUi7j" Name="Channel A" Kind="InputPin" />
+            <Pin Id="QO37krtSW8JMn9PO52paZQ" Name="Channel B" Kind="InputPin" />
+            <Pin Id="UjELG564QFWM0p7giQ2UVu" Name="Initialization" Kind="InputPin" />
+            <Pin Id="CGSOU4Hh4IIMRwGciBMCrf" Name="Push Eagerly To" Kind="InputPin" />
+          </Node>
+          <Node Bounds="477,184,53,19" Id="NtZ5RKmk5jxOuVBQcGRIGX">
+            <p:NodeReference LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Channel" />
+            </p:NodeReference>
+            <Pin Id="VUXdn1Hgi4cQANBiFIzjph" Name="Value" Kind="InputPin" />
+            <Pin Id="HP5lzQFT6BwPKiRK2I7Zvr" Name="Output" Kind="OutputPin" />
+            <Pin Id="He36lyayvWpPi9lI8QPqfA" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="681,188,53,19" Id="NxPESUIdJ37N5in8tikrMK">
+            <p:NodeReference LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Channel" />
+            </p:NodeReference>
+            <Pin Id="PZegQysaUFPLCfdHrK0Yus" Name="Value" Kind="InputPin" />
+            <Pin Id="AsnwV1BWqv8Ob11gvPS7xM" Name="Output" Kind="OutputPin" />
+            <Pin Id="VF105jLxKx3MAwuN9pbuTz" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="Or1OAqSChlFPn7jc8ePZOT" Comment="Initialization" Bounds="592,322,52,15" ShowValueBox="true" isIOBox="true" Value="None">
+            <p:TypeAnnotation LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="ChannelMergeInitialization" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="SuwIpxzRgg8PBjnx9ovzBg" Comment="" Bounds="479,153,35,15" ShowValueBox="true" isIOBox="true" Value="0.26">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Float32" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="MaIv7ZgbRwdMIxjvKZR6FV" Comment="" Bounds="683,153,35,15" ShowValueBox="true" isIOBox="true" Value="0.4">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Float32" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+          </Pad>
+          <ControlPoint Id="H7NHPpdkQmJMB8U1p7oeUB" Bounds="683,296" />
+          <Pad Id="Ab0a36SdWuVMjcRp871aFz" Comment="" Bounds="527,233,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Lt8F09jCQc9LVw3kxJ8dwm" Comment="" Bounds="731,233,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="FpC5PNI4wZZPRdxW8hdTMx" Bounds="422,188,39,29" ShowValueBox="true" isIOBox="true" Value="1.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="U0ubrhPUF82L94Z1NX6ed4" Bounds="547,315,30,29" ShowValueBox="true" isIOBox="true" Value="2.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="G70LNmdbUtWNerbqA0FjI5" Bounds="547,363,30,29" ShowValueBox="true" isIOBox="true" Value="3.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="DLY1WrbQT2SP2xOiu4uy5u" Bounds="535,192,72,19" ShowValueBox="true" isIOBox="true" Value="Channel A">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="CdJ49X48FuSOP4t6LoccAs" Bounds="746,196,72,19" ShowValueBox="true" isIOBox="true" Value="Channel B">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="LQgJHlUd13jLGyuVjJzJBz" Bounds="39,258,30,29" ShowValueBox="true" isIOBox="true" Value="2.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="CrxeRWiT73HOnvDsmJ7WUW" Bounds="76,187,266,72" ShowValueBox="true" isIOBox="true" Value="Setup two channels and change the value on one of them, on that change its value is pushed to another channel.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="EWBkihkrS4nOEw7atBIagB" Bounds="39,188,30,29" ShowValueBox="true" isIOBox="true" Value="1.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <ControlPoint Id="KX8erHEquHNP3lPErBZzK8" Bounds="479,324" />
+          <Pad Id="RrlvW1768ZONcStoX9ZaEe" Bounds="78,334,264,200" ShowValueBox="true" isIOBox="true" Value="By default, when a channel gets a value pushed to it (say with the `SetValue` node) and this value is the same as the channel already has, the `Merge` won't notify another channel.&#xD;&#xA;&#xD;&#xA;`Push Eagerly To` allows to change this behaviour, allowing to propagate to another channel even the same value as before.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="OnS07OrBHe6MZZpfxN7I3b" Bounds="39,334,30,29" ShowValueBox="true" isIOBox="true" Value="3.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">14</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Fr5OKCygRjlOZNW1EzIdPg" Comment="Push Eagerly To" Bounds="612,369,72,15" ShowValueBox="true" isIOBox="true" Value="None">
+            <p:TypeAnnotation LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="ChannelSelection" />
+            </p:TypeAnnotation>
+          </Pad>
+        </Canvas>
+        <Patch Id="Kury6VNgEfEMQHXvXQbapo" Name="Create" />
+        <Patch Id="RoJUzWrvCIXMURfbKPmIUy" Name="Update" />
+        <ProcessDefinition Id="SPrwR4QfmizM2wN6bHrtR8">
+          <Fragment Id="AwsksYaH1ENL5dmmMclfMz" Patch="Kury6VNgEfEMQHXvXQbapo" Enabled="true" />
+          <Fragment Id="DrfwnOOhflAPBPJbAesONN" Patch="RoJUzWrvCIXMURfbKPmIUy" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="TfMyvcUy6rILfwezSTXutU" Ids="AsnwV1BWqv8Ob11gvPS7xM,H7NHPpdkQmJMB8U1p7oeUB,QO37krtSW8JMn9PO52paZQ" />
+        <Link Id="TVKf5h5yxUILXBM0qCC2zY" Ids="Or1OAqSChlFPn7jc8ePZOT,UjELG564QFWM0p7giQ2UVu" />
+        <Link Id="T1bWKC5623eLYQQHmT4KmZ" Ids="SuwIpxzRgg8PBjnx9ovzBg,VUXdn1Hgi4cQANBiFIzjph" />
+        <Link Id="KKWWdSicO9LMZ47igIu15K" Ids="MaIv7ZgbRwdMIxjvKZR6FV,PZegQysaUFPLCfdHrK0Yus" />
+        <Link Id="VBM7uT3KalxMJ25Gdxwsry" Ids="He36lyayvWpPi9lI8QPqfA,Ab0a36SdWuVMjcRp871aFz" />
+        <Link Id="SAC4LMJmzkkMFjNaZSexhf" Ids="VF105jLxKx3MAwuN9pbuTz,Lt8F09jCQc9LVw3kxJ8dwm" />
+        <Link Id="CbbnkyI5zGWNbcvlZpzfk4" Ids="HP5lzQFT6BwPKiRK2I7Zvr,KX8erHEquHNP3lPErBZzK8,IjFZVnewzZ0LrBBmjXUi7j" />
+        <Link Id="B67bFNa9YESOMHC0h7ppG4" Ids="Fr5OKCygRjlOZNW1EzIdPg,CGSOU4Hh4IIMRwGciBMCrf" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="VbAjN2e7JdYMUAk5PBBhzi" Location="VL.CoreLib" Version="2021.4.11-1187-ge1ef2b7a7c" />
+</Document>
