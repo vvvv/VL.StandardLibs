@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="Nd7OkwERbRJPkQ8nosm7Nq" LanguageVersion="2022.5.0-0261-d97a44c3ea" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="Uo2HBkSKqnhLV3Pje0cOOO" LanguageVersion="2022.5.0-0785-g501a43ba3a" Version="0.128">
   <Patch Id="K6jOtX5z4AOM2g6L5teo07">
     <Canvas Id="HuM0Neyl9P0P3djIwL4nYf" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -15,7 +15,7 @@
       <Patch Id="RxrvDdUu4cvOBXbi4KngKc">
         <Canvas Id="PuJjSWeZNf5OSPyulV1tEs" CanvasType="Group">
           <Node Bounds="120,514,165,19" Id="FMXgMbAgSJqPjBIGChZQvH">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastSymbolSource="VL.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastDependency="VL.Skia.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
@@ -32,8 +32,8 @@
             <Pin Id="VtCD3TojbCZNIE3ICe23l6" Name="ClientBounds" Kind="OutputPin" />
             <Pin Id="Fi9FymljmNXQYNmU2h76Xz" Name="Render Time" Kind="OutputPin" />
           </Node>
-          <Pad Id="VfUPYpJPvZCLF5agnT19HM" Bounds="114,106,292,12" ShowValueBox="true" isIOBox="true" Value="Use ColorEdit Widget">
-            <p:TypeAnnotation>
+          <Pad Id="VfUPYpJPvZCLF5agnT19HM" Bounds="114,106,292,37" ShowValueBox="true" isIOBox="true" Value="Use ColorEdit Widget">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -42,19 +42,26 @@
             </p:ValueBoxSettings>
           </Pad>
           <Node Bounds="160,177,379,294" Id="PMLfO6tvnGlMDO3EdO2V2Y">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastSymbolSource="VL.ImGui.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastDependency="VL.ImGui.Skia.vl">
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
+            <Pin Id="J0H836tzcEjNPloINs8Pnb" Name="Docking Enabled" Kind="InputPin" />
+            <Pin Id="GUxPyA4LzeJN0ioJMRBXlb" Name="Fonts" Kind="InputPin" />
+            <Pin Id="H2IHASxEne3PuKPIMQCmsS" Name="Add Fullscreen Window" Kind="InputPin" />
+            <Pin Id="SPG9GgphIv4NOWhPL4ZqrJ" Name="Fullscreen Window Style" Kind="InputPin" />
+            <Pin Id="BEun8nUKykxMz6qtvCvxlK" Name="Use Skia Space" Kind="InputPin" />
+            <Pin Id="RdTGttjTGpOMNjidFK9isY" Name="Output" Kind="OutputPin" />
             <Patch Id="SfCh3vzLEpOLrQoLd3t4Iv" ManuallySortedPins="true">
               <Patch Id="KIOIpsDM6PwLdzaQXhBPWD" Name="Create" ManuallySortedPins="true" />
               <Patch Id="AwkSylxEpHaLbU9rAu1u3D" Name="Update" ManuallySortedPins="true" />
               <Node Bounds="172,401,85,19" Id="BEDOP4Tl9ztM6Uojo73wfV">
-                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastSymbolSource="VL.ImGUI.Nodes" LastDependency="VL.ImGui.vl">
+                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastDependency="VL.ImGui.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <CategoryReference Kind="Category" Name="ImGui" />
                   <Choice Kind="ProcessNode" Name="ColorEdit" />
                 </p:NodeReference>
+                <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
                 <Pin Id="LGEEHFBfmSULTZgaNIyali" Name="Context" Kind="InputPin" />
                 <Pin Id="IMl46BuwyoTMcqsOL1BPED" Name="Channel" Kind="InputPin" />
                 <Pin Id="L2re2Cd1lBGQZi1y2jf6eq" Name="Label" Kind="InputPin" />
@@ -65,7 +72,7 @@
                 <Pin Id="FvwDI0bDZJXLkLdVbW3ECj" Name="Value" Kind="OutputPin" />
               </Node>
               <Node Bounds="172,233,107,19" Id="Dd7EqjgA7duMyy2XWAOftY">
-                <p:NodeReference LastCategoryFullName="ImGui.Commands.Immediate" LastSymbolSource="VL.ImGUI.Nodes">
+                <p:NodeReference LastCategoryFullName="ImGui.Commands.Immediate" LastDependency="VL.ImGUI.Nodes">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessNode" Name="SetColorEditOptions" />
                 </p:NodeReference>
@@ -74,12 +81,12 @@
                 <Pin Id="P55wWb5u1dzP3mVbISHDyA" Name="Context" Kind="OutputPin" />
               </Node>
               <Pad Id="ANhRdYiGntTQTBoIx6jkLX" Comment="Flags" Bounds="276,205,107,15" ShowValueBox="true" isIOBox="true" Value="DisplayHSV">
-                <p:TypeAnnotation LastCategoryFullName="ImGui.Flags" LastSymbolSource="VL.ImGui.vl">
+                <p:TypeAnnotation LastCategoryFullName="ImGui.Flags" LastDependency="VL.ImGui.vl">
                   <Choice Kind="TypeFlag" Name="ImGuiColorEditFlags" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="BUX6e0B76hpMkT2AwsKUCW" Bounds="285,240,235,41" ShowValueBox="true" isIOBox="true" Value="&lt; Use this to set the Defaults for all of the ColorEdit widgets in the App.">
-                <p:TypeAnnotation>
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
                 <p:ValueBoxSettings>
@@ -88,20 +95,17 @@
                 </p:ValueBoxSettings>
               </Pad>
               <Pad Id="GbaO0ZEAm4GMy28EJ6kyQK" Comment="Flags" Bounds="234,357,107,15" ShowValueBox="true" isIOBox="true" Value="None">
-                <p:TypeAnnotation LastCategoryFullName="ImGui.Flags" LastSymbolSource="VL.ImGui.vl">
+                <p:TypeAnnotation LastCategoryFullName="ImGui.Flags" LastDependency="VL.ImGui.vl">
                   <Choice Kind="TypeFlag" Name="ImGuiColorEditFlags" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="BntcVPqGsLkOBtQ7mxdQ5z" Comment="Label" Bounds="213,327,49,15" ShowValueBox="true" isIOBox="true" Value="My Color">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="Dsz5E9DJ24aOGRyq482h4q" Comment="" Bounds="254,443,136,15" ShowValueBox="true" isIOBox="true" />
             </Patch>
-            <Pin Id="J0H836tzcEjNPloINs8Pnb" Name="Docking Enabled" Kind="InputPin" />
-            <Pin Id="BEun8nUKykxMz6qtvCvxlK" Name="Use Skia Space" Kind="InputPin" />
-            <Pin Id="RdTGttjTGpOMNjidFK9isY" Name="Output" Kind="OutputPin" />
           </Node>
         </Canvas>
         <Patch Id="DOR8YfYVKNAOTpcsIcbHHK" Name="Create" />

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="GQQFKy5QFmuMChs5wf2z17" LanguageVersion="2022.5.0-0261-d97a44c3ea" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="J2sHeLUoVR6LSRrjYKP5Af" LanguageVersion="2022.5.0-0785-g501a43ba3a" Version="0.128">
   <Patch Id="K6jOtX5z4AOM2g6L5teo07">
     <Canvas Id="HuM0Neyl9P0P3djIwL4nYf" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -15,7 +15,7 @@
       <Patch Id="RxrvDdUu4cvOBXbi4KngKc">
         <Canvas Id="PuJjSWeZNf5OSPyulV1tEs" CanvasType="Group">
           <Node Bounds="287,618,165,19" Id="FMXgMbAgSJqPjBIGChZQvH">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastSymbolSource="VL.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastDependency="VL.Skia.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
@@ -33,15 +33,21 @@
             <Pin Id="Fi9FymljmNXQYNmU2h76Xz" Name="Render Time" Kind="OutputPin" />
           </Node>
           <Node Bounds="327,165,254,398" Id="TDdVdVetv9wMfe1A4ll6DB">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastSymbolSource="VL.ImGui.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastDependency="VL.ImGui.Skia.vl">
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
+            <Pin Id="GxBC24vS73xP5oGNgjarHK" Name="Docking Enabled" Kind="InputPin" />
+            <Pin Id="HL839ik5dsyP5nx4ySgNhp" Name="Fonts" Kind="InputPin" />
+            <Pin Id="M5dtFFpclUKM8OQqPa2LrZ" Name="Add Fullscreen Window" Kind="InputPin" />
+            <Pin Id="DlFCLeTrCekP5QbsqpBXSG" Name="Fullscreen Window Style" Kind="InputPin" />
+            <Pin Id="EJmP04rdR0kPA93Ep5oTGO" Name="Use Skia Space" Kind="InputPin" />
+            <Pin Id="VhzAjRGcrzlPCmupzmZiOT" Name="Output" Kind="OutputPin" />
             <Patch Id="DKJi5H6kh5XNwMngClHHBr" ManuallySortedPins="true">
               <Patch Id="GLQfOpCjFJjMpcidB1kOlB" Name="Create" ManuallySortedPins="true" />
               <Patch Id="MqLCdlGEEBWQXAZcrD63aE" Name="Update" ManuallySortedPins="true" />
               <Node Bounds="379,304,91,124" Id="D1jIMqmwLrZOyU6giFzles">
-                <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="VL.CoreLib.dll">
+                <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
                   <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
                   <Choice Kind="ApplicationStatefulRegion" Name="ForEach" />
                   <CategoryReference Kind="Category" Name="Primitive" />
@@ -54,11 +60,12 @@
                   <Patch Id="DBrevJt430dQRJphGoDzAt" Name="Update" ManuallySortedPins="true" />
                   <Patch Id="DQKsmosdJHWNoezd2voUe0" Name="Dispose" ManuallySortedPins="true" />
                   <Node Bounds="391,378,65,19" Id="LVZZ0TwHCFlQRrZavejpW3">
-                    <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastSymbolSource="VL.ImGUI.Nodes">
+                    <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastDependency="VL.ImGUI.Nodes">
                       <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                       <Choice Kind="ProcessNode" Name="Checkbox" />
                       <CategoryReference Kind="Category" Name="Widgets" NeedsToBeDirectParent="true" />
                     </p:NodeReference>
+                    <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">Low</p:HelpFocus>
                     <Pin Id="Ue5OYbiKFLULnl5FCWHWxc" Name="Context" Kind="InputPin" />
                     <Pin Id="EVjxBMYz1mYNbsdqeupedC" Name="Channel" Kind="InputPin" />
                     <Pin Id="C9H4yN9z9RgM4ZlL7ULGVV" Name="Label" Kind="InputPin" />
@@ -70,7 +77,7 @@
                 </Patch>
               </Node>
               <Pad Id="Lk5BqY1Ws9qQda9NUWAOlw" Bounds="432,193,118,104" ShowValueBox="true" isIOBox="true">
-                <p:TypeAnnotation>
+                <p:TypeAnnotation LastCategoryFullName="Collections" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="Spread" />
                   <p:TypeArguments>
                     <TypeReference>
@@ -88,9 +95,6 @@
               </Pad>
               <Pad Id="VSBi1aiHSlcOiGOXbYPH1W" Comment="" Bounds="453,456,35,95" ShowValueBox="true" isIOBox="true" Value="False" />
             </Patch>
-            <Pin Id="GxBC24vS73xP5oGNgjarHK" Name="Docking Enabled" Kind="InputPin" />
-            <Pin Id="EJmP04rdR0kPA93Ep5oTGO" Name="Use Skia Space" Kind="InputPin" />
-            <Pin Id="VhzAjRGcrzlPCmupzmZiOT" Name="Output" Kind="OutputPin" />
           </Node>
         </Canvas>
         <Patch Id="DOR8YfYVKNAOTpcsIcbHHK" Name="Create" />

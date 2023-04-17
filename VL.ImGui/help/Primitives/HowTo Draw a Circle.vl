@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="UYARZO1E8ZePoDYRG5YWRP" LanguageVersion="2022.5.0-0261-d97a44c3ea" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="PorpGo9A8SnPAGADCGusjh" LanguageVersion="2022.5.0-0785-g501a43ba3a" Version="0.128">
   <Patch Id="K6jOtX5z4AOM2g6L5teo07">
     <Canvas Id="HuM0Neyl9P0P3djIwL4nYf" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -15,7 +15,7 @@
       <Patch Id="RxrvDdUu4cvOBXbi4KngKc">
         <Canvas Id="PuJjSWeZNf5OSPyulV1tEs" CanvasType="Group">
           <Node Bounds="100,536,165,19" Id="FMXgMbAgSJqPjBIGChZQvH">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastSymbolSource="VL.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastDependency="VL.Skia.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
@@ -32,8 +32,8 @@
             <Pin Id="VtCD3TojbCZNIE3ICe23l6" Name="ClientBounds" Kind="OutputPin" />
             <Pin Id="Fi9FymljmNXQYNmU2h76Xz" Name="Render Time" Kind="OutputPin" />
           </Node>
-          <Pad Id="TaMQlku23WmQVo2CUQzIWo" Bounds="67,131,274,29" ShowValueBox="true" isIOBox="true" Value="HowTo draw a Circle">
-            <p:TypeAnnotation>
+          <Pad Id="TaMQlku23WmQVo2CUQzIWo" Bounds="67,131,274,37" ShowValueBox="true" isIOBox="true" Value="HowTo draw a Circle">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -42,7 +42,7 @@
             </p:ValueBoxSettings>
           </Pad>
           <Node Bounds="140,272,279,219" Id="P3tasNYhBWXL5g10bL25EF">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastSymbolSource="VL.ImGui.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastDependency="VL.ImGui.Skia.vl">
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
@@ -50,12 +50,13 @@
               <Patch Id="D03nN2nQ63lNUSSoQrrZIT" Name="Create" ManuallySortedPins="true" />
               <Patch Id="SpJoyW0JMzDOc8L4yMwhtX" Name="Update" ParticipatingElements="BwqzS1VitMQPY0vlXVCtqN" ManuallySortedPins="true" />
               <Node Bounds="152,452,185,19" Id="I4WJwlopeLUMgUil8vb2Aj">
-                <p:NodeReference LastCategoryFullName="ImGui.Primitives" LastSymbolSource="VL.ImGUI.Nodes" LastDependency="VL.ImGui.vl">
+                <p:NodeReference LastCategoryFullName="ImGui.Primitives" LastDependency="VL.ImGui.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <CategoryReference Kind="Category" Name="ImGui" />
                   <CategoryReference Kind="Category" Name="Primitives" />
                   <Choice Kind="ProcessNode" Name="Circle" />
                 </p:NodeReference>
+                <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
                 <Pin Id="AZwnwEvwCgLNfoEyuh7yLZ" Name="Context" Kind="InputPin" />
                 <Pin Id="CI35fQrtSrRN90rKrDr7c2" Name="Center" Kind="InputPin" />
                 <Pin Id="DBCH6PmCF85LpbrKTOWjmd" Name="Radius" Kind="InputPin" />
@@ -66,17 +67,17 @@
                 <Pin Id="IugfhXJLOxWQEAvV3TdN7d" Name="Context" Kind="OutputPin" />
               </Node>
               <Pad Id="R3UYbDVM71uMNk1GfsZKVW" Comment="Color" Bounds="243,375,20,15" ShowValueBox="true" isIOBox="true" Value="1, 1, 1, 1">
-                <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="Color" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="RGBA" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="LcUctvINtQ4LP8xFZwUeu8" Comment="Thickness" Bounds="304,436,35,15" ShowValueBox="true" isIOBox="true" Value="0.01">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="System.Runtime.dll">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="Float32" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="VYBS6r63qfaL6lVF1fBuKy" Comment="Is Filled" Bounds="274,394,35,35" ShowValueBox="true" isIOBox="true" Value="False">
-                <p:TypeAnnotation>
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
                   <FullNameCategoryReference ID="Primitive" />
                 </p:TypeAnnotation>
@@ -85,17 +86,20 @@
                 </p:ValueBoxSettings>
               </Pad>
               <Pad Id="TU8jfGE3YcTLe20PGHprRQ" Comment="Radius" Bounds="212,347,41,15" ShowValueBox="true" isIOBox="true" Value="1">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="System.Runtime.dll">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="Float32" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="I1QNXdeRnG9ORFwdghyopZ" Comment="Center" Bounds="185,300,35,28" ShowValueBox="true" isIOBox="true" Value="1, 1">
-                <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="Stride.Core.Mathematics.dll">
                   <Choice Kind="TypeFlag" Name="Vector2" />
                 </p:TypeAnnotation>
               </Pad>
             </Patch>
             <Pin Id="QfjFAdrWPlxL2eCuf5eblS" Name="Docking Enabled" Kind="InputPin" />
+            <Pin Id="Rz2SQO7qFKvLOFGJUarueX" Name="Fonts" Kind="InputPin" />
+            <Pin Id="TN7XlH57f6rNLDgmwGvvV3" Name="Add Fullscreen Window" Kind="InputPin" />
+            <Pin Id="TWNoFVde9HeLCReHBvcNCc" Name="Fullscreen Window Style" Kind="InputPin" />
             <Pin Id="EZuDleJMZ8rLv9Lntim0OA" Name="Use Skia Space" Kind="InputPin" />
             <Pin Id="Jm6H2g5J0AsOCYdL86G83Y" Name="Output" Kind="OutputPin" />
             <Pin Id="NZnP6qZF0JiLJ4sp7BpKmO" Name="Default Window" Kind="InputPin" DefaultValue="True" />

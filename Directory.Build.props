@@ -24,6 +24,10 @@
     <PackageProjectUrl>http://vvvv.org</PackageProjectUrl>
     <Product>vvvv</Product>
     <PackageIcon>nugeticon.png</PackageIcon>
+
+    <!-- Gets overwritten by Nerdbank.GitVersioning (if present). Otherwise it's a good default to avoid assembly manifest load issues. -->
+    <!-- We should be able to get rid of this once VL.StandardLibs has its own release cycle. -->
+    <Version>2022.5.0</Version>
   </PropertyGroup>
 
   <!-- Read the version information from our private repo (for now) -->
@@ -33,7 +37,7 @@
     <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)..\</GitVersionBaseDirectory>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="Exists('$(MsBuildThisFileDirectory)..\version.json')">
     <PackageReference Include="Nerdbank.GitVersioning">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
