@@ -67,7 +67,7 @@ namespace VL.Stride.Video
             {
                 // Download recently staged
                 var (stagedTexture, stagedMetadata) = textureDownloads.Peek();
-                var doNotWait = textureDownloads.Count < 4;
+                var doNotWait = textureDownloads.Count <= 8 /* Under normal scenarios we shouldn't reach this limit */;
                 var commandList = context.CommandList;
                 var mappedResource = commandList.MapSubresource(stagedTexture, 0, MapMode.Read, doNotWait);
                 var data = mappedResource.DataBox;

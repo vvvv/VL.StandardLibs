@@ -226,11 +226,11 @@ namespace VL.Stride.Windows
         static VLKeys GetModifierKeys(IKeyboardDevice keyBoard)
         {
             var modifierKeys = VLKeys.None;
-            if (keyBoard.PressedKeys.Contains(StrideKeys.LeftShift) || keyBoard.PressedKeys.Contains(StrideKeys.RightShift))
+            if (keyBoard.DownKeys.Contains(StrideKeys.LeftShift) || keyBoard.DownKeys.Contains(StrideKeys.RightShift))
                 modifierKeys |= VLKeys.Shift;
-            if (keyBoard.PressedKeys.Contains(StrideKeys.LeftCtrl) || keyBoard.PressedKeys.Contains(StrideKeys.RightCtrl))
+            if (keyBoard.DownKeys.Contains(StrideKeys.LeftCtrl) || keyBoard.DownKeys.Contains(StrideKeys.RightCtrl))
                 modifierKeys |= VLKeys.Control;
-            if (keyBoard.PressedKeys.Contains(StrideKeys.LeftAlt) || keyBoard.PressedKeys.Contains(StrideKeys.RightAlt))
+            if (keyBoard.DownKeys.Contains(StrideKeys.LeftAlt) || keyBoard.DownKeys.Contains(StrideKeys.RightAlt))
                 modifierKeys |= VLKeys.Alt;
             return modifierKeys;
         }

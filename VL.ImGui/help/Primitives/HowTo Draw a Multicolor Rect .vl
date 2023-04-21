@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="PezgIJVRsIBPuIi1suG4KX" LanguageVersion="2022.5.0-0261-d97a44c3ea" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="PezgIJVRsIBPuIi1suG4KX" LanguageVersion="2022.5.0-0785-g501a43ba3a" Version="0.128">
   <Patch Id="K6jOtX5z4AOM2g6L5teo07">
     <Canvas Id="HuM0Neyl9P0P3djIwL4nYf" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -15,7 +15,7 @@
       <Patch Id="RxrvDdUu4cvOBXbi4KngKc">
         <Canvas Id="PuJjSWeZNf5OSPyulV1tEs" CanvasType="Group">
           <Node Bounds="76,481,165,19" Id="FMXgMbAgSJqPjBIGChZQvH">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastSymbolSource="VL.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastDependency="VL.Skia.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
@@ -33,7 +33,7 @@
             <Pin Id="Fi9FymljmNXQYNmU2h76Xz" Name="Render Time" Kind="OutputPin" />
           </Node>
           <Pad Id="TaMQlku23WmQVo2CUQzIWo" Bounds="67,131,459,37" ShowValueBox="true" isIOBox="true" Value="HowTo draw a Multicolor Rectangle">
-            <p:TypeAnnotation>
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -42,20 +42,27 @@
             </p:ValueBoxSettings>
           </Pad>
           <Node Bounds="116,219,326,225" Id="TJJdbxrYJx0MVheYyF4CHT">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastSymbolSource="VL.ImGui.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastDependency="VL.ImGui.Skia.vl">
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
+            <Pin Id="RXA8DMV2ONCNnCuCTKTSMT" Name="Docking Enabled" Kind="InputPin" />
+            <Pin Id="ClV1O0Twa8kNwd1gLVQJFK" Name="Fonts" Kind="InputPin" />
+            <Pin Id="AhG46MxprYBLm15cY8cMyb" Name="Add Fullscreen Window" Kind="InputPin" />
+            <Pin Id="K6Dj1nBWEYvL3MXvJUceit" Name="Fullscreen Window Style" Kind="InputPin" />
+            <Pin Id="FOpqsnz3JW8Pj5vamCxZpG" Name="Use Skia Space" Kind="InputPin" />
+            <Pin Id="MzGSlvkB4X2M9m59Pq4ala" Name="Output" Kind="OutputPin" />
             <Patch Id="MPq04FwySAtPA5TLBITuzL" ManuallySortedPins="true">
               <Patch Id="TPWyICwbJqXON07FU5V3Ty" Name="Create" ManuallySortedPins="true" />
               <Patch Id="Se3i1v24cw7LyW7YggNeDd" Name="Update" ManuallySortedPins="true" />
               <Node Bounds="128,405,205,19" Id="I4WJwlopeLUMgUil8vb2Aj">
-                <p:NodeReference LastCategoryFullName="ImGui.Primitives" LastSymbolSource="VL.ImGUI.Nodes" LastDependency="VL.ImGui.vl">
+                <p:NodeReference LastCategoryFullName="ImGui.Primitives" LastDependency="VL.ImGui.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <CategoryReference Kind="Category" Name="ImGui" />
                   <CategoryReference Kind="Category" Name="Primitives" />
                   <Choice Kind="ProcessNode" Name="Rect (MultiColor)" />
                 </p:NodeReference>
+                <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
                 <Pin Id="AZwnwEvwCgLNfoEyuh7yLZ" Name="Context" Kind="InputPin" />
                 <Pin Id="Cu7Zn6GUmgpMOzvk6nCltk" Name="Top Left" Kind="InputPin" />
                 <Pin Id="J4vmklKfmPCLM3JPDT5pIN" Name="Bottom Right" Kind="InputPin" />
@@ -67,39 +74,36 @@
                 <Pin Id="IugfhXJLOxWQEAvV3TdN7d" Name="Context" Kind="OutputPin" />
               </Node>
               <Pad Id="NatP4ukT8QKM8dsfIXketR" Comment="Top Left" Bounds="159,247,35,28" ShowValueBox="true" isIOBox="true" Value="0, 0">
-                <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="Stride.Core.Mathematics.dll">
                   <Choice Kind="TypeFlag" Name="Vector2" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="NEVGWccQYG5NNT59ZkXQmn" Comment="Bottom Right" Bounds="188,284,41,28" ShowValueBox="true" isIOBox="true" Value="1, 1">
-                <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="Stride.Core.Mathematics.dll">
                   <Choice Kind="TypeFlag" Name="Vector2" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="K88XbHk9L7eLzBjsha9sFy" Comment="Top Left Color" Bounds="216,322,20,15" ShowValueBox="true" isIOBox="true" Value="0.83000016, 0.24900001, 0, 1">
-                <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="Color" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="RGBA" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="B25BzkQmh6uMEyMT8jwl3l" Comment="Top Right Color" Bounds="244,344,20,15" ShowValueBox="true" isIOBox="true" Value="1, 0.04000002, 0.7887993, 1">
-                <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="Color" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="RGBA" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="NkAPZMvFoGwNFuUfRFx4LN" Comment="Bottom Left Color" Bounds="273,364,20,15" ShowValueBox="true" isIOBox="true" Value="0.06999999, 0.49780115, 1, 1">
-                <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="Color" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="RGBA" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="EZy7s8aslSRO29fafXyJnq" Comment="Bottom Right Color" Bounds="301,386,20,15" ShowValueBox="true" isIOBox="true" Value="0.34040108, 0.029999971, 1, 1">
-                <p:TypeAnnotation LastCategoryFullName="Color" LastSymbolSource="Stride.Core.Mathematics.dll">
+                <p:TypeAnnotation LastCategoryFullName="Color" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="RGBA" />
                 </p:TypeAnnotation>
               </Pad>
             </Patch>
-            <Pin Id="RXA8DMV2ONCNnCuCTKTSMT" Name="Docking Enabled" Kind="InputPin" />
-            <Pin Id="FOpqsnz3JW8Pj5vamCxZpG" Name="Use Skia Space" Kind="InputPin" />
-            <Pin Id="MzGSlvkB4X2M9m59Pq4ala" Name="Output" Kind="OutputPin" />
           </Node>
         </Canvas>
         <Patch Id="DOR8YfYVKNAOTpcsIcbHHK" Name="Create" />

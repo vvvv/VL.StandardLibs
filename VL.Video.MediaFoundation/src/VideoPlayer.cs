@@ -244,7 +244,7 @@ namespace VL.Video.MediaFoundation
                     }
                 }
 
-                if (Play && engine.IsPaused)
+                if (Play && engine.IsPaused && !engine.IsEnded /* https://discourse.vvvv.org/t/vl-video-mediafoundation-toggling-play-at-the-end-of-a-video-resets-position/21050 */)
                     engine.Play();
                 else if (!Play && !engine.IsPaused)
                     engine.Pause();

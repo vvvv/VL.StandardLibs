@@ -120,7 +120,7 @@ namespace VL.Skia.Video
             // Download recently staged
             {
                 var (stagedTexture, stagedMetadata) = textureDownloads.Peek();
-                var doNotWait = textureDownloads.Count < 4;
+                var doNotWait = textureDownloads.Count <= 8 /* Under normal scenarios we shouldn't reach this limit */;
                 var data = device.ImmediateContext.MapSubresource(stagedTexture, 0, MapMode.Read, doNotWait ? MapFlags.DoNotWait : MapFlags.None);
                 if (!data.IsEmpty)
                 {
