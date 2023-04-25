@@ -120,7 +120,7 @@ namespace VL.Core.Tests
         [Test]
         public void Channel_()
         {
-            var c = Channel.CreateChannelOfType(typeof(string)) as Channel<string>;
+            var c = ChannelHelpers.CreateChannelOfType(typeof(string)) as Channel<string>;
             c.Value = "a";
 
             var newType = typeof(Channel<object>);

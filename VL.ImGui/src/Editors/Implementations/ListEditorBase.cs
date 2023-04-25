@@ -10,11 +10,11 @@ namespace VL.ImGui.Editors
                 where TList : IReadOnlyList<T>
     {
         private readonly List<(IObjectEditor? editor, IDisposable ownership)> editors = new List<(IObjectEditor?, IDisposable)>();
-        private readonly Channel<TList> channel;
+        private readonly IChannel<TList> channel;
         private readonly ObjectEditorContext editorContext;
         private readonly string label;
 
-        public ListEditorBase(Channel<TList> channel, ObjectEditorContext editorContext)
+        public ListEditorBase(IChannel<TList> channel, ObjectEditorContext editorContext)
         {
             this.channel = channel;
             this.editorContext = editorContext;
@@ -48,7 +48,7 @@ namespace VL.ImGui.Editors
                     if (i >= editors.Count)
                     {
                         // Setup channel for item
-                        var itemChannel = new Channel<T>();
+                        var itemChannel = ChannelHelpers.CreateChannelOfType<T>();
                         var j = i;
 
                         var ownership = new CompositeDisposable
@@ -58,7 +58,7 @@ namespace VL.ImGui.Editors
                             pushEagerlyTo: ChannelSelection.ChannelA)
                         };
 
-                        editor = editorContext.Factory.CreateObjectEditor(itemChannel, editorContext);
+                        editor = editorContext.Factory.CreateObjectEditor(itemChannel.ChannelOfObject, editorContext);
                         if (editor is IDisposable disposable)
                             ownership.Add(disposable);
 

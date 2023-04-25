@@ -58,7 +58,7 @@ namespace VL.Core.Reactive
                 };
                 var _outputs = new[]
                 {
-                    context.Pin("Channel", Channel.CreateChannelOfType(channelBuildDescription.Type).GetType()),
+                    context.Pin("Channel", ChannelHelpers.CreateChannelOfType(channelBuildDescription.Type).GetType()),
                     context.Pin("Value", channelBuildDescription.Type),
                 }; 
 

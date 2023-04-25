@@ -13,18 +13,18 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// If set the Header will have a close button which will push to the channel once clicked.
         /// </summary>
-        public Channel<Unit> Closing { get; set; } = DummyChannel<Unit>.Instance;
+        public IChannel<Unit> Closing { get; set; } = DummyChannelHelpers<Unit>.Instance;
 
         /// <summary>
         /// Returns true if the Header is displayed. Set to true to display the Header.
         /// </summary>
-        public Channel<bool>? Visible { private get; set; }
+        public IChannel<bool>? Visible { private get; set; }
         ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(true);
 
         /// <summary>
         /// Returns true if the Header is collapsed. Set to true to collapse the Header.
         /// </summary>
-        public Channel<bool>? Collapsed { private get; set; }
+        public IChannel<bool>? Collapsed { private get; set; }
         ChannelFlange<bool> CollapsedFlange = new ChannelFlange<bool>(false);
 
         /// <summary>

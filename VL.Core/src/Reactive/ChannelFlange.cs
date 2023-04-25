@@ -6,14 +6,14 @@ namespace VL.Lib.Reactive
     public class ChannelFlange<T> where T: struct
     {
         T value;
-        Channel<T>? channel;
+        IChannel<T>? channel;
 
         public ChannelFlange(T initialValue)
         {
             value = initialValue;
         }
 
-        public T Update(Channel<T>? channel)
+        public T Update(IChannel<T>? channel)
         {
             this.channel = channel;
             if (channel.IsValid())
@@ -21,7 +21,7 @@ namespace VL.Lib.Reactive
             return value;
         }
 
-        public T Update(Channel<T>? channel, out bool hasChanged)
+        public T Update(IChannel<T>? channel, out bool hasChanged)
         {
             this.channel = channel;
             hasChanged = CopyFromUpstream();

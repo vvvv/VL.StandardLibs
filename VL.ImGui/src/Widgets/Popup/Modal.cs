@@ -20,18 +20,18 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// If set the Popup will have a close button which will push to the channel once clicked.
         /// </summary>
-        public Channel<Unit> Closing { get; set; } = DummyChannel<Unit>.Instance;
+        public IChannel<Unit> Closing { get; set; } = DummyChannelHelpers<Unit>.Instance;
 
         /// <summary>
         /// Bounds of the Window.
         /// </summary>
-        public Channel<RectangleF>? Bounds { private get; set; }
+        public IChannel<RectangleF>? Bounds { private get; set; }
         ChannelFlange<RectangleF> BoundsFlange = new ChannelFlange<RectangleF>(new RectangleF(0f, 0f, 1f, 1f));
 
         /// <summary>
         /// Returns true if the Modal Window is open. Set to true to open the Modal Window.
         /// </summary>
-        public Channel<bool>? Visible { private get; set; }
+        public IChannel<bool>? Visible { private get; set; }
         ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(false);
         
         /// <summary>

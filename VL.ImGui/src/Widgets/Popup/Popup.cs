@@ -15,13 +15,13 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// Position of the Popup.
         /// </summary>
-        public Channel<Vector2>? Position { private get; set; }
+        public IChannel<Vector2>? Position { private get; set; }
         ChannelFlange<Vector2> PositionFlange = new ChannelFlange<Vector2>(new Vector2());
 
         /// <summary>
         /// Returns true if the Popup is open. Set to true to open the Popup.
         /// </summary>
-        public Channel<bool>? Visible { private get; set; }
+        public IChannel<bool>? Visible { private get; set; }
         ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(false);
 
         /// <summary>

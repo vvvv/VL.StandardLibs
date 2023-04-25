@@ -16,7 +16,7 @@ namespace VL.ImGui.Widgets
 
         public bool Selectable { get; set; }
 
-        public Channel<bool>? IsSelected { private get; set; }
+        public IChannel<bool>? IsSelected { private get; set; }
         ChannelFlange<bool> IsSelectedFlange = new ChannelFlange<bool>(true);
 
         internal override void UpdateCore(Context context)

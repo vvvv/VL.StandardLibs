@@ -38,10 +38,10 @@ namespace VL.Core.Reactive
                     });
                 });
             }
-        } 
+        }
 
-        internal ConcurrentDictionary<string, Channel> Channels = new ConcurrentDictionary<string, Channel>();
-        IDictionary<string, Channel> IChannelHub.Channels => Channels;
+        internal ConcurrentDictionary<string, IChannel<object>> Channels = new();
+        IDictionary<string, IChannel<object>> IChannelHub.Channels => Channels;
 
         public IDisposable BeginChange()
         {
@@ -58,10 +58,10 @@ namespace VL.Core.Reactive
                 onChannelsChanged.OnNext(this);
         }
 
-        public Channel? TryAddChannel(string key, Type typeOfValues)
+        public IChannel<object>? TryAddChannel(string key, Type typeOfValues)
         {
             using var _ = BeginChange();
-            var c = Channels.GetOrAdd(key, _ => { var c = Channel.CreateChannelOfType(typeOfValues); revision++; return c; });
+            var c = Channels.GetOrAdd(key, _ => { var c = ChannelHelpers.CreateChannelOfType(typeOfValues); revision++; return c; });
             if (c.ClrTypeOfValues != typeOfValues)
                 return default;
             // discuss if replacing with new type is an option or should always occur.
@@ -69,7 +69,7 @@ namespace VL.Core.Reactive
             return c;
         }
 
-        public Channel? TryGetChannel(string key)
+        public IChannel<object>? TryGetChannel(string key)
         {
             Channels.TryGetValue(key, out var c);
             return c;
@@ -87,7 +87,7 @@ namespace VL.Core.Reactive
             return gotRemoved;
         }
 
-        public Channel? TryRenameChannel(string key, string newKey)
+        public IChannel<object>? TryRenameChannel(string key, string newKey)
         {
             using var _ = BeginChange();
             var gotRemoved = Channels.TryRemove(key, out var c);
@@ -100,7 +100,7 @@ namespace VL.Core.Reactive
             return null;
         }
 
-        public Channel? TryChangeType(string key, Type typeOfValues)
+        public IChannel<object>? TryChangeType(string key, Type typeOfValues)
         {
             using var _ = BeginChange();
             var gotRemoved = Channels.TryRemove(key, out var c);
