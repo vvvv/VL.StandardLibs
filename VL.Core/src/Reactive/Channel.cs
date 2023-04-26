@@ -12,19 +12,23 @@ using VL.Core;
 
 namespace VL.Lib.Reactive
 {
-    [Monadic(typeof(Monadic.ChannelFactory<>))]
-
-    public interface IChannel<T> : ISubject<T?>, IDisposable
+    public interface IChannel
     {
-        public T? Value { get; set; }
         Type ClrTypeOfValues { get; }
         ICollection Components { get; }
         TComponent? TryGetComponent<TComponent>() where TComponent : class;
         TComponent AddOrGetComponent<TComponent>(Func<TComponent> component) where TComponent : class;
         IChannel<object> ChannelOfObject { get; }
         bool Enabled { get; set; }
-        object? Object { get => Value; set => Value = (T?)value; }
         bool IsBusy { get; }
+        object? Object { get; set; }
+    }
+
+
+    [Monadic(typeof(Monadic.ChannelFactory<>))]
+    public interface IChannel<T> : IChannel, ISubject<T?>, IDisposable
+    {
+        public T? Value { get; set; }
     }
 
     internal abstract class C<T> : IChannel<T>, ISwappableGenericType
@@ -77,7 +81,10 @@ namespace VL.Lib.Reactive
             }
         }
 
-        IChannel<object> IChannel<T>.ChannelOfObject => channelOfObject;
+        object? IChannel.Object { get => Value; set => Value = (T?)value; }
+
+
+        IChannel<object> IChannel.ChannelOfObject => channelOfObject;
 
         public Type ClrTypeOfValues => typeof(T);
 
@@ -126,8 +133,6 @@ namespace VL.Lib.Reactive
     {
         protected override IChannel<object> channelOfObject => this;
 
-        IChannel<object> IChannel<object>.ChannelOfObject => this;
-
         object? IChannel<object>.Value { get => Value; set { Value = (T?)value; } }
         
         void IObserver<object?>.OnCompleted()
@@ -165,13 +170,15 @@ namespace VL.Lib.Reactive
         }
     }
 
-    internal sealed class DummyChannel<T> : Channel<T>
+    interface IDummyChannel { }
+
+    internal sealed class DummyChannel<T> : Channel<T>, IDummyChannel
     {
     }
 
     public static class ChannelHelpers
     {
-        public static IChannel<IReadOnlyCollection<Attribute>> Attributes<T>(this IChannel<T> c)
+        public static IChannel<IReadOnlyCollection<Attribute>> Attributes(this IChannel c)
             => c.AddOrGetComponent(() =>
                 {
                     var c = CreateChannelOfType<IReadOnlyCollection<Attribute>>();
@@ -192,20 +199,13 @@ namespace VL.Lib.Reactive
             return Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues.ClrType)) as IChannel<object>;
         }
 
-        public static bool IsValid<T>([NotNullWhen(true)] this IChannel<T> c)
-            => !(c is DummyChannel<T>);
+        public static bool IsValid([NotNullWhen(true)] this IChannel c)
+            => !(c is IDummyChannel);
 
         public static void EnsureValue<T>(this IChannel<T> input, T? value, bool force = false)
         {
             if (force || !EqualityComparer<T>.Default.Equals(input.Value, value))
                 input.Value = value;
-        }
-
-        // not really necessary
-        public static void EnsureValue(this IChannel<object> input, object value, bool force = false)
-        {
-            if (force || !Equals(input.Object, value))
-                input.Object = value;
         }
 
         public static IDisposable Merge<T>(this IChannel<T> a, IChannel<T> b, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
@@ -322,17 +322,6 @@ namespace VL.Lib.Reactive
 
             return subscription;
         }
-
-
-        // not really necessary
-        //public static IDisposable Merge(this IChannel<object> a, IChannel<object> b, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
-        //{
-        //    return Merge(a, b, v => v, v => v, initialization, pushEagerlyTo);
-        //}
-
-        //// not really necessary
-        //public static IDisposable Merge(this IChannel<object> a, IChannel<object> b, Func<object, object> toB, Func<object, object> toA, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
-        //    => a.ChannelOfObject.Merge(b.ChannelOfObject, toB, toA, initialization, pushEagerlyTo);
     }
 
 }
