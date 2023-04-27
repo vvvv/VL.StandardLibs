@@ -54,7 +54,8 @@ namespace VL.Core.Reactive
                 init: context =>
             {
                 var _inputs = new IVLPinDescription[]
-                {
+                {                   
+                    context.Pin("Value", channelBuildDescription.Type),
                 };
                 var _outputs = new[]
                 {
@@ -65,8 +66,17 @@ namespace VL.Core.Reactive
                 return context.Node(_inputs, _outputs, buildcontext =>
                 {
                     var c = ChannelHub.HubForApp.TryAddChannel(channelBuildDescription.Name, channelBuildDescription.Type);
+                    Optional<object> latestValueThatGotSet = default;
                     var inputs = new IVLPin[]
                     {
+                        buildcontext.Input<object>(value =>
+                        {
+                            if (!latestValueThatGotSet.HasValue || !value.Equals(latestValueThatGotSet.Value))
+                            {
+                                c.Object = value;
+                                latestValueThatGotSet = value;
+                            }
+                        })
                     };
                     var outputs = new IVLPin[]
                     {
