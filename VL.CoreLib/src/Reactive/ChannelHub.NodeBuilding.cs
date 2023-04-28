@@ -49,7 +49,7 @@ namespace VL.Core.Reactive
             return descfactory.NewNodeDescription(
                 channelBuildDescription.Name, 
                 "Reactive.GlobalChannels", 
-                fragmented: false, 
+                fragmented: true, 
                 invalidated: invalidateChannelNode, 
                 init: context =>
             {
