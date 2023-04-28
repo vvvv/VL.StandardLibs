@@ -6,10 +6,10 @@ namespace VL.ImGui.Editors
 
     sealed class EnumEditor<T> : IObjectEditor
     {
-        readonly Channel<T> channel;
+        readonly IChannel<T> channel;
         readonly string label;
 
-        public EnumEditor(Channel<T> channel, ObjectEditorContext editorContext)
+        public EnumEditor(IChannel<T> channel, ObjectEditorContext editorContext)
         {
             this.channel = channel;
             this.label = editorContext.Label ?? $"##{GetHashCode()}";

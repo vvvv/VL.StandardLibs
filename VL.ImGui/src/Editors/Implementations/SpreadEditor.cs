@@ -5,7 +5,7 @@ namespace VL.ImGui.Editors
 {
     sealed class SpreadEditor<T> : ListEditorBase<Spread<T>, T>
     {
-        public SpreadEditor(Channel<Spread<T>> channel, ObjectEditorContext editorContext)
+        public SpreadEditor(IChannel<Spread<T>> channel, ObjectEditorContext editorContext)
             : base(channel, editorContext)
         {
         }

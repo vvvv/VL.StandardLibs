@@ -73,17 +73,17 @@ namespace VL.Core.Reactive
      */
     public interface IChannelHub
     {
-        IDictionary<string, Channel> Channels { get; }
+        IDictionary<string, IChannel<object>> Channels { get; }
 
-        Channel? TryGetChannel(string key);
+        IChannel<object>? TryGetChannel(string key);
         
-        Channel? TryAddChannel(string key, Type typeOfValues);
+        IChannel<object>? TryAddChannel(string key, Type typeOfValues);
 
         bool TryRemoveChannel(string key);
 
-        Channel? TryRenameChannel(string key, string newKey);
+        IChannel<object>? TryRenameChannel(string key, string newKey);
 
-        Channel? TryChangeType(string key, Type typeOfValues);        
+        IChannel<object>? TryChangeType(string key, Type typeOfValues);        
 
         /// <summary>
         /// Do several changes to the ChannelHub in one go. using BeginChange()

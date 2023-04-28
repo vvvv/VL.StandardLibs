@@ -4,7 +4,7 @@ namespace VL.ImGui.Editors
 {
     sealed class ArrayEditor<T> : ListEditorBase<T[], T>
     {
-        public ArrayEditor(Channel<T[]> channel, ObjectEditorContext editorContext)
+        public ArrayEditor(IChannel<T[]> channel, ObjectEditorContext editorContext)
             : base(channel, editorContext)
         {
         }

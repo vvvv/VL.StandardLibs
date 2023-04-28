@@ -10,12 +10,12 @@ namespace VL.ImGui.Editors
 {
     public sealed partial class DefaultObjectEditorFactory : IObjectEditorFactory
     {
-        public IObjectEditor? CreateObjectEditor(Channel channel, ObjectEditorContext context)
+        public IObjectEditor? CreateObjectEditor(IChannel<object> channel, ObjectEditorContext context)
         {
             var staticType = channel.ClrTypeOfValues;
 
             // Is there a widget for exactly that type?
-            var widgetType = channel.Attributes.Value.OfType<WidgetTypeAttribute>().FirstOrDefault()?.WidgetType ?? GetDefaultWidgetType(staticType);
+            var widgetType = channel.Attributes().Value.OfType<WidgetTypeAttribute>().FirstOrDefault()?.WidgetType ?? GetDefaultWidgetType(staticType);
             var channelWidgetType = typeof(ChannelWidget<>).MakeGenericType(staticType);
             var widgetClass = channelWidgetType.Assembly.GetTypes()
                 .Where(t => !t.IsAbstract && channelWidgetType.IsAssignableFrom(t) && t.GetConstructor(Array.Empty<Type>()) != null)

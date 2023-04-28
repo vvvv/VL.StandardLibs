@@ -14,18 +14,18 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// If set the Tab will have a close button which will push to the channel once clicked.
         /// </summary>
-        public Channel<Unit> Closing { get; set; } = DummyChannel<Unit>.Instance;
+        public IChannel<Unit> Closing { get; set; } = DummyChannelHelpers<Unit>.Instance;
 
         /// <summary>
         /// Returns true if the Tab is displayed. Set to true to display the Tab.
         /// </summary>
-        public Channel<bool>? Visible { private get; set; }
+        public IChannel<bool>? Visible { private get; set; }
         ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(true);
 
         /// <summary>
         /// Returns true if the Tab is activated/selected. Set to true to activate the Tab.
         /// </summary>
-        public Channel<bool>? Active { private get; set; }
+        public IChannel<bool>? Active { private get; set; }
         ChannelFlange<bool> ActiveFlange = new ChannelFlange<bool>(false);
 
         /// <summary>

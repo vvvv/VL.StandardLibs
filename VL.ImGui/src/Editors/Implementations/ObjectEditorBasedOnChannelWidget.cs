@@ -7,7 +7,7 @@ namespace VL.ImGui.Editors
     {
         public ChannelWidget<T> Widget { get; }
 
-        public ObjectEditorBasedOnChannelWidget(Channel<T> channel, ObjectEditorContext context, Type widgetClass)
+        public ObjectEditorBasedOnChannelWidget(IChannel<T> channel, ObjectEditorContext context, Type widgetClass)
         {
             var widget = (ChannelWidget<T>)Activator.CreateInstance(widgetClass)!;
             Widget = widget;
