@@ -1,12 +1,10 @@
 ﻿using Stride.Core.Shaders.Ast.Hlsl;
 using System;
 using System.Linq;
-using VL.Lang;
 using Stride.Core.Mathematics;
 using Stride.Core.Shaders.Ast.Stride;
 using Stride.Core.Shaders.Ast;
 using System.Collections.Generic;
-using VL.Core;
 
 namespace VL.Stride.Rendering
 {
@@ -72,41 +70,11 @@ namespace VL.Stride.Rendering
                 .ToList();
         }
 
-        public static bool ParseBool(this AttributeDeclaration attr, int index = 0)
-        {
-            if (attr.Parameters.Count > index)
-            {
-                if (bool.TryParse(attr.Parameters[index].Text, out var value))
-                {
-                    return value;
-                }
-            }
-            return default;
-        }
+        public static bool ParseBool(this AttributeDeclaration attr, int index = 0) => attr.GetParameter<bool>(index);
 
-        public static float ParseFloat(this AttributeDeclaration attr, int index = 0)
-        {
-            if (attr.Parameters.Count > index)
-            {
-                if (ParseUtils.TryParseFloat(attr.Parameters[index].Text, out var value))
-                {
-                    return value;
-                }
-            }
-            return default;
-        }
+        public static float ParseFloat(this AttributeDeclaration attr, int index = 0) => attr.GetParameter<float>(index);
 
-        public static int ParseInt(this AttributeDeclaration attr, int index = 0)
-        {
-            if (attr.Parameters.Count > index)
-            {
-                if (ParseUtils.TryParseInt(attr.Parameters[index].Text, out var value))
-                {
-                    return value;
-                }
-            }
-            return default;
-        }
+        public static int ParseInt(this AttributeDeclaration attr, int index = 0) => attr.GetParameter<int>(index);
 
         public static Int2 ParseInt2(this AttributeDeclaration attr)
         {
@@ -123,17 +91,7 @@ namespace VL.Stride.Rendering
             return new Int4(attr.ParseInt(0), attr.ParseInt(1), attr.ParseInt(2), attr.ParseInt(3));
         }
 
-        public static uint ParseUInt(this AttributeDeclaration attr, int index = 0)
-        {
-            if (attr.Parameters.Count > index)
-            {
-                if (ParseUtils.TryParseUInt(attr.Parameters[index].Text, out var value))
-                {
-                    return value;
-                }
-            }
-            return default;
-        }
+        public static uint ParseUInt(this AttributeDeclaration attr, int index = 0) => attr.GetParameter<uint>(index);
 
         public static Vector2 ParseVector2(this AttributeDeclaration attr)
         {
@@ -197,10 +155,26 @@ namespace VL.Stride.Rendering
             return default;
         }
 
+        static T GetValue<T>(this Literal literal)
+        {
+            if (Convert.ChangeType(literal?.Value, typeof(T)) is T value)
+                return value;
+
+            return default;
+        }
+
+        static T GetParameter<T>(this AttributeDeclaration attr, int index)
+        {
+            if (index < attr.Parameters.Count)
+                return attr.Parameters[index].GetValue<T>();
+
+            return default;
+        }
+
         static T ParseDefault<T>(this Expression e)
         {
             if (e is LiteralExpression l)
-                return (T)Convert.ChangeType(l.Literal?.Value, typeof(T));
+                return l.Literal.GetValue<T>();
 
             if (e is MethodInvocationExpression m)
                 return m.ParseMethod<T>();
