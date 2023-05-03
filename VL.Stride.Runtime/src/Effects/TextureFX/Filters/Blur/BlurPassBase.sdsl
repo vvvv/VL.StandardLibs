@@ -3,7 +3,7 @@
     [Default(0.25)]
     compose ComputeFloat Strength;
 
-    void ClacLodAndOffset(float2 R, float strenght, out float lod, out float2 off)
+    void ClacLodAndOffset(float2 R, float strength, out float lod, out float2 off)
     {
         lod = Strength.Compute() * log2(max(R.x, R.y));
         off = 0.5/R * pow(2, lod) * saturate(lod);
