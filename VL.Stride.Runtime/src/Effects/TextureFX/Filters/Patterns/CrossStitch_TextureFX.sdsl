@@ -7,19 +7,20 @@ shader CrossStitch_TextureFX : FilterBase
 {
     [Color]
     float4 Color = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    float StitchSize = 10.0f;
+
+    [Default(10)]
+    compose ComputeFloat StitchSize;
+
     bool Invert = false;
 
     float4 Filter(float4 tex0col)
     {
+        float stitchSize = StitchSize.Compute();
+
         float2 uv = streams.TexCoord;
-        float2 R = ViewSize;
-
         float4 col = float4(0.0, 0.0, 0.0, 0.0);
-
-        float size = StitchSize;
-        
-        float2 cPos = uv * R;
+        float size = stitchSize;
+        float2 cPos = uv * ViewSize;
         
         float2 tlPos = floor(cPos / float2(size, size));
         tlPos *= size;
@@ -40,12 +41,12 @@ shader CrossStitch_TextureFX : FilterBase
             if (Invert)
                 col = Color;
             else
-                col = Texture0.SampleLevel(LinearRepeatSampler, tlPos * Texture0TexelSize, 0) * 1.4;
+                col = Texture0.SampleLevel(LinearRepeatSampler, tlPos * Texture0TexelSize, 0);
         }
         else
         {
             if (Invert)
-                col = Texture0.SampleLevel(LinearRepeatSampler, tlPos * Texture0TexelSize, 0) * 1.4;
+                col = Texture0.SampleLevel(LinearRepeatSampler, tlPos * Texture0TexelSize, 0);
             else
                 col = Color;
         }

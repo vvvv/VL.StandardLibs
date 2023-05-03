@@ -2,19 +2,35 @@
 [Summary("")]
 shader Mosaic_TextureFX : FilterBase
 {
-    float2 Cells = float2(1,1);
+    [Default(5, 5)]
+    compose ComputeFloat2 Cells;
+
     bool Mirror = false;
-    float Rotation = 0;
-    float2 Scaling = float2(1,1);
+
+    [Default(1)]
+    compose ComputeFloat Rotation;
+
+    [Default(0.5, 0.5)]
+    compose ComputeFloat2 Scaling;
+
     bool Stripes = false;
 
     float4 Filter(float4 tex0col)
     {
+        float2 cells = Cells.Compute();
+        float2 scaling = Scaling.Compute();
+        float rotation = Rotation.Compute();
+
         float2 x = streams.TexCoord;
-        if (Stripes) x.y = x.x;
-        float2 dx = r2dCyc(frac((x-.5)*Cells-.5)-.5, Rotation)/Cells/Scaling + .5;
-        if(Mirror) dx = r2dCyc(abs(frac((x-.5)*Cells/2-.5)-.5), Rotation)/Cells*2/Scaling + .5;
-        float4 c = Texture0.SampleLevel(Sampler0, dx, 0);
-        return c;
+
+        if (Stripes) 
+            x.y = x.x;
+
+        float2 dx = r2dCyc(frac((x - 0.5) * cells - 0.5)- 0.5, rotation) / cells / scaling + 0.5;
+
+        if (Mirror) 
+            dx = r2dCyc(abs(frac((x - 0.5) * cells / 2.0 - 0.5)- 0.5), rotation) / cells * 2.0 /scaling + 0.5;
+
+        return Texture0.SampleLevel(Sampler0, dx, 0);
     }
 };
