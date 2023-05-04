@@ -1,4 +1,5 @@
-﻿using VL.Lib.Reactive;
+﻿using ImGuiNET;
+using VL.Lib.Reactive;
 
 namespace VL.ImGui.Widgets
 {
@@ -41,6 +42,14 @@ namespace VL.ImGui.Widgets
         protected void SetValueWithoutNotifiying(T value)
         {
             this.value = value;
+        }
+
+        protected void SetValueIfChanged(T? oldValue, T newValue, ImGuiInputTextFlags flags)
+        {
+            if (flags.HasFlag(ImGuiInputTextFlags.EnterReturnsTrue))
+                Value = newValue;
+            else if (!EqualityComparer<T>.Default.Equals(oldValue, newValue))
+                Value = newValue;
         }
     }
 }

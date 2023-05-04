@@ -1,4 +1,5 @@
-﻿using Stride.Core.Mathematics;
+﻿using ImGuiNET;
+using Stride.Core.Mathematics;
 using VL.Core.EditorAttributes;
 
 namespace VL.ImGui.Widgets
@@ -14,15 +15,15 @@ namespace VL.ImGui.Widgets
 
         public Vector2 Size { get; set; }
 
-        public ImGuiNET.ImGuiInputTextFlags Flags { private get; set; }
+        public ImGuiInputTextFlags Flags { private get; set; }
 
         string? lastframeValue;
 
         internal override void UpdateCore(Context context)
         {
             var value = Update() ?? string.Empty;
-            if (ImGuiNET.ImGui.InputTextMultiline(Context.GetLabel(this, Label), ref value, (uint)MaxLength, Size.FromHectoToImGui(), Flags) && value != lastframeValue)
-                Value = value;
+            if (ImGuiNET.ImGui.InputTextMultiline(Context.GetLabel(this, Label), ref value, (uint)MaxLength, Size.FromHectoToImGui(), Flags))
+                SetValueIfChanged(lastframeValue, value, Flags);
             lastframeValue = value;
         }
     }

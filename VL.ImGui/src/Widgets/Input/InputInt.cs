@@ -1,4 +1,5 @@
-﻿using VL.Core.EditorAttributes;
+﻿using ImGuiNET;
+using VL.Core.EditorAttributes;
 
 namespace VL.ImGui.Widgets
 {
@@ -13,16 +14,16 @@ namespace VL.ImGui.Widgets
 
         public int StepFast { private get; set; } = 100;
 
-        public ImGuiNET.ImGuiInputTextFlags Flags { private get; set; }
+        public ImGuiInputTextFlags Flags { private get; set; }
 
         int lastframeValue;
 
         internal override void UpdateCore(Context context)
         {
             var value = Update();
-            if (ImGuiNET.ImGui.InputInt(Context.GetLabel(this, Label), ref value, Step, StepFast, Flags) && value != lastframeValue)
-                Value = value;
-            lastframeValue= value;
+            if (ImGuiNET.ImGui.InputInt(Context.GetLabel(this, Label), ref value, Step, StepFast, Flags))
+                SetValueIfChanged(lastframeValue, value, Flags);
+            lastframeValue = value;
         }
     }
 }
