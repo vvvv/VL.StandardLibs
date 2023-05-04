@@ -198,6 +198,72 @@ namespace VL.ImGui
             return ImGui.InputScalar(label, ImGuiDataType.Double, new IntPtr(Unsafe.AsPointer(ref value)), new IntPtr(Unsafe.AsPointer(ref step)), new IntPtr(Unsafe.AsPointer(ref stepFast)), format, flags);
         }
 
+        public static bool InputFloat2(string label, ref Vector2 value, string? format, ImGuiInputTextFlags flags)
+        {
+            var v = value.ToImGui();
+            if (ImGui.InputFloat2(label, ref v, format, flags))
+            {
+                value = v.ToVL();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputFloat3(string label, ref Vector3 value, string? format, ImGuiInputTextFlags flags)
+        {
+            var v = value.ToImGui();
+            if (ImGui.InputFloat3(label, ref v, format, flags))
+            {
+                value = v.ToVL();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputFloat4(string label, ref Vector4 value, string? format, ImGuiInputTextFlags flags)
+        {
+            var v = value.ToImGui();
+            if (ImGui.InputFloat4(label, ref v, format, flags))
+            {
+                value = v.ToVL();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputInt2(string label, ref Int2 value, ImGuiInputTextFlags flags)
+        {
+            ref var x = ref value.X;
+            if (ImGui.InputInt2(label, ref x, flags))
+            {
+                value = Unsafe.As<int, Int2>(ref x);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputInt3(string label, ref Int3 value, ImGuiInputTextFlags flags)
+        {
+            ref var x = ref value.X;
+            if (ImGui.InputInt3(label, ref x, flags))
+            {
+                value = Unsafe.As<int, Int3>(ref x);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputInt4(string label, ref Int4 value, ImGuiInputTextFlags flags)
+        {
+            ref var x = ref value.X;
+            if (ImGui.InputInt4(label, ref x, flags))
+            {
+                value = Unsafe.As<int, Int4>(ref x);
+                return true;
+            }
+            return false;
+        }
+
         public static unsafe bool DragDouble(string label, ref double value, float speed, double min, double max, string? format, ImGuiSliderFlags flags)
         {
             return ImGui.DragScalar(label, ImGuiDataType.Double, new IntPtr(Unsafe.AsPointer(ref value)), speed, new IntPtr(Unsafe.AsPointer(ref min)), new IntPtr(Unsafe.AsPointer(ref max)), format, flags);

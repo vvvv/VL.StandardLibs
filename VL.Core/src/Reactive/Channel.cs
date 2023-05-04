@@ -103,7 +103,10 @@ namespace VL.Lib.Reactive
             subject.OnError(error);
         }
 
-        void IObserver<T?>.OnNext(T? value) => subject.OnNext(value);
+        void IObserver<T?>.OnNext(T? value)
+        {
+            Value = value;
+        }
 
         IDisposable IObservable<T?>.Subscribe(IObserver<T?> observer) => subject.Subscribe(observer);
 
@@ -147,7 +150,10 @@ namespace VL.Lib.Reactive
             subject.OnError(error);
         }
 
-        void IObserver<object?>.OnNext(object? value) => subject.OnNext((T?)value); 
+        void IObserver<object?>.OnNext(object? value)
+        {
+            Value = (T?)value;
+        }
         
         IDisposable IObservable<object?>.Subscribe(IObserver<object?> observer)
         {
@@ -196,17 +202,17 @@ namespace VL.Lib.Reactive
         {
             return new Channel<T>();
         }
-        public static IChannel<object>? CreateChannelOfType(Type typeOfValues)
+        public static IChannel<object> CreateChannelOfType(Type typeOfValues)
         {
-            return Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues)) as IChannel<object>;
+            return (IChannel<object>)Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues))!;
         }
-        public static IChannel<object>? CreateChannelOfType(IVLTypeInfo typeOfValues)
+        public static IChannel<object> CreateChannelOfType(IVLTypeInfo typeOfValues)
         {
-            return Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues.ClrType)) as IChannel<object>;
+            return (IChannel<object>)Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues.ClrType))!;
         }
 
-        public static bool IsValid([NotNullWhen(true)] this IChannel c)
-            => !(c is IDummyChannel);
+        public static bool IsValid([NotNullWhen(true)] this IChannel? c)
+            => c is not null && c is not IDummyChannel;
 
         public static void EnsureValue<T>(this IChannel<T> input, T? value, bool force = false)
         {

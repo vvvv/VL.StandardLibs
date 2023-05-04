@@ -1,4 +1,5 @@
-﻿using VL.ImGui.Widgets;
+﻿using ImGuiNET;
+using VL.ImGui.Widgets;
 using VL.Lib.Reactive;
 
 namespace VL.ImGui.Editors
@@ -13,12 +14,12 @@ namespace VL.ImGui.Editors
             Widget = widget;
 
             widget.Channel = channel;
-            if (!string.IsNullOrEmpty(context.Label))
-            {
-                var labelProperty = widgetClass.GetProperty(nameof(InputFloat.Label));
-                if (labelProperty != null && labelProperty.PropertyType == typeof(string))
-                    labelProperty.SetValue(widget, context.Label);
-            }
+
+            if (!string.IsNullOrEmpty(context.Label) && widget is IHasLabel hasLabel)
+                hasLabel.Label = context.Label;
+
+            if (widget is IHasInputTextFlags hasInputTextFlags)
+                hasInputTextFlags.Flags = ImGuiInputTextFlags.EnterReturnsTrue;
         }
 
         public void Draw(Context? context)
