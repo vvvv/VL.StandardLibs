@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (Int4)", Category = "ImGui.Widgets", Tags = "number, updown")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputInt4 : ChannelWidget<Int4>
+    internal partial class InputInt4 : ChannelWidget<Int4>, IHasLabel, IHasInputTextFlags
     {
 
         public string? Label { get; set; }
@@ -15,7 +15,7 @@ namespace VL.ImGui.Widgets
 
         public int StepFast { private get; set; } = 100;
 
-        public ImGuiInputTextFlags Flags { private get; set; }
+        public ImGuiInputTextFlags Flags { get; set; }
 
         Int4 lastframeValue;
 

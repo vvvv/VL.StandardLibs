@@ -1,6 +1,6 @@
 ﻿namespace VL.ImGui.Widgets
 {
-    internal abstract class DragWidget<T, TComponent> : ChannelWidget<T>
+    internal abstract class DragWidget<T, TComponent> : ChannelWidget<T>, IHasLabel
         where T : unmanaged
         where TComponent : unmanaged
     {

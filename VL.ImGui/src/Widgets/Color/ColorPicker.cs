@@ -3,7 +3,7 @@
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Widgets", Tags = "rgba, hsv, hsl")]
-    internal partial class ColorPicker : ChannelWidget<Color4>
+    internal partial class ColorPicker : ChannelWidget<Color4>, IHasLabel
     {
         public string? Label { get; set; }
 

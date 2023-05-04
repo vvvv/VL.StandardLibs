@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (Vector3)", Category = "ImGui.Widgets", Tags = "number, updown")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputVector3 : ChannelWidget<Vector3>
+    internal partial class InputVector3 : ChannelWidget<Vector3>, IHasLabel, IHasInputTextFlags
     {
 
         public string? Label { get; set; }
@@ -16,7 +16,7 @@ namespace VL.ImGui.Widgets
         /// </summary>
         public string? Format { private get; set; } = "%.3f";
 
-        public ImGuiInputTextFlags Flags { private get; set; }
+        public ImGuiInputTextFlags Flags { get; set; }
 
         Vector3 lastframeValue;
 

@@ -1,19 +1,18 @@
 ﻿using ImGuiNET;
 using VL.Core.EditorAttributes;
-using VL.Lib.Reactive;
 
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (String)", Category = "ImGui.Widgets", Tags = "edit, textfield")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputText : ChannelWidget<string>
+    internal partial class InputText : ChannelWidget<string>, IHasLabel, IHasInputTextFlags
     {
 
         public string? Label { get; set; }
 
         public int MaxLength { get; set; } = 100;
 
-        public ImGuiInputTextFlags Flags { private get; set; }
+        public ImGuiInputTextFlags Flags { get; set; }
 
         string? lastframeValue;
 

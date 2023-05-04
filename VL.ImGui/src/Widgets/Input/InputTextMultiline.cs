@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (String Multiline)", Category = "ImGui.Widgets", Tags = "edit, textfield")]
     [WidgetType(WidgetType.Multiline)]
-    internal partial class InputTextMultiline : ChannelWidget<string>
+    internal partial class InputTextMultiline : ChannelWidget<string>, IHasLabel, IHasInputTextFlags
     {
 
         public string? Label { get; set; }
@@ -15,7 +15,7 @@ namespace VL.ImGui.Widgets
 
         public Vector2 Size { get; set; }
 
-        public ImGuiInputTextFlags Flags { private get; set; }
+        public ImGuiInputTextFlags Flags { get; set; }
 
         string? lastframeValue;
 

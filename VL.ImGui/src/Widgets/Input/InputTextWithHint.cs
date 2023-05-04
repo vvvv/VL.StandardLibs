@@ -1,10 +1,9 @@
 ﻿using ImGuiNET;
-using VL.Lib.Reactive;
 
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (String Hint)", Category = "ImGui.Widgets", Tags = "edit, textfield")]
-    internal partial class InputTextWithHint : ChannelWidget<string>
+    internal partial class InputTextWithHint : ChannelWidget<string>, IHasLabel, IHasInputTextFlags
     {
 
         public string? Label { get; set; }
@@ -13,7 +12,7 @@ namespace VL.ImGui.Widgets
 
         public int MaxLength { get; set; } = 100;
 
-        public ImGuiInputTextFlags Flags { private get; set; }
+        public ImGuiInputTextFlags Flags { get; set; }
 
         string? lastframeValue;
 

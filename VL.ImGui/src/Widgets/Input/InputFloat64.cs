@@ -5,7 +5,7 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (Float64)", Category = "ImGui.Widgets.Advanced", Tags = "number, updown")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputFloat64 : ChannelWidget<double>
+    internal partial class InputFloat64 : ChannelWidget<double>, IHasLabel, IHasInputTextFlags
     {
 
         public string? Label { get; set; }
@@ -19,7 +19,7 @@ namespace VL.ImGui.Widgets
         /// </summary>
         public string? Format { private get; set; } = "%.3f";
 
-        public ImGuiInputTextFlags Flags { private get; set; }
+        public ImGuiInputTextFlags Flags { get; set; }
 
         double lastframeValue;
 
