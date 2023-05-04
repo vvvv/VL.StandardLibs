@@ -118,12 +118,14 @@ namespace VL.Lib.Reactive
         public TComponent? TryGetComponent<TComponent>() where TComponent: class
             => components.OfType<TComponent>().FirstOrDefault();
 
-        public TComponent AddOrGetComponent<TComponent>(Func<TComponent> producer) where TComponent : class
+        public virtual TComponent AddOrGetComponent<TComponent>(Func<TComponent> producer) where TComponent : class
         {
             var c = TryGetComponent<TComponent>();
             if (c is null)
+            {
                 c = producer();
-            components.Add(c);
+                components.Add(c);
+            }
             return c;
         }
     }
@@ -174,6 +176,10 @@ namespace VL.Lib.Reactive
 
     internal sealed class DummyChannel<T> : Channel<T>, IDummyChannel
     {
+        public override TComponent AddOrGetComponent<TComponent>(Func<TComponent> producer)
+        {
+            return default;
+        }
     }
 
     public static class ChannelHelpers
