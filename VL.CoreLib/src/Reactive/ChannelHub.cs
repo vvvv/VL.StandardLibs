@@ -61,7 +61,12 @@ namespace VL.Core.Reactive
         public IChannel<object>? TryAddChannel(string key, Type typeOfValues)
         {
             using var _ = BeginChange();
-            var c = Channels.GetOrAdd(key, _ => { var c = ChannelHelpers.CreateChannelOfType(typeOfValues); revision++; return c; });
+            var c = Channels.GetOrAdd(key, _ => 
+            { 
+                var c = ChannelHelpers.CreateChannelOfType(typeOfValues); 
+                revision++; 
+                return c; 
+            });
             if (c.ClrTypeOfValues != typeOfValues)
                 return default;
             // discuss if replacing with new type is an option or should always occur.

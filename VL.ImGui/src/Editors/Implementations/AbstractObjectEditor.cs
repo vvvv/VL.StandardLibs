@@ -83,7 +83,7 @@ namespace VL.ImGui.Editors
             PushValue(privateChannel, value!);
         }
 
-        void PushValue(IChannel<object> dst, object value)
+        void PushValue(IChannel<object> dst, object? value)
         {
             if (isBusy)
                 return;

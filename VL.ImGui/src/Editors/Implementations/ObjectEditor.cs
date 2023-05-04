@@ -53,7 +53,7 @@ namespace VL.ImGui.Editors
                             subscriptions.Add(
                                 channel.ChannelOfObject.Merge(
                                     propertyChannel.ChannelOfObject,
-                                    (object v) => property.GetValue((IVLObject)channel.Value),
+                                    (object? v) => property.GetValue((IVLObject)channel.Value),
                                     v => (T)property.WithValue((IVLObject)channel.Value, v), 
                                     initialization: ChannelMergeInitialization.UseA,
                                     pushEagerlyTo: ChannelSelection.ChannelA));
