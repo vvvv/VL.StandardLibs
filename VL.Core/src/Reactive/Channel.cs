@@ -103,7 +103,10 @@ namespace VL.Lib.Reactive
             subject.OnError(error);
         }
 
-        void IObserver<T?>.OnNext(T? value) => subject.OnNext(value);
+        void IObserver<T?>.OnNext(T? value)
+        {
+            Value = value;
+        }
 
         IDisposable IObservable<T?>.Subscribe(IObserver<T?> observer) => subject.Subscribe(observer);
 
@@ -145,7 +148,10 @@ namespace VL.Lib.Reactive
             subject.OnError(error);
         }
 
-        void IObserver<object?>.OnNext(object? value) => subject.OnNext((T?)value); 
+        void IObserver<object?>.OnNext(object? value)
+        {
+            Value = (T?)value;
+        }
         
         IDisposable IObservable<object?>.Subscribe(IObserver<object?> observer)
         {
