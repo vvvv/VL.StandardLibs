@@ -67,6 +67,11 @@ namespace VL.ImGui
             _widgetsToReset.Add(widget);
         }
 
+        internal void AddToResetQueue(Widget widget)
+        {
+            _widgetsToReset.Add(widget);
+        }
+
         internal void SetDrawList(DrawList drawList)
         {
             DrawList = drawList;
