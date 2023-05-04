@@ -91,7 +91,7 @@ namespace VL.Core.Reactive
         /// <returns></returns>
         IDisposable BeginChange();
 
-        IObservable<object> OnChannelsChanged { get; }
+        IChannel<object> OnChannelsChanged { get; }
 
         void BatchUpdate(Action<IChannelHub> action)
         {

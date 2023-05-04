@@ -16,9 +16,14 @@ namespace VL.Core.Reactive
         int lockCount = 0;
         int revision = 0;
         int revisionOnLockTaken = 0;
-        public Subject<object> onChannelsChanged = new Subject<object>();
-        public IObservable<object> OnChannelsChanged => onChannelsChanged;
 
+        public IChannel<object> OnChannelsChanged { get; }
+
+        public ChannelHub()
+        {
+            OnChannelsChanged = new Channel<object>();
+            OnChannelsChanged.Value = this;
+        }
 
         IDisposable? MustHaveDescriptiveSubscription;
         public IObservable<IEnumerable<ChannelBuildDescription>> MustHaveDescriptive
@@ -55,7 +60,7 @@ namespace VL.Core.Reactive
         {
             lockCount--;
             if (lockCount == 0 && revisionOnLockTaken != revision)
-                onChannelsChanged.OnNext(this);
+                OnChannelsChanged.Value = this;
         }
 
         public IChannel<object>? TryAddChannel(string key, Type typeOfValues)
@@ -82,7 +87,7 @@ namespace VL.Core.Reactive
             if (c != null)
             {
                 revision++;
-                c.Dispose();// might not really be necessary, but let's clean up for now. We are at least the ones who created the channels.
+                //c.Dispose();// might not really be necessary, but let's clean up for now. We are at least the ones who created the channels.
             }
             return gotRemoved;
         }
@@ -93,9 +98,13 @@ namespace VL.Core.Reactive
             var gotRemoved = Channels.TryRemove(key, out var c);
             if (c != null)
             {
+                var o = c.Object;
                 revision++;
-                c.Dispose();
-                return TryAddChannel(newKey, c.ClrTypeOfValues);
+                //c.Dispose();
+                c = TryAddChannel(newKey, c.ClrTypeOfValues);
+                if (c != null && o != null && c.ClrTypeOfValues.IsAssignableFrom(o.GetType()))
+                    c.Object = o;
+                return c;
             }
             return null;
         }
@@ -106,9 +115,13 @@ namespace VL.Core.Reactive
             var gotRemoved = Channels.TryRemove(key, out var c);
             if (c != null)
             {
+                var o = c.Object;
                 revision++;
-                c.Dispose();
-                return TryAddChannel(key, typeOfValues);
+                //c.Dispose();
+                c = TryAddChannel(key, typeOfValues);
+                if (c != null && o != null && typeOfValues.IsAssignableFrom(o.GetType()))
+                    c.Object = o;
+                return c;
             }
             return null;
         }
@@ -123,7 +136,7 @@ namespace VL.Core.Reactive
                 foreach (var c in cs)
                     c.Dispose();
             }
-            onChannelsChanged.Dispose();
+            OnChannelsChanged.Dispose();
             MustHaveDescriptiveSubscription?.Dispose();
         }
     
