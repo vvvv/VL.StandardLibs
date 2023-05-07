@@ -220,6 +220,12 @@ namespace VL.Lib.Reactive
                 input.Value = value;
         }
 
+        public static void EnsureObject(this IChannel input, object? value, bool force = false)
+        {
+            if (force || !EqualityComparer<object>.Default.Equals(input.Object, value))
+                input.Object = value;
+        }
+
         public static IDisposable Merge<T>(this IChannel<T> a, IChannel<T> b, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
         {
             return Merge(a, b, v => v, v => v, initialization, pushEagerlyTo);
