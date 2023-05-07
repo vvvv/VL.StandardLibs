@@ -6,14 +6,14 @@
 [Tags("colorize")]
 shader TriColor_TextureFX : FilterBase
 {
-    [Color]
-    float4 ColorA = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    [Default(0, 0, 0, 1)]
+    compose ComputeFloat4 ColorA;
 
-    [Color]
-    float4 ColorB = float4(0.5f, 0.5f, 0.5f, 1.0f);
-    
-    [Color]
-    float4 ColorC = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    [Default(0.5, 0.5, 0.5, 1)]
+    compose ComputeFloat4 ColorB;
+
+    [Default(1, 1, 1, 1)]
+    compose ComputeFloat4 ColorC;
 
     [Default(0.5)]
     compose ComputeFloat Smooth;
@@ -60,9 +60,13 @@ shader TriColor_TextureFX : FilterBase
             fd2 = saturate(fd2);
         }
 
-        col = ColorB;
-        col = lerp(col, ColorA, fd1);
-        col = lerp(col, ColorC, fd2);
+        float4 colorA = ColorA.Compute();
+        float4 colorB = ColorB.Compute();
+        float4 colorC = ColorC.Compute();
+
+        col = colorB;
+        col = lerp(col, colorA, fd1);
+        col = lerp(col, colorC, fd2);
 
         return col;
     }
