@@ -51,13 +51,12 @@ namespace VL.Core.Reactive
 
         IEnumerable<ChannelBuildDescription> GetChannelBuildDescriptions()
         {
-            var lines = File.ReadLines(filePath);
+            var lines = File.ReadLines(filePath).ToArray();
             foreach (var l in lines)
             {
                 var _ = l.Split(':');
                 var t = typeRegistry.GetTypeByName(_[1]);
-                if (t != null)
-                    yield return new ChannelBuildDescription(Name: _[0], t);
+                yield return new ChannelBuildDescription(Name: _[0], _[1]);
             }
         }
 

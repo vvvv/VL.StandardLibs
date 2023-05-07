@@ -53,19 +53,23 @@ namespace VL.Core.Reactive
                 invalidated: invalidateChannelNode, 
                 init: context =>
             {
+                var name = channelBuildDescription.Name;
+                var type = channelBuildDescription.FetchType;
                 var _inputs = new IVLPinDescription[]
                 {                   
-                    context.Pin("Value", channelBuildDescription.Type),
+                    context.Pin("Value", type),
                 };
                 var _outputs = new[]
                 {
-                    context.Pin("Channel", typeof(IChannel<>).MakeGenericType(channelBuildDescription.Type)),
-                    context.Pin("Value", channelBuildDescription.Type),
+                    context.Pin("Channel", typeof(IChannel<>).MakeGenericType(type)),
+                    context.Pin("Value", type),
                 }; 
 
                 return context.Node(_inputs, _outputs, buildcontext =>
                 {
-                    var c = ChannelHub.HubForApp.TryAddChannel(channelBuildDescription.Name, channelBuildDescription.Type);
+                    type = channelBuildDescription.FetchType;
+
+                    var c = ChannelHub.HubForApp.TryAddChannel(name, type);
                     Optional<object> latestValueThatGotSet = default;
                     var inputs = new IVLPin[]
                     {

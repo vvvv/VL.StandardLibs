@@ -39,7 +39,11 @@ namespace VL.Core.Reactive
                         // we don't delete channels that are not listed as the user might have added some more programmatically.
                         // the config only describes those that shall be there on startup.
                         foreach (var d in descriptions)
-                            TryAddChannel(d.Name, d.Type);
+                        {
+                            var name = d.Name;
+                            var type = d.FetchType;
+                            TryAddChannel(name, type);
+                        }
                     });
                 });
             }
