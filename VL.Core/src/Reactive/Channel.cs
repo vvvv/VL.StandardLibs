@@ -184,7 +184,7 @@ namespace VL.Lib.Reactive
     {
         public override TComponent AddOrGetComponent<TComponent>(Func<TComponent> producer)
         {
-            return default;
+            return default!;
         }
     }
 

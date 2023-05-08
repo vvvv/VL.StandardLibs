@@ -69,7 +69,7 @@ namespace VL.Core.Reactive
                 {
                     var channelType = channelBuildDescription.RuntimeType;
 
-                    var c = ChannelHub.HubForApp.TryAddChannel(name, channelType);
+                    var c = IChannelHub.HubForApp.TryAddChannel(name, channelType);
                     Optional<object> latestValueThatGotSet = default;
                     var inputs = new IVLPin[]
                     {

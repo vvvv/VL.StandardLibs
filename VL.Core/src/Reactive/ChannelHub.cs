@@ -11,7 +11,7 @@ using System.Reactive.Linq;
 
 namespace VL.Core.Reactive
 {
-    public class ChannelHub : IChannelHub, IDisposable
+    internal class ChannelHub : IChannelHub, IDisposable
     {
         int lockCount = 0;
         int revision = 0;
@@ -147,22 +147,6 @@ namespace VL.Core.Reactive
             }
             OnChannelsChanged.Dispose();
             MustHaveDescriptiveSubscription?.Dispose();
-        }
-    
-        public static IChannelHub HubForApp 
-        { 
-            get 
-            { 
-                return ServiceRegistry.Current.GetOrAddService<IChannelHub>(() =>
-                {
-                    var x = new ChannelHub();
-                    ServiceRegistry.Current.GetService<IAppHost>().OnExit.Subscribe(_ =>
-                    {
-                        x.Dispose();
-                    });
-                    return x;
-                });
-            }
         }
     }
 }

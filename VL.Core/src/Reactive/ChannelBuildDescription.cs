@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace VL.Core.Reactive
 {
-    public record ChannelBuildDescription(string Name, string TypeName)
+    record ChannelBuildDescription(string Name, string TypeName)
     {
         /// <summary>
         /// Returns object for patched types. Must bu used when building the pin description.

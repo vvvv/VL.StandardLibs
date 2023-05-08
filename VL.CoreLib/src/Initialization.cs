@@ -34,7 +34,7 @@ namespace VL.Lib
                 var basePath = PathProviderUtils.GetApplicationBasePath();
                 var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(basePath);
                 if (watcher != null)
-                    ((ChannelHub)ChannelHub.HubForApp).MustHaveDescriptive = watcher.Descriptions;
+                    ((ChannelHub)IChannelHub.HubForApp).MustHaveDescriptive = watcher.Descriptions;
             }
 
             // registering node factory producing nodes for global channels is necessary in any case.

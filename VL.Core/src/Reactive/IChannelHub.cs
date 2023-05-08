@@ -73,6 +73,22 @@ namespace VL.Core.Reactive
      */
     public interface IChannelHub
     {
+        public static IChannelHub HubForApp
+        {
+            get
+            {
+                return ServiceRegistry.Current.GetOrAddService<IChannelHub>(() =>
+                {
+                    var x = new ChannelHub();
+                    ServiceRegistry.Current.GetService<IAppHost>().OnExit.Subscribe(_ =>
+                    {
+                        x.Dispose();
+                    });
+                    return x;
+                });
+            }
+        }
+
         IDictionary<string, IChannel<object>> Channels { get; }
 
         IChannel<object>? TryGetChannel(string key);
