@@ -54,7 +54,7 @@ namespace VL.Core.Reactive
                 init: context =>
             {
                 var name = channelBuildDescription.Name;
-                var type = channelBuildDescription.FetchType;
+                var type = channelBuildDescription.CompileTimeType;
                 var _inputs = new IVLPinDescription[]
                 {                   
                     context.Pin("Value", type),
@@ -67,9 +67,9 @@ namespace VL.Core.Reactive
 
                 return context.Node(_inputs, _outputs, buildcontext =>
                 {
-                    type = channelBuildDescription.FetchType;
+                    var channelType = channelBuildDescription.RuntimeType;
 
-                    var c = ChannelHub.HubForApp.TryAddChannel(name, type);
+                    var c = ChannelHub.HubForApp.TryAddChannel(name, channelType);
                     Optional<object> latestValueThatGotSet = default;
                     var inputs = new IVLPin[]
                     {

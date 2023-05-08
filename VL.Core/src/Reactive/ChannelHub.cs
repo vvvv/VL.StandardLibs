@@ -41,7 +41,7 @@ namespace VL.Core.Reactive
                         foreach (var d in descriptions)
                         {
                             var name = d.Name;
-                            var type = d.FetchType;
+                            var type = d.RuntimeType;
                             TryAddChannel(name, type);
                         }
                     });
