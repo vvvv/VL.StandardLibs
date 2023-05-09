@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using VL.Core;
+using VL.Core.Utils;
+using VL.Lib.Collections;
 
 #nullable enable
 
@@ -291,19 +294,19 @@ namespace VL.Lib.Reactive
             switch (initialization)
             {
                 case ChannelMergeInitialization.UseA:
-                {
-                    var optionalV = toB(a.Value);
-                    if (optionalV.HasValue)
-                        b.EnsureValue(optionalV.Value);
-                    break;
-                }
+                    {
+                        var optionalV = toB(a.Value);
+                        if (optionalV.HasValue)
+                            b.EnsureValue(optionalV.Value);
+                        break;
+                    }
                 case ChannelMergeInitialization.UseB:
-                {
-                    var optionalV = toA(b.Value);
-                    if (optionalV.HasValue)
-                        a.EnsureValue(optionalV.Value);
-                    break;
-                }
+                    {
+                        var optionalV = toA(b.Value);
+                        if (optionalV.HasValue)
+                            a.EnsureValue(optionalV.Value);
+                        break;
+                    }
             }
 
             var isBusy = false;
@@ -343,6 +346,120 @@ namespace VL.Lib.Reactive
             }));
 
             return subscription;
+        }
+
+        public static IChannel<object> CreatePropertyChannel(IChannel<IVLObject> channel, IVLPropertyInfo propertyInfo)
+        {
+            var propertyChannel = CreateChannelOfType(propertyInfo.Type);
+
+            var parentBinding = propertyChannel.AddOrGetComponent(() =>
+            {
+                var subscription = Merge(channel, propertyChannel, propertyInfo);
+                return new ParentBinding(subscription);
+            });
+
+            return propertyChannel;
+        }
+
+        public static IChannel<object> CreateItemChannel(IChannel<object> channel, int index)
+        {
+            var elementType = channel.ClrTypeOfValues.IsGenericType ? channel.ClrTypeOfValues.GetGenericArguments()[0] : typeof(object);
+            var propertyChannel = CreateChannelOfType(elementType);
+
+            var parentBinding = propertyChannel.AddOrGetComponent(() =>
+            {
+                var subscription = MergeItem(channel, propertyChannel, index);
+                return new ParentBinding(subscription);
+            });
+
+            return propertyChannel;
+        }
+
+        class ParentBinding : IDisposable
+        {
+            private readonly IDisposable subscription;
+
+            public ParentBinding(IDisposable subscription)
+            {
+                this.subscription = subscription;
+            }
+
+            public void Dispose()
+            {
+                subscription.Dispose();
+            }
+        }
+
+        static IDisposable Merge(IChannel<IVLObject> channel, IChannel<object> propertyChannel, IVLPropertyInfo propertyInfo)
+        {
+            return channel.Merge(propertyChannel,
+                toB: obj => propertyInfo.GetValue(obj),
+                toA: value => propertyInfo.WithValue(channel.Value, value),
+                initialization: ChannelMergeInitialization.UseA,
+                pushEagerlyTo: ChannelSelection.ChannelA);
+        }
+
+        static IDisposable MergeItem(IChannel<object> channel, IChannel<object> itemChannel, int index)
+        {
+            if (ICollectionAccessor.IsSupported(channel.ClrTypeOfValues))
+            {
+                // Collection type will not change during runtime, we only need to create the accessor once
+                var accessor = ICollectionAccessor.Create(channel.Value);
+                return channel.Merge(itemChannel,
+                    toB: list =>
+                    {
+                        accessor.UnderlyingCollection = list;
+                        return accessor[index];
+                    },
+                    toA: value =>
+                    {
+                        var list = channel.Value;
+                        accessor.UnderlyingCollection = list;
+                        accessor[index] = value;
+                        return accessor.UnderlyingCollection;
+                    },
+                    initialization: ChannelMergeInitialization.UseA,
+                    pushEagerlyTo: ChannelSelection.ChannelA);
+            }
+            else
+            {
+                // Collection type could change during runtime, we need to check that we have the right accessor every time
+                var accessor = default(ICollectionAccessor);
+                return channel.Merge(itemChannel,
+                    toB: list =>
+                    {
+                        accessor = ICollectionAccessor.Create(list);
+                        return accessor?[index];
+                    },
+                    toA: value =>
+                    {
+                        var list = channel.Value;
+                        if (list != null)
+                        {
+                            accessor = ICollectionAccessor.Create(list);
+                            accessor[index] = value;
+                            return accessor.UnderlyingCollection;
+                        }
+                        return list;
+                    },
+                    initialization: ChannelMergeInitialization.UseA,
+                    pushEagerlyTo: ChannelSelection.ChannelA);
+            }
+        }
+
+        static IDisposable Merge(IChannel<IDictionary> channel, IChannel<object> itemChannel, object key, Func<IDictionary, object, object?, IDictionary> setter)
+        {
+            return channel.Merge(itemChannel,
+                toB: list => list?[key],
+                toA: value =>
+                {
+                    var list = channel.Value;
+                    if (list != null)
+                        list = setter(list, key, value);
+                    return list;
+                },
+                initialization: ChannelMergeInitialization.UseA,
+                pushEagerlyTo: ChannelSelection.ChannelA);
         }
     }
 
