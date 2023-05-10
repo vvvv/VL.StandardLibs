@@ -7,6 +7,7 @@ using System.Reactive;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using VL.Core.CompilerServices;
+using VL.Core.Utils;
 using VL.Lang;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
@@ -451,12 +452,12 @@ namespace VL.Core
                         return true;
                     }
                 }
-                else if (value is ISpread children)
+                else if (ICollectionAccessor.TryGet(value, out var children))
                 {
                     var count = children.Count;
                     for (int i = 0; i < count; i++)
                     {
-                        if (children.GetItem(i) is IVLObject obj)
+                        if (children[i] is IVLObject obj)
                         {
                             if (obj.Identity == descendant.Identity)
                             {

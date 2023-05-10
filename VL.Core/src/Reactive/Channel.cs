@@ -425,10 +425,14 @@ namespace VL.Lib.Reactive
             {
                 // Collection type could change during runtime, we need to check that we have the right accessor every time
                 var accessor = default(ICollectionAccessor);
+                var lastList = default(object);
                 return channel.Merge(itemChannel,
                     toB: list =>
                     {
-                        accessor = ICollectionAccessor.Create(list);
+                        if (accessor is null || list?.GetType() != lastList?.GetType())
+                            accessor = ICollectionAccessor.Create(list);
+                        else
+                            accessor.UnderlyingCollection = list;
                         return accessor?[index];
                     },
                     toA: value =>

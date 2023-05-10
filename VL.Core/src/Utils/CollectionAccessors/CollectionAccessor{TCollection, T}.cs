@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -7,11 +8,11 @@ namespace VL.Core.Utils
     abstract class CollectionAccessor<TCollection, TElement> : ICollectionAccessor<TElement>
         where TCollection : ICollection<TElement>
     {
-        private TCollection collection;
+        private TCollection? collection;
 
         protected TCollection Collection
         {
-            get => collection;
+            get => collection!;
             set
             {
                 collection = value;
@@ -31,7 +32,7 @@ namespace VL.Core.Utils
 
         public bool IsSynchronized => Collection is IList list ? list.IsSynchronized : false;
 
-        public object SyncRoot => Collection is IList list ? list.SyncRoot : null;
+        public object SyncRoot => Collection is IList list ? list.SyncRoot : this;
 
         public void CopyTo(Array array, int index)
         {
@@ -100,3 +101,4 @@ namespace VL.Core.Utils
         void IList.Remove(object? value) => Remove((TElement)value!);
     }
 }
+#nullable restore

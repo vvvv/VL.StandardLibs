@@ -1,8 +1,9 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using VL.Lib.Reactive;
+using System.Diagnostics.CodeAnalysis;
 
 namespace VL.Core.Utils
 {
@@ -12,7 +13,7 @@ namespace VL.Core.Utils
 
         event EventHandler CollectionChanged;
 
-        public static ICollectionAccessor Create(object collection)
+        public static ICollectionAccessor? Create(object collection)
         {
             var type = collection.GetType();
             if (type.IsGenericType)
@@ -27,7 +28,7 @@ namespace VL.Core.Utils
 
             static ICollectionAccessor CreateAccessor(Type type, object collection)
             {
-                var accessor = (ICollectionAccessor)Activator.CreateInstance(type);
+                var accessor = (ICollectionAccessor)Activator.CreateInstance(type)!;
                 accessor.UnderlyingCollection = collection;
                 return accessor;
             }
@@ -49,5 +50,12 @@ namespace VL.Core.Utils
 
             return false;
         }
+
+        public static bool TryGet(object collection, [NotNullWhen(true)] out ICollectionAccessor? accessor)
+        {
+            accessor = Create(collection);
+            return accessor != null;
+        }
     }
 }
+#nullable restore
