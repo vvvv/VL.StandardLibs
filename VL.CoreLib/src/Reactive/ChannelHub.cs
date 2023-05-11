@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Reactive.Linq;
+using System.Linq;
 
 #nullable enable
 
@@ -19,7 +20,7 @@ namespace VL.Core.Reactive
 
         public IChannel<object> OnChannelsChanged { get; }
 
-        IDisposable OnSwapSubscription;
+        IDisposable? OnSwapSubscription;
 
         public ChannelHub()
         {
@@ -58,7 +59,14 @@ namespace VL.Core.Reactive
         }
 
         internal ConcurrentDictionary<string, IChannel<object>> Channels = new();
+
+        internal ConcurrentBag<IModule> Modules = new();
+
+
         IDictionary<string, IChannel<object>> IChannelHub.Channels => Channels;
+
+        IEnumerable<IModule> IChannelHub.Modules => Modules.OrderBy(m => m.Name);
+
 
         public IDisposable BeginChange()
         {
@@ -143,6 +151,16 @@ namespace VL.Core.Reactive
             return null;
         }
 
+
+
+
+        public void RegisterModule(IModule module)
+        {
+            Modules.Add(module);
+        }
+
+
+
         public void Dispose()
         {
             {
@@ -155,7 +173,7 @@ namespace VL.Core.Reactive
             }
             OnChannelsChanged.Dispose();
             MustHaveDescriptiveSubscription?.Dispose();
-            OnSwapSubscription.Dispose();
+            OnSwapSubscription?.Dispose();
         }
 
         public void Swap()
