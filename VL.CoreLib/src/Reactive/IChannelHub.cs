@@ -84,6 +84,7 @@ namespace VL.Core.Reactive
                     {
                         x.Dispose();
                     });
+
                     return x;
                 });
             }

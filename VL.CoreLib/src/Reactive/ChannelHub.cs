@@ -19,10 +19,18 @@ namespace VL.Core.Reactive
 
         public IChannel<object> OnChannelsChanged { get; }
 
+        IDisposable OnSwapSubscription;
+
         public ChannelHub()
         {
             OnChannelsChanged = new Channel<object>();
             OnChannelsChanged.Value = this;
+
+            var e = ServiceRegistry.Current.GetService<IHotSwappableEntryPoint>();
+            if (e != null)
+            {
+                OnSwapSubscription = e.OnSwap.Subscribe(_ => Swap());
+            }
         }
 
         IDisposable? MustHaveDescriptiveSubscription;
@@ -147,6 +155,34 @@ namespace VL.Core.Reactive
             }
             OnChannelsChanged.Dispose();
             MustHaveDescriptiveSubscription?.Dispose();
+            OnSwapSubscription.Dispose();
+        }
+
+        public void Swap()
+        {
+            var entryPoint = ServiceRegistry.Current.GetService<IHotSwappableEntryPoint>();
+            if (entryPoint == null)
+                return;
+
+            bool changed = false;
+            var keys = new List<string>(Channels.Keys);
+            var channels = Channels;
+            foreach (string key in keys)
+            {
+                var channel = channels[key];
+                var value = channel.Value;
+                var newValue = entryPoint.Swap(value, typeof(object));
+                if (newValue != value)
+                {
+                    var newChannel = entryPoint.Swap(channel, typeof(Channel<>).MakeGenericType(newValue.GetType()));
+                    channels[key] = (IChannel<object>)newChannel;
+                    changed = true;
+                }
+            }
+            if (changed)
+            {
+                OnChannelsChanged.Value = this;
+            }
         }
     }
 }
