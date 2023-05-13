@@ -92,6 +92,8 @@ namespace VL.Core.Reactive
 
         IDictionary<string, IChannel<object>> Channels { get; }
 
+        IEnumerable<IModule> Modules { get; }
+
         IChannel<object>? TryGetChannel(string key);
         
         IChannel<object>? TryAddChannel(string key, Type typeOfValues);
@@ -115,7 +117,62 @@ namespace VL.Core.Reactive
             using var _ = BeginChange();
             action(this);
         }
+
+        /// <summary>
+        /// Please call this inside a static RegisterServices operation
+        /// </summary>
+        /// <param name="module"></param>
+        void RegisterModule(IModule module);
     }
+
+
+    public interface IModule
+    {
+        string Name { get; }
+
+        string Description { get; }
+    }
+
+
+    public interface IModuleView
+    {
+        IDialog CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<IBinding> responeChannel);
+    }
+
+
+
+    public interface IDialog
+    {
+        void Update();
+    }
+
+
+    public enum BindingType
+    {
+        None = 0,
+        Send = 1,
+        Receive = 2,
+        SendAndReceive = Send | Receive,
+    }
+
+
+    public interface IBinding : IDisposable
+    {
+        IModule Module { get; }
+
+        string ShortLabel => Module.Name;
+
+        string? Description { get; }
+
+        BindingType BindingType { get; }
+    }
+
+
+
+
+
+
+
 
     //public interface IChannelDescriptionProvider
     //{

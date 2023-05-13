@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -61,6 +62,7 @@ namespace VL.Lib.Reactive
             }
             set
             {
+                AssertAlive();
                 if (!Enabled || !this.IsValid())
                     return;
 
@@ -95,27 +97,59 @@ namespace VL.Lib.Reactive
 
         void IObserver<T?>.OnCompleted()
         {
-            subject.OnCompleted();
+            AssertAlive();
+            if (Enabled)
+                subject.OnCompleted();
         }
 
         void IObserver<T?>.OnError(Exception error)
         {
-            subject.OnError(error);
+            AssertAlive();
+            if (Enabled)
+                subject.OnError(error);
         }
 
         void IObserver<T?>.OnNext(T? value)
         {
+            AssertAlive();
             Value = value;
         }
 
-        IDisposable IObservable<T?>.Subscribe(IObserver<T?> observer) => subject.Subscribe(observer);
+        IDisposable IObservable<T?>.Subscribe(IObserver<T?> observer)
+        {
+            AssertAlive();
+            if (subject.IsDisposed) 
+                return Disposable.Empty;                
+            return subject.Subscribe(observer);
+        }
+
+        protected void AssertAlive()
+        {
+            Debug.Assert(!subject.IsDisposed, "you work with a disposed channel!");
+        }
 
         public bool Enabled { get; set; } = true;
 
+
+        bool disposing = false;
         void IDisposable.Dispose()
         {
-            Enabled = false;
-            subject.Dispose();
+            if (disposing)
+                return;
+
+            AssertAlive();
+            disposing = true;
+            try
+            {
+                foreach (var c in components)
+                    (c as IDisposable)?.Dispose();
+                Enabled = false;
+                subject.Dispose();
+            }
+            finally
+            {
+                disposing = false;
+            }
         }
 
         public TComponent? TryGetComponent<TComponent>() where TComponent: class
@@ -142,12 +176,16 @@ namespace VL.Lib.Reactive
         
         void IObserver<object?>.OnCompleted()
         {
-            subject.OnCompleted();
+            AssertAlive();
+            if (Enabled)
+                subject.OnCompleted();
         }
 
         void IObserver<object?>.OnError(Exception error)
         {
-            subject.OnError(error);
+            AssertAlive();
+            if (Enabled)
+                subject.OnError(error);
         }
 
         void IObserver<object?>.OnNext(object? value)
@@ -157,6 +195,9 @@ namespace VL.Lib.Reactive
         
         IDisposable IObservable<object?>.Subscribe(IObserver<object?> observer)
         {
+            AssertAlive();
+            if (subject.IsDisposed)
+                return Disposable.Empty;
             if (observer is IObserver<T?> obsT)
                 return subject.Subscribe(obsT);
             return subject.Subscribe(v => observer.OnNext(v), e => observer.OnError(e), () => observer.OnCompleted());

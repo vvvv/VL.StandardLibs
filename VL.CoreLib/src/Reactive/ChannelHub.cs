@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Reactive.Linq;
+using System.Linq;
 
 #nullable enable
 
@@ -19,7 +20,7 @@ namespace VL.Core.Reactive
 
         public IChannel<object> OnChannelsChanged { get; }
 
-        IDisposable OnSwapSubscription;
+        IDisposable? OnSwapSubscription;
 
         public ChannelHub()
         {
@@ -58,7 +59,14 @@ namespace VL.Core.Reactive
         }
 
         internal ConcurrentDictionary<string, IChannel<object>> Channels = new();
+
+        internal ConcurrentBag<IModule> Modules = new();
+
+
         IDictionary<string, IChannel<object>> IChannelHub.Channels => Channels;
+
+        IEnumerable<IModule> IChannelHub.Modules => Modules.OrderBy(m => m.Name);
+
 
         public IDisposable BeginChange()
         {
@@ -104,7 +112,7 @@ namespace VL.Core.Reactive
             if (c != null)
             {
                 revision++;
-                //c.Dispose();// might not really be necessary, but let's clean up for now. We are at least the ones who created the channels.
+                c.Dispose();
             }
             return gotRemoved;
         }
@@ -117,7 +125,7 @@ namespace VL.Core.Reactive
             {
                 var o = c.Object;
                 revision++;
-                //c.Dispose();
+                c.Dispose();
                 c = TryAddChannel(newKey, c.ClrTypeOfValues);
                 if (c != null && o != null && c.ClrTypeOfValues.IsAssignableFrom(o.GetType()))
                     c.Object = o;
@@ -134,7 +142,7 @@ namespace VL.Core.Reactive
             {
                 var o = c.Object;
                 revision++;
-                //c.Dispose();
+                c.Dispose();
                 c = TryAddChannel(key, typeOfValues);
                 if (c != null && o != null && typeOfValues.IsAssignableFrom(o.GetType()))
                     c.Object = o;
@@ -142,6 +150,16 @@ namespace VL.Core.Reactive
             }
             return null;
         }
+
+
+
+
+        public void RegisterModule(IModule module)
+        {
+            Modules.Add(module);
+        }
+
+
 
         public void Dispose()
         {
@@ -155,7 +173,7 @@ namespace VL.Core.Reactive
             }
             OnChannelsChanged.Dispose();
             MustHaveDescriptiveSubscription?.Dispose();
-            OnSwapSubscription.Dispose();
+            OnSwapSubscription?.Dispose();
         }
 
         public void Swap()
