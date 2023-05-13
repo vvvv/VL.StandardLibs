@@ -112,7 +112,7 @@ namespace VL.Core.Reactive
             if (c != null)
             {
                 revision++;
-                //c.Dispose();// might not really be necessary, but let's clean up for now. We are at least the ones who created the channels.
+                c.Dispose();
             }
             return gotRemoved;
         }
@@ -125,7 +125,7 @@ namespace VL.Core.Reactive
             {
                 var o = c.Object;
                 revision++;
-                //c.Dispose();
+                c.Dispose();
                 c = TryAddChannel(newKey, c.ClrTypeOfValues);
                 if (c != null && o != null && c.ClrTypeOfValues.IsAssignableFrom(o.GetType()))
                     c.Object = o;
@@ -142,7 +142,7 @@ namespace VL.Core.Reactive
             {
                 var o = c.Object;
                 revision++;
-                //c.Dispose();
+                c.Dispose();
                 c = TryAddChannel(key, typeOfValues);
                 if (c != null && o != null && typeOfValues.IsAssignableFrom(o.GetType()))
                     c.Object = o;
