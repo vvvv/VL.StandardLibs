@@ -114,12 +114,12 @@ namespace VL.Lib.Reactive
 
         void IDisposable.Dispose()
         {
-            Enabled = false;
-            subject.Dispose();
-
             foreach (var c in components)
                 if (c is IDisposable d)
                     d.Dispose();
+
+            Enabled = false;
+            subject.Dispose();
         }
 
         public TComponent? TryGetComponent<TComponent>() where TComponent: class
