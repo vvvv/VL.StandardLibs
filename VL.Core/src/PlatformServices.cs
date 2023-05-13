@@ -2,7 +2,7 @@
 {
     public static class PlatformServices
     {
-        public static IPlatformServices Default => ServiceRegistry.CurrentOrGlobal.GetService<IPlatformServices>();
+        public static IPlatformServices Default => IAppHost.CurrentOrGlobal.Services.GetService<IPlatformServices>();
     }
 
     public interface IPlatformServices

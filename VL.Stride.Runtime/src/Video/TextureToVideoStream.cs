@@ -22,13 +22,13 @@ namespace VL.Stride.Video
         private readonly SynchronizationContext synchronizationContext = SynchronizationContext.Current;
         private readonly Queue<(Texture texture, string metadata)> textureDownloads = new Queue<(Texture texture, string metadata)>();
         private readonly Subject<IResourceProvider<VideoFrame>> frames = new Subject<IResourceProvider<VideoFrame>>();
-        private readonly ServiceRegistry serviceRegistry;
+        private readonly IAppHost appHost;
         private readonly CompositeDisposable subscriptions;
         private readonly SerialDisposable texturePoolSubscription;
 
         public TextureToVideoStream()
         {
-            serviceRegistry = ServiceRegistry.Current;
+            appHost = IAppHost.Current;
             subscriptions = new CompositeDisposable()
             {
                 (texturePoolSubscription = new SerialDisposable()),
@@ -52,8 +52,8 @@ namespace VL.Stride.Video
                 return;
             }
 
-            // Workaround: Re-install the service registry - should be done by vvvv itself in the render callback
-            using var _ = serviceRegistry.MakeCurrentIfNone();
+            // Workaround: Re-install the app host - should be done by vvvv itself in the render callback
+            using var _ = appHost.MakeCurrentIfNone();
 
             var texturePool = GetTexturePool(context.GraphicsDevice, texture);
 

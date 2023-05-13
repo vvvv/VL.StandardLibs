@@ -4,7 +4,7 @@ namespace VL.Core
 {
     internal sealed class DeferredVLFactory : IVLFactory
     {
-        public static readonly IVLFactory Default = new DeferredVLFactory(() => ServiceRegistry.Current.GetService<IVLFactory>());
+        public static readonly IVLFactory Default = new DeferredVLFactory(() => IAppHost.Current.Services.GetService<IVLFactory>());
 
         private readonly Func<IVLFactory> lazyFactory;
 
@@ -16,6 +16,8 @@ namespace VL.Core
         private IVLFactory Factory => lazyFactory();
 
         public bool OnlyStaticServices => Factory.OnlyStaticServices;
+
+        public IAppHost AppHost => Factory.AppHost;
 
         [Obsolete("Please use TypeUtils.New")]
         public object CreateInstance(Type type, NodeContext nodeContext)

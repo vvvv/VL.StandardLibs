@@ -77,27 +77,6 @@ namespace VL.Core
             return new NodeDescription(factory, name, category, fragmented, invalidated, init, tags);
         }
 
-        public static IVLNode CreateNode(this IVLFactory factory, NodeContext context, string name, string category)
-        {
-            var nodeDesc = factory.GetNodeDescription(name, category);
-            if (nodeDesc is null)
-                throw new ArgumentException($"Node \"{name} [{category}]\" not found.");
-
-            return nodeDesc.CreateInstance(context);
-        }
-
-        public static IVLNodeDescription GetNodeDescription(this IVLFactory factory, string name, string category)
-        {
-            var registry = factory.GetService<NodeFactoryRegistry>();
-            foreach (var nodeFactory in registry.Factories)
-            {
-                var nodeDesc = nodeFactory.NodeDescriptions.FirstOrDefault(d => d.Name == name && d.Category == category);
-                if (nodeDesc != null)
-                    return nodeDesc;
-            }
-            return null;
-        }
-
         public static IObservable<FileSystemEventArgs> WatchDir(string dir) => FileSystemUtils.WatchDir(dir);
     }
 }

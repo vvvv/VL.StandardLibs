@@ -713,6 +713,12 @@ namespace System
             container.Add(service);
             return service;
         }
+
+        public static T DisposeBy<T>(this T service, IAppHost appHost) where T : IDisposable
+        {
+            appHost.Components.Add(service);
+            return service;
+        }
     }
 }
 #nullable restore

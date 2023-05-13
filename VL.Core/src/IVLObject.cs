@@ -21,7 +21,13 @@ namespace VL.Core
         /// <summary>
         /// The service registry which was current when this instance was created.
         /// </summary>
-        ServiceRegistry Services { get; }
+        [Obsolete("Use AppHost.Services")]
+        ServiceRegistry Services => AppHost.Services;
+
+        /// <summary>
+        /// The app host which was current when this instance was created.
+        /// </summary>
+        IAppHost AppHost { get; }
 
         /// <summary>
         /// The context in which this instance was created.
@@ -47,7 +53,7 @@ namespace VL.Core
     /// </summary>
     public interface IVLRuntime
     {
-        public static IVLRuntime? Current => ServiceRegistry.Current.GetService<IVLRuntime>();
+        public static IVLRuntime? Current => IAppHost.Current.Services.GetService<IVLRuntime>();
 
         /// <summary>
         /// Whether or not VL is in a running state. If not calls into its object graph are not allowed.
@@ -95,6 +101,11 @@ namespace VL.Core
         /// Returns the VL factory installed on the current thread.
         /// </summary>
         static IVLFactory Current => ServiceRegistry.Current.GetService<IVLFactory>();
+
+        /// <summary>
+        /// The app host associated with this factory.
+        /// </summary>
+        IAppHost AppHost { get; }
 
         /// <summary>
         /// Lookup a type by name. The name will be parsed based on the usual VL type annotation rules.
@@ -340,7 +351,7 @@ namespace VL.Core
         /// <returns>The service or null in case no service of type <typeparamref name="TService"/> was registered.</returns>
         public static TService GetService<TService>(this IVLFactory factory) where TService : class
         {
-            return factory.CreateService<TService>(Unit.Default) ?? ServiceRegistry.CurrentOrGlobal?.GetService<TService>();
+            return factory.CreateService<TService>(Unit.Default) ?? factory.AppHost.Services.GetService<TService>();
         }
 
         /// <summary>
@@ -402,7 +413,7 @@ namespace VL.Core
     {
         sealed class DefaultImpl : IVLObject
         {
-            public ServiceRegistry Services => ServiceRegistry.CurrentOrGlobal;
+            public IAppHost AppHost => IAppHost.CurrentOrGlobal;
             public NodeContext Context => NodeContext.Default;
             public IVLTypeInfo Type => TypeRegistry.Default.GetTypeInfo(GetType());
             public uint Identity => 0;

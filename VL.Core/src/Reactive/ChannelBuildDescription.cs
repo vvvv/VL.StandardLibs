@@ -13,8 +13,7 @@ namespace VL.Core.Reactive
         { 
             get
             {
-                var typeRegistry = ServiceRegistry.Global.GetService<TypeRegistry>();
-                var type = typeRegistry.GetTypeByName(TypeName) ?? typeof(object);
+                var type = TypeRegistry.Default.GetTypeByName(TypeName) ?? typeof(object);
                 // Is Patched?
                 if (type.CustomAttributes.Any(c => c.AttributeType.Name == "ElementAttribute"))
                     return typeof(object);
@@ -29,8 +28,7 @@ namespace VL.Core.Reactive
         {
             get
             {
-                var typeRegistry = ServiceRegistry.Global.GetService<TypeRegistry>();
-                return typeRegistry.GetTypeByName(TypeName) ?? typeof(object);
+                return TypeRegistry.Default.GetTypeByName(TypeName) ?? typeof(object);
             }
         }
     }

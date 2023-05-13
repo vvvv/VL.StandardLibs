@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -12,15 +14,20 @@ namespace VL.Core.CompilerServices
         [ThreadStatic]
         internal static Assembly CurrentAssembly;
 
-        public void Init(IVLFactory factory)
+        // Only called by emitted code
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void Init(IVLFactory factory) => Init(factory.AppHost);
+
+        public void Init(IAppHost appHost)
         {
             try
             {
+                var factory = appHost.Services.GetService<IVLFactory>();
                 // Internal factory might have seen us already
                 if (factory is IInternalVLFactory internalFactory)
                     internalFactory.Initialize(this);
                 else
-                    DoRegister(factory);
+                    DoRegister(appHost);
             }
             catch (Exception e)
             {
@@ -33,11 +40,11 @@ namespace VL.Core.CompilerServices
             RuntimeHelpers.PrepareMethod(GetType().GetMethod(nameof(RegisterServices), BindingFlags.Instance | BindingFlags.NonPublic).MethodHandle);
         }
 
-        internal void InitInternalFactory(IInternalVLFactory factory)
+        internal void InitInternalFactory(IAppHost appHost)
         {
             try
             {
-                DoRegister(factory);
+                DoRegister(appHost);
             }
             catch (Exception e)
             {
@@ -45,13 +52,13 @@ namespace VL.Core.CompilerServices
             }
         }
 
-        private void DoRegister(IVLFactory factory)
+        private void DoRegister(IAppHost appHost)
         {
             var current = CurrentAssembly;
             CurrentAssembly = this.GetType().Assembly;
             try
             {
-                RegisterServices(factory);
+                RegisterServices(appHost.Services.GetService<IVLFactory>());
             }
             catch (Exception e)
             {

@@ -1,6 +1,8 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace VL.Core
 {
@@ -11,67 +13,34 @@ namespace VL.Core
     /// </summary>
     public class ServiceRegistry : IServiceProvider
     {
-        private static ServiceRegistry global;
-
-        [ThreadStatic]
-        private static ServiceRegistry current;
+        private static ServiceRegistry? global;
 
         /// <summary>
         /// The service registry for the current thread. Throws <see cref="InvalidOperationException"/> in case no registry is installed.
         /// </summary>
-        public static ServiceRegistry Current => current ?? throw new InvalidOperationException("No service registry is installed on the current thread.");
+        [Obsolete("Use IAppHost.Current.Services", error: false)]
+        public static ServiceRegistry Current => IAppHost.Current.Services;
 
         /// <summary>
         /// The service registry for the current thread or the global one if there's no registry installed on the current thread.
         /// </summary>
-        public static ServiceRegistry CurrentOrGlobal => current ?? global;
+        [Obsolete("Use IAppHost.CurrentOrGlobal.Services", error: true)]
+        public static ServiceRegistry CurrentOrGlobal => IAppHost.CurrentOrGlobal.Services;
 
         /// <summary>
         /// The service registry for the whole application.
         /// </summary>
-        public static ServiceRegistry Global => global;
+        public static ServiceRegistry Global => global!;
 
         /// <summary>
         /// Whether or not a context is installed on the current thread.
         /// </summary>
-        public static bool IsCurrent() => current != null;
+        [Obsolete("Use IAppHost.IsCurrent()", error: true)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static bool IsCurrent() => IAppHost.IsCurrent();
 
-        /// <summary>
-        /// Make the registry current on the current thread.
-        /// </summary>
-        /// <returns>A subscription which will restore the previous registry on dispose.</returns>
-        public CurrentSubscription MakeCurrent()
-        {
-            return new CurrentSubscription(this);
-        }
-
-        /// <summary>
-        /// Make the registry current on the current thread if no registry is current yet.
-        /// </summary>
-        /// <returns>A subscription which will restore the previous registry on dispose.</returns>
-        public CurrentSubscription MakeCurrentIfNone()
-        {
-            return new CurrentSubscription(current ?? this);
-        }
-
-        public readonly struct CurrentSubscription : IDisposable
-        {
-            readonly ServiceRegistry saved;
-
-            internal CurrentSubscription(ServiceRegistry context)
-            {
-                saved = current;
-                current = context;
-            }
-
-            public void Dispose()
-            {
-                current = saved;
-            }
-        }
-
-        private readonly ConcurrentDictionary<Type, object> services = new ConcurrentDictionary<Type, object>();
-        private readonly IServiceProvider parent;
+        private readonly ConcurrentDictionary<Type, Registration> registrations = new();
+        private readonly IServiceProvider? parent;
 
         public ServiceRegistry()
         {
@@ -91,19 +60,43 @@ namespace VL.Core
 
         public ServiceRegistry RegisterService<T>(T service)
         {
-            services[typeof(T)] = service;
+            if (service is null)
+                throw new ArgumentNullException(nameof(service));
+
+            registrations[typeof(T)] = new Registration(new Lazy<object>(() => service, isThreadSafe: false));
             return this;
         }
 
-        public object GetService(Type serviceType)
+        public ServiceRegistry RegisterServiceLazy<T>(Func<T> serviceFactory)
         {
-            return services.ValueOrDefault(serviceType) ?? parent?.GetService(serviceType);
+            if (serviceFactory is null)
+                throw new ArgumentNullException(nameof(serviceFactory));
+
+            registrations[typeof(T)] = new Registration(
+                LazyService: new Lazy<object>(
+                    valueFactory: () =>
+                    {
+                        var service = serviceFactory();
+                        if (service is null)
+                            throw new Exception($"The service factory for {typeof(T)} returned null.");
+                        return service;
+                    }, 
+                    isThreadSafe: true));
+
+            return this;
         }
+
+        public object? GetService(Type serviceType)
+        {
+            return registrations.ValueOrDefault(serviceType).LazyService?.Value ?? parent?.GetService(serviceType);
+        }
+
+        record struct Registration(Lazy<object> LazyService);
     }
 
     public static class ServiceProviderExtensions
     {
-        public static T GetService<T>(this IServiceProvider serviceProvider) where T : class => serviceProvider.GetService(typeof(T)) as T;
+        public static T? GetService<T>(this IServiceProvider serviceProvider) where T : class => serviceProvider.GetService(typeof(T)) as T;
 
         public static T GetOrAddService<T>(this ServiceRegistry serviceRegistry, Func<T> factory) where T : class
         {
@@ -120,10 +113,11 @@ namespace VL.Core
         {
             var service = serviceRegistry.GetService<TService>();
             if (service is null)
-                serviceRegistry.RegisterService(factory());
+                serviceRegistry.RegisterServiceLazy(factory);
             return serviceRegistry;
         }
 
         public static ServiceRegistry NewRegistry(this IServiceProvider parent) => new ServiceRegistry(parent);
     }
 }
+#nullable restore

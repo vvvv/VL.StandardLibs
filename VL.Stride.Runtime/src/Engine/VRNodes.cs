@@ -87,7 +87,7 @@ namespace VL.Stride.Engine
 
             public VRDeviceSplitter(NodeContext nodeContext)
             {
-                gameHandle = ServiceRegistry.Current.GetGameHandle();
+                gameHandle = IAppHost.Current.Services.GetGameHandle();
                 v = gameHandle.Resource.Services.GetService<VRDeviceSystem>();
             }
 

@@ -99,7 +99,7 @@ namespace VL.Lib.Experimental
         static ConcurrentDictionary<TChannel, ChannelResolver> GetChannels()
             =>
             // let's fetch the one dictionary per app. It gets created once per session per dict type
-            ServiceRegistry.Current.GetOrAddService(() => new ConcurrentDictionary<TChannel, ChannelResolver>());
+            IAppHost.Current.Services.GetOrAddService(() => new ConcurrentDictionary<TChannel, ChannelResolver>());
 
         // all channels (per TChannel) within an app share this dictionary instance
         ConcurrentDictionary<TChannel, ChannelResolver> ChannelResolversPerChannel;

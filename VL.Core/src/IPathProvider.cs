@@ -63,7 +63,7 @@ namespace VL.Core
 
         private static IPathProvider GetPathProvider()
         {
-            return ServiceRegistry.CurrentOrGlobal.GetService<IPathProvider>() 
+            return IAppHost.CurrentOrGlobal.Services.GetService<IPathProvider>() 
                 ?? throw new InvalidOperationException("A path provider must be registered in the application.");
         }
     }

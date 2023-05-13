@@ -20,7 +20,6 @@ namespace VL.Core.Tests
     [TestFixture]
     public class SerializationTests
     {
-        private CompositeDisposable subscription;
         private ServiceRegistry services;
         private IVLFactory factory;
         private NodeContext context;
@@ -28,17 +27,16 @@ namespace VL.Core.Tests
         [SetUp]
         public void Setup()
         {
-            subscription = new CompositeDisposable();
-            services = new ServiceRegistry().WithDefaults(subscription);
+            services = new ServiceRegistry().WithDefaults();
             factory = services.GetService<IVLFactory>();
             context = NodeContext.Default;
-            services.MakeCurrent().DisposeBy(subscription);
+            services.MakeCurrent();
         }
 
         [TearDown]
         public void TearDown()
         {
-            subscription.Dispose();
+            services.Dispose();
         }
 
         class MyGenericSerializer<TFoo, TBar> : ISerializer<Tuple<TBar>>

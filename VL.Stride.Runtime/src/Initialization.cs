@@ -120,15 +120,14 @@ namespace VL.Stride.Core
         {
             lock (serviceCache)
             {
-                var root = VL.Core.ServiceRegistry.CurrentOrGlobal.GetService<CompositeDisposable>();
-                return serviceCache.GetValue(root, CreateStrideServices);
+                return serviceCache.GetValue(IAppHost.Global, CreateStrideServices);
             }
         }
 
-        static readonly ConditionalWeakTable<CompositeDisposable, ServiceRegistry> serviceCache = new ConditionalWeakTable<CompositeDisposable, ServiceRegistry>();
+        static readonly ConditionalWeakTable<IAppHost, ServiceRegistry> serviceCache = new();
 
         // Taken from Stride/SkyboxGeneratorContext
-        static ServiceRegistry CreateStrideServices(CompositeDisposable subscriptions)
+        static ServiceRegistry CreateStrideServices(IAppHost appHost)
         {
             var services = new ServiceRegistry();
 
@@ -140,23 +139,20 @@ namespace VL.Stride.Core
             services.AddService<IContentManager>(content);
             services.AddService(content);
 
-            var graphicsDevice = GraphicsDevice.New();
+            var graphicsDevice = GraphicsDevice.New().DisposeBy(appHost);
             var graphicsDeviceService = new GraphicsDeviceServiceLocal(services, graphicsDevice);
             services.AddService<IGraphicsDeviceService>(graphicsDeviceService);
 
             var graphicsContext = new GraphicsContext(graphicsDevice);
             services.AddService(graphicsContext);
 
-            var effectSystem = new EffectSystem(services);
+            var effectSystem = new EffectSystem(services).DisposeBy(appHost);
             effectSystem.InstallEffectCompilerWithCustomPaths();
 
             services.AddService(effectSystem);
             effectSystem.Initialize();
             ((IContentable)effectSystem).LoadContent();
             ((EffectCompilerCache)effectSystem.Compiler).CompileEffectAsynchronously = false;
-
-            subscriptions?.Add(effectSystem);
-            subscriptions?.Add(graphicsDevice);
 
             return services;
         }

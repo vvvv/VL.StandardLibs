@@ -2,6 +2,7 @@ using Stride.Core.Diagnostics;
 using Stride.Engine;
 using Stride.Engine.Design;
 using Stride.Games;
+using Stride.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,15 +21,24 @@ namespace VL.Stride.Games
         internal readonly SchedulerSystem SchedulerSystem;
         private NodeFactoryRegistry NodeFactoryRegistry;
 
+        internal event EventHandler BeforeDestroy;
+
         public VLGame()
-            : base()
         {
             SchedulerSystem = new SchedulerSystem(Services);
             Services.AddService(SchedulerSystem);
+
+#if DEBUG
+            GraphicsDeviceManager.DeviceCreationFlags |= DeviceCreationFlags.Debug;
+#endif
+            // for now we don't let the user decide upon the colorspace
+            // as we'd need to either recreate all textures and swapchains in that moment or make sure that these weren't created yet.
+            GraphicsDeviceManager.PreferredColorSpace = ColorSpace.Linear;
         }
 
         protected override void Destroy()
         {
+            BeforeDestroy?.Invoke(this, EventArgs.Empty);
             base.Destroy();
         }
 

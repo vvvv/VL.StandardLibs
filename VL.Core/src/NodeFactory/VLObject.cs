@@ -6,19 +6,13 @@ namespace VL.Core
     [Obsolete($"Inherit from {nameof(FactoryBasedVLNode)} - this class only exists to keep API compatibility", error: true)]
     public abstract class VLObject : IVLObject
     {
-        public VLObject(NodeContext context)
-            : this(ServiceRegistry.CurrentOrGlobal, context)
+        public VLObject(IAppHost appHost, NodeContext context)
         {
+            AppHost = appHost;
             Context = context;
         }
 
-        public VLObject(ServiceRegistry services, NodeContext context)
-        {
-            Services = services;
-            Context = context;
-        }
-
-        public ServiceRegistry Services { get; }
+        public IAppHost AppHost { get; }
 
         public NodeContext Context { get; }
 

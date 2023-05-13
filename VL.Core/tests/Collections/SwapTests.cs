@@ -24,7 +24,7 @@ namespace VL.Core.Tests
         public void Setup()
         {
             serviceRegistry = new ServiceRegistry();
-            serviceRegistry.RegisterService<TypeRegistry>(new TypeRegistryImpl());
+            serviceRegistry.RegisterService<TypeRegistry>(new TypeRegistryImpl(), takeOwnership: true);
             Foo.__IsOutdated = false;
             Foo2.__IsOutdated = false;
         }
@@ -32,7 +32,7 @@ namespace VL.Core.Tests
         [TearDown]
         public void TearDown()
         {
-            serviceRegistry.Unset();
+            serviceRegistry.Dispose();
         }
 
         [Test]

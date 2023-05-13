@@ -32,18 +32,18 @@ namespace VL.Core
         /// <param name="exception">The exception to report.</param>
         public static bool ReportException(Exception exception)
         {
-            return ReportException(exception, ServiceRegistry.CurrentOrGlobal);
+            return ReportException(exception, IAppHost.CurrentOrGlobal);
         }
 
         /// <summary>
         /// The exception to throw by the HandleAsyncException call.
         /// </summary>
         /// <param name="exception">The exception to report.</param>
-        /// <param name="capturedServiceRegistry">The captured service registry.</param>
-        public static bool ReportException(Exception exception, ServiceRegistry capturedServiceRegistry)
+        /// <param name="capturedAppHost">The captured service registry.</param>
+        public static bool ReportException(Exception exception, IAppHost capturedAppHost)
         {
-            var serviceRegistry = ServiceRegistry.IsCurrent() ? ServiceRegistry.Current : capturedServiceRegistry;
-            var runtime = serviceRegistry?.GetService<IVLRuntime>();
+            var appHost = IAppHost.IsCurrent() ? IAppHost.Current : capturedAppHost;
+            var runtime = appHost?.Services.GetService<IVLRuntime>();
             if (runtime != null)
             {
                 runtime.ReportException(exception);

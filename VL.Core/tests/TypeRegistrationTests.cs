@@ -21,16 +21,16 @@ namespace VL.Core.Tests
         public void Setup()
         {
             serviceRegistry = new ServiceRegistry();
-            serviceRegistry.RegisterService(adaptiveProvider = new AdaptiveImplementationProvider(ImmutableArray<Type>.Empty));
-            serviceRegistry.RegisterService<SerializationService>(SerializationServiceImpl.Instance);
+            serviceRegistry.RegisterService(adaptiveProvider = new AdaptiveImplementationProvider(ImmutableArray<Type>.Empty), takeOwnership: true);
+            serviceRegistry.RegisterService<SerializationService>(SerializationServiceImpl.Instance, takeOwnership: false);
             registry = new TypeRegistryImpl();
-            serviceRegistry.RegisterService<TypeRegistry>(registry);
+            serviceRegistry.RegisterService<TypeRegistry>(registry, takeOwnership: false);
         }
 
         [TearDown]
         public void TearDown()
         {
-            serviceRegistry.Unset();
+            serviceRegistry.Dispose();
         }
 
         static class DictionaryOperations

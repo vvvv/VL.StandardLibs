@@ -77,16 +77,7 @@ namespace VL.Core.Reactive
         {
             get
             {
-                return ServiceRegistry.Current.GetOrAddService<IChannelHub>(() =>
-                {
-                    var x = new ChannelHub();
-                    ServiceRegistry.Current.GetService<IAppHost>().OnExit.Subscribe(_ =>
-                    {
-                        x.Dispose();
-                    });
-
-                    return x;
-                });
+                return IAppHost.Current.Services.GetService<IChannelHub>()!;
             }
         }
 

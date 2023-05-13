@@ -145,7 +145,7 @@ namespace VL.Lib.Basics.Resources
         {
             // To be compatible with older code (like VL.Video.MediaFoundation) we need query the IVLFactory first
             // It will fallback to the ServiceRegistry
-            var factory = ServiceRegistry.CurrentOrGlobal.GetService<IVLFactory>();
+            var factory = IAppHost.CurrentOrGlobal.Services.GetService<IVLFactory>();
             return factory.GetService<IRefCounter<T>>();
         }
 
