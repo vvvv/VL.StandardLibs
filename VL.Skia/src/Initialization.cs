@@ -12,8 +12,8 @@ namespace VL.Skia
     {
         protected override void RegisterServices(IVLFactory factory)
         {
-            ServiceRegistry.Current.RegisterService<IRefCounter<SKImage>>(SKObjectRefCounter.Default);
-            ServiceRegistry.Current.RegisterService<IRefCounter<SKPicture>>(SKObjectRefCounter.Default);
+            factory.AppHost.Services.RegisterService<IRefCounter<SKImage>>(SKObjectRefCounter.Default);
+            factory.AppHost.Services.RegisterService<IRefCounter<SKPicture>>(SKObjectRefCounter.Default);
 
             // Using the node factory API allows us to keep thing internal
             factory.RegisterNodeFactory("VL.Skia.Nodes", f =>

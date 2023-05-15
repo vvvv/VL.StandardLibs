@@ -100,7 +100,7 @@ namespace VL.Core
         /// <summary>
         /// Returns the VL factory installed on the current thread.
         /// </summary>
-        static IVLFactory Current => ServiceRegistry.Current.GetService<IVLFactory>();
+        static IVLFactory Current => IAppHost.Current.Services.GetService<IVLFactory>();
 
         /// <summary>
         /// The app host associated with this factory.

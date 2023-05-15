@@ -33,7 +33,7 @@ namespace VL.Stride.Rendering.Lights
 
             public SkyboxRenderer(NodeContext nodeContext)
             {
-                gameHandle = ServiceRegistry.Current.GetGameHandle().DisposeBy(this);
+                gameHandle = IAppHost.Current.Services.GetGameHandle().DisposeBy(this);
                 schedulerSystem = gameHandle.Resource.Services.GetService<SchedulerSystem>();
 
                 Skybox = new Skybox();

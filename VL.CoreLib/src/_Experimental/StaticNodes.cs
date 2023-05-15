@@ -13,7 +13,7 @@ namespace VL.Lib.Experimental
     public class SingleInstanceHelper<T>
         where T: class
     {
-        static readonly ISingleInstanceHelper<T> Impl = ServiceRegistry.Global.GetService<IHotswapSpecificNodes>().CreateSingleInstanceHelper<T>();
+        static readonly ISingleInstanceHelper<T> Impl = IAppHost.Global.Services.GetService<IHotswapSpecificNodes>().CreateSingleInstanceHelper<T>();
 
         public static T SingleInstance(bool forceNewInstance, Func<T> producer, SingleInstanceBehaviorOnStop onStop)
         {

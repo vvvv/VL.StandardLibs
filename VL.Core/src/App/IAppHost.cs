@@ -3,14 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Disposables;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 
 namespace VL.Core
 {
     /// <summary>
-    /// Implemented by all the entry points (vvvv.exe, exported apps, user runtime instances).
+    /// Implemented by all the entry points (vvvv.exe, exported apps, runtime instances).
     /// All entry points will make themselfs current before calling into the patch (<see cref="AppHostExtensions.MakeCurrent"/>).
     /// Patches will capture the current app host and restore it in callbacks should no other app host be current (<see cref="AppHostExtensions.MakeCurrentIfNone"/>).
     /// </summary>
@@ -27,7 +25,9 @@ namespace VL.Core
         public static IAppHost CurrentOrGlobal => AppHostExtensions.CurrentOrGlobal;
 
         /// <summary>
-        /// The app host for the whole application.
+        /// The app host for the whole application. 
+        /// When running inside the editor this refers to the development environment. 
+        /// When running as a standalone app it's the same as <see cref="Current"/>.
         /// </summary>
         public static IAppHost Global => AppHostExtensions.Global;
 

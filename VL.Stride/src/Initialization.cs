@@ -40,7 +40,7 @@ namespace VL.Stride.Lib
 
         protected override void RegisterServices(IVLFactory factory)
         {
-            var services = ServiceRegistry.Current.EnsureService<IResourceProvider<Game>>(() =>
+            var services = factory.AppHost.Services.EnsureService<IResourceProvider<Game>>(() =>
             {
                 var appHost = factory.AppHost;
                 var game = new VLGame().DisposeBy(appHost);

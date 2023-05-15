@@ -6,11 +6,6 @@ using System.ComponentModel;
 
 namespace VL.Core
 {
-    /// <summary>
-    /// Provides services for the whole application (<see cref="Global"/>) or to a specific call stack (<see cref="Current"/>).
-    /// All entry points (runtime instances, editor extensions, exported apps) will make a registry current before calling into the patch (<see cref="MakeCurrent"/>).
-    /// Patches will capture the current service registry and restore it in callbacks should no other registry be current (<see cref="MakeCurrentIfNone"/>).
-    /// </summary>
     public class ServiceRegistry : IServiceProvider
     {
         private static ServiceRegistry? global;
@@ -30,6 +25,7 @@ namespace VL.Core
         /// <summary>
         /// The service registry for the whole application.
         /// </summary>
+        [Obsolete("Use IAppHost.Global.Services", error: true)]
         public static ServiceRegistry Global => global!;
 
         /// <summary>

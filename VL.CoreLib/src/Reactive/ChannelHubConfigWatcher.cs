@@ -20,7 +20,7 @@ namespace VL.Core.Reactive
 
         public ChannelHubConfigWatcher(string filePath)
         {
-            this.typeRegistry = ServiceRegistry.Global.GetService<TypeRegistry>();
+            this.typeRegistry = TypeRegistry.Default;
             this.filePath = filePath;
             watcher = new FileSystemWatcher();
             watcher.Path = Path.GetDirectoryName(filePath);

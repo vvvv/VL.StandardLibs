@@ -268,7 +268,7 @@ namespace VL.Stride.Rendering.Materials
 
         public MaterialBuilderFromDescriptor(NodeContext nodeContext)
         {
-            gameHandle = ServiceRegistry.Current.GetGameHandle();
+            gameHandle = IAppHost.Current.Services.GetGameHandle();
         }
 
         public void Dispose()

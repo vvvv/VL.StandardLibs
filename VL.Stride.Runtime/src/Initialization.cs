@@ -57,7 +57,7 @@ namespace VL.Stride.Core
 
         protected override void RegisterServices(IVLFactory factory)
         {
-            var services = VL.Core.ServiceRegistry.Current;
+            var services = factory.AppHost.Services;
 
             // Graphics device
             services.RegisterProvider(game => ResourceProvider.Return(game.GraphicsDevice));

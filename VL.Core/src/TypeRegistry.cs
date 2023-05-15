@@ -7,7 +7,7 @@ namespace VL.Core
     // Currently we assume that there're no double type mappings and no double adaptive implementations
     public abstract class TypeRegistry
     {
-        public static TypeRegistry Default => ServiceRegistry.Global.GetService<TypeRegistry>();
+        public static TypeRegistry Default => IAppHost.Global.Services.GetService<TypeRegistry>();
 
         // Called by serializers to map types
         public abstract ImmutableArray<IVLTypeInfo> RegisteredTypes { get; }
