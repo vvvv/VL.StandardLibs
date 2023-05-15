@@ -37,12 +37,22 @@ namespace VL.Core
         public static bool IsCurrent() => AppHostExtensions.IsCurrent();
 
         /// <summary>
+        /// The base path of the currently running application.
+        /// </summary>
+        string AppBasePath { get; }
+
+        /// <summary>
+        /// Whether the app is exported and runs standalone as an executable.
+        /// </summary>
+        bool IsExported { get; }
+
+        /// <summary>
         /// The service registry of the app.
         /// </summary>
         ServiceRegistry Services { get; }
 
         /// <summary>
-        /// Can be used to tie the lifetime on an object to the one of the application.
+        /// Can be used to tie the lifetime of an object to the one of the application.
         /// </summary>
         ICollection<IDisposable> Components { get; }
 
@@ -50,6 +60,21 @@ namespace VL.Core
         /// Raised when the application exits.
         /// </summary>
         IObservable<Unit> OnExit { get; }
+
+        /// <summary>
+        /// Tells the app host to stay alive until the returned disposable is disposed.
+        /// </summary>
+        IDisposable KeepAlive();
+
+        /// <summary>
+        /// The document base path. Running inside the editor this refers to the directory of the document otherwise the directory of the executable.
+        /// </summary>
+        string GetDocumentBasePath(UniqueId documentId);
+
+        /// <summary>
+        /// The path of the locally installed package. If the package is not installed or the app is running as standalone this will return null.
+        /// </summary>
+        string? GetPackagePath(string packageId);
     }
 
     public static class AppHostExtensions

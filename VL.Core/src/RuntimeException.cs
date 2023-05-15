@@ -53,13 +53,14 @@ namespace VL.Core
         [ThreadStatic]
         static int Shielded;
 
-        public RuntimeCommand RuntimeCommand { get; set; }
+        public RuntimeCommand RuntimeCommand { get; }
 
-        public RuntimeCommandException(string message) 
+        public RuntimeCommandException(string message, RuntimeCommand command) 
             : base(message)
         {
             HasBeenThrownAlready = true;
             Latest = this;
+            RuntimeCommand = command;
         }
 
         public static void Reset()
@@ -72,7 +73,7 @@ namespace VL.Core
         {
             if (Shielded != 0) return;
             Console.WriteLine(exceptionMessage);
-            throw new RuntimeCommandException(exceptionMessage) { RuntimeCommand = runtimeCommand };
+            throw new RuntimeCommandException(exceptionMessage, runtimeCommand);
         }
 
         internal static void BeginShield()

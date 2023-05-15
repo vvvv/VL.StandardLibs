@@ -34,8 +34,7 @@ namespace VL.Lib
                 var appHost = IAppHost.Current;
                 var channelHub = new ChannelHub(appHost).DisposeBy(appHost);
                 appHost.Services.RegisterService<IChannelHub>(channelHub);
-                var basePath = PathProviderUtils.GetApplicationBasePath();
-                var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(basePath);
+                var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(appHost.AppBasePath);
                 if (watcher != null)
                     channelHub.MustHaveDescriptive = watcher.Descriptions;
             }

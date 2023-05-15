@@ -7,30 +7,31 @@ using Stride.Core.Mathematics;
 using VL.AppServices.CompilerServices;
 using VL.AppServices;
 using VL.AppServices.Serialization;
+using VL.TestFramework;
 
 namespace VL.Core.Tests
 {
     [TestFixture]
     public class TypeRegistrationTests
     {
-        ServiceRegistry serviceRegistry;
+        TestAppHost appHost;
         TypeRegistryImpl registry;
         AdaptiveImplementationProvider adaptiveProvider;
 
         [SetUp]
         public void Setup()
         {
-            serviceRegistry = new ServiceRegistry();
-            serviceRegistry.RegisterService(adaptiveProvider = new AdaptiveImplementationProvider(ImmutableArray<Type>.Empty), takeOwnership: true);
-            serviceRegistry.RegisterService<SerializationService>(SerializationServiceImpl.Instance, takeOwnership: false);
+            appHost = new();
+            appHost.Services.RegisterService(adaptiveProvider = new AdaptiveImplementationProvider(ImmutableArray<Type>.Empty));
+            appHost.Services.RegisterService<SerializationService>(SerializationServiceImpl.Instance);
             registry = new TypeRegistryImpl();
-            serviceRegistry.RegisterService<TypeRegistry>(registry, takeOwnership: false);
+            appHost.Services.RegisterService<TypeRegistry>(registry);
         }
 
         [TearDown]
         public void TearDown()
         {
-            serviceRegistry.Dispose();
+            appHost.Dispose();
         }
 
         static class DictionaryOperations
@@ -211,8 +212,8 @@ namespace VL.Core.Tests
             registry.RegisterType(typeof(ValueTuple<,>), name: "Tuple", supportType: typeof(Tuple2Operations));
             adaptiveProvider.RegisterAdaptiveImplementation(typeof(AdaptiveImplementations));
             var value = (ValueTuple<string, float>)(registry.GetDefaultValue(typeof(ValueTuple<string, float>)));
-            Assert.AreEqual(value.Item1, string.Empty);
-            Assert.AreEqual(value.Item2, 1f);
+            Assert.AreEqual(string.Empty, value.Item1);
+            Assert.AreEqual(1f, value.Item2);
         }
 
         [Test]
@@ -223,8 +224,8 @@ namespace VL.Core.Tests
             adaptiveProvider.RegisterAdaptiveImplementation(typeof(AdaptiveImplementations));
             var myPatch = (MyPatch2<string, float>)(registry.GetDefaultValue(typeof(MyPatch2<string, float>)));
             var value = myPatch.SomeTuple;
-            Assert.AreEqual(value.Item1, string.Empty);
-            Assert.AreEqual(value.Item2, 1f);
+            Assert.AreEqual(string.Empty, value.Item1);
+            Assert.AreEqual(1f, value.Item2);
         }
     }
 }

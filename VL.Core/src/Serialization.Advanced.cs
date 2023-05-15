@@ -33,6 +33,11 @@ namespace VL.Core
     public abstract class SerializationContext
     {
         /// <summary>
+        /// The current app host.
+        /// </summary>
+        public abstract IAppHost AppHost { get; }
+
+        /// <summary>
         /// Serializes the given value and if a name is provided wraps the serialized content into an <see cref="XElement"/> or <see cref="XAttribute"/>. 
         /// </summary>
         /// <typeparam name="T">
