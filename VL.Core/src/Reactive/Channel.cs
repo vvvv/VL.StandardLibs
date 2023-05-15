@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Stride.Core;
+using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -16,33 +19,34 @@ namespace VL.Lib.Reactive
     public interface IChannel
     {
         Type ClrTypeOfValues { get; }
-        ICollection Components { get; }
-        TComponent? TryGetComponent<TComponent>() where TComponent : class;
-        TComponent AddOrGetComponent<TComponent>(Func<TComponent> component) where TComponent : class;
+        ImmutableList<object> Components { get; set; }
         IChannel<object> ChannelOfObject { get; }
         bool Enabled { get; set; }
         bool IsBusy { get; }
         object? Object { get; set; }
+        string? LatestAuthor { get; }
+        void SetObjectAndAuthor(object? @object, string? author);
     }
-
 
     [Monadic(typeof(Monadic.ChannelFactory<>))]
     public interface IChannel<T> : IChannel, ISubject<T?>, IDisposable
     {
         public T? Value { get; set; }
+        void SetValueAndAuthor(T? value, string? author);
     }
 
     internal abstract class C<T> : IChannel<T>, ISwappableGenericType
     {
         protected readonly Subject<T?> subject = new();
-        List<object> components = new();
+
+        public ImmutableList<object> Components { get; set; } = ImmutableList<object>.Empty;
 
         object ISwappableGenericType.Swap(Type newType, Swapper swapObject)
         {
             var arg = newType.GenericTypeArguments[0];
             var channel = ChannelHelpers.CreateChannelOfType(arg);
             if (channel is not null)
-                channel.Object = swapObject(Value, arg);
+                channel.SetObjectAndAuthor(swapObject(Value, arg), LatestAuthor);
 #nullable disable
             return channel;
 #nullable enable
@@ -62,35 +66,43 @@ namespace VL.Lib.Reactive
             }
             set
             {
-                AssertAlive();
-                if (!Enabled || !this.IsValid())
-                    return;
+                SetValueAndAuthor(value, null);
+            }
+        }
 
-                this.value = value;
+        public void SetValueAndAuthor(T? value, string? author)
+        {
+            AssertAlive();
+            if (!Enabled || !this.IsValid())
+                return;
 
-                if (stack < maxStack)
+            LatestAuthor = author;
+            this.value = value;
+
+            if (stack < maxStack)
+            {
+                stack++;
+                try
                 {
-                    stack++;
-                    try
-                    {
-                        subject.OnNext(value);
-                    }
-                    finally
-                    {
-                        stack--;
-                    }
+                    subject.OnNext(value);
+                }
+                finally
+                {
+                    stack--;
                 }
             }
         }
 
         object? IChannel.Object { get => Value; set => Value = (T?)value; }
 
+        void IChannel.SetObjectAndAuthor(object? @object, string? author)
+        {
+            SetValueAndAuthor((T?)@object, author);
+        }
 
         IChannel<object> IChannel.ChannelOfObject => channelOfObject;
 
         public Type ClrTypeOfValues => typeof(T);
-
-        public ICollection Components => components;
 
 
         protected abstract IChannel<object> channelOfObject {get;}
@@ -112,7 +124,7 @@ namespace VL.Lib.Reactive
         void IObserver<T?>.OnNext(T? value)
         {
             AssertAlive();
-            Value = value;
+            SetValueAndAuthor(value, null);
         }
 
         IDisposable IObservable<T?>.Subscribe(IObserver<T?> observer)
@@ -130,6 +142,7 @@ namespace VL.Lib.Reactive
 
         public bool Enabled { get; set; } = true;
 
+        public string? LatestAuthor { get; set; }
 
         bool disposing = false;
         void IDisposable.Dispose()
@@ -141,7 +154,7 @@ namespace VL.Lib.Reactive
             disposing = true;
             try
             {
-                foreach (var c in components)
+                foreach (var c in Components)
                     (c as IDisposable)?.Dispose();
                 Enabled = false;
                 subject.Dispose();
@@ -151,22 +164,7 @@ namespace VL.Lib.Reactive
                 disposing = false;
             }
         }
-
-        public TComponent? TryGetComponent<TComponent>() where TComponent: class
-            => components.OfType<TComponent>().FirstOrDefault();
-
-        public virtual TComponent AddOrGetComponent<TComponent>(Func<TComponent> producer) where TComponent : class
-        {
-            var c = TryGetComponent<TComponent>();
-            if (c is null)
-            {
-                c = producer();
-                components.Add(c);
-            }
-            return c;
-        }
     }
-
 
     internal class Channel<T> : C<T>, IChannel<object>
     {
@@ -174,6 +172,11 @@ namespace VL.Lib.Reactive
 
         object? IChannel<object>.Value { get => Value; set { Value = (T?)value; } }
         
+        void IChannel<object>.SetValueAndAuthor(object? value, string? author)
+        {
+            SetValueAndAuthor((T?)value, author);
+        }
+
         void IObserver<object?>.OnCompleted()
         {
             AssertAlive();
@@ -223,21 +226,71 @@ namespace VL.Lib.Reactive
 
     internal sealed class DummyChannel<T> : Channel<T>, IDummyChannel
     {
-        public override TComponent AddOrGetComponent<TComponent>(Func<TComponent> producer)
-        {
-            return default!;
-        }
     }
 
     public static class ChannelHelpers
     {
-        public static IChannel<IReadOnlyCollection<Attribute>> Attributes(this IChannel c)
-            => c.AddOrGetComponent(() =>
+        public static void AddComponent(this IChannel channel, object component)
+        {
+            channel.Components = channel.Components.Add(component);
+        }
+
+        public static void RemoveComponent(this IChannel channel, object component)
+        {
+            channel.Components = channel.Components.Remove(component);
+            (component as IDisposable)?.Dispose();
+        }
+
+        public static TComponent? TryGetComponent<TComponent>(this IChannel channel) where TComponent : class
+            => channel.Components.OfType<TComponent>().FirstOrDefault();
+
+        public static TComponent EnsureSingleComponentOfType<TComponent>(this IChannel channel, Func<TComponent> producer, bool renew) where TComponent : class
+        {
+            var c = channel.TryGetComponent<TComponent>();
+            if (c is null)
+            {
+                c = producer();
+                channel.Components = channel.Components.Add(c);
+                return c;
+            }
+
+            if (!renew)
+                return c;
+
+            var newC = producer();
+            channel.Components = channel.Components.Replace(c, newC);
+            (c as IDisposable)?.Dispose();
+            return newC;
+        }
+
+        public static object EnsureSingleComponentOfType(this IChannel channel, object component, bool renew)
+        {
+            var type = component.GetType();
+            foreach (object? c in channel.Components)
+            {
+                if (c.GetType() == type)
+                {
+                    if (!renew)
+                    {
+                        (component as IDisposable)?.Dispose();
+                        return c;
+                    }
+                    channel.Components = channel.Components.Replace(c, component);
+                    (c as IDisposable)?.Dispose();
+                    return component;
+                }
+            }
+            channel.Components = channel.Components.Add(component);
+            return component;
+        }
+
+        public static IChannel<IReadOnlyCollection<Attribute>> Attributes(this IChannel channel)
+            => channel.EnsureSingleComponentOfType(() =>
                 {
                     var c = CreateChannelOfType<IReadOnlyCollection<Attribute>>();
                     c.Value = Array.Empty<Attribute>();
                     return c;
-                });
+                }, false);
 
         public static IChannel<T> CreateChannelOfType<T>()
         {

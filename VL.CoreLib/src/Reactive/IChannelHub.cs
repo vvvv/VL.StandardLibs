@@ -125,7 +125,6 @@ namespace VL.Core.Reactive
         void RegisterModule(IModule module);
     }
 
-
     public interface IModule
     {
         string Name { get; }
@@ -134,11 +133,31 @@ namespace VL.Core.Reactive
     }
 
 
-    public interface IModuleView
+    [Flags]
+    public enum BindingUserEditingCapabilities
     {
-        IDialog CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<IBinding> responeChannel);
+        Default = OnlyAllowSingle | Editable | EditMeansMutate | ManuallyRemovable,
+        NoManualAdd = 1 << 0,
+        OnlyAllowSingle = 1 << 1,
+        AllowMultiple = 1 << 2,
+        SpecifyAllowAddPerChannel = 1 << 3,
+
+        Editable = 1 << 4,
+        EditMeansMutate = 1 << 5,
+        EditMeansRecreate = 1 << 6,
+        SpecifyAllowEditPerChannel = 1 << 7,
+
+        ManuallyRemovable = 1 << 8,
+        SpecifyAllowRemovablePerChannel = 1 << 9,
     }
 
+
+    public interface IModuleView
+    {
+        BindingUserEditingCapabilities? BindingEditingCapabilities { get; }
+
+        IDialog CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<IBinding> responeChannel);
+    }
 
 
     public interface IDialog
