@@ -18,7 +18,7 @@ namespace VL.Core.CompilerServices
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void Init(IVLFactory factory) => Init(factory.AppHost);
 
-        public void Init(IAppHost appHost)
+        public void Init(AppHost appHost)
         {
             try
             {
@@ -35,12 +35,7 @@ namespace VL.Core.CompilerServices
             }
         }
 
-        internal void Prepare()
-        {
-            RuntimeHelpers.PrepareMethod(GetType().GetMethod(nameof(RegisterServices), BindingFlags.Instance | BindingFlags.NonPublic).MethodHandle);
-        }
-
-        internal void InitInternalFactory(IAppHost appHost)
+        internal void InitInternalFactory(AppHost appHost)
         {
             try
             {
@@ -52,7 +47,7 @@ namespace VL.Core.CompilerServices
             }
         }
 
-        private void DoRegister(IAppHost appHost)
+        private void DoRegister(AppHost appHost)
         {
             var current = CurrentAssembly;
             CurrentAssembly = this.GetType().Assembly;

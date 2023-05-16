@@ -32,7 +32,7 @@ namespace VL.Core
         /// <param name="exception">The exception to report.</param>
         public static bool ReportException(Exception exception)
         {
-            return ReportException(exception, IAppHost.CurrentOrGlobal);
+            return ReportException(exception, AppHost.CurrentOrGlobal);
         }
 
         /// <summary>
@@ -40,9 +40,9 @@ namespace VL.Core
         /// </summary>
         /// <param name="exception">The exception to report.</param>
         /// <param name="capturedAppHost">The captured service registry.</param>
-        public static bool ReportException(Exception exception, IAppHost capturedAppHost)
+        public static bool ReportException(Exception exception, AppHost capturedAppHost)
         {
-            var appHost = IAppHost.IsCurrent() ? IAppHost.Current : capturedAppHost;
+            var appHost = AppHost.IsCurrent() ? AppHost.Current : capturedAppHost;
             var runtime = appHost?.Services.GetService<IVLRuntime>();
             if (runtime != null)
             {

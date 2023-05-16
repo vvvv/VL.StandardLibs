@@ -17,7 +17,7 @@ namespace VL.Video.MediaFoundation
 
         public StrideConverter()
         {
-            renderDrawContextHandle = IAppHost.Current.Services.GetGameProvider()
+            renderDrawContextHandle = AppHost.Current.Services.GetGameProvider()
                 .Bind(g => RenderContext.GetShared(g.Services).GetThreadContext())
                 .GetHandle() ?? throw new ServiceNotFoundException(typeof(IResourceProvider<Game>));
 

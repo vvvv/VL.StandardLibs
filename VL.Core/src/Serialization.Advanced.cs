@@ -35,7 +35,7 @@ namespace VL.Core
         /// <summary>
         /// The current app host.
         /// </summary>
-        public abstract IAppHost AppHost { get; }
+        public abstract AppHost AppHost { get; }
 
         /// <summary>
         /// Serializes the given value and if a name is provided wraps the serialized content into an <see cref="XElement"/> or <see cref="XAttribute"/>. 

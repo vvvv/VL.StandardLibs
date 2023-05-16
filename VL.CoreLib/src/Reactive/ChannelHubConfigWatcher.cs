@@ -34,7 +34,7 @@ namespace VL.Core.Reactive
                 .Throttle(TimeSpan.FromSeconds(1))
                 .Subscribe(_ => PushChannelBuildDescriptions());
 
-            this.DisposeBy(IAppHost.Global);
+            this.DisposeBy(AppHost.Global);
         }
 
         void PushChannelBuildDescriptions()

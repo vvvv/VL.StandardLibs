@@ -199,7 +199,7 @@ namespace VL.ImGui.Editors
             if (typeInfo is null)
                 return default;
             if (typeInfo.IsPatched)
-                return typeInfo.CreateInstance(NodeContext.Default);
+                return AppHost.Current.CreateInstance(typeInfo.ClrType);
             else
                 return Activator.CreateInstance(typeInfo.ClrType);
         }

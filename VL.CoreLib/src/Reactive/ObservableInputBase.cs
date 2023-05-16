@@ -14,7 +14,7 @@ namespace VL.Lib.Reactive
     public abstract class ObservableInputBase<T> : IDisposable
     {
         private readonly object lockingObject = new object();
-        private readonly IAppHost appHost = IAppHost.CurrentOrGlobal;
+        private readonly AppHost appHost = AppHost.Current;
 
         protected SerialDisposable FSubscription = new SerialDisposable();
         protected IObservable<T> FObservable;

@@ -77,7 +77,7 @@ namespace VL.Core.Reactive
         {
             get
             {
-                return IAppHost.Current.Services.GetService<IChannelHub>()!;
+                return AppHost.Current.Services.GetService<IChannelHub>()!;
             }
         }
 

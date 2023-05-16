@@ -66,7 +66,7 @@ namespace VL.Stride.Rendering
         //get shader source from data base, is there a more direct way?
         public static string GetShaderSourceCode(string effectName, IVirtualFileProvider fileProvider, ShaderSourceManager shaderSourceManager)
         {
-            if (!IAppHost.Global.IsExported) //only try to load shader source from file when in VL editor
+            if (!AppHost.Global.IsExported) //only try to load shader source from file when in VL editor
             {
                 var path = GetPathOfSdslShader(effectName, fileProvider);
 

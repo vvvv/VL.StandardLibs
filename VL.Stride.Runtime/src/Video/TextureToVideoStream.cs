@@ -22,13 +22,13 @@ namespace VL.Stride.Video
         private readonly SynchronizationContext synchronizationContext = SynchronizationContext.Current;
         private readonly Queue<(Texture texture, string metadata)> textureDownloads = new Queue<(Texture texture, string metadata)>();
         private readonly Subject<IResourceProvider<VideoFrame>> frames = new Subject<IResourceProvider<VideoFrame>>();
-        private readonly IAppHost appHost;
+        private readonly AppHost appHost;
         private readonly CompositeDisposable subscriptions;
         private readonly SerialDisposable texturePoolSubscription;
 
         public TextureToVideoStream()
         {
-            appHost = IAppHost.Current;
+            appHost = AppHost.Current;
             subscriptions = new CompositeDisposable()
             {
                 (texturePoolSubscription = new SerialDisposable()),

@@ -31,7 +31,7 @@ namespace VL.Lang.PublicAPI
     ///// </summary>
     public interface IDevSession
     {
-        public static IDevSession? Current => IAppHost.CurrentOrGlobal.Services.GetService<IDevSession>();
+        public static IDevSession? Current => AppHost.CurrentOrGlobal.Services.GetService<IDevSession>();
 
         void Paste(string modelSnippet, PointF location);
 

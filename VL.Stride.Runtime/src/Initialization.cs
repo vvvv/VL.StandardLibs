@@ -120,14 +120,14 @@ namespace VL.Stride.Core
         {
             lock (serviceCache)
             {
-                return serviceCache.GetValue(IAppHost.Global, CreateStrideServices);
+                return serviceCache.GetValue(AppHost.Global, CreateStrideServices);
             }
         }
 
-        static readonly ConditionalWeakTable<IAppHost, ServiceRegistry> serviceCache = new();
+        static readonly ConditionalWeakTable<AppHost, ServiceRegistry> serviceCache = new();
 
         // Taken from Stride/SkyboxGeneratorContext
-        static ServiceRegistry CreateStrideServices(IAppHost appHost)
+        static ServiceRegistry CreateStrideServices(AppHost appHost)
         {
             var services = new ServiceRegistry();
 

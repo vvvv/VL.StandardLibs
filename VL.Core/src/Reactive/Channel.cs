@@ -173,7 +173,7 @@ namespace VL.Lib.Reactive
         static DummyChannelHelpers()
         {
             Instance = new DummyChannel<T>();
-            Instance.Value = TypeUtils.Default<T>();
+            Instance.Value = AppHost.CurrentOrGlobal.GetDefaultValue<T>();
             Instance.Enabled = false;
         }
     }

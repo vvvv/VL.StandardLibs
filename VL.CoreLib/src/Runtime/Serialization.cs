@@ -11,8 +11,8 @@ namespace VL.Lib.Runtime
 {
     public static class Serialization
     {
-        static readonly FSharpOption<ITypeNameConverter> TypeNameConverter = new FSharpOption<ITypeNameConverter>(IAppHost.Global.Services.GetService<ITypeNameConverter>());
-        static readonly FSharpOption<IPicklerResolver> PicklerResolver = new FSharpOption<IPicklerResolver>(IAppHost.Global.Services.GetService<IPicklerResolver>());
+        static readonly FSharpOption<ITypeNameConverter> TypeNameConverter = new FSharpOption<ITypeNameConverter>(AppHost.Global.Services.GetService<ITypeNameConverter>());
+        static readonly FSharpOption<IPicklerResolver> PicklerResolver = new FSharpOption<IPicklerResolver>(AppHost.Global.Services.GetService<IPicklerResolver>());
 
         public static string SerializeXml<T>(T value, bool indent = false)
         {

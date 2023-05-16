@@ -382,7 +382,7 @@ namespace VL.Lib.Collections
             //the side effect "SetEntries" gets called and inform the compiler about a change to add or remove errors
             OnChange
                 .Subscribe(_ =>AnyDynamicEnumDefinitionChanged.SendEnumDefinitionChanged(this.GetType()))
-                .DisposeBy(IAppHost.Global);
+                .DisposeBy(AppHost.Global);
 
             SetNewEntries();
 

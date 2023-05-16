@@ -139,7 +139,7 @@ namespace VL.Lib.Reactive
         private void SetupResultObservable()
         {
             var switched = FSubject.Switch();
-            var appHost = IAppHost.CurrentOrGlobal;
+            var appHost = AppHost.Current;
             FResult = switched.Catch((Exception e) =>
             {
                 FLastException = e;

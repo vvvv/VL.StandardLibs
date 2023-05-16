@@ -31,7 +31,7 @@ namespace VL.Lib
             if (!factory.OnlyStaticServices)
             {
                 // make sure all channels of config exist in app-channelhub.
-                var appHost = IAppHost.Current;
+                var appHost = AppHost.Current;
                 var channelHub = new ChannelHub(appHost).DisposeBy(appHost);
                 appHost.Services.RegisterService<IChannelHub>(channelHub);
                 var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(appHost.AppBasePath);

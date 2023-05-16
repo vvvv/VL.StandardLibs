@@ -61,7 +61,7 @@ namespace VL.ImGui.Editors
                             var attributes = property.GetAttributes<Attribute>().ToList();
                             propertyChannel.Attributes().Value = attributes;
                             var label = attributes.OfType<LabelAttribute>().FirstOrDefault()?.Label ?? property.OriginalName;
-                            var contextForProperty = new ObjectEditorContext(factory, label);
+                            var contextForProperty = new ObjectEditorContext(instance.AppHost, factory, label);
                             editor = editors[property] = factory.CreateObjectEditor(propertyChannel, contextForProperty);
                         }
                         else

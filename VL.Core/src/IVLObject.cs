@@ -25,9 +25,9 @@ namespace VL.Core
         ServiceRegistry Services => AppHost.Services;
 
         /// <summary>
-        /// The app host which was current when this instance was created.
+        /// The app host which created this instance.
         /// </summary>
-        IAppHost AppHost { get; }
+        AppHost AppHost { get; }
 
         /// <summary>
         /// The context in which this instance was created.
@@ -53,7 +53,7 @@ namespace VL.Core
     /// </summary>
     public interface IVLRuntime
     {
-        public static IVLRuntime? Current => IAppHost.Current.Services.GetService<IVLRuntime>();
+        public static IVLRuntime? Current => AppHost.Current.Services.GetService<IVLRuntime>();
 
         /// <summary>
         /// Whether or not VL is in a running state. If not calls into its object graph are not allowed.
@@ -100,12 +100,12 @@ namespace VL.Core
         /// <summary>
         /// Returns the VL factory installed on the current thread.
         /// </summary>
-        static IVLFactory Current => IAppHost.Current.Services.GetService<IVLFactory>();
+        static IVLFactory Current => AppHost.Current.Services.GetService<IVLFactory>();
 
         /// <summary>
         /// The app host associated with this factory.
         /// </summary>
-        IAppHost AppHost { get; }
+        AppHost AppHost { get; }
 
         /// <summary>
         /// Lookup a type by name. The name will be parsed based on the usual VL type annotation rules.
@@ -128,7 +128,7 @@ namespace VL.Core
         /// <param name="type">The type to create a new instance of.</param>
         /// <param name="nodeContext">The context to use when creating the instance.</param>
         /// <returns>The newly created instance or null if the type is not known to VL.</returns>
-        [Obsolete("Please use TypeUtils.New")]
+        [Obsolete("Please use AppHost.CreateInstance")]
         object CreateInstance(Type type, NodeContext nodeContext);
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace VL.Core
         /// </summary>
         /// <param name="type">The type to return the default value of.</param>
         /// <returns>The default value of the given type as defined by VL or null if the type is not known to VL or no default has been defined.</returns>
-        [Obsolete("Please use TypeUtils.Default")]
+        [Obsolete("Please use AppHost.GetDefaultValue")]
         object GetDefaultValue(Type type);
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace VL.Core
         /// <param name="factory">The factory to use to create the default value.</param>
         /// <returns>The VL defined default value of the given type <typeparamref name="T"/>.</returns>
         [Obsolete("Please use TypeUtils.Default")]
-        public static T GetDefaultValue<T>(this IVLFactory factory) => TypeUtils.Default<T>();
+        public static T GetDefaultValue<T>(this IVLFactory factory) => factory.AppHost.GetDefaultValue<T>();
 
         /// <summary>
         /// Tries to create an instance of the given type <typeparamref name="T"/> using the VL generated constructor.
@@ -246,10 +246,10 @@ namespace VL.Core
         /// <param name="nodeContext">The context in which the new instance will be created.</param>
         /// <param name="instance">The newly created instance or the given default value.</param>
         /// <returns>True in case a new instance was created.</returns>
-        [Obsolete("Please use TypeUtils.New")]
+        [Obsolete("Please use AppHost.CreateInstance")]
         public static bool TryCreateInstance<T>(this IVLFactory factory, T defaultValue, NodeContext nodeContext, out T instance)
         {
-            var value = TypeUtils.New(typeof(T), nodeContext);
+            var value = factory.AppHost.CreateInstance(typeof(T), nodeContext);
             if (value is T)
             {
                 instance = (T)value;
@@ -265,7 +265,7 @@ namespace VL.Core
         /// <param name="factory">The VL factory which will create the instance.</param>
         /// <param name="type">The type to create a new instance of.</param>
         /// <returns>The newly created instance or null if the type is not known to VL.</returns>
-        [Obsolete("Please use TypeUtils.New")]
+        [Obsolete("Please use AppHost.CreateInstance")]
         public static object CreateInstance(this IVLFactory factory, Type type)
             => CreateInstance(factory, type, default);
 
@@ -276,9 +276,9 @@ namespace VL.Core
         /// <param name="type">The type to create a new instance of.</param>
         /// <param name="rootId">The node id to use for the context in which the instance will be created.</param>
         /// <returns>The newly created instance or null if the type is not known to VL.</returns>
-        [Obsolete("Please use TypeUtils.New")]
+        [Obsolete("Please use AppHost.CreateInstance")]
         public static object CreateInstance(this IVLFactory factory, Type type, UniqueId rootId)
-            => TypeUtils.New(type, NodeContext.Create(rootId));
+            => factory.AppHost.CreateInstance(type, NodeContext.Create(rootId));
 
         /// <summary>
         /// Creates a new instance of the given type using the VL generated constructor.
@@ -286,7 +286,7 @@ namespace VL.Core
         /// <param name="factory">The VL factory which will create the instance.</param>
         /// <param name="type">The type to create a new instance of.</param>
         /// <returns>The newly created instance or null if the type is not known to VL.</returns>
-        [Obsolete("Please use TypeUtils.New")]
+        [Obsolete("Please use AppHost.CreateInstance")]
         public static object CreateInstance(this IVLFactory factory, IVLTypeInfo type) 
             => CreateInstance(factory, type, default);
 
@@ -297,7 +297,7 @@ namespace VL.Core
         /// <param name="type">The type to create a new instance of.</param>
         /// <param name="rootId">The node id to use for the context in which the instance will be created.</param>
         /// <returns>The newly created instance or null if the type is not known to VL.</returns>
-        [Obsolete("Please use TypeUtils.New")]
+        [Obsolete("Please use AppHost.CreateInstance")]
         public static object CreateInstance(this IVLFactory factory, IVLTypeInfo type, UniqueId rootId) 
             => factory.CreateInstance(type.ClrType, NodeContext.Create(rootId));
 
@@ -413,7 +413,7 @@ namespace VL.Core
     {
         sealed class DefaultImpl : IVLObject
         {
-            public IAppHost AppHost => IAppHost.CurrentOrGlobal;
+            public AppHost AppHost => AppHost.CurrentOrGlobal;
             public NodeContext Context => NodeContext.Default;
             public IVLTypeInfo Type => TypeRegistry.Default.GetTypeInfo(GetType());
             public uint Identity => 0;

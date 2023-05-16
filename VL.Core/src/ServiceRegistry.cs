@@ -14,13 +14,13 @@ namespace VL.Core
         /// The service registry for the current thread. Throws <see cref="InvalidOperationException"/> in case no registry is installed.
         /// </summary>
         [Obsolete("Use IAppHost.Current.Services", error: false)]
-        public static ServiceRegistry Current => IAppHost.Current.Services;
+        public static ServiceRegistry Current => AppHost.Current.Services;
 
         /// <summary>
         /// The service registry for the current thread or the global one if there's no registry installed on the current thread.
         /// </summary>
         [Obsolete("Use IAppHost.CurrentOrGlobal.Services", error: true)]
-        public static ServiceRegistry CurrentOrGlobal => IAppHost.CurrentOrGlobal.Services;
+        public static ServiceRegistry CurrentOrGlobal => AppHost.CurrentOrGlobal.Services;
 
         /// <summary>
         /// The service registry for the whole application.
@@ -33,7 +33,7 @@ namespace VL.Core
         /// </summary>
         [Obsolete("Use IAppHost.IsCurrent()", error: true)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static bool IsCurrent() => IAppHost.IsCurrent();
+        public static bool IsCurrent() => AppHost.IsCurrent();
 
         private readonly ConcurrentDictionary<Type, Registration> registrations = new();
         private readonly IServiceProvider? parent;
@@ -72,10 +72,15 @@ namespace VL.Core
                 LazyService: new Lazy<object>(
                     valueFactory: () =>
                     {
-                        var service = serviceFactory();
-                        if (service is null)
-                            throw new Exception($"The service factory for {typeof(T)} returned null.");
-                        return service;
+                        // Make sure the service gets built in the correct host
+                        var appHost = this.GetService<AppHost>() ?? AppHost.CurrentOrGlobal;
+                        using (appHost.MakeCurrent())
+                        {
+                            var service = serviceFactory();
+                            if (service is null)
+                                throw new Exception($"The service factory for {typeof(T)} returned null.");
+                            return service;
+                        }
                     }, 
                     isThreadSafe: true));
 

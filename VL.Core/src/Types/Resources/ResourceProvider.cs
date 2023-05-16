@@ -231,7 +231,7 @@ namespace VL.Lib.Basics.Resources
 
             public static Dictionary<TKey, IResourceProvider<T>> GetPool()
             {
-                return IAppHost.Current.Services.GetOrAddService(() => new AppWideProviderPool<TKey, T>()).Pool;
+                return AppHost.Current.Services.GetOrAddService(() => new AppWideProviderPool<TKey, T>()).Pool;
             }
         }
 
@@ -649,7 +649,7 @@ namespace VL.Lib.Basics.Resources
                                             // We're only interested in one event
                                             disposalTriggerSource = disposalTriggerSource.Take(1);
                                             // Ensure on application exit we're triggered as well
-                                            var appHost = IAppHost.CurrentOrGlobal;
+                                            var appHost = AppHost.CurrentOrGlobal;
                                             if (appHost != null)
                                                 disposalTriggerSource = Observable.Merge(disposalTriggerSource, appHost.OnExit.Select(_ => default(U)));
                                             // If a sync context is set make sure it's on that one

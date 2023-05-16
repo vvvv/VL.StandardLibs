@@ -8,18 +8,18 @@ namespace VL.Core
     public abstract class FactoryBasedVLNode : IVLObject
     {
         public FactoryBasedVLNode(NodeContext context)
-            : this(IAppHost.CurrentOrGlobal, context)
+            : this(AppHost.CurrentOrGlobal, context)
         {
             Context = context;
         }
 
-        public FactoryBasedVLNode(IAppHost appHost, NodeContext context)
+        public FactoryBasedVLNode(AppHost appHost, NodeContext context)
         {
             AppHost = appHost;
             Context = context;
         }
 
-        public IAppHost AppHost { get; }
+        public AppHost AppHost { get; }
 
         public NodeContext Context { get; }
 

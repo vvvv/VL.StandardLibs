@@ -6,7 +6,7 @@ namespace VL.Core
 {
     public static class VLTypeInfoUtils
     {
-        public static IVLTypeInfo Default => IAppHost.Current.Services.GetService<IVLFactory>().GetTypeInfo(typeof(object));
+        public static IVLTypeInfo Default => AppHost.Current.Services.GetService<IVLFactory>().GetTypeInfo(typeof(object));
 
         public static IVLTypeInfo GetVLTypeInfo(this object obj)
         {

@@ -714,7 +714,7 @@ namespace System
             return service;
         }
 
-        public static T DisposeBy<T>(this T service, IAppHost appHost) where T : IDisposable
+        public static T DisposeBy<T>(this T service, AppHost appHost) where T : IDisposable
         {
             appHost.Components.Add(service);
             return service;

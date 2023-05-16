@@ -21,7 +21,7 @@ namespace VL.Skia
         SkiaGLControl FControl;
         bool HasValidLayer;
         ILayer Layer;
-        IAppHost FAppHost;
+        AppHost FAppHost;
 
         public ILayer Input
         {
@@ -163,7 +163,7 @@ namespace VL.Skia
 
         public SkiaRenderer(Action<SkiaRenderer> layout)
         {
-            FAppHost = IAppHost.CurrentOrGlobal;
+            FAppHost = AppHost.Current;
 
             this.SuspendLayout();
 

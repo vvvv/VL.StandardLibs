@@ -21,7 +21,7 @@ namespace VL.Core.Reactive
 
         readonly IDisposable? OnSwapSubscription;
 
-        public ChannelHub(IAppHost appHost)
+        public ChannelHub(AppHost appHost)
         {
             OnChannelsChanged = new Channel<object>();
             OnChannelsChanged.Value = this;
