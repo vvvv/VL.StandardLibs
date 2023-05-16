@@ -156,7 +156,7 @@ namespace VL.Core.Reactive
     {
         BindingUserEditingCapabilities? BindingEditingCapabilities { get; }
 
-        IDialog CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<IBinding> responeChannel);
+        IDialog CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<Func<IBinding>> responeChannel);
     }
 
 
