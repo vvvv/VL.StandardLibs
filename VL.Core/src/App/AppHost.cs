@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reflection;
 using System.Threading;
 using VL.Core.CompilerServices;
 
@@ -146,6 +147,8 @@ namespace VL.Core
         public T? CreateInstance<T>(NodeContext? nodeContext = default) => CreateInstance(typeof(T), nodeContext) is T t ? t : default;
 
         public T? GetDefaultValue<T>() => GetDefaultValue(typeof(T)) is T t ? t : default;
+
+        internal abstract void RegisterServices(Assembly assembly);
 
         internal abstract void RegisterServices(AssemblyInitializer assemblyInitializer);
     }

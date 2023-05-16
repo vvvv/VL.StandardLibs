@@ -159,11 +159,6 @@ namespace VL.Core
         bool OnlyStaticServices { get; }
     }
 
-    internal interface IInternalVLFactory : IVLFactory
-    {
-        void Initialize(AssemblyInitializer assemblyInitializer);
-    }
-
     /// <summary>
     /// Interface to interact with VL properties.
     /// </summary>

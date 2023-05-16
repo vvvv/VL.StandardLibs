@@ -1,8 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.ComponentModel;
 
 namespace VL.Core.CompilerServices
 {
@@ -11,58 +7,13 @@ namespace VL.Core.CompilerServices
         public const string RegisterServicesMethodName = nameof(RegisterServices);
         public const string DefaultFieldName = "Default";
 
-        [ThreadStatic]
-        internal static Assembly CurrentAssembly;
-
         // Only called by emitted code
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public void Init(IVLFactory factory) => Init(factory.AppHost);
+        public void Init(IVLFactory factory) => factory.AppHost.RegisterServices(this);
 
-        public void Init(AppHost appHost)
+        internal virtual void RegisterServices(AppHost appHost)
         {
-            try
-            {
-                var factory = appHost.Services.GetService<IVLFactory>();
-                // Internal factory might have seen us already
-                if (factory is IInternalVLFactory internalFactory)
-                    internalFactory.Initialize(this);
-                else
-                    DoRegister(appHost);
-            }
-            catch (Exception e)
-            {
-                throw new InitializationException(e);
-            }
-        }
-
-        internal void InitInternalFactory(AppHost appHost)
-        {
-            try
-            {
-                DoRegister(appHost);
-            }
-            catch (Exception e)
-            {
-                throw new InitializationException(e);
-            }
-        }
-
-        private void DoRegister(AppHost appHost)
-        {
-            var current = CurrentAssembly;
-            CurrentAssembly = this.GetType().Assembly;
-            try
-            {
-                RegisterServices(appHost.Services.GetService<IVLFactory>());
-            }
-            catch (Exception e)
-            {
-                RuntimeGraph.ReportException(e);
-            }
-            finally
-            {
-                CurrentAssembly = current;
-            }
+            RegisterServices(appHost.Services.GetService<IVLFactory>());
         }
 
         protected abstract void RegisterServices(IVLFactory factory);
