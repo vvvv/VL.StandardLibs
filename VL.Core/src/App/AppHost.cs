@@ -104,6 +104,11 @@ namespace VL.Core
         public abstract ServiceRegistry Services { get; }
 
         /// <summary>
+        /// The application patch.
+        /// </summary>
+        public abstract IVLObject App { get; }
+
+        /// <summary>
         /// Can be used to tie the lifetime of an object to the one of the application.
         /// </summary>
         public abstract ICollection<IDisposable> Components { get; }
