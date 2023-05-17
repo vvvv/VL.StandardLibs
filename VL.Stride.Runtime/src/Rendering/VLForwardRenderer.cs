@@ -796,6 +796,9 @@ namespace VL.Stride.Rendering
                 // Render Shadow maps
                 shadowMapRenderer?.Draw(drawContext);
 
+                if (vrSystem != null)
+                    vrSystem.Visible = VRSettings.Enabled;
+
                 if (VRSettings.Enabled && VRSettings.VRDevice != null)
                 {
                     var isFullViewport = (int)viewport.X == 0 && (int)viewport.Y == 0
