@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Reactive.Linq;
+using Stride.Core.Mathematics;
 
 #nullable enable
 
@@ -136,19 +137,19 @@ namespace VL.Core.Reactive
     [Flags]
     public enum BindingUserEditingCapabilities
     {
-        Default = OnlyAllowSingle | Editable | EditMeansMutate | ManuallyRemovable,
+        Default = OnlyAllowSingle | Editable | ManuallyRemovable,
         NoManualAdd = 1 << 0,
         OnlyAllowSingle = 1 << 1,
         AllowMultiple = 1 << 2,
-        SpecifyAllowAddPerChannel = 1 << 3,
+        //SpecifyAllowAddPerChannel = 1 << 3,
 
         Editable = 1 << 4,
-        EditMeansMutate = 1 << 5,
-        EditMeansRecreate = 1 << 6,
-        SpecifyAllowEditPerChannel = 1 << 7,
+        //EditMeansMutate = 1 << 5,
+        //EditMeansRecreate = 1 << 6,
+        //SpecifyAllowEditPerChannel = 1 << 7,
 
         ManuallyRemovable = 1 << 8,
-        SpecifyAllowRemovablePerChannel = 1 << 9,
+        //SpecifyAllowRemovablePerChannel = 1 << 9,
     }
 
 
@@ -156,11 +157,11 @@ namespace VL.Core.Reactive
     {
         BindingUserEditingCapabilities? BindingEditingCapabilities { get; }
 
-        IDialog CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<Func<IBinding>> responeChannel);
+        IPlainProcessNode CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<Func<IBinding>> responeChannel, IBinding? initialBinding, Vector2 expectedSize);
     }
 
 
-    public interface IDialog
+    public interface IPlainProcessNode
     {
         void Update();
     }
