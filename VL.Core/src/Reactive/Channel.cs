@@ -238,7 +238,7 @@ namespace VL.Lib.Reactive
         public static void RemoveComponent(this IChannel channel, object component)
         {
             channel.Components = channel.Components.Remove(component);
-            (component as IDisposable)?.Dispose();
+            //(component as IDisposable)?.Dispose();
         }
 
         public static TComponent? TryGetComponent<TComponent>(this IChannel channel) where TComponent : class
