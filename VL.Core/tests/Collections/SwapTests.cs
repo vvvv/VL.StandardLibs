@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -68,6 +69,27 @@ namespace VL.Core.Tests
             var newType = typeof(ImmutableDictionary<object, float>);
             var d2_ = b.RestoreObject(newType);
             var d2 = d2_ as ImmutableDictionary<object, float>;
+
+            Assert.That(d2, Is.Not.Null);
+
+            Assert.AreNotEqual(b.GetType(), d2.GetType());
+
+            Assert.AreEqual(d2["a"], -1);
+            Assert.AreEqual(d2["b"], +2);
+        }
+
+        [Test]
+        public void FromMutableToConcurrentDictionary()
+        {
+            var b = new Dictionary<string, float>
+            {
+                { "a", -1 },
+                { "b", +2 }
+            };
+
+            var newType = typeof(ConcurrentDictionary<object, float>);
+            var d2_ = b.RestoreObject(newType);
+            var d2 = d2_ as ConcurrentDictionary<object, float>;
 
             Assert.That(d2, Is.Not.Null);
 
@@ -294,6 +316,22 @@ namespace VL.Core.Tests
 
             var newType = typeof(List<string>);
             var list = spread.RestoreObject(newType) as List<string>;
+
+            Assert.That(list, Is.Not.Null);
+
+            Assert.AreNotEqual(spread.GetType(), list.GetType());
+
+            Assert.AreEqual(list[0], "a");
+            Assert.AreEqual(list[1], "b");
+        }
+
+        [Test]
+        public void ToImmutableList()
+        {
+            var spread = Spread.Create<object>("a", "b");
+
+            var newType = typeof(ImmutableList<string>);
+            var list = spread.RestoreObject(newType) as ImmutableList<string>;
 
             Assert.That(list, Is.Not.Null);
 
