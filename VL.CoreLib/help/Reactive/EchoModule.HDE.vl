@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="Lsm1YNYXMaoPxEuo0MU3Kq" LanguageVersion="2023.5.1-0053-gf85e24034c" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="Lsm1YNYXMaoPxEuo0MU3Kq" LanguageVersion="2023.5.1-0057-ga6f1bd9b3d" Version="0.128">
   <NugetDependency Id="I8QQd3d6IwrPHKZpya237S" Location="VL.CoreLib" Version="2023.5.1-0039-gee1d3f19e8" />
   <Patch Id="NFmLzJZSFpnQJ1Wsryp0ze">
     <Canvas Id="Sy6K0E9lhbSPdxrL0FnkFq" DefaultCategory="Main" CanvasType="FullCategory">
@@ -94,11 +94,11 @@
                   <Pin Id="AXwUtUYufxgPl13hYTtVHb" Name="Context" Kind="InputPin" />
                   <Pin Id="HpOQNT5YaEzPwNwHzMiVDy" Name="Channel" Kind="InputPin" DefaultValue="3" />
                   <Pin Id="VhR1GlEGzUtLkNcHoT8oqv" Name="Label" Kind="InputPin" DefaultValue="Delay" />
-                  <Pin Id="Cs8euMx9FIjPFK8xqHp9Ts" Name="Speed" Kind="InputPin" DefaultValue="1" />
-                  <Pin Id="QhlNNpN6XBQNtRqgHyuBea" Name="Min" Kind="InputPin" />
+                  <Pin Id="Cs8euMx9FIjPFK8xqHp9Ts" Name="Speed" Kind="InputPin" DefaultValue="0.1" />
+                  <Pin Id="QhlNNpN6XBQNtRqgHyuBea" Name="Min" Kind="InputPin" DefaultValue="0.1" />
                   <Pin Id="OAmQPUudLDkN0nDGgLiup2" Name="Max" Kind="InputPin" DefaultValue="20" />
                   <Pin Id="KQoa2FFiFIqN5iGhHnDRsP" Name="Format" Kind="InputPin" DefaultValue="%5.2f s" />
-                  <Pin Id="My5fKAaX7GHMmOYHcWnYVW" Name="Flags" Kind="InputPin" />
+                  <Pin Id="My5fKAaX7GHMmOYHcWnYVW" Name="Flags" Kind="InputPin" DefaultValue="Logarithmic" />
                   <Pin Id="SxVbv89QCVYPYaT2wQ93Fb" Name="Notify While Typing" Kind="InputPin" />
                   <Pin Id="EJlhmFauRByMlC9EfKbvfv" Name="Style" Kind="InputPin" />
                   <Pin Id="KxRxknAIA5aQMgrfIi4u6X" Name="Context" Kind="OutputPin" />
@@ -487,10 +487,47 @@
               <Pin Id="LuY6MhaQ3OEPwpGanyGAZH" Name="Input" Kind="StateInputPin" />
               <Pin Id="CbO19Uv3AX5LTgtVCXX8V8" Name="Result" Kind="OutputPin" />
             </Node>
+            <ControlPoint Id="Rd6ZT7GtkYVOBYaT4WllKk" Bounds="727,785" />
+            <Node Bounds="721,672,45,19" Id="KetvKN1XvKrLZYwZGzhmRY">
+              <p:NodeReference LastCategoryFullName="System.BitsAndBytes" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <FullNameCategoryReference ID="System.BitsAndBytes" />
+                <Choice Kind="OperationCallFlag" Name="|" />
+              </p:NodeReference>
+              <Pin Id="Rw6Cog8c0fZLkRxsLjfdkR" Name="Input" Kind="InputPin" />
+              <Pin Id="GWIZX1PBkAwMzQshfcG8Kb" Name="Input 2" Kind="InputPin" />
+              <Pin Id="LrKAOEW881DMFH6qa9C9Hb" Name="Output" Kind="OutputPin" />
+              <Pin Id="SouqSMqgnxwQPXLSaelFTK" Name="Input 3" Kind="InputPin" />
+            </Node>
+            <Node Bounds="725,718,46,26" Id="PC7pvZVKXgRNtrqr5Y1By6">
+              <p:NodeReference LastCategoryFullName="Primitive.Nullable" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="ClassType" Name="Nullable" />
+                <Choice Kind="OperationCallFlag" Name="Create" />
+              </p:NodeReference>
+              <Pin Id="HG2sW8ixgNELyaXV74lxRG" Name="Value" Kind="InputPin" />
+              <Pin Id="DdeF5VFBBcOOiLcaCuKWQU" Name="Output" Kind="StateOutputPin" />
+            </Node>
+            <Pad Id="LpPFW5ojivVLOD2nLufrHY" Comment="" Bounds="684,588,118,15" ShowValueBox="true" isIOBox="true" Value="OnlyAllowSingle">
+              <p:TypeAnnotation LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="BindingUserEditingCapabilities" />
+              </p:TypeAnnotation>
+            </Pad>
+            <Pad Id="U6kSgmNf5RpMXcwujRwgzD" Comment="" Bounds="774,612,118,15" ShowValueBox="true" isIOBox="true" Value="Editable">
+              <p:TypeAnnotation LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="BindingUserEditingCapabilities" />
+              </p:TypeAnnotation>
+            </Pad>
+            <Pad Id="QkCrIkIcMrIO7C1GBOl9Ft" Comment="" Bounds="795,653,118,15" ShowValueBox="true" isIOBox="true" Value="ManuallyRemovable">
+              <p:TypeAnnotation LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="BindingUserEditingCapabilities" />
+              </p:TypeAnnotation>
+            </Pad>
           </Canvas>
           <ProcessDefinition Id="Su8j5D8Yfm0Oygk0yMVRIQ" IsHidden="true">
             <Fragment Id="HIyFMtcdjdEP809ujiTQbN" Patch="AUDbm9UTVDtPsTsx61NPpu" Enabled="true" />
             <Fragment Id="JRS7YbeL78xOabAjfdERiD" Patch="LEvbQkwQA88OelIOq7fEQq" />
+            <Fragment Id="Ion5eZ8f1DVLPdIKpEbKGn" Patch="SQMdgaOwOnFNYA69YcGGVt" />
           </ProcessDefinition>
           <Link Id="D1TajYnzZNhP0STqzeqM4N" Ids="P2aUxrEFRIcLPkrFZdSnkL,EvHgZKNbqnwLZSc7x7F5PQ" />
           <Link Id="FEo4i6P72ZJOdHJ7JmVLO7" Ids="EvHgZKNbqnwLZSc7x7F5PQ,EpKpY1fSi3sONEsAW39ePu" IsHidden="true" />
@@ -520,6 +557,15 @@
           <Link Id="JLjIMPNae0RQYhc4AzJjae" Ids="LPT8p1jIaBWPR9WwbWzicK,LuY6MhaQ3OEPwpGanyGAZH" />
           <Link Id="GlQjefUr7iZPDGQAygktpe" Ids="AaQEYY112gCNXJxakEafYd,LPT8p1jIaBWPR9WwbWzicK" IsHidden="true" />
           <Link Id="HyftqwpGtVdNms5y44WJhX" Ids="CbO19Uv3AX5LTgtVCXX8V8,UW1lgKC8aSJLCqTldUPtJG" />
+          <Patch Id="SQMdgaOwOnFNYA69YcGGVt" Name="BindingEditingCapabilities">
+            <Pin Id="BbUAN5O4PYBQD769qPEkB0" MergeId="364540" Name="Binding Editing Capabilities" Kind="OutputPin" />
+          </Patch>
+          <Link Id="PZRLSl30Y4vP6E4EqKzzts" Ids="Rd6ZT7GtkYVOBYaT4WllKk,BbUAN5O4PYBQD769qPEkB0" IsHidden="true" />
+          <Link Id="CMqzuar7VJxLHUjFVk62KY" Ids="LrKAOEW881DMFH6qa9C9Hb,HG2sW8ixgNELyaXV74lxRG" />
+          <Link Id="IIJzne0Q1JCPJkFGsrEYT5" Ids="DdeF5VFBBcOOiLcaCuKWQU,Rd6ZT7GtkYVOBYaT4WllKk" />
+          <Link Id="Un8ol2f5MB0LuxQlhFUBpQ" Ids="LpPFW5ojivVLOD2nLufrHY,Rw6Cog8c0fZLkRxsLjfdkR" />
+          <Link Id="AFRqXBJefSuNJjchczIYdx" Ids="U6kSgmNf5RpMXcwujRwgzD,GWIZX1PBkAwMzQshfcG8Kb" />
+          <Link Id="GxbUOM2Mj0fLkNs8jgXmJI" Ids="QkCrIkIcMrIO7C1GBOl9Ft,SouqSMqgnxwQPXLSaelFTK" />
         </Patch>
       </Node>
     </Canvas>
