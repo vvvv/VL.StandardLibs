@@ -126,11 +126,14 @@ namespace VL.Core.Reactive
         void RegisterModule(IModule module);
     }
 
+
     public interface IModule
     {
         string Name { get; }
 
         string Description { get; }
+
+        bool SupportsType(Type type);
     }
 
 
