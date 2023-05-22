@@ -89,6 +89,9 @@ namespace VL.Core.Reactive
 
         public IChannel<object>? TryAddChannel(string key, Type typeOfValues)
         {
+            if (string.IsNullOrWhiteSpace(key))
+                return default;
+
             using var _ = BeginChange();
             var c = Channels.GetOrAdd(key, _ => 
             { 
