@@ -20,6 +20,8 @@ namespace VL.Core.Reactive
 
         public IChannel<object> OnChannelsChanged { get; }
 
+        public string DisplayName { get; set; }
+
         IDisposable? OnSwapSubscription;
 
         public ChannelHub()
@@ -33,6 +35,8 @@ namespace VL.Core.Reactive
                 OnSwapSubscription = e.OnSwap.Subscribe(_ => Swap());
             }
         }
+
+        public override string ToString() => DisplayName ?? base.ToString();
 
         IDisposable? MustHaveDescriptiveSubscription;
         public IObservable<IEnumerable<ChannelBuildDescription>> MustHaveDescriptive
