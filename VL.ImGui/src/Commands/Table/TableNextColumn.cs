@@ -10,7 +10,10 @@
 
         internal override void UpdateCore(Context context)
         {
-            IsVisible = ImGuiNET.ImGui.TableNextColumn();
+            if (context.IsInBeginTables)
+                IsVisible = ImGuiNET.ImGui.TableNextColumn();
+            else
+                IsVisible = false;
         }
     }
 }

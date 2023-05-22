@@ -18,9 +18,12 @@ namespace VL.ImGui.Widgets
 
         internal override void UpdateCore(Context context)
         {
-            var uintColor = ImGuiNET.ImGui.GetColorU32(Color.Value.ToImGui());
+            if (context.IsInBeginTables)
+            {
+                var uintColor = ImGuiNET.ImGui.GetColorU32(Color.Value.ToImGui());
 
-            ImGuiNET.ImGui.TableSetBgColor(Target, uintColor, Column);
+                ImGuiNET.ImGui.TableSetBgColor(Target, uintColor, Column);
+            }
         }
     }
 }

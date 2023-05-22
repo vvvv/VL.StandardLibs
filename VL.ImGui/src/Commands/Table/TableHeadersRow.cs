@@ -9,7 +9,8 @@
 
         internal override void UpdateCore(Context context)
         {
-            ImGuiNET.ImGui.TableHeadersRow();
+            if (context.IsInBeginTables)
+                ImGuiNET.ImGui.TableHeadersRow();
         }
     }
 }
