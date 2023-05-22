@@ -342,6 +342,22 @@ namespace VL.Core.Tests
         }
 
         [Test]
+        public void ToImmutableHashSet()
+        {
+            var spread = Spread.Create<object>("a", "b");
+
+            var newType = typeof(ImmutableHashSet<string>);
+            var set = spread.RestoreObject(newType) as ImmutableHashSet<string>;
+
+            Assert.That(set, Is.Not.Null);
+
+            Assert.AreNotEqual(spread.GetType(), set.GetType());
+            Assert.IsTrue(set.Count == 2);
+            set = set.Remove("a").Remove("b");
+            Assert.IsTrue(set.Count == 0);
+        }
+
+        [Test]
         public void NewManagedFieldGetsInitialized()
         {
             var p = new State1();
