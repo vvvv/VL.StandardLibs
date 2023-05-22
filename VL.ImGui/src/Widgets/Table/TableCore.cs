@@ -27,12 +27,15 @@ namespace VL.ImGui.Widgets
         {
             if (ImGuiNET.ImGui.BeginTable(Context.GetLabel(this, Label), Math.Max(1, Count), Flags, Size.FromHectoToImGui(), InnerWidth))
             {
+                var isInBeginTables = context.IsInBeginTables;
+                context.IsInBeginTables = true;
                 try
                 {
                     context?.Update(Content);
                 }
                 finally
                 {
+                    context.IsInBeginTables = isInBeginTables;
                     ImGuiNET.ImGui.EndTable();
                 }
             }

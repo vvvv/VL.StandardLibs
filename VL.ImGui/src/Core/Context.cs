@@ -33,6 +33,7 @@ namespace VL.ImGui
         internal ImDrawListPtr DrawListPtr;
         internal DrawList DrawList;
         internal System.Numerics.Vector2 DrawListOffset;
+        internal bool IsInBeginTables;
 
         public Context()
         {

@@ -11,7 +11,8 @@
 
         internal override void UpdateCore(Context context)
         {
-            ImGuiNET.ImGui.TableSetupScrollFreeze(NumberOfColumns, NumberOfRows);
+            if (context.IsInBeginTables)
+                ImGuiNET.ImGui.TableSetupScrollFreeze(NumberOfColumns, NumberOfRows);
         }
     }
 }
