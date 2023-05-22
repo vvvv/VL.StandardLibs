@@ -160,7 +160,9 @@ namespace VL.Core.Reactive
     {
         BindingUserEditingCapabilities? BindingEditingCapabilities { get; }
 
-        IPlainProcessNode CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<Func<IBinding>> responeChannel, IBinding? initialBinding, Vector2 expectedSize);
+        IPlainProcessNode CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<Action> responeChannel, IBinding? initialBinding, Vector2 expectedSize);
+
+        void RemoveBinding(IBinding binding);
     }
 
 
