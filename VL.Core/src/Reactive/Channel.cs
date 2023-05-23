@@ -308,24 +308,26 @@ namespace VL.Lib.Reactive
         public static bool IsValid([NotNullWhen(true)] this IChannel? c)
             => c is not null && c is not IDummyChannel;
 
-        public static void EnsureValue<T>(this IChannel<T> input, T? value, bool force = false)
+        public static void EnsureValue<T>(this IChannel<T> input, T? value, bool force = false, string? author = default)
         {
             if (force || !EqualityComparer<T>.Default.Equals(input.Value, value))
-                input.Value = value;
+                input.SetValueAndAuthor(value, author);
         }
 
-        public static void EnsureObject(this IChannel input, object? value, bool force = false)
+        public static void EnsureObject(this IChannel input, object? value, bool force = false, string? author = default)
         {
             if (force || !EqualityComparer<object>.Default.Equals(input.Object, value))
-                input.Object = value;
+                input.SetObjectAndAuthor(value, author);
         }
 
-        public static IDisposable Merge<T>(this IChannel<T> a, IChannel<T> b, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
+        public static IDisposable Merge<T>(this IChannel<T> a, IChannel<T> b, 
+            ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
         {
             return Merge(a, b, v => v, v => v, initialization, pushEagerlyTo);
         }
 
-        public static IDisposable Merge<A, B>(this IChannel<A> a, IChannel<B> b, Func<A?, B?> toB, Func<B?, A?> toA, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
+        public static IDisposable Merge<A, B>(this IChannel<A> a, IChannel<B> b, Func<A?, B?> toB, Func<B?, A?> toA, 
+            ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
         {
             if (!a.IsValid() || !b.IsValid())
                 return Disposable.Empty;
@@ -335,10 +337,10 @@ namespace VL.Lib.Reactive
             switch (initialization)
             {
                 case ChannelMergeInitialization.UseA:
-                    b.EnsureValue(toB(a.Value));
+                    b.EnsureValue(toB(a.Value), author: a.LatestAuthor);
                     break;
                 case ChannelMergeInitialization.UseB:
-                    a.EnsureValue(toA(b.Value));
+                    a.EnsureValue(toA(b.Value), author: b.LatestAuthor);
                     break;
             }
 
@@ -350,7 +352,7 @@ namespace VL.Lib.Reactive
                     isBusy = true;
                     try
                     {
-                        b.EnsureValue(toB(v), pushEagerlyTo.HasFlag(ChannelSelection.ChannelB));
+                        b.EnsureValue(toB(v), pushEagerlyTo.HasFlag(ChannelSelection.ChannelB), a.LatestAuthor);
                     }
                     finally
                     {
@@ -365,7 +367,7 @@ namespace VL.Lib.Reactive
                     isBusy = true;
                     try
                     {
-                        a.EnsureValue(toA(v), pushEagerlyTo.HasFlag(ChannelSelection.ChannelA));
+                        a.EnsureValue(toA(v), pushEagerlyTo.HasFlag(ChannelSelection.ChannelA), b.LatestAuthor);
                     }
                     finally
                     {
@@ -377,7 +379,8 @@ namespace VL.Lib.Reactive
             return subscription;
         }
 
-        public static IDisposable Merge<A, B>(this IChannel<A> a, IChannel<B> b, Func<A?, Optional<B>> toB, Func<B?, Optional<A>> toA, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
+        public static IDisposable Merge<A, B>(this IChannel<A> a, IChannel<B> b, Func<A?, Optional<B>> toB, Func<B?, Optional<A>> toA, 
+            ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
         {
             if (!a.IsValid() || !b.IsValid())
                 return Disposable.Empty;
@@ -390,14 +393,14 @@ namespace VL.Lib.Reactive
                 {
                     var optionalV = toB(a.Value);
                     if (optionalV.HasValue)
-                        b.EnsureValue(optionalV.Value);
+                        b.EnsureValue(optionalV.Value, author: a.LatestAuthor);
                     break;
                 }
                 case ChannelMergeInitialization.UseB:
                 {
                     var optionalV = toA(b.Value);
                     if (optionalV.HasValue)
-                        a.EnsureValue(optionalV.Value);
+                        a.EnsureValue(optionalV.Value, author: b.LatestAuthor);
                     break;
                 }
             }
@@ -412,7 +415,7 @@ namespace VL.Lib.Reactive
                     {
                         var x = toB(v);
                         if (x.HasValue)
-                            b.EnsureValue(x.Value, pushEagerlyTo.HasFlag(ChannelSelection.ChannelB));
+                            b.EnsureValue(x.Value, pushEagerlyTo.HasFlag(ChannelSelection.ChannelB), a.LatestAuthor);
                     }
                     finally
                     {
@@ -429,7 +432,7 @@ namespace VL.Lib.Reactive
                     {
                         var x = toA(v);
                         if (x.HasValue)
-                            a.EnsureValue(x.Value, pushEagerlyTo.HasFlag(ChannelSelection.ChannelA));
+                            a.EnsureValue(x.Value, pushEagerlyTo.HasFlag(ChannelSelection.ChannelA), b.LatestAuthor);
                     }
                     finally
                     {
