@@ -327,6 +327,9 @@ namespace VL.Lib.Reactive
 
         public static IDisposable Merge<A, B>(this IChannel<A> a, IChannel<B> b, Func<A?, B?> toB, Func<B?, A?> toA, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
         {
+            if (!a.IsValid() || !b.IsValid())
+                return Disposable.Empty;
+
             var subscription = new CompositeDisposable();
 
             switch (initialization)
@@ -376,6 +379,9 @@ namespace VL.Lib.Reactive
 
         public static IDisposable Merge<A, B>(this IChannel<A> a, IChannel<B> b, Func<A?, Optional<B>> toB, Func<B?, Optional<A>> toA, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
         {
+            if (!a.IsValid() || !b.IsValid())
+                return Disposable.Empty;
+
             var subscription = new CompositeDisposable();
 
             switch (initialization)
