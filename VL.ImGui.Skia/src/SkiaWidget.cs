@@ -11,6 +11,7 @@ namespace VL.ImGui.Widgets
     public sealed partial class SkiaWidget : PrimitiveWidget, IDisposable, ILayer
     {
         private bool _disposed;
+        private bool _hasFocus;
 
         public ILayer? Layer { private get; set; }
 
@@ -22,7 +23,13 @@ namespace VL.ImGui.Widgets
             {
                 var _ = Size.FromHectoToImGui();
                 if (Layer != null)
+                {
+                    var position = ImGuiNET.ImGui.GetCursorPos();
+                    ImGuiNET.ImGui.InvisibleButton($"{GetHashCode()}", _, ImGuiButtonFlags.None);
+                    _hasFocus = ImGuiNET.ImGui.IsItemFocused();
+                    ImGuiNET.ImGui.SetCursorPos(position);
                     skiaContext.AddLayer(new Vector2(_.X, _.Y), this);
+                }
             }
         }
 
@@ -37,7 +44,7 @@ namespace VL.ImGui.Widgets
 
         public bool Notify(INotification notification, CallerInfo caller)
         {
-            if (!_disposed && Layer != null)
+            if (!_disposed && Layer != null && _hasFocus)
                 return Layer.Notify(notification, caller);
             return false;
         }
