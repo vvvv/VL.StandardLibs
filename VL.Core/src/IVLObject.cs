@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using VL.Core.CompilerServices;
 using VL.Lang;
@@ -500,12 +502,19 @@ namespace VL.Core
 
         public interface ICrawlObjectGraphFilter
         {
-            public void Reset();
-            bool Include(string path, string localID, object value, int depth);
+            public void Reset() { }
+            bool Include(string path, string localID, object value, int depth) => true;
             public bool IndexingCountsAsHop => false;
             public bool CrawlVLObjects => true;
+            public bool CrawlAllProperties => false;
             public bool IndexIntoSpreads => true;
             public bool IndexIntoDictionaries => true;
+            public bool CrawlOnTypeLevel => false;
+            public bool AlsoCollectNulls => false;
+
+            // missing still:
+            // crawl any collection
+            // crawl any object
         }
 
         public record class DefaultCrawlObjectGraphFilter(int MaxCount = 1000) : ICrawlObjectGraphFilter
@@ -524,54 +533,94 @@ namespace VL.Core
             }
         }
 
-        public static Spread<ObjectGraphNode> CrawlObjectGraph(object instance, string rootPath, ICrawlObjectGraphFilter filter, bool includeRoot)
+        public static Spread<ObjectGraphNode> CrawlObjectGraph(object instance, string rootPath, ICrawlObjectGraphFilter filter, bool includeRoot, Type type = default)
         {
+            if (instance is null)
+                return Spread<ObjectGraphNode>.Empty;
+            if (type is null)
+                type = instance.GetType();
+            else
+                if (!instance.GetType().IsAssignableTo(type))
+                    throw new ArgumentException($"{instance.GetType()} is not of specified type {type}");
             if (filter == null)
                 filter = new DefaultCrawlObjectGraphFilter();
             filter.Reset();
             var collection = new SpreadBuilder<ObjectGraphNode>();
             if (includeRoot)
-                collection.Add(new ObjectGraphNode(rootPath, instance, instance.GetType()));
-            CollectChildPaths(instance, rootPath, filter, collection, -1);
+                collection.Add(new ObjectGraphNode(rootPath, instance, type));
+            CollectChildPaths(instance, rootPath, filter, collection, -1, type);
             return collection.ToSpread();
         }
 
-        static void CollectChildPaths(object value, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int parentDepth)
+        static void CollectChildPaths(object value, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int parentDepth, Type type)
         {
-            if (value is IVLObject child)
+            if (filter.CrawlOnTypeLevel)
             {
-                if (filter.CrawlVLObjects)
-                    CollectChildPaths(child, pathOfParent, filter, collection, parentDepth + 1);
+                if (type.IsAssignableTo(typeof(IVLObject)))
+                {
+                    var child = (IVLObject)value;
+                    if (filter.CrawlVLObjects)
+                        CollectChildPaths(child, pathOfParent, filter, collection, parentDepth + 1, type);
+                }
+                else if (type.IsAssignableTo(typeof(ISpread)))
+                {
+                    var spread = (ISpread)value;
+                    if (filter.IndexIntoSpreads)
+                        CollectChildPaths(spread, pathOfParent, filter, collection, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, type);
+                }
+                else if (type.IsAssignableTo(typeof(IDictionary)))
+                {
+                    var dict = (IDictionary)value;
+                    if (filter.IndexIntoDictionaries)
+                        CollectChildPaths(dict, pathOfParent, filter, collection, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, type);
+                }
             }
-            else if (value is ISpread spread)
+            else
             {
-                if (filter.IndexIntoSpreads)
-                    CollectChildPaths(spread, pathOfParent, filter, collection, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth);
-            }
-            else if (value is IDictionary dict)
-            {
-                if (filter.IndexIntoDictionaries)
-                    CollectChildPaths(dict, pathOfParent, filter, collection, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth);
+                if (value is null)
+                    return;
+                type = value.GetType();
+                if (value is IVLObject child)
+                {
+                    if (filter.CrawlVLObjects)
+                        CollectChildPaths(child, pathOfParent, filter, collection, parentDepth + 1, type);
+                }
+                else if (value is ISpread spread)
+                {
+                    if (filter.IndexIntoSpreads)
+                        CollectChildPaths(spread, pathOfParent, filter, collection, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, type);
+                }
+                else if (value is IDictionary dict)
+                {
+                    if (filter.IndexIntoDictionaries)
+                        CollectChildPaths(dict, pathOfParent, filter, collection, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, type);
+                }
             }
         }
         
-        static void CollectChildPaths(IVLObject instance, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int depth)
+        static void CollectChildPaths(IVLObject instance, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int depth, Type type)
         {
-            foreach (var property in instance.Type.Properties)
+            var typeInfo = filter.CrawlOnTypeLevel ? 
+                TypeRegistry.Default.GetTypeInfo(type) : 
+                instance.Type;
+
+            var properties = filter.CrawlAllProperties ? typeInfo.AllProperties : typeInfo.Properties;
+
+            foreach (var property in properties)
             {
                 var value = property.GetValue(instance);
                 var localID = property.OriginalName;
                 var path = string.IsNullOrWhiteSpace(pathOfParent) ? localID : $"{pathOfParent}.{localID}";
-                if (filter.Include(path, localID, value, depth))
+                if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth))
                 {
-                    var type = property.Type.ClrType; // let's use the type of the property, not the type of the object. Embracing super types.
-                    collection.Add(new ObjectGraphNode(path, value, type));
-                    CollectChildPaths(value, path, filter, collection, depth);
+                    var childtype = property.Type.ClrType; // let's use the type of the property, not the type of the object. Embracing super types.
+                    collection.Add(new ObjectGraphNode(path, value, childtype));
+                    CollectChildPaths(value, path, filter, collection, depth, childtype);
                 }
             }
         }
 
-        static void CollectChildPaths(ISpread spread, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int depth)
+        static void CollectChildPaths(ISpread spread, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int depth, Type type)
         {
             var count = spread.Count;
             for (int i = 0; i < count; i++)
@@ -579,16 +628,16 @@ namespace VL.Core
                 var value = spread.GetItem(i);
                 var localID = $"[{i}]";
                 var path = $"{pathOfParent}{localID}";
-                if (filter.Include(path, localID, value, depth))
+                if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth))
                 {
-                    var type = spread.ElementType; // let's use the element type of the spread, not the type of the object. Embracing super types.
-                    collection.Add(new ObjectGraphNode(path, value, type));
-                    CollectChildPaths(value, path, filter, collection, depth);
+                    var childtype = spread.ElementType; // let's use the element type of the spread, not the type of the object. Embracing super types.
+                    collection.Add(new ObjectGraphNode(path, value, childtype));
+                    CollectChildPaths(value, path, filter, collection, depth, childtype);
                 }
             }
         }
 
-        static void CollectChildPaths(IDictionary dict, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int depth)
+        static void CollectChildPaths(IDictionary dict, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int depth, Type type)
         {
             var enumerator = dict.GetEnumerator();
             var dictType = dict.GetType();
@@ -599,11 +648,11 @@ namespace VL.Core
                 var value = entry.Value;
                 var localID = $"[\"{entry.Key}\"]";
                 var path = $"{pathOfParent}{localID}";
-                if (filter.Include(path, localID, value, depth))
+                if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth))
                 {
-                    var type = valueType; // let's use the type of the value collection, not the type of the object. Embracing super types.
-                    collection.Add(new ObjectGraphNode(path, value, type));
-                    CollectChildPaths(value, path, filter, collection, depth);
+                    var childtype = valueType; // let's use the type of the value collection, not the type of the object. Embracing super types.
+                    collection.Add(new ObjectGraphNode(path, value, childtype));
+                    CollectChildPaths(value, path, filter, collection, depth, childtype);
                 }
             }
         }
