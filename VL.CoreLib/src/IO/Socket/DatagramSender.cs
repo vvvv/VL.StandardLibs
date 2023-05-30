@@ -1,13 +1,14 @@
 ﻿#nullable enable
-using Microsoft.FSharp.Core;
 using System;
 using System.Diagnostics;
 using System.Net.Sockets;
+using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using VL.Core;
 using VL.Lib.Basics.Resources;
+using VL.Lib.Reactive;
 using NetSocket = System.Net.Sockets.Socket;
 
 namespace VL.Lib.IO.Socket
@@ -18,12 +19,14 @@ namespace VL.Lib.IO.Socket
     public class DatagramSender : IDisposable
     {
         private readonly SerialDisposable FSubscription = new SerialDisposable();
+        private readonly NodeContext FNodeContext;
 
         object? FLocalSocketProvider;
         object? FDatagrams;
 
         public DatagramSender(NodeContext nodeContext)
         {
+            FNodeContext = nodeContext;
         }
 
         /// <summary>
@@ -88,6 +91,7 @@ namespace VL.Lib.IO.Socket
                             return default(Unit);
                         });
                 })
+                .CatchAndReport(FNodeContext)
                 .SubscribeOn(Scheduler.Default)
                 .Subscribe();
         }
