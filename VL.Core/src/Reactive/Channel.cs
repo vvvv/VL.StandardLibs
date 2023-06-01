@@ -26,6 +26,7 @@ namespace VL.Lib.Reactive
         object? Object { get; set; }
         string? LatestAuthor { get; }
         void SetObjectAndAuthor(object? @object, string? author);
+        IDisposable BeginChange();
     }
 
     [Monadic(typeof(Monadic.ChannelFactory<>))]
@@ -38,6 +39,9 @@ namespace VL.Lib.Reactive
     internal abstract class C<T> : IChannel<T>, ISwappableGenericType
     {
         protected readonly Subject<T?> subject = new();
+        protected int lockCount = 0;
+        protected int revision = 0;
+        protected int revisionOnLockTaken = 0;
 
         public ImmutableList<object> Components { get; set; } = ImmutableList<object>.Empty;
 
@@ -78,8 +82,9 @@ namespace VL.Lib.Reactive
 
             LatestAuthor = author;
             this.value = value;
+            revision++;
 
-            if (stack < maxStack)
+            if (stack < maxStack && lockCount == 0)
             {
                 stack++;
                 try
@@ -163,6 +168,21 @@ namespace VL.Lib.Reactive
             {
                 disposing = false;
             }
+        }
+
+        public IDisposable BeginChange()
+        {
+            if (lockCount == 0)
+                revisionOnLockTaken = revision;
+            lockCount++;
+            return Disposable.Create(EndChange);
+        }
+
+        void EndChange()
+        {
+            lockCount--;
+            if (lockCount == 0 && revisionOnLockTaken != revision)
+                SetValueAndAuthor(this.Value, LatestAuthor);
         }
     }
 
