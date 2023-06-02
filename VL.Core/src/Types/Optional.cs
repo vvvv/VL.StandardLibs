@@ -24,6 +24,7 @@ namespace VL.Core
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     [Serializable]
+    [Monadic(typeof(OptionalMonadicFactory<>))]
     public readonly struct Optional<T> : IEquatable<Optional<T>>, IComparable<Optional<T>>, IOptional
     {
         public Optional(T value)
@@ -108,5 +109,23 @@ namespace VL.Core
         public static bool operator >=(Optional<T> left, Optional<T> right) => left.CompareTo(right) >= 0;
         
         object IOptional.Object => Value;
+    }
+
+
+    public sealed class OptionalMonadicFactory<T> : IMonadicFactory<T, Optional<T>>
+    {
+        public static readonly OptionalMonadicFactory<T> Default = new OptionalMonadicFactory<T>();
+
+        public IMonadBuilder<T, Optional<T>> GetMonadBuilder(bool isConstant)
+        {
+            return Builder.Instance;
+        }
+
+        sealed class Builder : IMonadBuilder<T, Optional<T>>
+        {
+            public static readonly Builder Instance = new Builder();
+            public Optional<T> Return(T value) => new Optional<T>(value);
+            public Optional<T> Default(T defaultValue) => default;
+        }
     }
 }
