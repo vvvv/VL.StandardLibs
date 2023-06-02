@@ -46,26 +46,33 @@ namespace VL.Core.Reactive
         internal static IVLNodeDescription GetNodeDescription(IVLNodeDescriptionFactory descfactory, 
             ChannelBuildDescription channelBuildDescription, IObservable<object> invalidateChannelNode, ChannelHubConfigWatcher watcher)
         {
+            var parts = channelBuildDescription.Name.Split('.');
+            var nodeName = parts.Last();
+            var category = string.Join('.', parts.SkipLast(1));
+
             return descfactory.NewNodeDescription(
-                channelBuildDescription.Name, 
-                "Reactive.GlobalChannels", 
+                nodeName, 
+                string.IsNullOrEmpty(category) ? "Reactive.GlobalChannels" : $"Reactive.GlobalChannels.{category}",
                 fragmented: true, 
                 invalidated: invalidateChannelNode, 
                 init: context =>
             {
+                var type = channelBuildDescription.CompileTimeType;
                 var _inputs = new IVLPinDescription[]
                 {                   
-                    context.Pin("Value", channelBuildDescription.Type),
+                    context.Pin("Value", type),
                 };
                 var _outputs = new[]
                 {
-                    context.Pin("Channel", typeof(IChannel<>).MakeGenericType(channelBuildDescription.Type)),
-                    context.Pin("Value", channelBuildDescription.Type),
+                    context.Pin("Channel", typeof(IChannel<>).MakeGenericType(type)),
+                    context.Pin("Value", type),
                 }; 
 
                 return context.Node(_inputs, _outputs, buildcontext =>
                 {
-                    var c = ChannelHub.HubForApp.TryAddChannel(channelBuildDescription.Name, channelBuildDescription.Type);
+                    var channelType = channelBuildDescription.RuntimeType;
+
+                    var c = IChannelHub.HubForApp.TryAddChannel(channelBuildDescription.Name, channelType);
                     Optional<object> latestValueThatGotSet = default;
                     var inputs = new IVLPin[]
                     {

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="LiIPinoB4LjLRms7uZqVID" LanguageVersion="2023.5.1-0006-gd6445bde1a" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="LiIPinoB4LjLRms7uZqVID" LanguageVersion="2023.5.1-0009-gff72e46415" Version="0.128">
   <Patch Id="MaKn58isLEdLcMSCDKs0fL">
     <Canvas Id="Bb8OVvqJusyMdcjXvJIsPx" DefaultCategory="System.Reflection" CanvasType="FullCategory">
       <Canvas Id="QozF33LF0ncPaMIS06nLkl" Name="Experimental" Position="538,165">
@@ -400,13 +400,13 @@
                       <FullNameCategoryReference ID="VL.Core.VLObjectExtensions" />
                     </p:NodeReference>
                     <Pin Id="Ti6YGQprTqfMVqRGJe6XIF" Name="Instance" Kind="InputPin" />
-                    <Pin Id="BRlxhbYmRqtLQSboxzu2MC" Name="Rootpath" Kind="InputPin" />
+                    <Pin Id="LiZo3krO2k5LYXDztXdHYs" Name="Root Path" Kind="InputPin" />
                     <Pin Id="DC1fcRaLstNNa8DRPFTGjM" Name="Filter" Kind="InputPin" />
                     <Pin Id="GL5MR1y5ikROAoEYU0XpDY" Name="Include Root" Kind="InputPin" />
                     <Pin Id="B73hWvAi2FjLo7K82jP1C5" Name="Result" Kind="OutputPin" />
                   </Node>
                   <Pin Id="TP1v2DsBtFGLfNehALUBqA" Name="Instance" Kind="InputPin" />
-                  <Pin Id="TaUN4z2i8H0LYmOtV1gtdL" Name="Rootpath" Kind="InputPin" />
+                  <Pin Id="PJzG8WvjrWvN3qSV0Vnlnu" Name="Root Path" Kind="InputPin" />
                   <Pin Id="KZu0pdV1aKmNg6nEccKCCs" Name="Filter" Kind="InputPin" />
                   <Pin Id="EfWXmA1OFeQO6HvEqh7aD2" Name="Include Root" Kind="InputPin" />
                   <Pin Id="PvCBcfvdYyeMOBPVzaC782" Name="Result" Kind="OutputPin" />
@@ -448,6 +448,32 @@
                   <ProcessDefinition Id="Iuaw3GGD6AbNeVbyVShtAm" IsHidden="true" />
                 </Patch>
               </Node>
+              <!--
+
+    ************************ Services ************************
+
+-->
+              <Node Name="Services" Bounds="700,898,114,80" Id="MYTmey2wUgaOmuCaUEUt5L">
+                <p:NodeReference>
+                  <Choice Kind="OperationDefinition" Name="Operation" />
+                  <CategoryReference Kind="Category" Name="Primitive" />
+                </p:NodeReference>
+                <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+                <Patch Id="JDyry1mmyxZPOZyXXxGXhd">
+                  <Node Bounds="714,926,53,26" AutoConnect="true" Id="Urvm3HT92iQL9q0clwfP8B">
+                    <p:NodeReference LastCategoryFullName="VL.Core.IVLObject" LastDependency="VL.Core.dll">
+                      <Choice Kind="OperationNode" Name="Services" />
+                      <FullNameCategoryReference ID="VL.Core.IVLObject" />
+                    </p:NodeReference>
+                    <Pin Id="FekHos5zsCpMLCRN8A5mvC" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="TyzOCXtfrZRO6sbw5H7avx" Name="Output" Kind="StateOutputPin" />
+                    <Pin Id="THfOlbnTYuOQJKgMD73YvU" Name="Services" Kind="OutputPin" />
+                  </Node>
+                  <Pin Id="DcDcTcCYSeXP42PuGMTdmo" Name="Input" Kind="InputPin" />
+                  <Pin Id="U4pxnAm4q8xN6VOB8quks5" Name="Output" Kind="OutputPin" />
+                  <Pin Id="ADRSL3SbmvlNo7HGMEPfpq" Name="Services" Kind="OutputPin" />
+                </Patch>
+              </Node>
             </Canvas>
             <ProcessDefinition Id="K9Pe52VZDmFMso9VPXZZMN" IsHidden="true">
               <Fragment Id="G0rZh1kWxT0MFpMVJ63DK5" Patch="GedzFLLkowePZuBQMnjaxN" Enabled="true" />
@@ -463,6 +489,7 @@
               <Fragment Id="DoNYPvvDRBQLDW10ENBV6I" Patch="JS0i1085PR4NBuBogf8VPX" />
               <Fragment Id="OrQZmKSms1WO0YzE16gGME" Patch="RRTBpUjiXnUOtxZ6vm4n78" />
               <Fragment Id="CjWz1LvdxQ5PIL63OzYpXc" Patch="OmyrUn1mRJPNdSOqqZuefL" />
+              <Fragment Id="LDYtupRzVO8PzRZ8QH29Ll" Patch="MYTmey2wUgaOmuCaUEUt5L" />
             </ProcessDefinition>
           </Patch>
         </Node>
@@ -1061,6 +1088,42 @@
             </ProcessDefinition>
           </Patch>
         </Node>
+        <!--
+
+    ************************ IServiceProvider ************************
+
+-->
+        <Node Name="IServiceProvider" Bounds="473,382" Id="M6i1zXm4IuKMvUhkrJUmny">
+          <p:NodeReference>
+            <Choice Kind="ForwardDefinition" Name="Forward" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="System" LastDependency="System.ComponentModel.dll">
+            <Choice Kind="TypeFlag" Name="IServiceProvider" />
+          </p:TypeAnnotation>
+          <Patch Id="V1B7FDpnWBAO3uw42G8dn4">
+            <Canvas Id="OqWQhNYt6j1Pgdoa6eC62o" CanvasType="Group" />
+            <ProcessDefinition Id="N99QZ7gwd7tLvowfvlaKyf" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ IPathProvider ************************
+
+-->
+        <Node Name="IPathProvider" Bounds="706,383" Id="ApS2o506heqLL80GiUJRae">
+          <p:NodeReference>
+            <Choice Kind="ForwardDefinition" Name="Forward" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Core" LastDependency="VL.Core.dll">
+            <Choice Kind="TypeFlag" Name="IPathProvider" />
+          </p:TypeAnnotation>
+          <Patch Id="Np05ie2E5koP4JGwrhSPuS">
+            <Canvas Id="FUAGEVz0wO2L9YlCGkDXjX" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="UpG6jnY8wxqLxST2vksSqA" IsHidden="true" />
+          </Patch>
+        </Node>
       </Canvas>
       <Canvas Id="B7Ar3I5vhitOT4bg427mW2" Name="Advanced" Position="349,164">
         <!--
@@ -1263,4 +1326,5 @@
   <NugetDependency Id="Q5OJh8TAFbzOdsQYTA3GJ1" Location="VL.Core" Version="2021.4.11-1305-gadb34eb700" />
   <DocumentDependency Id="LrZHq50K7OkLraVPZHf959" Location="./CoreLibBasics.vl" />
   <DocumentDependency Id="V1X6XSXitj5OPUQXdVUnfB" Location="./VL.Xml.vl" />
+  <PlatformDependency Id="NjlJ2dt5hJoPzauRUlmwFj" Location="System.ComponentModel" />
 </Document>

@@ -13,7 +13,8 @@
 
         internal override void UpdateCore(Context context)
         {
-            ImGuiNET.ImGui.TableNextRow(Flags, MinimumRowHeight);
+            if (context.IsInBeginTables)
+                ImGuiNET.ImGui.TableNextRow(Flags, MinimumRowHeight);
         }
     }
 }

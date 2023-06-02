@@ -6,19 +6,37 @@ using System.Reactive.Subjects;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Reactive.Linq;
+using System.Linq;
 
 #nullable enable
 
 namespace VL.Core.Reactive
 {
-    public class ChannelHub : IChannelHub, IDisposable
+    internal class ChannelHub : IChannelHub, IDisposable
     {
         int lockCount = 0;
         int revision = 0;
         int revisionOnLockTaken = 0;
-        public Subject<object> onChannelsChanged = new Subject<object>();
-        public IObservable<object> OnChannelsChanged => onChannelsChanged;
 
+        public IChannel<object> OnChannelsChanged { get; }
+
+        public string DisplayName { get; set; }
+
+        IDisposable? OnSwapSubscription;
+
+        public ChannelHub()
+        {
+            OnChannelsChanged = new Channel<object>();
+            OnChannelsChanged.Value = this;
+
+            var e = ServiceRegistry.Current.GetService<IHotSwappableEntryPoint>();
+            if (e != null)
+            {
+                OnSwapSubscription = e.OnSwap.Subscribe(_ => Swap());
+            }
+        }
+
+        public override string ToString() => DisplayName ?? base.ToString();
 
         IDisposable? MustHaveDescriptiveSubscription;
         public IObservable<IEnumerable<ChannelBuildDescription>> MustHaveDescriptive
@@ -34,14 +52,25 @@ namespace VL.Core.Reactive
                         // we don't delete channels that are not listed as the user might have added some more programmatically.
                         // the config only describes those that shall be there on startup.
                         foreach (var d in descriptions)
-                            TryAddChannel(d.Name, d.Type);
+                        {
+                            var name = d.Name;
+                            var type = d.RuntimeType;
+                            TryAddChannel(name, type);
+                        }
                     });
                 });
             }
         }
 
         internal ConcurrentDictionary<string, IChannel<object>> Channels = new();
+
+        internal ConcurrentBag<IModule> Modules = new();
+
+
         IDictionary<string, IChannel<object>> IChannelHub.Channels => Channels;
+
+        IEnumerable<IModule> IChannelHub.Modules => Modules.OrderBy(m => m.Name);
+
 
         public IDisposable BeginChange()
         {
@@ -55,13 +84,21 @@ namespace VL.Core.Reactive
         {
             lockCount--;
             if (lockCount == 0 && revisionOnLockTaken != revision)
-                onChannelsChanged.OnNext(this);
+                OnChannelsChanged.Value = this;
         }
 
         public IChannel<object>? TryAddChannel(string key, Type typeOfValues)
         {
+            if (string.IsNullOrWhiteSpace(key))
+                return default;
+
             using var _ = BeginChange();
-            var c = Channels.GetOrAdd(key, _ => { var c = ChannelHelpers.CreateChannelOfType(typeOfValues); revision++; return c; });
+            var c = Channels.GetOrAdd(key, _ => 
+            { 
+                var c = ChannelHelpers.CreateChannelOfType(typeOfValues); 
+                revision++; 
+                return c; 
+            });
             if (c.ClrTypeOfValues != typeOfValues)
                 return default;
             // discuss if replacing with new type is an option or should always occur.
@@ -82,7 +119,7 @@ namespace VL.Core.Reactive
             if (c != null)
             {
                 revision++;
-                c.Dispose();// might not really be necessary, but let's clean up for now. We are at least the ones who created the channels.
+                c.Dispose();
             }
             return gotRemoved;
         }
@@ -93,9 +130,13 @@ namespace VL.Core.Reactive
             var gotRemoved = Channels.TryRemove(key, out var c);
             if (c != null)
             {
+                var o = c.Object;
                 revision++;
                 c.Dispose();
-                return TryAddChannel(newKey, c.ClrTypeOfValues);
+                c = TryAddChannel(newKey, c.ClrTypeOfValues);
+                if (c != null && o != null && c.ClrTypeOfValues.IsAssignableFrom(o.GetType()))
+                    c.Object = o;
+                return c;
             }
             return null;
         }
@@ -106,12 +147,26 @@ namespace VL.Core.Reactive
             var gotRemoved = Channels.TryRemove(key, out var c);
             if (c != null)
             {
+                var o = c.Object;
                 revision++;
                 c.Dispose();
-                return TryAddChannel(key, typeOfValues);
+                c = TryAddChannel(key, typeOfValues);
+                if (c != null && o != null && typeOfValues.IsAssignableFrom(o.GetType()))
+                    c.Object = o;
+                return c;
             }
             return null;
         }
+
+
+
+
+        public void RegisterModule(IModule module)
+        {
+            Modules.Add(module);
+        }
+
+
 
         public void Dispose()
         {
@@ -123,23 +178,35 @@ namespace VL.Core.Reactive
                 foreach (var c in cs)
                     c.Dispose();
             }
-            onChannelsChanged.Dispose();
+            OnChannelsChanged.Dispose();
             MustHaveDescriptiveSubscription?.Dispose();
+            OnSwapSubscription?.Dispose();
         }
-    
-        public static IChannelHub HubForApp 
-        { 
-            get 
-            { 
-                return ServiceRegistry.Current.GetOrAddService<IChannelHub>(() =>
+
+        public void Swap()
+        {
+            var entryPoint = ServiceRegistry.Current.GetService<IHotSwappableEntryPoint>();
+            if (entryPoint == null)
+                return;
+
+            bool changed = false;
+            var keys = new List<string>(Channels.Keys);
+            var channels = Channels;
+            foreach (string key in keys)
+            {
+                var channel = channels[key];
+                var value = channel.Value;
+                var newValue = entryPoint.Swap(value, typeof(object));
+                if (newValue != value)
                 {
-                    var x = new ChannelHub();
-                    ServiceRegistry.Current.GetService<IAppHost>().OnExit.Subscribe(_ =>
-                    {
-                        x.Dispose();
-                    });
-                    return x;
-                });
+                    var newChannel = entryPoint.Swap(channel, typeof(Channel<>).MakeGenericType(newValue.GetType()));
+                    channels[key] = (IChannel<object>)newChannel;
+                    changed = true;
+                }
+            }
+            if (changed)
+            {
+                OnChannelsChanged.Value = this;
             }
         }
     }

@@ -1,10 +1,11 @@
-﻿using VL.Core.EditorAttributes;
+﻿using ImGuiNET;
+using VL.Core.EditorAttributes;
 
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (Float64)", Category = "ImGui.Widgets.Advanced", Tags = "number, updown")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputFloat64 : ChannelWidget<double>
+    internal partial class InputFloat64 : ChannelWidget<double>, IHasLabel, IHasInputTextFlags
     {
 
         public string? Label { get; set; }
@@ -18,15 +19,15 @@ namespace VL.ImGui.Widgets
         /// </summary>
         public string? Format { private get; set; } = "%.3f";
 
-        public ImGuiNET.ImGuiInputTextFlags Flags { private get; set; }
+        public ImGuiInputTextFlags Flags { get; set; }
 
         double lastframeValue;
 
         internal override void UpdateCore(Context context)
         {
             var value = Update();
-            if (ImGuiUtils.InputDouble(Context.GetLabel(this, Label), ref value, Step, StepFast, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags) && value != lastframeValue)
-                Value = value;
+            if (ImGuiUtils.InputDouble(Context.GetLabel(this, Label), ref value, Step, StepFast, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+                SetValueIfChanged(lastframeValue, value, Flags);
             lastframeValue = value;
         }
     }

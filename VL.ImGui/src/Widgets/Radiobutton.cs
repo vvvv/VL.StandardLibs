@@ -1,7 +1,7 @@
 ﻿namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Widgets")]
-    internal partial class RadioButton : ChannelWidget<int>
+    internal partial class RadioButton : ChannelWidget<int>, IHasLabel
     {
         public string? Label { get; set; }
 

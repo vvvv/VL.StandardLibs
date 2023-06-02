@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Reactive.Linq;
+using Stride.Core.Mathematics;
 
 #nullable enable
 
@@ -73,7 +74,26 @@ namespace VL.Core.Reactive
      */
     public interface IChannelHub
     {
+        public static IChannelHub HubForApp
+        {
+            get
+            {
+                return ServiceRegistry.Current.GetOrAddService<IChannelHub>(() =>
+                {
+                    var x = new ChannelHub();
+                    ServiceRegistry.Current.GetService<IAppHost>().OnExit.Subscribe(_ =>
+                    {
+                        x.Dispose();
+                    });
+
+                    return x;
+                });
+            }
+        }
+
         IDictionary<string, IChannel<object>> Channels { get; }
+
+        IEnumerable<IModule> Modules { get; }
 
         IChannel<object>? TryGetChannel(string key);
         
@@ -91,14 +111,93 @@ namespace VL.Core.Reactive
         /// <returns></returns>
         IDisposable BeginChange();
 
-        IObservable<object> OnChannelsChanged { get; }
+        IChannel<object> OnChannelsChanged { get; }
 
         void BatchUpdate(Action<IChannelHub> action)
         {
             using var _ = BeginChange();
             action(this);
         }
+
+        /// <summary>
+        /// Please call this inside a static RegisterServices operation
+        /// </summary>
+        /// <param name="module"></param>
+        void RegisterModule(IModule module);
     }
+
+
+    public interface IModule
+    {
+        string Name { get; }
+
+        string Description { get; }
+
+        bool SupportsType(Type type);
+    }
+
+
+    [Flags]
+    public enum BindingUserEditingCapabilities
+    {
+        Default = OnlyAllowSingle | Editable | ManuallyRemovable,
+        NoManualAdd = 1 << 0,
+        OnlyAllowSingle = 1 << 1,
+        AllowMultiple = 1 << 2,
+        //SpecifyAllowAddPerChannel = 1 << 3,
+
+        Editable = 1 << 4,
+        //EditMeansMutate = 1 << 5,
+        //EditMeansRecreate = 1 << 6,
+        //SpecifyAllowEditPerChannel = 1 << 7,
+
+        ManuallyRemovable = 1 << 8,
+        //SpecifyAllowRemovablePerChannel = 1 << 9,
+    }
+
+
+    public interface IModuleView
+    {
+        BindingUserEditingCapabilities? BindingEditingCapabilities { get; }
+
+        IPlainProcessNode CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<Action> responeChannel, IBinding? initialBinding, Vector2 expectedSize);
+
+        void RemoveBinding(IBinding binding);
+    }
+
+
+    public interface IPlainProcessNode
+    {
+        void Update();
+    }
+
+
+    public enum BindingType
+    {
+        None = 0,
+        Send = 1,
+        Receive = 2,
+        SendAndReceive = Send | Receive,
+    }
+
+
+    public interface IBinding : IDisposable
+    {
+        IModule Module { get; }
+
+        string ShortLabel => Module.Name;
+
+        string? Description { get; }
+
+        BindingType BindingType { get; }
+    }
+
+
+
+
+
+
+
 
     //public interface IChannelDescriptionProvider
     //{

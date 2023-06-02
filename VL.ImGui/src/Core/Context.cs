@@ -33,6 +33,7 @@ namespace VL.ImGui
         internal ImDrawListPtr DrawListPtr;
         internal DrawList DrawList;
         internal System.Numerics.Vector2 DrawListOffset;
+        internal bool IsInBeginTables;
 
         public Context()
         {
@@ -64,6 +65,11 @@ namespace VL.ImGui
                 return;
 
             widget.Update(this);
+            _widgetsToReset.Add(widget);
+        }
+
+        internal void AddToResetQueue(Widget widget)
+        {
             _widgetsToReset.Add(widget);
         }
 

@@ -11,7 +11,8 @@
 
         internal override void UpdateCore(Context context)
         {
-            ImGuiNET.ImGui.TableSetColumnIndex(Index);
+            if (context.IsInBeginTables)
+                ImGuiNET.ImGui.TableSetColumnIndex(Index);
         }
     }
 }

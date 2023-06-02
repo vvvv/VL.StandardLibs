@@ -32,9 +32,11 @@ namespace VL.Lib
             {
                 // make sure all channels of config exist in app-channelhub.
                 var basePath = PathProviderUtils.GetApplicationBasePath();
+                // the following line forces the creation of a channel hub per entry point! HDE code assumes that there is one.
+                ((ChannelHub)IChannelHub.HubForApp).DisplayName = basePath;
                 var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(basePath);
                 if (watcher != null)
-                    ((ChannelHub)ChannelHub.HubForApp).MustHaveDescriptive = watcher.Descriptions;
+                    ((ChannelHub)IChannelHub.HubForApp).MustHaveDescriptive = watcher.Descriptions;
             }
 
             // registering node factory producing nodes for global channels is necessary in any case.

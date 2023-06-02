@@ -105,6 +105,17 @@ namespace VL.Lib.Reactive
             }).Retry(retryCount);
         }
 
+        internal static IObservable<T> CatchAndReport<T>(this IObservable<T> source, NodeContext nodeContext)
+        {
+            var serviceRegistry = ServiceRegistry.CurrentOrGlobal;
+            return source.Catch((Exception e) =>
+            {
+                var re = new RuntimeException(e, nodeContext);
+                RuntimeGraph.ReportException(re, serviceRegistry);
+                return Observable.Empty<T>();
+            });
+        }
+
         /// <summary>
         /// Returns an observable which sets up the <typeparamref name="TState"/> on subscription and will thereafter call the <paramref name="update"/>
         /// method in a loop on a background thread. The speed of the loop can be controlled with the <paramref name="millisecondsDelay"/>.

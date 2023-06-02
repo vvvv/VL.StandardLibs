@@ -27,6 +27,10 @@ namespace VL.Stride.Lib
                 // Only this overload raises the AssemblyLoadContext.ResolvingUnmanagedDll event
                 NativeLibrary.Load("SDL2.dll", typeof(Initialization).Assembly, default);
             }
+
+            // In our deployment the dll is not beside the exe (what Silk.NET expects) and sadly Silk.NET is not using Load but instead uses TryLoad
+            // which doesn't go through the resolve event.
+            NativeLibrary.Load("openxr_loader.dll", typeof(Initialization).Assembly, default);
         }
 
         // Remove once tested enough

@@ -4,7 +4,7 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Widgets", Tags = "toggle")]
     [WidgetType(WidgetType.Default)]
-    internal partial class Checkbox : ChannelWidget<bool>
+    internal partial class Checkbox : ChannelWidget<bool>, IHasLabel
     {
 
         public string? Label { get; set; }

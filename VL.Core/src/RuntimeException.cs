@@ -12,6 +12,7 @@ namespace VL.Core
         {
             Original = inner.Original;
             Instance = instance;
+            NodeContext = instance.Context;
         }
 
         public RuntimeException(Exception original, IVLObject instance)
@@ -19,6 +20,14 @@ namespace VL.Core
         {
             Original = original;
             Instance = instance;
+            NodeContext = instance.Context;
+        }
+
+        public RuntimeException(Exception original, NodeContext nodeContext)
+            : base(original.Message, original)
+        {
+            Original = original;
+            NodeContext = nodeContext;
         }
 
         public static RuntimeException Create(Exception e, IVLObject instance)
@@ -34,6 +43,7 @@ namespace VL.Core
 
         public Exception Original { get; private set; }
         public IVLObject Instance { get; }
+        public NodeContext NodeContext { get; }
 
         public void AddValue(uint id, object value)
         {

@@ -3,7 +3,7 @@
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Widgets")]
-    internal partial class ListBox : ChannelWidget<string>
+    internal partial class ListBox : ChannelWidget<string>, IHasLabel
     {
 
         public string? Label { get; set; }

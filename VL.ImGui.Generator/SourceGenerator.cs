@@ -109,6 +109,11 @@ namespace VL.ImGui.Generator
         {
             var category = nodeAttrData.GetValueOrDefault("Category").Value as string ?? "ImGui";
             string nodeDecl = default;
+
+            var disposeCall = "";
+            if (typeSymbol.Interfaces.Any(interf => interf.Name == nameof(IDisposable)))
+                disposeCall = ", dispose: () => s.Dispose()";
+
             switch (mode)
             {
                 case Mode.RetainedMode:
@@ -117,10 +122,10 @@ namespace VL.ImGui.Generator
                         category = category.Replace("ImGui", "ReGui");
                         category += ".Internal";
                     }
-                    nodeDecl = "return c.Node(inputs, outputs);";
+                    nodeDecl = $"return c.Node(inputs, outputs{disposeCall});";
                     break;
                 case Mode.ImmediateMode:
-                    nodeDecl = "return c.Node(inputs, outputs, () => { s.Update(ctx); });";
+                    nodeDecl = $"return c.Node(inputs, outputs, () => {{ s.Update(ctx); }}{disposeCall});";
                     break;
                 default:
                     break;
@@ -169,6 +174,9 @@ namespace VL.ImGui.Generator
                     continue;
 
                 var pinAttrData = GetAttributeData(pinAttributeSymbol, property);
+                if (pinAttrData.TryGetValue("Ignore", out var ignore) && ignore.Value is bool bIgnore && bIgnore)
+                    continue;
+
                 if (pinAttrData.TryGetValue("Priority", out var prio))
                     properties.Add(((int)prio.Value) * 1000 + i, property);
                 else
@@ -249,20 +257,24 @@ namespace {typeSymbol.ContainingNamespace}
                 {{                    
                     {string.Join($"{Environment.NewLine}{indent}", outputDescriptions)}
                 }};
-                return _c.Node(_inputs, _outputs, c =>
-                {{
-                    var s = new {typeSymbol.Name}();
-                    {ctx}
-                    var inputs = new IVLPin[]
+                return _c.Node(
+                    _inputs, 
+                    _outputs, 
+                    c =>
                     {{
-                        {string.Join($"{Environment.NewLine}{indent2}", inputs)}
-                    }};
-                    var outputs = new IVLPin[]
-                    {{
-                        {string.Join($"{Environment.NewLine}{indent2}", outputs)}
-                    }};
-                    {nodeDecl}
-                }}, summary: @""{summary}"");
+                        var s = new {typeSymbol.Name}();
+                        {ctx}
+                        var inputs = new IVLPin[]
+                        {{
+                            {string.Join($"{Environment.NewLine}{indent2}", inputs)}
+                        }};
+                        var outputs = new IVLPin[]
+                        {{
+                            {string.Join($"{Environment.NewLine}{indent2}", outputs)}
+                        }};
+                        {nodeDecl}
+                    }}, 
+                    summary: @""{summary}"");
             }}, tags: ""{tags}"");
         }}
     }}
