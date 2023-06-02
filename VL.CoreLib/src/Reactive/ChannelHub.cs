@@ -199,9 +199,13 @@ namespace VL.Core.Reactive
                 var newValue = entryPoint.Swap(value, typeof(object));
                 if (newValue != value)
                 {
-                    var newChannel = entryPoint.Swap(channel, typeof(Channel<>).MakeGenericType(newValue.GetType()));
-                    channels[key] = (IChannel<object>)newChannel;
-                    changed = true;
+                    var newElementType = entryPoint.SwapType(channel.ClrTypeOfValues);
+                    var newChannel = entryPoint.Swap(channel, typeof(Channel<>).MakeGenericType(newElementType));
+                    if (channel != newChannel)
+                    {
+                        channels[key] = (IChannel<object>)newChannel;
+                        changed = true;
+                    }
                 }
             }
             if (changed)
