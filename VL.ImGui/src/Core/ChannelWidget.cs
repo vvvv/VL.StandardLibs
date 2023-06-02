@@ -11,7 +11,7 @@ namespace VL.ImGui.Widgets
         {
             protected get;
             set;
-        } = DummyChannelHelpers<T>.Instance; // This is the VL default
+        } = ChannelHelpers.Dummy<T>(); // This is the VL default
 
         public bool Bang 
         { 
