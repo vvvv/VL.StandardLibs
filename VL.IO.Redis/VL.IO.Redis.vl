@@ -150,11 +150,6 @@
             <Pad Id="QetbU9Gb8QJPBZb0pi8Bce" SlotId="LN5r68vs1ekLEHDvDloR4Z" Bounds="556,906" />
             <ControlPoint Id="BmGsrhnoFegLNuqKPkdAvP" Bounds="630,882" />
           </Canvas>
-          <!--
-
-    ************************  ************************
-
--->
           <ProcessDefinition Id="Uv7lmu34LAtPSVLwUGHaB1" HasStateOut="true">
             <Fragment Id="R9w5NfzlooSQCDh0GRD1Jz" Patch="Lox6MnRxFfIPJTncL2E2ur" Enabled="true" />
             <Fragment Id="CIA9YmFB2JyMovmuvrTnB5" Patch="JEzfsrOkX10NX8ECEtP7c6" Enabled="true" />
@@ -321,11 +316,6 @@
             <Pin Id="P2oIPwwIpyNPfqa5C3DwGt" Name="Output" Kind="OutputPin" Bounds="850,932" />
             <Pin Id="VmonaHqukBnLc93meemSpp" Name="Force" Kind="InputPin" Bounds="1038,530" />
           </Patch>
-          <!--
-
-    ************************  ************************
-
--->
           <ProcessDefinition Id="VX6WIXHWC3QLDVlC4E6oR1">
             <Fragment Id="Q0v0NPkqEQPM8a0G5JGy1h" Patch="LaL7w3igW6mOLQ4ew1ASux" Enabled="true" />
             <Fragment Id="MmYzQxPeF9MNnZwGd9QCdB" Patch="DCies8GHDGiLd5ECC2bP9F" Enabled="true" />
@@ -719,103 +709,100 @@
               </Patch>
               <ControlPoint Id="K2LuriLmdDTO9hNebB7fdK" Bounds="754,628" Alignment="Bottom" />
             </Node>
-            <Node Bounds="739,672,300,174" Id="SmMErvIiPgBNf7o0JyPmMf">
-              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
-                <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
-                <CategoryReference Kind="Category" Name="Primitive" />
-                <Choice Kind="ProcessStatefulRegion" Name="Cache" />
+            <Node Bounds="754,710,87,26" Id="AZupQAaWhy2OAaFS12eWkZ">
+              <p:NodeReference LastCategoryFullName="ISubscriber" LastDependency="VL.IO.Redis.vl" OverloadStrategy="AllPinsThatAreNotCommon">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="MutableInterfaceType" Name="ISubscriber" />
+                <Choice Kind="OperationCallFlag" Name="Subscribe" />
+                <PinReference Kind="OutputPin" Name="Result" />
               </p:NodeReference>
-              <Pin Id="Aao1WIBupQePYUDLIt20WY" Name="Force" Kind="InputPin" />
-              <Pin Id="Fk6pppYfszbLPsrHqNqsRs" Name="Dispose Cached Outputs" Kind="InputPin" />
-              <Pin Id="R4MFBd4ICHrLyw6A8zkeRv" Name="Has Changed" Kind="OutputPin" />
-              <ControlPoint Id="KNa8TxnHx0UM52Fs2Up2Vc" Bounds="841,678" Alignment="Top" />
-              <ControlPoint Id="PKFObIhfBWePEi7KGpkVrp" Bounds="755,678" Alignment="Top" />
-              <Patch Id="M8OZcF64dplLgHra7K33bS" ManuallySortedPins="true">
-                <Patch Id="P9BU9Jz3AG0Of3ioSixcPL" Name="Create" ManuallySortedPins="true" />
-                <Patch Id="HxjPBtX1KZvN2AS0mFc5ur" Name="Then" ManuallySortedPins="true" />
-                <Node Bounds="839,714,66,19" Id="JDwVFLLrucJMx7JsXSlgZL">
-                  <p:NodeReference LastCategoryFullName="RedisChannel" LastDependency="VL.IO.Redis.vl">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <CategoryReference Kind="ClassType" Name="RedisChannel" />
-                    <Choice Kind="OperationCallFlag" Name="FromString" />
-                  </p:NodeReference>
-                  <Pin Id="NtKAsNFx0V1M8OdpBUHiDO" Name="Input" Kind="InputPin" />
-                  <Pin Id="BByU2XqcEHlQF8tbDAJRva" Name="Result" Kind="OutputPin" />
-                </Node>
-                <Node Bounds="751,800,65,26" Id="EfxUSrt3PT9QTxuTCz6wuY">
-                  <p:NodeReference LastCategoryFullName="ISubscriber" LastDependency="VL.IO.Redis.vl" OverloadStrategy="AllPinsThatAreNotCommon">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <CategoryReference Kind="MutableInterfaceType" Name="ISubscriber" />
-                    <Choice Kind="OperationCallFlag" Name="Subscribe" />
-                    <PinReference Kind="InputPin" Name="Handler" />
-                  </p:NodeReference>
-                  <Pin Id="VMgagGC3jhdOhiEXjV7icd" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="PJ0RyAahF0JMbqEatdmfIa" Name="Channel" Kind="InputPin" />
-                  <Pin Id="LzUfM2JGMk5NRIjj1gSUUh" Name="Handler" Kind="InputPin" />
-                  <Pin Id="CQQ39OjbK41MG1uksHwByl" Name="Flags" Kind="InputPin" />
-                  <Pin Id="M6rOJ5nU9OAMXBJ2htan5A" Name="Output" Kind="StateOutputPin" />
-                </Node>
-                <Pad Id="Vh6pgA08l04O0FoV3Dsop6" Comment="Flags" Bounds="882,773,99,15" ShowValueBox="true" isIOBox="true" Value="None">
-                  <p:TypeAnnotation LastCategoryFullName="StackExchange.Redis" LastDependency="StackExchange.Redis.dll">
-                    <Choice Kind="TypeFlag" Name="CommandFlags" />
-                  </p:TypeAnnotation>
-                </Pad>
-              </Patch>
+              <Pin Id="PxiW9WESOUKPn8okAahRXN" Name="Input" Kind="StateInputPin" />
+              <Pin Id="PfCNw6Yp2D8QPxjcUZoR2O" Name="Channel" Kind="InputPin" />
+              <Pin Id="H0EnuK3PV63N7BrIlK2bOy" Name="Flags" Kind="InputPin" />
+              <Pin Id="N82HtMoZiPqPq1GFETyEhA" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="UejFf25fXDUQKFleoMAZVi" Name="Result" Kind="OutputPin" />
             </Node>
-            <ControlPoint Id="HTGIbu7r71mNK45o0XMuBP" Bounds="1101,550" />
-            <Node Bounds="1227,646,180,159" Id="Dsp7KkiJgWjM9XN0Xr3F26">
-              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
-                <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
-                <CategoryReference Kind="Category" Name="Primitive" />
-                <Choice Kind="ApplicationRegion" Name="Delegate" />
+            <Node Bounds="821,650,66,19" Id="NkOfa2yiafUOe1OxHoTby3">
+              <p:NodeReference LastCategoryFullName="RedisChannel" LastDependency="VL.IO.Redis.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="ClassType" Name="RedisChannel" />
+                <Choice Kind="OperationCallFlag" Name="FromString" />
               </p:NodeReference>
-              <Pin Id="GBP9wvDDkUvMNeYPj0p5kA" Name="Functionality" Kind="OutputPin" />
-              <Patch Id="FvLOHPkfBAXQRMgvYUf8ip" ManuallySortedPins="true">
-                <Pin Id="I6M7yaYU4LkL9vVchnDPho" Name="Arg 1" Kind="InputPin" />
-                <ControlPoint Id="HOorQvpgDc8LrvnBZAQi0K" Bounds="1265,667" />
-                <Pin Id="H98xcN62XItNY6YWebP1OC" Name="Arg 2" Kind="InputPin" />
-                <ControlPoint Id="K7rK2Xo2eq5PA9zXpT3KZ1" Bounds="1341,664" />
-                <Node Bounds="1255,759,79,26" Id="ACDx0RGUX05NPufNBdjyk6">
-                  <p:NodeReference LastCategoryFullName="Primitive.Delegates.Delegate (2 -&gt; 0)" LastDependency="VL.CoreLib.vl">
+              <Pin Id="CY75dRNGRb5PD6HX92dpqX" Name="Input" Kind="InputPin" />
+              <Pin Id="ES48c7EEktYMygiT7EKebc" Name="Result" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="837,759,99,26" Id="VNOSZq4LifbP2hZzbXdoSu">
+              <p:NodeReference LastCategoryFullName="ChannelMessageQueue" LastDependency="VL.IO.Redis.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="OperationCallFlag" Name="ReadAsync" />
+              </p:NodeReference>
+              <Pin Id="KUpx8ujxbeqO0G8Z6dSX4J" Name="Input" Kind="StateInputPin" />
+              <Pin Id="K2zPEdO5KZTN8RCzrevV3e" Name="Cancellation Token" Kind="InputPin" />
+              <Pin Id="CqwRmHE2ZZsLQ63TW4UHYP" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="I1KJfw6ISqxLTJ3vizU9SI" Name="Result" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="993,855,79,26" Id="OMeoCCGJCYTPcCHiFZmkXv">
+              <p:NodeReference LastCategoryFullName="Reactive.Task" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="ClassType" Name="Task" />
+                <Choice Kind="OperationCallFlag" Name="ToObservable" />
+              </p:NodeReference>
+              <Pin Id="GM4P29zYEvHP0OYMUzBkWk" Name="Input" Kind="StateInputPin" />
+              <Pin Id="M64S5YNLddULXF0QtMBvjk" Name="Result" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="933,799,62,26" Id="Hntq0F2nF8qOipyaG8JuoT">
+              <p:NodeReference LastCategoryFullName="System.Threading.Tasks.ValueTask`1" LastDependency="System.Runtime.dll">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="AssemblyCategory" Name="ValueTask`1" NeedsToBeDirectParent="true" />
+                <Choice Kind="OperationCallFlag" Name="AsTask" />
+              </p:NodeReference>
+              <Pin Id="KHGF3rfeVMlLQDNZW7oD82" Name="Input" Kind="StateInputPin" />
+              <Pin Id="Sg6COumHHygQaRrVdYZXb1" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="LNWSpT9PKL2QYyBCe4yiUC" Name="Result" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="993,943,151,139" Id="Jpu5K0MXyhBNHPMM3XtZID">
+              <p:NodeReference LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+                <CategoryReference Kind="Category" Name="Reactive" NeedsToBeDirectParent="true" />
+                <Choice Kind="ProcessAppFlag" Name="ForEach" />
+              </p:NodeReference>
+              <Pin Id="CRN0PQYfaz5Pcr4KzqCAgn" Name="Messages" Kind="InputPin" />
+              <Pin Id="KRyNttZGJK6Pkfg3hNWia3" Name="Reset" Kind="InputPin" />
+              <Pin Id="CpHr1Gk7HoRLx3ZpPSI2sV" Name="Result" Kind="OutputPin" />
+              <Patch Id="VA7Oubk23PhPN4lqVDK5Ne" ManuallySortedPins="true">
+                <Patch Id="GfNmeBqITiGL1nUmDqTuZX" Name="Create" ManuallySortedPins="true" />
+                <Patch Id="PFnwhcR37RqP6FlvpMQJit" Name="Update" ManuallySortedPins="true">
+                  <Pin Id="PJmW2VG9iBpPOA13QrXygq" Name="Input 1" Kind="InputPin" />
+                  <Pin Id="V2xBKUvYBKgOXMjZyUqWtt" Name="Output" Kind="OutputPin" />
+                </Patch>
+                <ControlPoint Id="BpxJl6lNdzVMnkcJXZINNw" Bounds="997,951" />
+                <ControlPoint Id="GOjw6sxIf9xPltRkH9F9Vk" Bounds="998,1075" />
+                <Node Bounds="1007,977,76,26" Id="UI68Ilp8kPEOcEjr0Xhp9f">
+                  <p:NodeReference LastCategoryFullName="ChannelMessage" LastDependency="VL.IO.Redis.vl">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <CategoryReference Kind="FuncType" Name="Delegate (2 -&gt; 0)" NeedsToBeDirectParent="true" />
-                    <Choice Kind="OperationCallFlag" Name="Invoke" />
+                    <CategoryReference Kind="ClassType" Name="ChannelMessage" />
+                    <Choice Kind="OperationCallFlag" Name="Message" />
                   </p:NodeReference>
-                  <Pin Id="LHBB04aqW2OMMw3055ZpJ7" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="CQBKH8doCnEQG8c0Q0hBbb" Name="Arg 1" Kind="InputPin" />
-                  <Pin Id="JYudI7ysJFKLVVN1PpwNrj" Name="Arg 2" Kind="InputPin" />
+                  <Pin Id="PXCS8DLCDYyMpD1V3YpU3d" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="JcVYXgnTT3QQBeTLX1ZtIV" Name="Output" Kind="StateOutputPin" />
+                  <Pin Id="Av1dqZYdsRDOgKiAKY3hyh" Name="Message" Kind="OutputPin" />
                 </Node>
-                <Node Bounds="1239,688,65,26" Id="VDRgZg0Y0kBMLnTdXToi1A">
-                  <p:NodeReference LastCategoryFullName="RedisChannel" LastDependency="VL.IO.Redis.vl" OverloadStrategy="AllPinsThatAreNotCommon">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <CategoryReference Kind="ClassType" Name="RedisChannel" />
-                    <Choice Kind="OperationCallFlag" Name="ToString" />
-                    <PinReference Kind="InputPin" Name="Input">
-                      <p:DataTypeReference p:Type="TypeReference" LastDependency="VL.IO.Redis.vl">
-                        <Choice Kind="TypeFlag" Name="RedisChannel" />
-                      </p:DataTypeReference>
-                    </PinReference>
-                    <PinReference Kind="InputPin" Name="Input">
-                      <p:DataTypeReference p:Type="TypeReference" LastDependency="VL.IO.Redis.vl">
-                        <Choice Kind="TypeFlag" Name="RedisChannel" />
-                      </p:DataTypeReference>
-                    </PinReference>
-                  </p:NodeReference>
-                  <Pin Id="JjM3L4NoW2NNDr0AaOVg1v" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="LZRA5zATrR8NTYtKEAD81u" Name="Output" Kind="StateOutputPin" />
-                  <Pin Id="DpO4cUiMdnmO2Pdwg1RJ1a" Name="Result" Kind="OutputPin" />
-                </Node>
-                <Node Bounds="1340,689,55,19" Id="SRaiI4S2sNGONIWiXc0Snc">
+                <Node Bounds="1077,1020,55,19" Id="FubXYOTsb28MxP7KEBgDph">
                   <p:NodeReference LastCategoryFullName="System.Conversion" LastDependency="VL.CoreLib.vl">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                     <Choice Kind="OperationCallFlag" Name="ToString" />
                   </p:NodeReference>
-                  <Pin Id="ELc1LFwVDqdMD6RMmo93Bm" Name="Input" Kind="InputPin" />
-                  <Pin Id="IXvUqjPXPG7MaJbGuEGzoM" Name="Result" Kind="OutputPin" />
+                  <Pin Id="U1wKVhOI84NLmnLSOilTSn" Name="Input" Kind="InputPin" />
+                  <Pin Id="EUZGrGLHjNjOyTLYBez1Hx" Name="Result" Kind="OutputPin" />
                 </Node>
               </Patch>
             </Node>
-            <ControlPoint Id="OsC2xbM7h95QYf6ahNJDas" Bounds="1271,510" />
+            <Pad Id="RTkvwRCQRlIO1fIGQQSvdd" Comment="Flags" Bounds="966,659,99,15" ShowValueBox="true" isIOBox="true" Value="None">
+              <p:TypeAnnotation LastCategoryFullName="StackExchange.Redis" LastDependency="StackExchange.Redis.dll">
+                <Choice Kind="TypeFlag" Name="CommandFlags" />
+              </p:TypeAnnotation>
+            </Pad>
+            <ControlPoint Id="PvEu2Vl1pZTPVZtCBkKUBQ" Bounds="1004,1120" />
           </Canvas>
           <ProcessDefinition Id="OZO8ukZHQwUP0Be0H0vzvZ">
             <Fragment Id="BHqw5GDsvNWPyjD9Hoo8IE" Patch="KhRrIlYOWEBNhmfaawzEPa" Enabled="true" />
@@ -828,36 +815,33 @@
           <Link Id="QBIk8yPc5noMsxJjna5e60" Ids="IpbN9PxmvDSNnCdyDgFnio,O0GgOfMoaf9PBgtiLUdiLt" />
           <Link Id="EqgRyVNNlkxNNhhiuff8Nb" Ids="Bh7Yc0heqUvMQDuVxGkt68,IZvtTkRfo9OPlBGA2liEpz" />
           <Link Id="LTkBnm1uMXgNMmA61Rasyd" Ids="IZvtTkRfo9OPlBGA2liEpz,R0KksqIcDw7LeiMMbzEAcI" />
-          <Link Id="QS50NXeeHowLRWzWmqICJ9" Ids="MQUPYj5hSzENmlnzc5LIi4,KNa8TxnHx0UM52Fs2Up2Vc" />
           <Link Id="Bu0Z2vbYXw4L0JlSiRGj9i" Ids="Pad4HmdwSwMPLRIFwe08GB,K2LuriLmdDTO9hNebB7fdK" />
-          <Link Id="EBoURXionejQBkBVZZ5Abk" Ids="KNa8TxnHx0UM52Fs2Up2Vc,NtKAsNFx0V1M8OdpBUHiDO" />
-          <Link Id="PDW1QXnsoQZOyawxpF92z0" Ids="K2LuriLmdDTO9hNebB7fdK,PKFObIhfBWePEi7KGpkVrp" />
-          <Link Id="GSWR478SVv6O4MlhEluDL7" Ids="PKFObIhfBWePEi7KGpkVrp,VMgagGC3jhdOhiEXjV7icd" />
-          <Link Id="NUwRixh2Y0UPHBZwVZauuG" Ids="BByU2XqcEHlQF8tbDAJRva,PJ0RyAahF0JMbqEatdmfIa" />
-          <Link Id="GYepPSXioJZNl5EfNYTmFm" Ids="HTGIbu7r71mNK45o0XMuBP,Aao1WIBupQePYUDLIt20WY" />
-          <Link Id="JyrZ7fhOVlAQK4Xo0KzTvY" Ids="TJeGXR6iFhKL8bh6fb8HAw,HTGIbu7r71mNK45o0XMuBP" IsHidden="true" />
-          <Link Id="AZpE0SQT9yRLf3JiRIJ8Ea" Ids="Vh6pgA08l04O0FoV3Dsop6,CQQ39OjbK41MG1uksHwByl" />
-          <Link Id="AYYLxJe8388NZjkP3CONOA" Ids="I6M7yaYU4LkL9vVchnDPho,HOorQvpgDc8LrvnBZAQi0K" IsHidden="true" />
-          <Link Id="MH3GdQbgJFBP5MmBl2JuWr" Ids="H98xcN62XItNY6YWebP1OC,K7rK2Xo2eq5PA9zXpT3KZ1" IsHidden="true" />
-          <Link Id="HEYCWFC4gvtQXA2mqR64ga" Ids="GBP9wvDDkUvMNeYPj0p5kA,LzUfM2JGMk5NRIjj1gSUUh" />
-          <Link Id="KooaIbE9BusMoWrRMRsAsD" Ids="JY03PHE7ogkLkHQ4F09Cjh,OsC2xbM7h95QYf6ahNJDas" IsHidden="true" />
           <Patch Id="KhRrIlYOWEBNhmfaawzEPa" Name="Create" />
           <Patch Id="S8kaUttqexWNutwf5buAOk" Name="Update">
             <Pin Id="BwsKuNvJzUVOyWrEBmNCRU" Name="RedisClient" Kind="InputPin" Bounds="696,529" />
-            <Pin Id="BcugKE1Ohw8MqE8Fcas0DD" Name="Channel" Kind="InputPin" Bounds="868,531" />
-            <Pin Id="TJeGXR6iFhKL8bh6fb8HAw" Name="Force" Kind="InputPin" Bounds="1103,548" />
-            <Pin Id="JY03PHE7ogkLkHQ4F09Cjh" Name="Input" Kind="InputPin">
-              <p:TypeAnnotation LastCategoryFullName="Primitive.Delegates" LastDependency="VL.CoreLib.vl">
-                <Choice Kind="TypeFlag" Name="Delegate (2 -&gt; 0)" />
+            <Pin Id="BcugKE1Ohw8MqE8Fcas0DD" Name="Channel" Kind="InputPin" Bounds="868,531" DefaultValue="channel">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="String" />
               </p:TypeAnnotation>
             </Pin>
             <Pin Id="TtcVcgCGlFTNLaM6THswCC" Name="RedisClient" Kind="OutputPin" Bounds="695,872" />
+            <Pin Id="NfWvu33Ox3RNZPf2DNtrUp" Name="Result" Kind="OutputPin" Bounds="1004,1120" />
           </Patch>
-          <Link Id="FDHxvmIHI7UQIm6hYE4BdR" Ids="OsC2xbM7h95QYf6ahNJDas,LHBB04aqW2OMMw3055ZpJ7" />
-          <Link Id="SoHLShmdRXUOkASe9ArqMe" Ids="HOorQvpgDc8LrvnBZAQi0K,JjM3L4NoW2NNDr0AaOVg1v" />
-          <Link Id="Oehd8MasxVqOI86MdfqtZH" Ids="DpO4cUiMdnmO2Pdwg1RJ1a,CQBKH8doCnEQG8c0Q0hBbb" />
-          <Link Id="FlSy41qhO6RMvGZJhqiytQ" Ids="K7rK2Xo2eq5PA9zXpT3KZ1,ELc1LFwVDqdMD6RMmo93Bm" />
-          <Link Id="E06Ik1LFXEKMNkZzKw3Zjf" Ids="IXvUqjPXPG7MaJbGuEGzoM,JYudI7ysJFKLVVN1PpwNrj" />
+          <Link Id="Q55dMwJUjBLP2xCNHCBRBK" Ids="K2LuriLmdDTO9hNebB7fdK,PxiW9WESOUKPn8okAahRXN" />
+          <Link Id="PyunJL1Q72WNiD530BCDNF" Ids="MQUPYj5hSzENmlnzc5LIi4,CY75dRNGRb5PD6HX92dpqX" />
+          <Link Id="RKYxcTKfdlVMIv7Mq4gQdv" Ids="ES48c7EEktYMygiT7EKebc,PfCNw6Yp2D8QPxjcUZoR2O" />
+          <Link Id="GJwgMhV0diBMh0r8JSEBMv" Ids="UejFf25fXDUQKFleoMAZVi,KUpx8ujxbeqO0G8Z6dSX4J" />
+          <Link Id="Oi9NCdWTvq2QZdSJ3C0YY5" Ids="I1KJfw6ISqxLTJ3vizU9SI,KHGF3rfeVMlLQDNZW7oD82" />
+          <Link Id="LXtykf7MmiLM3RTJVhqLGH" Ids="LNWSpT9PKL2QYyBCe4yiUC,GM4P29zYEvHP0OYMUzBkWk" />
+          <Link Id="PBuTX5tZtSPOa4D5NB0MnB" Ids="PJmW2VG9iBpPOA13QrXygq,BpxJl6lNdzVMnkcJXZINNw" IsHidden="true" />
+          <Link Id="I4i40qsWJeXN3g8WsPkhcO" Ids="GOjw6sxIf9xPltRkH9F9Vk,V2xBKUvYBKgOXMjZyUqWtt" IsHidden="true" />
+          <Link Id="OPiQnG8C2b8NlpVgBcMYRP" Ids="M64S5YNLddULXF0QtMBvjk,CRN0PQYfaz5Pcr4KzqCAgn" />
+          <Link Id="Ql3xYw0ejUNOJCi7DVs4rn" Ids="BpxJl6lNdzVMnkcJXZINNw,PXCS8DLCDYyMpD1V3YpU3d" />
+          <Link Id="EBZrQdV9uymPGnKe96VUDa" Ids="Av1dqZYdsRDOgKiAKY3hyh,U1wKVhOI84NLmnLSOilTSn" />
+          <Link Id="SkDAIjlMOWwMyBGpVpYKe8" Ids="EUZGrGLHjNjOyTLYBez1Hx,GOjw6sxIf9xPltRkH9F9Vk" />
+          <Link Id="MkBF5AqwPl7MgaMMwphbOa" Ids="RTkvwRCQRlIO1fIGQQSvdd,H0EnuK3PV63N7BrIlK2bOy" />
+          <Link Id="PFon8o3NEPPMYViTufnslK" Ids="CpHr1Gk7HoRLx3ZpPSI2sV,PvEu2Vl1pZTPVZtCBkKUBQ" />
+          <Link Id="JRgGmbU8MXBP8Yt1QOSeLN" Ids="PvEu2Vl1pZTPVZtCBkKUBQ,NfWvu33Ox3RNZPf2DNtrUp" IsHidden="true" />
         </Patch>
       </Node>
       <!--
@@ -920,4 +904,6 @@
   </Patch>
   <ProjectDependency Id="Eep1eV1XZD5K9tWlzTcBkq" Location="./src/VL.IO.Redis.CSharp.csproj" />
   <NugetDependency Id="SUSBjNCnEwNQc1Bow5C8af" Location="StackExchange.Redis" Version="2.6.111" />
+  <PlatformDependency Id="VjXBJeT1xYpL9CAK8W8ihV" Location="../../../vvvv/vvvv_gamma_5.1-0074-gd1560906cc/System.Reactive.dll" />
+  <PlatformDependency Id="TDvXBRBeDi8NG33U02JjN1" Location="System.Runtime" />
 </Document>
