@@ -229,23 +229,17 @@ namespace VL.Lib.Reactive
         public static implicit operator T?(Channel<T> c) => c.Value;
     }
 
-
-    public static class DummyChannelHelpers<T>
-    {
-        public static readonly IChannel<T> Instance; 
-        
-        static DummyChannelHelpers()
-        {
-            Instance = new DummyChannel<T>();
-            Instance.Value = TypeUtils.Default<T>();
-            Instance.Enabled = false;
-        }
-    }
-
     interface IDummyChannel { }
 
     internal sealed class DummyChannel<T> : Channel<T>, IDummyChannel
     {
+        public static readonly IChannel<T> Instance = new DummyChannel<T>();
+
+        private DummyChannel()
+        {
+            Value = TypeUtils.Default<T>();
+            Enabled = false;
+        }
     }
 
     public static class ChannelHelpers
@@ -324,6 +318,8 @@ namespace VL.Lib.Reactive
         {
             return (IChannel<object>)Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues.ClrType))!;
         }
+
+        public static IChannel<T> Dummy<T>() => DummyChannel<T>.Instance;
 
         public static bool IsValid([NotNullWhen(true)] this IChannel? c)
             => c is not null && c is not IDummyChannel;
