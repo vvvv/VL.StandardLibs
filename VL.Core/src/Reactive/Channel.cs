@@ -36,7 +36,7 @@ namespace VL.Lib.Reactive
         void SetValueAndAuthor(T? value, string? author);
     }
 
-    internal abstract class C<T> : IChannel<T>, ISwappableGenericType
+    internal abstract class C<T> : IChannel<T>
     {
         protected readonly Subject<T?> subject = new();
         protected int lockCount = 0;
@@ -44,17 +44,6 @@ namespace VL.Lib.Reactive
         protected int revisionOnLockTaken = 0;
 
         public ImmutableList<object> Components { get; set; } = ImmutableList<object>.Empty;
-
-        object ISwappableGenericType.Swap(Type newType, Swapper swapObject)
-        {
-            var arg = newType.GenericTypeArguments[0];
-            var channel = ChannelHelpers.CreateChannelOfType(arg);
-            if (channel is not null)
-                channel.SetObjectAndAuthor(swapObject(Value, arg), LatestAuthor);
-#nullable disable
-            return channel;
-#nullable enable
-        }
 
         const int maxStack = 1;
         int stack;
