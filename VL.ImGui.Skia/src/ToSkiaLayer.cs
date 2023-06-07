@@ -93,16 +93,18 @@ namespace VL.ImGui
                 if (dockingEnabled)
                     _io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
 
+                _io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
+
                 _context.NewFrame();
                 try
                 {
+                    Style?.Set(_context);
+
                     if (DefaultWindow)
                     {
                         var viewPort = ImGui.GetMainViewport();
                         ImGui.SetNextWindowPos(viewPort.WorkPos);
                         ImGui.SetNextWindowSize(viewPort.WorkSize);
-                        
-                        Style?.Set(_context);
                         ImGui.Begin(Context.GetLabel(this, null),
                             ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
                             ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
