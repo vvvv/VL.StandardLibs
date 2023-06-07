@@ -106,8 +106,9 @@ namespace VL.ImGui
 
         internal static string GetLabel(object widget, string? label)
         {
-            if (!string.IsNullOrWhiteSpace(label))
-                return label;
+            var autoGenerate = string.IsNullOrWhiteSpace(label) || !label.Contains("##");
+            if (!autoGenerate)
+                return label!;
 
             if (Labels is null)
                 Labels = new Dictionary<object, string>();
@@ -115,7 +116,8 @@ namespace VL.ImGui
             if (Labels.TryGetValue(widget, out label))
                 return label;
 
-            label = $"##__<{++WidgetCreationCounter}>";
+            label = label == null ? string.Empty : label;
+            label = $"{label}##__<{++WidgetCreationCounter}>";
             Labels.Add(widget, label);
             return label;
         }
