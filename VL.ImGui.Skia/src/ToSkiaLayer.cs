@@ -93,8 +93,6 @@ namespace VL.ImGui
                 if (dockingEnabled)
                     _io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
 
-                _io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
-
                 _context.NewFrame();
                 try
                 {
