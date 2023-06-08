@@ -172,11 +172,10 @@ namespace VL.Core.Reactive
         {
             {
                 using var _ = BeginChange();
-                var cs = Channels.Values;
-                Channels.Clear();
                 revision++;
-                foreach (var c in cs)
+                foreach (var c in Channels.Values)
                     c.Dispose();
+                Channels.Clear();
             }
             OnChannelsChanged.Dispose();
             MustHaveDescriptiveSubscription?.Dispose();
