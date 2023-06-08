@@ -54,6 +54,7 @@ namespace VL.ImGui
         CallerInfo? _lastCallerInfo;
         ImDrawDataPtr _drawDataPtr;
         bool _readyToBeDrawn;
+        WidgetLabel widgetLabel = new();
 
         public unsafe ToSkiaLayer()
         {
@@ -103,7 +104,7 @@ namespace VL.ImGui
                         var viewPort = ImGui.GetMainViewport();
                         ImGui.SetNextWindowPos(viewPort.WorkPos);
                         ImGui.SetNextWindowSize(viewPort.WorkSize);
-                        ImGui.Begin(Context.GetLabel(this, null),
+                        ImGui.Begin(widgetLabel.Update(null),
                             ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
                             ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
                             ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |

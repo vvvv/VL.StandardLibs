@@ -12,7 +12,7 @@
         internal override void UpdateCore(Context context)
         {
             if (context.IsInBeginTables)
-                ImGuiNET.ImGui.TableHeader(Context.GetLabel(this, Label));
+                ImGuiNET.ImGui.TableHeader(widgetLabel.Update(Label));
         }
     }
 }

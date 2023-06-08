@@ -8,7 +8,7 @@
 
         internal override void UpdateCore(Context context)
         {
-            ImGuiNET.ImGui.LabelText(Context.GetLabel(this, Label), Value ?? String.Empty);
+            ImGuiNET.ImGui.LabelText(widgetLabel.Update(Label), Value ?? String.Empty);
         }
     }
 }

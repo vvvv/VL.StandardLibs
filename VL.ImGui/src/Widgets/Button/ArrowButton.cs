@@ -15,7 +15,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             Update();
-            if (ImGuiNET.ImGui.ArrowButton(Context.GetLabel(this, Label), Direction))
+            if (ImGuiNET.ImGui.ArrowButton(widgetLabel.Update(Label), Direction))
                 Value = Unit.Default;
         }
     }

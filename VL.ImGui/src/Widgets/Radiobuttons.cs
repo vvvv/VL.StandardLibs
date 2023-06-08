@@ -11,7 +11,7 @@
             int i = 0;
             foreach (var label in Labels)
             {
-                if (ImGuiNET.ImGui.RadioButton(Context.GetLabel(this, label), ref value, i++))
+                if (ImGuiNET.ImGui.RadioButton(widgetLabel.Update(label), ref value, i++))
                     Value = value;
             }
         }

@@ -29,7 +29,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var values = Values.ToArray();
-            ImGuiNET.ImGui.PlotHistogram(Context.GetLabel(this, Label), ref values[0], values.Count(), Offset, OverlayText, ScaleMin, ScaleMax, Size.FromHectoToImGui());
+            ImGuiNET.ImGui.PlotHistogram(widgetLabel.Update(Label), ref values[0], values.Count(), Offset, OverlayText, ScaleMin, ScaleMax, Size.FromHectoToImGui());
         }
     }
 }

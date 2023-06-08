@@ -14,7 +14,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = Update();
-            if (ImGuiUtils.VSliderDouble(Context.GetLabel(this, Label), Size.FromHectoToImGui(), ref value, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+            if (ImGuiUtils.VSliderDouble(widgetLabel.Update(Label), Size.FromHectoToImGui(), ref value, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
                 Value = value;
         }
     }
