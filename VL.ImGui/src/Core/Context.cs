@@ -113,8 +113,8 @@ namespace VL.ImGui
             if (Labels is null)
                 Labels = new Dictionary<object, string>();
 
-            if (Labels.TryGetValue(widget, out label))
-                return label;
+            if (Labels.TryGetValue(widget, out var formerLabel))
+                return formerLabel;
 
             label = label == null ? string.Empty : label;
             label = $"{label}##__<{++WidgetCreationCounter}>";
