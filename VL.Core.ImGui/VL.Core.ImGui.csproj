@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <OutputPath>lib</OutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ImGui.NET" GeneratePathProperty="true">
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="runtimes\**\*">
+      <LinkBase>runtimes</LinkBase>
+      <Pack>true</Pack>
+      <PackagePath>runtimes\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+      <Visible>false</Visible>
+    </None>
+
+    <None Include="$(PkgImGui_NET)\lib\net6.0\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>lib\net6.0\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+      <Visible>false</Visible>
+    </None>
+  </ItemGroup>
+  
+</Project>
