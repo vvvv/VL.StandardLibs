@@ -40,6 +40,7 @@ namespace VL.ImGui
         }
 
         readonly ImGuiIOPtr _io;
+        readonly ImGuiPlatformIOPtr _platform;
 
         public bool DefaultWindow = true;
 
@@ -63,6 +64,8 @@ namespace VL.ImGui
                 _io = ImGui.GetIO();
                 _io.NativePtr->IniFilename = null;
 
+                _platform = ImGui.GetPlatformIO();
+
                 _renderContext = RenderContext.ForCurrentThread();
 
                 _fontPaint = new Handle<SKPaint>(new SKPaint());
@@ -71,6 +74,12 @@ namespace VL.ImGui
                 updateScaling(fontScaling: scaling, uiScaling: scaling);
             }
         }
+
+        public ImGuiIOPtr IO => _io;
+
+        public ImGuiPlatformIOPtr PlatformIO => _platform;
+
+        public SkiaContext Context => _context;
 
         public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig> fonts, IStyle? Style)
         {
@@ -105,7 +114,7 @@ namespace VL.ImGui
                         var viewPort = ImGui.GetMainViewport();
                         ImGui.SetNextWindowPos(viewPort.WorkPos);
                         ImGui.SetNextWindowSize(viewPort.WorkSize);
-                        ImGui.Begin(Context.GetLabel(this, null),
+                        ImGui.Begin(VL.ImGui.Context.GetLabel(this, null),
                             ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
                             ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
                             ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |
@@ -126,7 +135,7 @@ namespace VL.ImGui
                 {
                     if (dockingEnabled)
                     {
-                        ImGui.End();
+                        //ImGui.End();
                     }
 
                     if (DefaultWindow)
@@ -142,6 +151,13 @@ namespace VL.ImGui
                 // Render the mesh
                 _drawDataPtr = ImGui.GetDrawData();
                 _readyToBeDrawn = true;
+
+                // Update and Render additional Platform Windows
+                if (_io.ConfigFlags.HasFlag(ImGuiConfigFlags.ViewportsEnable))
+                {
+                    ImGui.UpdatePlatformWindows();
+                    ImGui.RenderPlatformWindowsDefault();
+                }
             }
 
             return this;
