@@ -117,7 +117,7 @@ namespace VL.Core
         /// <param name="type">The type to create a new instance of.</param>
         /// <param name="nodeContext">The context to use when creating the instance.</param>
         /// <returns>The newly created instance or null if the type is not known to VL.</returns>
-        [Obsolete("Please use TypeUtils.New")]
+        // Confusing for the user, let's not do this as long the alternative is not settled: [Obsolete("Please use TypeUtils.New")]
         object CreateInstance(Type type, NodeContext nodeContext);
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace VL.Core
         /// </summary>
         /// <param name="type">The type to return the default value of.</param>
         /// <returns>The default value of the given type as defined by VL or null if the type is not known to VL or no default has been defined.</returns>
-        [Obsolete("Please use TypeUtils.Default")]
+        // Confusing for the user, let's not do this as long the alternative is not settled: [Obsolete("Please use TypeUtils.Default")]
         object GetDefaultValue(Type type);
 
         /// <summary>
