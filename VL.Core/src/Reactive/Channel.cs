@@ -26,6 +26,7 @@ namespace VL.Lib.Reactive
         object? Object { get; set; }
         string? LatestAuthor { get; }
         void SetObjectAndAuthor(object? @object, string? author);
+        IDisposable BeginChange();
     }
 
     [Monadic(typeof(Monadic.ChannelFactory<>))]
@@ -35,22 +36,14 @@ namespace VL.Lib.Reactive
         void SetValueAndAuthor(T? value, string? author);
     }
 
-    internal abstract class C<T> : IChannel<T>, ISwappableGenericType
+    internal abstract class C<T> : IChannel<T>
     {
         protected readonly Subject<T?> subject = new();
+        protected int lockCount = 0;
+        protected int revision = 0;
+        protected int revisionOnLockTaken = 0;
 
         public ImmutableList<object> Components { get; set; } = ImmutableList<object>.Empty;
-
-        object ISwappableGenericType.Swap(Type newType, Swapper swapObject)
-        {
-            var arg = newType.GenericTypeArguments[0];
-            var channel = ChannelHelpers.CreateChannelOfType(arg);
-            if (channel is not null)
-                channel.SetObjectAndAuthor(swapObject(Value, arg), LatestAuthor);
-#nullable disable
-            return channel;
-#nullable enable
-        }
 
         const int maxStack = 1;
         int stack;
@@ -78,8 +71,9 @@ namespace VL.Lib.Reactive
 
             LatestAuthor = author;
             this.value = value;
+            revision++;
 
-            if (stack < maxStack)
+            if (stack < maxStack && lockCount == 0)
             {
                 stack++;
                 try
@@ -150,19 +144,34 @@ namespace VL.Lib.Reactive
             if (disposing)
                 return;
 
-            AssertAlive();
             disposing = true;
             try
             {
+                Enabled = false;
                 foreach (var c in Components)
                     (c as IDisposable)?.Dispose();
-                Enabled = false;
+                Components = ImmutableList<object>.Empty;
                 subject.Dispose();
             }
             finally
             {
                 disposing = false;
             }
+        }
+
+        public IDisposable BeginChange()
+        {
+            if (lockCount == 0)
+                revisionOnLockTaken = revision;
+            lockCount++;
+            return Disposable.Create(EndChange);
+        }
+
+        void EndChange()
+        {
+            lockCount--;
+            if (lockCount == 0 && revisionOnLockTaken != revision)
+                SetValueAndAuthor(this.Value, LatestAuthor);
         }
     }
 
@@ -209,23 +218,17 @@ namespace VL.Lib.Reactive
         public static implicit operator T?(Channel<T> c) => c.Value;
     }
 
-
-    public static class DummyChannelHelpers<T>
-    {
-        public static readonly IChannel<T> Instance; 
-        
-        static DummyChannelHelpers()
-        {
-            Instance = new DummyChannel<T>();
-            Instance.Value = TypeUtils.Default<T>();
-            Instance.Enabled = false;
-        }
-    }
-
     interface IDummyChannel { }
 
     internal sealed class DummyChannel<T> : Channel<T>, IDummyChannel
     {
+        public static readonly IChannel<T> Instance = new DummyChannel<T>();
+
+        private DummyChannel()
+        {
+            Value = TypeUtils.Default<T>();
+            Enabled = false;
+        }
     }
 
     public static class ChannelHelpers
@@ -304,6 +307,8 @@ namespace VL.Lib.Reactive
         {
             return (IChannel<object>)Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues.ClrType))!;
         }
+
+        public static IChannel<T> Dummy<T>() => DummyChannel<T>.Instance;
 
         public static bool IsValid([NotNullWhen(true)] this IChannel? c)
             => c is not null && c is not IDummyChannel;

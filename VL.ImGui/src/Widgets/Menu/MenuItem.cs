@@ -26,12 +26,12 @@ namespace VL.ImGui.Widgets
             if (Selectable)
             {
                 var isSelected = IsSelectedFlange.Update(IsSelected);
-                if (ImGuiNET.ImGui.MenuItem(Context.GetLabel(this, Label), Shortcut, ref isSelected, enabled: Enabled))
+                if (ImGuiNET.ImGui.MenuItem(widgetLabel.Update(Label), Shortcut, ref isSelected, enabled: Enabled))
                     Value = value;
                 IsSelectedFlange.Value = isSelected;
             }
             else
-            if (ImGuiNET.ImGui.MenuItem(Context.GetLabel(this, Label), Shortcut, selected: false, enabled: Enabled))
+            if (ImGuiNET.ImGui.MenuItem(widgetLabel.Update(Label), Shortcut, selected: false, enabled: Enabled))
                 Value = value;
 
         }

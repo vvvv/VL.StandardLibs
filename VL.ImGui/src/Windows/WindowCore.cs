@@ -18,7 +18,7 @@ namespace VL.ImGui.Windows
         /// <summary>
         /// If set the window will have a close button which will push to the channel once clicked.
         /// </summary>
-        public IChannel<Unit> Closing { get; set; } = DummyChannelHelpers<Unit>.Instance;
+        public IChannel<Unit> Closing { get; set; } = ChannelHelpers.Dummy<Unit>();
 
         /// <summary>
         /// Bounds of the Window.
@@ -75,7 +75,7 @@ namespace VL.ImGui.Windows
                 if (Closing.IsValid())
                 {
                     var isVisible = true;
-                    ContentIsVisible = ImGui.Begin(Context.GetLabel(this, Name), ref isVisible, Flags);
+                    ContentIsVisible = ImGui.Begin(widgetLabel.Update(Name), ref isVisible, Flags);
                     if (!isVisible)
                     {
                         Closing.Value = default;
@@ -85,7 +85,7 @@ namespace VL.ImGui.Windows
                 }
                 else
                 {
-                    ContentIsVisible = ImGui.Begin(Context.GetLabel(this, Name), Flags);
+                    ContentIsVisible = ImGui.Begin(widgetLabel.Update(Name), Flags);
                 }
 
                 try

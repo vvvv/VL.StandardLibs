@@ -157,6 +157,56 @@ namespace VL.Core.Tests
         }
 
         [Test]
+        public void Channel_To_NonGeneric()
+        {
+            var c = ChannelHelpers.CreateChannelOfType(typeof(string)) as Channel<string>;
+            c.Value = "a";
+
+            var newType = typeof(IChannel);
+            var c2_ = c.RestoreObject(newType);
+            var c2 = c2_ as IChannel;
+
+            Assert.That(c2, Is.Not.Null);
+
+            Assert.AreEqual(c.GetType(), c2.GetType());
+
+            Assert.AreEqual(c2.Object, "a");
+        }
+
+        [Test]
+        public void Optional_HasValue()
+        {
+            var c = new Optional<string>("a");
+            var newType = typeof(Optional<object>);
+            var c2 = (Optional<object>)c.RestoreObject(newType);
+            Assert.That(c2, Is.Not.Null);
+            Assert.AreNotEqual(c.GetType(), c2.GetType());
+            Assert.AreEqual(c2.Value, "a");
+        }
+
+        [Test]
+        public void Optional_HasNoValue()
+        {
+            var c = new Optional<string>();
+            var newType = typeof(Optional<object>);
+            var c2 = (Optional<object>)c.RestoreObject(newType);
+            Assert.That(c2, Is.Not.Null);
+            Assert.AreNotEqual(c.GetType(), c2.GetType());
+            Assert.That(c2.HasNoValue);
+        }
+
+        [Test]
+        public void Optional_FromValue()
+        {
+            var c = "a";
+            var newType = typeof(Optional<object>);
+            var c2 = (Optional<object>)c.RestoreObject(newType);
+            Assert.That(c2, Is.Not.Null);
+            Assert.AreNotEqual(c.GetType(), c2.GetType());
+            Assert.AreEqual(c2.Value, "a");
+        }
+
+        [Test]
         public void CacheManager_()
         {
             var c = new VL.AppServices.CompilerServices.Intrinsics.CacheManager<(string, string), (int, int, int, int, int, int, int, int, int, int)>

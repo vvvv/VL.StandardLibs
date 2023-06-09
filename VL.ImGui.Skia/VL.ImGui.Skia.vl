@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="TlT19thZkWBLG3AeB1o51b" LanguageVersion="2022.5.0-0721-g8f3bf5d307" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="TlT19thZkWBLG3AeB1o51b" LanguageVersion="2023.5.2-0021-ga7e143b1bf" Version="0.128">
   <NugetDependency Id="VhB7WKzvhePMf39iI7QXfi" Location="VL.CoreLib" Version="2022.5.0-0242-g24c47d850a" />
   <Patch Id="BOyXNpSNoNrL6ruhCCKXUI">
     <Canvas Id="HsOyX1PVDwwNtqm2mCK746" CanvasType="FullCategory">
@@ -15,7 +15,7 @@
           </p:NodeReference>
           <Patch Id="IlNmy7v6d4ALqSqpivJwJe">
             <Canvas Id="GC7lK55esVALydVH1f6Blc" CanvasType="Group">
-              <Node Bounds="571,439,85,19" Id="VaHae0xUpNRL21t8Fn1WXs">
+              <Node Bounds="571,439,105,19" Id="VaHae0xUpNRL21t8Fn1WXs">
                 <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastDependency="VL.ImGui.Skia.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessAppFlag" Name="ImGuiCore" />
@@ -24,7 +24,7 @@
                 <Pin Id="TFRNQv11hB8MVvxVsZQOHl" Name="Docking Enabled" Kind="InputPin" />
                 <Pin Id="MSj4E0yfx9TPtdoEMnJ8ZL" Name="Fonts" Kind="InputPin" />
                 <Pin Id="Cjo0YktDqJ7O6iqJim7kE2" Name="Add Fullscreen Window" Kind="InputPin" />
-                <Pin Id="IJYYNcaXSR9QK3z4scrG9E" Name="Fullscreen Window Style" Kind="InputPin" />
+                <Pin Id="EiVpxnGYw1tNtBXlgKDWdg" Name="Style" Kind="InputPin" />
                 <Pin Id="HsHudaozVEMNYt7d4miebV" Name="Output" Kind="OutputPin" />
               </Node>
               <ControlPoint Id="ThTMFdIKgEDM0Z3u0jbHKK" Bounds="437,249" />
@@ -35,6 +35,8 @@
                   <Choice Kind="ProcessAppFlag" Name="ImmediateModeNode" />
                 </p:NodeReference>
                 <Pin Id="H2y0PcHarbuNAasoEdPCg0" Name="Region" Kind="InputPin" />
+                <Pin Id="G1nubCzCNF4ObjgGJ1Gv6o" Name="Enabled" Kind="InputPin" />
+                <Pin Id="KkXtRkG84fkLxfb29LscXr" Name="Lifespan" Kind="InputPin" />
                 <Pin Id="A2ZaaffXnDVMnpWWkMZnRN" Name="Output" Kind="OutputPin" />
               </Node>
               <ControlPoint Id="JUcgp2emafnPGh0UXNu6Zt" Bounds="602,249" />
@@ -96,7 +98,6 @@
             <Link Id="Mm1KUfTXCwHLdldzL6mxec" Ids="Jsmzpb5Fk9jPQGNjChjkXk,REMGkccLatROziY329sMQs" IsHidden="true" />
             <Link Id="NJcxnBkOdgiQXbZmtzGdVD" Ids="FezjZQUxKr3LeWulFPtO8o,MSj4E0yfx9TPtdoEMnJ8ZL" />
             <Link Id="JSbNRloWMyOPCU1np7k8wq" Ids="TZmnaAyVlA4Ody8NM3rQlZ,FezjZQUxKr3LeWulFPtO8o" IsHidden="true" />
-            <Link Id="FEbw89qbrKOPnD1Xjqa5Ot" Ids="NRTpVz2IAsjM2se00n6QjX,IJYYNcaXSR9QK3z4scrG9E" />
             <Link Id="E3rt5sjqrSjLtE7mteMhJL" Ids="QoWT6pRxVCROCRydplJ6aC,NRTpVz2IAsjM2se00n6QjX" IsHidden="true" />
             <Patch Id="DeRedgLKzozMq1PdnBeq1u" Name="Create" />
             <Patch Id="S2hh5ffVUDTLDjFFL0groP" Name="Update">
@@ -108,10 +109,11 @@
               <Pin Id="P95T6WlId79LgOIJ6Gpnpd" Name="Docking Enabled" Kind="InputPin" Bounds="666,278" />
               <Pin Id="TZmnaAyVlA4Ody8NM3rQlZ" Name="Fonts" Kind="InputPin" Bounds="654,299" />
               <Pin Id="Jsmzpb5Fk9jPQGNjChjkXk" Name="Add Fullscreen Window" Kind="InputPin" Bounds="922,419" />
-              <Pin Id="QoWT6pRxVCROCRydplJ6aC" Name="Fullscreen Window Style" Kind="InputPin" Bounds="795,303" />
+              <Pin Id="QoWT6pRxVCROCRydplJ6aC" Name="Style" Kind="InputPin" Bounds="795,303" />
               <Pin Id="Lk9JKbzR96HMrqz89tROQ6" Name="Use Skia Space" Kind="InputPin" Bounds="882,266" />
               <Pin Id="DEFRfdFVBQYP8opkM1i2xc" Name="Output" Kind="OutputPin" Bounds="488,520" />
             </Patch>
+            <Link Id="ThwgcE9E7uILxZLiWfktiY" Ids="NRTpVz2IAsjM2se00n6QjX,EiVpxnGYw1tNtBXlgKDWdg" />
           </Patch>
         </Node>
         <!--
@@ -210,7 +212,7 @@
                 <Pin Id="F4H3V9pLydaPfwkJFUPAdP" Name="Docking Enabled" Kind="InputPin" />
                 <Pin Id="VE2Oaw79BUdMgGIaf2VB5H" Name="Fonts" Kind="InputPin" />
                 <Pin Id="PXrLOzhUzvLPYNF0dPT7tL" Name="Add Fullscreen Window" Kind="InputPin" />
-                <Pin Id="GNMbO4tDu1JLPps7pjeM9X" Name="Fullscreen Window Style" Kind="InputPin" />
+                <Pin Id="RB2nF0kDimhPcuFn9cqdgY" Name="Style" Kind="InputPin" />
                 <Pin Id="EwZ0escoU3tP8JcEPcxCAg" Name="Use Skia Space" Kind="InputPin" />
                 <Pin Id="LB9Tb65l8lBMlWM05iInMF" Name="Output" Kind="OutputPin" />
               </Node>
@@ -339,7 +341,7 @@
               <Pin Id="GgJV9LivH2MNnwwLjVMxhn" Name="Fonts" Kind="InputPin" Bounds="672,475" />
               <Pin Id="PyUuxaRBgXyPV9htgY2CjC" Name="Add Fullscreen Window" Kind="InputPin" Bounds="269,341" DefaultValue="True" />
               <Pin Id="IayKTKsVKvnO75R0BtHHn6" Name="Output" Kind="OutputPin" Bounds="526,424" />
-              <Pin Id="HnuG8LvtsSPP1MpSZ0p1qc" Name="Fullscreen Window Style" Kind="InputPin" Bounds="812,311" />
+              <Pin Id="HnuG8LvtsSPP1MpSZ0p1qc" Name="Style" Kind="InputPin" Bounds="812,311" />
             </Patch>
             <Patch Id="Slhf9cd70JUNUwaF4MlA1X" Name="Dispose" ParticipatingElements="P8olqq3EPEALXDSNRDQmgt" />
             <Link Id="JAE3yTMEwuiMaRGXEhjIOi" Ids="MogqovdveiZNR9E1gKU064,RKHdH0yYrGAPzD3Q2uRoF7" />

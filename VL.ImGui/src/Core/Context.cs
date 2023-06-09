@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using VL.ImGui.Widgets;
 using VL.ImGui.Widgets.Primitives;
@@ -15,15 +16,52 @@ namespace VL.ImGui
         public static Context? Validate(this Context? c) => c ?? Context.Current;
     }
 
+    public struct WidgetLabel
+    {
+        static int widgetCreationCounter;
+        int Id;
+        string? label = "Rumpelstilzchen";
+        public string? LabelForImGUI = "Rumpelstilzchen##666";
+
+        public WidgetLabel()
+        {
+            Id = widgetCreationCounter++;
+        }
+
+        public string? Label
+        {
+            get => label;
+            set
+            {
+                if (label == value) return;
+                label = value;
+                LabelForImGUI = ComputeLabelForImGui(label);
+            }
+        }
+
+        public override string ToString() => $"Label: {Label}; LabelForImGui: {LabelForImGUI}";
+
+        internal string ComputeLabelForImGui(string? label)
+        {
+            var autoGenerate = string.IsNullOrWhiteSpace(label) || !label.Contains("##");
+            if (!autoGenerate)
+                return label!;
+
+            label = label == null ? string.Empty : label;
+            label = $"{label}##__<{Id}>";
+            return label;
+        }
+
+        public string? Update(string? label)
+        {
+            Label = label;
+            return LabelForImGUI;
+        }
+    }
+
 
     public class Context : IDisposable
     {
-        [ThreadStatic]
-        public static int WidgetCreationCounter;
-
-        [ThreadStatic]
-        static Dictionary<object, string> Labels = new Dictionary<object, string>();
-
         private readonly IntPtr _context;
         private readonly List<Widget> _widgetsToReset = new List<Widget>();
 
@@ -102,22 +140,6 @@ namespace VL.ImGui
         public void Dispose()
         {
             ImGui.DestroyContext(_context);
-        }
-
-        internal static string GetLabel(object widget, string? label)
-        {
-            if (!string.IsNullOrWhiteSpace(label))
-                return label;
-
-            if (Labels is null)
-                Labels = new Dictionary<object, string>();
-
-            if (Labels.TryGetValue(widget, out label))
-                return label;
-
-            label = $"##__<{++WidgetCreationCounter}>";
-            Labels.Add(widget, label);
-            return label;
         }
 
         internal readonly Dictionary<string, ImFontPtr> Fonts = new Dictionary<string, ImFontPtr>();

@@ -13,7 +13,7 @@
         internal override void UpdateCore(Context context)
         {
             if (context.IsInBeginTables)
-                ImGuiNET.ImGui.TableSetupColumn(Context.GetLabel(this, Label), Flags, InitWidth.FromHectoToImGui());
+                ImGuiNET.ImGui.TableSetupColumn(widgetLabel.Update(Label), Flags, InitWidth.FromHectoToImGui());
         }
     }
 }

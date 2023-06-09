@@ -20,7 +20,7 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// If set the Popup will have a close button which will push to the channel once clicked.
         /// </summary>
-        public IChannel<Unit> Closing { get; set; } = DummyChannelHelpers<Unit>.Instance;
+        public IChannel<Unit> Closing { get; set; } = ChannelHelpers.Dummy<Unit>();
 
         /// <summary>
         /// Bounds of the Window.
@@ -50,7 +50,7 @@ namespace VL.ImGui.Widgets
         {
             var visible = VisibleFlange.Update(Visible, out bool visibilityChanged);
             var bounds = BoundsFlange.Update(Bounds, out bool boundsChanged);
-            var label = Context.GetLabel(this, Label);
+            var label = widgetLabel.Update(Label);
             CloseClicked = false;
             ContentIsVisible = false;
 
