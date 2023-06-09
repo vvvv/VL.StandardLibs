@@ -21,7 +21,7 @@
 
         public bool NotifyWhileTyping { protected get; set; }
 
-        internal override sealed void UpdateCore(Context context)
+        protected override sealed void UpdateCore(Context context)
         {
             var value = Update();
             if (NotifyWhileTyping)

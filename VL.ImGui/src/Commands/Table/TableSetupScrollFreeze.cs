@@ -9,7 +9,7 @@
         public int NumberOfColumns { private get; set; }
         public int NumberOfRows { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (context.IsInBeginTables)
                 ImGuiNET.ImGui.TableSetupScrollFreeze(NumberOfColumns, NumberOfRows);

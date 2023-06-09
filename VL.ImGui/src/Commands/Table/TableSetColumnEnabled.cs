@@ -11,7 +11,7 @@
 
         public bool IsVisible { private get; set; } = true;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (context.IsInBeginTables)
                 ImGuiNET.ImGui.TableSetColumnEnabled(Index, IsVisible);

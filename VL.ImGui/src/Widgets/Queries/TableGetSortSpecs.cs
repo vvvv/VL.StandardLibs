@@ -14,7 +14,7 @@ namespace VL.ImGui.Widgets
     {
         public Spread<TableColumnSortSpecs> Value { get; private set; } = Spread<TableColumnSortSpecs>.Empty;
 
-        internal override unsafe void UpdateCore(Context context)
+        protected override unsafe void UpdateCore(Context context)
         {
             var specs = ImGuiNET.ImGui.TableGetSortSpecs();
 

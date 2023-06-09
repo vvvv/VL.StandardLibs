@@ -177,13 +177,11 @@ namespace VL.Skia
 
             BoundsChanged = new BehaviorSubject<System.Drawing.Rectangle>(new System.Drawing.Rectangle());
             FBoundsStream = new BehaviorSubject<RectangleF>(new RectangleF());
-
-            TouchDevice = new TouchDevice(FControl.TouchNotifications);
             
             Observable.Merge(new IObservable<INotification>[] {
-                Mouse.Notifications,
-                Keyboard.Notifications,
-                TouchDevice.Notifications,
+                FControl.Mouse.Notifications,
+                FControl.Keyboard.Notifications,
+                FControl.TouchDevice.Notifications,
                 BoundsStream.Select(r => new NotificationWithClientArea(r.Size.ToVector2(), ModifierKeys.ToOurs(), this))
                 })
             .Subscribe(OnNotification);
@@ -282,53 +280,6 @@ namespace VL.Skia
                 FControl.Invalidate();
             }
         }
-
-        private Mouse FMouse;
-        public Mouse Mouse
-        {
-            get
-            {
-                if (FMouse == null)
-                {
-                    var mouseDowns = Observable.FromEventPattern<MouseEventArgs>(this.FControl, "MouseDown")
-                        .Select(p => p.EventArgs.ToMouseDownNotification(this.FControl, FControl));
-                    var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(this.FControl, "MouseMove")
-                        .Select(p => p.EventArgs.ToMouseMoveNotification(this.FControl, FControl));
-                    var mouseUps = Observable.FromEventPattern<MouseEventArgs>(this.FControl, "MouseUp")
-                        .Select(p => p.EventArgs.ToMouseUpNotification(this.FControl, FControl));
-                    var mouseWheels = Observable.FromEventPattern<MouseEventArgs>(this.FControl, "MouseWheel")
-                        .Select(p => p.EventArgs.ToMouseWheelNotification(this.FControl, FControl));
-                    FMouse = new Mouse(mouseDowns
-                        .Merge<MouseNotification>(mouseMoves)
-                        .Merge(mouseUps)
-                        .Merge(mouseWheels));
-                }
-                return FMouse;
-            }
-        }
-
-        private Keyboard FKeyboard;
-        public Keyboard Keyboard
-        {
-            get
-            {
-                if (FKeyboard == null)
-                {
-                    var keyDowns = Observable.FromEventPattern<KeyEventArgs>(this.FControl, "KeyDown")
-                        .Select(p => p.EventArgs.ToKeyDownNotification(this.FControl));
-                    var keyUps = Observable.FromEventPattern<KeyEventArgs>(this.FControl, "KeyUp")
-                        .Select(p => p.EventArgs.ToKeyUpNotification(this.FControl));
-                    var keyPresses = Observable.FromEventPattern<KeyPressEventArgs>(this.FControl, "KeyPress")
-                        .Select(p => p.EventArgs.ToKeyPressNotification(this.FControl));
-                    FKeyboard = new Keyboard(keyDowns
-                        .Merge<KeyNotification>(keyUps)
-                        .Merge(keyPresses));
-                }
-                return FKeyboard;
-            }
-        }
-
-        public TouchDevice TouchDevice { get; }
 
         public bool VSync
         {

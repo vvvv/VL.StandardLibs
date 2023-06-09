@@ -9,7 +9,7 @@
 
         public bool Enabled { private get; set; } = true;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (Enabled)
                 ImGuiNET.ImGui.SetItemDefaultFocus();

@@ -5,7 +5,7 @@ namespace VL.ImGui.Widgets.Primitives
 {
     public abstract class PrimitiveWidget : Widget
     {
-        internal override sealed void UpdateCore(Context context)
+        protected override sealed void UpdateCore(Context context)
         {
             Draw(context, in context.DrawListPtr, in context.DrawListOffset);
         }

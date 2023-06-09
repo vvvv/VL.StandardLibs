@@ -5,7 +5,7 @@
     {
         public IEnumerable<string> Labels { get; set; } = new List<string>();
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = Update();
             int i = 0;

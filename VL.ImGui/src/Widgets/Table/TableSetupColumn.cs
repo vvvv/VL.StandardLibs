@@ -10,7 +10,7 @@
 
         public float InitWidth { get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.TableSetupColumn(Context.GetLabel(this, Label), Flags, InitWidth);
         }

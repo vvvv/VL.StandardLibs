@@ -5,7 +5,7 @@
     {
         public Widget? Content { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.BeginTooltip();
             try

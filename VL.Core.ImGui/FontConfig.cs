@@ -1,5 +1,4 @@
 ﻿using SixLabors.Fonts;
-using VL.Lib.Text;
 
 namespace VL.ImGui
 {
@@ -12,7 +11,7 @@ namespace VL.ImGui
     /// <param name="Name">An optional name to use for this configuration.</param>
     /// <param name="GlyphRange">The glyph range.</param>
     public record FontConfig(
-        FontList FamilyName, 
+        string FamilyName, 
         FontStyle FontStyle = FontStyle.Regular, 
         float Size = 0.16f, 
         string Name = "", 
@@ -25,7 +24,7 @@ namespace VL.ImGui
             if (OperatingSystem.IsWindows())
             {
                 using var defaultTypeFace = System.Drawing.SystemFonts.MessageBoxFont ?? System.Drawing.SystemFonts.DefaultFont;
-                Default = new FontConfig(new FontList(defaultTypeFace.FontFamily.Name));
+                Default = new FontConfig(defaultTypeFace.FontFamily.Name);
             }
         }
 

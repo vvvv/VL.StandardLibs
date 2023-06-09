@@ -8,7 +8,7 @@
 
         public bool Apply { private get; set; } = true;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
 
             if (Apply)

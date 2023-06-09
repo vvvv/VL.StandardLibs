@@ -12,7 +12,7 @@ namespace VL.ImGui.Widgets
     {
         public StyleSnapshot? Value { get; private set; }
 
-        internal override unsafe void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var style = ImGuiNET.ImGui.GetStyle();
             Value = new StyleSnapshot(style);

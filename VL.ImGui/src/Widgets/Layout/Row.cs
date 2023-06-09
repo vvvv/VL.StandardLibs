@@ -11,7 +11,7 @@ namespace VL.ImGui.Widgets
     {
         public IEnumerable<Widget> Children { get; set; } = Enumerable.Empty<Widget>();
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var count = Children.Count(x => x != null);
             if (count > 0)

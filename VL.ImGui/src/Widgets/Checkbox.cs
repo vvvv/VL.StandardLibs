@@ -9,7 +9,7 @@ namespace VL.ImGui.Widgets
 
         public string? Label { get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = Update();
             if (ImGuiNET.ImGui.Checkbox(Context.GetLabel(this, Label), ref value))

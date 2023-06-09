@@ -12,7 +12,7 @@ namespace VL.ImGui.Widgets
 
         public Color4 Value { get; private set; }
 
-        internal override unsafe void UpdateCore(Context context)
+        protected override unsafe void UpdateCore(Context context)
         {
             var color = ImGuiNET.ImGui.GetStyleColorVec4(Flag);
             Value = ImGuiConversion.ToVLColor4(*color);

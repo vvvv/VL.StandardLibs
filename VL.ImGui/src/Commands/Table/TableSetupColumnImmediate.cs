@@ -10,7 +10,7 @@
 
         public ImGuiNET.ImGuiTableColumnFlags Flags { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (context.IsInBeginTables)
                 ImGuiNET.ImGui.TableSetupColumn(Context.GetLabel(this, Label), Flags, InitWidth.FromHectoToImGui());

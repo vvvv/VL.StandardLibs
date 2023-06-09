@@ -20,7 +20,7 @@ namespace VL.ImGui.Widgets
 
         Vector3 lastframeValue;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = Update();
             if (ImGuiUtils.InputFloat3(Context.GetLabel(this, Label), ref value, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))

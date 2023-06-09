@@ -21,7 +21,7 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiSelectableFlags Flags { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = Update();
             if (ImGuiNET.ImGui.Selectable(Context.GetLabel(this, Label), ref value, Flags, Size.FromHectoToImGui()))

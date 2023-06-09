@@ -12,7 +12,7 @@ namespace VL.ImGui.Widgets
 
         public IEnumerable<string> Items { get; set; } = Enumerable.Empty<string>();
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = Update();
 

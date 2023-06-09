@@ -16,7 +16,7 @@ namespace VL.ImGui.Widgets
             Value = Color4.White;
         }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = Update().ToImGui();
             if (ImGuiNET.ImGui.ColorEdit4(Context.GetLabel(this, Label), ref value, Flags))

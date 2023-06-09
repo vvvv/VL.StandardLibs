@@ -20,7 +20,7 @@ namespace VL.ImGui.Widgets
 
         public Vector2 Size { get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.ProgressBar(Fraction, Size.FromHectoToImGui(), OverlayText);        }
     }

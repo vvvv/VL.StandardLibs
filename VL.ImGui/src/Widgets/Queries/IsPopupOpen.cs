@@ -12,7 +12,7 @@
 
         public bool Value { get; private set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             Value = ImGuiNET.ImGui.IsPopupOpen(Context.GetLabel(this, Label), Flags);
         }

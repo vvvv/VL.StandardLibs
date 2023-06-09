@@ -7,7 +7,7 @@
     internal partial class TableHeadersRow : Widget
     {
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (context.IsInBeginTables)
                 ImGuiNET.ImGui.TableHeadersRow();

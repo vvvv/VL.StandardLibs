@@ -11,7 +11,7 @@ namespace VL.ImGui.Widgets
 
         public Vector2 Value { get; private set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var size = ImGuiNET.ImGui.GetItemRectMin();
             Value = ImGuiConversion.ToVLHecto(size);

@@ -6,12 +6,12 @@ namespace VL.ImGui
     {
         internal virtual void Reset() { }
 
-        internal abstract void UpdateCore(Context context);
+        protected abstract void UpdateCore(Context context);
 
         [Pin(Priority = 10)]
         public IStyle? Style { set; protected get; }
 
-        internal void Update(Context? context)
+        public void Update(Context? context)
         {
             context = context.Validate();
             if (context != null)

@@ -8,7 +8,7 @@
     {
         public ImGuiNET.ImGuiViewportPtr Value { get; private set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             Value = ImGuiNET.ImGui.GetMainViewport();
         }

@@ -16,7 +16,7 @@ namespace VL.ImGui.Widgets
 
         public int Column { private get; set; } = -1;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (context.IsInBeginTables)
             {

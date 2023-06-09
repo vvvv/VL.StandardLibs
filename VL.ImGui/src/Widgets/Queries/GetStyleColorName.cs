@@ -10,7 +10,7 @@
 
         public string? Value { get; private set; }
 
-        internal override unsafe void UpdateCore(Context context)
+        protected override unsafe void UpdateCore(Context context)
         {
             Value = ImGuiNET.ImGui.GetStyleColorName(Color);
         }

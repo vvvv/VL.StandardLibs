@@ -41,7 +41,7 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiTabItemFlags Flags { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var visible = VisibleFlange.Update(Visible);
             var isActive = ActiveFlange.Update(Active, out var activateHasChanged);

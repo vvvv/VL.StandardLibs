@@ -19,7 +19,7 @@ namespace VL.ImGui.Widgets
 
         Int2 lastframeValue;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = Update();
             if (ImGuiUtils.InputInt2(Context.GetLabel(this, Label), ref value, Flags))

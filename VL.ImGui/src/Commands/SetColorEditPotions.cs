@@ -8,7 +8,7 @@
     {
         public ImGuiNET.ImGuiColorEditFlags Flags { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.SetColorEditOptions(Flags);
         }

@@ -12,7 +12,7 @@ namespace VL.ImGui.Widgets
         {
         }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = Update();
 

@@ -53,7 +53,7 @@ namespace VL.ImGui.Windows
 
         public ImGuiWindowFlags Flags { get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var visible = VisibleFlange.Update(Visible);
             CloseClicked = false;

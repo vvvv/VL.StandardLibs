@@ -11,7 +11,7 @@
 
         public ImGuiNET.ImGuiTableRowFlags Flags { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (context.IsInBeginTables)
                 ImGuiNET.ImGui.TableNextRow(Flags, MinimumRowHeight);

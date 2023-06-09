@@ -14,11 +14,16 @@
       <PrivateAssets>all</PrivateAssets>
       <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
+    <PackageReference Include="SixLabors.Fonts" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="runtimes\**\*">
-      <LinkBase>runtimes</LinkBase>
+      <!-- For vvvv the file goes directly to the output - only way for native library lookup to find it (without having to write custom code) -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>%(Filename)%(Extension)</TargetPath>
+      
+      <!-- As a package we can make use of nuget's asset system, it will make the proper entry in the *.deps.json file for the native library lookup to work -->
       <Pack>true</Pack>
       <PackagePath>runtimes\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
       <Visible>false</Visible>
@@ -30,6 +35,10 @@
       <PackagePath>lib\net6.0\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
       <Visible>false</Visible>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VL.Core\src\VL.Core.csproj" />
   </ItemGroup>
   
 </Project>

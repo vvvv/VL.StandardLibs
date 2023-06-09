@@ -7,7 +7,7 @@
     internal partial class NewLine : Widget
     {
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.NewLine();
         }

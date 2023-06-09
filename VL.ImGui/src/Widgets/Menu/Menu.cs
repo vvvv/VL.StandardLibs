@@ -13,7 +13,7 @@
 
         public bool Enabled { get; set; } = true;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
 
             if (ImGuiNET.ImGui.BeginMenu(Context.GetLabel(this, Label), Enabled))

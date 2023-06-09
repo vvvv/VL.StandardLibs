@@ -16,7 +16,7 @@ namespace VL.ImGui.Widgets
 
         string? lastframeValue;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = Update() ?? string.Empty;
             if (ImGuiNET.ImGui.InputText(Context.GetLabel(this, Label), ref value, (uint)MaxLength, Flags))

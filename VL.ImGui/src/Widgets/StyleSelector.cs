@@ -13,7 +13,7 @@ namespace VL.ImGui.Widgets
     {
         public string? Label { get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.ShowStyleSelector(Context.GetLabel(this, Label));
         }

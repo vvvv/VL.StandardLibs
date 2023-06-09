@@ -9,7 +9,7 @@
 
         public float Value { private get; set; } = 0.5f;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.Indent(Value.FromHectoToImGui());
         }

@@ -193,7 +193,7 @@ namespace VL.ImGui
 
                 var size = Math.Clamp(font.Size * 100 /* hecto pixel */ * scaling, 1, short.MaxValue);
 
-                var family = SystemFonts.Families.FirstOrDefault(f => f.Name == font.FamilyName.Value);
+                var family = SystemFonts.Families.FirstOrDefault(f => f.Name == font.FamilyName);
                 if (family.Name is null)
                     continue;
 

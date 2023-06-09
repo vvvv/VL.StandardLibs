@@ -46,7 +46,7 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var visible = VisibleFlange.Update(Visible, out bool visibilityChanged);
             var bounds = BoundsFlange.Update(Bounds, out bool boundsChanged);

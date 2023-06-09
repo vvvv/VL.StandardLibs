@@ -10,7 +10,7 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiTabItemFlags Flags { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             Update();
             if (ImGuiNET.ImGui.TabItemButton(Context.GetLabel(this, Label), Flags))

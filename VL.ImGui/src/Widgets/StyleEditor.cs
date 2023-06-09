@@ -12,7 +12,7 @@ namespace VL.ImGui.Widgets
     internal partial class StyleEditor : Widget
     {
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.ShowStyleEditor();
         }

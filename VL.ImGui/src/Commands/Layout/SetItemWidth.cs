@@ -10,7 +10,7 @@
 
         public float Width { private get; set; } = 1f;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.PushItemWidth(Width.FromHectoToImGui());
             try

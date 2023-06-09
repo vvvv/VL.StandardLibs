@@ -25,7 +25,7 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiTableFlags Flags { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var count = ColumnDescriptions.Count(x => x != null);
 

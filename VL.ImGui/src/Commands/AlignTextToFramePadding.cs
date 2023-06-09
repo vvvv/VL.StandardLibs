@@ -4,7 +4,7 @@
     internal partial class AlignTextToFramePadding : Widget
     {
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.AlignTextToFramePadding();
         }

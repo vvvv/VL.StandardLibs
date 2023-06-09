@@ -23,7 +23,7 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiTableFlags Flags { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (ImGuiNET.ImGui.BeginTable(Context.GetLabel(this, Label), Math.Max(1, Count), Flags, Size.FromHectoToImGui(), InnerWidth))
             {

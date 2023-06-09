@@ -14,7 +14,7 @@ namespace VL.ImGui.Widgets
 
         public Vector2 Value { get; private set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = ImGuiNET.ImGui.GetMouseDragDelta(Flags, Threshold);
             Value = value.ToVLHecto();

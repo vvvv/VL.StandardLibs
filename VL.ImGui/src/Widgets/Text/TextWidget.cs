@@ -9,7 +9,7 @@
 
         public bool Disabled { private get; set; } = false;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (!Disabled)
             {

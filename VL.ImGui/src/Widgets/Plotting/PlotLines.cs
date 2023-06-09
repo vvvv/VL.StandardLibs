@@ -26,7 +26,7 @@ namespace VL.ImGui.Widgets
 
         public Vector2 Size { get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var values = Values.ToArray();
             ImGuiNET.ImGui.PlotLines(Context.GetLabel(this, Label), ref values[0], values.Count(), Offset, OverlayText, ScaleMin, ScaleMax, Size.FromHectoToImGui());

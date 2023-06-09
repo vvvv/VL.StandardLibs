@@ -5,7 +5,7 @@
     {
         public string? Text { private get; set; } = "[Text]";
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.BulletText(Text ?? String.Empty);
         }

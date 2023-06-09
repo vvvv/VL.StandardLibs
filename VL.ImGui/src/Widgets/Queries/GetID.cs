@@ -14,7 +14,7 @@ namespace VL.ImGui.Widgets
 
         public uint Value { get; private set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (Label != null)
                 Value = ImGuiNET.ImGui.GetID(Label);

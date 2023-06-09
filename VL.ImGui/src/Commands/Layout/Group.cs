@@ -8,7 +8,7 @@
     {
         public Widget? Input { get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.BeginGroup();
             try

@@ -24,7 +24,7 @@ namespace VL.ImGui
         }
     }
 
-    internal sealed class SkiaContext : Context
+    public sealed class SkiaContext : Context
     {
         public readonly List<ILayer> Layers = new List<ILayer>();
 
@@ -35,7 +35,7 @@ namespace VL.ImGui
             base.NewFrame();
         }
 
-        internal void AddLayer(Vector2 size, ILayer layer)
+        public void AddLayer(Vector2 size, ILayer layer)
         {
             var id = Layers.Count;
             Layers.Add(layer);

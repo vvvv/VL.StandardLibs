@@ -7,7 +7,7 @@
 
         public string? ID { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             ImGuiNET.ImGui.PushID(ID ?? string.Empty);
             try

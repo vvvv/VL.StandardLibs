@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using VL.ImGui.Widgets;
-using VL.ImGui.Widgets.Primitives;
-using VL.Model;
 
 namespace VL.ImGui
 {

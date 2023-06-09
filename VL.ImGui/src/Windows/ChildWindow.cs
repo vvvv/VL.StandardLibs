@@ -32,7 +32,7 @@ namespace VL.ImGui.Widgets
         /// </summary>
         public bool ContentIsVisible { get; private set; } = false;
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
 
             ContentIsVisible = ImGui.BeginChild(Context.GetLabel(this, Label), Size.FromHectoToImGui(), HasBorder, Flags);

@@ -10,7 +10,7 @@ namespace VL.ImGui.Widgets
     {
         public Vector2 Value { get; private set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var pos = ImGuiNET.ImGui.GetCursorPos();
             Value = ImGuiConversion.ToVLHecto(pos);

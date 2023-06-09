@@ -9,7 +9,7 @@
 
         public string? Label { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (context.IsInBeginTables)
                 ImGuiNET.ImGui.TableHeader(Context.GetLabel(this, Label));

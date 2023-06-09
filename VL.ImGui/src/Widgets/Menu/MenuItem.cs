@@ -19,7 +19,7 @@ namespace VL.ImGui.Widgets
         public IChannel<bool>? IsSelected { private get; set; }
         ChannelFlange<bool> IsSelectedFlange = new ChannelFlange<bool>(true);
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = Update();
 

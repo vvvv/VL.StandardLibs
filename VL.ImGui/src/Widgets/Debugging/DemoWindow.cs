@@ -12,7 +12,7 @@
             Closing = false;
         }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (HasCloseButton)
             {

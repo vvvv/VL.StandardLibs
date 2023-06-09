@@ -9,7 +9,7 @@ namespace VL.ImGui.Widgets
     {
         public Widget? Widget { get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             context.Update(Widget);
         }

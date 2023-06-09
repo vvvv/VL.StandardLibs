@@ -12,7 +12,7 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiDir Direction { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             Update();
             if (ImGuiNET.ImGui.ArrowButton(Context.GetLabel(this, Label), Direction))

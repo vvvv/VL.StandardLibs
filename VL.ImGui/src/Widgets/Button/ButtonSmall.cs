@@ -10,7 +10,7 @@ namespace VL.ImGui.Widgets
     {
         public string? Label { get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             Update();
             if (ImGuiNET.ImGui.SmallButton(Context.GetLabel(this, Label)))

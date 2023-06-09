@@ -11,7 +11,7 @@ namespace VL.ImGui.Widgets
         {
         }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var value = Update().ToImGui();
             if (ImGuiNET.ImGui.SliderFloat3(Context.GetLabel(this, Label), ref value, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))

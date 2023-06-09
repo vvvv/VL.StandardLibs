@@ -8,7 +8,7 @@
     {
         public bool IsVisible { get; private set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             if (context.IsInBeginTables)
                 IsVisible = ImGuiNET.ImGui.TableNextColumn();

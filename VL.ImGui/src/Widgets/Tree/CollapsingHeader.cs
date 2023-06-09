@@ -39,7 +39,7 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiTreeNodeFlags Flags { private get; set; }
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             var visible = VisibleFlange.Update(Visible);
             CloseClicked = false;

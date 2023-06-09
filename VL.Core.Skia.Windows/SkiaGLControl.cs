@@ -5,6 +5,8 @@ using System.Windows.Forms;
 using SkiaSharp;
 using Vector2 = Stride.Core.Mathematics.Vector2;
 using VL.Skia.Egl;
+using System.Reactive.Linq;
+using System.Reactive;
 
 namespace VL.Skia
 {
@@ -42,7 +44,56 @@ namespace VL.Skia
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             DoubleBuffered = false;
             ResizeRedraw = true;
+
+            TouchDevice = new TouchDevice(TouchNotifications);
         }
+
+        private Mouse FMouse;
+        public Mouse Mouse
+        {
+            get
+            {
+                if (FMouse == null)
+                {
+                    var mouseDowns = Observable.FromEventPattern<MouseEventArgs>(this, "MouseDown")
+                        .Select(p => p.EventArgs.ToMouseDownNotification(this, this));
+                    var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(this, "MouseMove")
+                        .Select(p => p.EventArgs.ToMouseMoveNotification(this, this));
+                    var mouseUps = Observable.FromEventPattern<MouseEventArgs>(this, "MouseUp")
+                        .Select(p => p.EventArgs.ToMouseUpNotification(this, this));
+                    var mouseWheels = Observable.FromEventPattern<MouseEventArgs>(this, "MouseWheel")
+                        .Select(p => p.EventArgs.ToMouseWheelNotification(this, this));
+                    FMouse = new Mouse(mouseDowns
+                        .Merge<MouseNotification>(mouseMoves)
+                        .Merge(mouseUps)
+                        .Merge(mouseWheels));
+                }
+                return FMouse;
+            }
+        }
+
+        private Keyboard FKeyboard;
+        public Keyboard Keyboard
+        {
+            get
+            {
+                if (FKeyboard == null)
+                {
+                    var keyDowns = Observable.FromEventPattern<KeyEventArgs>(this, "KeyDown")
+                        .Select(p => p.EventArgs.ToKeyDownNotification(this));
+                    var keyUps = Observable.FromEventPattern<KeyEventArgs>(this, "KeyUp")
+                        .Select(p => p.EventArgs.ToKeyUpNotification(this));
+                    var keyPresses = Observable.FromEventPattern<KeyPressEventArgs>(this, "KeyPress")
+                        .Select(p => p.EventArgs.ToKeyPressNotification(this));
+                    FKeyboard = new Keyboard(keyDowns
+                        .Merge<KeyNotification>(keyUps)
+                        .Merge(keyPresses));
+                }
+                return FKeyboard;
+            }
+        }
+
+        public TouchDevice TouchDevice { get; }
 
         protected override CreateParams CreateParams
         {

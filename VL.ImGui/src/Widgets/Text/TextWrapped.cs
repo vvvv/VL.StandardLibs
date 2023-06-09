@@ -7,7 +7,7 @@
     {
         public string? Text { private get; set; } = "[Text]";
 
-        internal override void UpdateCore(Context context)
+        protected override void UpdateCore(Context context)
         {
             // We don't want to use TextWrapped because of its length limitations
             // https://github.com/ocornut/imgui/blob/204cb4d226951f98dc8bfc13c7bccff9995e2690/imgui.h#L490
