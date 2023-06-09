@@ -35,7 +35,7 @@ namespace VL.ImGui.Widgets
         {
             var position = PositionFlange.Update(Position, out bool positionChanged);
             var visible = VisibleFlange.Update(Visible, out bool visibilityChanged);
-            var label = Context.GetLabel(this, Label);
+            var label = widgetLabel.Update(Label);
             ContentIsVisible = false;
 
             if (visibilityChanged)

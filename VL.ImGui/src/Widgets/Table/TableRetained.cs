@@ -31,7 +31,7 @@ namespace VL.ImGui.Widgets
 
             if (count > 0)
             {
-                if (ImGuiNET.ImGui.BeginTable(Context.GetLabel(this, Label), count, Flags, Size.FromHectoToImGui(), InnerWidth))
+                if (ImGuiNET.ImGui.BeginTable(widgetLabel.Update(Label), count, Flags, Size.FromHectoToImGui(), InnerWidth))
                 {
                     try
                     {

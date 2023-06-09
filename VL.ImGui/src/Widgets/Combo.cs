@@ -18,7 +18,7 @@
 
             if (Items != null && Items.Any())
             {
-                if (ImGuiNET.ImGui.BeginCombo(Context.GetLabel(this, Label), value, Flags))
+                if (ImGuiNET.ImGui.BeginCombo(widgetLabel.Update(Label), value, Flags))
                 {
                     try
                     {

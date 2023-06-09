@@ -35,7 +35,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
 
-            ContentIsVisible = ImGui.BeginChild(Context.GetLabel(this, Label), Size.FromHectoToImGui(), HasBorder, Flags);
+            ContentIsVisible = ImGui.BeginChild(widgetLabel.Update(Label), Size.FromHectoToImGui(), HasBorder, Flags);
             
             try
             {

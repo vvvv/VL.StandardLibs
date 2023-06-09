@@ -22,7 +22,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = Update();
-            if (ImGuiUtils.InputInt4(Context.GetLabel(this, Label), ref value, Flags))
+            if (ImGuiUtils.InputInt4(widgetLabel.Update(Label), ref value, Flags))
                 SetValueIfChanged(lastframeValue, value, Flags);
             lastframeValue = value;
         }
