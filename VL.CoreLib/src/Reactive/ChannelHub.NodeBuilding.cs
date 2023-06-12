@@ -71,14 +71,22 @@ namespace VL.Core.Reactive
                 return context.Node(_inputs, _outputs, buildcontext =>
                 {
                     var channelType = channelBuildDescription.RuntimeType;
-
                     var c = IChannelHub.HubForApp.TryAddChannel(channelBuildDescription.Name, channelType);
+
+                    bool refetched()
+                    {
+                        var oc = c;
+                        c = IChannelHub.HubForApp.TryGetChannel(channelBuildDescription.Name) ?? 
+                            IChannelHub.HubForApp.TryAddChannel(channelBuildDescription.Name, channelType);
+                        return c != oc;
+                    }
+
                     Optional<object> latestValueThatGotSet = default;
                     var inputs = new IVLPin[]
                     {
                         buildcontext.Input<object>(value =>
                         {
-                            if (!latestValueThatGotSet.HasValue || !value.Equals(latestValueThatGotSet.Value))
+                            if (refetched() || !latestValueThatGotSet.HasValue || !value.Equals(latestValueThatGotSet.Value))
                             {
                                 c.Object = value;
                                 latestValueThatGotSet = value;
@@ -87,8 +95,8 @@ namespace VL.Core.Reactive
                     };
                     var outputs = new IVLPin[]
                     {
-                        buildcontext.Output(() => c),
-                        buildcontext.Output(() => c.Object),
+                        buildcontext.Output(() => { refetched(); return c; }),
+                        buildcontext.Output(() => { refetched(); return c.Object; }),
                     };
                     return buildcontext.Node(inputs, outputs);
                 }, summary: @"");

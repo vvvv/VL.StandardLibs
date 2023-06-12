@@ -75,7 +75,7 @@ namespace VL.ImGui.Windows
                 if (Closing.IsValid())
                 {
                     var isVisible = true;
-                    ContentIsVisible = ImGui.Begin(Context.GetLabel(this, Name), ref isVisible, Flags);
+                    ContentIsVisible = ImGui.Begin(widgetLabel.Update(Name), ref isVisible, Flags);
                     if (!isVisible)
                     {
                         Closing.Value = default;
@@ -85,7 +85,7 @@ namespace VL.ImGui.Windows
                 }
                 else
                 {
-                    ContentIsVisible = ImGui.Begin(Context.GetLabel(this, Name), Flags);
+                    ContentIsVisible = ImGui.Begin(widgetLabel.Update(Name), Flags);
                 }
 
                 try

@@ -50,7 +50,7 @@ namespace VL.ImGui.Widgets
         {
             var visible = VisibleFlange.Update(Visible, out bool visibilityChanged);
             var bounds = BoundsFlange.Update(Bounds, out bool boundsChanged);
-            var label = Context.GetLabel(this, Label);
+            var label = widgetLabel.Update(Label);
             CloseClicked = false;
             ContentIsVisible = false;
 

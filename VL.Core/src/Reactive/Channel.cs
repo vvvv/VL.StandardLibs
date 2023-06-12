@@ -144,13 +144,13 @@ namespace VL.Lib.Reactive
             if (disposing)
                 return;
 
-            AssertAlive();
             disposing = true;
             try
             {
+                Enabled = false;
                 foreach (var c in Components)
                     (c as IDisposable)?.Dispose();
-                Enabled = false;
+                Components = ImmutableList<object>.Empty;
                 subject.Dispose();
             }
             finally

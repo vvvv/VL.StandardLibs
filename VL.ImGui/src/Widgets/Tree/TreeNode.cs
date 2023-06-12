@@ -28,7 +28,7 @@ namespace VL.ImGui.Widgets
 
             ImGuiNET.ImGui.SetNextItemOpen(!collapsed);
 
-            ContentIsVisible = ImGuiNET.ImGui.TreeNodeEx(Context.GetLabel(this, Label), Flags);
+            ContentIsVisible = ImGuiNET.ImGui.TreeNodeEx(widgetLabel.Update(Label), Flags);
 
             CollapsedFlange.Value = !ContentIsVisible;
 

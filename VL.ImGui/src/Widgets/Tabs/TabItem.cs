@@ -58,7 +58,7 @@ namespace VL.ImGui.Widgets
                 if (Closing.IsValid() || flags != ImGuiNET.ImGuiTabItemFlags.None)
                 {
                     var isVisible = true;
-                    isActive = ImGuiNET.ImGui.BeginTabItem(Context.GetLabel(this, Label), ref isVisible, flags);
+                    isActive = ImGuiNET.ImGui.BeginTabItem(widgetLabel.Update(Label), ref isVisible, flags);
                     if (!isVisible)
                     {
                         Closing.Value = default;
@@ -68,7 +68,7 @@ namespace VL.ImGui.Widgets
                         
                 }
                 else
-                    isActive = ImGuiNET.ImGui.BeginTabItem(Context.GetLabel(this, Label));
+                    isActive = ImGuiNET.ImGui.BeginTabItem(widgetLabel.Update(Label));
 
                 ActiveFlange.Value = isActive;
                 ContentIsVisible = isActive;
