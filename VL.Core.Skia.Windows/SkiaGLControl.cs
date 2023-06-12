@@ -37,6 +37,8 @@ namespace VL.Skia
 
         public bool DirectCompositionEnabled { get; init; }
 
+        public bool ReportInputEventsInScreenSpace { get; init; }
+
         public SkiaGLControl()
         {
             SetStyle(ControlStyles.Opaque, true);
@@ -56,13 +58,13 @@ namespace VL.Skia
                 if (FMouse == null)
                 {
                     var mouseDowns = Observable.FromEventPattern<MouseEventArgs>(this, "MouseDown")
-                        .Select(p => p.EventArgs.ToMouseDownNotification(this, this));
+                        .Select(p => p.EventArgs.ToMouseDownNotification(this, this, ReportInputEventsInScreenSpace));
                     var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(this, "MouseMove")
-                        .Select(p => p.EventArgs.ToMouseMoveNotification(this, this));
+                        .Select(p => p.EventArgs.ToMouseMoveNotification(this, this, ReportInputEventsInScreenSpace));
                     var mouseUps = Observable.FromEventPattern<MouseEventArgs>(this, "MouseUp")
-                        .Select(p => p.EventArgs.ToMouseUpNotification(this, this));
+                        .Select(p => p.EventArgs.ToMouseUpNotification(this, this, ReportInputEventsInScreenSpace));
                     var mouseWheels = Observable.FromEventPattern<MouseEventArgs>(this, "MouseWheel")
-                        .Select(p => p.EventArgs.ToMouseWheelNotification(this, this));
+                        .Select(p => p.EventArgs.ToMouseWheelNotification(this, this, ReportInputEventsInScreenSpace));
                     FMouse = new Mouse(mouseDowns
                         .Merge<MouseNotification>(mouseMoves)
                         .Merge(mouseUps)

@@ -43,9 +43,13 @@ namespace VL.Skia
 
                             var contactArea = new Size(touchInfo.rcContactRight - touchInfo.rcContactLeft, touchInfo.rcContactBottom - touchInfo.rcContactTop);
 
+                            var position = new Point(pointerInfo.ptPixelLocationX, pointerInfo.ptPixelLocationY);
+                            if (!ReportInputEventsInScreenSpace)
+                                position = PointToClient(position);
+
                             var notification = new TouchNotification(
                                 kind,
-                                position: PointToClient(new Point(pointerInfo.ptPixelLocationX, pointerInfo.ptPixelLocationY)).ToVector2(),
+                                position: position.ToVector2(),
                                 clientArea: ClientSize.ToVector2(),
                                 id: (int)pointerInfo.pointerId,
                                 primary: pointerInfo.pointerFlags.HasFlag(Utils.PointerFlags.POINTER_FLAG_PRIMARY),
