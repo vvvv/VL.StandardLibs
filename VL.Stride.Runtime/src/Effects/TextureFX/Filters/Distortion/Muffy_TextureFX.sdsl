@@ -5,9 +5,12 @@
 [Summary("")]
 shader Muffy_TextureFX : FilterBase
 {
-    float RingAmount = 2.5f;
-    float RingSize = 2.0f;
+    [Default(2)]
+    compose ComputeFloat RingAmount;
     
+    [Default(0.5, 0.5)]
+    compose ComputeFloat2 RingSize;
+
     //there seems to be no pre-defined Sampler with Mirror
     SamplerState s0
     {
@@ -19,9 +22,9 @@ shader Muffy_TextureFX : FilterBase
     float4 Filter(float4 tex0col)
     {
         float2 uv = streams.TexCoord;
-
-        float4 col = Texture0.SampleLevel(s0, uv + ((sin(uv.y * RingSize*10.0)*RingAmount ) * cos (uv.x)) + (sin(uv.x * RingSize*10.0)*RingAmount), 0);
+        float ringAmount = RingAmount.Compute();
+        float2 ringSize = RingSize.Compute();
     
-        return col;
+        return Texture0.SampleLevel(s0, uv + ((sin(uv * ringSize*10.0)*ringAmount ) * cos (uv)) + (sin(uv * ringSize*10.0)*ringAmount), 0);
     }
 };

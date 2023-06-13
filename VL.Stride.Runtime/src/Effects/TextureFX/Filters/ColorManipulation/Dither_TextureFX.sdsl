@@ -5,7 +5,8 @@
 [Summary("Applies a dithering effect")]
 shader Dither_TextureFX : FilterBase
 {
-    float Threshhold = 6.5f;
+    [Default(6.5)]
+    compose ComputeFloat Threshold;
     
     float FindClosest (int x, int y, float c0)
     {
@@ -18,7 +19,7 @@ shader Dither_TextureFX : FilterBase
         );
     
         float limit = 0.0;
-        float a = Threshhold * 10;
+        float a = Threshold.Compute() * 10;
 
         if(x < 4)
         {

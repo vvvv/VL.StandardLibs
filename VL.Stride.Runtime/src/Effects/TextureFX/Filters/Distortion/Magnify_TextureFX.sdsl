@@ -8,39 +8,47 @@
 [Summary("")]
 shader Magnify_TextureFX : FilterBase
 {
-
     float2 Center = float2(0.5f, 0.5f);
-    float InnerRadius = 0.25f;
-    float Magnification = 2.0f;
-    float OuterRadius = 0.5f;
+
+    [Default(0.25)]
+    compose ComputeFloat InnerRadius;
+
+    [Default(2)]
+    compose ComputeFloat Magnification;
+
+    [Default(0)]
+    compose ComputeFloat OuterRadius;
 
     float4 Filter(float4 tex0col)
     {
         float2 uv = streams.TexCoord;
-        
+        float magnification = Magnification.Compute();
+        float innerRadius = InnerRadius.Compute();
+        float outerRadius = OuterRadius.Compute();
+
         float2 center2pixel = uv - Center;
         float distance = length(center2pixel);
         float4 color;
         float2 samplePoint;
     
-        if (distance < OuterRadius)
+        if (distance < outerRadius)
         {
-            if (distance < InnerRadius)
+            if (distance < innerRadius)
             {
-                samplePoint = Center + (center2pixel/Magnification);
+                samplePoint = Center + (center2pixel / magnification);
             }
             else 
             {
-                float radiusDiff = OuterRadius - InnerRadius;
+                float radiusDiff = outerRadius - innerRadius;
                 
-                float ratio = (distance - InnerRadius)/radiusDiff;
+                float ratio = (distance - innerRadius)/radiusDiff;
                 ratio *= PI;
                
                 float adjustedRatio = cos(ratio);
                 adjustedRatio += 1;
                 adjustedRatio /= 2;
             
-                samplePoint = ((Center + center2pixel/Magnification) * adjustedRatio) + (uv * (1-adjustedRatio));
+                samplePoint = ((Center + center2pixel / magnification) * adjustedRatio) + (uv * (1 - adjustedRatio));
             }
         }
         else

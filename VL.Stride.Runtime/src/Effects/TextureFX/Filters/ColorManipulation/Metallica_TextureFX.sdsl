@@ -16,10 +16,14 @@ shader Metallica_TextureFX : FilterBase
     float2 BumpGamma = float2(0.0f, 0.0f);
     float2 Brightness = float2(0.0f, 0.0f);;
 
-    float Emboss = 1.0f;
-    float Shape = 0.0f;
+    [Default(1)]
+    compose ComputeFloat Emboss;
 
-    float MaxRadius =1.0f;
+    [Default(0)]
+    compose ComputeFloat Shape;
+
+    [Default(1)]
+    compose ComputeFloat MaxRadius;
 
     float mx(float3 p)
     {
@@ -44,13 +48,14 @@ shader Metallica_TextureFX : FilterBase
         float4 col = 0;
         float lod = log2(max(R.x, R.y));
         float kk = 0;
+        float maxRadius = MaxRadius.Compute();
 
-        for (float i=0; i<min(lod-(1-MaxRadius*lod), 14); i++)
+        for (float i=0; i<min(lod-(1-maxRadius*lod), 14); i++)
         {
             float2 off = pow(2,i)/max(R.x,R.y);
             off *= 0.5;
             
-            float k = 1./pow(2, i*Shape - lod)*saturate(MaxRadius*lod - i);
+            float k = 1./pow(2, i*Shape.Compute() - lod)*saturate(maxRadius*lod - i);
 
             float dx = (mx(Texture0.SampleLevel(Sampler0, uv - off*float2(1 ,0), i).xyz) - mx(Texture0.SampleLevel(Sampler0, uv + off*float2(1, 0),i).xyz));
             float dy = (mx(Texture0.SampleLevel(Sampler0, uv - off*float2(0, 1), i).xyz) - mx(Texture0.SampleLevel(Sampler0, uv + off*float2(0,1),i).xyz));
@@ -63,7 +68,7 @@ shader Metallica_TextureFX : FilterBase
 
         col.xy /= pow(abs(col.z)*.1, .3)/.1 + .00000001;
 
-        float dd = Emboss/pow(abs(kk), .7)*8;
+        float dd = Emboss.Compute()/pow(abs(kk), .7)*8;
 
         col.z = pow(saturate(1-dd*length(col.xy)), .5);
         col.xy = col.xy*dd;

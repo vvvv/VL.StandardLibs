@@ -6,12 +6,18 @@ shader Erode_Color_TextureFX : FilterBase
 {
     [Summary("A larger size increases the dilation at the cost of performance.")]
     int Size = 1;
+
     [Summary("A larger separation increases the dilation at the cost of quality.")]
-    float Separation = 1;
+    [Default(1)]
+    compose ComputeFloat Separation;
+    
     [Summary("The Threshold parameters control which parts of the image become dilated.")]
-    float MinThreshold = 0.2f; 
+    [Default(0.2)]
+    compose ComputeFloat MinThreshold;
+    
     [Summary("The Threshold parameters control which parts of the image become dilated.")]
-    float MaxThreshold = 0.5f;
+    [Default(0.5)]
+    compose ComputeFloat MaxThreshold;
 
     [EnumType("VL.Stride.Effects.TextureFX.MorphologyType")]
     uint Shape;
@@ -39,7 +45,7 @@ shader Erode_Color_TextureFX : FilterBase
                 
                 if (!skip)
                 {
-                    float4 c = Texture0.SampleLevel(Sampler0, streams.TexCoord + float2(i, j) * Separation / texSize, 0);
+                    float4 c = Texture0.SampleLevel(Sampler0, streams.TexCoord + float2(i, j) * Separation.Compute() / texSize, 0);
                     float mxt = dot(c.rgb, float3(0.3, 0.59, 0.11));
 
                     if (mxt < mx) 
@@ -51,6 +57,6 @@ shader Erode_Color_TextureFX : FilterBase
             }
         }
         
-        return float4(lerp(cmx.rgb, tex0col.rgb, smoothstep(MinThreshold, MaxThreshold, mx)), tex0col.a);
+        return float4(lerp(cmx.rgb, tex0col.rgb, smoothstep(MinThreshold.Compute(), MaxThreshold.Compute(), mx)), tex0col.a);
     }
 };

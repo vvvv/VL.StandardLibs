@@ -5,10 +5,16 @@
 [OutputFormat("R16G16B16A16_Float")]
 shader Gradient_TextureFX : TextureFX
 {
-    [Color] float4 From = float4(0,0,0,1);
-    [Color] float4 To = float4(1,1,1,1);
+    [Color] 
+    float4 From = float4(0, 0, 0, 1);
+
+    [Color] 
+    float4 To = float4(1, 1, 1, 1);
+    
     bool isHorizontal;
-    float Gamma = 2.2f;
+
+    [Default(2.2)]
+    compose ComputeFloat Gamma;
     // bool Dither = false;
     // float Dithering = 1;
     // float DitherSeed = 0; 
@@ -19,7 +25,7 @@ shader Gradient_TextureFX : TextureFX
         float2 uv = streams.TexCoord;
         float fade = isHorizontal ? uv.x : uv.y;
 
-        fade = pow(fade, Gamma);
+        fade = pow(fade, Gamma.Compute());
 
         float4 c = lerp(From, To, fade);
 
