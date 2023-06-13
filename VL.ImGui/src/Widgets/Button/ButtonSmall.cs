@@ -13,7 +13,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             Update();
-            if (ImGuiNET.ImGui.SmallButton(Context.GetLabel(this, Label)))
+            if (ImGuiNET.ImGui.SmallButton(widgetLabel.Update(Label)))
                 Value = Unit.Default;
         }
     }

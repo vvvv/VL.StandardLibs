@@ -12,7 +12,7 @@
 
         internal override void UpdateCore(Context context)
         {
-            ImGuiNET.ImGui.TableSetupColumn(Context.GetLabel(this, Label), Flags, InitWidth);
+            ImGuiNET.ImGui.TableSetupColumn(widgetLabel.Update(Label), Flags, InitWidth);
         }
     }
 }

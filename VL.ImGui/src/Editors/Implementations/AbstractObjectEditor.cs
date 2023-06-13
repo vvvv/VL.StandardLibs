@@ -26,6 +26,7 @@ namespace VL.ImGui.Editors
         Type? currentEditorType;
         IObjectEditor? currentEditor;
         bool isBusy;
+        WidgetLabel widgetLabel = new();
 
         public AbstractObjectEditor(IChannel<object> channel, ObjectEditorContext editorContext, IVLTypeInfo typeInfo)
         {
@@ -135,7 +136,7 @@ namespace VL.ImGui.Editors
             {
                 var s = publicChannel.Object.ToString();
                 if (string.IsNullOrEmpty(editorContext.Label))
-                    ImGui.LabelText(Context.GetLabel(this, editorContext.Label), s);
+                    ImGui.LabelText(widgetLabel.Update(editorContext.Label), s);
                 else
                     ImGui.TextUnformatted(s);
             }
@@ -143,7 +144,7 @@ namespace VL.ImGui.Editors
             {
                 var s = "NULL";
                 if (string.IsNullOrEmpty(editorContext.Label))
-                    ImGui.LabelText(Context.GetLabel(this, editorContext.Label), s);
+                    ImGui.LabelText(widgetLabel.Update(editorContext.Label), s);
                 else
                     ImGui.TextUnformatted(s);
             }

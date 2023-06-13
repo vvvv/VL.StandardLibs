@@ -18,5 +18,10 @@ namespace VL.Core
         /// Allows to swap an object
         /// </summary>
         object Swap(object obj, Type compiletimeType);
+
+        /// <summary>
+        /// Allows to swap a type (e.g. for a List of Foo1 you get List of Foo2, where Foo2 is the hot-swapped version of Foo)
+        /// </summary>
+        Type SwapType(Type clrTypeOfValues);
     }
 }

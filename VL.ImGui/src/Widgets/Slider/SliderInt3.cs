@@ -17,7 +17,7 @@ namespace VL.ImGui.Widgets
             var value = Update();
 
             ref var x = ref value.X;
-            if (ImGuiNET.ImGui.SliderInt3(Context.GetLabel(this, Label), ref x, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+            if (ImGuiNET.ImGui.SliderInt3(widgetLabel.Update(Label), ref x, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
                 Value = Unsafe.As<int, Int3>(ref x);
         }
     }

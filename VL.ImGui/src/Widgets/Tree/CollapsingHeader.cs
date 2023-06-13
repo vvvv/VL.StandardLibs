@@ -53,7 +53,7 @@ namespace VL.ImGui.Widgets
                 if (Closing.IsValid())
                 {
                     var isVisible = true;
-                    ContentIsVisible = ImGuiNET.ImGui.CollapsingHeader(Context.GetLabel(this, Label), ref isVisible, Flags);
+                    ContentIsVisible = ImGuiNET.ImGui.CollapsingHeader(widgetLabel.Update(Label), ref isVisible, Flags);
                     if (!isVisible)
                     {
                         Closing.Value = default;
@@ -61,7 +61,7 @@ namespace VL.ImGui.Widgets
                     }      
                 }
                 else
-                    ContentIsVisible = ImGuiNET.ImGui.CollapsingHeader(Context.GetLabel(this, Label), Flags);
+                    ContentIsVisible = ImGuiNET.ImGui.CollapsingHeader(widgetLabel.Update(Label), Flags);
 
                 CollapsedFlange.Value = !ContentIsVisible;
 
