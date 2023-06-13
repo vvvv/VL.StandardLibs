@@ -18,15 +18,8 @@ namespace VL.ImGui
             context = context.Validate();
             if (context != null)
             {
-                try
-                {
-                    Style?.Set(context);
+                using (Style.Apply())
                     UpdateCore(context);
-                }
-                finally
-                {
-                    Style?.Reset(context);
-                }
             }
         }
     }

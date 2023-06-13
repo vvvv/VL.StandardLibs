@@ -10,7 +10,7 @@ namespace VL.ImGui.Editors
 {
     public sealed partial class DefaultObjectEditorFactory : IObjectEditorFactory
     {
-        public IObjectEditor? CreateObjectEditor(IChannel<object> channel, ObjectEditorContext context)
+        public IObjectEditor? CreateObjectEditor(IChannel channel, ObjectEditorContext context)
         {
             var staticType = channel.ClrTypeOfValues;
 
