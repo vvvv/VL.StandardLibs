@@ -7,18 +7,19 @@ using System.Threading.Tasks;
 using System.Reactive.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Collections.Immutable;
 
 namespace VL.IO.Redis
 {
     public class RedisCommandQueue
     {
         private readonly ITransaction _tran;
-        private readonly IList<Task<object>> _tasks = new List<Task<object>>();
-        private Task<bool> _successfulTask;
-        private bool _successful;
-        private Task<object[]> _result;
+        private readonly IList<Task<KeyValuePair<Guid, object>>> _tasks = new List<Task<KeyValuePair<Guid, object>>>();
+        //private Task<bool> _successfulTask;
+        //private bool _successful;
+        //private Task<object[]> _result;
 
-        public RedisCommandQueue Enqueue(Func<ITransaction, Task<object>> cmd)
+        public RedisCommandQueue Enqueue(Func<ITransaction, Task<KeyValuePair<Guid, object>>> cmd)
         {
             if (_tran != null)
                 _tasks.Add(cmd(_tran));
@@ -27,48 +28,48 @@ namespace VL.IO.Redis
 
         public RedisCommandQueue(ITransaction tran) => _tran = tran;
 
-        public void ExecuteAsync()
-        {
-            _successfulTask = _tran.ExecuteAsync();
-        }
+        //public void ExecuteAsync()
+        //{
+        //    _successfulTask = _tran.ExecuteAsync();
+        //}
 
-        public bool AwaitExecute(int timeout = 16)
-        {
-            if (_successfulTask.Wait(timeout))
-            {
-                _result = Task.WhenAll(_tasks);
-                _successful = true;
-                return true;
-            }
-            else 
-            {
-                _successful = false;
-                return false; 
-            }
-        }
+        //public bool AwaitExecute(int timeout = 16)
+        //{
+        //    if (_successfulTask.Wait(timeout))
+        //    {
+        //        _result = Task.WhenAll(_tasks);
+        //        _successful = true;
+        //        return true;
+        //    }
+        //    else 
+        //    {
+        //        _successful = false;
+        //        return false; 
+        //    }
+        //}
 
-        public object[] Result(int timeout = 16)
-        {
-            if (_successful)
-                if (_result.Wait(timeout))
-                    return _result.Result;
-            return new object[0];
-        }
+        //public object[] Result(int timeout = 16)
+        //{
+        //    if (_successful)
+        //        if (_result.Wait(timeout))
+        //            return _result.Result;
+        //    return new object[0];
+        //}
 
-        public async Task<object[]> Execute()
+        public async Task<ImmutableDictionary<Guid, object>> Execute()
         {
             if (await _tran.ExecuteAsync())
-                return await Task.WhenAll(_tasks);
+                return await Task.WhenAll(_tasks).ContinueWith(t => new Dictionary<Guid, object>(t.Result).ToImmutableDictionary());
             else
-                return new object[0];
+                return ImmutableDictionary.Create<Guid, object>();
         }
     }
     public static class RedisExtensions
     {
 
-        public static Task<object> Cast<T>(this Task<T> task)
+        public static Task<KeyValuePair<Guid, object>> Cast<T>(this Task<T> task, Guid guid)
         {
-            return task.ContinueWith(t => (object)t.Result);
+            return task.ContinueWith(t => new KeyValuePair<Guid,object>(guid, (object)t.Result));
         }
 
         public static IObservable<RedisValue> WhenMessageReceived(this ISubscriber subscriber, RedisChannel channel)
