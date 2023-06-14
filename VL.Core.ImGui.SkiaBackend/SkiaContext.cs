@@ -41,9 +41,10 @@ namespace VL.ImGui
         {
             var id = Layers.Count;
             Layers.Add(layer);
-            DrawListPtr.AddImage(new IntPtr(id), default, Unsafe.As<Vector2, System.Numerics.Vector2>(ref size));
             if (DrawList == DrawList.AtCursor)
-                ImGui.Image(new IntPtr(0), Unsafe.As<Vector2, System.Numerics.Vector2>(ref size));
+                ImGui.Image(new IntPtr(id), Unsafe.As<Vector2, System.Numerics.Vector2>(ref size));
+            else
+                DrawListPtr.AddImage(new IntPtr(id), default, Unsafe.As<Vector2, System.Numerics.Vector2>(ref size));
         }
 
         public bool Notify(INotification notification, CallerInfo caller, bool applyHectoPixelScaling)

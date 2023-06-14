@@ -42,10 +42,7 @@ namespace VL.Skia
 
 
                             var contactArea = new Size(touchInfo.rcContactRight - touchInfo.rcContactLeft, touchInfo.rcContactBottom - touchInfo.rcContactTop);
-
-                            var position = new Point(pointerInfo.ptPixelLocationX, pointerInfo.ptPixelLocationY);
-                            if (!ReportInputEventsInScreenSpace)
-                                position = PointToClient(position);
+                            var position = PointToClient(new Point(pointerInfo.ptPixelLocationX, pointerInfo.ptPixelLocationY));
 
                             var notification = new TouchNotification(
                                 kind,

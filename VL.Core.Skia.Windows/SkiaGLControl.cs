@@ -37,8 +37,6 @@ namespace VL.Skia
 
         public bool DirectCompositionEnabled { get; init; }
 
-        public bool ReportInputEventsInScreenSpace { get; init; }
-
         public SkiaGLControl()
         {
             SetStyle(ControlStyles.Opaque, true);
@@ -58,13 +56,13 @@ namespace VL.Skia
                 if (FMouse == null)
                 {
                     var mouseDowns = Observable.FromEventPattern<MouseEventArgs>(this, "MouseDown")
-                        .Select(p => p.EventArgs.ToMouseDownNotification(this, this, ReportInputEventsInScreenSpace));
+                        .Select(p => p.EventArgs.ToMouseDownNotification(this, this));
                     var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(this, "MouseMove")
-                        .Select(p => p.EventArgs.ToMouseMoveNotification(this, this, ReportInputEventsInScreenSpace));
+                        .Select(p => p.EventArgs.ToMouseMoveNotification(this, this));
                     var mouseUps = Observable.FromEventPattern<MouseEventArgs>(this, "MouseUp")
-                        .Select(p => p.EventArgs.ToMouseUpNotification(this, this, ReportInputEventsInScreenSpace));
+                        .Select(p => p.EventArgs.ToMouseUpNotification(this, this));
                     var mouseWheels = Observable.FromEventPattern<MouseEventArgs>(this, "MouseWheel")
-                        .Select(p => p.EventArgs.ToMouseWheelNotification(this, this, ReportInputEventsInScreenSpace));
+                        .Select(p => p.EventArgs.ToMouseWheelNotification(this, this));
                     FMouse = new Mouse(mouseDowns
                         .Merge<MouseNotification>(mouseMoves)
                         .Merge(mouseUps)
@@ -152,6 +150,11 @@ namespace VL.Skia
         {
             base.OnPaint(e);
 
+            Render();
+        }
+
+        public void Render()
+        {
             if (!Visible || eglSurface is null)
                 return;
 
@@ -182,7 +185,7 @@ namespace VL.Skia
                 // Render
                 using (new SKAutoCanvasRestore(canvas, true))
                 {
-                    OnPaint(CallerInfo);
+                    RaiseOnRender(CallerInfo);
                 }
                 surface.Flush();
 
@@ -195,7 +198,7 @@ namespace VL.Skia
             }
         }
 
-        protected virtual void OnPaint(CallerInfo callerInfo)
+        protected virtual void RaiseOnRender(CallerInfo callerInfo)
         {
             OnRender?.Invoke(CallerInfo);
         }
