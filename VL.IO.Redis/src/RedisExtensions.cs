@@ -15,9 +15,8 @@ namespace VL.IO.Redis
     {
         private readonly ITransaction _tran;
         private readonly IList<Task<KeyValuePair<Guid, object>>> _tasks = new List<Task<KeyValuePair<Guid, object>>>();
-        //private Task<bool> _successfulTask;
-        //private bool _successful;
-        //private Task<object[]> _result;
+
+        private Task<bool> _result;
 
         public RedisCommandQueue Enqueue(Func<ITransaction, Task<KeyValuePair<Guid, object>>> cmd)
         {
@@ -28,33 +27,20 @@ namespace VL.IO.Redis
 
         public RedisCommandQueue(ITransaction tran) => _tran = tran;
 
-        //public void ExecuteAsync()
-        //{
-        //    _successfulTask = _tran.ExecuteAsync();
-        //}
 
-        //public bool AwaitExecute(int timeout = 16)
-        //{
-        //    if (_successfulTask.Wait(timeout))
-        //    {
-        //        _result = Task.WhenAll(_tasks);
-        //        _successful = true;
-        //        return true;
-        //    }
-        //    else 
-        //    {
-        //        _successful = false;
-        //        return false; 
-        //    }
-        //}
+        public void ExecuteAsync()
+        {
+            _result = _tran.ExecuteAsync();
+        }
 
-        //public object[] Result(int timeout = 16)
-        //{
-        //    if (_successful)
-        //        if (_result.Wait(timeout))
-        //            return _result.Result;
-        //    return new object[0];
-        //}
+        public async Task<ImmutableDictionary<Guid, object>> GetResult()
+        {
+            if (await _result)
+                return await Task.WhenAll(_tasks).ContinueWith(t => new Dictionary<Guid, object>(t.Result).ToImmutableDictionary());
+            else
+                return ImmutableDictionary.Create<Guid, object>();
+        }
+
 
         public async Task<ImmutableDictionary<Guid, object>> Execute()
         {
