@@ -13,7 +13,7 @@ namespace VL.Lib.Animation
         public const double MinTimeDifferenceInSeconds = 0.000001;
 
         Time FFrameTime;
-        ulong FCurrentFrame = 1;
+        ulong FCurrentFrame = 0;
         Subject<FrameTimeMessage> FrameStarting;
         Subject<FrameFinishedMessage> FrameFinished;
         bool FInitialized;
@@ -47,7 +47,8 @@ namespace VL.Lib.Animation
             FInitialized = true;
             FWatch.Restart();
 
-            FrameStarting.OnNext(new FrameTimeMessage(FFrameTime, FCurrentFrame++, mainLoopTimer?.GetIntervalOrIncrement() ?? TimeSpan.Zero));
+            FCurrentFrame++;
+            FrameStarting.OnNext(new FrameTimeMessage(FFrameTime, FCurrentFrame, mainLoopTimer?.GetIntervalOrIncrement() ?? TimeSpan.Zero));
         }
 
         /// <summary>
