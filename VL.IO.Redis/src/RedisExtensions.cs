@@ -13,11 +13,12 @@ namespace VL.IO.Redis
 {
     public class RedisCommandQueue
     {
-        private readonly ITransaction _tran;
+        private ITransaction _tran;
         private readonly IList<Task<KeyValuePair<Guid, object>>> _tasks = new List<Task<KeyValuePair<Guid, object>>>();
 
         private Task<bool> _result;
 
+        public int Count => _tasks.Count;
         public RedisCommandQueue Enqueue(Func<ITransaction, Task<KeyValuePair<Guid, object>>> cmd)
         {
             if (_tran != null)
@@ -25,11 +26,26 @@ namespace VL.IO.Redis
             return this;
         }
 
-        public RedisCommandQueue(ITransaction tran) => _tran = tran;
-
-
-        public void ExecuteAsync()
+        public void Enqueue(IList<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> cmd)
         {
+            if (_tran != null)
+                foreach(var c in cmd)
+                    _tasks.Add(c(_tran));
+            cmd.Clear();
+        }
+
+        public RedisCommandQueue()
+        { }
+
+        public void BeginTransaction(IDatabase database)
+        {
+            _tasks.Clear();
+            _tran = database.CreateTransaction();
+        }
+
+        public void ExecuteAsync(out int Count)
+        {
+            Count = _tasks.Count;
             _result = _tran.ExecuteAsync();
         }
 
