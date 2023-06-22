@@ -4,17 +4,20 @@
 [Tags("chessboard")]
 shader Checkerboard_TextureFX : TextureFX
 {
-    int2 CellCount = int2(8, 8);
-
+    [Default(8, 8)]
+    compose ComputeFloat2 CellCount;
+    
     [Color]
     float4 Black = float4(0, 0, 0, 1);
+
     [Color]
     float4 White = float4(1, 1, 1, 1);
 
     stage override float4 Shading()
     {
         //compute size
-        float2 stepHV = 1 / float2(CellCount.x, CellCount.y);
+        float2 cellCount = CellCount.Compute();
+        float2 stepHV = 1 / float2(cellCount.x, cellCount.y);
         float2 uv = streams.TexCoord;
 
         //compute black|white

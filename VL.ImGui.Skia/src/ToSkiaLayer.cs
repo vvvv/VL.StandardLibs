@@ -97,7 +97,7 @@ namespace VL.ImGui
                 _context.NewFrame();
                 try
                 {
-                    Style?.Set(_context);
+                    using var _ = Style.Apply();
 
                     if (DefaultWindow)
                     {
@@ -131,7 +131,6 @@ namespace VL.ImGui
                     if (DefaultWindow)
                     {
                         ImGui.End();
-                        Style?.Reset(_context);
                     }
 
                     // Render (builds mesh with texture coordinates)

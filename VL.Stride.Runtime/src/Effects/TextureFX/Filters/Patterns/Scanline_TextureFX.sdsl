@@ -2,24 +2,45 @@
 [Summary("")]
 shader Scanline_TextureFX : FilterBase
 {
-    float Brightness = 1;
-    float2 Amount = float2(1, 1);
-    float2 RedShift;
-    float2 GreenShift;
-    float2 BlueShift;
+    [Default(1)]
+    compose ComputeFloat Brightness;
+
+    [Default(1, 1)]
+    compose ComputeFloat2 Amount;
+
+    [Default(0)]
+    compose ComputeFloat2 RedShift;
+
+    [Default(0)]
+    compose ComputeFloat2 GreenShift;
+
+    [Default(0)]
+    compose ComputeFloat2 BlueShift;
+
+    [Default(0)]
+    compose ComputeFloat2 AlphaShift;
 
     float4 Filter(float4 tex0col)
     {
         float2 uv = streams.TexCoord;
-
-        float RedH = sin(RedShift.x + uv.y * Amount.x * 100);
-        float GreenH = sin(GreenShift.x + uv.y * Amount.x * 100);
-        float BlueH = sin(BlueShift.x + uv.y * Amount.x * 100);
         
-        float RedV = sin(RedShift.y + uv.x * Amount.y * 100);
-        float GreenV = sin(GreenShift.y + uv.x * Amount.y * 100);
-        float BlueV = sin(BlueShift.y + uv.x * Amount.y * 100);
+        float brightness = Brightness.Compute();
+        float2 amount = Amount.Compute();
+        float2 redShift = RedShift.Compute();
+        float2 greenShift = GreenShift.Compute();
+        float2 blueShift = BlueShift.Compute();
+        float2 alphaShift = AlphaShift.Compute();
 
-        return float4(tex0col.r * RedH * RedV * Brightness, tex0col.g * GreenH * GreenV * Brightness, tex0col.b * BlueH * BlueV * Brightness, 1.0);
+        float RedH = sin(redShift.x + uv.y * amount.x * 100);
+        float GreenH = sin(greenShift.x + uv.y * amount.x * 100);
+        float BlueH = sin(blueShift.x + uv.y * amount.x * 100);
+        float AlphaH = sin(alphaShift.x + uv.y * amount.x * 100);
+
+        float RedV = sin(redShift.y + uv.x * amount.y * 100);
+        float GreenV = sin(greenShift.y + uv.x * amount.y * 100);
+        float BlueV = sin(blueShift.y + uv.x * amount.y * 100);
+        float AlphaV = sin(alphaShift.y + uv.x * amount.y * 100);
+
+        return float4(tex0col.r * RedH * RedV * brightness, tex0col.g * GreenH * GreenV * brightness, tex0col.b * BlueH * BlueV * brightness, tex0col.a * AlphaH * AlphaV * brightness);
     }
 };        

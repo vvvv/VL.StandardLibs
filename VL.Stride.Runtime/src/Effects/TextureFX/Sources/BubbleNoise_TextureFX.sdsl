@@ -15,15 +15,19 @@
 [DontConvertToSRgbOnWrite]
 shader BubbleNoise_TextureFX : TextureFX
 {
-    float Time;
-    float Frequency = 3.5f;
-    float Contrast = 0.15f;
+    [Default(0)]
+    compose ComputeFloat Time;
+
+    [Default(3.5)]
+    compose ComputeFloat Frequency;
+
+    [Default(0.15)]
+    compose ComputeFloat Contrast;
 
     [Color]
     float4 BackgroundColor = float4(0, 0, 0, 1);
     [Color]
     float4 BubbleColor = float4(1, 1, 1, 1);
-
 
     float3 mod289(float3 x)
     {
@@ -124,11 +128,11 @@ shader BubbleNoise_TextureFX : TextureFX
 
     float surface3 (float3 coord) 
     {
-
-        float n = Contrast/2;		
-        n += 1.0 * abs( cnoise( coord * Frequency ) );
-        n += 0.5 * abs( cnoise( coord * Frequency * 2.0 ) );
-        n += 0.25 * abs( cnoise( coord * Frequency * 4.0 ) );
+        float n = Contrast.Compute()/2;
+        float frequency = Frequency.Compute();
+        n += 1.0 * abs( cnoise( coord * frequency ) );
+        n += 0.5 * abs( cnoise( coord * frequency * 2.0 ) );
+        n += 0.25 * abs( cnoise( coord * frequency * 4.0 ) );
 
         return n;
     }
@@ -136,17 +140,16 @@ shader BubbleNoise_TextureFX : TextureFX
     stage override float4 Shading()
     {
         float2 uv = streams.TexCoord;
-
         float2 R = ViewSize;
-        
         float2 offsetSize = float2(1.0, 1.0) / R.xy;
+        float time = Time.Compute() * 0.1;
         
         float n = 
-            surface3(float3(uv.x, uv.y, Time * 0.1)) * 0.2 +
-            surface3(float3(uv.x - offsetSize.x, uv.y, Time * 0.1)) * 0.2 +
-            surface3(float3(uv.x + offsetSize.x, uv.y, Time * 0.1)) * 0.2 +
-            surface3(float3(uv.x, uv.y - offsetSize.y, Time * 0.1)) * 0.2 +
-            surface3(float3(uv.x, uv.y + offsetSize.y, Time * 0.1)) * 0.2;
+            surface3(float3(uv.x, uv.y, time)) * 0.2 +
+            surface3(float3(uv.x - offsetSize.x, uv.y, time)) * 0.2 +
+            surface3(float3(uv.x + offsetSize.x, uv.y, time)) * 0.2 +
+            surface3(float3(uv.x, uv.y - offsetSize.y, time)) * 0.2 +
+            surface3(float3(uv.x, uv.y + offsetSize.y, time)) * 0.2;
     
         return lerp (BackgroundColor, BubbleColor, n);
     }

@@ -2,42 +2,35 @@
 [Summary("")]
 shader ShiftRGB_TextureFX : FilterBase
 {
-    float Direction = 0.25f;
-    float Shift = 0.1f;
-    float Hue = 0.1f;
+    [Default(0.25)]
+    compose ComputeFloat Direction;
 
-    // this method was present in beta ShiftRGB shader but not used anywhere
-    // and i am not sure how it works
-    float4 sm(float4 m[16],float i)
-    {
-        return float4(HSVtoRGB(float3(Hue,0,0)+ RGBtoHSV(lerp(m[floor(i)],m[ceil(i)],frac(i)).xyz)),1);
-    }
+    [Default(0.2)]
+    compose ComputeFloat Shift;
 
-    float4 ts(Texture2D tex2d, float2 uv, float2 offset)
+    [Default(0)]
+    compose ComputeFloat Hue;
+
+    float4 ts(Texture2D tex2d, float2 uv, float hue, float2 offset)
     {
-        float2 dir = sin((Direction + float2(0, .25)) * 2 * acos(-1));
+        float2 dir = sin((Direction.Compute() + float2(0, .25)) * 2 * acos(-1));
         uv += dir * offset;
         float3 col = tex2d.SampleLevel(Sampler0, uv, 0).rgb;
-        return float4(base.HSVtoRGB(float3(Hue,0,0) + base.RGBtoHSV(col)), 1);
+        return float4(base.HSVtoRGB(float3(Hue.Compute(),0,0) + base.RGBtoHSV(col)), 1);
     }
 
     float4 Filter(float4 tex0col)
     {
         float4 c = tex0col;
-        float2 uv0 = streams.Texturing.TexCoord;
-        /* 
-        so in the original shader shift is multipled by a sampled control texture (tex1)
-        i don't understand though how is it supposed not to entirely 'cancel'
-        the whole effect if that texture isn't provided since we would basically multiply
-        by zero then.
+        float2 uv = streams.TexCoord;
+        float shift = Shift.Compute();
+        float hue = Hue.Compute();
 
-        unless in gamma empty texture sample resulted with white instead of black
-        */
-        float sh = Shift; // * InTex1().x;
-        c.r = ts(Texture0, uv0, sh * .1).r;
-        c.g = ts(Texture0, uv0, sh * 0).g;
-        c.b = ts(Texture0, uv0, sh * -.1).b;
-        c.rgb = HSVtoRGB(-float3(Hue,0,0) + RGBtoHSV(c.rgb));
+        c.r = ts(Texture0, uv, hue, shift * .1).r;
+        c.g = ts(Texture0, uv, hue, shift * 0).g;
+        c.b = ts(Texture0, uv, hue, shift * -.1).b;
+
+        c.rgb = HSVtoRGB(-float3(hue, 0, 0) + RGBtoHSV(c.rgb));
 
         return c;
     }

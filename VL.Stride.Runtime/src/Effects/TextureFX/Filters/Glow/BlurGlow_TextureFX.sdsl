@@ -6,9 +6,15 @@
 [WantsMips("Texture0")]
 shader BlurGlow_TextureFX : FilterBase
 {
-    float Shape= 0.5f;
-    float Brightness = 2.0f;
-    float Radius = 0.5f;
+    [Default(0.5)]
+    compose ComputeFloat Shape;
+    
+    [Default(2)]
+    compose ComputeFloat Brightness;
+
+    [Default(0.5)]
+    compose ComputeFloat Radius;
+
     bool Alpha = false;
 
     float4 Filter(float4 tex0col)
@@ -20,17 +26,18 @@ shader BlurGlow_TextureFX : FilterBase
 
         float4 col = 0;
         float kk = 0;
+        float radius = Radius.Compute();
 
-        for(float i = 0; i < min(lod - (1 - Radius * lod), 14); i++)
+        for(float i = 0; i < min(lod - (1 - radius * lod), 14); i++)
         {
             float4 nc = Texture0.SampleLevel(Sampler0, uv, 1+i);
-            float k = pow(2, i * Shape - lod + 1) * saturate(Radius * lod - i + 1);
+            float k = pow(2, i * Shape.Compute() - lod + 1) * saturate(radius * lod - i + 1);
             col += nc * k;
             kk += k;
         }
 
         col /= kk;
-        col.rgb *= Brightness;
+        col.rgb *= Brightness.Compute();
         
         if(!Alpha)
         {

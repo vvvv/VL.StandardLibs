@@ -7,13 +7,18 @@
 [DontConvertToSRgbOnWrite]
 shader Liquish_TextureFX : TextureFX
 {
-    float Time;
-    float2 Scale = float2(5.0f, 5.0f);
+    [Default(0)]
+    compose ComputeFloat Time;
+
+    [Default(5, 5)]
+    compose ComputeFloat2 Scale;
 
     [Color] 
     float4 ColorA  = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
     [Color] 
     float4 ColorB  = float4(1.0f, 1.0f, 1.0f, 1.0f);
+
     [Color] 
     float4 ColorC  = float4(0.5f, 0.0f, 0.15f, 1.0f);
     
@@ -61,13 +66,13 @@ shader Liquish_TextureFX : TextureFX
         return float2( a.x*b.x - a.y*b.y, a.x*b.y + a.y * b.x);
     }
 
-    float pattern( float2 p, out float2 q, out float2 r) 
+    float pattern(float time, float2 p, out float2 q, out float2 r) 
     {
-        q.x = fbm( p + 0.00*Time);
-        q.y = fbm( p + float2(1.0, 1.0));
-        r.x = fbm( p + 1.0*q + float2(1.7, 9.2) + 0.15*Time );
-        r.y = fbm( p + 1.0*q + float2(8.3,2.8) + 0.126*Time);
-        return fbm(p + 1.0*r + 0.0*Time);
+        q.x = fbm(p + 0.00 * time);
+        q.y = fbm(p + float2(1.0, 1.0));
+        r.x = fbm(p + 1.0*q + float2(1.7, 9.2) + 0.15 * time);
+        r.y = fbm(p + 1.0*q + float2(8.3,2.8) + 0.126 * time);
+        return fbm(p + 1.0*r + 0.0 * time);
     }
 
 
@@ -77,8 +82,9 @@ shader Liquish_TextureFX : TextureFX
         
         float2 q;
         float2 r;
-        float2 c = uv.xy * Scale;
-        float f = pattern(c, q, r);
+        float2 c = uv.xy * Scale.Compute();
+        float t = Time.Compute();
+        float f = pattern(t, c, q, r);
         
         float3 colors[3];
         colors[0] = float3 (ColorA.r, ColorA.g, ColorA.b);

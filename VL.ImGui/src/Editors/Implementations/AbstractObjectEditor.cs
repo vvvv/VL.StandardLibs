@@ -11,7 +11,7 @@ namespace VL.ImGui.Editors
 
     sealed class AbstractObjectEditor : IObjectEditor, IDisposable
     {
-        readonly IChannel<object> publicChannel;
+        readonly IChannel publicChannel;
         readonly IDisposable publicChannelSubscription;
         readonly IObjectEditorFactory factory;
 
@@ -28,7 +28,7 @@ namespace VL.ImGui.Editors
         bool isBusy;
         WidgetLabel widgetLabel = new();
 
-        public AbstractObjectEditor(IChannel<object> channel, ObjectEditorContext editorContext, IVLTypeInfo typeInfo)
+        public AbstractObjectEditor(IChannel channel, ObjectEditorContext editorContext, IVLTypeInfo typeInfo)
         {
             this.publicChannel = channel;
             this.editorContext = editorContext;
@@ -41,7 +41,7 @@ namespace VL.ImGui.Editors
             }
 
             OnNext(channel.Object);
-            publicChannelSubscription = channel.Subscribe(OnNext);
+            publicChannelSubscription = channel.ChannelOfObject.Subscribe(OnNext);
         }
 
         public void Dispose()
@@ -84,7 +84,7 @@ namespace VL.ImGui.Editors
             PushValue(privateChannel, value!);
         }
 
-        void PushValue(IChannel<object> dst, object? value)
+        void PushValue(IChannel dst, object? value)
         {
             if (isBusy)
                 return;

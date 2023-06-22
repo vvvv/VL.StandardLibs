@@ -6,11 +6,12 @@
 [Summary("Returns an endless neuronal structure")]
 shader Neurons_TextureFX : TextureFX
 {
-    float Time;
+    [Default(0)]
+    compose ComputeFloat Time;
     
     float f(float3 p) 
     {
-        p.z -= Time;
+        p.z -= Time.Compute();
         float a = p.z * .1;
         p.xy = mul(p.xy, float2x2(cos(a), sin(a), -sin(a), cos(a)));
         return .1 - length(cos(p.xy) + sin(p.yz));

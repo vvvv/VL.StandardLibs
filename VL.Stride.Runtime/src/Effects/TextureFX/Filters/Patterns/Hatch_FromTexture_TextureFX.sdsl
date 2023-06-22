@@ -8,8 +8,11 @@ shader Hatch_FromTexture_TextureFX : FilterBase
     [Color]
     float4 Color = float4(0.5f, 0.5f, 0.5f, 1.0f);
 
-    float Brightness = 2.5f;
-    float Scale = .25f;
+    [Default(2.5)]
+    compose ComputeFloat Brightness;
+
+    [Default(0.25)]
+    compose ComputeFloat Scale;
 
     float4 Filter(float4 tex0col)
     {
@@ -21,9 +24,9 @@ shader Hatch_FromTexture_TextureFX : FilterBase
         float4 col = Texture0.SampleLevel(LinearRepeatSampler, uv, 0) ;
     
         float  c = dot(col, 0.33);
-        c *= Brightness;
+        c *= Brightness.Compute();
     
-        float3 col2 = Texture1.SampleLevel(LinearRepeatSampler, x * (Scale/2.0), 0).rgb;
+        float3 col2 = Texture1.SampleLevel(LinearRepeatSampler, x * (Scale.Compute()/2.0), 0).rgb;
     
         float g0 = 0;
         float g1 = 0;
