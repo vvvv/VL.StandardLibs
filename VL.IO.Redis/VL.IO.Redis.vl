@@ -1053,7 +1053,7 @@
               </Patch>
             </Node>
             <Pad Id="UrjIQKxmQJ7NjonSigIrHp" SlotId="C0ZXgYQ0m9CNCAXU2bz7oz" Bounds="816,2548" />
-            <Pad Id="BDuhCbGOROVNdhGief9mhH" Comment="" Bounds="2629,999,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <Pad Id="BDuhCbGOROVNdhGief9mhH" Comment="" Bounds="2684,991,35,35" ShowValueBox="true" isIOBox="true" Value="True">
               <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
                 <CategoryReference Kind="Category" Name="Primitive" />
@@ -1670,6 +1670,115 @@
             <ProcessDefinition Id="ICCN3ChnPRdPNl7mB2Sioc" IsHidden="true" />
           </Patch>
         </Node>
+        <!--
+
+    ************************ RedisCommandQueue ************************
+
+-->
+        <Node Name="RedisCommandQueue" Bounds="998,807" Id="Gau5ZyIkkP2O3nIGjDyqSB">
+          <p:NodeReference>
+            <Choice Kind="ForwardDefinition" Name="Forward" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.IO.Redis" LastDependency="VL.IO.Redis.CSharp.csproj">
+            <Choice Kind="TypeFlag" Name="RedisCommandQueue" />
+          </p:TypeAnnotation>
+          <Patch Id="BHJcukJQB2nM4SwqZdIol1">
+            <Canvas Id="CorZA5lYc1MPCAj3XyLNQt" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="KL8Cd8Phd6lMkbnJzRq5rP" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ WhenMessageReceived ************************
+
+-->
+        <Node Name="WhenMessageReceived" Bounds="997,888,144,80" Id="O0KBkqAzISjOGoozch9lI7">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+          <Patch Id="Hs5Y0TdJC6ELe7UHNpuGl1">
+            <Node Bounds="1009,917,120,26" AutoConnect="true" Id="VZt6Ori881pOBY8o6rXRe7">
+              <p:NodeReference LastCategoryFullName="VL.IO.Redis.RedisExtensions" LastDependency="VL.IO.Redis.CSharp.csproj">
+                <Choice Kind="OperationNode" Name="WhenMessageReceived" />
+                <FullNameCategoryReference ID="VL.IO.Redis.RedisExtensions" />
+              </p:NodeReference>
+              <Pin Id="V0UbunJS0aRMc5r7A9Nd3M" Name="Input" Kind="StateInputPin" />
+              <Pin Id="OifcKQ8BkWlNYPCA5vCmXg" Name="Channel" Kind="InputPin" />
+              <Pin Id="J1OgcXi3G8eMaqVSuf8Zdw" Name="Result" Kind="OutputPin" />
+            </Node>
+            <Pin Id="GbFfLoBEvN5Noqe5ySdPAH" Name="Input" Kind="InputPin" />
+            <Pin Id="BBhiV5yyHGHNTpCrq845vY" Name="Channel" Kind="InputPin" />
+            <Pin Id="OQnLM7ebLg0O7jgtIoUPv4" Name="Result" Kind="OutputPin" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ ObserveOnSecondThread ************************
+
+-->
+        <Node Name="ObserveOnSecondThread" Bounds="1000,1019,235,268" Id="KGa0zpmJgMjOKQXRCNo6ei">
+          <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="VwmAzLo9GZnPabDWvVGh2X" IsGeneric="true">
+            <Node Bounds="1073,1177,81,26" Id="MhZxlmvrGbJNWE0fcCCgPP">
+              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="Category" Name="Primitive" />
+                <Choice Kind="OperationCallFlag" Name="SingleInstance" />
+              </p:NodeReference>
+              <Pin Id="B5DwCwi4Sp0NVQ6t9gPbrY" Name="Force New Instance" Kind="InputPin" />
+              <Pin Id="Hrfu9t1W4p0ON9ZxDLWgot" Name="Producer" Kind="InputPin" />
+              <Pin Id="RiVEgd9vKWTOfnCp9cZQvF" Name="On Stop" Kind="InputPin" DefaultValue="ReleaseAndDispose" />
+              <Pin Id="LJ0FOyFzo2aMPrpPVaxchS" Name="Singleton" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="1111,1069,112,88" Id="LCd930j7Q5cPobCnWKqtgy">
+              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+                <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
+                <CategoryReference Kind="Category" Name="Primitive" />
+                <Choice Kind="ApplicationRegion" Name="Delegate" />
+              </p:NodeReference>
+              <Pin Id="UI5tOpZKHtpNjOk4tSoYBU" Name="Functionality" Kind="OutputPin" />
+              <Patch Id="JmiN8FPIYR2Lo33SkXomDG" ManuallySortedPins="true">
+                <Pin Id="VALO3rLgRpCL2sevGgfak6" Name="Result" Kind="OutputPin" />
+                <ControlPoint Id="BS7QStIs2GALKUbcuAtzNv" Bounds="1125,1140" />
+                <Node Bounds="1123,1092,88,26" Id="CjPMvx02qalNRDnb1cYe0I">
+                  <p:NodeReference LastCategoryFullName="System.Reactive.Concurrency.EventLoopScheduler" LastDependency="System.Reactive.dll">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <CategoryReference Kind="AssemblyCategory" Name="EventLoopScheduler" />
+                    <Choice Kind="OperationCallFlag" Name="Create" />
+                  </p:NodeReference>
+                  <Pin Id="Vd4MKZFDlppNfsqbXgyZWx" Name="Output" Kind="StateOutputPin" />
+                </Node>
+              </Patch>
+            </Node>
+            <Link Id="Gz2oWTTREaqQWmzU2DEVnv" Ids="BS7QStIs2GALKUbcuAtzNv,VALO3rLgRpCL2sevGgfak6" IsHidden="true" />
+            <Link Id="LZKTk2qIuvNLkhXtxTSEl2" Ids="UI5tOpZKHtpNjOk4tSoYBU,Hrfu9t1W4p0ON9ZxDLWgot" />
+            <Link Id="EacHiu1ZDnGLSUH0XqImgV" Ids="Vd4MKZFDlppNfsqbXgyZWx,BS7QStIs2GALKUbcuAtzNv" />
+            <Node Bounds="1012,1221,66,26" Id="AWKbGbYWzETLrczLkFjH3c">
+              <p:NodeReference LastCategoryFullName="Reactive.Observable" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="MutableInterfaceType" Name="Observable" NeedsToBeDirectParent="true" />
+                <Choice Kind="OperationCallFlag" Name="ObserveOn" />
+              </p:NodeReference>
+              <Pin Id="ImgG7QrvHRPK95tkkewkou" Name="Input" Kind="StateInputPin" />
+              <Pin Id="F25IeO1xEHBMmjt8xydYuh" Name="Scheduler" Kind="InputPin" />
+              <Pin Id="JQ4NFWBquPsK9h7ORbRU8K" Name="Output" Kind="StateOutputPin" />
+            </Node>
+            <Link Id="NE5XjzGwuPzQF4lCgHE5kH" Ids="LJ0FOyFzo2aMPrpPVaxchS,F25IeO1xEHBMmjt8xydYuh" />
+            <ControlPoint Id="S5uG85kEr8ZNDIlRqVVk5c" Bounds="1016,1044" />
+            <Link Id="MbvlZyZRCsKLskSezwzHSr" Ids="S5uG85kEr8ZNDIlRqVVk5c,ImgG7QrvHRPK95tkkewkou" />
+            <Pin Id="VU3Dh1VakpvM00IElZdspO" Name="Input" Kind="InputPin" Bounds="1191,1207" />
+            <Link Id="BwqA5qh11hQMqbc53LLkI7" Ids="VU3Dh1VakpvM00IElZdspO,S5uG85kEr8ZNDIlRqVVk5c" IsHidden="true" />
+            <ControlPoint Id="VwqcEeDS9i1QGzAJzddjFJ" Bounds="1014,1270" />
+            <Link Id="BmpUc2gR48lLxy4uK81sJo" Ids="JQ4NFWBquPsK9h7ORbRU8K,VwqcEeDS9i1QGzAJzddjFJ" />
+            <Pin Id="VDhZtQI0LjDP1HJX47Ez2X" Name="Output" Kind="OutputPin" Bounds="1253,1449" />
+            <Link Id="IejEdOxf6kPObBl6LBQjRw" Ids="VwqcEeDS9i1QGzAJzddjFJ,VDhZtQI0LjDP1HJX47Ez2X" IsHidden="true" />
+          </Patch>
+        </Node>
       </Canvas>
       <!--
 
@@ -2271,24 +2380,6 @@
               </p:TypeAnnotation>
             </Pin>
           </Patch>
-        </Patch>
-      </Node>
-      <!--
-
-    ************************ RedisCommandQueue ************************
-
--->
-      <Node Name="RedisCommandQueue" Bounds="1364,803" Id="LTnfKn7ziKXOh9Ae0Ju70s">
-        <p:NodeReference>
-          <Choice Kind="ForwardDefinition" Name="Forward" />
-          <CategoryReference Kind="Category" Name="Primitive" />
-        </p:NodeReference>
-        <p:TypeAnnotation LastCategoryFullName="VL.IO.Redis" LastDependency="VL.IO.Redis.CSharp.csproj">
-          <Choice Kind="TypeFlag" Name="RedisCommandQueue" />
-        </p:TypeAnnotation>
-        <Patch Id="DuW6bFqGHfhP2zizs0SSSY">
-          <Canvas Id="U6YorMlpJ9WMIxzQiu1td7" BordersChecked="false" CanvasType="Group" />
-          <ProcessDefinition Id="Qf0dzhw6DgnOqjrrBMKavf" IsHidden="true" />
         </Patch>
       </Node>
       <!--
@@ -3078,32 +3169,6 @@
       </Node>
       <!--
 
-    ************************ WhenMessageReceived ************************
-
--->
-      <Node Name="WhenMessageReceived" Bounds="1363,884,144,80" Id="NPkXIMqR6V0PEbvz3bO9Kd">
-        <p:NodeReference>
-          <Choice Kind="OperationDefinition" Name="Operation" />
-          <CategoryReference Kind="Category" Name="Primitive" />
-        </p:NodeReference>
-        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
-        <Patch Id="QbcW8p1zgVVOqkv9awon2Y">
-          <Node Bounds="1375,913,120,26" AutoConnect="true" Id="Lj3i8qoGkPBOtIqTDA6RWP">
-            <p:NodeReference LastCategoryFullName="VL.IO.Redis.RedisExtensions" LastDependency="VL.IO.Redis.CSharp.csproj">
-              <Choice Kind="OperationNode" Name="WhenMessageReceived" />
-              <FullNameCategoryReference ID="VL.IO.Redis.RedisExtensions" />
-            </p:NodeReference>
-            <Pin Id="RcEorETmzd9Nps8Gy9DEP0" Name="Input" Kind="StateInputPin" />
-            <Pin Id="EpdvuCwuODBPy9irWtNO7z" Name="Channel" Kind="InputPin" />
-            <Pin Id="QyAUv2B5dvkOjGdtfAj5FQ" Name="Result" Kind="OutputPin" />
-          </Node>
-          <Pin Id="Rsb5VwByWXkLUIwlE3xyuF" Name="Input" Kind="InputPin" />
-          <Pin Id="SYZzB55sosqPMs7ywbqoaj" Name="Channel" Kind="InputPin" />
-          <Pin Id="Vd8oeRHT4yaNuWZs0847ri" Name="Result" Kind="OutputPin" />
-        </Patch>
-      </Node>
-      <!--
-
     ************************ SubscribeStringV3 ************************
 
 -->
@@ -3151,7 +3216,7 @@
                   <Pin Id="OfLTPlqxF7vOkzy128gVEz" Name="Channel" Kind="InputPin" />
                   <Pin Id="AGLgOAq72RINKjU5elHAYS" Name="Result" Kind="OutputPin" />
                 </Node>
-                <Node Bounds="810,620,79,82" Id="MZVu9huQHTPNOf9K6Pb5He">
+                <Node Bounds="799,621,79,82" Id="MZVu9huQHTPNOf9K6Pb5He">
                   <p:NodeReference LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
                     <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
                     <CategoryReference Kind="Category" Name="Reactive" NeedsToBeDirectParent="true" />
@@ -3166,9 +3231,9 @@
                       <Pin Id="SoEglaiei4FL9ZovGgWWZZ" Name="Input 1" Kind="InputPin" />
                       <Pin Id="DKniebjTbp1NvBxvlrMlqj" Name="Output" Kind="OutputPin" />
                     </Patch>
-                    <ControlPoint Id="Rgyg2bRwbh0NnytDBZs9bC" Bounds="821,628" />
-                    <ControlPoint Id="LKNHszSCULgMUpG9duU1pJ" Bounds="824,695" />
-                    <Node Bounds="822,657,55,19" Id="VqK8Mt3KROeOWpWGSVsBJC">
+                    <ControlPoint Id="Rgyg2bRwbh0NnytDBZs9bC" Bounds="810,629" />
+                    <ControlPoint Id="LKNHszSCULgMUpG9duU1pJ" Bounds="813,696" />
+                    <Node Bounds="811,658,55,19" Id="VqK8Mt3KROeOWpWGSVsBJC">
                       <p:NodeReference LastCategoryFullName="System.Conversion" LastDependency="VL.CoreLib.vl">
                         <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                         <Choice Kind="OperationCallFlag" Name="ToString" />
@@ -3460,7 +3525,7 @@
     ************************ GetString (Reactive Cache) ************************
 
 -->
-      <Node Name="GetString (Reactive Cache)" Bounds="1118,1010" Id="R1TSJdopb5xPSfwyJ11zkF">
+      <Node Name="GetString (Reactive Cache)" Bounds="1107,923" Id="R1TSJdopb5xPSfwyJ11zkF">
         <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
           <Choice Kind="ContainerDefinition" Name="Process" />
         </p:NodeReference>
@@ -4004,71 +4069,6 @@
           <Link Id="O8juz3t7xbdMcAbAhS3GHe" Ids="G2Mo5RstZBwORvKxxAlyQ5,TKClxSyQN9pM00rJDCMSA2" />
         </Patch>
       </Node>
-      <!--
-
-    ************************ ObserveOnSecondThread ************************
-
--->
-      <Node Name="ObserveOnSecondThread" Bounds="1170,1179,235,271" Id="IWLcCVRgKqJMikDTuefHJ4">
-        <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
-          <Choice Kind="OperationDefinition" Name="Operation" />
-        </p:NodeReference>
-        <Patch Id="Af1MS6anUumONw3ILbyZ7o" IsGeneric="true">
-          <Node Bounds="1243,1340,81,26" Id="P3Lej5avD7nNgv42JjzpsL">
-            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <CategoryReference Kind="Category" Name="Primitive" />
-              <Choice Kind="OperationCallFlag" Name="SingleInstance" />
-            </p:NodeReference>
-            <Pin Id="SVNeR4qZ3icPPkOYtbWJom" Name="Force New Instance" Kind="InputPin" />
-            <Pin Id="LTKImyLBNdeORGV7J29Dq5" Name="Producer" Kind="InputPin" />
-            <Pin Id="PwtaHTQ59DAPqmrVSyMgsC" Name="On Stop" Kind="InputPin" DefaultValue="ReleaseAndDispose" />
-            <Pin Id="RNYxz8bzosoOsJO8bbuaeR" Name="Singleton" Kind="OutputPin" />
-          </Node>
-          <Node Bounds="1280,1229,113,88" Id="CgERB2HODqPOavQ2YQPdnJ">
-            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
-              <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
-              <CategoryReference Kind="Category" Name="Primitive" />
-              <Choice Kind="ApplicationRegion" Name="Delegate" />
-            </p:NodeReference>
-            <Pin Id="Fx7Er6W2TsoLjcs7696Lp2" Name="Functionality" Kind="OutputPin" />
-            <Patch Id="JI4cj20kUUDOMSm0UxkjED" ManuallySortedPins="true">
-              <Pin Id="LuMlzlpCpWqOsRN17gowqD" Name="Result" Kind="OutputPin" />
-              <ControlPoint Id="FV785JXDkd1P1A8Q1kyIUh" Bounds="1294,1300" />
-              <Node Bounds="1293,1252,88,26" Id="KOP8KrLNJDGN8vtheazstY">
-                <p:NodeReference LastCategoryFullName="System.Reactive.Concurrency.EventLoopScheduler" LastDependency="System.Reactive.dll">
-                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                  <CategoryReference Kind="AssemblyCategory" Name="EventLoopScheduler" />
-                  <Choice Kind="OperationCallFlag" Name="Create" />
-                </p:NodeReference>
-                <Pin Id="B8DQIAI6gQ8LebYWklNPsc" Name="Output" Kind="StateOutputPin" />
-              </Node>
-            </Patch>
-          </Node>
-          <Link Id="QJdMwnuTuVWM50uOZ3nN3x" Ids="FV785JXDkd1P1A8Q1kyIUh,LuMlzlpCpWqOsRN17gowqD" IsHidden="true" />
-          <Link Id="AmvOiAj1DmCPo9yv8MZY2M" Ids="Fx7Er6W2TsoLjcs7696Lp2,LTKImyLBNdeORGV7J29Dq5" />
-          <Link Id="J2RtkzXKxRoLdVryIBwuJ1" Ids="B8DQIAI6gQ8LebYWklNPsc,FV785JXDkd1P1A8Q1kyIUh" />
-          <Node Bounds="1182,1384,66,26" Id="V1VEpgRaUi1MNPJU8eofUo">
-            <p:NodeReference LastCategoryFullName="Reactive.Observable" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <CategoryReference Kind="MutableInterfaceType" Name="Observable" NeedsToBeDirectParent="true" />
-              <Choice Kind="OperationCallFlag" Name="ObserveOn" />
-            </p:NodeReference>
-            <Pin Id="HRExVYCWqzaLgNuR5i7g8h" Name="Input" Kind="StateInputPin" />
-            <Pin Id="SYW7HcXuRykO316m1ejsvB" Name="Scheduler" Kind="InputPin" />
-            <Pin Id="RAZrgQ7fwBXN4Gx2nX6IEh" Name="Output" Kind="StateOutputPin" />
-          </Node>
-          <Link Id="JatAG1sOHEEPvyQVp5FmQm" Ids="RNYxz8bzosoOsJO8bbuaeR,SYW7HcXuRykO316m1ejsvB" />
-          <ControlPoint Id="HT739RVTneTPxOuCDkE7SF" Bounds="1186,1207" />
-          <Link Id="Bo4ViwDa06OP41yXGvOLQA" Ids="HT739RVTneTPxOuCDkE7SF,HRExVYCWqzaLgNuR5i7g8h" />
-          <Pin Id="VU6Ml8U4hfEOeWkQYtpXY3" Name="Input" Kind="InputPin" Bounds="1191,1207" />
-          <Link Id="O2406Nq3CF6PpWJr8hXuQC" Ids="VU6Ml8U4hfEOeWkQYtpXY3,HT739RVTneTPxOuCDkE7SF" IsHidden="true" />
-          <ControlPoint Id="GH88ygyRjnsNr5lPI6DO22" Bounds="1184,1433" />
-          <Link Id="Q8ewtFeoGMCM21l7gjjAyG" Ids="RAZrgQ7fwBXN4Gx2nX6IEh,GH88ygyRjnsNr5lPI6DO22" />
-          <Pin Id="VbXxdNserwOPtxMw7BFsLs" Name="Output" Kind="OutputPin" Bounds="1253,1449" />
-          <Link Id="NXS1nxGgtASM2aK55B9Qfb" Ids="GH88ygyRjnsNr5lPI6DO22,VbXxdNserwOPtxMw7BFsLs" IsHidden="true" />
-        </Patch>
-      </Node>
     </Canvas>
     <!--
 
@@ -4105,4 +4105,5 @@
   <PlatformDependency Id="HDkLk0HAN4XNQN0vkvmeK8" Location="System.Reactive.dll" />
   <NugetDependency Id="QlsYLSrz6cFMoOAvBFwA1p" Location="VL.Core" Version="2021.4.11-1228-gf15d2066ce" />
   <PlatformDependency Id="MgE4ff87ntAMd96srhuoQS" Location="System.Threading.ThreadPool" />
+  <PlatformDependency Id="Sq9KAXgSZeXMc0lluMhHz5" Location="D:/_DEV/_Devvvvs/vvvv/vvvv_gamma_5.1-0074-gd1560906cc/System.Reactive.dll" />
 </Document>
