@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -44,7 +45,7 @@ namespace VL.Core
 
         public static FactoryImpl NewFactoryImpl(ImmutableArray<IVLNodeDescription> nodes = default, IObservable<object> invalidated = default, Func<string, Func<IVLNodeDescriptionFactory, FactoryImpl>> forPath = default, Action<ExportContext> export = default)
         {
-            return new FactoryImpl(nodes, invalidated, forPath, export);
+            return new FactoryImpl(nodes.IsDefault ? Enumerable.Empty<IVLNodeDescription>() : nodes, invalidated, forPath, export);
         }
 
         public static IVLNodeDescription NewNodeDescription(this IVLNodeDescriptionFactory factory,

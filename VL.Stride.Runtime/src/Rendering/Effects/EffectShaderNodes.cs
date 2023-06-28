@@ -24,8 +24,7 @@ namespace VL.Stride.Rendering
         {
             ShaderMetadata.RegisterAdditionalShaderAttributes();
 
-            var nodes = GetNodeDescriptions(serviceRegistry, factory).ToImmutableArray();
-            return NodeBuilding.NewFactoryImpl(nodes, forPath: path => factory =>
+            return new(GetNodeDescriptions(serviceRegistry, factory), forPath: path => factory =>
             {
                 // In case "shaders" directory gets added or deleted invalidate the whole factory
                 var invalidated = NodeBuilding.WatchDir(path)

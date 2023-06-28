@@ -56,18 +56,20 @@ namespace VL.Core
 
         public class FactoryImpl
         {
-            public readonly ImmutableArray<IVLNodeDescription> Nodes;
+            private readonly Lazy<ImmutableArray<IVLNodeDescription>>nodes;
             public readonly IObservable<object> Invalidated;
             public readonly Func<string, Func<IVLNodeDescriptionFactory, FactoryImpl>>? ForPath;
             public readonly Action<ExportContext>? Export;
 
-            public FactoryImpl(ImmutableArray<IVLNodeDescription> nodes = default, IObservable<object>? invalidated = default, Func<string, Func<IVLNodeDescriptionFactory, FactoryImpl>>? forPath = default, Action<ExportContext>? export = default)
+            public FactoryImpl(IEnumerable<IVLNodeDescription>? nodes = default, IObservable<object>? invalidated = default, Func<string, Func<IVLNodeDescriptionFactory, FactoryImpl>>? forPath = default, Action<ExportContext>? export = default)
             {
-                Nodes = !nodes.IsDefault ? nodes : ImmutableArray<IVLNodeDescription>.Empty;
+                this.nodes = new(() => (nodes ?? Enumerable.Empty<IVLNodeDescription>()).ToImmutableArray(), isThreadSafe: true);
                 Invalidated = invalidated ?? Observable.Empty<IVLNodeDescriptionFactory>();
                 ForPath = forPath;
                 Export = export;
             }
+
+            public ImmutableArray<IVLNodeDescription> Nodes => nodes.Value;
         }
 
         sealed class NodeDescription : IVLNodeDescription, ITaggedInfo

@@ -104,7 +104,7 @@ namespace VL.Stride.Core
 
         void RegisterStaticNodeFactory(IVLFactory factory, string name, Func<IVLNodeDescriptionFactory, IEnumerable<IVLNodeDescription>> init)
         {
-            RegisterStaticNodeFactory(factory, name, (_, nodeFactory) => NodeBuilding.NewFactoryImpl(init(nodeFactory).ToImmutableArray()));
+            RegisterStaticNodeFactory(factory, name, (_, nodeFactory) => new(nodes: init(nodeFactory)));
         }
 
         public static void RegisterStaticNodeFactory(IVLFactory factory, string name, Func<ServiceRegistry, IVLNodeDescriptionFactory, NodeBuilding.FactoryImpl> init)
