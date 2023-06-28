@@ -55,7 +55,6 @@ namespace VL.Stride.Engine
                 .AddCachedInput(nameof(ConeColliderShapeDesc.Orientation), x => x.Orientation, (x, v) => x.Orientation = v, ShapeOrientation.UpY)
                 .AddCachedInput(nameof(ConeColliderShapeDesc.LocalOffset), x => x.LocalOffset, (x, v) => x.LocalOffset = v, Vector3.Zero)
                 .AddCachedInput(nameof(ConeColliderShapeDesc.LocalRotation), x => x.LocalRotation, (x, v) => x.LocalRotation = v, Quaternion.Identity)
-                .AddCachedInput(nameof(ConeColliderShapeDesc.LocalOffset), x => x.LocalOffset, (x, v) => x.LocalOffset = v, Vector3.Zero)
                 ;
 
             yield return NewColliderShapeNode<CylinderColliderShapeDesc>(factory, physicsColliderShapesCategory)
@@ -64,7 +63,6 @@ namespace VL.Stride.Engine
                 .AddCachedInput(nameof(CylinderColliderShapeDesc.Orientation), x => x.Orientation, (x, v) => x.Orientation = v, ShapeOrientation.UpY)
                 .AddCachedInput(nameof(CylinderColliderShapeDesc.LocalOffset), x => x.LocalOffset, (x, v) => x.LocalOffset = v, Vector3.Zero)
                 .AddCachedInput(nameof(CylinderColliderShapeDesc.LocalRotation), x => x.LocalRotation, (x, v) => x.LocalRotation = v, Quaternion.Identity)
-                .AddCachedInput(nameof(CylinderColliderShapeDesc.LocalOffset), x => x.LocalOffset, (x, v) => x.LocalOffset = v, Vector3.Zero)
                 ;
 
             yield return NewColliderShapeNode<BoxColliderShapeDesc>(factory, physicsColliderShapesCategory)
@@ -78,7 +76,6 @@ namespace VL.Stride.Engine
                 .AddCachedInput(nameof(HeightfieldColliderShapeDesc.FlipQuadEdges), x => x.FlipQuadEdges, (x, v) => x.FlipQuadEdges = v, false)
                 .AddCachedInput(nameof(HeightfieldColliderShapeDesc.LocalOffset), x => x.LocalOffset, (x, v) => x.LocalOffset = v, Vector3.Zero)
                 .AddCachedInput(nameof(HeightfieldColliderShapeDesc.LocalRotation), x => x.LocalRotation, (x, v) => x.LocalRotation = v, Quaternion.Identity)
-                .AddCachedInput(nameof(HeightfieldColliderShapeDesc.LocalOffset), x => x.LocalOffset, (x, v) => x.LocalOffset = v, Vector3.Zero)
                 ;
 
             yield return NewColliderShapeNode<SphereColliderShapeDesc>(factory, physicsColliderShapesCategory)
