@@ -66,6 +66,36 @@ namespace VL.IO.Redis
                 return ImmutableDictionary.Create<Guid, object>();
         }
     }
+    public sealed class ThreadSafeToggle
+    {
+        public ThreadSafeToggle() { }
+
+        private bool enabled = true;
+        private object syncObj = new object();
+
+        public void Enable()
+        {
+            lock (syncObj)
+            {
+                enabled = true;
+            }
+        }
+        public void Disable()
+        {
+            lock (syncObj)
+            {
+                enabled = false;
+            }
+        }
+        public bool Enabled()
+        {
+            lock (syncObj)
+            {
+                return enabled;
+            }
+        }
+    }
+
     public static class RedisExtensions
     {
 
