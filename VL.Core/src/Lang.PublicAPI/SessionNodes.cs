@@ -13,8 +13,8 @@ namespace VL.Lang.PublicAPI
     {
         private static IDevSession? Current => IDevSession.Current;
 
-        public static void Paste(string modelSnippet, PointF location) 
-            => Current?.Paste(modelSnippet, location);
+        public static void Paste(string modelSnippet, Point positionInScreenSpace) 
+            => Current?.Paste(modelSnippet, positionInScreenSpace);
 
         public static void ReportException(Exception e)
             => Current?.ReportException(e);

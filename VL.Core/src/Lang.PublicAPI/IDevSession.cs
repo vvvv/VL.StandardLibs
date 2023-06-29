@@ -33,7 +33,7 @@ namespace VL.Lang.PublicAPI
     {
         public static IDevSession? Current => ServiceRegistry.CurrentOrGlobal.GetService<IDevSession>();
 
-        void Paste(string modelSnippet, PointF location);
+        void Paste(string modelSnippet, Point positionInScreenSpace);
 
         void ReportException(Exception e);
 
