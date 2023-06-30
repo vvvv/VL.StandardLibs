@@ -24,7 +24,7 @@ namespace VL.Lib.Reactive.Monadic
             return channel;
         }
 
-        public IChannel<T> Default(T defaultValue) => ChannelHelpers.Dummy<T>();
+        public IChannel<T> Default() => ChannelHelpers.Dummy<T>();
 
         public void Dispose()
         {
