@@ -71,25 +71,25 @@ namespace VL.IO.Redis
         public ThreadSafeToggle() { }
 
         private bool enabled = true;
-        private object syncObj = new object();
+        //private object syncObj = new object();
 
         public void Enable()
         {
-            lock (syncObj)
+            //lock (syncObj)
             {
                 enabled = true;
             }
         }
         public void Disable()
         {
-            lock (syncObj)
+            //lock (syncObj)
             {
                 enabled = false;
             }
         }
         public bool Enabled()
         {
-            lock (syncObj)
+            //lock (syncObj)
             {
                 return enabled;
             }
