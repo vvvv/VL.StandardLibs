@@ -21,7 +21,7 @@ namespace VL.ImGui
         static int widgetCreationCounter;
         int Id;
         string? label = "Rumpelstilzchen";
-        public string? LabelForImGUI = "Rumpelstilzchen##666";
+        public string LabelForImGUI = "Rumpelstilzchen##666";
 
         public WidgetLabel()
         {
@@ -52,7 +52,7 @@ namespace VL.ImGui
             return label;
         }
 
-        public string? Update(string? label)
+        public string Update(string? label)
         {
             Label = label;
             return LabelForImGUI;
