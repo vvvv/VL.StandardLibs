@@ -124,6 +124,8 @@ namespace VL.Core.Reactive
         /// </summary>
         /// <param name="module"></param>
         void RegisterModule(IModule module);
+
+        string AppName { get; }
     }
 
 

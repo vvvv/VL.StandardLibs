@@ -20,7 +20,9 @@ namespace VL.Core.Reactive
 
         public IChannel<object> OnChannelsChanged { get; }
 
-        public string DisplayName { get; set; }
+        public string AppName { get; set; }
+
+        public string? AppBasePath { get; set; }
 
         IDisposable? OnSwapSubscription;
 
@@ -36,7 +38,7 @@ namespace VL.Core.Reactive
             }
         }
 
-        public override string ToString() => DisplayName ?? base.ToString();
+        public override string? ToString() => AppBasePath ?? base.ToString();
 
         IDisposable? MustHaveDescriptiveSubscription;
         public IObservable<IEnumerable<ChannelBuildDescription>> MustHaveDescriptive
