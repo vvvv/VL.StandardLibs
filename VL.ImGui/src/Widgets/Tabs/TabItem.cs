@@ -19,6 +19,7 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// Returns true if the Tab is displayed. Set to true to display the Tab.
         /// </summary>
+        [Pin(DefaultValue = "true")]
         public IChannel<bool>? Visible { private get; set; }
         ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(true);
 

@@ -45,15 +45,9 @@ namespace VL.ImGui
             }
         }
 
-        public static IVLPinDescription Input<T>(this NodeBuilding.NodeDescriptionBuildContext c, string name, T defaultValue, string? summary = null, string? remarks = null)
+        public static IVLPinDescription Input<T>(this NodeBuilding.NodeDescriptionBuildContext c, string name, T witness, object? defaultValue = null, string? summary = null, string? remarks = null)
         {
             return c.Pin(name, typeof(T), defaultValue, summary, remarks);
-        }
-
-        // Special overload for pins of type Optional<T> - we explicitly need to set the VL default value to null
-        public static IVLPinDescription Input<T>(this NodeBuilding.NodeDescriptionBuildContext c, string name, Optional<T> defaultValue, string? summary = null, string? remarks = null)
-        {
-            return c.Pin(name, typeof(Optional<T>), null, summary, remarks);
         }
 
         public static IVLPinDescription Output<T>(this NodeBuilding.NodeDescriptionBuildContext c, string name, T? witness = default, string? summary = null, string? remarks = null)
