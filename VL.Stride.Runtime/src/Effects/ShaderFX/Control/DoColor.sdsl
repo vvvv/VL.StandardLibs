@@ -1,0 +1,11 @@
+﻿shader DoColor : ComputeColor
+{
+    compose ComputeVoid Before;
+    compose ComputeColor Value;
+
+    override float4 Compute()
+    {
+        Before.Compute();
+        return Value.Compute();
+    }
+};

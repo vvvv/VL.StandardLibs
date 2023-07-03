@@ -1,0 +1,11 @@
+﻿shader MultiplyColor : ComputeColor
+{
+    compose ComputeColor Left;
+    compose ComputeColor Right;
+
+    override float4 Compute()
+    {
+        // Should this take Alpha into account differently?
+        return Left.Compute() * Right.Compute();
+    }
+};

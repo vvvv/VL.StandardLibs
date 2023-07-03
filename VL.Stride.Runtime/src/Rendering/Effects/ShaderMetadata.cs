@@ -289,6 +289,7 @@ namespace VL.Stride.Rendering
             { "ComputeFloat2", typeof(SetVar<Vector2>) },
             { "ComputeFloat3", typeof(SetVar<Vector3>) },
             { "ComputeFloat4", typeof(SetVar<Vector4>) },
+            { "ComputeColor", typeof(SetVar<Color4>) },
             { "ComputeMatrix", typeof(SetVar<Matrix>) },
             { "ComputeBool", typeof(SetVar<bool>) },
             { "ComputeInt", typeof(SetVar<int>) },

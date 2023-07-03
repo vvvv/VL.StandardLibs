@@ -127,6 +127,7 @@ namespace VL.Stride.Shaders.ShaderFX
             KnownTypes.Add(typeof(Vector2), "Float2");
             KnownTypes.Add(typeof(Vector3), "Float3");
             KnownTypes.Add(typeof(Vector4), "Float4");
+            KnownTypes.Add(typeof(Color4), "Color");
             KnownTypes.Add(typeof(Matrix), "Matrix");
             KnownTypes.Add(typeof(int), "Int");
             KnownTypes.Add(typeof(Int2), "Int2");

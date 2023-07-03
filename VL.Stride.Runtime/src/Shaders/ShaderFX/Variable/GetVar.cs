@@ -36,7 +36,7 @@ namespace VL.Stride.Shaders.ShaderFX
             ShaderClassSource shaderSource;
 
             if (Declaration is DeclConstant<T> constant)
-                shaderSource = GetShaderSourceForType<T>("Constant", GetAsShaderString((dynamic)constant.ConstantValue));
+                shaderSource = GetShaderSourceForType<T>("_Constant", GetAsShaderString((dynamic)constant.ConstantValue));
             else if (Declaration is DeclSemantic<T> semantic)
                 shaderSource = GetShaderSourceForType<T>("GetSemantic", semantic.GetNameForContext(context), semantic.SemanticName);
             else
