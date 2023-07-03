@@ -271,6 +271,7 @@ namespace VL.Stride.Rendering
             { "ComputeFloat2", new CompDefaultValue<Vector2>() },
             { "ComputeFloat3", new CompDefaultValue<Vector3>() },
             { "ComputeFloat4", new CompDefaultValue<Vector4>() },
+            { "ComputeColor", new CompDefaultValue<Color4>() },
             { "ComputeMatrix", new CompDefaultValue<Matrix>() },
             { "ComputeBool", new CompDefaultValue<bool>() },
             { "ComputeInt", new CompDefaultValue<int>() },
