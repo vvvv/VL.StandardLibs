@@ -138,6 +138,10 @@ namespace VL.Core.Reactive
         bool SupportsType(Type type);
     }
 
+    public struct ChannelHubFolder
+    {
+    }
+
 
     [Flags]
     public enum BindingUserEditingCapabilities
