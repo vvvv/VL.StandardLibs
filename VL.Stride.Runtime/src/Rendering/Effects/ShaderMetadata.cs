@@ -319,6 +319,7 @@ namespace VL.Stride.Rendering
         public const string WantsMipsName = "WantsMips";
         public const string DontConvertToLinearOnReadName = "DontConvertToLinearOnRead";
         public const string DontConvertToSRgbOnName = "DontConvertToSRgbOnWrite";
+        public const string ColorAttributeName = "Color";
 
         //pin
         public const string EnumTypeName = "EnumType";

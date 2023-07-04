@@ -7,11 +7,15 @@
 [DontConvertToSRgbOnWrite]
 shader Liquish_TextureFX : TextureFX
 {
-    compose ComputeColor ColorA; // float4(0.0f, 0.0f, 0.0f, 1.0f)
+    [Color]
+    [Default(0.0f, 0.0f, 0.0f, 1.0f)]
+    compose ComputeFloat4 ColorA;
 
-    compose ComputeColor ColorB; //  = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    [Default(1.0, 1.0, 1.0, 1.0)]
+    compose ComputeColor ColorB;
 
-    compose ComputeColor ColorC; //  = float4(0.5f, 0.0f, 0.15f, 1.0f);
+    [Default(0.5, 0.0, 0.15, 1.0)]
+    compose ComputeColor ColorC;
 
     [Default(0)]
     compose ComputeFloat Time;
