@@ -11,5 +11,10 @@ namespace VL.Core
         /// Raised when the application exits.
         /// </summary>
         IObservable<Unit> OnExit { get; }
+
+        /// <summary>
+        /// The name of the document with extension
+        /// </summary>
+        string AppName { get; }
     }
 }

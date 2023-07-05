@@ -124,6 +124,8 @@ namespace VL.Core.Reactive
         /// </summary>
         /// <param name="module"></param>
         void RegisterModule(IModule module);
+
+        string AppName { get; }
     }
 
 
@@ -134,6 +136,10 @@ namespace VL.Core.Reactive
         string Description { get; }
 
         bool SupportsType(Type type);
+    }
+
+    public struct ChannelHubFolder
+    {
     }
 
 

@@ -18,6 +18,7 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// Returns true if the Header is displayed. Set to true to display the Header.
         /// </summary>
+        [Pin(DefaultValue = "true")]
         public IChannel<bool>? Visible { private get; set; }
         ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(true);
 

@@ -8,7 +8,7 @@ using VL.Lib.Reactive;
 
 namespace VL.ImGui.Editors
 {
-    public sealed partial class DefaultObjectEditorFactory : IObjectEditorFactory
+    public sealed class DefaultObjectEditorFactory : IObjectEditorFactory
     {
         public IObjectEditor? CreateObjectEditor(IChannel channel, ObjectEditorContext context)
         {

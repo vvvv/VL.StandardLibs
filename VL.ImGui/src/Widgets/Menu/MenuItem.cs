@@ -16,6 +16,7 @@ namespace VL.ImGui.Widgets
 
         public bool Selectable { get; set; }
 
+        [Pin(DefaultValue = "true")]
         public IChannel<bool>? IsSelected { private get; set; }
         ChannelFlange<bool> IsSelectedFlange = new ChannelFlange<bool>(true);
 

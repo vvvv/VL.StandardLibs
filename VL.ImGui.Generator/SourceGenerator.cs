@@ -198,9 +198,15 @@ namespace VL.ImGui.Generator
                 //        doInput = false;
                 //}
 
+                var defaultValue = $"_w.{property.Name}";
+
+                var pinAttrData = GetAttributeData(pinAttributeSymbol, property);
+                if (pinAttrData.TryGetValue("DefaultValue", out var constant) && constant.Value is string s)
+                    defaultValue = s;
+
                 if (doInput)
                 {
-                    inputDescriptions.Add($"_c.Input(\"{ToUserName(property.Name)}\", _w.{property.Name}, summary: @\"{propertySummary}\"),");
+                    inputDescriptions.Add($"_c.Input(\"{ToUserName(property.Name)}\", _w.{property.Name}, {defaultValue}, summary: @\"{propertySummary}\"),");
                     inputs.Add($"c.Input(v => s.{property.Name} = v, s.{property.Name}),");
                 }
                 else

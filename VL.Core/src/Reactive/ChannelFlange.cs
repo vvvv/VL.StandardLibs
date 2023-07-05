@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System.Collections.Generic;
 using System.Reactive.Subjects;
 
 namespace VL.Lib.Reactive
@@ -30,7 +31,7 @@ namespace VL.Lib.Reactive
 
         bool CopyFromUpstream()
         {
-            if (channel.IsValid() && !channel.Value.Equals(value))
+            if (channel.IsValid() && !EqualityComparer<T>.Default.Equals(channel.Value, value))
             {
                 value = channel.Value;
                 return true;
@@ -43,7 +44,7 @@ namespace VL.Lib.Reactive
             get => value;
             set
             {
-                if (!value.Equals(this.value))
+                if (!EqualityComparer<T>.Default.Equals(value, this.value))
                 {
                     this.value = value;
                     if (channel.IsValid())

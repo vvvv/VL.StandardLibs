@@ -135,7 +135,7 @@ namespace VL.ImGui.Editors
             else if (publicChannel.Object is not null)
             {
                 var s = publicChannel.Object.ToString();
-                if (string.IsNullOrEmpty(editorContext.Label))
+                if (!string.IsNullOrEmpty(editorContext.Label))
                     ImGui.LabelText(widgetLabel.Update(editorContext.Label), s);
                 else
                     ImGui.TextUnformatted(s);
@@ -143,7 +143,7 @@ namespace VL.ImGui.Editors
             else
             {
                 var s = "NULL";
-                if (string.IsNullOrEmpty(editorContext.Label))
+                if (!string.IsNullOrEmpty(editorContext.Label))
                     ImGui.LabelText(widgetLabel.Update(editorContext.Label), s);
                 else
                     ImGui.TextUnformatted(s);

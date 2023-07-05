@@ -125,7 +125,7 @@ namespace VL.Core
         {
             public static readonly Builder Instance = new Builder();
             public Optional<T> Return(T value) => new Optional<T>(value);
-            public Optional<T> Default(T defaultValue) => default;
+            public Optional<T> Default() => default;
         }
     }
 }

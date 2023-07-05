@@ -28,15 +28,21 @@ namespace VL.Lib
             Mathematics.Serialization.RegisterSerializers(factory);
 
             // did we get called by runtime?
-            if (ServiceRegistry.IsCurrent() && ServiceRegistry.Current.GetService<IAppHost>() != null)
+            if (ServiceRegistry.IsCurrent())
             {
-                // make sure all channels of config exist in app-channelhub.
-                var basePath = PathProviderUtils.GetApplicationBasePath();
-                // the following line forces the creation of a channel hub per entry point! HDE code assumes that there is one.
-                ((ChannelHub)IChannelHub.HubForApp).DisplayName = basePath;
-                var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(basePath);
-                if (watcher != null)
-                    ((ChannelHub)IChannelHub.HubForApp).MustHaveDescriptive = watcher.Descriptions;
+                var appHost = ServiceRegistry.Current.GetService<IAppHost>();
+                if (appHost != null)
+                {
+                    // the following line forces the creation of a channel hub per entry point! HDE code assumes that there is one.
+                    var hubForApp = ((ChannelHub)IChannelHub.HubForApp);
+                    hubForApp.AppName = appHost.AppName;
+                    var basePath = PathProviderUtils.GetApplicationBasePath();
+                    hubForApp.AppBasePath = basePath;
+                    var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(basePath);
+                    // make sure all channels of config exist in app-channelhub.
+                    if (watcher != null)
+                        ((ChannelHub)IChannelHub.HubForApp).MustHaveDescriptive = watcher.Descriptions;
+                }
             }
 
             // registering node factory producing nodes for global channels is necessary in any case.

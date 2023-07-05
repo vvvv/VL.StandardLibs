@@ -12,6 +12,7 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// Returns true if the TreeNode is collapsed. Set to true to collapse the TreeNode.
         /// </summary>
+        [Pin(DefaultValue = "true")]
         public IChannel<bool>? Collapsed { private get; set; }
         ChannelFlange<bool> CollapsedFlange = new ChannelFlange<bool>(true);
 

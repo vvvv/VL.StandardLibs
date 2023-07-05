@@ -31,7 +31,7 @@ namespace VL.ImGui.Windows
         /// </summary>
         /// We bend the original lib here, because in ImGui it can't be used to set visibility of the window.
         /// https://github.com/ocornut/imgui/blob/5bb287494096461f90eb5d18135f7c4809efd2f5/imgui.h#L320
-        /// 
+        [Pin(DefaultValue = "true")]
         public IChannel<bool>? Visible { private get; set; }
         ChannelFlange<bool> VisibleFlange = new ChannelFlange<bool>(true);
 
