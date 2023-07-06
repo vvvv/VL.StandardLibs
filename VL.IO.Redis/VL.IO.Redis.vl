@@ -8,7 +8,7 @@
     ************************ PublishString ************************
 
 -->
-      <Node Name="PublishString" Bounds="585,705" Id="HVf5qP7DXqDNyBVdemU17m">
+      <Node Name="PublishString" Bounds="857,916" Id="HVf5qP7DXqDNyBVdemU17m">
         <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
           <Choice Kind="ContainerDefinition" Name="Process" />
         </p:NodeReference>
@@ -1376,7 +1376,7 @@
     ************************ IServer ************************
 
 -->
-        <Node Name="IServer" Bounds="1340,1285" Id="STRbOEIrM7pLWUjWRmTkiS">
+        <Node Name="IServer" Bounds="1326,1255" Id="STRbOEIrM7pLWUjWRmTkiS">
           <p:NodeReference>
             <Choice Kind="ForwardDefinition" Name="Forward" />
             <CategoryReference Kind="Category" Name="Primitive" />
@@ -1394,7 +1394,7 @@
     ************************ ClientInfo ************************
 
 -->
-        <Node Name="ClientInfo" Bounds="1341,1359" Id="LvKbJjQYtQVLAOktuYfJUZ">
+        <Node Name="ClientInfo" Bounds="1321,1300" Id="LvKbJjQYtQVLAOktuYfJUZ">
           <p:NodeReference>
             <Choice Kind="ForwardDefinition" Name="Forward" />
             <CategoryReference Kind="Category" Name="Primitive" />
@@ -1539,7 +1539,7 @@
     ************************ TransactionalInstance ************************
 
 -->
-        <Node Name="TransactionalInstance" Bounds="1018,1382" Id="LmGSfNRSw1TP5tnnHCWr0R">
+        <Node Name="TransactionalInstance" Bounds="1024,1364" Id="LmGSfNRSw1TP5tnnHCWr0R">
           <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
             <Choice Kind="ClassDefinition" Name="Class" />
           </p:NodeReference>
@@ -1749,7 +1749,7 @@
                 </p:NodeReference>
                 <Pin Id="ChMefRnKYdlMcbVmoSExDU" Name="Output" Kind="StateOutputPin" />
               </Node>
-              <Node Bounds="614,508,728,19" Id="JFZBcJrHe1nPsgKpejpkd2">
+              <Node Bounds="611,514,731,19" Id="JFZBcJrHe1nPsgKpejpkd2">
                 <p:NodeReference LastCategoryFullName="Redis" LastDependency="VL.IO.Redis.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="OperationCallFlag" Name="RedisTransactionInstanced" />
@@ -1812,7 +1812,7 @@
                 </Patch>
               </Node>
               <ControlPoint Id="CNa7wHrknrUPL6HAp0cAPr" Bounds="1342,1405" />
-              <ControlPoint Id="Ck4ahM9wa9NNxe0TCJ1wCC" Bounds="616,446" />
+              <ControlPoint Id="Ck4ahM9wa9NNxe0TCJ1wCC" Bounds="613,452" />
               <Node Bounds="948,671,81,26" Id="Ep1bt8HILG5LbZ87Vsdy8S">
                 <p:NodeReference LastCategoryFullName="Redis.ThreadSafeToggle" LastDependency="VL.IO.Redis.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -2454,6 +2454,125 @@
             </Node>
           </Patch>
         </Node>
+        <!--
+
+    ************************ RedisInstance ************************
+
+-->
+        <Node Name="RedisInstance" Bounds="694,1046,286,400" Id="NyN94O2IT6QM2Jzg5iNrXF">
+          <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="UxYmxXgXJGIN4hU9TYq7CE">
+            <Node Bounds="707,1336,81,26" Id="SggSyGvVpnqQKxT1QkKOdO">
+              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="Category" Name="Primitive" />
+                <Choice Kind="OperationCallFlag" Name="SingleInstance" />
+              </p:NodeReference>
+              <Pin Id="MVJyuKG6DJ4PIN2oYQMHid" Name="Force New Instance" Kind="InputPin" />
+              <Pin Id="IpOkihHc5B3NLycSZwgerD" Name="Producer" Kind="InputPin" />
+              <Pin Id="KICaR6b6PqHLDEEZQvVtU1" Name="On Stop" Kind="InputPin" DefaultValue="ReleaseAndDispose" />
+              <Pin Id="Tu8PbXclaMFLyEClmvz1Zf" Name="Singleton" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="745,1120,223,196" Id="KKpNQwHTIcOQdib4aDVmPv">
+              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+                <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
+                <CategoryReference Kind="Category" Name="Primitive" />
+                <Choice Kind="ApplicationRegion" Name="Delegate" />
+              </p:NodeReference>
+              <Pin Id="KgmhSXfrfdLQBdYZi7f0yt" Name="Functionality" Kind="OutputPin" />
+              <Patch Id="MJzVTjSXhSYMhoEq0AsU4b" ManuallySortedPins="true">
+                <Pin Id="H5ThF1nMODtP876sFpkGmG" Name="Result" Kind="OutputPin" />
+                <ControlPoint Id="JQxw2bEGXLKNgDPiGcCpsI" Bounds="760,1299" />
+                <Node Bounds="758,1252,56,26" Id="IBlvCLOHOkSOGD77FJR3WV">
+                  <p:NodeReference LastCategoryFullName="Redis.RedisClient" LastDependency="VL.IO.Redis.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <CategoryReference Kind="Category" Name="Redis" />
+                    <CategoryReference Kind="ClassType" Name="RedisClient" />
+                    <Choice Kind="OperationCallFlag" Name="Create" />
+                  </p:NodeReference>
+                  <Pin Id="FDCD5EsbJUlL44pJIdpZVX" Name="Configuration" Kind="InputPin" />
+                  <Pin Id="F6PvEEj5uqALDjdeG8vFwI" Name="LogToConsole" Kind="InputPin" />
+                  <Pin Id="PEXhag94zzUP1lFmchpgry" Name="ClientSideChaching" Kind="InputPin" />
+                  <Pin Id="VXvPrQXOHHyLeAzOXoaAIe" Name="Output" Kind="StateOutputPin" />
+                </Node>
+                <Pad Id="HTJYRFnGd1aQCc52m3akUG" Comment="Configuration" Bounds="761,1148,79,15" ShowValueBox="true" isIOBox="true" Value="127.0.0.1:6379">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                </Pad>
+                <Pad Id="HtO7Vv9zIZEPGocCTI8mVi" Comment="LogToConsole" Bounds="786,1175,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+                    <CategoryReference Kind="Category" Name="Primitive" />
+                  </p:TypeAnnotation>
+                  <p:ValueBoxSettings>
+                    <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+                  </p:ValueBoxSettings>
+                </Pad>
+                <Pad Id="HUk5hfG4SnIPKgu9ySDKo2" Comment="ClientSideChaching" Bounds="811,1218,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+                    <CategoryReference Kind="Category" Name="Primitive" />
+                  </p:TypeAnnotation>
+                  <p:ValueBoxSettings>
+                    <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+                  </p:ValueBoxSettings>
+                </Pad>
+              </Patch>
+            </Node>
+            <Link Id="OqvtrnG3sjSPIfsn94Yyo7" Ids="JQxw2bEGXLKNgDPiGcCpsI,H5ThF1nMODtP876sFpkGmG" IsHidden="true" />
+            <Link Id="QfwerX2WhNUQSp0MJbOXas" Ids="KgmhSXfrfdLQBdYZi7f0yt,IpOkihHc5B3NLycSZwgerD" />
+            <Link Id="Uzqljuc5bigQAMcxIFRbFN" Ids="VXvPrQXOHHyLeAzOXoaAIe,JQxw2bEGXLKNgDPiGcCpsI" />
+            <Link Id="BirDLgJ3IANOkH8LyA14b2" Ids="HTJYRFnGd1aQCc52m3akUG,FDCD5EsbJUlL44pJIdpZVX" />
+            <Link Id="CKZ4ZB2E4AOMxFkIvmzQUg" Ids="HtO7Vv9zIZEPGocCTI8mVi,F6PvEEj5uqALDjdeG8vFwI" />
+            <Link Id="QbEHlq70ZqpL8TQ2O0jafF" Ids="HUk5hfG4SnIPKgu9ySDKo2,PEXhag94zzUP1lFmchpgry" />
+            <ControlPoint Id="IP4sexVStezMthZ1uEdnMQ" Bounds="708,1064" />
+            <Link Id="JMxGHsmHQGlPI0YmyMezme" Ids="IP4sexVStezMthZ1uEdnMQ,MVJyuKG6DJ4PIN2oYQMHid" />
+            <Pin Id="MBIVN30FpG8QPJMO7Cn3Y0" Name="Force New Instance" Kind="InputPin" Bounds="1168,860" />
+            <Link Id="VLJLxJHHIeGOJH7IarbFK1" Ids="MBIVN30FpG8QPJMO7Cn3Y0,IP4sexVStezMthZ1uEdnMQ" IsHidden="true" />
+            <ControlPoint Id="OD0msZXgX0KMFYOrdLhNrE" Bounds="709,1429" />
+            <Link Id="Q98MXXO61a3Pkbt4nxfgxc" Ids="Tu8PbXclaMFLyEClmvz1Zf,OD0msZXgX0KMFYOrdLhNrE" />
+            <Pin Id="J87gPpdBWndPly7DgAGtoN" Name="Singleton" Kind="OutputPin" Bounds="1170,1154" />
+            <Link Id="TZ60UEXDEiqLNCencPOG8R" Ids="OD0msZXgX0KMFYOrdLhNrE,J87gPpdBWndPly7DgAGtoN" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ RedisTransactionInstanced ************************
+
+-->
+        <Node Name="RedisTransactionInstanced" Bounds="682,859,277,130" Id="TKAaZybj0ccQBehNQthj7N">
+          <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+            <Choice Kind="OperationDefinition" Name="Operation" />
+          </p:NodeReference>
+          <Patch Id="PZVpolXhie5L1JLrqBojsn" ManuallySortedPins="true">
+            <Node Bounds="694,903,70,26" Id="BGGmpnYotpBLS866sAEZQ1">
+              <p:NodeReference LastCategoryFullName="Redis.RedisClient" LastDependency="VL.IO.Redis.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="ClassType" Name="RedisClient" />
+                <Choice Kind="OperationCallFlag" Name="Transaction" />
+              </p:NodeReference>
+              <Pin Id="VFPckyBv5x0MUu0TDSAQpz" Name="Input" Kind="StateInputPin" />
+              <Pin Id="E4JxPpD6wlOP1k1tqM6Ms0" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="Aej6DLtaYWxNeCkVG2iema" Name="ResultBeforFrame" Kind="OutputPin" />
+              <Pin Id="Bp1mtrSo60GQUzVWInj6fb" Name="TransactionAfterFrame" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="V6e9gLpuP47O04DytTsB58" Bounds="725,972" />
+            <Link Id="Io7KcfH9BnuMvPnjIY7CIp" Ids="Aej6DLtaYWxNeCkVG2iema,V6e9gLpuP47O04DytTsB58" />
+            <Link Id="QlZv35K9iYaMaZCSl5PEVs" Ids="V6e9gLpuP47O04DytTsB58,MzekkUFzYj8LJvoL2Eggh4" IsHidden="true" />
+            <ControlPoint Id="TnNaRVa0dh1PhIYcxYy8mF" Bounds="832,964" />
+            <Link Id="IGyydmGizPGLZ49v5cQZ2F" Ids="Bp1mtrSo60GQUzVWInj6fb,TnNaRVa0dh1PhIYcxYy8mF" />
+            <Link Id="RIVI0TaZV75LdGIKilOldv" Ids="TnNaRVa0dh1PhIYcxYy8mF,FcgaMGitKl5LTQY66wEUtt" IsHidden="true" />
+            <Pin Id="FcgaMGitKl5LTQY66wEUtt" Name="TransactionAfterFrame" Kind="OutputPin" Bounds="1793,849" />
+            <Pin Id="MzekkUFzYj8LJvoL2Eggh4" Name="ResultBeforFrame" Kind="OutputPin" Bounds="1706,858" />
+            <ControlPoint Id="UDXZHu9HbTtM0OJhDvs1KZ" Bounds="696,877" />
+            <Link Id="DiaUVT3ko3oNNroyFgEGb4" Ids="UDXZHu9HbTtM0OJhDvs1KZ,VFPckyBv5x0MUu0TDSAQpz" />
+            <Pin Id="PWZgFEFWHXyO7o8ew5izWV" Name="Input" Kind="InputPin" Bounds="1791,796" />
+            <Link Id="Bpex7rKs9uKOAzpTpRtOqR" Ids="PWZgFEFWHXyO7o8ew5izWV,UDXZHu9HbTtM0OJhDvs1KZ" IsHidden="true" />
+          </Patch>
+        </Node>
       </Canvas>
       <!--
 
@@ -2478,7 +2597,7 @@
     ************************ SetString (Blocking) ************************
 
 -->
-      <Node Name="SetString (Blocking)" Bounds="584,490" Id="VHrN9BCgFKPLcB83dRXJTR">
+      <Node Name="SetString (Blocking)" Bounds="856,701" Id="VHrN9BCgFKPLcB83dRXJTR">
         <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
           <Choice Kind="ContainerDefinition" Name="Process" />
         </p:NodeReference>
@@ -2612,7 +2731,7 @@
     ************************ GetString (Blocking) ************************
 
 -->
-      <Node Name="GetString (Blocking)" Bounds="585,532" Id="JUSKRygIhpWOw18Zr9WQqn">
+      <Node Name="GetString (Blocking)" Bounds="857,743" Id="JUSKRygIhpWOw18Zr9WQqn">
         <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
           <Choice Kind="ContainerDefinition" Name="Process" />
         </p:NodeReference>
@@ -2760,7 +2879,7 @@
     ************************ SetString (Reactive) ************************
 
 -->
-      <Node Name="SetString (Reactive)" Bounds="585,580" Id="RwpcPpTdrLFNSGXhtMjKIh">
+      <Node Name="SetString (Reactive)" Bounds="857,791" Id="RwpcPpTdrLFNSGXhtMjKIh">
         <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
           <Choice Kind="ContainerDefinition" Name="Process" />
         </p:NodeReference>
@@ -2905,7 +3024,7 @@
     ************************ GetString (Reactive) ************************
 
 -->
-      <Node Name="GetString (Reactive)" Bounds="586,622" Id="DgLtggFFUqcPoZvYJYSYeG">
+      <Node Name="GetString (Reactive)" Bounds="858,833" Id="DgLtggFFUqcPoZvYJYSYeG">
         <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
           <Choice Kind="ContainerDefinition" Name="Process" />
         </p:NodeReference>
@@ -3091,7 +3210,7 @@
     ************************ SubscribeString ************************
 
 -->
-      <Node Name="SubscribeString" Bounds="586,743" Id="MHyGRgdrkpWNwdVB6Fn07c">
+      <Node Name="SubscribeString" Bounds="858,954" Id="MHyGRgdrkpWNwdVB6Fn07c">
         <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
           <Choice Kind="ContainerDefinition" Name="Process" />
         </p:NodeReference>
@@ -3218,7 +3337,7 @@
     ************************ GetString (Cache) ************************
 
 -->
-      <Node Name="GetString (Cache)" Bounds="585,661" Id="Ln2o83x1YWIOwg77MCAXjk">
+      <Node Name="GetString (Cache)" Bounds="857,872" Id="Ln2o83x1YWIOwg77MCAXjk">
         <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
           <Choice Kind="ContainerDefinition" Name="Process" />
         </p:NodeReference>
@@ -7850,125 +7969,6 @@
       </Node>
       <!--
 
-    ************************ RedisInstance ************************
-
--->
-      <Node Name="RedisInstance" Bounds="1184,732,286,400" Id="Rc6xA6VYyblNyNDF2QUaDU">
-        <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
-          <Choice Kind="OperationDefinition" Name="Operation" />
-        </p:NodeReference>
-        <Patch Id="MGyjEn4cPXzPV1XrdGhl9Z">
-          <Node Bounds="1197,1022,81,26" Id="KHIEBxpxHlLL99k3L1NWNU">
-            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <CategoryReference Kind="Category" Name="Primitive" />
-              <Choice Kind="OperationCallFlag" Name="SingleInstance" />
-            </p:NodeReference>
-            <Pin Id="CCNDnhFMXYLNa9NzitVRlP" Name="Force New Instance" Kind="InputPin" />
-            <Pin Id="Ev73hbkjcWCP71omtt1uVL" Name="Producer" Kind="InputPin" />
-            <Pin Id="LqWSn4sPWUQLKqiRu2gAa5" Name="On Stop" Kind="InputPin" DefaultValue="ReleaseAndDispose" />
-            <Pin Id="Sn7MMSlEioZLNuPn6OzHRi" Name="Singleton" Kind="OutputPin" />
-          </Node>
-          <Node Bounds="1235,806,223,196" Id="DzaKOMINRMKMfHl4K9996i">
-            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
-              <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
-              <CategoryReference Kind="Category" Name="Primitive" />
-              <Choice Kind="ApplicationRegion" Name="Delegate" />
-            </p:NodeReference>
-            <Pin Id="TCdOEfsvL4rQBWcfuHZtkr" Name="Functionality" Kind="OutputPin" />
-            <Patch Id="LpQf9Z1kYdQMV2nANnL16G" ManuallySortedPins="true">
-              <Pin Id="JCeX85LGUARP8eXHJCQltI" Name="Result" Kind="OutputPin" />
-              <ControlPoint Id="GRAkTEwp4SRM3ksTVdiYUD" Bounds="1250,985" />
-              <Node Bounds="1248,938,56,26" Id="I8HZjEhpXFsLrEYpoQEqdm">
-                <p:NodeReference LastCategoryFullName="Redis.RedisClient" LastDependency="VL.IO.Redis.vl">
-                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                  <CategoryReference Kind="Category" Name="Redis" />
-                  <CategoryReference Kind="ClassType" Name="RedisClient" />
-                  <Choice Kind="OperationCallFlag" Name="Create" />
-                </p:NodeReference>
-                <Pin Id="AL5GoHBO1sGLjB9XyBFs3n" Name="Configuration" Kind="InputPin" />
-                <Pin Id="RDrxVMA3oM2PGJTs6c1LdO" Name="LogToConsole" Kind="InputPin" />
-                <Pin Id="VRWqUEAE2hQPfR2fV4EngQ" Name="ClientSideChaching" Kind="InputPin" />
-                <Pin Id="DP0x5lcOaOEQWZSHSX3uor" Name="Output" Kind="StateOutputPin" />
-              </Node>
-              <Pad Id="HJpPJuexEgYOFAh6YUMi4V" Comment="Configuration" Bounds="1251,834,79,15" ShowValueBox="true" isIOBox="true" Value="127.0.0.1:6379">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-                  <Choice Kind="TypeFlag" Name="String" />
-                </p:TypeAnnotation>
-              </Pad>
-              <Pad Id="Cz7zTxhYr6hPYPk5InPZX4" Comment="LogToConsole" Bounds="1276,861,35,35" ShowValueBox="true" isIOBox="true" Value="True">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-                  <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
-                  <CategoryReference Kind="Category" Name="Primitive" />
-                </p:TypeAnnotation>
-                <p:ValueBoxSettings>
-                  <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
-                </p:ValueBoxSettings>
-              </Pad>
-              <Pad Id="GG0n4NL4flMLIGdduVgCl7" Comment="ClientSideChaching" Bounds="1301,904,35,35" ShowValueBox="true" isIOBox="true" Value="True">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-                  <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
-                  <CategoryReference Kind="Category" Name="Primitive" />
-                </p:TypeAnnotation>
-                <p:ValueBoxSettings>
-                  <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
-                </p:ValueBoxSettings>
-              </Pad>
-            </Patch>
-          </Node>
-          <Link Id="JbjEkSOG2pQQc0KPgnUtBr" Ids="GRAkTEwp4SRM3ksTVdiYUD,JCeX85LGUARP8eXHJCQltI" IsHidden="true" />
-          <Link Id="CqoZMkYbYd1QRq6vjHK5Tq" Ids="TCdOEfsvL4rQBWcfuHZtkr,Ev73hbkjcWCP71omtt1uVL" />
-          <Link Id="VpRcBPXqgFUNAB6sx968dk" Ids="DP0x5lcOaOEQWZSHSX3uor,GRAkTEwp4SRM3ksTVdiYUD" />
-          <Link Id="EiiU9e04EZkPLFYgfn5WNR" Ids="HJpPJuexEgYOFAh6YUMi4V,AL5GoHBO1sGLjB9XyBFs3n" />
-          <Link Id="LkDWPl1ndv2OUPbgVlC9cL" Ids="Cz7zTxhYr6hPYPk5InPZX4,RDrxVMA3oM2PGJTs6c1LdO" />
-          <Link Id="J62ZomAXUk7QbNR0kgUDeB" Ids="GG0n4NL4flMLIGdduVgCl7,VRWqUEAE2hQPfR2fV4EngQ" />
-          <ControlPoint Id="IKnZvkkU9EAMb0LT5wmElh" Bounds="1198,750" />
-          <Link Id="K4KKfp15zBYPJ8arfiMwTV" Ids="IKnZvkkU9EAMb0LT5wmElh,CCNDnhFMXYLNa9NzitVRlP" />
-          <Pin Id="L8zR8oaflz5PyYZWZPMpw0" Name="Force New Instance" Kind="InputPin" Bounds="1168,860" />
-          <Link Id="GYH8tCco4pAOfjgOGs4Qxa" Ids="L8zR8oaflz5PyYZWZPMpw0,IKnZvkkU9EAMb0LT5wmElh" IsHidden="true" />
-          <ControlPoint Id="GlxRNuptRYQMut1zugDHm4" Bounds="1199,1115" />
-          <Link Id="UynogK0lRuLO107HAcMgEN" Ids="Sn7MMSlEioZLNuPn6OzHRi,GlxRNuptRYQMut1zugDHm4" />
-          <Pin Id="UsBooO9K78aQBUWanzcvOq" Name="Singleton" Kind="OutputPin" Bounds="1170,1154" />
-          <Link Id="S8pL36uxyuDPrskbxx6bFu" Ids="GlxRNuptRYQMut1zugDHm4,UsBooO9K78aQBUWanzcvOq" IsHidden="true" />
-        </Patch>
-      </Node>
-      <!--
-
-    ************************ RedisTransactionInstanced ************************
-
--->
-      <Node Name="RedisTransactionInstanced" Bounds="1492,729,277,130" Id="P7RDcrCtEaYOMLDPicS2nE">
-        <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
-          <Choice Kind="OperationDefinition" Name="Operation" />
-        </p:NodeReference>
-        <Patch Id="GLsOZEYMXEVMG1p56MY582" ManuallySortedPins="true">
-          <Node Bounds="1504,773,70,26" Id="L9r8dPVOZfdQLjxWdHHkHh">
-            <p:NodeReference LastCategoryFullName="Redis.RedisClient" LastDependency="VL.IO.Redis.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <CategoryReference Kind="ClassType" Name="RedisClient" />
-              <Choice Kind="OperationCallFlag" Name="Transaction" />
-            </p:NodeReference>
-            <Pin Id="IzwjzOvhQTJNObDUJif3PW" Name="Input" Kind="StateInputPin" />
-            <Pin Id="It8XOSW8vVuPtHo65ol5Rt" Name="Output" Kind="StateOutputPin" />
-            <Pin Id="FQrjkPrkRLrOTrHKawGNWk" Name="ResultBeforFrame" Kind="OutputPin" />
-            <Pin Id="HKo32XCXlyLPoFo7i3JsJU" Name="TransactionAfterFrame" Kind="OutputPin" />
-          </Node>
-          <ControlPoint Id="GqTLUHPXKBEMIxqcGXvNGZ" Bounds="1535,842" />
-          <Link Id="BQHr5mblFsFMrvuRR9Je6H" Ids="FQrjkPrkRLrOTrHKawGNWk,GqTLUHPXKBEMIxqcGXvNGZ" />
-          <Link Id="J9dbRZ9YZJAMT7oYxZ4CU4" Ids="GqTLUHPXKBEMIxqcGXvNGZ,FWdi05kTNjPP1L4kGG2t5L" IsHidden="true" />
-          <ControlPoint Id="ENGVLHwkcKoOfm7dcLqwZF" Bounds="1642,834" />
-          <Link Id="HqIoHYc1Nd9P3GRldp5QXM" Ids="HKo32XCXlyLPoFo7i3JsJU,ENGVLHwkcKoOfm7dcLqwZF" />
-          <Link Id="KyknFS2sCHULRxrfpnnSu0" Ids="ENGVLHwkcKoOfm7dcLqwZF,QlBkvKRNsexMWKJ6JhXvtM" IsHidden="true" />
-          <Pin Id="QlBkvKRNsexMWKJ6JhXvtM" Name="TransactionAfterFrame" Kind="OutputPin" Bounds="1793,849" />
-          <Pin Id="FWdi05kTNjPP1L4kGG2t5L" Name="ResultBeforFrame" Kind="OutputPin" Bounds="1706,858" />
-          <ControlPoint Id="FFhm9mJ0hJlMPD74LX2B1k" Bounds="1506,747" />
-          <Link Id="LL1fYngR5JZLWPxYCoWGEl" Ids="FFhm9mJ0hJlMPD74LX2B1k,IzwjzOvhQTJNObDUJif3PW" />
-          <Pin Id="TsJzRmvqDGrODffLQIpqa9" Name="Input" Kind="InputPin" Bounds="1791,796" />
-          <Link Id="Ii3uIqEBNEfPQ8f9gH9rbC" Ids="TsJzRmvqDGrODffLQIpqa9,FFhm9mJ0hJlMPD74LX2B1k" IsHidden="true" />
-        </Patch>
-      </Node>
-      <!--
-
     ************************ SetString (Transactional) ************************
 
 -->
@@ -9511,11 +9511,6 @@
             <Pin Id="SgvIndSK0vlOMC7kQu7J9v" Name="RedisClient" Kind="OutputPin" Bounds="759,1360" />
             <Pin Id="VDwXv5sCEzLMAj8RWO416x" Name="Output" Kind="OutputPin" Bounds="770,863" />
           </Patch>
-          <!--
-
-    ************************  ************************
-
--->
           <ProcessDefinition Id="LFq3i0pBIIpP4FCF91vnqn">
             <Fragment Id="MS9i8D56tuILAqdK92JRrq" Patch="LMqjDFDhvTjOJjMz02oyUh" Enabled="true" />
             <Fragment Id="I4Mol8oUFrpLUs9oAXLauo" Patch="RKELyDrN6zgNAiWZlnijvL" Enabled="true" />
