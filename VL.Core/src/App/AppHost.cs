@@ -17,12 +17,12 @@ namespace VL.Core
     public abstract class AppHost
     {
         /// <summary>
-        /// The app host for the current thread. Throws <see cref="InvalidOperationException"/> in case no registry is installed.
+        /// The app host for the current thread. Throws <see cref="InvalidOperationException"/> in case no host is installed.
         /// </summary>
         public static AppHost Current => current ?? throw new InvalidOperationException("No app host is installed on the current thread.");
 
         /// <summary>
-        /// The app host for the current thread or the global one if there's no registry installed on the current thread.
+        /// The app host for the current thread or the global one if there's no host installed on the current thread.
         /// </summary>
         public static AppHost CurrentOrGlobal => current ?? Global;
 
@@ -109,14 +109,14 @@ namespace VL.Core
         public abstract IVLObject App { get; }
 
         /// <summary>
-        /// Can be used to tie the lifetime of an object to the one of the application.
-        /// </summary>
-        public abstract ICollection<IDisposable> Components { get; }
-
-        /// <summary>
         /// Raised when the application exits.
         /// </summary>
         public abstract IObservable<Unit> OnExit { get; }
+
+        /// <summary>
+        /// Ties the lifetime of the component to the one of the host.
+        /// </summary>
+        public abstract void TakeOwnership(IDisposable component);
 
         /// <summary>
         /// Tells the app host to stay alive until the returned disposable is disposed.
