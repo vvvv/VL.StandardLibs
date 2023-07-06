@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="ClZqpiWAO4lMjTgWmdMTSY" LanguageVersion="2023.5.3-0033-g49002a1654" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="ClZqpiWAO4lMjTgWmdMTSY" LanguageVersion="2023.5.3-0052-gd114b32994" Version="0.128">
   <NugetDependency Id="SJcMi6hvtTkNfUYFhZn3so" Location="VL.CoreLib" Version="2023.5.1-0074-gd1560906cc" />
   <Patch Id="EPyE37TV8m3L64VtmePfqB">
     <Canvas Id="R7IGEBFne9UO2qQgrulsfL" DefaultCategory="Redis" CanvasType="FullCategory">
@@ -9332,6 +9332,224 @@
           <Link Id="MhzXn8Jwlo4Le1p5MVYs5D" Ids="BSM59xDvFP0MdFUJI94Dfu,TZcHpWDAHELPQWBfV5ARdD" />
           <Link Id="J3qBCBk2PTHQCxt4gVRgkJ" Ids="B1R7dKrvfZNQPjcZQt0B8m,Uh9epxGjxhlQYAaBA3c1WS" />
           <Link Id="FT4QDY6iezhPVYoDo9zqiJ" Ids="Uh9epxGjxhlQYAaBA3c1WS,JZEmEOG8Ca3LvTF1qxV6qj" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ CollectInvalidates ************************
+
+-->
+      <Node Name="CollectInvalidates" Bounds="863,624" Id="LDMvwZxnTHTPQGyRyWfuBx">
+        <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+          <Choice Kind="ContainerDefinition" Name="Process" />
+        </p:NodeReference>
+        <Patch Id="OVmg2Wuzg8xOdLPJq23atc">
+          <Canvas Id="JmQ0QOo67FyQcVm2Hp7tSE" CanvasType="Group">
+            <ControlPoint Id="BN0nACroKWgMEYZoeWC4qT" Bounds="668,481" />
+            <ControlPoint Id="PK0XcZKEWMnQLBtpq5cXOz" Bounds="667,991" />
+            <Node Bounds="755,573,601,426" Id="VOT1sCpYT9gOODjhE0hxar">
+              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+                <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+                <CategoryReference Kind="Category" Name="Primitive" />
+                <Choice Kind="ProcessStatefulRegion" Name="Cache" />
+              </p:NodeReference>
+              <Pin Id="DPJ3rc9VkslOyUB9ca6b7O" Name="Force" Kind="InputPin" />
+              <Pin Id="DcPQ7VCwygDMQka2FMJd1i" Name="Dispose Cached Outputs" Kind="InputPin" />
+              <Pin Id="JboMe8uGsQMLYR6mjWancy" Name="Has Changed" Kind="OutputPin" />
+              <ControlPoint Id="EHLt29jLrvALMPUGATBUET" Bounds="779,579" Alignment="Top" />
+              <ControlPoint Id="Swid3ftSH8HNFoWmE1WjOW" Bounds="844,993" Alignment="Bottom" />
+              <Patch Id="BUemIDUWyyvMod6jZNoYFq" ManuallySortedPins="true">
+                <Patch Id="R4JG2B1Yl0kPEsGUaM5ijW" Name="Create" ParticipatingElements="CzhTVRuqbPLP6c0lpBDTjJ" ManuallySortedPins="true" />
+                <Patch Id="RZCnTxPbNxBNb1wxVldsXh" Name="Then" ManuallySortedPins="true" />
+                <Node Bounds="777,602,196,26" Id="JudESuh4HQ7PSJ8y6fNzms">
+                  <p:NodeReference LastCategoryFullName="Redis.RedisClient" LastDependency="VL.IO.Redis.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <CategoryReference Kind="ClassType" Name="RedisClient" />
+                    <Choice Kind="OperationCallFlag" Name="Invalidate" />
+                  </p:NodeReference>
+                  <Pin Id="LsFceKeM6GvPZ3rtC2EtbE" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="GJkWmaGl197LVrgmt14VIv" Name="Output" Kind="StateOutputPin" />
+                  <Pin Id="BjEfbEJjGlFPH4AKzJUQzk" Name="invalidate" Kind="OutputPin" />
+                </Node>
+                <Node Bounds="1083,694,138,80" Id="V0MMP3VpjcFQAXg2jkCANy">
+                  <p:NodeReference LastCategoryFullName="System.Reactive.Linq.Observable" LastDependency="System.Reactive.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+                    <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
+                    <CategoryReference Kind="AssemblyCategory" Name="Observable" NeedsToBeDirectParent="true" />
+                    <Choice Kind="OperationCallFlag" Name="Scan" />
+                    <PinReference Kind="InputPin" Name="Seed" />
+                  </p:NodeReference>
+                  <Patch Id="CJN9FL0YdtSMmKt1iEaJus" Name="Accumulator" ManuallySortedPins="true">
+                    <Pin Id="CoSw8ZkuAbQLrDc3jmdkSL" Name="Input 1" Kind="InputPin" />
+                    <Pin Id="QYogRKbZ0rhPUUN3lUz3Bs" Name="Input 2" Kind="InputPin" />
+                    <Pin Id="MODzDs50AbULJJnhnllVut" Name="Result" Kind="OutputPin" />
+                    <ControlPoint Id="H4CagDuiPCkMGP83HNNf0S" Bounds="1097,702" />
+                    <ControlPoint Id="APHyOfE9wStNgJ8H9z7o5j" Bounds="1165,704" />
+                    <ControlPoint Id="G3vMN8vNmrCL4I8dwGI04L" Bounds="1097,767" />
+                    <Node Bounds="1095,724,73,26" Id="CQNFnSnekduOTndHGO9rpf">
+                      <p:NodeReference LastCategoryFullName="Collections.Builder.HashSetBuilder" LastDependency="VL.CoreLib.vl">
+                        <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                        <CategoryReference Kind="ClassType" Name="HashSetBuilder" NeedsToBeDirectParent="true" />
+                        <Choice Kind="OperationCallFlag" Name="Add" />
+                      </p:NodeReference>
+                      <Pin Id="HfdQ8zULa7GK9x4j7fqpl7" Name="Input" Kind="StateInputPin" />
+                      <Pin Id="Nm7qbXT3v6sODNjZpBpScW" Name="Item" Kind="InputPin" />
+                      <Pin Id="PwnIjrcwxQHLc2HWMs7BaV" Name="Output" Kind="StateOutputPin" />
+                      <Pin Id="HDC6P1MfTllQGaAgHTR1Gv" Name="Result" Kind="OutputPin" />
+                    </Node>
+                  </Patch>
+                  <Pin Id="M7wmYxXklvhPcnG4K7bhkR" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="P61uFIiU4n8MFMBkASYaMU" Name="Seed" Kind="InputPin" />
+                  <Pin Id="A4qaHNSRKJ9OUgcfNbDTYw" Name="Output" Kind="OutputPin" />
+                </Node>
+                <Node Bounds="777,716,70,26" Id="N7j9vyivbRbPcYJly9GqO4">
+                  <p:NodeReference LastCategoryFullName="Redis.RedisClient" LastDependency="VL.IO.Redis.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <CategoryReference Kind="ClassType" Name="RedisClient" />
+                    <Choice Kind="OperationCallFlag" Name="Transaction" />
+                  </p:NodeReference>
+                  <Pin Id="IqFX1Ja9wVWOnsFNGZGCTw" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="Rm6scmnpceyMhKU5lltxsI" Name="Output" Kind="StateOutputPin" />
+                  <Pin Id="Pq6n2063OTGMbAwpTXqzFh" Name="ResultBeforFrame" Kind="OutputPin" />
+                  <Pin Id="ESMWwDZIW52OjCFqsdWnpj" Name="TransactionAfterFrame" Kind="OutputPin" />
+                </Node>
+                <Node Bounds="1271,607,73,26" Id="FhvAQCHQAKrL76dwAryTlT">
+                  <p:NodeReference LastCategoryFullName="Collections.Builder.HashSetBuilder" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <CategoryReference Kind="ClassType" Name="HashSetBuilder" NeedsToBeDirectParent="true" />
+                    <Choice Kind="OperationCallFlag" Name="Create" />
+                  </p:NodeReference>
+                  <Pin Id="JDw97M9v8mSPwmLt7hiwiY" Name="Result" Kind="OutputPin" />
+                </Node>
+                <Pad Id="KAK2gMS2Au7Lq15ystvrr6" SlotId="LUmiwpV6CglOyUOXUyGTbw" Bounds="1273,658" />
+                <Slot Id="LUmiwpV6CglOyUOXUyGTbw" Name="HashSet" />
+                <Node Bounds="842,761,131,19" Id="A6OrsWB8TY0QQiJxDRhWt7">
+                  <p:NodeReference LastCategoryFullName="Redis" LastDependency="VL.IO.Redis.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="ObserveOnSecondThread" />
+                  </p:NodeReference>
+                  <Pin Id="DyMtuMcmLtpMVIfpMyp7aL" Name="Input" Kind="InputPin" />
+                  <Pin Id="GcjciaS2WZwM96Y5n6G9VN" Name="Output" Kind="OutputPin" />
+                </Node>
+                <Node Bounds="1083,653,131,19" Id="QkL65owKwz3LSVVzTHAOY1">
+                  <p:NodeReference LastCategoryFullName="Redis" LastDependency="VL.IO.Redis.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="ObserveOnSecondThread" />
+                  </p:NodeReference>
+                  <Pin Id="PIfK0mraJxsMaHwUhgpbkG" Name="Input" Kind="InputPin" />
+                  <Pin Id="C1WhGTFGadXL5djXAoQHfs" Name="Output" Kind="OutputPin" />
+                </Node>
+                <Node Bounds="842,960,82,19" Id="BfwabpJjGx2MKOeZDHW0aN">
+                  <p:NodeReference LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="ProcessAppFlag" Name="ToMainThread" />
+                  </p:NodeReference>
+                  <Pin Id="S3OlKY7VrbKL4QJJwQGa4q" Name="Input" Kind="InputPin" />
+                  <Pin Id="K6RhbzU2YSaO8mMJBDXPuq" Name="Result" Kind="OutputPin" />
+                </Node>
+                <Node Bounds="842,801,246,119" Id="QgQWToJWgVTPjoJW6cCkH2">
+                  <p:NodeReference LastCategoryFullName="System.Reactive.Linq.Observable" LastDependency="System.Reactive.dll">
+                    <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
+                    <CategoryReference Kind="AssemblyCategory" Name="Observable" NeedsToBeDirectParent="true" />
+                    <Choice Kind="OperationCallFlag" Name="WithLatestFrom" />
+                  </p:NodeReference>
+                  <Pin Id="DhjIBM4jxaKNPRxZyWUHN7" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="MAr7b359wGILpXco0Nwen5" Name="Second" Kind="InputPin" />
+                  <Pin Id="C61xq1ZtAHROq0zvgKnqV7" Name="Output" Kind="OutputPin" />
+                  <Patch Id="KMqqq7wbsFaOnvxwnsZ88T" Name="Result Selector" ManuallySortedPins="true">
+                    <Pin Id="UO1y0RmAUXlNyfHHagI774" Name="Input 1" Kind="InputPin" />
+                    <Pin Id="SXJmxpsapS1MHFY5wmas4K" Name="Input 2" Kind="InputPin" />
+                    <Pin Id="InjLGsRENTHNdat0UVGsyl" Name="Result" Kind="OutputPin" />
+                    <ControlPoint Id="AKS81aPxDYBNQzoybyA7e9" Bounds="846,810" />
+                    <ControlPoint Id="QNPcXDCn86KPd2kaSBfOZq" Bounds="928,809" />
+                    <ControlPoint Id="P8JRrP3nKCNOSbCsN1gD8M" Bounds="1037,903" />
+                    <Node Bounds="926,874,73,26" Id="IrrbcfaZiqVPsFhSon620j">
+                      <p:NodeReference LastCategoryFullName="Collections.Builder.HashSetBuilder" LastDependency="VL.CoreLib.vl">
+                        <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                        <CategoryReference Kind="ClassType" Name="HashSetBuilder" />
+                        <Choice Kind="OperationCallFlag" Name="Clear" />
+                      </p:NodeReference>
+                      <Pin Id="DtMGjO5ctxHPtGIjYyymou" Name="Input" Kind="StateInputPin" />
+                      <Pin Id="KQnBybpE4ePMb7fIPSApeW" Name="Output" Kind="StateOutputPin" />
+                    </Node>
+                    <Node Bounds="926,828,114,26" Id="DPf0lckrLB3QVaeKMikuxR">
+                      <p:NodeReference LastCategoryFullName="Collections.Builder.HashSetBuilder" LastDependency="VL.CoreLib.vl">
+                        <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                        <CategoryReference Kind="ClassType" Name="HashSetBuilder" NeedsToBeDirectParent="true" />
+                        <Choice Kind="OperationCallFlag" Name="ToImmutable" />
+                      </p:NodeReference>
+                      <Pin Id="MxbH66BMDgMNC2tGvrJwI1" Name="Input" Kind="StateInputPin" />
+                      <Pin Id="Lpl1q1ihR3yL5XACPmZIAS" Name="Output" Kind="StateOutputPin" />
+                      <Pin Id="DqPzEv3wu9zMJZLC5itdt5" Name="Result" Kind="OutputPin" />
+                    </Node>
+                  </Patch>
+                </Node>
+              </Patch>
+            </Node>
+            <Pad Id="ACLQNGNjireMZdCEFCytv3" Bounds="1192,532,285,19" ShowValueBox="true" isIOBox="true" Value="Collect all changes between to afterframeTicks">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="String" />
+              </p:TypeAnnotation>
+              <p:ValueBoxSettings>
+                <p:fontsize p:Type="Int32">9</p:fontsize>
+                <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+              </p:ValueBoxSettings>
+            </Pad>
+            <Pad Id="LTO30ys4sWGQAee8buMt1n" Comment="Force" Bounds="757,523,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+                <CategoryReference Kind="Category" Name="Primitive" />
+              </p:TypeAnnotation>
+              <p:ValueBoxSettings>
+                <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+              </p:ValueBoxSettings>
+            </Pad>
+            <ControlPoint Id="HvGhljGBcI3LYBbnTBZGQ3" Bounds="844,1036" />
+          </Canvas>
+          <Patch Id="LMqjDFDhvTjOJjMz02oyUh" Name="Create" />
+          <Patch Id="RKELyDrN6zgNAiWZlnijvL" Name="Update">
+            <Pin Id="AnxwhWQwuS2NsRNmDLBdoM" Name="RedisClient" Kind="InputPin" Bounds="865,906" />
+            <Pin Id="SgvIndSK0vlOMC7kQu7J9v" Name="RedisClient" Kind="OutputPin" Bounds="759,1360" />
+            <Pin Id="VDwXv5sCEzLMAj8RWO416x" Name="Output" Kind="OutputPin" Bounds="770,863" />
+          </Patch>
+          <!--
+
+    ************************  ************************
+
+-->
+          <ProcessDefinition Id="LFq3i0pBIIpP4FCF91vnqn">
+            <Fragment Id="MS9i8D56tuILAqdK92JRrq" Patch="LMqjDFDhvTjOJjMz02oyUh" Enabled="true" />
+            <Fragment Id="I4Mol8oUFrpLUs9oAXLauo" Patch="RKELyDrN6zgNAiWZlnijvL" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="T4xQpOUjD0AO3UCHXLbXj2" Ids="AnxwhWQwuS2NsRNmDLBdoM,BN0nACroKWgMEYZoeWC4qT" IsHidden="true" />
+          <Link Id="IRoWKaVCvdMMbrY6S3Xiih" Ids="PK0XcZKEWMnQLBtpq5cXOz,SgvIndSK0vlOMC7kQu7J9v" IsHidden="true" />
+          <Link Id="Va0svRG49x2NfRNM7Rdk6m" Ids="BN0nACroKWgMEYZoeWC4qT,PK0XcZKEWMnQLBtpq5cXOz" />
+          <Link Id="BzZNe3v47tjMRiOCqQA9XK" Ids="CoSw8ZkuAbQLrDc3jmdkSL,H4CagDuiPCkMGP83HNNf0S" IsHidden="true" />
+          <Link Id="RTVwbC1YRpNNhu2fwAEsdo" Ids="QYogRKbZ0rhPUUN3lUz3Bs,APHyOfE9wStNgJ8H9z7o5j" IsHidden="true" />
+          <Link Id="RcrRfPjAE8fLHPNujBQsDR" Ids="G3vMN8vNmrCL4I8dwGI04L,MODzDs50AbULJJnhnllVut" IsHidden="true" />
+          <Link Id="NYy0GrVWiQkOI28IlzH3K0" Ids="BN0nACroKWgMEYZoeWC4qT,EHLt29jLrvALMPUGATBUET" />
+          <Link Id="AMLHQo5JdUsP1TYhTstXGN" Ids="LTO30ys4sWGQAee8buMt1n,DPJ3rc9VkslOyUB9ca6b7O" />
+          <Link Id="CYIlabzI80zLRxdQfoEDKu" Ids="Swid3ftSH8HNFoWmE1WjOW,HvGhljGBcI3LYBbnTBZGQ3" />
+          <Link Id="BuZLWJbqVoKLV0R6rMh1wG" Ids="HvGhljGBcI3LYBbnTBZGQ3,VDwXv5sCEzLMAj8RWO416x" IsHidden="true" />
+          <Link Id="MX2EcvBllLEMaexfor9DSJ" Ids="H4CagDuiPCkMGP83HNNf0S,HfdQ8zULa7GK9x4j7fqpl7" />
+          <Link Id="TNyjpZJBCx1QAKczpBZ2GP" Ids="PwnIjrcwxQHLc2HWMs7BaV,G3vMN8vNmrCL4I8dwGI04L" />
+          <Link Id="LlVJ54J2BXUO8ZRj0UNtYK" Ids="APHyOfE9wStNgJ8H9z7o5j,Nm7qbXT3v6sODNjZpBpScW" />
+          <Link Id="J07prnU69jIMHlHOzUxPcW" Ids="KAK2gMS2Au7Lq15ystvrr6,P61uFIiU4n8MFMBkASYaMU" />
+          <Link Id="JYdQH5qTxxEOTjReRVsuUi" Ids="K6RhbzU2YSaO8mMJBDXPuq,Swid3ftSH8HNFoWmE1WjOW" />
+          <Link Id="RsX45sGju73OomFJIXlUwc" Ids="EHLt29jLrvALMPUGATBUET,LsFceKeM6GvPZ3rtC2EtbE" />
+          <Link Id="UGYf5kplBjdPDqMMW69CqQ" Ids="GJkWmaGl197LVrgmt14VIv,IqFX1Ja9wVWOnsFNGZGCTw" />
+          <Link Id="IP2TNMkzyOsPJZfIrTZcyz" Ids="UO1y0RmAUXlNyfHHagI774,AKS81aPxDYBNQzoybyA7e9" IsHidden="true" />
+          <Link Id="GS1cAOgr6SUNvSLCxXhVzn" Ids="SXJmxpsapS1MHFY5wmas4K,QNPcXDCn86KPd2kaSBfOZq" IsHidden="true" />
+          <Link Id="QOOQ03VcUzLMp7j2Hrr7sN" Ids="P8JRrP3nKCNOSbCsN1gD8M,InjLGsRENTHNdat0UVGsyl" IsHidden="true" />
+          <Link Id="FoLCNDwM2YiPoMkhqfec5j" Ids="A4qaHNSRKJ9OUgcfNbDTYw,MAr7b359wGILpXco0Nwen5" />
+          <Link Id="JhCj3CRiYgsNL0IRY5sXoM" Ids="C61xq1ZtAHROq0zvgKnqV7,S3OlKY7VrbKL4QJJwQGa4q" />
+          <Link Id="A2weVGdQoHsNzAjKkwXrn3" Ids="ESMWwDZIW52OjCFqsdWnpj,DyMtuMcmLtpMVIfpMyp7aL" />
+          <Link Id="Lwf1IgGKDXbMFM6RL8kTxE" Ids="GcjciaS2WZwM96Y5n6G9VN,DhjIBM4jxaKNPRxZyWUHN7" />
+          <Link Id="R9NzD34hiDyPk7Ci0snsSm" Ids="BjEfbEJjGlFPH4AKzJUQzk,PIfK0mraJxsMaHwUhgpbkG" />
+          <Link Id="BQCb36iTAwcMZdhKo1pgQ5" Ids="C1WhGTFGadXL5djXAoQHfs,M7wmYxXklvhPcnG4K7bhkR" />
+          <Link Id="CzhTVRuqbPLP6c0lpBDTjJ" Ids="JDw97M9v8mSPwmLt7hiwiY,KAK2gMS2Au7Lq15ystvrr6" />
+          <Link Id="HvyZZybalaAP6AS5tRq0eG" Ids="QNPcXDCn86KPd2kaSBfOZq,MxbH66BMDgMNC2tGvrJwI1" />
+          <Link Id="APxM6WlFvnsMUsPM3zOKWp" Ids="DqPzEv3wu9zMJZLC5itdt5,P8JRrP3nKCNOSbCsN1gD8M" />
+          <Link Id="Lor86WHU6wrPtJboqGG5gE" Ids="Lpl1q1ihR3yL5XACPmZIAS,DtMGjO5ctxHPtGIjYyymou" />
         </Patch>
       </Node>
     </Canvas>
