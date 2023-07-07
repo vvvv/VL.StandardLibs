@@ -3,9 +3,7 @@ using System.IO;
 using NetPath = System.IO.Path;
 using System.Collections.Generic;
 using System.Linq;
-using VL.Core;
 using VL.Lib.Collections;
-using VL.Core.Utils;
 
 namespace VL.Lib.IO
 {
@@ -15,19 +13,10 @@ namespace VL.Lib.IO
         public static readonly Path Default = new Path(string.Empty);
 
         private readonly string _path;
-
-        [NonSerialized]
-        private Lazy<FileSystemInfo> _info;
-
-        [NonSerialized]
-        private long? _size;
-
-        [NonSerialized]
-        private Lazy<Path> _parent;
-
-        [NonSerialized]
-        private Spread<Path> _children;
         
+        [NonSerialized]
+        private Path _parent;
+
         public Path(string path)
         {
             _path = path;
@@ -40,47 +29,23 @@ namespace VL.Lib.IO
             return this;
         }
 
-        public Path(Path parent, FileSystemInfo info)
+        public Path(Path parent, string path) : this(path)
         {
-            _path = info.FullName;
-            if (parent != null)
-                _parent = new Lazy<Path>(() => parent, false);
-            _info = new Lazy<FileSystemInfo>(() => info, false);
+            _parent = parent;
         }
 
         public static Path FilePath(string input)
         {
-            return new Path(null, new FileInfo(input));
+            return new Path(input);
         }
 
         public static Path DirectoryPath(string input)
         {
-            return new Path(null, new DirectoryInfo(input));
+            return new Path(input);
         }
 
         public static implicit operator string(Path p) => p?._path;
         public static explicit operator Path(string s) => s != null ? new Path(s) : null;
-
-        internal FileSystemInfo Info => LazyHelpers.Cache(ref _info, GetInfo);
-
-        FileSystemInfo GetInfo()
-        {
-            try
-            {
-                if (File.Exists(_path))
-                    return new FileInfo(_path);
-                else if (Directory.Exists(_path))
-                    return new DirectoryInfo(_path);
-                return null;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        FileInfo FileInfo => Info as FileInfo;
-        DirectoryInfo DirectoryInfo => Info as DirectoryInfo;
 
         /// <summary>
         /// Returns whether the path is a file
@@ -89,8 +54,7 @@ namespace VL.Lib.IO
         {
             get
             {
-                var fi = FileInfo;
-                if (fi != null)
+                if (File.Exists(_path))
                     return true;
                 // Not on disk - distinguish by trailing directory separator
                 return !string.IsNullOrWhiteSpace(_path) 
@@ -105,8 +69,7 @@ namespace VL.Lib.IO
         {
             get
             {
-                var di = DirectoryInfo;
-                if (di != null)
+                if (Directory.Exists(_path))
                     return true;
                 // Not on disk - distinguish by trailing directory separator
                 return !string.IsNullOrWhiteSpace(_path) 
@@ -128,9 +91,9 @@ namespace VL.Lib.IO
         /// <summary>
         /// Returns the size of a file or all the files in a folder
         /// </summary>
-        public long Size => LazyHelpers.Cache(ref _size, () => IsFile ? GetFileSize() : GetDirectorySize());
+        public long Size => IsFile ? GetFileSize() : GetDirectorySize();
 
-        long GetFileSize() => FileInfo?.Length ?? 0L;
+        long GetFileSize() => new FileInfo(_path).Length;
 
         long GetDirectorySize()
         {
@@ -143,30 +106,14 @@ namespace VL.Lib.IO
         /// <summary>
         /// Returns whether file or folder exists
         /// </summary>
-        public bool Exists => Info?.Exists ?? false;
-
-        /// <summary>
-        /// Updates all properties of the path
-        /// </summary>
-        /// <returns></returns>
-        public Path Refresh() => new Path(_path);
+        public bool Exists => File.Exists(_path) || Directory.Exists(_path);
 
         /// <summary>
         /// For a directory returns its parent directory. For a file returns the directory the file is in
         /// </summary>
-        public Path Parent => LazyHelpers.Cache(ref _parent, GetParent);
+        public Path Parent => _parent ??= new Path(NetPath.Combine(_path, ".."));
 
-        Path GetParent()
-        {
-            if (FileInfo != null)
-                return new Path(null, FileInfo.Directory);
-            else if (DirectoryInfo != null)
-                return new Path(null, DirectoryInfo.Parent);
-            else
-                return new Path(NetPath.Combine(_path, ".."));
-        }
-
-        public Spread<Path> Children => LazyHelpers.Cache(ref _children, () => GetDescendants(includeSubdirectories: true));
+        public Spread<Path> Children => GetDescendants(includeSubdirectories: false);
 
         /// <summary>
         /// Returns all files and folders contained withinin a directory
@@ -177,13 +124,14 @@ namespace VL.Lib.IO
         /// <returns></returns>
         public Spread<Path> GetDescendants(string searchPattern = "*.*", bool includeSubdirectories = false, bool includeHidden = false)
         {
-            if (DirectoryInfo != null)
-                return DirectoryInfo.EnumerateFileSystemInfos(searchPattern, includeSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
-                    .Where(i => includeHidden || (!i.Attributes.HasFlag(FileAttributes.Hidden)))
+            if (IsDirectory)
+            {
+                var options = GetEnumerationOptions(includeSubdirectories, includeHidden);
+                return Directory.EnumerateFileSystemEntries(_path, searchPattern, options)
                     .Select(i => new Path(this, i))
                     .ToSpread();
+            }
             return Spread<Path>.Empty;
-
         }
 
         /// <summary>
@@ -195,10 +143,10 @@ namespace VL.Lib.IO
         /// <returns></returns>
         public Spread<Path> GetDirectories(string searchPattern = "*.*", bool includeSubdirectories = false, bool includeHidden = false)
         {
-            if (DirectoryInfo != null)
+            if (IsDirectory)
             {
-                return DirectoryInfo.EnumerateDirectories(searchPattern, includeSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
-                    .Where(i => includeHidden || (!i.Attributes.HasFlag(FileAttributes.Hidden)))
+                var options = GetEnumerationOptions(includeSubdirectories, includeHidden);
+                return Directory.EnumerateDirectories(_path, searchPattern, options)
                     .Select(i => new Path(this, i))
                     .ToSpread();
             }
@@ -214,30 +162,30 @@ namespace VL.Lib.IO
         /// <returns></returns>
         public Spread<Path> GetFiles(string searchPattern = "*.*", bool includeSubdirectories = false, bool includeHidden = false)
         {
-            if (DirectoryInfo != null)
-                return DirectoryInfo.EnumerateFiles(searchPattern, includeSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
-                    .Where(i => includeHidden || (!i.Attributes.HasFlag(FileAttributes.Hidden)))
+            if (IsDirectory)
+            {
+                var options = GetEnumerationOptions(includeSubdirectories, includeHidden);
+                return Directory.EnumerateFiles(_path, searchPattern, options)
                     .Select(i => new Path(this, i))
                     .ToSpread();
+            }
             return Spread<Path>.Empty;
         }
 
-        public string DirectoryName
+        private static EnumerationOptions GetEnumerationOptions(bool includeSubdirectories, bool includeHidden)
         {
-            get
+            return new EnumerationOptions()
             {
-                return DirectoryInfo?.FullName ?? NetPath.GetDirectoryName(_path);
-            }
-                
+                MatchType = MatchType.Win32,
+                AttributesToSkip = !includeHidden ? FileAttributes.Hidden : 0,
+                IgnoreInaccessible = false,
+                RecurseSubdirectories = includeSubdirectories
+            };
         }
 
-        public string Name
-        {
-            get
-            {
-                return Info?.Name ?? NetPath.GetFileNameWithoutExtension(_path);
-            }
-        }
+        public string DirectoryName => NetPath.GetDirectoryName(_path);
+
+        public string Name => NetPath.GetFileNameWithoutExtension(_path);
 
         public string NameWithExtension => NetPath.GetFileName(_path);
 
@@ -275,9 +223,9 @@ namespace VL.Lib.IO
 
             try
             {
-                directory = FileInfo?.DirectoryName ?? NetPath.GetDirectoryName(_path);
-                filename = NetPath.GetFileNameWithoutExtension(FileInfo?.Name ?? _path);
-                extension = FileInfo?.Extension ?? NetPath.GetExtension(_path);
+                directory = NetPath.GetDirectoryName(_path);
+                filename = NetPath.GetFileNameWithoutExtension(_path);
+                extension = NetPath.GetExtension(_path);
                 extension = extension.TrimStart(new char[] { '.' });
             }
             catch (Exception)
@@ -296,7 +244,7 @@ namespace VL.Lib.IO
         /// <param name="isSystem"></param>
         public void GetAttributes(out bool isReadOnly, out bool isHidden, out bool isSystem)
         {
-            var attrs = Info?.Attributes ?? FileAttributes.Offline;
+            var attrs = Exists ? File.GetAttributes(_path) : default;
             isReadOnly = attrs.HasFlag(FileAttributes.ReadOnly);
             isHidden = attrs.HasFlag(FileAttributes.Hidden);
             isSystem = attrs.HasFlag(FileAttributes.System);
@@ -310,9 +258,9 @@ namespace VL.Lib.IO
         /// <param name="isSystem"></param>
         public void SetAttributes(bool isReadOnly, bool isHidden, bool isSystem)
         {
-            if (Info != null)
+            if (Exists)
             {
-                var attrs = Info.Attributes;
+                var attrs = File.GetAttributes(_path);
                 if (isReadOnly)
                     attrs |= FileAttributes.ReadOnly;
                 else
@@ -327,8 +275,8 @@ namespace VL.Lib.IO
                     attrs |= FileAttributes.System;
                 else
                     attrs &= ~FileAttributes.System;
-                
-                Info.Attributes = attrs;
+
+                File.SetAttributes(_path, attrs);
             }
         }
 
@@ -340,11 +288,12 @@ namespace VL.Lib.IO
         /// <param name="lastAccessTime"></param>
         public void Modified(out DateTime creationTime, out DateTime lastWriteTime, out DateTime lastAccessTime)
         {
-            if (Info != null)
+            var info = GetInfo();
+            if (info != null)
             {
-                creationTime = Info.CreationTime;
-                lastWriteTime = Info.LastWriteTime;
-                lastAccessTime = Info.LastAccessTime;
+                creationTime = info.CreationTime;
+                lastWriteTime = info.LastWriteTime;
+                lastAccessTime = info.LastAccessTime;
             }
             else
             {
@@ -352,19 +301,14 @@ namespace VL.Lib.IO
             }
         }
 
+        private FileSystemInfo GetInfo() => IsFile ? new FileInfo(_path) : IsDirectory ? new DirectoryInfo(_path) : null;
+
         public void CreateDirectory(out bool success)
         {
             try
             {
-                if (Info == null)
-                    _info = new Lazy<FileSystemInfo>(() => new DirectoryInfo(_path), false);
-                if (DirectoryInfo != null)
-                {
-                    DirectoryInfo.Create();
-                    success = true;
-                }
-                else
-                    success = false;
+                Directory.CreateDirectory(_path);
+                success = true;
             }
             catch
             {
@@ -374,35 +318,29 @@ namespace VL.Lib.IO
 
         public Path Move(Path newPath, bool replaceExisting)
         {
-            if (Info == null)
-                return new Path(newPath);
-            else
+            try
             {
-                try
+                if (!newPath.Exists || replaceExisting)
                 {
-                    Path p = new Path(null, this.Info);
-                    if (!newPath.Exists || replaceExisting)
-                    {
-                        if (IsFile)
-                            p.FileInfo.MoveTo(newPath);
-                        else
-                            p.DirectoryInfo.MoveTo(newPath);
-                    }
-                    return p;
+                    if (IsFile)
+                        File.Move(_path, newPath, replaceExisting);
+                    else if (IsDirectory)
+                        Directory.Move(_path, newPath);
                 }
-                catch
-                {
-                    return new Path(newPath);
-                }
+                return newPath;
+            }
+            catch
+            {
+                return newPath;
             }
         }
 
        
         public Path Rename(string newName, bool replaceExisting)
         {
-            if (Info != null)
+            if (Exists)
             {
-                return Move(new Path(Info.FullName.Replace(Info.Name, newName)), replaceExisting);
+                return Move(new Path(newName), replaceExisting);
             }
             else
             {
@@ -420,57 +358,76 @@ namespace VL.Lib.IO
         {
             var p = Default;
             worker = new List<Func<Path>>();
-            if (Info != null)
+            if (IsFile)
             {
-                if (IsFile)
+                var n = new Path(newPath);
+                if (!n.Exists || replaceExisting)
                 {
-                    var f = new Path(null, this.Info);
-                    var n = new Path(null, new FileInfo(newPath));
-                    if (!n.Exists || replaceExisting)
+                    worker.Add(() =>
                     {
-                        worker.Add(() => 
-                        {
-                            if (!n.FileInfo.Directory.Exists)
-                                n.FileInfo.Directory.Create();
-                            f.FileInfo.CopyTo(newPath);
-                            return n;
-                        });
-                        p = n;
-                    }
+                        var newDir = NetPath.GetDirectoryName(newPath);
+                        Directory.CreateDirectory(newDir);
+                        File.Copy(_path, newPath, replaceExisting);
+                        return n;
+                    });
+                    p = n;
                 }
-                else
+            }
+            else if (IsDirectory)
+            {
+                CopyDirectory(_path, newPath, recursive: true, overwrite: replaceExisting);
+                return new Path(newPath);
+            }
+            return p;
+
+            // https://learn.microsoft.com/en-us/dotnet/standard/io/how-to-copy-directories
+            static void CopyDirectory(string sourceDir, string destinationDir, bool recursive, bool overwrite)
+            {
+                // Get information about the source directory
+                var dir = new DirectoryInfo(sourceDir);
+
+                // Check if the source directory exists
+                if (!dir.Exists)
+                    throw new DirectoryNotFoundException($"Source directory not found: {dir.FullName}");
+
+                // Cache directories before we start copying
+                DirectoryInfo[] dirs = dir.GetDirectories();
+
+                // Create the destination directory
+                Directory.CreateDirectory(destinationDir);
+
+                // Get the files in the source directory and copy to the destination directory
+                foreach (FileInfo file in dir.GetFiles())
                 {
-                    var d = new Path(null, new DirectoryInfo(newPath));
-                    bool dirExists = d.Exists;
-                    if (!dirExists)
-                        d.CreateDirectory(out dirExists);
-                    if (dirExists)
+                    string targetFilePath = NetPath.Combine(destinationDir, file.Name);
+                    file.CopyTo(targetFilePath, overwrite);
+                }
+
+                // If recursive and copying subdirectories, recursively call this method
+                if (recursive)
+                {
+                    foreach (DirectoryInfo subDir in dirs)
                     {
-                        foreach (var df in Children)
-                        {
-                            var sub = new List<Func<Path>>();
-                            df.CopyTo(df.Info.FullName.Replace(this.DirectoryInfo.FullName, d.DirectoryInfo.FullName), replaceExisting, out sub);
-                            worker.AddRange(sub);
-                        }
-                        p = d;
+                        string newDestinationDir = NetPath.Combine(destinationDir, subDir.Name);
+                        CopyDirectory(subDir.FullName, newDestinationDir, true, overwrite);
                     }
                 }
             }
-            return p;
         }
 
         public bool Delete()
         {
-            if (Info == null)
-                return false;
-            else
+            if (IsFile)
             {
-                if (DirectoryInfo != null)
-                    DirectoryInfo.Delete(true);
-                else
-                    Info.Delete();
+                File.Delete(_path);
                 return true;
             }
+            else if (IsDirectory)
+            {
+                Directory.Delete(_path, true);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -548,7 +505,7 @@ namespace VL.Lib.IO
         public static bool operator !=(Path a, Path b) => !(a == b);
 
         public override bool Equals(object obj) => Equals(obj as Path);
-        public override int GetHashCode() => Info?.FullName.GetHashCode() ?? _path.GetHashCode();
+        public override int GetHashCode() => _path != null ? _path.GetHashCode() : 0;
     }
 }
 

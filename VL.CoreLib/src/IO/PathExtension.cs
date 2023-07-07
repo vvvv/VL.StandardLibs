@@ -152,7 +152,7 @@ namespace VL.Lib.IO
         public static Path SystemFolder(SpecialFolder specialFolder)
         {
             var spf = (Environment.SpecialFolder)specialFolder;
-            return new Path(null, new System.IO.DirectoryInfo(Environment.GetFolderPath(spf)));
+            return new Path(null, Environment.GetFolderPath(spf));
         }
 
         /// <summary>
