@@ -26,16 +26,16 @@ namespace VL.Lang
         public readonly string Why;
         public readonly string How;
         public readonly string Ignore;
+        public readonly bool IsFollowUp;
 
         private bool? flowToParent;
 
         public Message(MessageSeverity severity, string what, string why = "", string how = "", string ignore = "")
             : this(default(UniqueId), severity, what, why, how, ignore)
         {
-
         }
 
-        public Message(UniqueId location, MessageSeverity severity, string what, string why = "", string how = "", string ignore = "", bool? flowToParent = default)
+        public Message(UniqueId location, MessageSeverity severity, string what, string why = "", string how = "", string ignore = "", bool? flowToParent = default, bool isFollowUp = false)
         {
             Location = location;
             Severity = severity;
@@ -44,6 +44,7 @@ namespace VL.Lang
             How = how;
             Ignore = ignore;
             this.flowToParent = flowToParent;
+            IsFollowUp = isFollowUp;
         }
 
         public bool FlowToParent => flowToParent.HasValue ? flowToParent.Value : Severity == MessageSeverity.Error;
