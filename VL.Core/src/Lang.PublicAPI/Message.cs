@@ -18,6 +18,12 @@ namespace VL.Lang
         Error
     }
 
+    public enum MessageSource
+    {
+        Compiler, 
+        Runtime
+    }
+
     public class Message : IEquatable<Message>
     {
         public readonly UniqueId Location;
@@ -27,6 +33,7 @@ namespace VL.Lang
         public readonly string How;
         public readonly string Ignore;
         public readonly bool IsFollowUp;
+        public readonly MessageSource Source;
 
         private bool? flowToParent;
 
@@ -35,7 +42,7 @@ namespace VL.Lang
         {
         }
 
-        public Message(UniqueId location, MessageSeverity severity, string what, string why = "", string how = "", string ignore = "", bool? flowToParent = default, bool isFollowUp = false)
+        public Message(UniqueId location, MessageSeverity severity, string what, string why = "", string how = "", string ignore = "", bool? flowToParent = default, bool isFollowUp = false, MessageSource source = MessageSource.Compiler)
         {
             Location = location;
             Severity = severity;
@@ -45,6 +52,7 @@ namespace VL.Lang
             Ignore = ignore;
             this.flowToParent = flowToParent;
             IsFollowUp = isFollowUp;
+            Source = source;
         }
 
         public bool FlowToParent => flowToParent.HasValue ? flowToParent.Value : Severity == MessageSeverity.Error;
@@ -81,7 +89,7 @@ namespace VL.Lang
 
         public Message WithElementId(UniqueId id)
         {
-            return new Message(id, Severity, What, Why, How, Ignore);
+            return new Message(id, Severity, What, Why, How, Ignore, FlowToParent, IsFollowUp, Source);
         }
     }
 

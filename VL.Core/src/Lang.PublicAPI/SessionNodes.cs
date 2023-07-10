@@ -50,7 +50,7 @@ namespace VL.Lang.PublicAPI
         /// Add a message for one frame. 
         /// </summary>
         public static void AddMessage(UniqueId elementId, string message, MessageSeverity severity = MessageSeverity.Warning)
-            => IVLRuntime.Current?.AddMessage(new Message(elementId, severity, message));
+            => IVLRuntime.Current?.AddMessage(new Message(elementId, severity, message, source: MessageSource.Runtime));
 
         /// <summary>
         /// Add a message for one frame. 
