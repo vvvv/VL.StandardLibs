@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Collections.Immutable;
+using System.Reactive.Concurrency;
 
 namespace VL.IO.Redis
 {
@@ -16,7 +17,7 @@ namespace VL.IO.Redis
         private ITransaction _tran;
         private readonly IList<Task<KeyValuePair<Guid, object>>> _tasks = new List<Task<KeyValuePair<Guid, object>>>();
 
-        private Task<bool> _result;
+        private Task<Task<ImmutableDictionary<Guid, object>>> _result;
 
         public int Count => _tasks.Count;
         public RedisCommandQueue Enqueue(Func<ITransaction, Task<KeyValuePair<Guid, object>>> cmd)
@@ -46,24 +47,18 @@ namespace VL.IO.Redis
         public void ExecuteAsync(out int Count)
         {
             Count = _tasks.Count;
-            _result = _tran.ExecuteAsync();
+            _result = _tran.ExecuteAsync().ContinueWith(
+            t =>
+                Task.WhenAll(_tasks)
+                .ContinueWith(t => new Dictionary<Guid, object>(t.Result)
+                .ToImmutableDictionary())
+            );
         }
 
-        public async Task<ImmutableDictionary<Guid, object>> GetResult()
+        public ImmutableDictionary<Guid, object> Result()
         {
-            if (await _result)
-                return await Task.WhenAll(_tasks).ContinueWith(t => new Dictionary<Guid, object>(t.Result).ToImmutableDictionary());
-            else
-                return ImmutableDictionary.Create<Guid, object>();
-        }
+            return _result.ConfigureAwait(false).GetAwaiter().GetResult().ConfigureAwait(false).GetAwaiter().GetResult();
 
-
-        public async Task<ImmutableDictionary<Guid, object>> Execute()
-        {
-            if (await _tran.ExecuteAsync())
-                return await Task.WhenAll(_tasks).ContinueWith(t => new Dictionary<Guid, object>(t.Result).ToImmutableDictionary());
-            else
-                return ImmutableDictionary.Create<Guid, object>();
         }
     }
     public sealed class ThreadSafeToggle
