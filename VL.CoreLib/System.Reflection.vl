@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="LiIPinoB4LjLRms7uZqVID" LanguageVersion="2023.5.3-0053-g9b9cb967a3" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="LiIPinoB4LjLRms7uZqVID" LanguageVersion="2023.5.3-0052-gd114b32994" Version="0.128">
   <Patch Id="MaKn58isLEdLcMSCDKs0fL">
     <Canvas Id="Bb8OVvqJusyMdcjXvJIsPx" DefaultCategory="System.Reflection" CanvasType="FullCategory">
       <Canvas Id="QozF33LF0ncPaMIS06nLkl" Name="Experimental" Position="538,165">
@@ -1142,6 +1142,51 @@
           <Patch Id="BKfIdGhOvB0NMLcsG4ePfC">
             <Canvas Id="AceCuthnv00LjjHqHQ2O9U" BordersChecked="false" CanvasType="Group" />
             <ProcessDefinition Id="JplruDzX2y8NHzp8ALR8oE" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ ServiceRegistry ************************
+
+-->
+        <Node Name="ServiceRegistry" Bounds="482,415" Id="RBMkS8CgnSpNf8WxDbBa9Q">
+          <p:NodeReference>
+            <Choice Kind="ForwardDefinition" Name="Forward" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Core" LastDependency="VL.Core.dll">
+            <Choice Kind="TypeFlag" Name="ServiceRegistry" />
+          </p:TypeAnnotation>
+          <Patch Id="JvT6VsHbRK9MJldgMw7ZeT">
+            <Canvas Id="Io37xHHFiv9LwILVKNaz12" CanvasType="Group">
+              <!--
+
+    ************************ GetService ************************
+
+-->
+              <Node Name="GetService" Bounds="358,240,133,80" Id="HzuaTKPOKEvOTMbwjHWdDR">
+                <p:NodeReference>
+                  <Choice Kind="OperationDefinition" Name="Operation" />
+                  <CategoryReference Kind="Category" Name="Primitive" />
+                </p:NodeReference>
+                <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+                <Patch Id="PcadLNQpGxBNspZM1pxQrA" IsGeneric="true">
+                  <Node Bounds="370,269,109,26" AutoConnect="true" Id="Dz63z99UjtLOtQ8EWQ5GZm">
+                    <p:NodeReference LastCategoryFullName="VL.Core.ServiceProviderExtensions" LastDependency="VL.Core.dll">
+                      <Choice Kind="OperationNode" Name="GetService" />
+                      <FullNameCategoryReference ID="VL.Core.ServiceProviderExtensions" />
+                    </p:NodeReference>
+                    <Pin Id="IYNPtsCxg5iNWnUr44l2pN" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="MiaUeubsI2ALV6ofaWSrF0" Name="Result" Kind="OutputPin" />
+                  </Node>
+                  <Pin Id="OYiMeHvvzrAPKVJrqhELlU" Name="Input" Kind="InputPin" />
+                  <Pin Id="FhhEkClExGdQH57Iy8XC1b" Name="Result" Kind="OutputPin" />
+                </Patch>
+              </Node>
+            </Canvas>
+            <ProcessDefinition Id="EdIoLcH5XlJNbavDbsvpow" IsHidden="true">
+              <Fragment Id="GZ5WL3sK3loLVeuS7KZKXA" Patch="HzuaTKPOKEvOTMbwjHWdDR" />
+            </ProcessDefinition>
           </Patch>
         </Node>
       </Canvas>
