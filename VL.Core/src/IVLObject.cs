@@ -71,7 +71,7 @@ namespace VL.Core
         /// Add a message for one frame. 
         /// </summary>
         void AddMessage(UniqueId elementId, string message, MessageSeverity severity = MessageSeverity.Warning)
-            => AddMessage(new Message(elementId, severity, message));
+            => AddMessage(new Message(elementId, severity, message, source: MessageSource.Runtime));
 
         /// <summary>
         /// Add a persistent message. Use the returned disposable to remove the message.
