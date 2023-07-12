@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using VL.AppServices;
 using VL.AppServices.CompilerServices;
@@ -24,8 +25,9 @@ namespace VL.Core.Tests
         [SetUp]
         public void Setup()
         {
-            appHost = new();
-            appHost.Services.RegisterService<TypeRegistry>(new TypeRegistryImpl());
+            var services = new ServiceCollection();
+            services.AddSingleton<TypeRegistry>(p => new TypeRegistryImpl());
+            appHost = new(services.BuildServiceProvider());
             appHost.MakeCurrent().DisposeBy(appHost);
             Foo.__IsOutdated = false;
             Foo2.__IsOutdated = false;

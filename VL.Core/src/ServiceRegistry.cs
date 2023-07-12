@@ -14,19 +14,19 @@ namespace VL.Core
         /// The service registry for the current thread. Throws <see cref="InvalidOperationException"/> in case no registry is installed.
         /// </summary>
         [Obsolete("Use IAppHost.Current.Services", error: false)]
-        public static ServiceRegistry Current => AppHost.Current.Services;
+        public static IServiceProvider Current => AppHost.Current.Services;
 
         /// <summary>
         /// The service registry for the current thread or the global one if there's no registry installed on the current thread.
         /// </summary>
         [Obsolete("Use IAppHost.CurrentOrGlobal.Services", error: true)]
-        public static ServiceRegistry CurrentOrGlobal => AppHost.CurrentOrGlobal.Services;
+        public static IServiceProvider CurrentOrGlobal => AppHost.CurrentOrGlobal.Services;
 
         /// <summary>
         /// The service registry for the whole application.
         /// </summary>
         [Obsolete("Use IAppHost.Global.Services", error: true)]
-        public static ServiceRegistry Global => global!;
+        public static IServiceProvider Global => global!;
 
         /// <summary>
         /// Whether or not a context is installed on the current thread.

@@ -1,4 +1,6 @@
-﻿using Stride.Core.Mathematics;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Stride.Core.Mathematics;
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -30,10 +32,13 @@ namespace VL.Lib
             // did we get called by runtime?
             if (!factory.OnlyStaticServices)
             {
+                //IServiceCollection collection;
+                //collection.AddSingleton<IChannelHub>(p => new ChannelHub(p));
+
                 // make sure all channels of config exist in app-channelhub.
                 var appHost = AppHost.Current;
                 var channelHub = new ChannelHub(appHost).DisposeBy(appHost);
-                appHost.Services.RegisterService<IChannelHub>(channelHub);
+                //appHost.Services.RegisterService<IChannelHub>(channelHub);
                 var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(appHost.AppBasePath);
                 if (watcher != null)
                     channelHub.MustHaveDescriptive = watcher.Descriptions;

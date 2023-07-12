@@ -101,7 +101,7 @@ namespace VL.Core
         /// <summary>
         /// The service registry of the app.
         /// </summary>
-        public abstract ServiceRegistry Services { get; }
+        public abstract IServiceProvider Services { get; }
 
         /// <summary>
         /// The application patch.
