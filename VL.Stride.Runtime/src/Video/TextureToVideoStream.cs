@@ -76,27 +76,36 @@ namespace VL.Stride.Video
                     // Dequeue
                     textureDownloads.Dequeue();
 
-                    var (memoryOwner, videoFrame) = CreateVideoFrame(stagedTexture, data, stagedMetadata);
-
-                    var videoFrameProvider = ResourceProvider.Return(videoFrame, ReleaseVideoFrame);
-
-                    using (videoFrameProvider.GetHandle())
+                    try
                     {
-                        // Push it downstream
-                        frames.OnNext(videoFrameProvider);
-                    }
+                        var (memoryOwner, videoFrame) = CreateVideoFrame(stagedTexture, data, stagedMetadata);
 
-                    void ReleaseVideoFrame(VideoFrame videoFrame)
-                    {
-                        if (SynchronizationContext.Current != synchronizationContext)
-                            synchronizationContext.Post(x => ReleaseVideoFrame((VideoFrame)x), videoFrame);
-                        else
+                        var videoFrameProvider = ResourceProvider.Return(videoFrame, ReleaseVideoFrame);
+
+                        using (videoFrameProvider.GetHandle())
                         {
-                            memoryOwner.Dispose();
-                            if (!IsDisposed)
-                                commandList.UnmapSubresource(mappedResource);
-                            texturePool.Return(stagedTexture);
+                            // Push it downstream
+                            frames.OnNext(videoFrameProvider);
                         }
+
+                        void ReleaseVideoFrame(VideoFrame videoFrame)
+                        {
+                            if (SynchronizationContext.Current != synchronizationContext)
+                                synchronizationContext.Post(x => ReleaseVideoFrame((VideoFrame)x), videoFrame);
+                            else
+                            {
+                                memoryOwner.Dispose();
+                                if (!IsDisposed)
+                                    commandList.UnmapSubresource(mappedResource);
+                                texturePool.Return(stagedTexture);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        commandList.UnmapSubresource(mappedResource);
+                        texturePool.Return(stagedTexture);
+                        throw;
                     }
                 }
             }
