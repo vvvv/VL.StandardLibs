@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using VL.Core;
 
@@ -18,6 +19,12 @@ namespace VL.Lang
         Error
     }
 
+    public enum MessageSource
+    {
+        Compiler, 
+        Runtime
+    }
+
     public class Message : IEquatable<Message>
     {
         public readonly UniqueId Location;
@@ -26,16 +33,19 @@ namespace VL.Lang
         public readonly string Why;
         public readonly string How;
         public readonly string Ignore;
+        public readonly bool IsFollowUp;
+        public readonly MessageSource Source;
+        public readonly int Number = Interlocked.Increment(ref currentNumber);
 
+        static int currentNumber;
         private bool? flowToParent;
 
         public Message(MessageSeverity severity, string what, string why = "", string how = "", string ignore = "")
             : this(default(UniqueId), severity, what, why, how, ignore)
         {
-
         }
 
-        public Message(UniqueId location, MessageSeverity severity, string what, string why = "", string how = "", string ignore = "", bool? flowToParent = default)
+        public Message(UniqueId location, MessageSeverity severity, string what, string why = "", string how = "", string ignore = "", bool? flowToParent = default, bool isFollowUp = false, MessageSource source = MessageSource.Compiler)
         {
             Location = location;
             Severity = severity;
@@ -44,6 +54,8 @@ namespace VL.Lang
             How = how;
             Ignore = ignore;
             this.flowToParent = flowToParent;
+            IsFollowUp = isFollowUp;
+            Source = source;
         }
 
         public bool FlowToParent => flowToParent.HasValue ? flowToParent.Value : Severity == MessageSeverity.Error;
@@ -80,7 +92,7 @@ namespace VL.Lang
 
         public Message WithElementId(UniqueId id)
         {
-            return new Message(id, Severity, What, Why, How, Ignore);
+            return new Message(id, Severity, What, Why, How, Ignore, FlowToParent, IsFollowUp, Source);
         }
     }
 
