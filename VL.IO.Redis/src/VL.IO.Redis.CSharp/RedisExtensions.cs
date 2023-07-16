@@ -12,55 +12,7 @@ using System.Reactive.Concurrency;
 
 namespace VL.IO.Redis
 {
-    public class RedisCommandQueue
-    {
-        private ITransaction _tran;
-        private readonly IList<Task<KeyValuePair<Guid, object>>> _tasks = new List<Task<KeyValuePair<Guid, object>>>();
-
-        private Task<Task<ImmutableDictionary<Guid, object>>> _result;
-
-        public int Count => _tasks.Count;
-        public RedisCommandQueue Enqueue(Func<ITransaction, Task<KeyValuePair<Guid, object>>> cmd)
-        {
-            if (_tran != null)
-                _tasks.Add(cmd(_tran));
-            return this;
-        }
-
-        public void Enqueue(IList<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> cmd)
-        {
-            if (_tran != null)
-                foreach(var c in cmd)
-                    _tasks.Add(c(_tran));
-            cmd.Clear();
-        }
-
-        public RedisCommandQueue()
-        { }
-
-        public void BeginTransaction(IDatabase database)
-        {
-            _tasks.Clear();
-            _tran = database.CreateTransaction();
-        }
-
-        public void ExecuteAsync(out int Count)
-        {
-            Count = _tasks.Count;
-            _result = _tran.ExecuteAsync().ContinueWith(
-            t =>
-                Task.WhenAll(_tasks)
-                .ContinueWith(t => new Dictionary<Guid, object>(t.Result)
-                .ToImmutableDictionary())
-            );
-        }
-
-        public ImmutableDictionary<Guid, object> Result()
-        {
-            return _result.ConfigureAwait(false).GetAwaiter().GetResult().ConfigureAwait(false).GetAwaiter().GetResult();
-
-        }
-    }
+    
     public sealed class ThreadSafeToggle
     {
         public ThreadSafeToggle() { }
