@@ -2,26 +2,24 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace VL.IO.Redis
 {
-    public class RedisCommandQueue
+    public record RedisCommandQueue
     {
         private ITransaction _tran;
-        private readonly IList<Task<KeyValuePair<Guid, object>>> _tasks = new List<Task<KeyValuePair<Guid, object>>>();
-        private readonly IList<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> _cmds = new List<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
-        private readonly List<RedisKey> _changedkeys = new List<RedisKey>();
+        private IList<Task<KeyValuePair<Guid, object>>> _tasks;
+        private IList<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> _cmds;
+        private List<RedisKey> _changedkeys;
 
-        private Task<Task<ImmutableDictionary<Guid, object>>> _result;
-
-        private Task<bool> _transaction;
-        private Task<ImmutableDictionary<Guid, object>> _output;
-
-        public int Count => _tasks.Count;
-        public void Enqueue(Func<ITransaction, Task<KeyValuePair<Guid, object>>> cmd)
+        public void Enqueue(Func<ITransaction, Task<KeyValuePair<Guid, object>>> cmd )
         {
             _cmds.Add(cmd);
         }
@@ -31,66 +29,116 @@ namespace VL.IO.Redis
             _changedkeys.AddRange(keys);
         }
 
-
-        public RedisCommandQueue()
-        { }
-
-        public void BeginTransaction(IDatabase database)
+        public RedisCommandQueue(IDatabase database)
         {
-            _tasks.Clear();
-            _cmds.Clear();
-            _changedkeys.Clear();
-            _tran = database.CreateTransaction();
+            _tran           = database.CreateTransaction();
+            _tasks          = new List<Task<KeyValuePair<Guid, object>>>();
+            _cmds           = new List<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
+            _changedkeys    = new List<RedisKey>();
         }
 
-        public void ExecuteAsync(out int Count)
+
+        public void AddTransactions(out int Count, out ImmutableList<RedisKey> Changes)
         {
+            try
+            {
+                if (_tran != null)
+                    foreach (var cmd in _cmds.ToImmutableList())
+                        _tasks.Add(cmd(_tran));
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine(ex);
+            }
             
-            if (_tran != null)
-                foreach (var cmd in _cmds)
-                    _tasks.Add(cmd(_tran));
-
             Count = _tasks.Count;
-
-            _result = _tran.ExecuteAsync().ContinueWith(
-            t =>
-                Task.WhenAll(_tasks).ContinueWith(t => t.Result.ToImmutableDictionary())
-            );
+            Changes = _changedkeys.ToImmutableList();
         }
 
-        public void ExecuteAsync2(out int Count)
+        public static IObservable<RedisCommandQueue> ApplyTransactions(IObservable<RedisCommandQueue> observable)
+        {
+            return Observable.Create<RedisCommandQueue>((obs) =>
+            {
+                var syncObs = Observer.Synchronize(obs, true);
+                return observable.Subscribe(async
+                (queue) =>
+                {
+                    if (queue._tran != null)
+                    {
+
+                    }
+                }
+                ,(ex) =>
+                {
+                    Console.WriteLine(ex);
+                    syncObs.OnError(ex);
+                }
+                ,() =>
+                {
+                    Console.WriteLine("COMPLETED");
+                    syncObs.OnCompleted();
+                });
+            });
+        }
+
+
+        public static IObservable<ImmutableDictionary<Guid, object>> ExecuteTransaction(IObservable<RedisCommandQueue> observable, Action<float> action)
         {
 
-            if (_tran != null)
-                foreach (var cmd in _cmds)
-                    _tasks.Add(cmd(_tran));
+            return Observable.Create<ImmutableDictionary<Guid, object>>((obs) =>
+            {
+                var syncObs = Observer.Synchronize(obs, true);
+                return observable.Subscribe(async 
+                    (queue) =>
+                    {
+                        try
+                        {
+                            var sw = Stopwatch.StartNew();
 
-            Count = _tasks.Count;
+                            if (await queue._tran.ExecuteAsync())
+                            {
+                                try
+                                {
+                                    var resultAwaiter = Task.WhenAll(queue._tasks).GetAwaiter();
 
-            _transaction = _tran.ExecuteAsync();
+                                    resultAwaiter.OnCompleted(() =>
+                                    {
+                                        action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond / 1000));
+
+                                        ImmutableDictionary<Guid, object>.Builder builder = ImmutableDictionary.CreateBuilder<Guid, object>();
+                                        foreach (var kv in resultAwaiter.GetResult())
+                                        {
+                                            builder.TryAdd(kv.Key, kv.Value);
+                                        }
+                                        syncObs.OnNext(builder.ToImmutable());
+                                    });
+                                }
+                                catch (Exception ex) 
+                                {
+                                    Console.WriteLine(ex);
+                                    syncObs.OnError(ex);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                            syncObs.OnError(ex);
+                        }
+                    }
+                    ,(ex) => 
+                    {
+                        Console.WriteLine(ex);
+                        syncObs.OnError(ex); 
+                    }
+                    ,() =>
+                    {
+                        Console.WriteLine("COMPLETED");
+                        syncObs.OnCompleted();
+                    }
+                );
+            });
         }
 
-        public async Task<ImmutableDictionary<Guid, object>> WaitTransaction()
-        {
-            if (await _transaction)
-                return await Task.WhenAll(_tasks).ContinueWith(t => new Dictionary<Guid, object>(t.Result).ToImmutableDictionary());
-            else
-                return ImmutableDictionary<Guid, object>.Empty;
-        }
-
-        public ImmutableDictionary<Guid, object> Result2()
-        {
-            return _output.ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        public ImmutableDictionary<Guid, object> Result()
-        {
-            return _result.ConfigureAwait(false).GetAwaiter().GetResult().ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        public ImmutableList<RedisKey> Changed()
-        {
-            return _changedkeys.ToImmutableList();
-        }
     }
 }

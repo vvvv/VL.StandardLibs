@@ -9,6 +9,8 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Collections.Immutable;
 using System.Reactive.Concurrency;
+using System.Threading.Channels;
+using System.Transactions;
 
 namespace VL.IO.Redis
 {
@@ -66,6 +68,26 @@ namespace VL.IO.Redis
                 return Disposable.Create(() => subscriber.Unsubscribe(channel));
             });
         }
+
+        public static IObservable<ImmutableDictionary<Guid, object>> ObservableTransactions(this ITransaction transaction, IList<Task<KeyValuePair<Guid, object>>> _tasks)
+        {
+            return Observable.Create<ImmutableDictionary<Guid, object>>(async (obs, ct) =>
+            {
+                // as the SubscribeAsync callback can be invoked concurrently
+                // a thread-safe wrapper for OnNext is needed
+                var syncObs = Observer.Synchronize(obs);
+                var tmp = await transaction.ExecuteAsync().ContinueWith
+                (
+                    async t => await Task.WhenAll(_tasks).ContinueWith(t => t.Result.ToImmutableDictionary())
+                );
+
+                tmp.GetAwaiter().OnCompleted(() => { syncObs.OnNext(tmp.GetAwaiter().GetResult()); });
+
+
+                return tmp;// Disposable.Create(() => subscriber.Unsubscribe(channel));
+            });
+        }
+
     }
 
    
