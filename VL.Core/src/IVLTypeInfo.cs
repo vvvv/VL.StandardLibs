@@ -48,6 +48,11 @@ namespace VL.Core
         bool IsRecord { get; }
 
         /// <summary>
+        /// Whether or not this type is immutable.
+        /// </summary>
+        bool IsImmutable { get; }
+
+        /// <summary>
         /// Whether or not this type is an interface.
         /// </summary>
         bool IsInterface { get; }

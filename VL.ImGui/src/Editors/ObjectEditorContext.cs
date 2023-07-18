@@ -1,6 +1,8 @@
-﻿using VL.Core.EditorAttributes;
-
-namespace VL.ImGui.Editors
+﻿namespace VL.ImGui.Editors
 {
-    public record ObjectEditorContext(IObjectEditorFactory Factory, string? Label = null, bool ViewOnly = false);
+    public record ObjectEditorContext(
+        IObjectEditorFactory Factory, 
+        string? Label = null, 
+        bool ViewOnly = false, 
+        bool ImmutableOnly = false);
 }
