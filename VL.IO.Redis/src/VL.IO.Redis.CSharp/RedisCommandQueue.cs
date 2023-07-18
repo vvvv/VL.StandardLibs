@@ -1,5 +1,6 @@
 ﻿using StackExchange.Redis;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -16,12 +17,12 @@ namespace VL.IO.Redis
     {
         private ITransaction _tran;
         private IList<Task<KeyValuePair<Guid, object>>> _tasks;
-        private IList<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> _cmds;
+        private ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> _cmds;
         private List<RedisKey> _changedkeys;
 
         public void Enqueue(Func<ITransaction, Task<KeyValuePair<Guid, object>>> cmd )
         {
-            _cmds.Add(cmd);
+            _cmds.Enqueue(cmd);
         }
 
         public void ChangedKeys(IEnumerable<RedisKey> keys)
@@ -33,47 +34,45 @@ namespace VL.IO.Redis
         {
             _tran           = database.CreateTransaction();
             _tasks          = new List<Task<KeyValuePair<Guid, object>>>();
-            _cmds           = new List<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
+            _cmds           = new ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
             _changedkeys    = new List<RedisKey>();
         }
 
-
-        public void AddTransactions(out int Count, out ImmutableList<RedisKey> Changes)
-        {
-            try
-            {
-                if (_tran != null)
-                    foreach (var cmd in _cmds.ToImmutableList())
-                        _tasks.Add(cmd(_tran));
-            }
-            catch (Exception ex) 
-            {
-                Console.WriteLine(ex);
-            }
-            
-            Count = _tasks.Count;
-            Changes = _changedkeys.ToImmutableList();
-        }
-
-        public static IObservable<RedisCommandQueue> ApplyTransactions(IObservable<RedisCommandQueue> observable)
+        public static IObservable<RedisCommandQueue> ApplyTransactions(IObservable<RedisCommandQueue> observable, Action<float, int, ImmutableList<RedisKey>> action)
         {
             return Observable.Create<RedisCommandQueue>((obs) =>
             {
                 var syncObs = Observer.Synchronize(obs, true);
-                return observable.Subscribe(async
+                return observable.Subscribe(
                 (queue) =>
                 {
-                    if (queue._tran != null)
+                    try
                     {
+                        var sw = Stopwatch.StartNew();
 
+                        if (queue._tran != null)
+                        {
+                            foreach (var cmd in queue._cmds)
+                            {
+                                queue._tasks.Add(cmd(queue._tran));
+                            }
+                            action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond), queue._tasks.Count, queue._changedkeys.ToImmutableList());
+
+                            syncObs.OnNext(queue);
+                        }
                     }
-                }
-                ,(ex) =>
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                        syncObs.OnError(ex);
+                    }
+                },
+                (ex) =>
                 {
                     Console.WriteLine(ex);
                     syncObs.OnError(ex);
-                }
-                ,() =>
+                },
+                () =>
                 {
                     Console.WriteLine("COMPLETED");
                     syncObs.OnCompleted();
@@ -103,7 +102,7 @@ namespace VL.IO.Redis
 
                                     resultAwaiter.OnCompleted(() =>
                                     {
-                                        action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond / 1000));
+                                        action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond));
 
                                         ImmutableDictionary<Guid, object>.Builder builder = ImmutableDictionary.CreateBuilder<Guid, object>();
                                         foreach (var kv in resultAwaiter.GetResult())
