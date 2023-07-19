@@ -27,10 +27,6 @@ namespace VL.ImGui.Editors
                 return (IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context, widgetClass });
             }
 
-            var typeInfo = TypeRegistry.Default.GetTypeInfo(staticType);
-            if (staticType.IsAbstract || staticType == typeof(object))
-                return new AbstractObjectEditor(channel, context, typeInfo);
-
             if (staticType.IsEnum)
             {
                 var editorType = typeof(EnumEditor<>).MakeGenericType(staticType);
@@ -47,8 +43,12 @@ namespace VL.ImGui.Editors
                 // More collections
             }
 
-            if (IsSafeToModify(context, typeInfo))
+            var typeInfo = TypeRegistry.Default.GetTypeInfo(staticType);
+            if (AllowGeneralObjectEditor(context, typeInfo))
             {
+                if (staticType.IsAbstract || staticType == typeof(object))
+                    return new AbstractObjectEditor(channel, context, typeInfo);
+
                 var editorType = typeof(ObjectEditor<>).MakeGenericType(staticType);
                 return (IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context, typeInfo });
             }
@@ -93,7 +93,7 @@ namespace VL.ImGui.Editors
             return type == typeof(Vector2) || type == typeof(Vector3) || type == typeof(Vector4);
         }
 
-        private static bool IsSafeToModify(ObjectEditorContext context, IVLTypeInfo typeInfo)
+        private static bool AllowGeneralObjectEditor(ObjectEditorContext context, IVLTypeInfo typeInfo)
         {
             var _v_ = s_visited;
             if (s_visited is null)
@@ -103,8 +103,10 @@ namespace VL.ImGui.Editors
             {
                 if (s_visited.Add(typeInfo))
                 {
-                    if (context.ImmutableOnly)
-                        return typeInfo.IsImmutable && typeInfo.AllProperties.All(p => p.Type.IsImmutable || HasEditor(context, p.Type));
+                    //if (context.ImmutableOnly)
+                    //    return typeInfo.IsImmutable && typeInfo.AllProperties.All(p => p.Type.IsImmutable || HasEditor(context, p.Type));
+                    if (context.PrimitiveOnly)
+                        return typeInfo.ClrType.IsPrimitive || typeInfo.ClrType == typeof(string);
                     else
                         return true;
                 }
