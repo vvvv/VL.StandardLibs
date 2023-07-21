@@ -30,6 +30,12 @@ namespace VL.Stride.Windows
         
         public ILayer Layer { get; set; }
 
+        protected override void Destroy()
+        {
+            inputSubscription.Dispose();
+            base.Destroy();
+        }
+
         protected override void DrawCore(RenderDrawContext context)
         {
             if (Layer is null)
@@ -197,14 +203,15 @@ namespace VL.Stride.Windows
                 if (SharpDXInterop.GetNativeDevice(gd) is Device device)
                 {
                     // https://github.com/google/angle/blob/master/src/tests/egl_tests/EGLDeviceTest.cpp#L272
-                    var angleDevice = EglDevice.FromD3D11(device.NativePointer);
+                    // EglDisplay will take ownership via refcounting. It's therefor correct to release it here.
+                    using var angleDevice = EglDevice.FromD3D11(device.NativePointer);
                     var d1 = device.QueryInterface<Device1>();
                     var contextState = d1.CreateDeviceContextState<Device1>(
                         CreateDeviceContextStateFlags.None,
                         new[] { device.FeatureLevel },
                         out _);
 
-                    return new InteropContext(SkiaRenderContext.New(angleDevice, msaaSamples), d1.ImmediateContext1, contextState);
+                    return new InteropContext(SkiaRenderContext.New(angleDevice, msaaSamples), d1, contextState);
                 }
                 return null;
             });
@@ -213,25 +220,26 @@ namespace VL.Stride.Windows
         sealed class InteropContext : IDisposable
         {
             public readonly SkiaRenderContext SkiaRenderContext;
-            public readonly DeviceContext1 DeviceContext;
+            public readonly Device1 Device;
             public readonly DeviceContextState ContextState;
 
-            public InteropContext(SkiaRenderContext skiaRenderContext, DeviceContext1 deviceContext, DeviceContextState contextState)
+            public InteropContext(SkiaRenderContext skiaRenderContext, Device1 device, DeviceContextState contextState)
             {
                 SkiaRenderContext = skiaRenderContext;
-                DeviceContext = deviceContext;
+                Device = device;
                 ContextState = contextState;
             }
 
             public ScopedDeviceContext Scoped(CommandList commandList)
             {
-                return new ScopedDeviceContext(commandList, DeviceContext, ContextState);
+                return new ScopedDeviceContext(commandList, Device.ImmediateContext1, ContextState);
             }
 
             public void Dispose()
             {
-                ContextState.Dispose();
                 SkiaRenderContext.Dispose();
+                ContextState.Dispose();
+                Device.Dispose();
             }
         }
 
@@ -254,7 +262,9 @@ namespace VL.Stride.Windows
                 var currentRenderTarget = commandList.RenderTarget;
                 var currentDepthStencil = commandList.DepthStencilBuffer;
                 commandList.UnsetRenderTargets();
-                deviceContext.SwapDeviceContextState(oldContextState, out _);
+                deviceContext.SwapDeviceContextState(oldContextState, out var contextState);
+                oldContextState.Dispose();
+                contextState.Dispose();
                 commandList.SetRenderTarget(currentDepthStencil, currentRenderTarget);
 
                 // Doesn't work - why?
