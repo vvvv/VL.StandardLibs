@@ -13,20 +13,13 @@ namespace VL.Lib.Reactive.Monadic
         private readonly IChannel<T> channel = new Channel<T>();
         private T? lastValue;
 
-        public ChannelBuilder()
-        {
-            channel.Enabled = false;
-        }
-
         public IChannel<T> Return(T value)
         {
             // Changed check before writing into the channel
             if (!EqualityComparer<T>.Default.Equals(value, lastValue))
             {
-                channel.Enabled = true;
                 lastValue = value;
                 channel.Value = value;
-                channel.Enabled = false;
             }
             return channel;
         }
