@@ -17,7 +17,7 @@ namespace VL.Video.MediaFoundation
         public static (RenderContext, IDisposable) GetStrideRenderContext(int msaaSamples = 1)
         {
             var m = typeof(VL.Stride.Windows.SkiaRenderer).GetMethod("GetInteropContext", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-            var deviceProvider = ServiceRegistry.Current.GetService<IResourceProvider<GraphicsDevice>>();
+            var deviceProvider = AppHost.Current.Services.GetService<IResourceProvider<GraphicsDevice>>();
             var graphicsDeviceHandle = deviceProvider.GetHandle();
             var ctx = m.Invoke(null, new object[] { graphicsDeviceHandle.Resource, msaaSamples });
             var f = ctx.GetType().GetField("SkiaRenderContext", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);

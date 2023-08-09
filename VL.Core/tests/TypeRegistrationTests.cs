@@ -7,30 +7,30 @@ using Stride.Core.Mathematics;
 using VL.AppServices.CompilerServices;
 using VL.AppServices;
 using VL.AppServices.Serialization;
+using VL.TestFramework;
 
 namespace VL.Core.Tests
 {
     [TestFixture]
     public class TypeRegistrationTests
     {
-        ServiceRegistry serviceRegistry;
+        TestAppHost appHost;
         TypeRegistryImpl registry;
         AdaptiveImplementationProvider adaptiveProvider;
 
         [SetUp]
         public void Setup()
         {
-            serviceRegistry = new ServiceRegistry();
-            serviceRegistry.RegisterService(adaptiveProvider = new AdaptiveImplementationProvider(ImmutableArray<Type>.Empty));
-            serviceRegistry.RegisterService<SerializationService>(SerializationServiceImpl.Instance);
             registry = new TypeRegistryImpl();
-            serviceRegistry.RegisterService<TypeRegistry>(registry);
+            appHost = new(registry);
+            appHost.Services.RegisterService(adaptiveProvider = new AdaptiveImplementationProvider(ImmutableArray<Type>.Empty));
+            appHost.Services.RegisterService<SerializationService>(new SerializationServiceImpl(appHost));
         }
 
         [TearDown]
         public void TearDown()
         {
-            serviceRegistry.Unset();
+            appHost.Dispose();
         }
 
         static class DictionaryOperations
@@ -134,7 +134,7 @@ namespace VL.Core.Tests
         public void CreateDefault_ImmutableDictionary_Test()
         {
             registry.RegisterType(typeof(ImmutableDictionary<,>), supportType: typeof(DictionaryOperations));
-            var value = registry.GetDefaultValue(typeof(ImmutableDictionary<string, object>));
+            var value = appHost.GetDefaultValue(typeof(ImmutableDictionary<string, object>));
             Assert.AreEqual(value, DictionaryOperations.CreateDefault<string, object>());
         }
 
@@ -142,7 +142,7 @@ namespace VL.Core.Tests
         public void CreateDefault_Array_Test()
         {
             registry.RegisterType(typeof(object[]), supportType: typeof(ArrayOperations));
-            var value = registry.GetDefaultValue(typeof(string[]));
+            var value = appHost.GetDefaultValue(typeof(string[]));
             Assert.AreEqual(value, ArrayOperations.CreateDefault<string>());
         }
 
@@ -150,7 +150,7 @@ namespace VL.Core.Tests
         public void CreateDefault_ValueType_Test()
         {
             registry.RegisterType(typeof(Vector4), supportType: typeof(VectorOperations));
-            var value = registry.GetDefaultValue(typeof(Vector4));
+            var value = appHost.GetDefaultValue(typeof(Vector4));
             Assert.AreEqual(value, VectorOperations.CreateDefault());
         }
 
@@ -158,7 +158,7 @@ namespace VL.Core.Tests
         public void CreateNew_ValueType_Test()
         {
             registry.RegisterType(typeof(Vector4), supportType: typeof(VectorOperations));
-            var value = registry.CreateInstance(typeof(Vector4));
+            var value = appHost.CreateInstance(typeof(Vector4));
             Assert.AreEqual(value, VectorOperations.CreateNew(null));
         }
 
@@ -166,7 +166,7 @@ namespace VL.Core.Tests
         public void CreateNew_ImmutableDictionary_Test()
         {
             registry.RegisterType(typeof(List<>), supportType: typeof(ListOperations));
-            var value = registry.CreateInstance(typeof(List<string>));
+            var value = appHost.CreateInstance(typeof(List<string>));
             Assert.IsNotNull(value);
         }
 
@@ -174,7 +174,7 @@ namespace VL.Core.Tests
         public void CreateDefault_MyPatch_Test()
         {
             registry.RegisterType(typeof(MyPatch<>));
-            var value = registry.GetDefaultValue(typeof(MyPatch<string>)) as MyPatch<string>;
+            var value = appHost.GetDefaultValue(typeof(MyPatch<string>)) as MyPatch<string>;
             Assert.IsNotNull(value);
         }
 
@@ -182,7 +182,7 @@ namespace VL.Core.Tests
         public void CreateNew_MyPatch_Test()
         {
             registry.RegisterType(typeof(MyPatch<>));
-            var value = registry.CreateInstance(typeof(MyPatch<string>)) as MyPatch<string>;
+            var value = appHost.CreateInstance(typeof(MyPatch<string>)) as MyPatch<string>;
             Assert.IsNotNull(value);
             Assert.AreEqual(1, value.X);
         }
@@ -191,7 +191,7 @@ namespace VL.Core.Tests
         public void CreateNew_NestedType_Test()
         {
             registry.RegisterType(typeof(ImmutableArray<>.Builder), supportType: typeof(ArrayBuilderOperations));
-            var value = registry.CreateInstance(typeof(ImmutableArray<float>.Builder));
+            var value = appHost.CreateInstance(typeof(ImmutableArray<float>.Builder));
             Assert.IsNotNull(value);
             Assert.IsInstanceOf<ImmutableArray<float>.Builder>(value);
         }
@@ -210,9 +210,9 @@ namespace VL.Core.Tests
         {
             registry.RegisterType(typeof(ValueTuple<,>), name: "Tuple", supportType: typeof(Tuple2Operations));
             adaptiveProvider.RegisterAdaptiveImplementation(typeof(AdaptiveImplementations));
-            var value = (ValueTuple<string, float>)(registry.GetDefaultValue(typeof(ValueTuple<string, float>)));
-            Assert.AreEqual(value.Item1, string.Empty);
-            Assert.AreEqual(value.Item2, 1f);
+            var value = (ValueTuple<string, float>)(appHost.GetDefaultValue(typeof(ValueTuple<string, float>)));
+            Assert.AreEqual(string.Empty, value.Item1);
+            Assert.AreEqual(1f, value.Item2);
         }
 
         [Test]
@@ -221,10 +221,10 @@ namespace VL.Core.Tests
             registry.RegisterType(typeof(MyPatch2<,>));
             registry.RegisterType(typeof(ValueTuple<,>), name: "Tuple", supportType: typeof(Tuple2Operations));
             adaptiveProvider.RegisterAdaptiveImplementation(typeof(AdaptiveImplementations));
-            var myPatch = (MyPatch2<string, float>)(registry.GetDefaultValue(typeof(MyPatch2<string, float>)));
+            var myPatch = (MyPatch2<string, float>)(appHost.GetDefaultValue(typeof(MyPatch2<string, float>)));
             var value = myPatch.SomeTuple;
-            Assert.AreEqual(value.Item1, string.Empty);
-            Assert.AreEqual(value.Item2, 1f);
+            Assert.AreEqual(string.Empty, value.Item1);
+            Assert.AreEqual(1f, value.Item2);
         }
     }
 }

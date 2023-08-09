@@ -22,7 +22,7 @@ namespace VL.Stride.Video
 
         public VideoStreamToTexture()
         {
-            graphicsDevice = ServiceRegistry.Current.GetService<IResourceProvider<GraphicsDevice>>().GetHandle();
+            graphicsDevice = AppHost.Current.Services.GetService<IResourceProvider<GraphicsDevice>>()!.GetHandle();
         }
 
         public unsafe VideoStream? VideoStream 

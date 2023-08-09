@@ -92,7 +92,7 @@ namespace VL.Lib.Animation
         /// <summary>
         /// The clock used to determine the time when the current frame of the vl mainloop started
         /// </summary>
-        public static IFrameClock FrameClock => currentFrameClock ??= ServiceRegistry.Current.GetService<IFrameClock>();
+        public static IFrameClock FrameClock => currentFrameClock ??= AppHost.Current.Services.GetService<IFrameClock>();
 
         public static IClock DefaultClock => FrameClock;
 
@@ -104,7 +104,7 @@ namespace VL.Lib.Animation
         /// <summary>
         /// The clock used to determine the current time, returns a new time value for each call
         /// </summary>
-        public static IClock RealTimeClock => ServiceRegistry.Current.GetService<IClock>();
+        public static IClock RealTimeClock => AppHost.Current.Services.GetService<IClock>();
 
         /// <summary>
         /// Checks time now

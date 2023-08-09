@@ -15,8 +15,10 @@ namespace VL.Video.MediaFoundation
 {
     public sealed class Initialization : AssemblyInitializer<Initialization>
     {
-        protected override void RegisterServices(IVLFactory factory)
+        public override void Configure(AppHost appHost)
         {
+            var factory = appHost.Factory;
+
             if (!factory.HasService<NodeContext, IResourceProvider<Device>>())
             {
                 factory.RegisterService<NodeContext, IResourceProvider<Device>>(nodeContext =>
@@ -29,7 +31,7 @@ namespace VL.Video.MediaFoundation
             factory.RegisterService<IRefCounter<Texture>>(TextureRefCounter.Default);
             factory.RegisterService<IRefCounter<VideoFrame>>(VideoFrameRefCounter.Default);
 
-            factory.RegisterNodeFactory("VL.Video.MediaFoundation.ControlNodes", f =>
+            appHost.RegisterNodeFactory("VL.Video.MediaFoundation.ControlNodes", f =>
             {
                 // TODO: fragmented = true causes troubles on disconnect, apparently the default value injection can't deal with nullables -> injects 0 instead of null
                 var nodes = ImmutableArray.Create(

@@ -80,7 +80,7 @@ namespace VL.Stride.Rendering
                         filePath: getFilePath.Invoke(),
                         newNode: nodeBuildContext =>
                         {
-                            var gameHandle = ServiceRegistry.Current.GetGameHandle();
+                            var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var game = gameHandle.Resource;
 
                             var tempParameters = new ParameterCollection(); // only needed for pin construction - parameter updater will later take care of multiple sinks

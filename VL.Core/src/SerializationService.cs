@@ -5,7 +5,7 @@ namespace VL.Core
 {
     public abstract class SerializationService
     {
-        public static SerializationService Current => ServiceRegistry.CurrentOrGlobal.GetService<SerializationService>();
+        public static SerializationService Current => AppHost.CurrentOrGlobal.SerializationService;
 
         /// <summary>
         /// Registers a VL serializer to the factory. 

@@ -12,6 +12,7 @@ using VL.Core.CompilerServices;
 using VL.Lib.Collections;
 using VL.Lib.Primitive;
 using VL.Lib.Reactive;
+using VL.TestFramework;
 using CacheMananger2_ = VL.AppServices.CompilerServices.Intrinsics.CacheManager<(object, object), (int, int, int, int, int, int, int, int, object, int)>;
 
 namespace VL.Core.Tests
@@ -19,13 +20,13 @@ namespace VL.Core.Tests
     [TestFixture]
     public class SwapTests
     {
-        private ServiceRegistry serviceRegistry;
+        private TestAppHost appHost;
 
         [SetUp]
         public void Setup()
         {
-            serviceRegistry = new ServiceRegistry();
-            serviceRegistry.RegisterService<TypeRegistry>(new TypeRegistryImpl());
+            appHost = new(new TypeRegistryImpl());
+            appHost.MakeCurrent().DisposeBy(appHost);
             Foo.__IsOutdated = false;
             Foo2.__IsOutdated = false;
         }
@@ -33,7 +34,7 @@ namespace VL.Core.Tests
         [TearDown]
         public void TearDown()
         {
-            serviceRegistry.Unset();
+            appHost.Dispose();
         }
 
         [Test]

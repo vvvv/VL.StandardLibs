@@ -20,25 +20,25 @@ namespace VL.Core.Reactive
 
         public IChannel<object> OnChannelsChanged { get; }
 
-        public string AppName { get; set; }
+        readonly IDisposable? OnSwapSubscription;
 
-        public string? AppBasePath { get; set; }
-
-        IDisposable? OnSwapSubscription;
-
-        public ChannelHub()
+        public ChannelHub(AppHost appHost)
         {
+            AppHost = appHost;
+
             OnChannelsChanged = new Channel<object>();
             OnChannelsChanged.Value = this;
 
-            var e = ServiceRegistry.Current.GetService<IHotSwappableEntryPoint>();
+            var e = appHost.Services.GetService<IHotSwappableEntryPoint>();
             if (e != null)
             {
-                OnSwapSubscription = e.OnSwap.Subscribe(_ => Swap());
+                OnSwapSubscription = e.OnSwap.Subscribe(_ => Swap(e));
             }
         }
 
-        public override string? ToString() => AppBasePath ?? base.ToString();
+        public AppHost AppHost { get; }
+
+        public override string? ToString() => AppHost.AppBasePath;
 
         IDisposable? MustHaveDescriptiveSubscription;
         public IObservable<IEnumerable<ChannelBuildDescription>> MustHaveDescriptive
@@ -184,12 +184,8 @@ namespace VL.Core.Reactive
             OnSwapSubscription?.Dispose();
         }
 
-        public void Swap()
+        private void Swap(IHotSwappableEntryPoint entryPoint)
         {
-            var entryPoint = ServiceRegistry.Current.GetService<IHotSwappableEntryPoint>();
-            if (entryPoint == null)
-                return;
-
             bool changed = false;
             var keys = new List<string>(Channels.Keys);
             var channels = Channels;

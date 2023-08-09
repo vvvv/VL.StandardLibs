@@ -107,11 +107,11 @@ namespace VL.Lib.Reactive
 
         internal static IObservable<T> CatchAndReport<T>(this IObservable<T> source, NodeContext nodeContext)
         {
-            var serviceRegistry = ServiceRegistry.CurrentOrGlobal;
+            var appHost = AppHost.CurrentOrGlobal;
             return source.Catch((Exception e) =>
             {
                 var re = new RuntimeException(e, nodeContext);
-                RuntimeGraph.ReportException(re, serviceRegistry);
+                RuntimeGraph.ReportException(re, appHost);
                 return Observable.Empty<T>();
             });
         }

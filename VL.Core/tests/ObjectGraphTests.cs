@@ -4,6 +4,7 @@ using System.Reactive.Disposables;
 using VL.Lib.Collections;
 using VL.AppServices;
 using static VL.Core.VLObjectExtensions;
+using VL.TestFramework;
 
 namespace VL.Core.Tests
 {
@@ -33,21 +34,19 @@ namespace VL.Core.Tests
     [TestFixture]
     public class ObjectGraphTests
     {
-        private CompositeDisposable subscription;
-        private ServiceRegistry services;
+        private TestAppHost appHost;
 
         [SetUp]
         public void Setup()
         {
-            subscription = new CompositeDisposable();
-            services = new ServiceRegistry().WithDefaults(subscription);
-            services.MakeCurrent().DisposeBy(subscription);
+            appHost = new TestAppHost();
+            appHost.MakeCurrent().DisposeBy(appHost);
         }
 
         [TearDown]
         public void TearDown()
         {
-            subscription.Dispose();
+            appHost.Dispose();
         }
 
         [Test]
