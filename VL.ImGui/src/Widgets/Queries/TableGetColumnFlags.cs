@@ -4,7 +4,7 @@
     /// Return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags.
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class TableGetColumnFlags : Widget
+    internal partial class TableGetColumnFlags : Query
     {
         /// <summary>
         /// Pass -1 to use current column.

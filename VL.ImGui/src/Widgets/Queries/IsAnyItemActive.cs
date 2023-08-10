@@ -4,7 +4,7 @@
     /// Is any item active?
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class IsAnyItemActive : Widget
+    internal partial class IsAnyItemActive : Query
     {
 
         public bool Value { get; private set; }

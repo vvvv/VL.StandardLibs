@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
     /// Is mouse hovering given bounding rect (in screen space). Clipped by current clipping settings, but disregarding of other consideration of focus/window ordering/popup-block.
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries")]
-    internal partial class IsMouseHoveringRect : Widget
+    internal partial class IsMouseHoveringRect : Query
     {
 
         public RectangleF Rectangle { private get; set; }

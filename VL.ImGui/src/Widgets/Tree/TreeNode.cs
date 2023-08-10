@@ -35,8 +35,14 @@ namespace VL.ImGui.Widgets
 
             if (ContentIsVisible)
             {
-                context?.Update(Content);
-                ImGuiNET.ImGui.TreePop();
+                // ImGui keeps track of the LAST item state only. We therefor need to keep track of those states on our own when we build up item stacks.
+                using (context.CaptureItemState())
+                {
+                    // Captured state is NOT set
+                    context.Update(Content);
+                    ImGuiNET.ImGui.TreePop();
+                }
+                // Captured state is set for subsequent queries and will be unset by non-query widgets.
             }
         }
     }

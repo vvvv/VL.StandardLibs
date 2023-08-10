@@ -11,6 +11,8 @@ namespace VL.ImGui
         [Pin(Priority = 10)]
         public IStyle? Style { set; protected get; }
 
+        protected virtual bool HasItemState => true;
+
         protected WidgetLabel widgetLabel = new();
 
         internal void Update(Context? context)
@@ -18,6 +20,10 @@ namespace VL.ImGui
             context = context.Validate();
             if (context != null)
             {
+                // If the item comes with its own state, clear any captured state of ours
+                if (HasItemState)
+                    context.CapturedItemState = default;
+
                 using (Style.Apply())
                     UpdateCore(context);
             }

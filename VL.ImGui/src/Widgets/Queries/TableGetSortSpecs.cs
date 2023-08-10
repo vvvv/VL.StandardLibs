@@ -10,7 +10,7 @@ namespace VL.ImGui.Widgets
     /// Get latest sort specs for the table.
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class TableGetSortSpecs : Widget
+    internal partial class TableGetSortSpecs : Query
     {
         public Spread<TableColumnSortSpecs> Value { get; private set; } = Spread<TableColumnSortSpecs>.Empty;
 

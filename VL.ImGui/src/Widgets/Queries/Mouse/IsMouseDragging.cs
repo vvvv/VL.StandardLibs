@@ -4,7 +4,7 @@
     /// Is mouse dragging? (if lock_threshold &lt; -1.0f, uses io.MouseDraggingThreshold)
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries")]
-    internal partial class IsMouseDragging : Widget
+    internal partial class IsMouseDragging : Query
     {
 
         public ImGuiNET.ImGuiMouseButton Flags { private get; set; }

@@ -7,7 +7,7 @@ namespace VL.ImGui.Widgets
     /// </summary>
 
     [GenerateNode(Category = "ImGui.Queries")]
-    internal partial class GetWindowContentRegionMax : Widget
+    internal partial class GetWindowContentRegionMax : Query
     {
 
         public Vector2 Value { get; private set; }

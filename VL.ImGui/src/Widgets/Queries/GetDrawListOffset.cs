@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
     /// Cursor position in window coordinates (relative to window position)
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class GetDrawListOffset : Widget
+    internal partial class GetDrawListOffset : Query
     {
         public Vector2 Value { get; private set; }
 

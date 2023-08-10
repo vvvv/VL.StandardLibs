@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
     /// Get upper-left bounding rectangle of the last item (screen space)
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class GetItemRectSize : Widget
+    internal partial class GetItemRectSize : Query
     {
 
         public Vector2 Value { get; private set; }

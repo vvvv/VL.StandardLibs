@@ -4,7 +4,7 @@
     /// Approx. FontSize + style.FramePadding.y * 2
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class GetFrameHeight : Widget
+    internal partial class GetFrameHeight : Query
     {
 
         public float Value { get; private set; }
