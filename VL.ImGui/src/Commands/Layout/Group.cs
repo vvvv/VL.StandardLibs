@@ -13,7 +13,7 @@
             ImGuiNET.ImGui.BeginGroup();
             try
             {
-                context?.Update(Input);
+                context.Update(Input);
             }
             finally
             {

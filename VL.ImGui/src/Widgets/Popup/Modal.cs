@@ -98,7 +98,7 @@ namespace VL.ImGui.Widgets
                 {
                     try
                     {
-                        context?.Update(Content);
+                        context.Update(Content);
 
                         var pos = ImGui.GetWindowPos().ToVLHecto();
                         var size = ImGui.GetWindowSize().ToVLHecto();

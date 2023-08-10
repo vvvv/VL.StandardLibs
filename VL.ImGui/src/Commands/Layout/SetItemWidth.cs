@@ -15,7 +15,7 @@
             ImGuiNET.ImGui.PushItemWidth(Width.FromHectoToImGui());
             try
             {
-                context?.Update(Content);
+                context.Update(Content);
             }
             finally
             {

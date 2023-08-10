@@ -31,7 +31,7 @@ namespace VL.ImGui.Widgets
                 context.IsInBeginTables = true;
                 try
                 {
-                    context?.Update(Content);
+                    context.Update(Content);
                 }
                 finally
                 {

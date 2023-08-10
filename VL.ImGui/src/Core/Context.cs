@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using VL.ImGui.Widgets;
-using VL.ImGui.Widgets.Primitives;
-using VL.Model;
 
 namespace VL.ImGui
 {
@@ -216,6 +213,38 @@ namespace VL.ImGui
             public void Dispose()
             {
                 this.context.CapturedItemState = itemState;
+            }
+        }
+
+        /// <summary>
+        /// Applies the style on the ImGui context. Intended to be called by a using statement.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// using (context.ApplyStyle(style)) { ... }
+        /// </code>
+        /// </example>
+        /// <returns>A disposable which removes the style on dispose.</returns>
+        internal StyleFrame ApplyStyle(IStyle? style)
+        {
+            return new StyleFrame(this, style);
+        }
+        internal readonly struct StyleFrame : IDisposable
+        {
+            private readonly Context context;
+            private readonly IStyle? style;
+
+            public StyleFrame(Context context, IStyle? style)
+            {
+                this.context = context;
+                this.style = style;
+
+                style?.Set(context);
+            }
+
+            public void Dispose()
+            {
+                style?.Reset(context);
             }
         }
     }

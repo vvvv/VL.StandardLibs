@@ -41,7 +41,7 @@ namespace VL.ImGui.Widgets
             {
                 if (ContentIsVisible)
                 {
-                    context?.Update(Content);
+                    context.Update(Content);
                 }
             }
             finally

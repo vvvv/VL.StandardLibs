@@ -24,7 +24,7 @@ namespace VL.ImGui
                 if (HasItemState)
                     context.CapturedItemState = default;
 
-                using (Style.Apply())
+                using (context.ApplyStyle(Style))
                     UpdateCore(context);
             }
         }

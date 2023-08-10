@@ -61,7 +61,7 @@ namespace VL.ImGui.Widgets
                 {
                     try
                     {
-                        context?.Update(Content);
+                        context.Update(Content);
                         PositionFlange.Value = ImGui.GetWindowPos().ToVLHecto();
                     }
                     finally

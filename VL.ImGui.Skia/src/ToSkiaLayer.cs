@@ -97,7 +97,7 @@ namespace VL.ImGui
                 _context.NewFrame();
                 try
                 {
-                    using var _ = Style.Apply();
+                    using var _ = _context.ApplyStyle(Style);
 
                     if (DefaultWindow)
                     {
