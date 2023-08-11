@@ -225,11 +225,12 @@ namespace VL.ImGui
         /// </code>
         /// </example>
         /// <returns>A disposable which removes the style on dispose.</returns>
-        internal StyleFrame ApplyStyle(IStyle? style)
+        public StyleFrame ApplyStyle(IStyle? style)
         {
             return new StyleFrame(this, style);
         }
-        internal readonly struct StyleFrame : IDisposable
+
+        public readonly struct StyleFrame : IDisposable
         {
             private readonly Context context;
             private readonly IStyle? style;
