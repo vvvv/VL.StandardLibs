@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="HGwjAyY9WlcM6EHVoNooQR" LanguageVersion="2023.5.3-0090-g8c088a6e17" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="HGwjAyY9WlcM6EHVoNooQR" LanguageVersion="2023.5.3-0100-g5fe7fe19c5" Version="0.128">
   <Patch Id="FqV6a8uF6wBNEsSb65h9jq">
     <Canvas Id="CiUOvKtIpncPRBZwoQzisM" CanvasType="FullCategory">
       <Canvas Id="KTyfvxdYp7wLpquGu2GQq3" Name="ImGui" Position="183,154">
@@ -2727,7 +2727,7 @@
     ************************ CreateDefault (Internal) ************************
 
 -->
-                  <Node Name="CreateDefault (Internal)" Bounds="331,204,94,118" Id="PkZcJcWByq5QPTDIfOh3l3">
+                  <Node Name="CreateDefault (Internal)" Bounds="331,159,97,163" Id="PkZcJcWByq5QPTDIfOh3l3">
                     <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
                       <Choice Kind="OperationDefinition" Name="Operation" />
                     </p:NodeReference>
@@ -2739,25 +2739,39 @@
                           <Choice Kind="TypeFlag" Name="IObjectEditorFactory" />
                         </p:TypeAnnotation>
                       </Pin>
-                      <Node Bounds="343,227,51,19" Id="HgDvJ49NFdMLM0maFFGh7S">
-                        <p:NodeReference LastCategoryFullName="System.Reflection.ServiceRegistry" LastDependency="VL.CoreLib.vl">
+                      <Node Bounds="343,182,51,19" Id="HgDvJ49NFdMLM0maFFGh7S">
+                        <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="VL.CoreLib.vl">
                           <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                          <CategoryReference Kind="ClassType" Name="ServiceRegistry" />
+                          <CategoryReference Kind="ClassType" Name="AppHost" NeedsToBeDirectParent="true" />
                           <Choice Kind="OperationCallFlag" Name="Current" />
                         </p:NodeReference>
                         <Pin Id="CZTccULoXMXOd0HUcvrEFS" Name="Current" Kind="OutputPin" />
                       </Node>
-                      <Node Bounds="343,262,70,26" Id="G8FVOAPymqdMRBqjHveBaR">
-                        <p:NodeReference LastCategoryFullName="System.Reflection.ServiceRegistry" LastDependency="VL.CoreLib.vl">
+                      <Node Bounds="343,262,73,26" Id="G8FVOAPymqdMRBqjHveBaR">
+                        <p:NodeReference LastCategoryFullName="System.Application.IServiceProvider" LastDependency="VL.CoreLib.vl" OverloadStrategy="AllPinsThatAreNotCommon">
                           <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                          <CategoryReference Kind="ClassType" Name="ServiceRegistry" NeedsToBeDirectParent="true" />
+                          <CategoryReference Kind="MutableInterfaceType" Name="IServiceProvider" NeedsToBeDirectParent="true" />
                           <Choice Kind="OperationCallFlag" Name="GetService" />
+                          <PinReference Kind="OutputPin" Name="Result">
+                            <p:DataTypeReference p:Type="TypeParameterReference" />
+                          </PinReference>
                         </p:NodeReference>
                         <Pin Id="M3xQxrgPSngOV3P8HIh6jG" Name="Input" Kind="StateInputPin" />
                         <Pin Id="MPYKyaId0wDOE0PRu5VdyM" Name="Result" Kind="OutputPin" />
                       </Node>
-                      <Link Id="H8PLShFZ0QwOTCFvhIPpnI" Ids="CZTccULoXMXOd0HUcvrEFS,M3xQxrgPSngOV3P8HIh6jG" />
+                      <Link Id="H8PLShFZ0QwOTCFvhIPpnI" Ids="CZTccULoXMXOd0HUcvrEFS,ADBtqecY1huPw7BgU28MZK" />
                       <Link Id="EZI59lf2nyoMFuaciV8XuU" Ids="MPYKyaId0wDOE0PRu5VdyM,MzGz46JZyOQNJsypuAUBOh" />
+                      <Node Bounds="343,215,53,26" Id="GZsVM7sRC1XNOwAgOfjT3l">
+                        <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="VL.CoreLib.vl">
+                          <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                          <CategoryReference Kind="ClassType" Name="AppHost" />
+                          <Choice Kind="OperationCallFlag" Name="Services" />
+                        </p:NodeReference>
+                        <Pin Id="ADBtqecY1huPw7BgU28MZK" Name="Input" Kind="StateInputPin" />
+                        <Pin Id="HHyUoaokiGoQPQSTWWqXty" Name="Output" Kind="StateOutputPin" />
+                        <Pin Id="Igb8MIohaefLKUMDDEIsHu" Name="Services" Kind="OutputPin" />
+                      </Node>
+                      <Link Id="Bju4aoklkpuMry25gaovtl" Ids="Igb8MIohaefLKUMDDEIsHu,M3xQxrgPSngOV3P8HIh6jG" />
                     </Patch>
                   </Node>
                 </Canvas>
@@ -3157,6 +3171,7 @@
                           <CategoryReference Kind="ClassType" Name="ObjectEditorContext" />
                           <Choice Kind="OperationCallFlag" Name="Create" />
                         </p:NodeReference>
+                        <Pin Id="A6HmjcCJOlJOmFOp8uEfNO" Name="App Host" Kind="InputPin" />
                         <Pin Id="HclpuVXdBuwLBaqgcvyQ6l" Name="Factory" Kind="InputPin" />
                         <Pin Id="PXe7NLBiMHBMBPobY3nDIk" Name="Label" Kind="InputPin" />
                         <Pin Id="NcJt5Rkql6XMoFBjZtDoDD" Name="View Only" Kind="InputPin" />
@@ -3363,50 +3378,67 @@
     ************************ RegisterServices ************************
 
 -->
-            <Node Name="RegisterServices" Bounds="722,600,262,150" Id="St8XztfJyyYPFoOXGvTFBN">
+            <Node Name="RegisterServices" Bounds="722,597,240,208" Id="St8XztfJyyYPFoOXGvTFBN">
               <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
                 <Choice Kind="OperationDefinition" Name="Operation" />
               </p:NodeReference>
               <Patch Id="Coxr37UlisgPjbO2DWxufW">
-                <Pin Id="OqRdXtrjtzJL7mBYQzlO4r" Name="Input" Kind="InputPin" />
+                <Pin Id="OqRdXtrjtzJL7mBYQzlO4r" Name="Factory" Kind="InputPin" />
                 <ControlPoint Id="BA8wuXfaACTLzLj7C5r5ER" Bounds="736,618" />
                 <Link Id="MfANzWXeZ5QQZbcWE0BYgj" Ids="OqRdXtrjtzJL7mBYQzlO4r,BA8wuXfaACTLzLj7C5r5ER" IsHidden="true" />
-                <Node Bounds="782,704,85,26" Id="PbV0SMar2qAObndYBXYsT1">
-                  <p:NodeReference LastCategoryFullName="System.Reflection.ServiceRegistry" LastDependency="VL.CoreLib.vl">
+                <Node Bounds="814,620,51,19" Id="UctspMTfoXbOrcnFroGh13">
+                  <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="VL.CoreLib.vl">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <CategoryReference Kind="ClassType" Name="ServiceRegistry" NeedsToBeDirectParent="true" />
-                    <Choice Kind="OperationCallFlag" Name="RegisterService" />
-                  </p:NodeReference>
-                  <Pin Id="O9w7YiR6j2rOx1NiA3nEbc" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="Ik6n9r0goIYNlsNBtQ7jct" Name="Service" Kind="InputPin" />
-                  <Pin Id="NTMgxoNLolANc8x2g4EGTf" Name="Output" Kind="StateOutputPin" />
-                  <Pin Id="ONQmT6B24GRP3Z6zPb5taL" Name="Result" Kind="OutputPin" />
-                </Node>
-                <Node Bounds="860,626,112,26" Id="A3i92tCdq59LsmxsZYiOMD">
-                  <p:NodeReference LastCategoryFullName="ImGui.Editors.ObjectEditorFactory" LastDependency="VL.ImGui.vl">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <CategoryReference Kind="ClassType" Name="ObjectEditorFactory" />
-                    <Choice Kind="OperationCallFlag" Name="Create" />
-                  </p:NodeReference>
-                  <Pin Id="LL1UXcNdlKbMaWhxqhOwXT" Name="Node Context" Kind="InputPin" IsHidden="true" />
-                  <Pin Id="QKbv61LNEbEPO5OP6CCTTa" Name="Output" Kind="StateOutputPin" />
-                </Node>
-                <Pad Id="JvD6rrpOgNoNgDcYmfxaO4" Bounds="865,677">
-                  <p:TypeAnnotation LastCategoryFullName="ImGui.Editors" LastDependency="VL.ImGui.vl">
-                    <Choice Kind="TypeFlag" Name="IObjectEditorFactory" />
-                  </p:TypeAnnotation>
-                </Pad>
-                <Link Id="DOm6zasrtTKOJopDWWnqBz" Ids="QKbv61LNEbEPO5OP6CCTTa,JvD6rrpOgNoNgDcYmfxaO4" />
-                <Link Id="Upm1y5SfBmEOFy3YdmuLS1" Ids="JvD6rrpOgNoNgDcYmfxaO4,Ik6n9r0goIYNlsNBtQ7jct" />
-                <Node Bounds="782,661,51,19" Id="UctspMTfoXbOrcnFroGh13">
-                  <p:NodeReference LastCategoryFullName="System.Reflection.ServiceRegistry" LastDependency="VL.CoreLib.vl">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <CategoryReference Kind="ClassType" Name="ServiceRegistry" NeedsToBeDirectParent="true" />
+                    <CategoryReference Kind="ClassType" Name="AppHost" NeedsToBeDirectParent="true" />
                     <Choice Kind="OperationCallFlag" Name="Current" />
                   </p:NodeReference>
                   <Pin Id="FfxcgUIGyboPDH4rrPQiKI" Name="Current" Kind="OutputPin" />
                 </Node>
-                <Link Id="C9xFhcndtojM5lMRi3AdEs" Ids="FfxcgUIGyboPDH4rrPQiKI,O9w7YiR6j2rOx1NiA3nEbc" />
+                <Node Bounds="814,690,136,95" Id="UmCl1beAuWAPndjqMRsipR">
+                  <p:NodeReference LastCategoryFullName="System.Reflection.ServiceRegistry" LastDependency="VL.CoreLib.vl" OverloadStrategy="AllPinsThatAreNotCommon">
+                    <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
+                    <CategoryReference Kind="ClassType" Name="ServiceRegistry" NeedsToBeDirectParent="true" />
+                    <Choice Kind="OperationCallFlag" Name="RegisterService" />
+                    <PinReference Kind="InputPin" Name="Service Factory" />
+                  </p:NodeReference>
+                  <Pin Id="QyP9JosZTqVPSCZwnQLkcB" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="VLJXue3jv1eOJLm9VG0O4R" Name="Output" Kind="StateOutputPin" />
+                  <Pin Id="U5z6XIFYDo7LmejBdF8MbL" Name="Result" Kind="OutputPin" />
+                  <Patch Id="PSZU5P7qReAMtCubbE6VSt" Name="Service Factory" ManuallySortedPins="true">
+                    <ControlPoint Id="JALi4ipCC97QV9O2yLoC70" Bounds="828,698" />
+                    <ControlPoint Id="E6rJSsmnFSoOB5W4Xh231a" Bounds="828,778" />
+                    <Node Bounds="826,726,112,26" Id="NrA6Lo0oxDROxb3DFovz25">
+                      <p:NodeReference LastCategoryFullName="ImGui.Editors.ObjectEditorFactory" LastDependency="VL.ImGui.vl">
+                        <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                        <CategoryReference Kind="ClassType" Name="ObjectEditorFactory" />
+                        <Choice Kind="OperationCallFlag" Name="Create" />
+                      </p:NodeReference>
+                      <Pin Id="U3E5rNeY7bSPtnnWkiJCaq" Name="Node Context" Kind="InputPin" IsHidden="true" />
+                      <Pin Id="PyH0p9vTHZmLaDwEIr9eGw" Name="Output" Kind="StateOutputPin" />
+                    </Node>
+                    <Pin Id="Du34Bg6iDFxPHnVirujMZM" Name="Input" Kind="InputPin" />
+                    <Pin Id="Eq5aeGVC5eaPNuvjKOcUzY" Name="Result" Kind="OutputPin">
+                      <p:TypeAnnotation LastCategoryFullName="ImGui.Editors" LastDependency="VL.ImGui.vl">
+                        <Choice Kind="TypeFlag" Name="IObjectEditorFactory" />
+                      </p:TypeAnnotation>
+                    </Pin>
+                  </Patch>
+                </Node>
+                <Link Id="G17FL3wvyz7PEEHkMfcAtn" Ids="Du34Bg6iDFxPHnVirujMZM,JALi4ipCC97QV9O2yLoC70" IsHidden="true" />
+                <Link Id="L3LqCq4c04IOR6WGJoNoVu" Ids="E6rJSsmnFSoOB5W4Xh231a,Eq5aeGVC5eaPNuvjKOcUzY" IsHidden="true" />
+                <Link Id="CZWN2y1KAvhLoEYVTd7hms" Ids="PyH0p9vTHZmLaDwEIr9eGw,E6rJSsmnFSoOB5W4Xh231a" />
+                <Link Id="HZedlB7Nd5ZNfWObpXa4M7" Ids="FfxcgUIGyboPDH4rrPQiKI,DpzE5JZTxi1O9nBs9skS7C" />
+                <Node Bounds="814,649,53,26" Id="K54O6GboS44MIWnJqSYsI0">
+                  <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <CategoryReference Kind="ClassType" Name="AppHost" NeedsToBeDirectParent="true" />
+                    <Choice Kind="OperationCallFlag" Name="Services" />
+                  </p:NodeReference>
+                  <Pin Id="DpzE5JZTxi1O9nBs9skS7C" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="QetOwjWE1KmNeyxt7Yu6bv" Name="Output" Kind="StateOutputPin" />
+                  <Pin Id="QfDx2SKbTi5Pi3xWriC9B4" Name="Services" Kind="OutputPin" />
+                </Node>
+                <Link Id="ShQqy2KkA56MUfJFuuFtd3" Ids="QfDx2SKbTi5Pi3xWriC9B4,QyP9JosZTqVPSCZwnQLkcB" />
               </Patch>
             </Node>
           </Canvas>

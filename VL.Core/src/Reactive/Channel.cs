@@ -228,7 +228,7 @@ namespace VL.Lib.Reactive
 
         private DummyChannel()
         {
-            Value = TypeUtils.Default<T>();
+            Value = AppHost.CurrentOrGlobal.GetDefaultValue<T>();
             Enabled = false;
         }
     }

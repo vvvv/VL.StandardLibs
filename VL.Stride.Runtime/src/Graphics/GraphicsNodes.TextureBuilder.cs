@@ -67,7 +67,7 @@ namespace VL.Stride.Graphics
 
             public TextureBuilder(NodeContext nodeContext)
             {
-                gameHandle = ServiceRegistry.Current.GetGameHandle();
+                gameHandle = AppHost.Current.Services.GetGameHandle();
             }
 
             public void Dispose()
@@ -185,7 +185,7 @@ namespace VL.Stride.Graphics
 
             public TextureViewBuilder(NodeContext nodeContext)
             {
-                gameHandle = ServiceRegistry.Current.GetGameHandle();
+                gameHandle = AppHost.Current.Services.GetGameHandle();
             }
 
             public void Dispose()

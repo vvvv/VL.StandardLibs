@@ -380,9 +380,9 @@ namespace VL.Lib.Collections
 
             //make sure there is at least one subscription to make sure 
             //the side effect "SetEntries" gets called and inform the compiler about a change to add or remove errors
-            var root = ServiceRegistry.Global.GetService<CompositeDisposable>();
-            root.Add(OnChange.Subscribe(_ =>
-                AnyDynamicEnumDefinitionChanged.SendEnumDefinitionChanged(this.GetType())));
+            OnChange
+                .Subscribe(_ =>AnyDynamicEnumDefinitionChanged.SendEnumDefinitionChanged(this.GetType()))
+                .DisposeBy(AppHost.Global);
 
             SetNewEntries();
 

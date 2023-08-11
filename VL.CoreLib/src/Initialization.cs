@@ -23,31 +23,23 @@ namespace VL.Lib
             TypeDescriptor.AddAttributes(typeof(Vector4), new TypeConverterAttribute(typeof(Vector4Converter)));
         }
 
-        protected override void RegisterServices(IVLFactory factory)
+        public override void Configure(AppHost appHost)
         {
-            Mathematics.Serialization.RegisterSerializers(factory);
+            Mathematics.Serialization.RegisterSerializers(appHost.Factory);
 
-            // did we get called by runtime?
-            if (ServiceRegistry.IsCurrent())
+            appHost.Services.RegisterService<IChannelHub>(_ =>
             {
-                var appHost = ServiceRegistry.Current.GetService<IAppHost>();
-                if (appHost != null)
-                {
-                    // the following line forces the creation of a channel hub per entry point! HDE code assumes that there is one.
-                    var hubForApp = ((ChannelHub)IChannelHub.HubForApp);
-                    hubForApp.AppName = appHost.AppName;
-                    var basePath = PathProviderUtils.GetApplicationBasePath();
-                    hubForApp.AppBasePath = basePath;
-                    var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(basePath);
-                    // make sure all channels of config exist in app-channelhub.
-                    if (watcher != null)
-                        ((ChannelHub)IChannelHub.HubForApp).MustHaveDescriptive = watcher.Descriptions;
-                }
-            }
+                var channelHub = new ChannelHub(appHost);
+                // make sure all channels of config exist in app-channelhub.
+                var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(appHost.AppBasePath);
+                if (watcher != null)
+                    channelHub.MustHaveDescriptive = watcher.Descriptions;
+                return channelHub;
+            });
 
             // registering node factory producing nodes for global channels is necessary in any case.
             // compiler needs it to output correct code. target code calls into the nodes. So they need to be present as well.
-            ChannelHubNodeBuilding.RegisterChannelHubNodeFactoryTriggeredViaConfigFile(factory);
+            ChannelHubNodeBuilding.RegisterChannelHubNodeFactoryTriggeredViaConfigFile(appHost);
         }
 
         class SingleConverter : System.ComponentModel.SingleConverter

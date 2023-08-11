@@ -78,18 +78,11 @@ namespace VL.Core.Reactive
         {
             get
             {
-                return ServiceRegistry.Current.GetOrAddService<IChannelHub>(() =>
-                {
-                    var x = new ChannelHub();
-                    ServiceRegistry.Current.GetService<IAppHost>().OnExit.Subscribe(_ =>
-                    {
-                        x.Dispose();
-                    });
-
-                    return x;
-                });
+                return AppHost.Current.Services.GetService<IChannelHub>()!;
             }
         }
+
+        AppHost AppHost { get; }
 
         IDictionary<string, IChannel<object>> Channels { get; }
 
@@ -124,8 +117,6 @@ namespace VL.Core.Reactive
         /// </summary>
         /// <param name="module"></param>
         void RegisterModule(IModule module);
-
-        string AppName { get; }
     }
 
 

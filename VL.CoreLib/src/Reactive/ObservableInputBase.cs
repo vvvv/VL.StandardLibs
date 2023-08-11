@@ -14,7 +14,7 @@ namespace VL.Lib.Reactive
     public abstract class ObservableInputBase<T> : IDisposable
     {
         private readonly object lockingObject = new object();
-        private readonly ServiceRegistry serviceRegistry = ServiceRegistry.CurrentOrGlobal;
+        private readonly AppHost appHost = AppHost.Current;
 
         protected SerialDisposable FSubscription = new SerialDisposable();
         protected IObservable<T> FObservable;
@@ -59,7 +59,7 @@ namespace VL.Lib.Reactive
                 }
                 catch (Exception e)
                 {
-                    RuntimeGraph.ReportException(e, serviceRegistry);
+                    RuntimeGraph.ReportException(e, appHost);
                 }
             }
         }
@@ -94,7 +94,7 @@ namespace VL.Lib.Reactive
             // Set to null so we'll re-subscribe in next frame
             FObservable = null;
 
-            RuntimeGraph.ReportException(e, serviceRegistry);
+            RuntimeGraph.ReportException(e, appHost);
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace VL.Lib.Reactive
                             // VLSession.Instance.ReportException(e);
 
                             // or rather get a pink node?
-                            RuntimeGraph.ReportException(e, serviceRegistry);
+                            RuntimeGraph.ReportException(e, appHost);
 
                             // it's a bit sad that the user can't catch exceptions happening on state disposal 
                             // with observable catch regions below - as we currently throw them at some point on the sync context,

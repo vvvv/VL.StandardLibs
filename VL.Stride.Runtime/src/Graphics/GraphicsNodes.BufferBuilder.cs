@@ -68,7 +68,7 @@ namespace VL.Stride.Graphics
 
             public BufferBuilder(NodeContext nodeContext)
             {
-                gameHandle = ServiceRegistry.Current.GetGameHandle();
+                gameHandle = AppHost.Current.Services.GetGameHandle();
             }
 
             public void Dispose()
@@ -154,7 +154,7 @@ namespace VL.Stride.Graphics
 
             public BufferViewBuilder(NodeContext nodeContext)
             {
-                gameHandle = ServiceRegistry.Current.GetGameHandle();
+                gameHandle = AppHost.Current.Services.GetGameHandle();
             }
 
             public void Dispose()

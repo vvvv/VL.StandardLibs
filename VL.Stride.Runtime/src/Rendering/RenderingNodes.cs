@@ -279,7 +279,7 @@ namespace VL.Stride.Rendering
                     var disposable = new SerialDisposable();
                     lifetime.Add(disposable);
 
-                    var gameProvider = ServiceRegistry.Current.GetGameProvider();
+                    var gameProvider = AppHost.Current.Services.GetGameProvider();
                     return generator =>
                     {
                         var key = (gameProvider, typeof(TProceduralModel), generator.Scale, generator.UvScale, generator.LocalOffset, generator.NumberOfTextureCoordinates, getKey(generator));

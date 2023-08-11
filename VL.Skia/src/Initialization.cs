@@ -11,13 +11,13 @@ namespace VL.Skia
 {
     public sealed class Initialization : AssemblyInitializer<Initialization>
     {
-        protected override void RegisterServices(IVLFactory factory)
+        public override void Configure(AppHost appHost)
         {
-            ServiceRegistry.Current.RegisterService<IRefCounter<SKImage>>(SKObjectRefCounter.Default);
-            ServiceRegistry.Current.RegisterService<IRefCounter<SKPicture>>(SKObjectRefCounter.Default);
+            appHost.Services.RegisterService<IRefCounter<SKImage>>(SKObjectRefCounter.Default);
+            appHost.Services.RegisterService<IRefCounter<SKPicture>>(SKObjectRefCounter.Default);
 
             // Using the node factory API allows us to keep thing internal
-            factory.RegisterNodeFactory("VL.Skia.Nodes", f =>
+            appHost.RegisterNodeFactory("VL.Skia.Nodes", f =>
             {
                 var graphicsContextNode = f.NewNodeDescription(
                     name: nameof(GRContext),
@@ -42,7 +42,7 @@ namespace VL.Skia
                 return NodeBuilding.NewFactoryImpl(ImmutableArray.Create(graphicsContextNode));
             });
 
-            factory.RegisterSerializer<SKTypeface, SKTypefaceSerializer>(new SKTypefaceSerializer());
+            appHost.Factory.RegisterSerializer<SKTypeface, SKTypefaceSerializer>(new SKTypefaceSerializer());
         }
 
         sealed class SKObjectRefCounter : IRefCounter<SKObject>

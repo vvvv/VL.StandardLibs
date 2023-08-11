@@ -43,7 +43,7 @@ namespace VL.ImGui.Editors
                 // More collections
             }
 
-            var typeInfo = TypeRegistry.Default.GetTypeInfo(staticType);
+            var typeInfo = context.AppHost.TypeRegistry.GetTypeInfo(staticType);
             if (AllowGeneralObjectEditor(context, typeInfo))
             {
                 if (staticType.IsAbstract || staticType == typeof(object))

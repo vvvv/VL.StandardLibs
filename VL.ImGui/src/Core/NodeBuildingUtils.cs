@@ -6,9 +6,9 @@ namespace VL.ImGui
 {
     internal static class NodeBuildingUtils
     {
-        public static void RegisterGeneratedNodes(IVLFactory factory, string name, Assembly assembly)
+        public static void RegisterGeneratedNodes(AppHost appHost, string name, Assembly assembly)
         {
-            factory.RegisterNodeFactory(NodeBuilding.NewNodeFactory(factory, name, f =>
+            appHost.NodeFactoryRegistry.RegisterNodeFactory(appHost.NodeFactoryCache.GetOrAdd(name, f =>
             {
                 var nodes = GetNodes(f, assembly).ToImmutableArray();
                 return NodeBuilding.NewFactoryImpl(nodes);

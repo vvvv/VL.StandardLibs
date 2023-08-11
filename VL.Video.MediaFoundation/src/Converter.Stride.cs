@@ -6,7 +6,6 @@ using System;
 using VL.Core;
 using VL.Lib.Basics.Resources;
 using VL.Stride;
-using ServiceRegistry = VL.Core.ServiceRegistry;
 
 namespace VL.Video.MediaFoundation
 {
@@ -18,7 +17,7 @@ namespace VL.Video.MediaFoundation
 
         public StrideConverter()
         {
-            renderDrawContextHandle = ServiceRegistry.Current.GetGameProvider()
+            renderDrawContextHandle = AppHost.Current.Services.GetGameProvider()
                 .Bind(g => RenderContext.GetShared(g.Services).GetThreadContext())
                 .GetHandle() ?? throw new ServiceNotFoundException(typeof(IResourceProvider<Game>));
 

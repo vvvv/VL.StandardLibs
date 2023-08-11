@@ -1,129 +1,123 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace VL.Core
 {
-    /// <summary>
-    /// Provides services for the whole application (<see cref="Global"/>) or to a specific call stack (<see cref="Current"/>).
-    /// All entry points (runtime instances, editor extensions, exported apps) will make a registry current before calling into the patch (<see cref="MakeCurrent"/>).
-    /// Patches will capture the current service registry and restore it in callbacks should no other registry be current (<see cref="MakeCurrentIfNone"/>).
-    /// </summary>
     public class ServiceRegistry : IServiceProvider
     {
-        private static ServiceRegistry global;
-
-        [ThreadStatic]
-        private static ServiceRegistry current;
-
         /// <summary>
         /// The service registry for the current thread. Throws <see cref="InvalidOperationException"/> in case no registry is installed.
         /// </summary>
-        public static ServiceRegistry Current => current ?? throw new InvalidOperationException("No service registry is installed on the current thread.");
+        [Obsolete("Use IAppHost.Current.Services", error: false)]
+        public static ServiceRegistry Current => AppHost.Current.Services;
 
         /// <summary>
         /// The service registry for the current thread or the global one if there's no registry installed on the current thread.
         /// </summary>
-        public static ServiceRegistry CurrentOrGlobal => current ?? global;
+        [Obsolete("Use IAppHost.CurrentOrGlobal.Services", error: true)]
+        public static ServiceRegistry CurrentOrGlobal => AppHost.CurrentOrGlobal.Services;
 
         /// <summary>
         /// The service registry for the whole application.
         /// </summary>
-        public static ServiceRegistry Global => global;
+        [Obsolete("Use IAppHost.Global.Services", error: true)]
+        public static ServiceRegistry Global => AppHost.Global.Services;
 
         /// <summary>
         /// Whether or not a context is installed on the current thread.
         /// </summary>
-        public static bool IsCurrent() => current != null;
+        [Obsolete("Use IAppHost.IsCurrent()", error: true)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static bool IsCurrent() => AppHost.IsCurrent();
 
-        /// <summary>
-        /// Make the registry current on the current thread.
-        /// </summary>
-        /// <returns>A subscription which will restore the previous registry on dispose.</returns>
-        public CurrentSubscription MakeCurrent()
+        private readonly ConcurrentDictionary<Type, Registration> registrations = new();
+        private readonly IServiceProvider? parent;
+        private readonly AppHost appHost;
+
+        public ServiceRegistry(AppHost appHost, IServiceProvider? parent = null)
         {
-            return new CurrentSubscription(this);
-        }
-
-        /// <summary>
-        /// Make the registry current on the current thread if no registry is current yet.
-        /// </summary>
-        /// <returns>A subscription which will restore the previous registry on dispose.</returns>
-        public CurrentSubscription MakeCurrentIfNone()
-        {
-            return new CurrentSubscription(current ?? this);
-        }
-
-        public readonly struct CurrentSubscription : IDisposable
-        {
-            readonly ServiceRegistry saved;
-
-            internal CurrentSubscription(ServiceRegistry context)
-            {
-                saved = current;
-                current = context;
-            }
-
-            public void Dispose()
-            {
-                current = saved;
-            }
-        }
-
-        private readonly ConcurrentDictionary<Type, object> services = new ConcurrentDictionary<Type, object>();
-        private readonly IServiceProvider parent;
-
-        public ServiceRegistry()
-        {
-            global = this;
-        }
-
-        // Called by unit tests
-        internal void Unset()
-        {
-            global = null;
-        }
-
-        public ServiceRegistry(IServiceProvider parent)
-        {
+            this.appHost = appHost;
             this.parent = parent;
         }
 
+        /// <summary>
+        /// Registers an already existing service of type T. The lifetime will not be managed by the host.
+        /// </summary>
         public ServiceRegistry RegisterService<T>(T service)
         {
-            services[typeof(T)] = service;
+            if (service is null)
+                throw new ArgumentNullException(nameof(service));
+
+            registrations[typeof(T)] = new Registration(new Lazy<object>(() => service, isThreadSafe: false));
             return this;
         }
 
-        public object GetService(Type serviceType)
+        /// <summary>
+        /// Registers a service factory for the service of type T. The lifetime of the created instance will be managed by the host.
+        /// </summary>
+        public ServiceRegistry RegisterService<T>(Func<IServiceProvider, T> serviceFactory)
         {
-            return services.ValueOrDefault(serviceType) ?? parent?.GetService(serviceType);
+            if (serviceFactory is null)
+                throw new ArgumentNullException(nameof(serviceFactory));
+
+            registrations[typeof(T)] = CreateRegistration(serviceFactory);
+
+            return this;
         }
+
+        public object? GetService(Type serviceType)
+        {
+            return registrations.ValueOrDefault(serviceType).LazyService?.Value ?? parent?.GetService(serviceType);
+        }
+
+        public T GetOrAddService<T>(Func<IServiceProvider, T> serviceFactory) where T : class
+        {
+            if (serviceFactory is null)
+                throw new ArgumentNullException(nameof(serviceFactory));
+
+            var registration = registrations.GetOrAdd(typeof(T), (type, factory) =>
+            {
+                var service = parent?.GetService(type);
+                if (service != null)
+                    return new Registration(new Lazy<object>(service));
+
+                return CreateRegistration(factory);
+            }, serviceFactory);
+
+            return (T)registration.LazyService.Value;
+        }
+
+        private Registration CreateRegistration<T>(Func<IServiceProvider, T> serviceFactory)
+        {
+            return new Registration(
+                LazyService: new Lazy<object>(
+                    valueFactory: () =>
+                    {
+                        // Make sure the service gets built in the correct host
+                        using (appHost.MakeCurrent())
+                        {
+                            var service = serviceFactory(this);
+                            if (service is null)
+                                throw new Exception($"The service factory for {typeof(T)} returned null.");
+                            if (service is IDisposable disposable)
+                                disposable.DisposeBy(appHost);
+                            return service;
+                        }
+                    },
+                    isThreadSafe: true));
+        }
+
+        record struct Registration(Lazy<object> LazyService);
     }
 
     public static class ServiceProviderExtensions
     {
-        public static T GetService<T>(this IServiceProvider serviceProvider) where T : class => serviceProvider.GetService(typeof(T)) as T;
+        public static T? GetService<T>(this IServiceProvider serviceProvider) where T : class => serviceProvider.GetService(typeof(T)) as T;
 
-        public static T GetOrAddService<T>(this ServiceRegistry serviceRegistry, Func<T> factory) where T : class
-        {
-            lock (serviceRegistry)
-            {
-                var service = serviceRegistry.GetService<T>();
-                if (service is null)
-                    serviceRegistry.RegisterService(service = factory());
-                return service;
-            }
-        }
-
-        public static ServiceRegistry EnsureService<TService>(this ServiceRegistry serviceRegistry, Func<TService> factory) where TService : class
-        {
-            var service = serviceRegistry.GetService<TService>();
-            if (service is null)
-                serviceRegistry.RegisterService(factory());
-            return serviceRegistry;
-        }
-
-        public static ServiceRegistry NewRegistry(this IServiceProvider parent) => new ServiceRegistry(parent);
+        public static T GetRequiredService<T>(this IServiceProvider serviceProvider) where T : class => serviceProvider.GetService<T>() ?? throw new Exception($"The required service {typeof(T).FullName} was not found");
     }
 }
+#nullable restore
