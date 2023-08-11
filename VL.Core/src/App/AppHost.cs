@@ -203,7 +203,7 @@ namespace VL.Core
         /// <summary>
         /// Raised for each an assembly initializer after its <see cref="AssemblyInitializer.Configure(AppHost)"/> method has being called.
         /// </summary>
-        internal event EventHandler<AssemblyInitializer> Configured;
+        internal event EventHandler<AssemblyInitializer>? Configured;
 
         protected virtual void OnConfigured(AssemblyInitializer initializer)
         {
