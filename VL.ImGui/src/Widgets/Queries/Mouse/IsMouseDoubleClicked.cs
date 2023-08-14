@@ -4,7 +4,7 @@
     /// Did mouse button double-clicked?
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries")]
-    internal partial class IsMouseDoubleClicked : Widget
+    internal partial class IsMouseDoubleClicked : Query
     {
 
         public ImGuiNET.ImGuiMouseButton Flags { private get; set; }

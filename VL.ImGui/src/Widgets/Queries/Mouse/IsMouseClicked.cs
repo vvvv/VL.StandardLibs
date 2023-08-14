@@ -4,7 +4,7 @@
     /// Did mouse button clicked?
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries")]
-    internal partial class IsMouseClicked : Widget
+    internal partial class IsMouseClicked : Query
     {
 
         public ImGuiNET.ImGuiMouseButton Flags { private get; set; }

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="LiIPinoB4LjLRms7uZqVID" LanguageVersion="2023.5.3-0052-gd114b32994" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="LiIPinoB4LjLRms7uZqVID" LanguageVersion="2023.5.3-0112-g942b51e04d" Version="0.128">
   <Patch Id="MaKn58isLEdLcMSCDKs0fL">
     <Canvas Id="Bb8OVvqJusyMdcjXvJIsPx" DefaultCategory="System.Reflection" CanvasType="FullCategory">
       <Canvas Id="QozF33LF0ncPaMIS06nLkl" Name="Experimental" Position="538,165">
@@ -476,6 +476,33 @@
                   <Pin Id="ADRSL3SbmvlNo7HGMEPfpq" Name="Services" Kind="OutputPin" />
                 </Patch>
               </Node>
+              <!--
+
+    ************************ AppHost ************************
+
+-->
+              <Node Name="AppHost" Bounds="909,762,94,94" Id="RNjdeWPynx0QJjxpxESmZx">
+                <p:NodeReference>
+                  <Choice Kind="OperationDefinition" Name="Operation" />
+                  <CategoryReference Kind="Category" Name="Primitive" />
+                </p:NodeReference>
+                <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+                <Patch Id="CEPVSVJf8BjMlhpquVFqMe">
+                  <Node Bounds="935,785,56,26" AutoConnect="true" Id="NDKHqVJaMpNL2KSm1hCJO0">
+                    <p:NodeReference LastCategoryFullName="VL.Core.IVLObject" LastDependency="VL.Core.dll">
+                      <Choice Kind="OperationNode" Name="AppHost" />
+                      <FullNameCategoryReference ID="VL.Core.IVLObject" />
+                    </p:NodeReference>
+                    <Pin Id="FTrhT55NMgKMGqRd3IolVG" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="CNTBZ8XIzdMQL0yVIBcKyA" Name="Output" Kind="StateOutputPin" />
+                    <Pin Id="ThlmDktDubKOEDtZpPppuD" Name="App Host" Kind="OutputPin" />
+                  </Node>
+                  <Pad Id="SNkpbuzSjbSQLbuxsyLiH5" Bounds="937,829" />
+                  <Link Id="QD0YL2MqKoCLMVFol3Pm9c" Ids="CNTBZ8XIzdMQL0yVIBcKyA,SNkpbuzSjbSQLbuxsyLiH5" />
+                  <Pin Id="FtlMVENFHf8PQWog471hy6" Name="Input" Kind="InputPin" />
+                  <Pin Id="TAtjyIAPSzYNKo5XJHMfZ4" Name="App Host" Kind="OutputPin" />
+                </Patch>
+              </Node>
             </Canvas>
             <ProcessDefinition Id="K9Pe52VZDmFMso9VPXZZMN" IsHidden="true">
               <Fragment Id="G0rZh1kWxT0MFpMVJ63DK5" Patch="GedzFLLkowePZuBQMnjaxN" Enabled="true" />
@@ -492,6 +519,7 @@
               <Fragment Id="OrQZmKSms1WO0YzE16gGME" Patch="RRTBpUjiXnUOtxZ6vm4n78" />
               <Fragment Id="CjWz1LvdxQ5PIL63OzYpXc" Patch="OmyrUn1mRJPNdSOqqZuefL" />
               <Fragment Id="LDYtupRzVO8PzRZ8QH29Ll" Patch="MYTmey2wUgaOmuCaUEUt5L" />
+              <Fragment Id="RJtnE8p0q8hOf3mblp9neW" Patch="RNjdeWPynx0QJjxpxESmZx" />
             </ProcessDefinition>
           </Patch>
         </Node>
@@ -794,25 +822,36 @@
     ************************ CreateDefault (Hidden) ************************
 
 -->
-              <Node Name="CreateDefault (Hidden)" Bounds="140,201,81,80" Id="NeXIwzUKDXTNAna8QqwLsN">
+              <Node Name="CreateDefault (Hidden)" Bounds="147,173,76,121" Id="NeXIwzUKDXTNAna8QqwLsN">
                 <p:NodeReference>
                   <Choice Kind="OperationDefinition" Name="Operation" />
                   <FullNameCategoryReference ID="Primitive" />
                 </p:NodeReference>
                 <p:HideCategory p:Type="Boolean">false</p:HideCategory>
                 <Patch Id="H4qj8XZV8wsNpTOb5Puo2I">
-                  <Node Bounds="159,236,44,13" AutoConnect="true" Id="DAIp8A0e974N0rfH1hFduJ">
-                    <p:NodeReference LastCategoryFullName="VL.Core.IVLFactory" LastDependency="VL.Core.dll">
-                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                      <CategoryReference Kind="AssemblyCategory" Name="IVLFactory" />
-                      <Choice Kind="OperationCallFlag" Name="Current" />
-                    </p:NodeReference>
-                    <Pin Id="PUzmQqGqK3AOCOUhiBXJbK" Name="Current" Kind="OutputPin" />
-                  </Node>
                   <ControlPoint Id="U71wDidRA70Nc7R7hU6dqR" Bounds="161,277" />
                   <Pin Id="FR24hf7vPalMapcfarnplm" Name="Output" Kind="OutputPin" Bounds="161,277" />
                   <Link Id="FxWSGom9ARuLiTsA6jmWqK" Ids="U71wDidRA70Nc7R7hU6dqR,FR24hf7vPalMapcfarnplm" IsHidden="true" />
-                  <Link Id="AIZ1SfWcsYsMPGkgEVin8p" Ids="PUzmQqGqK3AOCOUhiBXJbK,U71wDidRA70Nc7R7hU6dqR" />
+                  <Node Bounds="160,196,51,19" Id="LpIXtl31xCYOrMBsXbRiNX">
+                    <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="CoreLibBasics.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <CategoryReference Kind="ClassType" Name="AppHost" />
+                      <Choice Kind="OperationCallFlag" Name="Current" />
+                    </p:NodeReference>
+                    <Pin Id="BZ8u1XzdUuzNvlK9U1iTUR" Name="Current" Kind="OutputPin" />
+                  </Node>
+                  <Link Id="Jlg3RSnKeqAK99MJnMxsss" Ids="BZ8u1XzdUuzNvlK9U1iTUR,NrNePHnR8GYNXaaBAzuYGb" />
+                  <Node Bounds="160,228,49,26" Id="JTr6fOXSdYrMiVksgQ8JjT">
+                    <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="CoreLibBasics.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <FullNameCategoryReference ID="System.Application.AppHost" />
+                      <Choice Kind="OperationCallFlag" Name="Factory" />
+                    </p:NodeReference>
+                    <Pin Id="NrNePHnR8GYNXaaBAzuYGb" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="J2MVmVbcziXL9OroxwZjXj" Name="Output" Kind="StateOutputPin" />
+                    <Pin Id="U7FNBC5AmXRMvGmRZlTA26" Name="Factory" Kind="OutputPin" />
+                  </Node>
+                  <Link Id="T77GOGS7XH4OHEHN1zD1Lu" Ids="U7FNBC5AmXRMvGmRZlTA26,U71wDidRA70Nc7R7hU6dqR" />
                 </Patch>
               </Node>
               <!--
@@ -820,14 +859,14 @@
     ************************ CreateInstance ************************
 
 -->
-              <Node Name="CreateInstance" Bounds="404,200,167,83" Id="QtLIDYmnIZwMBMwj6QtHsY">
+              <Node Name="CreateInstance" Bounds="404,198,178,89" Id="QtLIDYmnIZwMBMwj6QtHsY">
                 <p:NodeReference>
                   <Choice Kind="OperationDefinition" Name="Operation" />
                   <FullNameCategoryReference ID="Primitive" />
                 </p:NodeReference>
                 <p:HideCategory p:Type="Boolean">false</p:HideCategory>
                 <Patch Id="MqCUbrtki4gONscSpKdkQw">
-                  <Node Bounds="416,241,83,22" AutoConnect="true" Id="DIdevPYu7OLMOHJBSLef9V">
+                  <Node Bounds="416,241,83,26" AutoConnect="true" Id="DIdevPYu7OLMOHJBSLef9V">
                     <p:NodeReference LastCategoryFullName="VL.Core.IVLFactory" LastDependency="VL.Core.dll">
                       <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                       <Choice Kind="OperationCallFlag" Name="CreateInstance" />
@@ -854,14 +893,14 @@
     ************************ TryCreateInstance ************************
 
 -->
-              <Node Name="TryCreateInstance" Bounds="622,199,118,103" Id="Ap9RBK0Amk0LkSIir5Rd1i">
+              <Node Name="TryCreateInstance" Bounds="622,197,123,105" Id="Ap9RBK0Amk0LkSIir5Rd1i">
                 <p:NodeReference>
                   <Choice Kind="OperationDefinition" Name="Operation" />
                   <FullNameCategoryReference ID="Primitive" />
                 </p:NodeReference>
                 <p:HideCategory p:Type="Boolean">false</p:HideCategory>
                 <Patch Id="VCks9LAG24uNF3sZ4eDR3A" IsGeneric="true">
-                  <Node Bounds="635,245,93,22" AutoConnect="true" Id="E9pREbZk1kyLwj5tRhWosm">
+                  <Node Bounds="635,245,98,26" AutoConnect="true" Id="E9pREbZk1kyLwj5tRhWosm">
                     <p:NodeReference LastCategoryFullName="VL.Core.VLFactoryExtensions" LastDependency="VL.Core.dll">
                       <Choice Kind="OperationNode" Name="TryCreateInstance" />
                       <FullNameCategoryReference ID="VL.Core.VLFactoryExtensions" />
@@ -890,14 +929,14 @@
     ************************ GetDefaultValue ************************
 
 -->
-              <Node Name="GetDefaultValue" Bounds="406,352,112,85" Id="R0KWzxF2WXZNRrxVUnC3YP">
+              <Node Name="GetDefaultValue" Bounds="406,352,114,86" Id="R0KWzxF2WXZNRrxVUnC3YP">
                 <p:NodeReference>
                   <Choice Kind="OperationDefinition" Name="Operation" />
                   <FullNameCategoryReference ID="Primitive" />
                 </p:NodeReference>
                 <p:HideCategory p:Type="Boolean">false</p:HideCategory>
                 <Patch Id="HR1KuhyQIp8PaxVwHeaY6x">
-                  <Node Bounds="418,387,84,22" AutoConnect="true" Id="VILJuiNCYWPOg5YpworWma">
+                  <Node Bounds="418,387,90,26" AutoConnect="true" Id="VILJuiNCYWPOg5YpworWma">
                     <p:NodeReference LastCategoryFullName="VL.Core.IVLFactory" LastDependency="VL.Core.dll">
                       <Choice Kind="OperationNode" Name="GetDefaultValue" />
                       <FullNameCategoryReference ID="VL.Core.IVLFactory" />
@@ -918,14 +957,14 @@
     ************************ GetTypeByName ************************
 
 -->
-              <Node Name="GetTypeByName" Bounds="408,539,112,85" Id="DQLQKvTRvZ8NR46GNndIJf">
+              <Node Name="GetTypeByName" Bounds="408,539,114,86" Id="DQLQKvTRvZ8NR46GNndIJf">
                 <p:NodeReference>
                   <Choice Kind="OperationDefinition" Name="Operation" />
                   <FullNameCategoryReference ID="Primitive" />
                 </p:NodeReference>
                 <p:HideCategory p:Type="Boolean">false</p:HideCategory>
                 <Patch Id="BOFohM19LMPMuziP24Ceyh">
-                  <Node Bounds="420,574,84,22" AutoConnect="true" Id="SVbfHUzvUScMly6OK7It4u">
+                  <Node Bounds="420,574,90,26" AutoConnect="true" Id="SVbfHUzvUScMly6OK7It4u">
                     <p:NodeReference LastCategoryFullName="VL.Core.IVLFactory" LastDependency="VL.Core.dll">
                       <Choice Kind="OperationNode" Name="GetTypeByName" />
                       <FullNameCategoryReference ID="VL.Core.IVLFactory" />
@@ -946,14 +985,14 @@
     ************************ GetTypeInfo ************************
 
 -->
-              <Node Name="GetTypeInfo" Bounds="588,539,112,85" Id="BrXqTrzwnKqL1WtD3jI09U">
+              <Node Name="GetTypeInfo" Bounds="588,539,112,86" Id="BrXqTrzwnKqL1WtD3jI09U">
                 <p:NodeReference>
                   <Choice Kind="OperationDefinition" Name="Operation" />
                   <FullNameCategoryReference ID="Primitive" />
                 </p:NodeReference>
                 <p:HideCategory p:Type="Boolean">false</p:HideCategory>
                 <Patch Id="RAYmvVKWdshMrDzoilo5CK">
-                  <Node Bounds="600,574,65,22" AutoConnect="true" Id="M7q0IEyiBn9Lb4PYBaBgBc">
+                  <Node Bounds="600,574,71,26" AutoConnect="true" Id="M7q0IEyiBn9Lb4PYBaBgBc">
                     <p:NodeReference LastCategoryFullName="VL.Core.IVLFactory" LastDependency="VL.Core.dll">
                       <Choice Kind="OperationNode" Name="GetTypeInfo" />
                       <FullNameCategoryReference ID="VL.Core.IVLFactory" />
@@ -974,14 +1013,14 @@
     ************************ RegisterService ************************
 
 -->
-              <Node Name="RegisterService" Bounds="892,199,112,80" Id="LlmnJ9U6qU0N9w7nSjNwnc">
+              <Node Name="RegisterService" Bounds="892,199,114,82" Id="LlmnJ9U6qU0N9w7nSjNwnc">
                 <p:NodeReference>
                   <Choice Kind="OperationDefinition" Name="Operation" />
                   <FullNameCategoryReference ID="Primitive" />
                 </p:NodeReference>
                 <p:HideCategory p:Type="Boolean">false</p:HideCategory>
                 <Patch Id="HPLuRpi6ZzXOGmAl27GiVq" IsGeneric="true">
-                  <Node Bounds="904,229,83,22" AutoConnect="true" Id="S5GgkkFXqOkL2uiSTSKPf1">
+                  <Node Bounds="904,229,90,26" AutoConnect="true" Id="S5GgkkFXqOkL2uiSTSKPf1">
                     <p:NodeReference LastCategoryFullName="VL.Core.VLFactoryExtensions" LastDependency="VL.Core.dll">
                       <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                       <Choice Kind="OperationNode" Name="RegisterService" />
@@ -1002,14 +1041,14 @@
     ************************ TryCreateService ************************
 
 -->
-              <Node Name="TryCreateService" Bounds="1071,196,112,85" Id="CJbTkJFKoJaNYR2XwNqOfJ">
+              <Node Name="TryCreateService" Bounds="1071,196,116,86" Id="CJbTkJFKoJaNYR2XwNqOfJ">
                 <p:NodeReference>
                   <Choice Kind="OperationDefinition" Name="Operation" />
                   <FullNameCategoryReference ID="Primitive" />
                 </p:NodeReference>
                 <p:HideCategory p:Type="Boolean">false</p:HideCategory>
                 <Patch Id="GJfPRjvNEy1PTE3NNCSRl5" IsGeneric="true">
-                  <Node Bounds="1083,231,86,22" AutoConnect="true" Id="GKU9uuJrs6WLEF4UJzMsVI">
+                  <Node Bounds="1083,231,92,26" AutoConnect="true" Id="GKU9uuJrs6WLEF4UJzMsVI">
                     <p:NodeReference LastCategoryFullName="VL.Core.VLFactoryExtensions" LastDependency="VL.Core.dll">
                       <Choice Kind="OperationNode" Name="TryCreateService" />
                       <FullNameCategoryReference ID="VL.Core.VLFactoryExtensions" />
@@ -1053,28 +1092,6 @@
                   <Pin Id="NJOM6ICXqC4NX5Uow4Q6jW" Name="Result" Kind="OutputPin" />
                 </Patch>
               </Node>
-              <!--
-
-    ************************ Current ************************
-
--->
-              <Node Name="Current" Bounds="142,350,114,82" Id="BRVl2mNxY7ZNmYNkrXb0Fz">
-                <p:NodeReference>
-                  <Choice Kind="OperationDefinition" Name="Operation" />
-                  <CategoryReference Kind="Category" Name="Primitive" />
-                </p:NodeReference>
-                <p:HideCategory p:Type="Boolean">false</p:HideCategory>
-                <Patch Id="G9dG4qoLh9bOaLV9SlSe8f">
-                  <Node Bounds="157,382,51,19" AutoConnect="true" Id="SVXXt7EmdvDQTKTYOLA9nb">
-                    <p:NodeReference LastCategoryFullName="VL.Core.IVLFactory" LastDependency="VL.Core.dll">
-                      <Choice Kind="OperationNode" Name="Current" />
-                      <FullNameCategoryReference ID="VL.Core.IVLFactory" />
-                    </p:NodeReference>
-                    <Pin Id="KvfrEvhTKIcOqrVTm2BOyd" Name="Current" Kind="OutputPin" />
-                  </Node>
-                  <Pin Id="KSiCY8fOkLKQZ1CBWyoKEK" Name="Current" Kind="OutputPin" />
-                </Patch>
-              </Node>
             </Canvas>
             <ProcessDefinition Id="CVATzipU5zZNaNojV9aJJy" IsHidden="true">
               <Fragment Id="SgrukzGtulCQIzJ9NzV9sp" Patch="NeXIwzUKDXTNAna8QqwLsN" Enabled="true" />
@@ -1086,44 +1103,7 @@
               <Fragment Id="HmycsSy7MVBMpeN6mzh2At" Patch="LlmnJ9U6qU0N9w7nSjNwnc" />
               <Fragment Id="HYha1w9YjvNLRw5GdDwjNt" Patch="CJbTkJFKoJaNYR2XwNqOfJ" />
               <Fragment Id="GVuynyFe63xP6aNhvgsdfE" Patch="T6GYUOHbgQMPzOMLMCetla" />
-              <Fragment Id="IG34A8MjAhlPitvQje9ne2" Patch="BRVl2mNxY7ZNmYNkrXb0Fz" />
             </ProcessDefinition>
-          </Patch>
-        </Node>
-        <!--
-
-    ************************ IServiceProvider ************************
-
--->
-        <Node Name="IServiceProvider" Bounds="473,382" Id="M6i1zXm4IuKMvUhkrJUmny">
-          <p:NodeReference>
-            <Choice Kind="ForwardDefinition" Name="Forward" />
-            <CategoryReference Kind="Category" Name="Primitive" />
-          </p:NodeReference>
-          <p:TypeAnnotation LastCategoryFullName="System" LastDependency="System.ComponentModel.dll">
-            <Choice Kind="TypeFlag" Name="IServiceProvider" />
-          </p:TypeAnnotation>
-          <Patch Id="V1B7FDpnWBAO3uw42G8dn4">
-            <Canvas Id="OqWQhNYt6j1Pgdoa6eC62o" CanvasType="Group" />
-            <ProcessDefinition Id="N99QZ7gwd7tLvowfvlaKyf" IsHidden="true" />
-          </Patch>
-        </Node>
-        <!--
-
-    ************************ IPathProvider ************************
-
--->
-        <Node Name="IPathProvider" Bounds="706,383" Id="ApS2o506heqLL80GiUJRae">
-          <p:NodeReference>
-            <Choice Kind="ForwardDefinition" Name="Forward" />
-            <CategoryReference Kind="Category" Name="Primitive" />
-          </p:NodeReference>
-          <p:TypeAnnotation LastCategoryFullName="VL.Core" LastDependency="VL.Core.dll">
-            <Choice Kind="TypeFlag" Name="IPathProvider" />
-          </p:TypeAnnotation>
-          <Patch Id="Np05ie2E5koP4JGwrhSPuS">
-            <Canvas Id="FUAGEVz0wO2L9YlCGkDXjX" BordersChecked="false" CanvasType="Group" />
-            <ProcessDefinition Id="UpG6jnY8wxqLxST2vksSqA" IsHidden="true" />
           </Patch>
         </Node>
         <!--
@@ -1142,51 +1122,6 @@
           <Patch Id="BKfIdGhOvB0NMLcsG4ePfC">
             <Canvas Id="AceCuthnv00LjjHqHQ2O9U" BordersChecked="false" CanvasType="Group" />
             <ProcessDefinition Id="JplruDzX2y8NHzp8ALR8oE" IsHidden="true" />
-          </Patch>
-        </Node>
-        <!--
-
-    ************************ ServiceRegistry ************************
-
--->
-        <Node Name="ServiceRegistry" Bounds="482,415" Id="RBMkS8CgnSpNf8WxDbBa9Q">
-          <p:NodeReference>
-            <Choice Kind="ForwardDefinition" Name="Forward" />
-            <CategoryReference Kind="Category" Name="Primitive" />
-          </p:NodeReference>
-          <p:TypeAnnotation LastCategoryFullName="VL.Core" LastDependency="VL.Core.dll">
-            <Choice Kind="TypeFlag" Name="ServiceRegistry" />
-          </p:TypeAnnotation>
-          <Patch Id="JvT6VsHbRK9MJldgMw7ZeT">
-            <Canvas Id="Io37xHHFiv9LwILVKNaz12" CanvasType="Group">
-              <!--
-
-    ************************ GetService ************************
-
--->
-              <Node Name="GetService" Bounds="358,240,133,80" Id="HzuaTKPOKEvOTMbwjHWdDR">
-                <p:NodeReference>
-                  <Choice Kind="OperationDefinition" Name="Operation" />
-                  <CategoryReference Kind="Category" Name="Primitive" />
-                </p:NodeReference>
-                <p:HideCategory p:Type="Boolean">false</p:HideCategory>
-                <Patch Id="PcadLNQpGxBNspZM1pxQrA" IsGeneric="true">
-                  <Node Bounds="370,269,109,26" AutoConnect="true" Id="Dz63z99UjtLOtQ8EWQ5GZm">
-                    <p:NodeReference LastCategoryFullName="VL.Core.ServiceProviderExtensions" LastDependency="VL.Core.dll">
-                      <Choice Kind="OperationNode" Name="GetService" />
-                      <FullNameCategoryReference ID="VL.Core.ServiceProviderExtensions" />
-                    </p:NodeReference>
-                    <Pin Id="IYNPtsCxg5iNWnUr44l2pN" Name="Input" Kind="StateInputPin" />
-                    <Pin Id="MiaUeubsI2ALV6ofaWSrF0" Name="Result" Kind="OutputPin" />
-                  </Node>
-                  <Pin Id="OYiMeHvvzrAPKVJrqhELlU" Name="Input" Kind="InputPin" />
-                  <Pin Id="FhhEkClExGdQH57Iy8XC1b" Name="Result" Kind="OutputPin" />
-                </Patch>
-              </Node>
-            </Canvas>
-            <ProcessDefinition Id="EdIoLcH5XlJNbavDbsvpow" IsHidden="true">
-              <Fragment Id="GZ5WL3sK3loLVeuS7KZKXA" Patch="HzuaTKPOKEvOTMbwjHWdDR" />
-            </ProcessDefinition>
           </Patch>
         </Node>
       </Canvas>

@@ -4,7 +4,7 @@
     /// Return '' if column didn't have a name declared by TableSetupColumn().
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class TableGetColumnName : Widget
+    internal partial class TableGetColumnName : Query
     {
         /// <summary>
         /// Pass -1 to use current column.

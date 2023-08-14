@@ -7,7 +7,7 @@ namespace VL.ImGui.Widgets
     /// </summary>
 
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class GetScrollMax : Widget
+    internal partial class GetScrollMax : Query
     {
 
         public Vector2 Value { get; private set; }

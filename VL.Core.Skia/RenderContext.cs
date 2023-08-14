@@ -52,21 +52,26 @@ namespace VL.Skia
         {
             var context = EglContext.New(display, msaaSamples);
             context.MakeCurrent(default);
-            var skiaContext = GRContext.CreateGl(GRGlInterface.CreateAngle());
+            var backendContext = GRGlInterface.CreateAngle();
+            if (backendContext is null)
+                throw new Exception("Failed to create ANGLE backend context");
+            var skiaContext = GRContext.CreateGl(backendContext);
             if (skiaContext is null)
                 throw new Exception("Failed to create Skia backend graphics context");
 
             // 512MB instead of the default 96MB
             skiaContext.SetResourceCacheLimit(ResourceCacheLimit);
-            return new RenderContext(context, skiaContext);
+            return new RenderContext(context, backendContext, skiaContext);
         }
 
         public readonly EglContext EglContext;
+        private readonly GRGlInterface BackendContext;
         public readonly GRContext SkiaContext;
 
-        RenderContext(EglContext eglContext, GRContext skiaContext)
+        RenderContext(EglContext eglContext, GRGlInterface backendContext, GRContext skiaContext)
         {
             EglContext = eglContext ?? throw new ArgumentNullException(nameof(eglContext));
+            BackendContext = backendContext ?? throw new ArgumentNullException(nameof(backendContext));
             SkiaContext = skiaContext ?? throw new ArgumentNullException(nameof(skiaContext));
         }
 
@@ -84,6 +89,7 @@ namespace VL.Skia
             MakeCurrent();
 
             SkiaContext.Dispose();
+            BackendContext.Dispose();
             EglContext.Dispose();
 
             // Set the reference to null so a new context can be created if needed

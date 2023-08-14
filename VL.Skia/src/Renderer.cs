@@ -21,7 +21,7 @@ namespace VL.Skia
         SkiaGLControl FControl;
         bool HasValidLayer;
         ILayer Layer;
-        ServiceRegistry FServiceRegistry;
+        AppHost FAppHost;
 
         public ILayer Input
         {
@@ -163,7 +163,7 @@ namespace VL.Skia
 
         public SkiaRenderer(Action<SkiaRenderer> layout)
         {
-            FServiceRegistry = ServiceRegistry.CurrentOrGlobal;
+            FAppHost = AppHost.Current;
 
             this.SuspendLayout();
 
@@ -243,7 +243,7 @@ namespace VL.Skia
 
         private void FControl_OnRender(CallerInfo callerInfo)
         {
-            using var _ = FServiceRegistry?.MakeCurrentIfNone();
+            using var _ = FAppHost?.MakeCurrentIfNone();
 
             try
             {
@@ -259,7 +259,7 @@ namespace VL.Skia
 
         private void OnNotification(INotification n)
         {
-            using var _ = FServiceRegistry?.MakeCurrentIfNone();
+            using var _ = FAppHost?.MakeCurrentIfNone();
 
             try
             {

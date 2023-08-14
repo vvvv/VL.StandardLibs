@@ -1,42 +1,65 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Reflection;
 
 namespace VL.Core
 {
     public static partial class NodeBuilding
     {
+        [Obsolete("Use AppHost.NodeFactoryRegistry.RegisterNodeFactory")]
         public static void RegisterNodeFactory(this IVLFactory services, IVLNodeDescriptionFactory factory)
         {
-            var registry = services.GetService<NodeFactoryRegistry>();
-            registry.RegisterNodeFactory(factory);
+            services.AppHost.NodeFactoryRegistry.RegisterNodeFactory(factory);
         }
 
+        [Obsolete("Use the appHost overload instead")]
         public static void RegisterNodeFactory(this IVLFactory services,
             string identifier,
             Func<IVLNodeDescriptionFactory, FactoryImpl> init)
         {
-            RegisterNodeFactory(services, NewNodeFactory(services, identifier, init));
+            services.AppHost.RegisterNodeFactory(identifier, init);
         }
 
+        [Obsolete("Use the appHost overload instead")]
         public static void RegisterNodeFactory(this IVLFactory services,
             string identifier,
             Func<string, IVLNodeDescriptionFactory, FactoryImpl> forPath)
         {
-            RegisterNodeFactory(services, NewNodeFactory(services, identifier, _ => new FactoryImpl(forPath: p => f => forPath(p, f))));
+            services.AppHost.RegisterNodeFactory(identifier, forPath);
         }
 
+        [Obsolete("Use the NodeFactoryCache.GetOrAdd extension method")]
         public static IVLNodeDescriptionFactory NewNodeFactory(
             IVLFactory services,
             string identifier,
             Func<IVLNodeDescriptionFactory, FactoryImpl> init)
         {
-            var nodeFactoryCache = services.GetService<NodeFactoryCache>();
+            return services.AppHost.NodeFactoryCache.GetOrAdd(identifier, init);
+        }
+
+        public static void RegisterNodeFactory(this AppHost appHost,
+            string identifier,
+            Func<IVLNodeDescriptionFactory, FactoryImpl> init)
+        {
+            var nodeFactory = appHost.NodeFactoryCache.GetOrAdd(identifier, init);
+            appHost.NodeFactoryRegistry.RegisterNodeFactory(nodeFactory);
+        }
+
+        public static void RegisterNodeFactory(this AppHost appHost,
+            string identifier,
+            Func<string, IVLNodeDescriptionFactory, FactoryImpl> forPath)
+        {
+            var nodeFactory = appHost.NodeFactoryCache.GetOrAdd(identifier, _ => new FactoryImpl(forPath: p => f => forPath(p, f)));
+            appHost.NodeFactoryRegistry.RegisterNodeFactory(nodeFactory);
+        }
+
+        public static IVLNodeDescriptionFactory GetOrAdd(
+            this NodeFactoryCache nodeFactoryCache,
+            string identifier,
+            Func<IVLNodeDescriptionFactory, FactoryImpl> init)
+        {
             return nodeFactoryCache.GetOrAdd(identifier, () =>
             {
                 return new DelegateNodeDescriptionFactory(nodeFactoryCache, identifier, init);
@@ -76,27 +99,6 @@ namespace VL.Core
             string tags)
         {
             return new NodeDescription(factory, name, category, fragmented, invalidated, init, tags);
-        }
-
-        public static IVLNode CreateNode(this IVLFactory factory, NodeContext context, string name, string category)
-        {
-            var nodeDesc = factory.GetNodeDescription(name, category);
-            if (nodeDesc is null)
-                throw new ArgumentException($"Node \"{name} [{category}]\" not found.");
-
-            return nodeDesc.CreateInstance(context);
-        }
-
-        public static IVLNodeDescription GetNodeDescription(this IVLFactory factory, string name, string category)
-        {
-            var registry = factory.GetService<NodeFactoryRegistry>();
-            foreach (var nodeFactory in registry.Factories)
-            {
-                var nodeDesc = nodeFactory.NodeDescriptions.FirstOrDefault(d => d.Name == name && d.Category == category);
-                if (nodeDesc != null)
-                    return nodeDesc;
-            }
-            return null;
         }
 
         public static IObservable<FileSystemEventArgs> WatchDir(string dir) => FileSystemUtils.WatchDir(dir);

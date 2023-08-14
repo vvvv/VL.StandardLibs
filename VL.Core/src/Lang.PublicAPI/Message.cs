@@ -35,9 +35,7 @@ namespace VL.Lang
         public readonly string Ignore;
         public readonly bool IsFollowUp;
         public readonly MessageSource Source;
-        public readonly int Number = Interlocked.Increment(ref currentNumber);
-
-        static int currentNumber;
+        public readonly DateTime Time = DateTime.Now;
         private bool? flowToParent;
 
         public Message(MessageSeverity severity, string what, string why = "", string how = "", string ignore = "")

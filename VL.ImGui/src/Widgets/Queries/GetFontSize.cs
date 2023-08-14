@@ -4,7 +4,7 @@
     /// Get current font size (= height in pixels) of current font with current scale applied
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class GetFontSize : Widget
+    internal partial class GetFontSize : Query
     {
 
         public float Value { get; private set; }

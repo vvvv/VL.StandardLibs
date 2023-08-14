@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
     /// Cursor position in absolute coordinates (useful to work with ImDrawList API). generally top-left == GetMainViewport()->Pos == (0,0) in single viewport mode, and bottom-right == GetMainViewport()->Pos+Size == io.DisplaySize in single-viewport mode.
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class GetCursorScreenPos : Widget
+    internal partial class GetCursorScreenPos : Query
     {
         public Vector2 Value { get; private set; }
 

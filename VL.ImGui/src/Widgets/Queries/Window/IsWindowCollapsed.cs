@@ -1,7 +1,7 @@
 ﻿namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Queries", GenerateRetained = false)]
-    internal partial class IsWindowCollapsed : Widget
+    internal partial class IsWindowCollapsed : Query
     {
 
         public bool Value { get; private set; }

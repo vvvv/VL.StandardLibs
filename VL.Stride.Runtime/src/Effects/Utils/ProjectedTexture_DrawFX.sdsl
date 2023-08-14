@@ -1,0 +1,68 @@
+[Summary("Draw a mesh with a texture projected onto it from a given view/projection")]
+shader ProjectedTexture_DrawFX : VS_PS_Base, ColorBase, ShaderUtils
+{
+    stage Texture2D Source;
+    stage SamplerState Sampler0;
+    stage stream float2 TexCoord : TEXCOORD0;
+    stage matrix ProjectorViewInverse;
+    stage float3 ProjectorPosition;
+	stage matrix ProjectorPerspective;  
+
+    stream float4 TexCV;
+    stream float4 TexCP;
+    stream float4 TexCS;
+    stream float3 CamToVertexDir;
+    stream float3 Normal : NORMAL;
+
+    override stage void VSMain()
+    {
+        streams.ShadingPosition = mul(streams.Position, WorldViewProjection);
+	
+	    //transform texturecoordinates
+        float4 TexC = streams.Position;
+        TexC = mul(TexC, World);
+
+        float4 texCV = mul(TexC, ProjectorViewInverse);
+        float4 texCP = mul(texCV, ProjectorPerspective);
+
+        float4x4 RCtoTC =
+        {
+         0.5,  0.0,  0.0,  0.0,
+         0.0, -0.5,  0.0,  0.0,
+         0.0,  0.0,  1.0,  0.0,
+         0.5,  0.5,  0.0,  1.0
+        };
+
+        float4 texCS = mul(texCP, RCtoTC);
+
+        streams.TexCV = texCV;
+        streams.TexCP = texCP;
+        streams.TexCS = texCS;
+        streams.CamToVertexDir = TexC.xyz - ProjectorPosition;
+    }
+
+    override stage void PSMain() 
+    {
+        float d = dot(streams.CamToVertexDir, streams.Normal);
+        if (d < 0)
+        {
+            streams.TexCP.xyz = streams.TexCP.xyz / streams.TexCP.w;
+            float incone = InCone(streams.TexCP.rgb);
+            float3 col = incone;
+
+            streams.TexCS.xyz = streams.TexCS.xyz / streams.TexCS.w;
+
+            col *= Source.SampleLevel(Sampler0, streams.TexCS.xy, 0).rgb;
+            streams.ColorTarget = float4(col, incone);
+        }
+        else
+            streams.ColorTarget = float4(0,0,0,0);
+    }
+
+    float InCone(float3 TexCP)
+    {
+        return max(sign(1-abs(TexCP.x)), 0.0) *
+               max(sign(1-abs(TexCP.y)), 0.0) *
+               max(sign(0.5-abs(TexCP.z-0.5)), 0.0);
+    }
+};

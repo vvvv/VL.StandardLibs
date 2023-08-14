@@ -6,7 +6,7 @@ namespace VL.Core
 {
     internal interface IHotswapSpecificNodes
     {
-        static readonly IHotswapSpecificNodes Impl = ServiceRegistry.Global.GetService<IHotswapSpecificNodes>();
+        static readonly IHotswapSpecificNodes Impl = AppHost.Global.Services.GetService<IHotswapSpecificNodes>();
 
         T HardCast<T>(object input);
 

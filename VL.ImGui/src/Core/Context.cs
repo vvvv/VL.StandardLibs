@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using VL.ImGui.Widgets;
-using VL.ImGui.Widgets.Primitives;
-using VL.Model;
 
 namespace VL.ImGui
 {
@@ -144,6 +141,18 @@ namespace VL.ImGui
 
         internal readonly Dictionary<string, ImFontPtr> Fonts = new Dictionary<string, ImFontPtr>();
 
+        internal ItemState? CapturedItemState { get; set; }
+
+        /// <summary>
+        /// Captures current item state (IsClicked, IsHovered, etc.) and sets it for subsequent queries after leaving the using block.
+        /// The captured state will be unset by all widgets except query widgets (determined by <see cref="Widget.HasItemState"/>).
+        /// </summary>
+        internal ItemStateFrame CaptureItemState()
+        {
+            CapturedItemState = default;
+            return new ItemStateFrame(this);
+        }
+
         public readonly struct Frame : IDisposable
         {
             readonly IntPtr previous;
@@ -161,6 +170,82 @@ namespace VL.ImGui
             {
                 Current = previous2;
                 ImGui.SetCurrentContext(previous);
+            }
+        }
+
+        internal record struct ItemState(
+            bool IsActivated, 
+            bool IsActive, 
+            bool IsLeftClicked,
+            bool IsMiddleClicked,
+            bool IsRightClicked,
+            bool IsDeactived,
+            bool IsDeactivedAfterEdit,
+            bool IsEdited,
+            bool IsFocused,
+            bool IsHovered,
+            bool IsToggledOpen,
+            bool IsVisible);
+
+        internal readonly struct ItemStateFrame : IDisposable
+        {
+            private readonly Context context;
+            private readonly ItemState itemState;
+
+            public ItemStateFrame(Context context)
+            {
+                this.context = context;
+                this.itemState = new ItemState(
+                    ImGui.IsItemActivated(),
+                    ImGui.IsItemActive(),
+                    ImGui.IsItemClicked(ImGuiMouseButton.Left),
+                    ImGui.IsItemClicked(ImGuiMouseButton.Middle),
+                    ImGui.IsItemClicked(ImGuiMouseButton.Right),
+                    ImGui.IsItemDeactivated(),
+                    ImGui.IsItemDeactivatedAfterEdit(),
+                    ImGui.IsItemEdited(),
+                    ImGui.IsItemFocused(),
+                    ImGui.IsItemHovered(),
+                    ImGui.IsItemToggledOpen(),
+                    ImGui.IsItemVisible());
+            }
+
+            public void Dispose()
+            {
+                this.context.CapturedItemState = itemState;
+            }
+        }
+
+        /// <summary>
+        /// Applies the style on the ImGui context. Intended to be called by a using statement.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// using (context.ApplyStyle(style)) { ... }
+        /// </code>
+        /// </example>
+        /// <returns>A disposable which removes the style on dispose.</returns>
+        public StyleFrame ApplyStyle(IStyle? style)
+        {
+            return new StyleFrame(this, style);
+        }
+
+        public readonly struct StyleFrame : IDisposable
+        {
+            private readonly Context context;
+            private readonly IStyle? style;
+
+            public StyleFrame(Context context, IStyle? style)
+            {
+                this.context = context;
+                this.style = style;
+
+                style?.Set(context);
+            }
+
+            public void Dispose()
+            {
+                style?.Reset(context);
             }
         }
     }

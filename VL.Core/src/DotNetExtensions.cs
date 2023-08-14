@@ -708,10 +708,16 @@ namespace System
 
     public static class DisposableExtensions
     {
-        public static T DisposeBy<T>(this T service, ICollection<IDisposable> container) where T : IDisposable
+        public static T DisposeBy<T>(this T component, ICollection<IDisposable> container) where T : IDisposable
         {
-            container.Add(service);
-            return service;
+            container.Add(component);
+            return component;
+        }
+
+        public static T DisposeBy<T>(this T component, AppHost appHost) where T : IDisposable
+        {
+            appHost.TakeOwnership(component);
+            return component;
         }
     }
 }

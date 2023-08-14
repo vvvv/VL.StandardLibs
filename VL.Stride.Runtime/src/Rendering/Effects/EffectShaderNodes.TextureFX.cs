@@ -135,7 +135,7 @@ namespace VL.Stride.Rendering
                         filePath: getFilePath(),
                         newNode: nodeBuildContext =>
                         {
-                            var gameHandle = ServiceRegistry.Current.GetGameHandle();
+                            var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var effect = new TextureFXEffect("TextureFXEffect") { Name = shaderName };
 
                             BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var textureFXEffectMixin, effect.Parameters);
@@ -336,7 +336,7 @@ namespace VL.Stride.Rendering
                                 inputs.Insert(inputs.Count - 2, renderFormat);
                             }
 
-                            var gameHandle = ServiceRegistry.Current.GetGameHandle();
+                            var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var game = gameHandle.Resource;
                             var scheduler = game.Services.GetService<SchedulerSystem>();
                             var graphicsDevice = game.GraphicsDevice;

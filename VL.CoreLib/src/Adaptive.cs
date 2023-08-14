@@ -554,15 +554,7 @@ namespace VL.Lib.Adaptive
         /// <summary>
         /// Performs a Catmull-Rom interpolation using the specified positions
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="U"></typeparam>
-        /// <param name="value1"></param>
-        /// <param name="value2"></param>
-        /// <param name="value3"></param>
-        /// <param name="value4"></param>
-        /// <param name="amount"></param>
-        /// <returns></returns>
-        public static T CatmullRom<T, U>(T value1, T value2, T value3, T value4, U amount)
+        public static T CatmullRom<T>(T value1, T value2, T value3, T value4, float amount)
         {
             throw new NotImplementedException();
         }
@@ -570,15 +562,7 @@ namespace VL.Lib.Adaptive
         /// <summary>
         /// Performs a Hermite spline interpolation
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="U"></typeparam>
-        /// <param name="value1"></param>
-        /// <param name="tangent1"></param>
-        /// <param name="value2"></param>
-        /// <param name="tangent2"></param>
-        /// <param name="amount"></param>
-        /// <returns></returns>
-        public static T Hermite<T, U>(T value1, T tangent1, T value2, T tangent2, U amount)
+        public static T Hermite<T>(T value1, T tangent1, T value2, T tangent2, float amount)
         {
             throw new NotImplementedException();
         }

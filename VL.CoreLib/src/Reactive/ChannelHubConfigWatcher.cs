@@ -12,15 +12,15 @@ namespace VL.Core.Reactive
 {
     class ChannelHubConfigWatcher : IDisposable
     {
-        string filePath;
-        TypeRegistry typeRegistry;
-        FileSystemWatcher watcher;
+        readonly string filePath;
+        readonly AppHost appHost;
+        readonly FileSystemWatcher watcher;
 
         public BehaviorSubject<ChannelBuildDescription[]> Descriptions;
 
-        public ChannelHubConfigWatcher(string filePath)
+        public ChannelHubConfigWatcher(AppHost appHost, string filePath)
         {
-            this.typeRegistry = ServiceRegistry.Global.GetService<TypeRegistry>();
+            this.appHost = appHost;
             this.filePath = filePath;
             watcher = new FileSystemWatcher();
             watcher.Path = Path.GetDirectoryName(filePath);
@@ -34,7 +34,7 @@ namespace VL.Core.Reactive
                 .Throttle(TimeSpan.FromSeconds(1))
                 .Subscribe(_ => PushChannelBuildDescriptions());
 
-            ServiceRegistry.Global.GetService<CompositeDisposable>().Add(this);
+            this.DisposeBy(appHost);
         }
 
         void PushChannelBuildDescriptions()
@@ -55,8 +55,8 @@ namespace VL.Core.Reactive
             foreach (var l in lines)
             {
                 var _ = l.Split(':');
-                var t = typeRegistry.GetTypeByName(_[1]);
-                yield return new ChannelBuildDescription(Name: _[0], _[1]);
+                var t = appHost.TypeRegistry.GetTypeByName(_[1]);
+                yield return new ChannelBuildDescription(Name: _[0], _[1], appHost.TypeRegistry);
             }
         }
 
@@ -70,7 +70,7 @@ namespace VL.Core.Reactive
 
         public static ChannelHubConfigWatcher GetWatcherForPath(string path)
         {
-            return allwatchers.GetOrAdd(path, p => new ChannelHubConfigWatcher(p));
+            return allwatchers.GetOrAdd(path, p => new ChannelHubConfigWatcher(AppHost.Global, p));
         }
 
         internal static string GetConfigFilePath(string p) => Path.Combine(p, "GlobalChannels.txt");

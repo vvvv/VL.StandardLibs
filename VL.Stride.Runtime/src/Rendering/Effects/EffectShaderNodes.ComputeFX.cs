@@ -65,7 +65,7 @@ namespace VL.Stride.Rendering
                         filePath: getFilePath(),
                         newNode: nodeBuildContext =>
                         {
-                            var gameHandle = ServiceRegistry.Current.GetGameHandle();
+                            var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var renderContext = RenderContext.GetShared(gameHandle.Resource.Services);
                             var mixinParams = BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var shaderMixinSource);
                             var effect = new VLComputeEffectShader(renderContext, shaderName, mixinParams);

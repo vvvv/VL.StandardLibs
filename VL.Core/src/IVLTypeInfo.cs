@@ -48,6 +48,11 @@ namespace VL.Core
         bool IsRecord { get; }
 
         /// <summary>
+        /// Whether or not this type is immutable.
+        /// </summary>
+        bool IsImmutable { get; }
+
+        /// <summary>
         /// Whether or not this type is an interface.
         /// </summary>
         bool IsInterface { get; }
@@ -90,5 +95,12 @@ namespace VL.Core
         /// </summary>
         /// <returns>The default of this type.</returns>
         object GetDefaultValue();
+
+        /// <summary>
+        /// Creates a generic type instance of out of this generic definition using the given type arguments.
+        /// </summary>
+        /// <param name="arguments">The type arguments to use for the type parameters of this definition.</param>
+        /// <returns>The generic type instance.</returns>
+        IVLTypeInfo MakeGenericType(IReadOnlyList<IVLTypeInfo> arguments);
     }
 }

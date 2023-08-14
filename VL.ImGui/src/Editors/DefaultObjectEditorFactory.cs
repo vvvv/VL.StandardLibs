@@ -27,10 +27,6 @@ namespace VL.ImGui.Editors
                 return (IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context, widgetClass });
             }
 
-            var typeInfo = TypeRegistry.Default.GetTypeInfo(staticType);
-            if (staticType.IsAbstract || staticType == typeof(object))
-                return new AbstractObjectEditor(channel, context, typeInfo);
-
             if (staticType.IsEnum)
             {
                 var editorType = typeof(EnumEditor<>).MakeGenericType(staticType);
@@ -47,10 +43,17 @@ namespace VL.ImGui.Editors
                 // More collections
             }
 
+            var typeInfo = context.AppHost.TypeRegistry.GetTypeInfo(staticType);
+            if (AllowGeneralObjectEditor(context, typeInfo))
             {
+                if (staticType.IsAbstract || staticType == typeof(object))
+                    return new AbstractObjectEditor(channel, context, typeInfo);
+
                 var editorType = typeof(ObjectEditor<>).MakeGenericType(staticType);
                 return (IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context, typeInfo });
             }
+
+            return null;
         }
 
         private static WidgetType GetDefaultWidgetType(Type type)
@@ -89,5 +92,48 @@ namespace VL.ImGui.Editors
         {
             return type == typeof(Vector2) || type == typeof(Vector3) || type == typeof(Vector4);
         }
+
+        private static bool AllowGeneralObjectEditor(ObjectEditorContext context, IVLTypeInfo typeInfo)
+        {
+            var _v_ = s_visited;
+            if (s_visited is null)
+                s_visited = new HashSet<IVLTypeInfo>();
+
+            try
+            {
+                if (s_visited.Add(typeInfo))
+                {
+                    //if (context.ImmutableOnly)
+                    //    return typeInfo.IsImmutable && typeInfo.AllProperties.All(p => p.Type.IsImmutable || HasEditor(context, p.Type));
+                    if (context.PrimitiveOnly)
+                        return typeInfo.ClrType.IsPrimitive || typeInfo.ClrType == typeof(string);
+                    else
+                        return true;
+                }
+                else
+                {
+                    // Recursive. It's not up to us to decide
+                    return true;
+                }
+            }
+            finally
+            {
+                s_visited = _v_;
+            }
+
+            static bool HasEditor(ObjectEditorContext context, IVLTypeInfo typeInfo)
+            {
+                using var channel = ChannelHelpers.CreateChannelOfType(typeInfo);
+
+                var editor = context.Factory.CreateObjectEditor(channel, context);
+                if (editor is IDisposable disposable)
+                    disposable.Dispose();
+
+                return editor != null;
+            }
+        }
+
+        [ThreadStatic]
+        static HashSet<IVLTypeInfo>? s_visited;
     }
 }

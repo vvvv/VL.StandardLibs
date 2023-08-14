@@ -1,69 +1,32 @@
 ﻿using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace VL.Core.CompilerServices
 {
     public abstract class AssemblyInitializer
     {
-        public const string RegisterServicesMethodName = nameof(RegisterServices);
-        public const string DefaultFieldName = "Default";
+        internal const string DefaultFieldName = "Default";
 
-        [ThreadStatic]
-        internal static Assembly CurrentAssembly;
+        internal virtual bool ContainsUserCode => false;
 
-        public void Init(IVLFactory factory)
+        internal Assembly Assembly => this.GetType().Assembly;
+
+        // Overwritten by target code
+        public virtual void CollectDependencies(DependencyCollector collector)
         {
-            try
-            {
-                // Internal factory might have seen us already
-                if (factory is IInternalVLFactory internalFactory)
-                    internalFactory.Initialize(this);
-                else
-                    DoRegister(factory);
-            }
-            catch (Exception e)
-            {
-                throw new InitializationException(e);
-            }
+            collector.AddDependency(this);
         }
 
-        internal void Prepare()
+        public virtual void Configure(AppHost appHost)
         {
-            RuntimeHelpers.PrepareMethod(GetType().GetMethod(nameof(RegisterServices), BindingFlags.Instance | BindingFlags.NonPublic).MethodHandle);
+            // For backwards compatibility
+            RegisterServices(appHost.Factory);
         }
 
-        internal void InitInternalFactory(IInternalVLFactory factory)
+        protected virtual void RegisterServices(IVLFactory factory)
         {
-            try
-            {
-                DoRegister(factory);
-            }
-            catch (Exception e)
-            {
-                throw new InitializationException(e);
-            }
-        }
 
-        private void DoRegister(IVLFactory factory)
-        {
-            var current = CurrentAssembly;
-            CurrentAssembly = this.GetType().Assembly;
-            try
-            {
-                RegisterServices(factory);
-            }
-            catch (Exception e)
-            {
-                RuntimeGraph.ReportException(e);
-            }
-            finally
-            {
-                CurrentAssembly = current;
-            }
         }
-
-        protected abstract void RegisterServices(IVLFactory factory);
     }
 
     public abstract class AssemblyInitializer<TImpl> : AssemblyInitializer

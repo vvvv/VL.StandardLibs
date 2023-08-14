@@ -8,7 +8,7 @@ namespace VL.ImGui.Widgets
     /// Access the Style structure (colors, sizes).
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries")]
-    internal partial class GetStyle : Widget
+    internal partial class GetStyle : Query
     {
         public StyleSnapshot? Value { get; private set; }
 

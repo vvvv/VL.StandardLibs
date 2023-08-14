@@ -6,7 +6,7 @@
         /// Sets the style on the curent ImGui context.
         /// </summary>
         /// <remarks>
-        /// Avoid calling this method directly. Instead use <see cref="StyleExtensions.Apply(IStyle?)"/> which enforces a safe usage pattern.
+        /// Avoid calling this method directly. Instead use <see cref="Context.ApplyStyle(IStyle?)"/> which enforces a safe usage pattern.
         /// </remarks>
         void Set(Context context);
 
@@ -14,11 +14,12 @@
         /// Resets the style on the current ImGui context.
         /// </summary>
         /// <remarks>
-        /// Avoid calling this method directly. Instead use <see cref="StyleExtensions.Apply(IStyle?)"/> which enforces a safe usage pattern.
+        /// Avoid calling this method directly. Instead use <see cref="Context.ApplyStyle(IStyle?)"/> which enforces a safe usage pattern.
         /// </remarks>
         void Reset(Context context);
     }
 
+    // TODO: Could be kept internal (not needed) by exposing a ApplyStyle region
     public static class StyleExtensions
     {
         /// <summary>
@@ -30,31 +31,12 @@
         /// </code>
         /// </example>
         /// <returns>A disposable which removes the style on dispose.</returns>
-        public static StyleFrame Apply(this IStyle? style)
+        public static Context.StyleFrame Apply(this IStyle? style)
         {
             var context = Context.Current;
-            if (context != null && style != null)
-                return new StyleFrame(context, style);
+            if (context != null)
+                return context.ApplyStyle(style);
             return default;
-        }
-
-        public readonly struct StyleFrame : IDisposable
-        {
-            private readonly Context context;
-            private readonly IStyle style;
-
-            public StyleFrame(Context context, IStyle style)
-            {
-                this.context = context;
-                this.style = style;
-
-                style.Set(context);
-            }
-
-            public void Dispose()
-            {
-                style?.Reset(context);
-            }
         }
     }
 }

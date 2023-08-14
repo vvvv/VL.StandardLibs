@@ -139,11 +139,11 @@ namespace VL.Lib.Reactive
         private void SetupResultObservable()
         {
             var switched = FSubject.Switch();
-            var serviceRegistry = ServiceRegistry.CurrentOrGlobal;
+            var appHost = AppHost.Current;
             FResult = switched.Catch((Exception e) =>
             {
                 FLastException = e;
-                RuntimeGraph.ReportException(e, serviceRegistry);
+                RuntimeGraph.ReportException(e, appHost);
                 return Observable.Empty<T>(); // Terminate, next Update will setup a new observable
             }).PubRefCount();
         }

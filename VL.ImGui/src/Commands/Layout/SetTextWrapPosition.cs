@@ -15,7 +15,7 @@
             ImGuiNET.ImGui.PushTextWrapPos(Position.FromHectoToImGui());
             try
             {
-                context?.Update(Content);
+                context.Update(Content);
             }
             finally
             {

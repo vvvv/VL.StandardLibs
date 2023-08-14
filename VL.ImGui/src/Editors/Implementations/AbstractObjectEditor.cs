@@ -150,10 +150,10 @@ namespace VL.ImGui.Editors
             }
         }
 
-        static IEnumerable<IVLTypeInfo> GetImplementingTypes(IVLTypeInfo typeInfo)
+        IEnumerable<IVLTypeInfo> GetImplementingTypes(IVLTypeInfo typeInfo)
         {
             var clrType = typeInfo.ClrType;
-            var typeRegistry = TypeRegistry.Default;
+            var typeRegistry = editorContext.AppHost.TypeRegistry;
             foreach (var vlType in typeRegistry.RegisteredTypes)
             {
                 var type = vlType.ClrType;
@@ -191,7 +191,7 @@ namespace VL.ImGui.Editors
             if (value is null)
                 return -1;
 
-            var typeInfo = TypeRegistry.Default.GetTypeInfo(value.GetType());
+            var typeInfo = editorContext.AppHost.TypeRegistry.GetTypeInfo(value.GetType());
             return possibleTypes.IndexOf(typeInfo);
         }
 
@@ -200,7 +200,7 @@ namespace VL.ImGui.Editors
             if (typeInfo is null)
                 return default;
             if (typeInfo.IsPatched)
-                return typeInfo.CreateInstance(NodeContext.Default);
+                return AppHost.Current.CreateInstance(typeInfo);
             else
                 return Activator.CreateInstance(typeInfo.ClrType);
         }

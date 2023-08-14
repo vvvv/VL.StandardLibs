@@ -18,7 +18,7 @@ namespace VL.Stride.Graphics
             yield return new CustomNodeDesc<MutablePipelineState>(factory,
                 ctor: nodeContext =>
                 {
-                    var deviceHandle = ServiceRegistry.Current.GetDeviceHandle();
+                    var deviceHandle = AppHost.Current.Services.GetDeviceHandle();
                     return (CreateInitialPipelineState(deviceHandle), () => deviceHandle.Dispose());
                 },
                 name: "PipelineState",
@@ -82,7 +82,7 @@ namespace VL.Stride.Graphics
                 .AddCachedInput(nameof(SamplerStateDescription.CompareFunction), x => x.v.CompareFunction, (x, v) => x.v.CompareFunction = v, CompareFunction.Never)
                 .AddCachedOutput<SamplerState>("Output", lifetime =>
                 {
-                    var gdh = ServiceRegistry.Current.GetDeviceHandle();
+                    var gdh = AppHost.Current.Services.GetDeviceHandle();
                     lifetime.Add(gdh);
 
                     var disposable = new SerialDisposable();

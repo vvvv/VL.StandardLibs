@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
     /// Get current window position in screen space (useful if you want to do your own drawing via the DrawList API)
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries")]
-    internal partial class GetWindowPos : Widget
+    internal partial class GetWindowPos : Query
     {
 
         public Vector2 Value { get; private set; }

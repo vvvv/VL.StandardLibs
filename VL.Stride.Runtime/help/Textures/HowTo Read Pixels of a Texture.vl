@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="QfHiuxaUXbFP09q2qEED83" LanguageVersion="2021.4.0.507" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="QfHiuxaUXbFP09q2qEED83" LanguageVersion="2023.5.3-0120-ge45273d3bb" Version="0.128">
   <NugetDependency Id="NlLFvaYL4JLP619Yn8U7Vn" Location="VL.CoreLib" Version="2021.4.0-0507-g5fb6c2885d" />
   <Patch Id="BnsxXiAf8iMPKbELktVgd9">
     <Canvas Id="CckZ6sXNNfMNEzvciX8m0P" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -16,16 +16,18 @@
       <Patch Id="HtflLIQ58LvN2GhVtFLHQe">
         <Canvas Id="PeakmCv4VvaO7Ny9zwMJqx" CanvasType="Group">
           <Node Bounds="59,157,105,19" Id="KB9xrf5zNPbPl4qh6ZUMCM">
-            <p:NodeReference LastCategoryFullName="Stride.Assets" LastSymbolSource="VL.Stride.Assets.Windows.vl">
+            <p:NodeReference LastCategoryFullName="Stride.Assets" LastDependency="VL.Stride.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="FileTexture" />
             </p:NodeReference>
+            <Pin Id="SJ922qUx43jPVRSgTV5RYK" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="Ky9nePDIMYzM37va4dBmqg" Name="Path" Kind="InputPin" DefaultValue="..\Assets\earth_512x512.jpg">
-              <p:TypeAnnotation LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+              <p:TypeAnnotation LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="TypeFlag" Name="Path" />
               </p:TypeAnnotation>
             </Pin>
             <Pin Id="MSgdjPppJSYOysAkOI1ZZ4" Name="Generate Mipmaps" Kind="InputPin" />
+            <Pin Id="FhZfzb7ICICMnmXE9aVIjb" Name="Is sRGB" Kind="InputPin" IsHidden="true" />
             <Pin Id="HDNpTiQTJ0oOpYrutnb4c0" Name="Premultiply Alpha" Kind="InputPin" />
             <Pin Id="E0B6u3xwaj3LQc3K6GdoPS" Name="Compress" Kind="InputPin" />
             <Pin Id="JcaDlBhHtt1MIRdPvCO6Hk" Name="Alpha Format" Kind="InputPin" />
@@ -34,13 +36,13 @@
             <Pin Id="FASYywzgAfPOeeywXRA4Hk" Name="Is Loading" Kind="OutputPin" />
             <Pin Id="HsohmeHZLyZLir3riNU0iD" Name="Already Loaded" Kind="OutputPin" />
           </Node>
-          <Node Bounds="359,573,125,19" Id="Jm1TvHE838eMeGTVgKg8UL">
-            <p:NodeReference>
+          <Node Bounds="359,573,145,19" Id="Jm1TvHE838eMeGTVgKg8UL">
+            <p:NodeReference LastCategoryFullName="Stride.Textures" LastDependency="VL.Stride.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="Pipet (Relative)" />
-              <CategoryReference Kind="Category" Name="Textures" NeedsToBeDirectParent="true" />
+              <Choice Kind="ProcessAppFlag" Name="Pipet (UV)" />
             </p:NodeReference>
             <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="Q53ZQYufSKtLbEc2YcGN4X" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="MlG0x15XT33LJplcIvMDPb" Name="Texture" Kind="InputPin" />
             <Pin Id="APszpIIvUNFM7RBjaeyfLj" Name="Positions" Kind="InputPin" />
             <Pin Id="VaJ0Q20cyHuLv0DBHUgApw" Name="Convert To SRgb" Kind="InputPin" />
@@ -49,49 +51,59 @@
             <Pin Id="PDw8Osg1cWmQMABa46o1eK" Name="Always Update" Kind="InputPin" />
             <Pin Id="H6EOBu1MlyrOA3sJw38fN8" Name="Frame Delay" Kind="InputPin" />
             <Pin Id="OBKx6VCTh1JMy7JkPonA6q" Name="Enabled" Kind="InputPin" />
+            <Pin Id="GmgUV00KD8DLa5Ieg0TDZG" Name="Dummy" Kind="OutputPin" IsHidden="true" />
             <Pin Id="NIzckiY6F89PBlGea1r71f" Name="Output" Kind="OutputPin" />
             <Pin Id="Uzzon0fn0nUPQx1tt31W8X" Name="Output Array" Kind="OutputPin" />
             <Pin Id="AEJGTDMGjgOMsxIPLurp28" Name="Output Buffer" Kind="OutputPin" />
             <Pin Id="FdoDTCFArmfOlkMgIX6Wuw" Name="Is Blocking" Kind="OutputPin" />
           </Node>
-          <Node Bounds="376,159,85,19" Id="H2M99Yq8ytWNFpgeT0QsY9">
-            <p:NodeReference LastCategoryFullName="Collections.Spread" LastSymbolSource="VL.Collections.vl">
+          <Node Bounds="379,159,85,19" Id="H2M99Yq8ytWNFpgeT0QsY9">
+            <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="RandomSpread (2d)" />
             </p:NodeReference>
+            <Pin Id="HbuHbRtAGiIPQfoHOIpcoc" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="L7ZsfmrPqKDL5ZvNdxnfeV" Name="Center" Kind="InputPin" DefaultValue="0.5, 0.5">
-              <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="CoreLibBasics.vl">
+              <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="TypeFlag" Name="Vector2" />
               </p:TypeAnnotation>
             </Pin>
             <Pin Id="VJyteii3165Mo1CtiFnDm2" Name="Size" Kind="InputPin" />
             <Pin Id="JxUIm621mXrNeqrd1lYeBH" Name="Seed" Kind="InputPin" DefaultValue="186">
-              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="TypeFlag" Name="Integer32" />
               </p:TypeAnnotation>
             </Pin>
             <Pin Id="NsmIF2raBHwMHUdn7qKaqv" Name="Count" Kind="InputPin" DefaultValue="16">
-              <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="TypeFlag" Name="Integer32" />
               </p:TypeAnnotation>
             </Pin>
             <Pin Id="SYcdLdzrgaJN2G5iXpOaku" Name="Output" Kind="OutputPin" />
           </Node>
           <Node Bounds="59,581,65,19" Id="TixEQFeRPNrMxZenO6l2cW">
-            <p:NodeReference LastCategoryFullName="Stride.Textures" LastSymbolSource="VL.Stride.Rendering.Temp.vl">
+            <p:NodeReference LastCategoryFullName="Stride.Textures" LastDependency="VL.Stride.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Pipet" />
             </p:NodeReference>
             <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="BWHwCZ9raIaMfwMapoZYTj" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="E85ZfKhdcfwOX7PdD3UGBy" Name="Texture" Kind="InputPin" />
             <Pin Id="EKb2di0czVJNVLATgbQvcg" Name="Positions" Kind="InputPin" />
+            <Pin Id="NetMSZn0nSbNQotveMsh7w" Name="Convert To SRgb" Kind="InputPin" IsHidden="true" />
+            <Pin Id="OGW4NIQ1Iz4NgYzqOxAoEr" Name="Texture Sampler" Kind="InputPin" IsHidden="true" />
+            <Pin Id="RQhXOyPH8gjP8vyaY9fxzx" Name="Sample Level" Kind="InputPin" IsHidden="true" />
+            <Pin Id="QHpHR61kGKWOaZAY7cQwd8" Name="Always Update" Kind="InputPin" IsHidden="true" />
             <Pin Id="GQAwcEcwitcN5lJ3ZOA2qK" Name="Frame Delay" Kind="InputPin" />
             <Pin Id="VIxVGZSFWAWO2Vw64KCOe3" Name="Enabled" Kind="InputPin" />
+            <Pin Id="HwGG4NV90sOLfI5re8wahf" Name="Dummy" Kind="OutputPin" IsHidden="true" />
             <Pin Id="TdMAq7R11cpN41jQxdxFyB" Name="Output" Kind="OutputPin" />
+            <Pin Id="DE0OXr3sqZoOvkDkiXM7Qs" Name="Output Array" Kind="OutputPin" IsHidden="true" />
+            <Pin Id="Jr4Mdbwkx0yOZkJ83aCCfr" Name="Output Texture" Kind="OutputPin" IsHidden="true" />
             <Pin Id="G9EkdrCkAzONH3jN4ZbDIK" Name="Is Blocking" Kind="OutputPin" />
           </Node>
-          <Pad Id="V28RI6PWICmOgpv7oRDPRU" Comment="Enabled" Bounds="511,513,35,35" ShowValueBox="true" isIOBox="true" Value="True">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+          <Pad Id="V28RI6PWICmOgpv7oRDPRU" Comment="Enabled" Bounds="501,533,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -100,7 +112,7 @@
           </Pad>
           <Pad Id="Pima99NhNTVMbWfb0Y5Q4w" Comment="" Bounds="75,235,110,113" ShowValueBox="true" isIOBox="true" />
           <Pad Id="FhAXZXUyNzvN6Sqfz77Y4m" Comment="Positions" Bounds="81,431,57,49" ShowValueBox="true" isIOBox="true">
-            <p:TypeAnnotation>
+            <p:TypeAnnotation LastCategoryFullName="Collections" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Spread" />
               <p:TypeArguments>
                 <TypeReference>
@@ -113,22 +125,22 @@
               <Item>200, 100</Item>
             </p:Value>
           </Pad>
-          <Pad Id="PH59SwHEbroLoNyGxrVE4T" Bounds="466,168,228,33" ShowValueBox="true" isIOBox="true" Value="&lt; The Pipet (Relative) has sample positions are in UV space, ie. topleft 0/0 to bottomright 1/1">
-            <p:TypeAnnotation>
+          <Pad Id="PH59SwHEbroLoNyGxrVE4T" Bounds="469,168,280,42" ShowValueBox="true" isIOBox="true" Value="&lt; The Pipet (UV) sample positions are in UV space, ie. topleft 0/0 to bottomright 1/1">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
-              <p:fontsize p:Type="Int32">7</p:fontsize>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="SMQiyQKDSD3OA6Bi2YbC6z" Comment="Count" Bounds="458,142,35,15" ShowValueBox="true" isIOBox="true" Value="5">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+          <Pad Id="SMQiyQKDSD3OA6Bi2YbC6z" Comment="Count" Bounds="461,142,35,15" ShowValueBox="true" isIOBox="true" Value="5">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Integer32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="CK8Kt8CuUW6QVVoVVkGm6v" Bounds="365,85,247,40" ShowValueBox="true" isIOBox="true" Value="Rightclick -&gt; Configure the Pipet to get some additional inputs and outputs:">
-            <p:TypeAnnotation>
+          <Pad Id="CK8Kt8CuUW6QVVoVVkGm6v" Bounds="368,85,247,40" ShowValueBox="true" isIOBox="true" Value="Rightclick -&gt; Configure the Pipet to get some additional inputs and outputs:">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -137,7 +149,7 @@
             </p:ValueBoxSettings>
           </Pad>
           <Pad Id="AifgxpxTlAeNErDaDRSeDQ" Comment="Enabled" Bounds="141,537,35,35" ShowValueBox="true" isIOBox="true" Value="True">
-            <p:TypeAnnotation>
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
               <FullNameCategoryReference ID="Primitive" />
             </p:TypeAnnotation>
@@ -145,29 +157,29 @@
               <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="KdhKh3r0jaANgy1KPvcEUM" Comment="Always Update" Bounds="462,401,35,35" ShowValueBox="true" isIOBox="true" Value="True">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+          <Pad Id="KdhKh3r0jaANgy1KPvcEUM" Comment="Always Update" Bounds="461,401,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
               <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="LJFLcrH3EJwN53sv3vDWLz" Bounds="605,389,243,66" ShowValueBox="true" isIOBox="true" Value="&lt; If disabled, only updates when any of the inputs other than the Texture input is changed. Useful if you have a static texture and only want to update when e.g. the sample positions have changed. ">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+          <Pad Id="LJFLcrH3EJwN53sv3vDWLz" Bounds="603,389,311,78" ShowValueBox="true" isIOBox="true" Value="&lt; If disabled, only updates when any of the inputs other than the Texture input is changed. Useful if you have a static texture and only want to update when e.g. the sample positions have changed. ">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
-              <p:fontsize p:Type="Int32">7</p:fontsize>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="QnIlGwjVEXlLQS2eGlSqZo" Bounds="605,512,233,43" ShowValueBox="true" isIOBox="true" Value="&lt; To completely disable the pipet, no matter what inputs change">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+          <Pad Id="QnIlGwjVEXlLQS2eGlSqZo" Bounds="603,538,225,45" ShowValueBox="true" isIOBox="true" Value="&lt; To completely disable the pipet, no matter what inputs change">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
-              <p:fontsize p:Type="Int32">7</p:fontsize>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
@@ -181,23 +193,23 @@
               <Item>1, 1, 1, 1</Item>
             </p:Value>
           </Pad>
-          <Pad Id="NOKKrBbxE3cLWCj3mhMWnq" Comment="Frame Delay" Bounds="482,467,36,15" ShowValueBox="true" isIOBox="true" Value="2">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+          <Pad Id="NOKKrBbxE3cLWCj3mhMWnq" Comment="Frame Delay" Bounds="481,482,36,15" ShowValueBox="true" isIOBox="true" Value="3">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Integer32" />
             </p:TypeAnnotation>
           </Pad>
           <Pad Id="N2wtYmd7pHzO0RBblZtd6f" Comment="Is Blocking" Bounds="471,630,35,35" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="RcgevPXG3FVPof2MfCvVjJ" Bounds="605,465,320,38" ShowValueBox="true" isIOBox="true" Value="&lt; The number of frames to store before reading back to CPU. Increase if you see that &quot;Is Blocking&quot; is true.">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+          <Pad Id="RcgevPXG3FVPof2MfCvVjJ" Bounds="603,480,344,42" ShowValueBox="true" isIOBox="true" Value="&lt; The number of frames to store before reading back to CPU. Increase if you see that &quot;Is Blocking&quot; is true.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
-              <p:fontsize p:Type="Int32">7</p:fontsize>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="R9GVoQfmrFhMcftrRLkEzs" Bounds="506,582,65,19" ShowValueBox="true" isIOBox="true" Value="(Relative)">
-            <p:TypeAnnotation>
+          <Pad Id="R9GVoQfmrFhMcftrRLkEzs" Bounds="506,582,65,19" ShowValueBox="true" isIOBox="true" Value="(UV)">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -206,7 +218,7 @@
             </p:ValueBoxSettings>
           </Pad>
           <Pad Id="AdRhM6t9FxsNTvbBXIQlYz" Bounds="149,455,173,20" ShowValueBox="true" isIOBox="true" Value="&lt; Sample positions are in pixels">
-            <p:TypeAnnotation>
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -214,22 +226,22 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="U0LWrsPBmGYOcEG0H2RoGy" Comment="Sample Level" Bounds="442,353,35,15" ShowValueBox="true" isIOBox="true" Value="0">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+          <Pad Id="U0LWrsPBmGYOcEG0H2RoGy" Comment="Sample Level" Bounds="441,357,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="EfV5ArTWvUMN9cpxHSXYhE" Bounds="571,352,104,19" ShowValueBox="true" isIOBox="true" Value="&lt; The mip level">
-            <p:TypeAnnotation>
+          <Pad Id="EfV5ArTWvUMN9cpxHSXYhE" Bounds="603,354,104,19" ShowValueBox="true" isIOBox="true" Value="&lt; The mip level">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
-              <p:fontsize p:Type="Int32">7</p:fontsize>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
           <Node Bounds="419,293,185,19" Id="FjHF14N1zjWLQuy0uTscD5">
-            <p:NodeReference LastCategoryFullName="Stride.Graphics" LastSymbolSource="VL.Stride.Graphics.Nodes">
+            <p:NodeReference LastCategoryFullName="Stride.Graphics" LastDependency="VL.Stride.Graphics.Nodes">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessNode" Name="SamplerState" />
             </p:NodeReference>
@@ -245,18 +257,18 @@
             <Pin Id="Fg8tuuOcNYGNcVzT9pL3o4" Name="Compare Function" Kind="InputPin" />
             <Pin Id="RToviXEnFMgLjfinoGllvv" Name="Output" Kind="OutputPin" />
           </Node>
-          <Pad Id="IaEEVmdSBOhPvUpYCvymWZ" Bounds="607,299,245,32" ShowValueBox="true" isIOBox="true" Value="&lt; custom sampler, the default sampler is a point sampler (nearest neighbour)">
-            <p:TypeAnnotation>
+          <Pad Id="IaEEVmdSBOhPvUpYCvymWZ" Bounds="603,299,249,43" ShowValueBox="true" isIOBox="true" Value="&lt; Custom sampler, the default sampler is a point sampler (nearest neighbour)">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
-              <p:fontsize p:Type="Int32">7</p:fontsize>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
           <ControlPoint Id="U6a6aUoCNKyQH7dEbiIuUI" Bounds="359,417" />
-          <Pad Id="HhHIw1qdKc9P8lUtgDf2SG" Comment="Convert To SRgb" Bounds="400,231,35,35" ShowValueBox="true" isIOBox="true" Value="False">
-            <p:TypeAnnotation>
+          <Pad Id="HhHIw1qdKc9P8lUtgDf2SG" Comment="Convert To SRgb" Bounds="401,231,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
               <FullNameCategoryReference ID="Primitive" />
             </p:TypeAnnotation>
@@ -264,23 +276,28 @@
               <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="TMlsarqx4E7K9vqSCCw7go" Bounds="538,230,234,31" ShowValueBox="true" isIOBox="true" Value="&lt; enable if you sample from a texture with linear colors but you want sRGB colors">
-            <p:TypeAnnotation>
+          <Pad Id="TMlsarqx4E7K9vqSCCw7go" Bounds="539,230,242,40" ShowValueBox="true" isIOBox="true" Value="&lt; Enable if you sample from a texture with linear colors but you want sRGB colors">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
-              <p:fontsize p:Type="Int32">7</p:fontsize>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
           <Node Bounds="616,609,65,19" Id="PuookBJIgXMMpVy6wUYNpt">
-            <p:NodeReference LastCategoryFullName="Stride.Textures" LastSymbolSource="VL.Stride.Rendering.Temp.vl">
+            <p:NodeReference LastCategoryFullName="Stride.Textures" LastDependency="VL.Stride.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Pipet (AllocationFree)" />
             </p:NodeReference>
             <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="HJ873lBCYJgM1i3f0LS8Mo" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="DzKjEaxJVxKP3xiGtnRP5a" Name="Texture" Kind="InputPin" />
             <Pin Id="Qbe1YdiCxnpPSbaWv4SDRv" Name="Positions" Kind="InputPin" />
+            <Pin Id="SNhhZ7NENISNRLST3B42uV" Name="Convert To SRgb" Kind="InputPin" IsHidden="true" />
+            <Pin Id="GXciCk4vP1pLZjK4cxMWAI" Name="Texture Sampler" Kind="InputPin" IsHidden="true" />
+            <Pin Id="ERqeYXu8MpCMi2ppVAKBmU" Name="Sample Level" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Qv7H36xLH3nLNX5NBFYNfr" Name="Always Update" Kind="InputPin" IsHidden="true" />
             <Pin Id="ODt1u1oJDChQMSH28Hp21C" Name="Frame Delay" Kind="InputPin" />
             <Pin Id="Lu0eBneDTw2L0bZ9MIv7mJ" Name="Enabled" Kind="InputPin" />
             <Pin Id="JzcAA5lsA7nLP98ZvtamnG" Name="Output" Kind="OutputPin" />
@@ -288,25 +305,30 @@
             <Pin Id="Bz3KRPvOEy0PejUTRGotWQ" Name="Is Blocking" Kind="OutputPin" />
           </Node>
           <Node Bounds="616,645,65,19" Id="KPrJEoipjBtPleBM9nxVyB">
-            <p:NodeReference LastCategoryFullName="Stride.Textures" LastSymbolSource="VL.Stride.Rendering.Temp.vl">
+            <p:NodeReference LastCategoryFullName="Stride.Textures" LastDependency="VL.Stride.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="Pipet (AllocationFree Relative)" />
+              <Choice Kind="ProcessAppFlag" Name="Pipet (UV AllocationFree)" />
             </p:NodeReference>
             <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="MhoKtdbAwmFLZcn0TOpbRu" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="BHI5TKXQyjXNgvK9C308lt" Name="Texture" Kind="InputPin" />
             <Pin Id="PVsYMPKvfviOCeMIJvgD2w" Name="Positions" Kind="InputPin" />
+            <Pin Id="UUVKMGj0x8yLVaSSnZOswa" Name="Convert To SRgb" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Mk25H7X83g6OFS5V1FWK39" Name="Texture Sampler" Kind="InputPin" IsHidden="true" />
+            <Pin Id="E2Z8iEILk39QCydTTOyBOc" Name="Sample Level" Kind="InputPin" IsHidden="true" />
+            <Pin Id="VxzgswkHTtLOQ5RSNMmbth" Name="Always Update" Kind="InputPin" IsHidden="true" />
             <Pin Id="V7gOjffRyuOPuFGszksRud" Name="Frame Delay" Kind="InputPin" />
             <Pin Id="PSOc7ilukFoPl2HSPqQnip" Name="Enabled" Kind="InputPin" />
             <Pin Id="GI7X1rVeepoOxRLFq9XDwV" Name="Output" Kind="OutputPin" />
             <Pin Id="UKBtMHUdqCsMxU8flLjNPA" Name="Output Buffer" Kind="OutputPin" />
             <Pin Id="V5ca0JyxyEKO6iHgbvFGwI" Name="Is Blocking" Kind="OutputPin" />
           </Node>
-          <Pad Id="Ntq2elPew4dLYbQb9XB7WY" Bounds="695,620,176,48" ShowValueBox="true" isIOBox="true" Value="There are also GC friendly advanced versions working with mutable arrays to avoid allocations.">
-            <p:TypeAnnotation>
+          <Pad Id="Ntq2elPew4dLYbQb9XB7WY" Bounds="695,620,233,59" ShowValueBox="true" isIOBox="true" Value="There are also GC friendly advanced versions working with mutable arrays to avoid allocations.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
-              <p:fontsize p:Type="Int32">7</p:fontsize>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
@@ -336,6 +358,5 @@
       </Patch>
     </Node>
   </Patch>
-  <NugetDependency Id="O7TVlXq1u4jMnRFUTm4Pd7" Location="VL.CoreLib" Version="2021.4.0-0507-g5fb6c2885d" />
   <NugetDependency Id="ObIsVquCrohPjlRH9jrY7g" Location="VL.Stride" Version="2021.4.0-0507-g5fb6c2885d" />
 </Document>

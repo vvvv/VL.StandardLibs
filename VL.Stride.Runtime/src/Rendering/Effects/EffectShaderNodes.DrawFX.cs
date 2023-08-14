@@ -94,7 +94,7 @@ namespace VL.Stride.Rendering
                 filePath: getFilePath(),
                 newNode: nodeBuildContext =>
                 {
-                    var gameHandle = ServiceRegistry.Current.GetGameHandle();
+                    var gameHandle = AppHost.Current.Services.GetGameHandle();
                     var game = gameHandle.Resource;
 
                     // create new effect instance with "better device"

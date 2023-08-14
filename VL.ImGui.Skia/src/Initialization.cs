@@ -7,9 +7,9 @@ namespace VL.ImGui.Skia
 {
     public sealed class Initialization : AssemblyInitializer<Initialization>
     {
-        protected override void RegisterServices(IVLFactory factory)
+        public override void Configure(AppHost appHost)
         {
-            NodeBuildingUtils.RegisterGeneratedNodes(factory, "VL.ImGUI.Skia.Nodes", typeof(Initialization).Assembly);
+            NodeBuildingUtils.RegisterGeneratedNodes(appHost, "VL.ImGUI.Skia.Nodes", typeof(Initialization).Assembly);
         }
     }
 }

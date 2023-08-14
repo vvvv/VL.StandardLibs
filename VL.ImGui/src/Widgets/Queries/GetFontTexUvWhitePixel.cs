@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
     /// Get UV coordinate for a while pixel, useful to draw custom shapes via the ImDrawList API
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class GetFontTexUvWhitePixel : Widget
+    internal partial class GetFontTexUvWhitePixel : Query
     {
 
         public Vector2 Value { get; private set; }

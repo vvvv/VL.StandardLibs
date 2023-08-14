@@ -129,9 +129,11 @@ namespace VL.Lib.Reactive
             return subject.Subscribe(observer);
         }
 
+        [Conditional("DEBUG")]
         protected void AssertAlive()
         {
-            Debug.Assert(!subject.IsDisposed, "you work with a disposed channel!");
+            // Debug.Assert causes complete crash in DEBUG builds without a debugger attached
+            //Debug.Assert(!subject.IsDisposed, "you work with a disposed channel!");
         }
 
         public bool Enabled { get; set; } = true;
@@ -226,7 +228,7 @@ namespace VL.Lib.Reactive
 
         private DummyChannel()
         {
-            Value = TypeUtils.Default<T>();
+            Value = AppHost.CurrentOrGlobal.GetDefaultValue<T>();
             Enabled = false;
         }
     }

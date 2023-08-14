@@ -6,32 +6,22 @@ namespace VL.Core
 {
     public static class VLTypeInfoUtils
     {
-        public static IVLTypeInfo Default => ServiceRegistry.Current.GetService<IVLFactory>().GetTypeInfo(typeof(object));
+        private static TypeRegistry GetTypeRegistry() => AppHost.CurrentOrGlobal.TypeRegistry;
+
+        public static IVLTypeInfo Default => GetTypeRegistry().GetTypeInfo(typeof(object));
 
         public static IVLTypeInfo GetVLTypeInfo(this object obj)
         {
             if (obj is null)
                 return null;
 
-            return TypeRegistry.Default.GetTypeInfo(obj.GetType());
+            return GetTypeRegistry().GetTypeInfo(obj.GetType());
         }
 
+        [Obsolete("Simply use IVLTypeInfo.MakeGenericType")]
         public static IVLTypeInfo MakeGenericVLTypeInfo(this IVLTypeInfo type, IReadOnlyList<IVLTypeInfo> arguments)
         {
-            var clrType = GetGenericTypeDefinition(type.ClrType);
-            if (clrType is null)
-                throw new ArgumentException($"{type} is not a generic type.");
-
-            return TypeRegistry.Default.GetTypeInfo(clrType.MakeGenericType(arguments.Select(a => a.ClrType).ToArray()));
-
-            static Type GetGenericTypeDefinition(Type type)
-            {
-                if (type.IsGenericTypeDefinition)
-                    return type;
-                if (type.IsGenericType)
-                    return type.GetGenericTypeDefinition();
-                return null;
-            }
+            return type.MakeGenericType(arguments);
         }
     }
 }
