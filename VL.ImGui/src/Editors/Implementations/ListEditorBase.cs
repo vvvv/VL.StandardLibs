@@ -56,7 +56,7 @@ namespace VL.ImGui.Editors
 
                         var ownership = new CompositeDisposable
                         {
-                            channel.Merge(itemChannel, c => c != null ? c[j] : default, item => channel.Value != null ? SetItem(channel.Value, j, item) : default, 
+                            channel.Merge(itemChannel, c => c != null ? c.ElementAtOrDefault(j) : default, item => channel.Value != null ? SetItem(channel.Value, j, item) : default, 
                             initialization: ChannelMergeInitialization.UseA, 
                             pushEagerlyTo: ChannelSelection.ChannelA)
                         };
