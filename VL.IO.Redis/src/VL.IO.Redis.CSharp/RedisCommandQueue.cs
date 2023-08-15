@@ -81,13 +81,16 @@ namespace VL.IO.Redis
         }
 
 
-        public static IObservable<ImmutableDictionary<Guid, object>> ExecuteTransaction(IObservable<RedisCommandQueue> observable, Action<float> action)
+        public static IObservable<ImmutableDictionary<Guid, object>> ExecuteTransaction(IObservable<RedisCommandQueue> observable, Action<float> action, System.Reactive.Concurrency.IScheduler scheduler)
         {
 
             return Observable.Create<ImmutableDictionary<Guid, object>>((obs) =>
             {
-                var syncObs = Observer.Synchronize(obs, true);
+                //var syncObs = Observer.Synchronize(obs, true);
+                var syncObs = Observer.NotifyOn(obs, scheduler);
+
                 return observable.Subscribe(async 
+                    // onNext
                     (queue) =>
                     {
                         try
@@ -125,11 +128,13 @@ namespace VL.IO.Redis
                             syncObs.OnError(ex);
                         }
                     }
+                    // onError
                     ,(ex) => 
                     {
                         Console.WriteLine(ex);
                         syncObs.OnError(ex); 
                     }
+                    // onComplete
                     ,() =>
                     {
                         Console.WriteLine("COMPLETED");
