@@ -9,14 +9,14 @@ namespace VL.Stride.Shaders.ShaderFX.Control
 {
     public class Do<T> : ComputeValue<T>
     {
-        public Do(IComputeVoid before, IComputeValue<T> value)
+        public Do(IComputeVoid before, IComputeNode<T> value)
         {
             Before = before;
             Value = value;
         }
 
         public IComputeVoid Before { get; }
-        public IComputeValue<T> Value { get; }
+        public IComputeNode<T> Value { get; }
 
         public override ShaderSource GenerateShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)
         {

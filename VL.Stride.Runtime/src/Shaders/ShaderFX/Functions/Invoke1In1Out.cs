@@ -11,7 +11,7 @@ namespace VL.Stride.Shaders.ShaderFX.Functions
 {
     public class Invoke1In1Out<TIn, TOut> : ComputeValue<TOut>
     {
-        public Invoke1In1Out(Funk1In1Out<TIn, TOut> funk, IComputeValue<TIn> arg)
+        public Invoke1In1Out(Funk1In1Out<TIn, TOut> funk, IComputeNode<TIn> arg)
         {
             ShaderName = "Invoke";
             Inputs = new[] 

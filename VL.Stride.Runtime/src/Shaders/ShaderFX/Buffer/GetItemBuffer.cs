@@ -14,7 +14,7 @@ namespace VL.Stride.Shaders.ShaderFX
     public class GetItemBuffer<T> : ComputeValue<T>
     {
 
-        public GetItemBuffer(DeclBuffer buffer, IComputeValue<uint> index, bool isRW = false, bool isStructured = false)
+        public GetItemBuffer(DeclBuffer buffer, IComputeNode<uint> index, bool isRW = false, bool isStructured = false)
         {
             BufferDecl = buffer;
             Index = index;
@@ -29,7 +29,7 @@ namespace VL.Stride.Shaders.ShaderFX
 
         public DeclBuffer BufferDecl { get; }
 
-        public IComputeValue<uint> Index { get; }
+        public IComputeNode<uint> Index { get; }
 
         public bool IsRW { get; }
 

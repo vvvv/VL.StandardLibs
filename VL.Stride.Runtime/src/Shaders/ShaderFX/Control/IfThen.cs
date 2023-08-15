@@ -9,14 +9,14 @@ namespace VL.Stride.Shaders.ShaderFX.Control
 {
     public class IfThen : ComputeVoid
     {
-        public IfThen(IComputeVoid then, IComputeValue<bool> condition)
+        public IfThen(IComputeVoid then, IComputeNode<bool> condition)
         {
             Then = then;
             Condtion = condition;
         }
 
         public IComputeVoid Then { get; }
-        public IComputeValue<bool> Condtion { get; }
+        public IComputeNode<bool> Condtion { get; }
 
         public override ShaderSource GenerateShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)
         {

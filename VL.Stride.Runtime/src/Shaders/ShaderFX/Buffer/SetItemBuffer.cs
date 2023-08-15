@@ -12,7 +12,7 @@ namespace VL.Stride.Shaders.ShaderFX
 {
     public class SetItemRWBuffer<T> : ComputeVoid
     {
-        public SetItemRWBuffer(DeclBuffer buffer, IComputeValue<T> value, IComputeValue<uint> index)
+        public SetItemRWBuffer(DeclBuffer buffer, IComputeNode<T> value, IComputeNode<uint> index)
         {
             BufferDecl = buffer;
             Value = value;
@@ -21,8 +21,8 @@ namespace VL.Stride.Shaders.ShaderFX
 
         public DeclBuffer BufferDecl { get; }
 
-        public IComputeValue<T> Value { get; }
-        public IComputeValue<uint> Index { get; }
+        public IComputeNode<T> Value { get; }
+        public IComputeNode<uint> Index { get; }
 
         public override ShaderSource GenerateShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)
         {

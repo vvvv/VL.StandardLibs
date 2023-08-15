@@ -17,7 +17,7 @@ namespace VL.Stride.Shaders.ShaderFX
     [Monadic(typeof(GpuMonadicFactory<>))]
     public class SetVar<T> : VarBase<T>, IComputeVoid
     {
-        public SetVar(IComputeValue<T> value, DeclVar<T> declaration, bool evaluateChildren = true)
+        public SetVar(IComputeNode<T> value, DeclVar<T> declaration, bool evaluateChildren = true)
             : base(declaration)
         {
             Var = null;
@@ -25,7 +25,7 @@ namespace VL.Stride.Shaders.ShaderFX
             EvaluateChildren = evaluateChildren;
         }
 
-        public SetVar(IComputeValue<T> value, SetVar<T> var, bool evaluateChildren = true)
+        public SetVar(IComputeNode<T> value, SetVar<T> var, bool evaluateChildren = true)
             : base(var.Declaration)
         {
             Var = var;
@@ -36,7 +36,7 @@ namespace VL.Stride.Shaders.ShaderFX
         [DataMemberIgnore]
         public SetVar<T> Var { get; }
 
-        public IComputeValue<T> Value { get; }
+        public IComputeNode<T> Value { get; }
 
         public bool EvaluateChildren { get; }
 

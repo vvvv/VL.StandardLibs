@@ -15,7 +15,7 @@ namespace VL.Stride.Shaders.ShaderFX
     public class LoadTexture<T> : ComputeValue<T>
     {
 
-        public LoadTexture(DeclTexture buffer, IComputeValue<Int2> index, bool isRW = false)
+        public LoadTexture(DeclTexture buffer, IComputeNode<Int2> index, bool isRW = false)
         {
             TextureDecl = buffer;
             TexCd = index;
@@ -26,7 +26,7 @@ namespace VL.Stride.Shaders.ShaderFX
 
         public DeclTexture TextureDecl { get; }
 
-        public IComputeValue<Int2> TexCd { get; }
+        public IComputeNode<Int2> TexCd { get; }
 
         public bool IsRW { get; }
 

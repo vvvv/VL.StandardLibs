@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="TiJxb2oN2LtNWRy2MbJV6Q" LanguageVersion="2022.5.0-0685-ga251664bc1" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="TiJxb2oN2LtNWRy2MbJV6Q" LanguageVersion="2023.5.3-0134-g5e575922bc" Version="0.128">
   <NugetDependency Id="LpDzfnL2ypqNzyyOieWuHI" Location="VL.CoreLib" Version="2021.4.11-1125-g2d2d476ad1" />
   <PlatformDependency Id="JJ0ZRRgadtbPuisZUaeinf" Location="Stride.Graphics.dll" />
   <NugetDependency Id="RUpxj8weM25L4I4AlKb6Yw" Location="VL.Core" Version="2021.4.11-1125-g2d2d476ad1" />
@@ -176,6 +176,7 @@
                           <CategoryReference Kind="ArrayType" Name="MutableArray" />
                           <Choice Kind="OperationCallFlag" Name="Create" />
                         </p:NodeReference>
+                        <Pin Id="JsAKWksTTPvLMrlJhNVXmQ" Name="Node Context" Kind="InputPin" IsHidden="true" />
                         <Pin Id="A1pVdrBnFc1PabsxDZaKcy" Name="Length" Kind="InputPin" />
                         <Pin Id="QQ6qKfdP4OPNRovOhlZpRv" Name="Result" Kind="StateOutputPin" />
                       </Node>
@@ -360,6 +361,7 @@
                           <CategoryReference Kind="ArrayType" Name="MutableArray" />
                           <Choice Kind="OperationCallFlag" Name="Create" />
                         </p:NodeReference>
+                        <Pin Id="CNY1S2iuOluP8mSJVBaHe9" Name="Node Context" Kind="InputPin" IsHidden="true" />
                         <Pin Id="UtBNjYCHEQqPEMatjcCjoK" Name="Length" Kind="InputPin" />
                         <Pin Id="LBleTwyToR8Mio7QQOcj2R" Name="Result" Kind="StateOutputPin" />
                       </Node>
@@ -846,6 +848,7 @@
                               <Choice Kind="OperationCallFlag" Name="Create" />
                               <PinReference Kind="InputPin" Name="X" />
                             </p:NodeReference>
+                            <Pin Id="PcxCPoiU5NEOth6IM9RbzH" Name="Node Context" Kind="InputPin" IsHidden="true" />
                             <Pin Id="ObIVNpDsDsoM5fWhkFDSLs" Name="X" Kind="InputPin" />
                             <Pin Id="BNvPuCXun5jOEJ2gYKvSRD" Name="Y" Kind="InputPin" />
                             <Pin Id="IsI3wowHBtPQbLUANPBkzO" Name="Output" Kind="StateOutputPin" />
@@ -2851,6 +2854,7 @@
                       <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                       <Choice Kind="ProcessAppFlag" Name="TogEdge" />
                     </p:NodeReference>
+                    <Pin Id="T1yWkvUHaLQMq69uMaibPh" Name="Node Context" Kind="InputPin" IsHidden="true" />
                     <Pin Id="TLT4nF6QIUMMW3T3Ye8Bz0" Name="Value" Kind="InputPin" />
                     <Pin Id="DZ0k5eJjqXSNHJBAhx0Pmh" Name="Up Edge" Kind="OutputPin" />
                     <Pin Id="HncYp5XjGsOMsyei4snOYv" Name="Down Edge" Kind="OutputPin" />
@@ -5411,11 +5415,11 @@
                         <Pin Id="B193vB2GRsKNXvMf5dtl8y" Name="Scale" Kind="InputPin" />
                         <Pin Id="Nbg5bRGfPzpNua8Etc7NFZ" Name="Output" Kind="StateOutputPin" />
                       </Node>
-                      <Pin Id="SxkqslOHsStLjuGpqLpgLC" Name="Position" Kind="InputPin" />
                       <Pin Id="ALSnsB42164Ler5qE99GNK" Name="Name" Kind="InputPin" />
-                      <Pin Id="N0qdcsh636kOvqoFXdX0Tz" Name="Output" Kind="OutputPin" />
+                      <Pin Id="SxkqslOHsStLjuGpqLpgLC" Name="Position" Kind="InputPin" />
                       <Pin Id="D4J5XcANkSKNXQfSHRzQWl" Name="Rotation" Kind="InputPin" />
                       <Pin Id="MK8VyeKXVsoNBHovz9RLmy" Name="Scale" Kind="InputPin" />
+                      <Pin Id="N0qdcsh636kOvqoFXdX0Tz" Name="Output" Kind="OutputPin" />
                     </Patch>
                   </Node>
                   <!--
@@ -7358,8 +7362,10 @@
                 <Choice Kind="ForwardDefinition" Name="Forward" />
                 <FullNameCategoryReference ID="Primitive" />
               </p:NodeReference>
-              <p:TypeAnnotation LastCategoryFullName="VL.Stride.Shaders.ShaderFX" LastDependency="VL.Stride.dll">
-                <Choice Kind="TypeFlag" Name="SetVar`1" />
+              <p:TypeAnnotation LastCategoryFullName="Stride.Rendering.Materials" LastDependency="Stride.Rendering.dll">
+                <CategoryReference Kind="AssemblyCategory" Name="Stride" />
+                <CategoryReference Kind="AssemblyCategory" Name="Rendering" />
+                <Choice Kind="MutableInterfaceType" Name="IComputeNode`1" />
               </p:TypeAnnotation>
               <Patch Id="GqiR1twJ5GTQGFHfeYOsCR">
                 <Canvas Id="GRvJRJKOQqQNuhRQ6BkmPU" CanvasType="Group" />
@@ -7382,24 +7388,6 @@
               <Patch Id="HdsddP1o3rNPudpZjOonY3">
                 <Canvas Id="Vg3bRLGDFbEOMMDGoE2Sjx" CanvasType="Group" />
                 <ProcessDefinition Id="VSmCzqIysZUNeapiWqLWpc" IsHidden="true" />
-              </Patch>
-            </Node>
-            <!--
-
-    ************************ IComputeValue ************************
-
--->
-            <Node Name="IComputeValue" Bounds="418,348" Id="CPyhT1Cm3knMJ7a5cSo4JU">
-              <p:NodeReference>
-                <Choice Kind="ForwardDefinition" Name="Forward" />
-                <FullNameCategoryReference ID="Primitive" />
-              </p:NodeReference>
-              <p:TypeAnnotation LastCategoryFullName="VL.Stride.Shaders" LastDependency="VL.Stride.dll">
-                <Choice Kind="TypeFlag" Name="IComputeValue`1" />
-              </p:TypeAnnotation>
-              <Patch Id="I1XCYlUmZzYLmx3gew9j84">
-                <Canvas Id="AbbzjrbbLzCLWkLgh5dQVQ" CanvasType="Group" />
-                <ProcessDefinition Id="R7fYl7BvPjeOdp49Pjdnal" IsHidden="true" />
               </Patch>
             </Node>
             <Pad Id="Vsyg8WcBENaNscBsoneSQf" Bounds="272,233,384,49" ShowValueBox="true" isIOBox="true" Value="Type forwards have to be here otherwise the external type will not be recognized for pin on imported nodes.">

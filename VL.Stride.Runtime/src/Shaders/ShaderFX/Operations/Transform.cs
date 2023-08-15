@@ -13,16 +13,16 @@ namespace VL.Stride.Shaders.ShaderFX
 {
     public class Transform<TMatrix, TValue> : ComputeValue<TValue>
     {
-        public Transform(string operatorName, IComputeValue<TValue> left, IComputeValue<TMatrix> right)
+        public Transform(string operatorName, IComputeNode<TValue> left, IComputeNode<TMatrix> right)
         {
             ShaderName = operatorName;
             Left = left;
             Right = right;
         }
 
-        public IComputeValue<TValue> Left { get; }
+        public IComputeNode<TValue> Left { get; }
 
-        public IComputeValue<TMatrix> Right { get; }
+        public IComputeNode<TMatrix> Right { get; }
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
         {

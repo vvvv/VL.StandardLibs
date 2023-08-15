@@ -1,4 +1,5 @@
 using System;
+using System.Reactive;
 using System.Runtime.Serialization;
 using System.Text;
 using Stride.Rendering.Materials;
@@ -11,8 +12,8 @@ namespace VL.Stride.Shaders.ShaderFX
 
     }
 
-    public abstract class ComputeVoid : ComputeNode, IComputeVoid
+    public abstract class ComputeVoid : ComputeNode<Unit>, IComputeVoid
     {
-
+        public override bool HasChanged => false;
     }
 }

@@ -10,7 +10,7 @@ namespace VL.Stride.Shaders.ShaderFX
 {
     public class JoinVector4 : Join<Vector4>
     {
-        public JoinVector4(IComputeValue<float> x, IComputeValue<float> y, IComputeValue<float> z, IComputeValue<float> w) 
+        public JoinVector4(IComputeNode<float> x, IComputeNode<float> y, IComputeNode<float> z, IComputeNode<float> w) 
             : base(x, y, z, w)
         {
         }
@@ -18,7 +18,7 @@ namespace VL.Stride.Shaders.ShaderFX
 
     public class Join<T> : ComputeValue<T>
     {
-        public Join(IComputeValue<float> x, IComputeValue<float> y, IComputeValue<float> z, IComputeValue<float> w)
+        public Join(IComputeNode<float> x, IComputeNode<float> y, IComputeNode<float> z, IComputeNode<float> w)
         {
             X = x;
             Y = y;
@@ -28,10 +28,10 @@ namespace VL.Stride.Shaders.ShaderFX
             ShaderName = "Join";
         }
 
-        public IComputeValue<float> X { get; }
-        public IComputeValue<float> Y { get; }
-        public IComputeValue<float> Z { get; }
-        public IComputeValue<float> W { get; }
+        public IComputeNode<float> X { get; }
+        public IComputeNode<float> Y { get; }
+        public IComputeNode<float> Z { get; }
+        public IComputeNode<float> W { get; }
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
         {
@@ -55,7 +55,7 @@ namespace VL.Stride.Shaders.ShaderFX
 
     public class JoinVector4Vector3 : ComputeValue<Vector4>
     {
-        public JoinVector4Vector3(IComputeValue<Vector3> v, IComputeValue<float> w)
+        public JoinVector4Vector3(IComputeNode<Vector3> v, IComputeNode<float> w)
         {
             V = v;
             W = w;
@@ -63,8 +63,8 @@ namespace VL.Stride.Shaders.ShaderFX
             ShaderName = "JoinFloat4Float3";
         }
 
-        public IComputeValue<Vector3> V { get; }
-        public IComputeValue<float> W { get; }
+        public IComputeNode<Vector3> V { get; }
+        public IComputeNode<float> W { get; }
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
         {

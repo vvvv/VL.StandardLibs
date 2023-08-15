@@ -13,7 +13,7 @@ namespace VL.Stride.Shaders.ShaderFX
     /// Base class for get or assign a value to a stream variable.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class VarBase<T> : ComputeNode
+    public abstract class VarBase<T> : ComputeNode<T>
     {
         public VarBase(DeclVar<T> declaration)
         {

@@ -22,7 +22,7 @@ namespace VL.Stride.Shaders.ShaderFX
     public class SampleTexture<T> : ComputeValue<T>
     {
 
-        public SampleTexture(DeclTexture texture, DeclSampler sampler, IComputeValue<Vector2> texCoord, IComputeValue<float> lod, bool isRW = false, bool isSampleLevel = false, SampleMode sampleMode = SampleMode.Sampler)
+        public SampleTexture(DeclTexture texture, DeclSampler sampler, IComputeNode<Vector2> texCoord, IComputeNode<float> lod, bool isRW = false, bool isSampleLevel = false, SampleMode sampleMode = SampleMode.Sampler)
         {
             TextureDecl = texture;
             SamplerDecl = sampler;
@@ -40,9 +40,9 @@ namespace VL.Stride.Shaders.ShaderFX
 
         public DeclSampler SamplerDecl { get; }
 
-        public IComputeValue<Vector2> TexCd { get; }
+        public IComputeNode<Vector2> TexCd { get; }
 
-        public IComputeValue<float> LOD { get; }
+        public IComputeNode<float> LOD { get; }
 
         public bool IsRW { get; }
 

@@ -12,13 +12,13 @@ namespace VL.Stride.Shaders.ShaderFX
 {
     public class UnaryOperation<T> : ComputeValue<T>
     {
-        public UnaryOperation(string operatorName, IComputeValue<T> value)
+        public UnaryOperation(string operatorName, IComputeNode<T> value)
         {
             ShaderName = operatorName;
             Value = value;
         }
 
-        public IComputeValue<T> Value { get; }
+        public IComputeNode<T> Value { get; }
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
         {

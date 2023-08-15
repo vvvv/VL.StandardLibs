@@ -38,7 +38,7 @@ namespace VL.Stride.Shaders.ShaderFX
         public static SetVar<T> Semantic<T>(string semantic, string name = "SemanticValue")
             => new SetVar<T>(null, new DeclSemantic<T>(semantic, name));
 
-        public static SetVar<T> SetSemantic<T>(IComputeValue<T> value, string semantic, string name = "SemanticValue")
+        public static SetVar<T> SetSemantic<T>(IComputeNode<T> value, string semantic, string name = "SemanticValue")
             => new SetVar<T>(value, new DeclSemantic<T>(semantic, name));
 
 
@@ -55,7 +55,7 @@ namespace VL.Stride.Shaders.ShaderFX
         /// <typeparam name="T"></typeparam>
         /// <param name="valueGetter"></param>
         /// <returns></returns>
-        public static SetVar<T> DeclAndSetVar<T>(IComputeValue<T> valueGetter)
+        public static SetVar<T> DeclAndSetVar<T>(IComputeNode<T> valueGetter)
         {
             if (valueGetter is GetVar<T> getVar)
                 return new SetVar<T>(valueGetter, getVar.Declaration);
@@ -69,7 +69,7 @@ namespace VL.Stride.Shaders.ShaderFX
         /// <param name="varName"></param>
         /// <param name="valueGetter"></param>
         /// <returns></returns>
-        public static SetVar<T> DeclAndSetVar<T>(string varName, IComputeValue<T> valueGetter)
+        public static SetVar<T> DeclAndSetVar<T>(string varName, IComputeNode<T> valueGetter)
             => new SetVar<T>(valueGetter, new DeclVar<T>(varName));
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace VL.Stride.Shaders.ShaderFX
         /// <param name="existingVar"></param>
         /// <param name="valueGetter"></param>
         /// <returns></returns>
-        public static SetVar<T> SetVar<T>(this SetVar<T> existingVar, IComputeValue<T> valueGetter)
+        public static SetVar<T> SetVar<T>(this SetVar<T> existingVar, IComputeNode<T> valueGetter)
             => new SetVar<T>(valueGetter, existingVar.Declaration);
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace VL.Stride.Shaders.ShaderFX
         /// <typeparam name="T"></typeparam>
         /// <param name="existingVar"></param>
         /// <returns></returns>
-        public static IComputeValue<T> GetVarValue<T>(this SetVar<T> existingVar)
+        public static IComputeNode<T> GetVarValue<T>(this SetVar<T> existingVar)
         {
             return new GetVar<T>(existingVar);
         }

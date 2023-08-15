@@ -10,13 +10,13 @@ namespace VL.Stride.Shaders.ShaderFX
 {
     public class GetMember<TIn, TOut> : ComputeValue<TOut>
     {
-        public GetMember(IComputeValue<TIn> value, string memberName)
+        public GetMember(IComputeNode<TIn> value, string memberName)
         {
             Value = value;
             MemberName = memberName;
         }
 
-        public IComputeValue<TIn> Value { get; }
+        public IComputeNode<TIn> Value { get; }
         public string MemberName { get; }
 
         public override ShaderSource GenerateShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)

@@ -325,6 +325,8 @@ namespace VL.Stride.Rendering
             public ShaderSourceComputeNode(ShaderSource shader)
                 => shaderSource = shader;
 
+            public bool HasChanged => false;
+
             public ShaderSource GenerateShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)
             {
                 return shaderSource;

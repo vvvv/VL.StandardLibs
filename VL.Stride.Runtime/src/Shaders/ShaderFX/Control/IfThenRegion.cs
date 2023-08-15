@@ -82,7 +82,7 @@ namespace VL.Stride.Shaders.ShaderFX.Control
     public class IfThenRegion : ComputeVoid
     {
         public IfThenRegion(IComputeVoid then, 
-            IComputeValue<bool> condition,
+            IComputeNode<bool> condition,
             Func<ShaderGeneratorContext, MaterialComputeColorKeys, ShaderSource> generateShader,
             Func<object, IEnumerable<IComputeNode>> generateChildren)
         {
@@ -96,7 +96,7 @@ namespace VL.Stride.Shaders.ShaderFX.Control
         Func<object, IEnumerable<IComputeNode>> GenerateChildren { get; }
 
         public IComputeVoid Then { get; }
-        public IComputeValue<bool> Condtion { get; }
+        public IComputeNode<bool> Condtion { get; }
 
         public override ShaderSource GenerateShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)
         {

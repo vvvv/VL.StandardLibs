@@ -13,16 +13,16 @@ namespace VL.Stride.Shaders.ShaderFX
 {
     public class BinaryOperation<T> : ComputeValue<T>
     {
-        public BinaryOperation(string operatorName, IComputeValue<T> left, IComputeValue<T> right)
+        public BinaryOperation(string operatorName, IComputeNode<T> left, IComputeNode<T> right)
         {
             ShaderName = operatorName;
             Left = left;
             Right = right;
         }
 
-        public IComputeValue<T> Left { get; }
+        public IComputeNode<T> Left { get; }
 
-        public IComputeValue<T> Right { get; }
+        public IComputeNode<T> Right { get; }
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
         {

@@ -12,12 +12,12 @@ namespace VL.Stride.Shaders.ShaderFX
 {
     public class Float4ToComputeColor : ComputeColor
     {
-        public Float4ToComputeColor(IComputeValue<Vector4> value)
+        public Float4ToComputeColor(IComputeNode<Vector4> value)
         {
             this.Value = value;
         }
 
-        public new IComputeValue<Vector4> Value { get; }
+        public new IComputeNode<Vector4> Value { get; }
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
         {

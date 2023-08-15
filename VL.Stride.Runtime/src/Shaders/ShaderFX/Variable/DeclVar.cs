@@ -35,7 +35,7 @@ namespace VL.Stride.Shaders.ShaderFX
             return varNameWithID;
         }
 
-        public IComputeValue<T> Value { get; }
+        public IComputeNode<T> Value { get; }
 
         public string VarName { get; }
 

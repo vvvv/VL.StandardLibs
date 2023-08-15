@@ -153,7 +153,7 @@ namespace VL.Stride.Shaders.ShaderFX
             return computeEffect;
         }
 
-        public static TextureFXEffect ComposeShader(GraphicsDevice graphicsDevice, IComputeValue<Vector4> root)
+        public static TextureFXEffect ComposeShader(GraphicsDevice graphicsDevice, IComputeNode<Vector4> root)
         {
             var effectImageShader = new TextureFXEffect("TextureFXGraphEffect");
 
@@ -172,7 +172,7 @@ namespace VL.Stride.Shaders.ShaderFX
             return effectImageShader;
         }
 
-        public static DynamicEffectInstance ComposeDrawShader(GraphicsDevice graphicsDevice, IComputeValue<Vector4> vertexRoot, IComputeValue<Vector4> pixelRoot)
+        public static DynamicEffectInstance ComposeDrawShader(GraphicsDevice graphicsDevice, IComputeNode<Vector4> vertexRoot, IComputeNode<Vector4> pixelRoot)
         {
             var effectImageShader = new DynamicDrawEffectInstance("ShaderFXGraphEffect");
 

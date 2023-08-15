@@ -12,7 +12,7 @@ namespace VL.Stride.Shaders.ShaderFX
     public class BlendOperation : BinaryOperation<Vector4>
     {
 
-        public BlendOperation(BlendOperator blendOperation, IComputeValue<Vector4> left, IComputeValue<Vector4> right)
+        public BlendOperation(BlendOperator blendOperation, IComputeNode<Vector4> left, IComputeNode<Vector4> right)
             : base(blendOperation.GetShaderSourceName(), left, right)
         {
         }

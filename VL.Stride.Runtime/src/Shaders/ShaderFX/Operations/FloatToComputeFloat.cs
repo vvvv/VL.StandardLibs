@@ -12,12 +12,12 @@ namespace VL.Stride.Shaders.ShaderFX
 {
     public class FloatToComputeFloat : ComputeFloat
     {
-        public FloatToComputeFloat(IComputeValue<float> value)
+        public FloatToComputeFloat(IComputeNode<float> value)
         {
             this.Value = value;
         }
 
-        public new IComputeValue<float> Value { get; }
+        public new IComputeNode<float> Value { get; }
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
         {
