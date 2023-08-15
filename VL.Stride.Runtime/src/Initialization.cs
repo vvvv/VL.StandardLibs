@@ -116,6 +116,12 @@ namespace VL.Stride.Core
             }
         }
 
+        [Obsolete]
+        public static void RegisterStaticNodeFactory(IVLFactory factory, string name, Func<ServiceRegistry, IVLNodeDescriptionFactory, NodeBuilding.FactoryImpl> init)
+        {
+            RegisterStaticNodeFactory(factory.AppHost, name, init);
+        }
+
         public static ServiceRegistry GetGlobalStrideServices()
         {
             lock (serviceCache)
