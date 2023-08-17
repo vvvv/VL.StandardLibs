@@ -16,73 +16,58 @@ using VL.Core;
 using System.Security.Cryptography;
 using VL.Lib.Collections;
 using System.Reflection.Metadata.Ecma335;
+using System.Reactive.Joins;
+using System.Xml.Linq;
+using ServiceWire;
 
 namespace VL.IO.Redis
 {
-    
-    public sealed class ThreadSafeToggle
-    {
-        public ThreadSafeToggle() { }
-
-        private bool enabled = true;
-        private object syncObj = new object();
-
-        public void Enable()
-        {
-            lock (syncObj)
-            {
-                enabled = true;
-            }
-        }
-        public void Disable()
-        {
-            lock (syncObj)
-            {
-                enabled = false;
-            }
-        }
-        public bool Enabled()
-        {
-            lock (syncObj)
-            {
-                return enabled;
-            }
-        }
-    }
-
-    public class Transaction
-    {
-
-    }
-
     public static class RedisExtensions
     {
         /// <summary>
-        /// xs --x---x---x---x-------x---x---x-
-        ///       \           \       \        
-        /// ys ----y-----------y---y---y-------
-        ///        |           |       |       
-        /// rs ----x-----------x-------x-------
-        ///        y           y       y       
+        /// first  --x---x---x---x-------x---x---x-
+        ///           \           \       \        
+        /// second ----y-----------y---y---y-------
+        ///            |           |       |       
+        /// result ----x-----------x-------x-------
+        ///            y           y       y       
+        ///            
+        /// http://introtorx.com/Content/v1.0.10621.0/17_SequencesOfCoincidence.html#Join
+        /// https://stackoverflow.com/questions/13319241/combine-two-observables-but-only-when-the-first-obs-is-immediately-preceded-by?rq=3
         /// </summary>
-        /// <typeparam name="TLeft"></typeparam>
-        /// <typeparam name="TRight"></typeparam>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
+        /// <typeparam name="TFirst"></typeparam>
+        /// <typeparam name="TSecond"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <param name="selector"></param>
         /// <returns></returns>
-        public static IObservable<ValueTuple<TRight,TLeft>> WithLatestWhenNew<TLeft, TRight>(this IObservable<TLeft> left, IObservable<TRight> right)
+        public static IObservable<TResult> WithLatestWhenNew<TFirst, TSecond, TResult>(IObservable<TFirst> first, IObservable<TSecond> second, Func<TFirst,TSecond,TResult> selector)
         {
-            return left.Join(
-                right,
-                l => left.Any().Merge(right.Any()),
-                r => Observable.Empty<Unit>(),
-                (l, r) => { return ValueTuple.Create(r, l); });
 
+            var left = first.Publish().RefCount();
+            var rigth = second.Publish().RefCount();
+
+            return Observable.Join(
+                left,
+                rigth,
+                // leftDurationSellector
+                _ => left.Any().Merge(rigth.Any()),
+                // rightDurationSellector
+                _ => Observable.Empty<Unit>(),
+                // resultSelector
+                (l, r) => { return selector.Invoke(l, r); }
+            
+                );
         }
 
         public static ValueTuple<RedisCommandQueue, TInput> Enqueue<TInput,TOutput>(ValueTuple<RedisCommandQueue,TInput> input, Func<ITransaction, TInput, Task<TOutput>> cmd, Guid guid, Optional<Func<TInput,IEnumerable<string>>> keys)
         {
-            input.Item1._cmds.Enqueue((tran) => cmd.Invoke(tran, input.Item2).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)));
+            input.Item1._cmds.Enqueue(
+                (tran) => cmd.Invoke(tran, input.Item2)
+                    .ContinueWith(
+                        t => new KeyValuePair<Guid, object>(guid, (object)t.Result))
+            );
 
             if (keys.HasValue)
             {
@@ -93,8 +78,10 @@ namespace VL.IO.Redis
             return input;
         }
 
-        public static IObservable<RedisCommandQueue> ApplyTransactions(this IObservable<RedisCommandQueue> observable, Action<float, int> action, Func<Spread<string>,RedisValue> serializeChanges, Guid guid)
+        public static IObservable<RedisCommandQueue> ApplyTransactions(this IObservable<RedisCommandQueue> observable, Action<float, int> action, Func<Spread<string>,Tuple<RedisValue,string,RedisChannel.PatternMode,bool>> publishChanges, Guid guid)
         {
+            
+
             return Observable.Create<RedisCommandQueue>((obs) =>
             {
                 var syncObs = Observer.Synchronize(obs, true);
@@ -107,8 +94,15 @@ namespace VL.IO.Redis
 
                         if (queue._tran != null)
                         {
-                            queue._tasks.Add(queue._tran.PublishAsync("Changed", serializeChanges.Invoke(queue._changes.ToSpread()) ).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)));
-
+                            if (!queue._changes.IsEmpty())
+                            {
+                                var p = publishChanges.Invoke(queue._changes.ToSpread());
+                                if (p.Item4)
+                                {
+                                    queue._tasks.Add(queue._tran.PublishAsync(new RedisChannel(p.Item2, p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)));
+                                } 
+                            }
+                                
                             foreach (var cmd in queue._cmds)
                             {
                                 queue._tasks.Add(cmd(queue._tran));
@@ -162,7 +156,7 @@ namespace VL.IO.Redis
 
                                 resultAwaiter.OnCompleted(() =>
                                 {
-                                    action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond));
+                                    
 
                                     ImmutableDictionary<Guid, object>.Builder builder = ImmutableDictionary.CreateBuilder<Guid, object>();
                                     foreach (var kv in resultAwaiter.GetResult())
@@ -170,6 +164,7 @@ namespace VL.IO.Redis
                                         builder.TryAdd(kv.Key, kv.Value);
                                     }
                                     syncObs.OnNext(builder.ToImmutable());
+                                    action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond));
                                 });
                             }
                             catch (Exception ex)
@@ -206,8 +201,45 @@ namespace VL.IO.Redis
             return task.ContinueWith(t => new KeyValuePair<Guid,object>(guid, (object)t.Result));
         }
 
-        public static IObservable<RedisValue> WhenMessageReceived(this ISubscriber subscriber, RedisChannel channel)
+        public static IObservable<TResult> Subscribe<TResult>(this ISubscriber subscriber, Func<RedisChannel,RedisValue,TResult> selector, string name, RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto)
         {
+            var channel = new RedisChannel(name, pattern);
+
+            return Observable.Create<TResult>(async (obs, ct) =>
+            {
+                // as the SubscribeAsync callback can be invoked concurrently
+                // a thread-safe wrapper for OnNext is needed
+                var syncObs = Observer.Synchronize(obs);
+                await subscriber.SubscribeAsync(channel, (chan, message) =>
+                {
+                    syncObs.OnNext(selector.Invoke(chan,message));
+                }).ConfigureAwait(false);
+
+                return Disposable.Create(() => subscriber.Unsubscribe(channel));
+            });
+        }
+
+        public static IObservable<TResult> SubscribeScan<TSeed,TResult>(this ISubscriber subscriber, Func<TSeed, RedisChannel, RedisValue, TResult> selector, string name, RedisChannel.PatternMode pattern, TSeed seed)
+        {
+            var channel = new RedisChannel(name, pattern);
+
+            return Observable.Create<TResult>(async (obs, ct) =>
+            {
+                // as the SubscribeAsync callback can be invoked concurrently
+                // a thread-safe wrapper for OnNext is needed
+                var syncObs = Observer.Synchronize(obs);
+                await subscriber.SubscribeAsync(channel, (chan, message) =>
+                {
+                    syncObs.OnNext(selector.Invoke(seed, chan, message));
+                }).ConfigureAwait(false);
+
+                return Disposable.Create(() => subscriber.Unsubscribe(channel));
+            });
+        }
+
+        public static IObservable<RedisValue> WhenMessageReceived(this ISubscriber subscriber, RedisChannel channel, string name)
+        {
+            
             return Observable.Create<RedisValue>(async (obs, ct) =>
             {
                 // as the SubscribeAsync callback can be invoked concurrently

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="FNp7oVgTa0FQB06r06h90w" LanguageVersion="2023.5.3-0052-gd114b32994" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="FNp7oVgTa0FQB06r06h90w" LanguageVersion="2023.5.3-0133-ge9c46603f4" Version="0.128">
   <NugetDependency Id="VAfHYlLhO8AMV1lqIWCZOE" Location="VL.CoreLib" Version="2022.5.0-0696-g73767f5671" />
   <Patch Id="JLHZ1cVYh5tPSBf9kOUon9">
     <Canvas Id="Gv6AOC6DJebQLJLEAg2IuZ" DefaultCategory="Main" CanvasType="FullCategory">
@@ -37,6 +37,7 @@
                 <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                 <Choice Kind="OperationCallFlag" Name="RegisterModule" />
               </p:NodeReference>
+              <Pin Id="FoDvgeJrQQyLBv3oOM6T2G" Name="Channel Hub" Kind="InputPin" IsHidden="true" />
               <Pin Id="KjR2pWg2iQNOliFnodv7jy" Name="Module" Kind="InputPin" />
               <Pin Id="LNTudCLrlNvQVcjo9bhmth" Name="Output" Kind="OutputPin" />
             </Node>
@@ -77,6 +78,7 @@
                     <CategoryReference Kind="ClassType" Name="RedisBinding" NeedsToBeDirectParent="true" />
                     <Choice Kind="OperationCallFlag" Name="Create" />
                   </p:NodeReference>
+                  <Pin Id="QTaamODcSDvMHBkLygJwPD" Name="Node Context" Kind="InputPin" IsHidden="true" />
                   <Pin Id="STDhbCXPKhxN3yLehJcl2w" Name="Module" Kind="InputPin" />
                   <Pin Id="LQcEOnPMDAHOlHUAg8KH8J" Name="Channel" Kind="InputPin" />
                   <Pin Id="HFFXXeJ39EIM3TkljG83D1" Name="Channel Path" Kind="InputPin" />
@@ -137,6 +139,7 @@
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                     <Choice Kind="OperationCallFlag" Name="TryGetChannel" />
                   </p:NodeReference>
+                  <Pin Id="K7lNR5P3ZMcMmRvekH9rAP" Name="Channel Hub" Kind="InputPin" IsHidden="true" />
                   <Pin Id="BtPWh7VDz7ZPbifgBeCqum" Name="Key" Kind="InputPin" />
                   <Pin Id="CzRSWYSLGo0MaYZ8wd3HHi" Name="Result" Kind="OutputPin" />
                   <Pin Id="C4FHKCQ23aUQZocCpeDPY9" Name="Success" Kind="OutputPin" />
@@ -194,11 +197,16 @@
               <p:NodeReference LastCategoryFullName="Redis" LastDependency="VL.IO.Redis.vl">
                 <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                 <CategoryReference Kind="Category" Name="Redis" NeedsToBeDirectParent="true" />
-                <Choice Kind="ProcessAppFlag" Name="RedisClient" />
+                <Choice Kind="ProcessAppFlag" Name="RedisClientV2" />
               </p:NodeReference>
+              <Pin Id="Fdapawqans6ODWVmaqDKkz" Name="Node Context" Kind="InputPin" IsHidden="true" />
               <Pin Id="EuSNI33BFVSN1SBtyYCkCe" Name="Configuration" Kind="InputPin" />
+              <Pin Id="S0e3SZFW6QEOWRd8O2NEcz" Name="FrameClock" Kind="InputPin" IsHidden="true" />
+              <Pin Id="SYiYIqhS8lmOeBNml7yUfH" Name="Configure" Kind="InputPin" IsHidden="true" />
               <Pin Id="M0GzdfB3Wj5NHxojqUesrK" Name="LogToConsole" Kind="InputPin" />
+              <Pin Id="EeYrpdGixZHNmh6OBbpibF" Name="Database" Kind="InputPin" IsHidden="true" />
               <Pin Id="Bb3MN1rFcCxNBDlu6ZBhiC" Name="ClientSideChaching" Kind="InputPin" />
+              <Pin Id="HpZSXgQA0wdOFKTVCWbmoB" Name="Update" Kind="InputPin" />
               <Pin Id="S5KAEvcPWOlOdKyL0eAw5N" Name="Output" Kind="StateOutputPin" />
               <Pin Id="FNaGsnDJfLdMkXuW60KvlR" Name="Restored" Kind="OutputPin" />
               <Pin Id="SS95qcazqdYNtJ2FG3ZkFB" Name="TrackingID" Kind="OutputPin" />
@@ -358,9 +366,6 @@
                 <FullNameCategoryReference ID="Reactive" />
                 <Choice Kind="ProcessAppFlag" Name="ForEach" />
               </p:NodeReference>
-              <Pin Id="DwZjCRJHPX8L7pSw1W0MvA" Name="Messages" Kind="InputPin" />
-              <Pin Id="LGTwIhCdcsSNA3r49bF4su" Name="Reset" Kind="InputPin" />
-              <Pin Id="IPBftmNSEYjNbySX0gBv00" Name="Result" Kind="OutputPin" />
               <Patch Id="LIYMZ6qCR7rNaqm2kJfz3i" ManuallySortedPins="true">
                 <Patch Id="OrLIJSNvh7dOtSoFwSSFNy" Name="Create" ManuallySortedPins="true" />
                 <Patch Id="BrzybNW5GKOQB8acXeexSx" Name="Update" ManuallySortedPins="true">
@@ -389,6 +394,10 @@
                   <Pin Id="RWn3rbLtLUgLGIiVabFvqR" Name="Apply" Kind="InputPin" DefaultValue="True" />
                 </Node>
               </Patch>
+              <Pin Id="ChN1bG2ce02NSyS3lpZhhO" Name="Node Context" Kind="InputPin" IsHidden="true" />
+              <Pin Id="DwZjCRJHPX8L7pSw1W0MvA" Name="Messages" Kind="InputPin" />
+              <Pin Id="LGTwIhCdcsSNA3r49bF4su" Name="Reset" Kind="InputPin" />
+              <Pin Id="IPBftmNSEYjNbySX0gBv00" Name="Result" Kind="OutputPin" />
             </Node>
             <ControlPoint Id="NCJsDRqYyMTMGzxCD5WP6d" Bounds="152,763" />
             <Node Bounds="648,858,86,26" Id="DmafgcMLQfZMmLnMpJOEkI">
