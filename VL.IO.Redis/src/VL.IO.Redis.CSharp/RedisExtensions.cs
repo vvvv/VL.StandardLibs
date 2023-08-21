@@ -61,6 +61,47 @@ namespace VL.IO.Redis
                 );
         }
 
+        public static IObservable<TResult> SelectOrWithLatestFrom<TFirst, TSecond, TResult>(IObservable<TFirst> first, IObservable<TSecond> second, Func<TFirst, TResult> select, Func<TResult, TSecond, TResult> WithLatestFromSecondWhenFirst)
+        {
+            var secondRef = second.Publish().RefCount();
+            var firstTransformedRef = first.Select(select).Publish().RefCount();
+
+            return Observable.Join(
+                secondRef,
+                firstTransformedRef,
+                // leftDurationSellector
+                _ => secondRef.Any().Merge(firstTransformedRef.Any()),
+                // rightDurationSellector
+                _ => Observable.Empty<Unit>(),
+                // resultSelector
+                (l, r) => { return WithLatestFromSecondWhenFirst(r, l); }
+                )
+                .Merge(firstTransformedRef)
+                .Buffer(firstTransformedRef)
+                .Select(l => l.FirstOrDefault())
+                .Publish()
+                .RefCount();
+        }
+
+        public static IObservable<C> MergeOrCombineLatest<A, B, C>(
+            IObservable<A> a,
+            IObservable<B> b,
+            Func<A, C> aResultSelector, // When A starts before B
+            Func<B, C> bResultSelector, // When B starts before A
+            Func<A, B, C> bothResultSelector) // When both A and B have started
+        {
+            return
+                a.Publish(aa =>
+                    b.Publish(bb =>
+                        aa.CombineLatest(bb, bothResultSelector).Publish(xs =>
+                            aa
+                                .Select(aResultSelector)
+                                .Merge(bb.Select(bResultSelector))
+                                .TakeUntil(xs)
+                                .SkipLast(1)
+                                .Merge(xs))));
+        }
+
         public static ValueTuple<RedisCommandQueue, TInput> Enqueue<TInput,TOutput>(ValueTuple<RedisCommandQueue,TInput> input, Func<ITransaction, TInput, Task<TOutput>> cmd, Guid guid, Optional<Func<TInput,IEnumerable<string>>> keys)
         {
             input.Item1._cmds.Enqueue(
@@ -99,7 +140,9 @@ namespace VL.IO.Redis
                                 var p = publishChanges.Invoke(queue._changes.ToSpread());
                                 if (p.Item4)
                                 {
-                                    queue._tasks.Add(queue._tran.PublishAsync(new RedisChannel(p.Item2, p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)));
+                                    queue._tasks.Add(queue._tran.PublishAsync(new RedisChannel(p.Item2 + "_" + guid.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)));
+                                    //queue._tasks.Add(queue._tran.PublishAsync(new RedisChannel(p.Item2 + "_" + guid.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)));
+                                    //queue._tasks.Add(queue._tran.PublishAsync(new RedisChannel(p.Item2 + "_" + guid.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)));
                                 } 
                             }
                                 
@@ -236,43 +279,6 @@ namespace VL.IO.Redis
                 return Disposable.Create(() => subscriber.Unsubscribe(channel));
             });
         }
-
-        public static IObservable<RedisValue> WhenMessageReceived(this ISubscriber subscriber, RedisChannel channel, string name)
-        {
-            
-            return Observable.Create<RedisValue>(async (obs, ct) =>
-            {
-                // as the SubscribeAsync callback can be invoked concurrently
-                // a thread-safe wrapper for OnNext is needed
-                var syncObs = Observer.Synchronize(obs);
-                await subscriber.SubscribeAsync(channel, (_, message) =>
-                {
-                    syncObs.OnNext(message);
-                }).ConfigureAwait(false);
-
-                return Disposable.Create(() => subscriber.Unsubscribe(channel));
-            });
-        }
-
-        public static IObservable<ImmutableDictionary<Guid, object>> ObservableTransactions(this ITransaction transaction, IList<Task<KeyValuePair<Guid, object>>> _tasks)
-        {
-            return Observable.Create<ImmutableDictionary<Guid, object>>(async (obs, ct) =>
-            {
-                // as the SubscribeAsync callback can be invoked concurrently
-                // a thread-safe wrapper for OnNext is needed
-                var syncObs = Observer.Synchronize(obs);
-                var tmp = await transaction.ExecuteAsync().ContinueWith
-                (
-                    async t => await Task.WhenAll(_tasks).ContinueWith(t => t.Result.ToImmutableDictionary())
-                );
-
-                tmp.GetAwaiter().OnCompleted(() => { syncObs.OnNext(tmp.GetAwaiter().GetResult()); });
-
-
-                return tmp;// Disposable.Create(() => subscriber.Unsubscribe(channel));
-            });
-        }
-
     }
 
    

@@ -21,7 +21,17 @@ namespace VL.IO.Redis
         internal ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> _cmds;
         internal SpreadBuilder<string> _changes;
 
+        internal SpreadBuilder<string> _receivedChanges;
 
+        public void AddReceivedChanges(Spread<string> receivedChanges)
+        {
+            this._receivedChanges.AddRange(receivedChanges);
+        }
+
+        public Spread<string> GetReceivedChanges()
+        {
+            return _receivedChanges.ToSpread();
+        }
 
         public RedisCommandQueue(IDatabase database)
         {
@@ -29,6 +39,7 @@ namespace VL.IO.Redis
             _tasks          = new List<Task<KeyValuePair<Guid, object>>>();
             _cmds           = new ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
             _changes        = new SpreadBuilder<string>();
+            _receivedChanges= new SpreadBuilder<string>();
         }
 
         
