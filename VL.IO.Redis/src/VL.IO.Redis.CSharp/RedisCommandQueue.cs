@@ -2,24 +2,18 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
-using System.Reactive;
-using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Transactions;
 using VL.Lib.Collections;
 
 namespace VL.IO.Redis
 {
     public record RedisCommandQueue
     {
+        internal Guid _id;
         internal ITransaction _tran;
-        internal IList<Task<KeyValuePair<Guid, object>>> _tasks;
         internal ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> _cmds;
         internal SpreadBuilder<string> _changes;
+        internal IList<Task<KeyValuePair<Guid, object>>> _tasks;
 
         internal SpreadBuilder<string> _receivedChanges;
 
@@ -33,13 +27,14 @@ namespace VL.IO.Redis
             return _receivedChanges.ToSpread();
         }
 
-        public RedisCommandQueue(IDatabase database)
+        public RedisCommandQueue(IDatabase database, Guid id)
         {
-            _tran           = database.CreateTransaction();
-            _tasks          = new List<Task<KeyValuePair<Guid, object>>>();
-            _cmds           = new ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
-            _changes        = new SpreadBuilder<string>();
-            _receivedChanges= new SpreadBuilder<string>();
+            _tran               = database.CreateTransaction();
+            _id                 = id;
+            _cmds               = new ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
+            _changes            = new SpreadBuilder<string>();
+            _receivedChanges    = new SpreadBuilder<string>();
+            _tasks              = new List<Task<KeyValuePair<Guid, object>>>();
         }
 
         
