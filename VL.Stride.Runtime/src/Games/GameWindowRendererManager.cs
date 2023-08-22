@@ -562,14 +562,15 @@ namespace VL.Stride.Games
 
         private static float GetIntersectionSize(GraphicsOutput output, Rectangle windowBounds)
         {
-            var desktopBounds = output.DesktopBounds;
-
-            //fix bounds, bug in SharpDX?
-            desktopBounds.Width = desktopBounds.Width - desktopBounds.X;
-            desktopBounds.Height = desktopBounds.Height - desktopBounds.Y;
-
+            var desktopBounds = ApplyDesktopBoundsFix(output.DesktopBounds);
             var intersection = Rectangle.Intersect(windowBounds, desktopBounds);
             return intersection.Width * intersection.Height;
+        }
+
+        private static Rectangle ApplyDesktopBoundsFix(Rectangle bounds)
+        {
+            //fix bounds, bug in SharpDX?
+            return new Rectangle(bounds.X, bounds.Y, bounds.Width - bounds.X, bounds.Height - bounds.Y);
         }
 
         /// <summary>
@@ -819,9 +820,19 @@ namespace VL.Stride.Games
 
                     PreferredFullScreenOutputIndex = outputs.IndexOf(output);
 
-                    resizedBackBufferWidth = window.PreferredFullscreenSize.X <= 0 ? output.CurrentDisplayMode.Width : window.PreferredFullscreenSize.X;
-                    resizedBackBufferHeight = window.PreferredFullscreenSize.Y <= 0 ? output.CurrentDisplayMode.Height : window.PreferredFullscreenSize.Y;
+                    if (window.PreferredFullscreenSize.X > 0)
+                        resizedBackBufferWidth = window.PreferredFullscreenSize.X;
+                    else if (output.CurrentDisplayMode != null) // Can be null in EyeFinity span setups
+                        resizedBackBufferWidth = output.CurrentDisplayMode.Width;
+                    else
+                        resizedBackBufferWidth = ApplyDesktopBoundsFix(output.DesktopBounds).Width;
 
+                    if (window.PreferredFullscreenSize.Y > 0)
+                        resizedBackBufferHeight = window.PreferredFullscreenSize.Y;
+                    else if (output.CurrentDisplayMode != null) // Can be null in EyeFinity span setups
+                        resizedBackBufferHeight = output.CurrentDisplayMode.Height;
+                    else
+                        resizedBackBufferHeight = ApplyDesktopBoundsFix(output.DesktopBounds).Height;
                 }
                 else
                 {
