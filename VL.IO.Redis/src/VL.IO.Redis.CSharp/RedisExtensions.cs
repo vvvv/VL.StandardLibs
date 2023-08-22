@@ -61,6 +61,23 @@ namespace VL.IO.Redis
                 );
         }
 
+        /// <summary>
+        /// first  --x---x---x---x---x---x---x--
+        ///          |   |   |   |   |   |   |  
+        /// second ---123---45------------------
+        ///          |   |   |   |   |   |   |  
+        /// result --x---x---x---x---x---x---x--
+        ///              3   4   5              
+        /// use with scan for second to collect Changes               
+        /// </summary>
+        /// <typeparam name="TFirst"></typeparam>
+        /// <typeparam name="TSecond"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <param name="select"></param>
+        /// <param name="WithLatestFromSecondWhenFirst"></param>
+        /// <returns></returns>
         public static IObservable<TResult> SelectOrWithLatestFrom<TFirst, TSecond, TResult>(IObservable<TFirst> first, IObservable<TSecond> second, Func<TFirst, TResult> select, Func<TResult, TSecond, TResult> WithLatestFromSecondWhenFirst)
         {
             var secondRef = second.Publish().RefCount();
@@ -81,25 +98,6 @@ namespace VL.IO.Redis
                 .Select(l => l.FirstOrDefault())
                 .Publish()
                 .RefCount();
-        }
-
-        public static IObservable<C> MergeOrCombineLatest<A, B, C>(
-            IObservable<A> a,
-            IObservable<B> b,
-            Func<A, C> aResultSelector, // When A starts before B
-            Func<B, C> bResultSelector, // When B starts before A
-            Func<A, B, C> bothResultSelector) // When both A and B have started
-        {
-            return
-                a.Publish(aa =>
-                    b.Publish(bb =>
-                        aa.CombineLatest(bb, bothResultSelector).Publish(xs =>
-                            aa
-                                .Select(aResultSelector)
-                                .Merge(bb.Select(bResultSelector))
-                                .TakeUntil(xs)
-                                .SkipLast(1)
-                                .Merge(xs))));
         }
 
         public static ValueTuple<RedisCommandQueue, TInput> Enqueue<TInput,TOutput>(ValueTuple<RedisCommandQueue,TInput> input, Func<ITransaction, TInput, Task<TOutput>> cmd, Guid guid, Optional<Func<TInput,IEnumerable<string>>> keys)
