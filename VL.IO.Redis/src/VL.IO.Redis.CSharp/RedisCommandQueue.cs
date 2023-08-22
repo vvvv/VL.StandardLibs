@@ -2,42 +2,63 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
+using VL.Core.Utils;
 using VL.Lib.Collections;
 
 namespace VL.IO.Redis
 {
-    public record RedisCommandQueue
+    public record RedisCommandQueue : IDisposable
     {
         internal Guid _id;
         internal ITransaction _tran;
-        internal ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> _cmds;
-        internal SpreadBuilder<string> _changes;
-        internal IList<Task<KeyValuePair<Guid, object>>> _tasks;
+
+        private Pooled<List<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>> pooledCmds = Pooled.GetList<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
+        internal List<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> Cmds => pooledCmds.Value;
+
+        private Pooled<ImmutableHashSet<string>.Builder> pooledChanges = Pooled.GetHashSetBuilder<string>();
+        internal ImmutableHashSet<string>.Builder ChangesBuilder => pooledChanges.Value;
+        internal ImmutableHashSet<string> Changes => pooledChanges.Value.ToImmutable();
+
+
+        private Pooled<ImmutableHashSet<string>.Builder> pooledReceivedChanges = Pooled.GetHashSetBuilder<string>();
+        internal ImmutableHashSet<string>.Builder ReceivedChangesBuilder => pooledReceivedChanges.Value;
+        internal ImmutableHashSet<string> ReceivedChanges => pooledReceivedChanges.Value.ToImmutable();
+
 
         internal SpreadBuilder<string> _receivedChanges;
 
-        public void AddReceivedChanges(Spread<string> receivedChanges)
-        {
-            this._receivedChanges.AddRange(receivedChanges);
-        }
+        private Pooled<List<Task<KeyValuePair<Guid, object>>>> pooledtasks = Pooled.GetList<Task<KeyValuePair<Guid, object>>>();
 
-        public Spread<string> GetReceivedChanges()
-        {
-            return _receivedChanges.ToSpread();
-        }
+        internal List<Task<KeyValuePair<Guid, object>>> Tasks => pooledtasks.Value;
 
-        public RedisCommandQueue(IDatabase database, Guid id)
+
+        public RedisCommandQueue(Guid id, IDatabase database)
         {
-            _tran               = database.CreateTransaction();
             _id                 = id;
-            _cmds               = new ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
-            _changes            = new SpreadBuilder<string>();
+            _tran               = database.CreateTransaction();
             _receivedChanges    = new SpreadBuilder<string>();
-            _tasks              = new List<Task<KeyValuePair<Guid, object>>>();
         }
 
-        
-
+        public void Dispose()
+        {
+            try
+            {
+                foreach (var task in Tasks)
+                {
+                    if (task.Status == TaskStatus.RanToCompletion || task.Status == TaskStatus.Canceled || task.Status == TaskStatus.Faulted)
+                        task.Dispose();
+                }
+                pooledtasks.Dispose();
+            }
+            catch (Exception e) 
+            {
+                
+            }
+            pooledCmds.Dispose();
+            pooledChanges.Dispose();
+            pooledReceivedChanges.Dispose();
+        }
     }
 }
