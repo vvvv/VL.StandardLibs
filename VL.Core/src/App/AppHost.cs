@@ -198,18 +198,6 @@ namespace VL.Core
 
         internal object? GetDefaultValue(Type type) => GetDefaultValue(TypeRegistry.GetTypeInfo(type));
 
-        internal abstract void Scan(Assembly assembly, bool runUserCode);
-
-        /// <summary>
-        /// Raised for each assembly initializer after its <see cref="AssemblyInitializer.Configure(AppHost)"/> method has being called.
-        /// </summary>
-        internal event EventHandler<AssemblyInitializer>? Configured;
-
-        protected virtual void OnConfigured(AssemblyInitializer initializer)
-        {
-            Configured?.Invoke(this, initializer);
-        }
-
         internal abstract SerializationService SerializationService { get; }
     }
 
@@ -304,4 +292,3 @@ namespace VL.Core
     //    }
     //}
 }
-#nullable restore
