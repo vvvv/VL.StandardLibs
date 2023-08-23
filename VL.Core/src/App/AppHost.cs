@@ -201,7 +201,7 @@ namespace VL.Core
         internal abstract void Scan(Assembly assembly, bool runUserCode);
 
         /// <summary>
-        /// Raised for each an assembly initializer after its <see cref="AssemblyInitializer.Configure(AppHost)"/> method has being called.
+        /// Raised for each assembly initializer after its <see cref="AssemblyInitializer.Configure(AppHost)"/> method has being called.
         /// </summary>
         internal event EventHandler<AssemblyInitializer>? Configured;
 
