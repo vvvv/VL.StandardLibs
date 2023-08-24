@@ -20,7 +20,7 @@ namespace VL.Stride.Rendering
     {
         static IVLNodeDescription NewDrawEffectShaderNode(this IVLNodeDescriptionFactory factory, 
             NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object> changes, 
-            Func<string> getFilePath, IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
+            IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
         {
             return factory.NewNodeDescription(
                 name: name,
@@ -28,7 +28,7 @@ namespace VL.Stride.Rendering
                 tags: shaderMetadata.Tags,
                 fragmented: true,
                 invalidated: changes,
-                init: buildContext => DrawEffectImpl(shaderName, shaderMetadata, getFilePath, serviceRegistry, graphicsDevice, buildContext, effectBytecode: null)
+                init: buildContext => DrawEffectImpl(shaderName, shaderMetadata, serviceRegistry, graphicsDevice, buildContext, effectBytecode: null)
                 );
         }
 
@@ -40,11 +40,11 @@ namespace VL.Stride.Rendering
                 name: name,
                 category: category,
                 fragmented: true,
-                init: buildContext => DrawEffectImpl(shaderName, shaderMetadata: null, getFilePath: null, serviceRegistry: null, graphicsDevice, buildContext, effectBytecode)
+                init: buildContext => DrawEffectImpl(shaderName, shaderMetadata: null, serviceRegistry: null, graphicsDevice, buildContext, effectBytecode)
                 );
         }
 
-        static NodeBuilding.NodeImplementation DrawEffectImpl(string shaderName, ShaderMetadata shaderMetadata, Func<string> getFilePath,
+        static NodeBuilding.NodeImplementation DrawEffectImpl(string shaderName, ShaderMetadata shaderMetadata,
             IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice, NodeBuilding.NodeDescriptionBuildContext buildContext,
             EffectBytecode effectBytecode)
         {
@@ -91,7 +91,7 @@ namespace VL.Stride.Rendering
                 messages: messages,
                 summary: shaderMetadata?.Summary,
                 remarks: shaderMetadata?.Remarks,
-                filePath: getFilePath(),
+                filePath: shaderMetadata?.FilePath,
                 newNode: nodeBuildContext =>
                 {
                     var gameHandle = AppHost.Current.Services.GetGameHandle();
@@ -135,13 +135,13 @@ namespace VL.Stride.Rendering
                             gameHandle.Dispose();
                         });
                 },
-                openEditorAction: () => OpenEditor(getFilePath)
+                openEditorAction: () => OpenEditor(shaderMetadata)
             );
         }
 
-        static bool OpenEditor(Func<string> getFilePath)
+        static bool OpenEditor(ShaderMetadata shaderMetadata)
         {
-            var path = getFilePath?.Invoke();
+            var path = shaderMetadata?.FilePath;
             if (string.IsNullOrWhiteSpace(path))
                 return false;
 
