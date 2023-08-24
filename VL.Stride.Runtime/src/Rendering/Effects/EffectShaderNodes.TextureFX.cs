@@ -138,7 +138,7 @@ namespace VL.Stride.Rendering
                             var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var effect = new TextureFXEffect("TextureFXEffect") { Name = shaderName };
 
-                            BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var textureFXEffectMixin, effect.Parameters);
+                            var context = BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var textureFXEffectMixin, effect.Parameters);
 
                             //effect.Parameters.Set
                             var inputs = new List<IVLPin>();
@@ -158,7 +158,7 @@ namespace VL.Stride.Rendering
                                 else if (_input == _enabledInput)
                                     inputs.Add(enabledInput = nodeBuildContext.Input<bool>(v => effect.Enabled = v, effect.Enabled));
                                 else if (_input is ParameterPinDescription parameterPinDescription)
-                                    inputs.Add(parameterPinDescription.CreatePin(graphicsDevice, effect.Parameters));
+                                    inputs.Add(parameterPinDescription.CreatePin(context));
                                 else if (_input is ParameterKeyPinDescription<Texture> textureInput)
                                 {
                                     if (textureInput.Key.Name.StartsWith("Texturing.Texture"))

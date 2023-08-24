@@ -14,7 +14,7 @@ namespace VL.Stride.Shaders.ShaderFX
 {
     public class RaymarcherMatcap : Funk1In1Out<Vector2, Vector4>
     {
-        readonly ObjectParameterUpdater<Texture> updater = new ObjectParameterUpdater<Texture>();
+        readonly ObjectParameterUpdater<Texture> updater = new ObjectParameterUpdater<Texture>(default(ShaderGeneratorContext));
 
         public RaymarcherMatcap(string functionName, IEnumerable<KeyValuePair<string, IComputeNode>> inputs)
             : base(functionName, inputs)

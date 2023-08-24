@@ -1,9 +1,12 @@
-﻿using Stride.Rendering;
+﻿using Stride.Core.Mathematics;
+using Stride.Graphics;
+using Stride.Rendering;
 using Stride.Rendering.Materials;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reactive.Disposables;
+using System.Runtime.CompilerServices;
 
 namespace VL.Stride.Shaders.ShaderFX
 {
@@ -18,17 +21,17 @@ namespace VL.Stride.Shaders.ShaderFX
         private static readonly EqualityComparer<TValue> comparer = EqualityComparer<TValue>.Default;
 
         // In most of the cases the parameter collection is known from the start and no other will come into play (pin and effect are in the same node)
-        private readonly ParameterCollection parameters;
+        private readonly ShaderGeneratorContext singleContext;
 
         // In case we end up in a shader graph multiple parameter collections could pop up (one for every effect) we need to keep track of
-        private Dictionary<(ParameterCollection, TKey), RefCountDisposable> trackedCollections;
+        private Dictionary<(ShaderGeneratorContext, TKey), (RefCountDisposable subscription, ParameterCollection collection)> trackedContexts;
 
         private TValue value;
         private TKey key;
 
-        public ParameterUpdater(ParameterCollection parameters = default, TKey key = default)
+        public ParameterUpdater(ShaderGeneratorContext context = default, TKey key = default)
         {
-            this.parameters = parameters;
+            this.singleContext = context;
             this.key = key;
         }
 
@@ -41,28 +44,34 @@ namespace VL.Stride.Shaders.ShaderFX
                 {
                     this.value = value;
 
-                    if (parameters != null)
+                    if (singleContext != null)
                     {
-                        Upload(parameters, key, ref value);
+                        Upload(singleContext, key, ref value);
                     }
 
-                    if (trackedCollections != null)
+                    if (trackedContexts != null)
                     {
-                        foreach (var (parameters, key) in trackedCollections.Keys)
-                            Upload(parameters, key, ref value);
+                        foreach (var ((context, key), (_, parameters)) in trackedContexts)
+                        {
+                            // Little bit sad, but it Stride sets the Parameters property to null after generating its materials. Keep track of them manually.
+                            var currentParameters = context.Parameters;
+                            context.Parameters = parameters;
+                            Upload(context, key, ref value);
+                            context.Parameters = currentParameters;
+                        }
                     }
                 }
             }
         }
 
-        public ImmutableArray<ParameterCollection> GetTrackedCollections()
+        public ImmutableArray<ShaderGeneratorContext> GetTrackedConexts()
         {
-            if (trackedCollections is null)
-                return ImmutableArray<ParameterCollection>.Empty;
+            if (trackedContexts is null)
+                return ImmutableArray<ShaderGeneratorContext>.Empty;
 
-            var result = ImmutableArray.CreateBuilder<ParameterCollection>(trackedCollections.Count);
-            foreach (var (parameters, _) in trackedCollections.Keys)
-                result.Add(parameters);
+            var result = ImmutableArray.CreateBuilder<ShaderGeneratorContext>(trackedContexts.Count);
+            foreach (var (context, _) in trackedContexts.Keys)
+                result.Add(context);
             return result.ToImmutable();
         }
 
@@ -74,50 +83,72 @@ namespace VL.Stride.Shaders.ShaderFX
         public void Track(ShaderGeneratorContext context, TKey key)
         {
             if (context.TryGetSubscriptions(out var s))
-                s.Add(Subscribe(context.Parameters, key));
+                s.Add(Subscribe(context, key));
         }
 
-        public IDisposable Subscribe(ParameterCollection parameters, TKey key)
+        public IDisposable Subscribe(ShaderGeneratorContext context, TKey key)
         {
-            var x = (parameters, key);
+            var trackingKey = (context, key);
 
-            var trackedCollections = this.trackedCollections ??= new Dictionary<(ParameterCollection, TKey), RefCountDisposable>();
-            if (trackedCollections.TryGetValue(x, out var disposable))
-                return disposable.GetDisposable();
+            var trackedCollections = this.trackedContexts ??= new();
+            if (trackedCollections.TryGetValue(trackingKey, out var x))
+                return x.subscription.GetDisposable();
 
-            disposable = new RefCountDisposable(Disposable.Create(() => trackedCollections.Remove(x)));
-            trackedCollections.Add(x, disposable);
-            Upload(parameters, key, ref value);
-            return disposable;
+            x = (new RefCountDisposable(Disposable.Create(() => trackedCollections.Remove(trackingKey))), context.Parameters);
+            trackedCollections.Add(trackingKey, x);
+            Upload(context, key, ref value);
+            return x.subscription;
         }
 
-        protected abstract void Upload(ParameterCollection parameters, TKey key, ref TValue value);
+        protected abstract void Upload(ShaderGeneratorContext context, TKey key, ref TValue value);
     }
 
     public sealed class ValueParameterUpdater<T> : ParameterUpdater<T, ValueParameterKey<T>>
         where T : struct
     {
-        public ValueParameterUpdater(ParameterCollection parameters = null, ValueParameterKey<T> key = null) : base(parameters, key)
+        // ABI compatibility
+        [Obsolete("Will be removed in 6.0 release", error: true)]
+        public ValueParameterUpdater(ParameterCollection context = null, ValueParameterKey<T> key = null) : base(null, key)
         {
-
         }
 
-        protected override void Upload(ParameterCollection parameters, ValueParameterKey<T> key, ref T value)
+        public ValueParameterUpdater(ShaderGeneratorContext context, ValueParameterKey<T> key = null) : base(context, key)
         {
-            parameters.Set(key, ref value);
+        }
+
+        protected override void Upload(ShaderGeneratorContext context, ValueParameterKey<T> key, ref T value)
+        {
+            var parameters = context.Parameters;
+            if (typeof(T) == typeof(Color4))
+            {
+                var deviceColor = Unsafe.As<T, Color4>(ref value).ToColorSpace(context.ColorSpace);
+                var colorKey = Unsafe.As<ValueParameterKey<T>, ValueParameterKey<Color4>>(ref key);
+                parameters.Set(colorKey, ref deviceColor);
+            }
+            else
+            {
+                parameters.Set(key, ref value);
+            }
         }
     }
 
     public sealed class ArrayParameterUpdater<T> : ParameterUpdater<T[], ValueParameterKey<T>>
         where T : struct
     {
-        public ArrayParameterUpdater(ParameterCollection parameters = null, ValueParameterKey<T> key = null) : base(parameters, key)
+        // ABI compatibility
+        [Obsolete("Will be removed in 6.0 release", error: true)]
+        public ArrayParameterUpdater(ParameterCollection context = null, ValueParameterKey<T> key = null) : base(null, key)
+        {
+        }
+
+        public ArrayParameterUpdater(ShaderGeneratorContext context = null, ValueParameterKey<T> key = null) : base(context, key)
         {
 
         }
 
-        protected override void Upload(ParameterCollection parameters, ValueParameterKey<T> key, ref T[] value)
+        protected override void Upload(ShaderGeneratorContext context, ValueParameterKey<T> key, ref T[] value)
         {
+            var parameters = context.Parameters;
             if (value.Length > 0)
                 parameters.Set(key, value);
         }
@@ -126,26 +157,40 @@ namespace VL.Stride.Shaders.ShaderFX
     public sealed class ObjectParameterUpdater<T> : ParameterUpdater<T, ObjectParameterKey<T>>
         where T : class
     {
-        public ObjectParameterUpdater(ParameterCollection parameters = null, ObjectParameterKey<T> key = null) : base(parameters, key)
+        // ABI compatibility
+        [Obsolete("Will be removed in 6.0 release", error: true)]
+        public ObjectParameterUpdater(ParameterCollection context = null, ObjectParameterKey<T> key = null) : base(null, key)
+        {
+        }
+
+        public ObjectParameterUpdater(ShaderGeneratorContext context = null, ObjectParameterKey<T> key = null) : base(context, key)
         {
 
         }
 
-        protected override void Upload(ParameterCollection parameters, ObjectParameterKey<T> key, ref T value)
+        protected override void Upload(ShaderGeneratorContext context, ObjectParameterKey<T> key, ref T value)
         {
+            var parameters = context.Parameters;
             parameters.Set(key, value);
         }
     }
 
     public sealed class PermutationParameterUpdater<T> : ParameterUpdater<T, PermutationParameterKey<T>>
     {
-        public PermutationParameterUpdater(ParameterCollection parameters = null, PermutationParameterKey<T> key = null) : base(parameters, key)
+        // ABI compatibility
+        [Obsolete("Will be removed in 6.0 release", error: true)]
+        public PermutationParameterUpdater(ParameterCollection context = null, PermutationParameterKey<T> key = null) : base(null, key)
+        {
+        }
+
+        public PermutationParameterUpdater(ShaderGeneratorContext context = null, PermutationParameterKey<T> key = null) : base(context, key)
         {
 
         }
 
-        protected override void Upload(ParameterCollection parameters, PermutationParameterKey<T> key, ref T value)
+        protected override void Upload(ShaderGeneratorContext context, PermutationParameterKey<T> key, ref T value)
         {
+            var parameters = context.Parameters;
             parameters.Set(key, value);
         }
     }

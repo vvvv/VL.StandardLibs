@@ -8,7 +8,7 @@ namespace VL.Stride.Shaders.ShaderFX
     public class InputValue<T> : ComputeValue<T>
         where T : struct
     {
-        private readonly ValueParameterUpdater<T> updater = new ValueParameterUpdater<T>();
+        private readonly ValueParameterUpdater<T> updater = new ValueParameterUpdater<T>(default(ShaderGeneratorContext));
 
         public InputValue(ValueParameterKey<T> key = null, string constantBufferName = null)
         {

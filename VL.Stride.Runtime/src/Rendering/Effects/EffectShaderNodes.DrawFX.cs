@@ -2,6 +2,7 @@
 using Stride.Engine;
 using Stride.Graphics;
 using Stride.Rendering;
+using Stride.Rendering.Materials;
 using Stride.Shaders;
 using System;
 using System.Collections.Generic;
@@ -103,6 +104,7 @@ namespace VL.Stride.Rendering
                     (effectInstance, _, _) = 
                         CreateEffectInstance("DrawFXEffect", shaderName, shaderMetadata, serviceRegistry, graphicsDevice, effectBytecode: effectBytecode);
                     var effect = new CustomDrawEffect(effectInstance, graphicsDevice);
+                    var context = new ShaderGeneratorContext(graphicsDevice) { Parameters = effect.Parameters };
 
                     var inputs = new List<IVLPin>();
                     foreach (var _input in _inputs)
@@ -111,7 +113,7 @@ namespace VL.Stride.Rendering
                         if (_input == _parameterSetterInput)
                             inputs.Add(nodeBuildContext.Input<Action<ParameterCollection, RenderView, RenderDrawContext>>(v => effect.ParameterSetter = v));
                         else if (_input is ParameterPinDescription parameterPinDescription)
-                            inputs.Add(parameterPinDescription.CreatePin(game.GraphicsDevice, effect.Parameters));
+                            inputs.Add(parameterPinDescription.CreatePin(context));
                     }
 
                     var compositionPins = inputs.OfType<ShaderFXPin>().ToList();

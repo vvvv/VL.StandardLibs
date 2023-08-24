@@ -67,8 +67,8 @@ namespace VL.Stride.Rendering
                         {
                             var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var renderContext = RenderContext.GetShared(gameHandle.Resource.Services);
-                            var mixinParams = BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var shaderMixinSource);
-                            var effect = new VLComputeEffectShader(renderContext, shaderName, mixinParams);
+                            var context = BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var shaderMixinSource);
+                            var effect = new VLComputeEffectShader(renderContext, shaderName, context.Parameters);
                             var inputs = new List<IVLPin>();
                             var enabledInput = default(IVLPin);
                             foreach (var _input in _inputs)
@@ -81,7 +81,7 @@ namespace VL.Stride.Rendering
                                 else if (_input == _enabledInput)
                                     inputs.Add(enabledInput = nodeBuildContext.Input<bool>(v => effect.Enabled = v, effect.Enabled));
                                 else if (_input is ParameterPinDescription parameterPinDescription)
-                                    inputs.Add(parameterPinDescription.CreatePin(graphicsDevice, effect.Parameters));
+                                    inputs.Add(parameterPinDescription.CreatePin(context));
                             }
 
                             var compositionPins = inputs.OfType<ShaderFXPin>().ToList();
