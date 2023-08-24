@@ -16,9 +16,34 @@ namespace VL.IO.Redis
 {
     public static class RedisExtensions
     {
-        
+        public static ValueTuple<RedisCommandQueue, KeyValuePair<RedisKey, TInput>> Enqueue<TInput, TInputSerialized, TOutput>
+        (
+            ValueTuple<RedisCommandQueue, KeyValuePair<RedisKey,TInput>> input, 
+            Func<TInput, TInputSerialized> serialize, 
+            Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TOutput>> cmd, 
+            Guid guid
+        )
+        {
+            if (input.Item1._tran != null)
+            {
+                input.Item1.Cmds.Add(
+                    (tran) => cmd(tran, KeyValuePair.Create(input.Item2.Key,serialize(input.Item2.Value)))
+                        .ContinueWith(
+                            t => new KeyValuePair<Guid, object>(guid, (object)t.Result))
+                );
 
-        public static ValueTuple<RedisCommandQueue, TInput> Enqueue<TInput,TOutput>(ValueTuple<RedisCommandQueue,TInput> input, Func<ITransaction, TInput, Task<TOutput>> cmd, Guid guid, Optional<Func<TInput,IEnumerable<string>>> keys)
+                
+            }
+            return input;
+        }
+
+        public static ValueTuple<RedisCommandQueue, TInput> Enqueue<TInput,TOutput>
+        (
+            ValueTuple<RedisCommandQueue,TInput> input,
+            Func<ITransaction, TInput, Task<TOutput>> cmd, 
+            Guid guid, 
+            Optional<Func<TInput,IEnumerable<string>>> keys
+        )
         {
             if (input.Item1._tran != null)
             {
@@ -115,59 +140,59 @@ namespace VL.IO.Redis
                 return observable.Subscribe(async
                     // onNext
                     (queue) =>
-                {
-                    try
                     {
-                        var sw = Stopwatch.StartNew();
-
-                        if (queue._tran != null)
+                        try
                         {
-                            if (await queue._tran.ExecuteAsync())
+                            var sw = Stopwatch.StartNew();
+
+                            if (queue._tran != null)
                             {
-                                try
+                                if (await queue._tran.ExecuteAsync())
                                 {
-                                    var resultAwaiter = Task.WhenAll(queue.Tasks).GetAwaiter();
-
-                                    resultAwaiter.OnCompleted(() =>
+                                    try
                                     {
+                                        var resultAwaiter = Task.WhenAll(queue.Tasks).GetAwaiter();
 
-                                        Pooled<ImmutableDictionary<Guid, object>.Builder> pooled = Pooled.GetDictionaryBuilder<Guid, object>();
-                                        
-                                        foreach (var kv in resultAwaiter.GetResult())
+                                        resultAwaiter.OnCompleted(() =>
                                         {
-                                            pooled.Value.TryAdd(kv.Key, kv.Value);
+
+                                            Pooled<ImmutableDictionary<Guid, object>.Builder> pooled = Pooled.GetDictionaryBuilder<Guid, object>();
+                                        
+                                            foreach (var kv in resultAwaiter.GetResult())
+                                            {
+                                                pooled.Value.TryAdd(kv.Key, kv.Value);
                                             
-                                        }
-                                        syncObs.OnNext(pooled.ToImmutableAndFree());
+                                            }
+                                            syncObs.OnNext(pooled.ToImmutableAndFree());
                                        
 
-                                        //ImmutableDictionary<Guid, object>.Builder builder = ImmutableDictionary.CreateBuilder<Guid, object>();
-                                        //foreach (var kv in resultAwaiter.GetResult())
-                                        //{
-                                        //    builder.TryAdd(kv.Key, kv.Value);
+                                            //ImmutableDictionary<Guid, object>.Builder builder = ImmutableDictionary.CreateBuilder<Guid, object>();
+                                            //foreach (var kv in resultAwaiter.GetResult())
+                                            //{
+                                            //    builder.TryAdd(kv.Key, kv.Value);
 
-                                        //}
-                                        //syncObs.OnNext(builder.ToImmutable());
+                                            //}
+                                            //syncObs.OnNext(builder.ToImmutable());
 
 
-                                        action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond));
-                                        queue.Dispose();
-                                    });
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine(ex);
-                                    syncObs.OnError(ex);
+                                            action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond));
+                                            queue.Dispose();
+                                        });
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine(ex);
+                                        syncObs.OnError(ex);
+                                    }
                                 }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                            syncObs.OnError(ex);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex);
-                        syncObs.OnError(ex);
-                    }
-                }
                     // onError
                     , (ex) =>
                     {

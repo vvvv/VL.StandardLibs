@@ -9,13 +9,16 @@ using VL.Lib.Collections;
 
 namespace VL.IO.Redis
 {
-    public record RedisCommandQueue : IDisposable
+    public class RedisCommandQueue : IDisposable
     {
         internal Guid _id;
         internal ITransaction _tran;
 
+
+
         private Pooled<List<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>> pooledCmds = Pooled.GetList<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
         internal List<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> Cmds => pooledCmds.Value;
+
 
         private Pooled<ImmutableHashSet<string>.Builder> pooledChanges = Pooled.GetHashSetBuilder<string>();
         internal ImmutableHashSet<string>.Builder ChangesBuilder => pooledChanges.Value;
@@ -27,8 +30,6 @@ namespace VL.IO.Redis
         internal ImmutableHashSet<string> ReceivedChanges => pooledReceivedChanges.Value.ToImmutable();
 
 
-        internal SpreadBuilder<string> _receivedChanges;
-
         private Pooled<List<Task<KeyValuePair<Guid, object>>>> pooledtasks = Pooled.GetList<Task<KeyValuePair<Guid, object>>>();
 
         internal List<Task<KeyValuePair<Guid, object>>> Tasks => pooledtasks.Value;
@@ -38,7 +39,6 @@ namespace VL.IO.Redis
         {
             _id                 = id;
             _tran               = database.CreateTransaction();
-            _receivedChanges    = new SpreadBuilder<string>();
         }
 
         public void Dispose()
