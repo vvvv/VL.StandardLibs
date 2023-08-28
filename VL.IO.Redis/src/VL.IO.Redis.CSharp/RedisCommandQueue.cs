@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using VL.Core;
 using VL.Core.Utils;
 using VL.Lib.Collections;
 
@@ -14,11 +15,8 @@ namespace VL.IO.Redis
         internal Guid _id;
         internal ITransaction _tran;
 
-
-
-        private Pooled<List<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>> pooledCmds = Pooled.GetList<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
-        internal List<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> Cmds => pooledCmds.Value;
-
+        private Pooled<List<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>>> pooledCmds = Pooled.GetList<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>>();
+        internal List<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>> Cmds => pooledCmds.Value;
 
         private Pooled<ImmutableHashSet<string>.Builder> pooledChanges = Pooled.GetHashSetBuilder<string>();
         internal ImmutableHashSet<string>.Builder ChangesBuilder => pooledChanges.Value;

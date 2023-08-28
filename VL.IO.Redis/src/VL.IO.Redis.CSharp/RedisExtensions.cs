@@ -18,46 +18,44 @@ namespace VL.IO.Redis
     {
         public static ValueTuple<RedisCommandQueue, KeyValuePair<RedisKey, TInput>> Enqueue<TInput, TInputSerialized, TOutput>
         (
-            ValueTuple<RedisCommandQueue, KeyValuePair<RedisKey,TInput>> input, 
-            Func<TInput, TInputSerialized> serialize, 
-            Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TOutput>> cmd, 
+            ValueTuple<RedisCommandQueue, KeyValuePair<RedisKey, TInput>> input,
+            Func<TInput, TInputSerialized> serialize,
+            Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TOutput>> cmd,
+            Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges,
             Guid guid
         )
         {
             if (input.Item1._tran != null)
             {
-                input.Item1.Cmds.Add(
-                    (tran) => cmd(tran, KeyValuePair.Create(input.Item2.Key,serialize(input.Item2.Value)))
-                        .ContinueWith(
-                            t => new KeyValuePair<Guid, object>(guid, (object)t.Result))
+                input.Item1.Cmds.Add
+                (
+                    (tran) => ValueTuple.Create 
+                    (
+                        cmd(tran, KeyValuePair.Create(input.Item2.Key, serialize(input.Item2.Value))).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)),
+                        pushChanges.HasValue ? pushChanges.Value(input.Item2.Key) : Enumerable.Empty<RedisKey>()
+                    )
                 );
-
-                
             }
             return input;
         }
 
-        public static ValueTuple<RedisCommandQueue, TInput> Enqueue<TInput,TOutput>
+        public static ValueTuple<RedisCommandQueue, TInput> Enqueue<TInput, TOutput>
         (
-            ValueTuple<RedisCommandQueue,TInput> input,
-            Func<ITransaction, TInput, Task<TOutput>> cmd, 
-            Guid guid, 
-            Optional<Func<TInput,IEnumerable<string>>> keys
+            ValueTuple<RedisCommandQueue, TInput> input,
+            Func<ITransaction, TInput, Task<TOutput>> cmd,
+            Guid guid,
+            Optional<Func<TInput, IEnumerable<string>>> keys
         )
         {
             if (input.Item1._tran != null)
             {
                 input.Item1.Cmds.Add(
-                    (tran) => cmd.Invoke(tran, input.Item2)
-                        .ContinueWith(
-                            t => new KeyValuePair<Guid, object>(guid, (object)t.Result))
+                    (tran) => ValueTuple.Create
+                    (
+                        cmd.Invoke(tran, input.Item2).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)),
+                        keys.HasValue ? keys.Value.Invoke(input.Item2).Select(k => new RedisKey(k)) : Enumerable.Empty<RedisKey>()
+                    )   
                 );
-
-                if (keys.HasValue)
-                {
-                    input.Item1.ChangesBuilder.UnionWith(keys.Value.Invoke(input.Item2));
-
-                }
             }
             return input;
         }
@@ -89,24 +87,20 @@ namespace VL.IO.Redis
 
                         if (queue._tran != null)
                         {
+                            foreach (var cmd in queue.Cmds)
+                            {
+                                var taskKey = cmd(queue._tran);
+                                queue.Tasks.Add(taskKey.Item1);
+                                queue.ChangesBuilder.UnionWith(taskKey.Item2.Select(v => v.ToString()));
+                            }
                             if (!queue.ChangesBuilder.IsEmpty())
                             {
                                 var p = publishChanges.Invoke(queue.Changes);
-                                if (p.Item4)
-                                {
-                                    queue.Tasks.Add(queue._tran.PublishAsync(new RedisChannel(p.Item2 + "_" + queue._id.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(queue._id, (object)t.Result)));
-                                    //queue._tasks.Add(queue._tran.PublishAsync(new RedisChannel(p.Item2 + "_" + guid.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)));
-                                    //queue._tasks.Add(queue._tran.PublishAsync(new RedisChannel(p.Item2 + "_" + guid.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)));
-                                } 
+                                queue.Tasks.Add(queue._tran.PublishAsync(new RedisChannel(p.Item2 + "_" + queue._id.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(queue._id, (object)t.Result)));
                             }
-                                
-                            foreach (var cmd in queue.Cmds)
-                            {
-                                queue.Tasks.Add(cmd(queue._tran));
-                            }
-                            action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond), queue.Tasks.Count);
+                           action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond), queue.Tasks.Count);
 
-                            syncObs.OnNext(queue);
+                           syncObs.OnNext(queue);
                         }
                     }
                     catch (Exception ex)
