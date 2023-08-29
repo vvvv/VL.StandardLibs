@@ -27,7 +27,7 @@ namespace VL.Stride.Rendering
             return new(GetNodeDescriptions(serviceRegistry, factory), forPath: path => factory =>
             {
                 // In case "shaders" directory gets added or deleted invalidate the whole factory
-                var invalidated = NodeBuilding.WatchDir(path)
+                var invalidated = FileSystemUtils.WatchDir(path)
                     .Where(e => (e.ChangeType == WatcherChangeTypes.Created || e.ChangeType == WatcherChangeTypes.Deleted || e.ChangeType == WatcherChangeTypes.Renamed) && e.Name == EffectCompilerBase.DefaultSourceShaderFolder);
 
                 // File provider crashes if directory doesn't exist :/
@@ -38,7 +38,7 @@ namespace VL.Stride.Rendering
                     {
                         var nodes = GetNodeDescriptions(serviceRegistry, factory, path, shadersPath);
                         // Additionaly watch out for new/deleted/renamed files
-                        invalidated = invalidated.Merge(NodeBuilding.WatchDir(shadersPath)
+                        invalidated = invalidated.Merge(FileSystemUtils.WatchDir(shadersPath, includeSubdirectories: true)
                             .Where(e => IsNewOrDeletedShaderFile(e)));
                         return NodeBuilding.NewFactoryImpl(nodes.ToImmutableArray(), invalidated,
                             export: c =>
@@ -101,14 +101,14 @@ namespace VL.Stride.Rendering
             var dbFileProvider = effectSystem.FileProvider; //should include current path
             var sourceManager = dbFileProvider.GetShaderSourceManager();
             if (path != null)
-                fileProvider = new FileSystemProvider(null, path);
+                fileProvider = effectSystem.GetFileProviderForSpecificPath(path);
             else
                 fileProvider = contentManager.FileProvider;
 
 
             EffectUtils.ResetParserCache();
 
-            foreach (var file in fileProvider.ListFiles(EffectCompilerBase.DefaultSourceShaderFolder, sdslFileFilter, VirtualSearchOption.TopDirectoryOnly))
+            foreach (var file in fileProvider.ListFiles(EffectCompilerBase.DefaultSourceShaderFolder, sdslFileFilter, VirtualSearchOption.AllDirectories))
             {
                 var effectName = Path.GetFileNameWithoutExtension(file);
                 if (effectName.EndsWith(drawFXSuffix))
