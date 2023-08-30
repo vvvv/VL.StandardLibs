@@ -34,6 +34,9 @@ namespace VL.Stride.Core
         public static string GetPathToAssetDatabase()
         {
             var thisDirectory = Path.GetDirectoryName(typeof(Initialization).Assembly.Location);
+            if (thisDirectory is null)
+                return null; // Exported single file exe
+
             var dataDir = Path.Combine(thisDirectory, "data");
             if (Directory.Exists(dataDir))
                 return dataDir;

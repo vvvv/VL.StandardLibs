@@ -42,6 +42,8 @@ namespace VL.Stride.Rendering
 
         public bool DontConvertToSRgbOnOnWrite { get; private set; }
 
+        public string FilePath { get; init; }
+
         public void GetPixelFormats(out PixelFormat outputFormat, out PixelFormat renderFormat)
         {
 
@@ -342,7 +344,10 @@ namespace VL.Stride.Rendering
         public static ShaderMetadata CreateMetadata(string effectName, IVirtualFileProvider fileProvider, ShaderSourceManager shaderSourceManager)
         {
             //create metadata with default values
-            var shaderMetadata = new ShaderMetadata();
+            var shaderMetadata = new ShaderMetadata()
+            {
+                FilePath = EffectUtils.GetPathOfSdslShader(effectName, fileProvider)
+            };
 
             //try to populate metdata with information form the shader
             if (fileProvider.TryParseEffect(effectName, shaderSourceManager, out var result))
