@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace VL.System.Logging
 {
+    /// <summary>
+    /// Broadcasts all logged messages via the <see cref="LogEvents"/> property.
+    /// </summary>
     [ProviderAlias("VLLog")]
     public sealed class LogMessageBroker : ILoggerProvider
     {

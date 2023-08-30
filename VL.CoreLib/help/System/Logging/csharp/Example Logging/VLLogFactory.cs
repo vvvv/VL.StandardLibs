@@ -3,6 +3,11 @@ using VL.Core;
 
 namespace VL.System.Logging
 {
+    /// <summary>
+    /// Publishes all logged messages via a message broker (<see cref="Broker"/>) and allows to create loggers bound to
+    /// a specific <see cref="NodeContext"/>. Those loggers will automatically attach their node context to each log message
+    /// which in turn can later be accessed via the <see cref="LogMessage.NodeContext"/> property.
+    /// </summary>
     public sealed class VLLogFactory : ILoggerFactory
     {
         public static VLLogFactory GetForApp(AppHost appHost)
