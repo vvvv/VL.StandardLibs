@@ -50,7 +50,7 @@ namespace VL.Core
         /// <summary>
         /// Creates a new sub context.
         /// </summary>
-        public NodeContext CreateSubContext(string documentId, string elementId, uint volatileId) => CreateSubContext(new UniqueId(documentId, elementId, volatileId));
+        public NodeContext CreateSubContext(string documentId, string elementId) => CreateSubContext(new UniqueId(documentId, elementId));
 
         /// <summary>
         /// Creates a new sub context.

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
+using VL.Lib.Collections;
 
 namespace VL.System.Logging
 {
@@ -29,6 +30,12 @@ namespace VL.System.Logging
             builder.Services.Configure(configure);
 
             return builder;
+        }
+
+        public static void Log(this ILogger logger, LogLevel logLevel, string message, Spread<object> args)
+        {
+            if (logger.IsEnabled(logLevel))
+                logger.Log(logLevel, message, args.GetInternalArray());
         }
     }
 }

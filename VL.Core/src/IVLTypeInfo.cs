@@ -25,7 +25,7 @@ namespace VL.Core
         /// </summary>
         string FullName { get; }
 
-        string PersistentId { get; }
+        UniqueId Id { get; }
 
         /// <summary>
         /// The CLR type.
