@@ -16,22 +16,50 @@ namespace VL.IO.Redis
 {
     public static class RedisExtensions
     {
-        public static ValueTuple<RedisCommandQueue, KeyValuePair<RedisKey, TInput>> Enqueue<TInput, TInputSerialized, TOutput>
+        public static Guid getID(this RedisCommandQueue queue) { return queue._id; }
+
+        public static RedisCommandQueue GetWhenChangeReceived<TOutput>
+        (
+            RedisCommandQueue queue, 
+            RedisKey key,
+            Func<ITransaction, RedisKey, Task<TOutput>> RedisChangedCommand,
+            Guid guid,
+            out bool ChangeReceived
+        )
+        {
+            ChangeReceived = queue.ReceivedChangesBuilder.Contains(key) && queue.ReceivedChangesBuilder.Count > 0 ;
+
+            if (queue._tran != null && ChangeReceived) 
+            {
+                queue.Cmds.Enqueue
+                (
+                    (tran) => ValueTuple.Create
+                    (
+                        RedisChangedCommand(tran, key).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)),
+                        Enumerable.Empty<RedisKey>()
+                    )
+                );
+            }
+            return queue;
+        }
+
+
+        public static ValueTuple<RedisCommandQueue, KeyValuePair<RedisKey, TInput>> SerializeSetAndPushChanges<TInput, TInputSerialized, TOutput>
         (
             ValueTuple<RedisCommandQueue, KeyValuePair<RedisKey, TInput>> input,
             Func<TInput, TInputSerialized> serialize,
-            Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TOutput>> cmd,
+            Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TOutput>> ChannelChangedCommand,
             Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges,
             Guid guid
         )
         {
             if (input.Item1._tran != null)
             {
-                input.Item1.Cmds.Add
+                input.Item1.Cmds.Enqueue
                 (
                     (tran) => ValueTuple.Create 
                     (
-                        cmd(tran, KeyValuePair.Create(input.Item2.Key, serialize(input.Item2.Value))).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)),
+                        ChannelChangedCommand(tran, KeyValuePair.Create(input.Item2.Key, serialize(input.Item2.Value))).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)),
                         pushChanges.HasValue ? pushChanges.Value(input.Item2.Key) : Enumerable.Empty<RedisKey>()
                     )
                 );
@@ -49,7 +77,7 @@ namespace VL.IO.Redis
         {
             if (input.Item1._tran != null)
             {
-                input.Item1.Cmds.Add(
+                input.Item1.Cmds.Enqueue(
                     (tran) => ValueTuple.Create
                     (
                         cmd.Invoke(tran, input.Item2).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)),
@@ -68,7 +96,7 @@ namespace VL.IO.Redis
 
         public static ImmutableHashSet<string> GetReceivedChanges(this RedisCommandQueue queue)
         {
-            return queue.ReceivedChanges;
+            return queue.ReceivedChangesBuilder.ToImmutable();
         }
 
         public static IObservable<RedisCommandQueue> ApplyTransactions(this IObservable<RedisCommandQueue> observable, Action<float, int> action, Func<ImmutableHashSet<string>,Tuple<RedisValue,string,RedisChannel.PatternMode,bool>> publishChanges)
@@ -85,23 +113,24 @@ namespace VL.IO.Redis
                     {
                         var sw = Stopwatch.StartNew();
 
-                        if (queue._tran != null)
+                        if (queue._tran == null)
                         {
-                            foreach (var cmd in queue.Cmds)
-                            {
-                                var taskKey = cmd(queue._tran);
-                                queue.Tasks.Add(taskKey.Item1);
-                                queue.ChangesBuilder.UnionWith(taskKey.Item2.Select(v => v.ToString()));
-                            }
-                            if (!queue.ChangesBuilder.IsEmpty())
-                            {
-                                var p = publishChanges.Invoke(queue.Changes);
-                                queue.Tasks.Add(queue._tran.PublishAsync(new RedisChannel(p.Item2 + "_" + queue._id.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(queue._id, (object)t.Result)));
-                            }
-                           action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond), queue.Tasks.Count);
-
-                           syncObs.OnNext(queue);
+                            return;
                         }
+                        foreach (var cmd in queue.Cmds)
+                        {
+                            var taskKey = cmd(queue._tran);
+                            queue.Tasks.Enqueue(taskKey.Item1);
+                            queue.ChangesBuilder.UnionWith(taskKey.Item2.Select(v => v.ToString()));
+                        }
+                        if (!queue.ChangesBuilder.IsEmpty())
+                        {
+                            var p = publishChanges.Invoke(queue.ChangesBuilder.ToImmutable());
+                            queue.Tasks.Enqueue(queue._tran.PublishAsync(new RedisChannel(p.Item2 + "_" + queue._id.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(queue._id, (object)t.Result)));
+                        }
+                        action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond), queue.Tasks.Count);
+
+                        syncObs.OnNext(queue);
                     }
                     catch (Exception ex)
                     {
@@ -150,23 +179,23 @@ namespace VL.IO.Redis
                                         resultAwaiter.OnCompleted(() =>
                                         {
 
-                                            Pooled<ImmutableDictionary<Guid, object>.Builder> pooled = Pooled.GetDictionaryBuilder<Guid, object>();
-                                        
-                                            foreach (var kv in resultAwaiter.GetResult())
-                                            {
-                                                pooled.Value.TryAdd(kv.Key, kv.Value);
-                                            
-                                            }
-                                            syncObs.OnNext(pooled.ToImmutableAndFree());
-                                       
+                                            //Pooled<ImmutableDictionary<Guid, object>.Builder> pooled = Pooled.GetDictionaryBuilder<Guid, object>();
 
-                                            //ImmutableDictionary<Guid, object>.Builder builder = ImmutableDictionary.CreateBuilder<Guid, object>();
                                             //foreach (var kv in resultAwaiter.GetResult())
                                             //{
-                                            //    builder.TryAdd(kv.Key, kv.Value);
+                                            //    pooled.Value.TryAdd(kv.Key, kv.Value);
 
                                             //}
-                                            //syncObs.OnNext(builder.ToImmutable());
+                                            //syncObs.OnNext(pooled.ToImmutableAndFree());
+
+
+                                            ImmutableDictionary<Guid, object>.Builder builder = ImmutableDictionary.CreateBuilder<Guid, object>();
+                                            foreach (var kv in resultAwaiter.GetResult())
+                                            {
+                                                builder.TryAdd(kv.Key, kv.Value);
+
+                                            }
+                                            syncObs.OnNext(builder.ToImmutable());
 
 
                                             action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond));
@@ -178,6 +207,11 @@ namespace VL.IO.Redis
                                         Console.WriteLine(ex);
                                         syncObs.OnError(ex);
                                     }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("TransactionFailed");
+                                    syncObs.OnError(new Exception("TransactionFailed"));
                                 }
                             }
                         }

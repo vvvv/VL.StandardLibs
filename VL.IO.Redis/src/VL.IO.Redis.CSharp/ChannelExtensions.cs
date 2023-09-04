@@ -59,15 +59,24 @@ namespace VL.IO.Redis
             return channel;
         }
 
-        public static IObservable<KeyValuePair<RedisKey, T>> ToKeyValueObservable<T>(this IChannel<T> channel)
+        public static IObservable<KeyValuePair<RedisKey, T>> ToKeyValueObservable<T>(this IChannel<T> channel, out IObservable<RedisKey> key)
         {
+
+            key = Observable.Start(
+                () => 
+                { 
+                    return channel.Components.OfType<RedisKey>().FirstOrDefault(); 
+                }
+            );
+
             return Observable.Create<KeyValuePair<RedisKey, T>>((obs) =>
             {
                 var syncObs = Observer.Synchronize(obs);
                 return channel.Subscribe(
                     (v) =>
                     {
-                        syncObs.OnNext(KeyValuePair.Create(channel.Components.OfType<RedisKey>().FirstOrDefault(), v));
+                        if (channel.LatestAuthor != "RedisOther")
+                            syncObs.OnNext(KeyValuePair.Create(channel.Components.OfType<RedisKey>().FirstOrDefault(), v));
                     },
                     (ex) =>
                     {

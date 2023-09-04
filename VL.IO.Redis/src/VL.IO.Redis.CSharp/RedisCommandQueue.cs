@@ -12,25 +12,27 @@ namespace VL.IO.Redis
 {
     public class RedisCommandQueue : IDisposable
     {
-        internal Guid _id;
-        internal ITransaction _tran;
-
-        private Pooled<List<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>>> pooledCmds = Pooled.GetList<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>>();
-        internal List<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>> Cmds => pooledCmds.Value;
-
-        private Pooled<ImmutableHashSet<string>.Builder> pooledChanges = Pooled.GetHashSetBuilder<string>();
-        internal ImmutableHashSet<string>.Builder ChangesBuilder => pooledChanges.Value;
-        internal ImmutableHashSet<string> Changes => pooledChanges.Value.ToImmutable();
+        internal  Guid _id;
 
 
-        private Pooled<ImmutableHashSet<string>.Builder> pooledReceivedChanges = Pooled.GetHashSetBuilder<string>();
-        internal ImmutableHashSet<string>.Builder ReceivedChangesBuilder => pooledReceivedChanges.Value;
-        internal ImmutableHashSet<string> ReceivedChanges => pooledReceivedChanges.Value.ToImmutable();
+        internal  ITransaction _tran;
+
+        //private Pooled<ConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>>> pooledCmds = CustomPooled.GetConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>>();
+        internal ConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>> Cmds = new ConcurrentQueue<Func<ITransaction, (Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>)>>(); // => pooledCmds.Value;
+
+        //private Pooled<ImmutableHashSet<string>.Builder> pooledChanges = Pooled.GetHashSetBuilder<string>();
+        internal ImmutableHashSet<string>.Builder ChangesBuilder = ImmutableHashSet.CreateBuilder<string>(); // => pooledChanges.Value;
+        //internal ImmutableHashSet<string> Changes = ChangesBuilder.ToImmutable();// => pooledChanges.Value.ToImmutable();
 
 
-        private Pooled<List<Task<KeyValuePair<Guid, object>>>> pooledtasks = Pooled.GetList<Task<KeyValuePair<Guid, object>>>();
+        //private Pooled<ImmutableHashSet<string>.Builder> pooledReceivedChanges = Pooled.GetHashSetBuilder<string>();
+        internal ImmutableHashSet<string>.Builder ReceivedChangesBuilder = ImmutableHashSet.CreateBuilder<string>(); //=> pooledReceivedChanges.Value;
+        //internal ImmutableHashSet<string> ReceivedChanges = ReceivedChangesBuilder.ToImmutable(); //=> pooledReceivedChanges.Value.ToImmutable();
 
-        internal List<Task<KeyValuePair<Guid, object>>> Tasks => pooledtasks.Value;
+
+        //private Pooled<ConcurrentQueue<Task<KeyValuePair<Guid, object>>>> pooledtasks = CustomPooled.GetConcurrentQueue<Task<KeyValuePair<Guid, object>>>();
+
+        internal  ConcurrentQueue<Task<KeyValuePair<Guid, object>>> Tasks = new ConcurrentQueue<Task<KeyValuePair<Guid, object>>>(); // => pooledtasks.Value;
 
 
         public RedisCommandQueue(Guid id, IDatabase database)
@@ -41,22 +43,22 @@ namespace VL.IO.Redis
 
         public void Dispose()
         {
-            try
-            {
-                foreach (var task in Tasks)
-                {
-                    if (task.Status == TaskStatus.RanToCompletion || task.Status == TaskStatus.Canceled || task.Status == TaskStatus.Faulted)
-                        task.Dispose();
-                }
-                pooledtasks.Dispose();
-            }
-            catch (Exception e) 
-            {
+            //try
+            //{
+            //    foreach (var task in Tasks)
+            //    {
+            //        if (task.Status == TaskStatus.RanToCompletion || task.Status == TaskStatus.Canceled || task.Status == TaskStatus.Faulted)
+            //            task.Dispose();
+            //    }
+            //    pooledtasks.Dispose();
+            //}
+            //catch (Exception e) 
+            //{
                 
-            }
-            pooledCmds.Dispose();
-            pooledChanges.Dispose();
-            pooledReceivedChanges.Dispose();
+            //}
+            //pooledCmds.Dispose();
+            //pooledChanges.Dispose();
+            //pooledReceivedChanges.Dispose();
         }
     }
 }
