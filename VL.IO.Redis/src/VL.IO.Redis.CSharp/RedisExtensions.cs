@@ -14,6 +14,20 @@ using VL.Core.Utils;
 
 namespace VL.IO.Redis
 {
+    public enum Initialisation
+    {
+        None = 0,
+        Local = 1,
+        Redis = 2,
+    }
+
+    public enum CollisionHandling
+    {
+        None = 0,
+        LocalWins = 1,
+        RedisWins = 2,
+    }
+
     public static class RedisExtensions
     {
         public static Guid getID(this RedisCommandQueue queue) { return queue._id; }
@@ -29,7 +43,7 @@ namespace VL.IO.Redis
         {
             ChangeReceived = queue.ReceivedChangesBuilder.Contains(key) && queue.ReceivedChangesBuilder.Count > 0 ;
 
-            if (queue._tran != null && ChangeReceived) 
+            if (queue.Transaction != null && ChangeReceived) 
             {
                 queue.Cmds.Enqueue
                 (
@@ -53,7 +67,7 @@ namespace VL.IO.Redis
             Guid guid
         )
         {
-            if (input.Item1._tran != null)
+            if (input.Item1.Transaction != null)
             {
                 input.Item1.Cmds.Enqueue
                 (
@@ -75,7 +89,7 @@ namespace VL.IO.Redis
             Optional<Func<TInput, IEnumerable<string>>> keys
         )
         {
-            if (input.Item1._tran != null)
+            if (input.Item1.Transaction != null)
             {
                 input.Item1.Cmds.Enqueue(
                     (tran) => ValueTuple.Create
@@ -113,20 +127,20 @@ namespace VL.IO.Redis
                     {
                         var sw = Stopwatch.StartNew();
 
-                        if (queue._tran == null)
+                        if (queue.Transaction == null)
                         {
                             return;
                         }
                         foreach (var cmd in queue.Cmds)
                         {
-                            var taskKey = cmd(queue._tran);
+                            var taskKey = cmd(queue.Transaction);
                             queue.Tasks.Enqueue(taskKey.Item1);
                             queue.ChangesBuilder.UnionWith(taskKey.Item2.Select(v => v.ToString()));
                         }
                         if (!queue.ChangesBuilder.IsEmpty())
                         {
                             var p = publishChanges.Invoke(queue.ChangesBuilder.ToImmutable());
-                            queue.Tasks.Enqueue(queue._tran.PublishAsync(new RedisChannel(p.Item2 + "_" + queue._id.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(queue._id, (object)t.Result)));
+                            queue.Tasks.Enqueue(queue.Transaction.PublishAsync(new RedisChannel(p.Item2 + "_" + queue._id.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(queue._id, (object)t.Result)));
                         }
                         action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond), queue.Tasks.Count);
 
@@ -168,9 +182,9 @@ namespace VL.IO.Redis
                         {
                             var sw = Stopwatch.StartNew();
 
-                            if (queue._tran != null)
+                            if (queue.Transaction != null)
                             {
-                                if (await queue._tran.ExecuteAsync())
+                                if (await queue.Transaction.ExecuteAsync())
                                 {
                                     try
                                     {
@@ -197,9 +211,7 @@ namespace VL.IO.Redis
                                             }
                                             syncObs.OnNext(builder.ToImmutable());
 
-
                                             action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond));
-                                            queue.Dispose();
                                         });
                                     }
                                     catch (Exception ex)
