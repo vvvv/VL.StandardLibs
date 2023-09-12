@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32.SafeHandles;
+﻿using Collections.Pooled;
+using Microsoft.Win32.SafeHandles;
 using StackExchange.Redis;
 using System;
 using System.Collections.Concurrent;
@@ -19,23 +20,11 @@ namespace VL.IO.Redis
 
         internal  ITransaction Transaction;
 
-        //private Pooled<ConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>>> pooledCmds = CustomPooled.GetConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>>();
-        internal ConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>> Cmds = new ConcurrentQueue<Func<ITransaction, (Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>)>>(); // => pooledCmds.Value;
+        internal ConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>> Cmds = new ConcurrentQueue<Func<ITransaction, (Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>)>>();
+        internal ConcurrentQueue<Task<KeyValuePair<Guid, object>>> Tasks = new ConcurrentQueue<Task<KeyValuePair<Guid, object>>>();
 
-        //private Pooled<ImmutableHashSet<string>.Builder> pooledChanges = Pooled.GetHashSetBuilder<string>();
-        internal ImmutableHashSet<string>.Builder ChangesBuilder = ImmutableHashSet.CreateBuilder<string>(); // => pooledChanges.Value;
-        //internal ImmutableHashSet<string> Changes = ChangesBuilder.ToImmutable();// => pooledChanges.Value.ToImmutable();
-
-
-        //private Pooled<ImmutableHashSet<string>.Builder> pooledReceivedChanges = Pooled.GetHashSetBuilder<string>();
-        internal ImmutableHashSet<string>.Builder ReceivedChangesBuilder = ImmutableHashSet.CreateBuilder<string>(); //=> pooledReceivedChanges.Value;
-        //internal ImmutableHashSet<string> ReceivedChanges = ReceivedChangesBuilder.ToImmutable(); //=> pooledReceivedChanges.Value.ToImmutable();
-
-
-        //private Pooled<ConcurrentQueue<Task<KeyValuePair<Guid, object>>>> pooledtasks = CustomPooled.GetConcurrentQueue<Task<KeyValuePair<Guid, object>>>();
-
-        internal  ConcurrentQueue<Task<KeyValuePair<Guid, object>>> Tasks = new ConcurrentQueue<Task<KeyValuePair<Guid, object>>>(); // => pooledtasks.Value;
-
+        internal PooledSet<string> Changes = new PooledSet<string>();
+        internal PooledSet<string> ReceivedChanges = new PooledSet<string>();
 
         public RedisCommandQueue(Guid id)
         {
@@ -50,8 +39,8 @@ namespace VL.IO.Redis
         public void Clear()
         {
             Cmds.Clear();
-            ChangesBuilder.Clear();
-            ReceivedChangesBuilder.Clear();
+            Changes.Clear();
+            ReceivedChanges.Clear();
             try
             {
                 foreach (var task in Tasks)
@@ -108,8 +97,8 @@ namespace VL.IO.Redis
                 }
                 Tasks.Clear();
                 Cmds.Clear();
-                ChangesBuilder.Clear();
-                ReceivedChangesBuilder.Clear();
+                Changes.Dispose();
+                ReceivedChanges.Dispose();
 
                 _disposedValue = true;
             }

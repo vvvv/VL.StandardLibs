@@ -71,6 +71,7 @@ namespace VL.IO.Redis
         public static IObservable<TResult> SelectOrWithLatestFrom<TFirst, TSecond, TResult>(IObservable<TFirst> first, IObservable<TSecond> second, Func<TFirst, TResult> select, Func<TResult, TSecond, TResult> WithLatestFromSecondWhenFirst)
         {
             var secondRef = second.Publish().RefCount();
+            //  var firstTransformedRef = first.WithLatestFrom(second.StartWith(new[] { default(TSecond) })).Select((t) => select(t.Item1,t.Item2)).Publish().RefCount();
             var firstTransformedRef = first.Select(select).Publish().RefCount();
 
             return Observable.Join(
