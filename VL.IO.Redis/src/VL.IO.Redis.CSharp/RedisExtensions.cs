@@ -15,6 +15,7 @@ using Stride.Core;
 using VL.Lib.Reactive;
 using System.Reactive.Subjects;
 using System.Data.SqlTypes;
+using VL.Core.Reactive;
 
 namespace VL.IO.Redis
 {
@@ -27,14 +28,12 @@ namespace VL.IO.Redis
         public static IObservable<RedisCommandQueue> RedisChangedCommand<TOutput>(
             IObservable<RedisBindingModel> model, 
             IObservable<Unit> enabled, 
-            IObservable<RedisCommandQueue> queue,
-            Func<ITransaction, RedisKey, Task<TOutput>> RedisChangedCommand,
-            Guid getGuid)
+            Func<ITransaction, RedisKey, Task<TOutput>> RedisChangedCommand)
         {
             bool firstFrame = true;
 
             return ReactiveExtensions
-                .WithLatestWhenNew(enabled, queue, (f, s) => s)
+                .WithLatestWhenNew(enabled, /*queue*/ model.Wait().AfterFrame, (f, s) => s)
                 .WithLatestFrom(model,
                 (queue, model) =>
                 {
@@ -42,20 +41,20 @@ namespace VL.IO.Redis
                     {
                         if
                         (
-                            (model.BindingType == RedisBindingType.Receive || model.BindingType == RedisBindingType.SendAndReceive) &&
+                            (model.BindingType == BindingType.Receive || model.BindingType == BindingType.SendAndReceive) &&
                             (
                                 (queue.ReceivedChanges.Contains(model.Key) && queue.ReceivedChanges.Count > 0) ||
                                 (firstFrame && model.Initialisation == Initialisation.Redis)
                             )
-                            ||
-                            model.BindingType == RedisBindingType.AllwaysReceive
+                            //||
+                            //model.BindingType == BindingType.AllwaysReceive
                         )
                         {
                             queue.Cmds.Enqueue
                             (
                                 (tran) => ValueTuple.Create
                                 (
-                                    RedisChangedCommand(tran, model.Key).ContinueWith(t => new KeyValuePair<Guid, object>(getGuid, (object)t.Result)),
+                                    RedisChangedCommand(tran, model.Key).ContinueWith(t => new KeyValuePair<Guid, object>(model.getID, (object)t.Result)),
                                     Enumerable.Empty<RedisKey>()
                                 )
                             );
@@ -72,8 +71,7 @@ namespace VL.IO.Redis
             IObservable<RedisCommandQueue> queue,
             Func<TInput, TInputSerialized> serialize,
             Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TOutput>> ChannelChangedCommand,
-            Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges,
-            Guid setGuid)
+            Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges)
         {
             return ReactiveExtensions.
                 WithLatestWhenNew(channel, queue, (c, q) =>
@@ -88,13 +86,13 @@ namespace VL.IO.Redis
 
                     if (queue.Transaction != null)
                     {
-                        if (model.BindingType == RedisBindingType.Send || model.BindingType == RedisBindingType.SendAndReceive)
+                        if (model.BindingType == BindingType.Send || model.BindingType == BindingType.SendAndReceive)
                         {
                             queue.Cmds.Enqueue
                             (
                                 (tran) => ValueTuple.Create
                                 (
-                                    ChannelChangedCommand(tran, KeyValuePair.Create(model.Key, serialize(value))).ContinueWith(t => new KeyValuePair<Guid, object>(setGuid, (object)t.Result)),
+                                    ChannelChangedCommand(tran, KeyValuePair.Create(model.Key, serialize(value))).ContinueWith(t => new KeyValuePair<Guid, object>(model.setID, (object)t.Result)),
                                     pushChanges.HasValue ? pushChanges.Value(model.Key) : Enumerable.Empty<RedisKey>()
                                 )
                             );
@@ -108,13 +106,10 @@ namespace VL.IO.Redis
         public static IObservable<ValueTuple<bool,bool>> Deserialize<TSetResult,TGetResult>(
             IChannel channel,
             IObservable<RedisBindingModel> model, 
-            IObservable<ImmutableDictionary<Guid, object>> result, 
-            Guid setGuid,
-            Guid getGuid,
             Func<object, TSetResult> DeserializeSet,
             Func<object, TGetResult> DeserializeGet)
         {
-            return result.WithLatestFrom(model)
+            return /*result*/model.Wait().BeforFrame.WithLatestFrom(model)
                 .Select(t => 
                 {
                     var dict = t.Item1;
@@ -125,19 +120,41 @@ namespace VL.IO.Redis
 
                     if (dict != null)
                     {
-                        if (dict.TryGetValue(setGuid, out var setValue))
-                        {
-                            DeserializeSet(setValue);
-                            OnSuccessfulWrite = true;
-                        }
-                        else
-                        {
-                            if (dict.TryGetValue(getGuid, out var getValue))
+                        //if (dict.ContainsKey(setGuid) || dict.ContainsKey(getGuid))
+                        //{
+                        //    if (model.CollisionHandling == CollisionHandling.RedisWins)
+                        //    {
+                        //        if (dict.TryGetValue(getGuid, out var getValue))
+                        //        {
+                        //            channel.SetObjectAndAuthor(DeserializeGet(getValue), "RedisOther");
+                        //            OnSuccessfulRead = true;
+                        //        }
+                        //    }
+                        //    else if (model.CollisionHandling == CollisionHandling.LocalWins)
+                        //    {
+                        //        if (dict.TryGetValue(setGuid, out var setValue))
+                        //        {
+                        //            DeserializeSet(setValue);
+                        //            OnSuccessfulWrite = true;
+                        //        }
+                        //    }
+                        //}
+                        //else
+                        //{
+                            if (dict.TryGetValue(model.setID, out var setValue))
                             {
-                                channel.SetObjectAndAuthor(DeserializeGet(getValue), "RedisOther");
-                                OnSuccessfulRead = true;
+                                DeserializeSet(setValue);
+                                OnSuccessfulWrite = true;
                             }
-                        }
+                            else
+                            {
+                                if (dict.TryGetValue(model.getID, out var getValue))
+                                {
+                                    channel.SetObjectAndAuthor(DeserializeGet(getValue), "RedisOther");
+                                    OnSuccessfulRead = true;
+                                }
+                            }
+                        //}
                     }
 
 
@@ -286,6 +303,8 @@ namespace VL.IO.Redis
         public static IObservable<ImmutableDictionary<Guid, object>> ExecuteTransaction(this IObservable<RedisCommandQueue> observable, Action<float> action, IScheduler scheduler)
         {
 
+            ImmutableDictionary<Guid, object>.Builder builder = ImmutableDictionary.CreateBuilder<Guid, object>();
+
             return Observable.Create<ImmutableDictionary<Guid, object>>((obs) =>
             {
                 //var syncObs = Observer.Synchronize(obs, true);
@@ -309,18 +328,7 @@ namespace VL.IO.Redis
 
                                         resultAwaiter.OnCompleted(() =>
                                         {
-
-                                            //Pooled<ImmutableDictionary<Guid, object>.Builder> pooled = Pooled.GetDictionaryBuilder<Guid, object>();
-
-                                            //foreach (var kv in resultAwaiter.GetResult())
-                                            //{
-                                            //    pooled.Value.TryAdd(kv.Key, kv.Value);
-
-                                            //}
-                                            //syncObs.OnNext(pooled.ToImmutableAndFree());
-
-
-                                            ImmutableDictionary<Guid, object>.Builder builder = ImmutableDictionary.CreateBuilder<Guid, object>();
+                                            builder.Clear(); 
                                             foreach (var kv in resultAwaiter.GetResult())
                                             {
                                                 builder.TryAdd(kv.Key, kv.Value);

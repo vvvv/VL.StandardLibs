@@ -60,7 +60,7 @@ namespace VL.IO.Redis
             return channel;
         }
 
-        public static IObservable<KeyValuePair<RedisBindingModel, T>> ToKeyValueObservable<T>(this IChannel<T> channel, out IObservable<RedisBindingModel> Model, out IObservable<RedisCommandQueue> AfterFrame, out IObservable<ImmutableDictionary<Guid, object>> BeforFrame)
+        public static IObservable<KeyValuePair<RedisBindingModel, T>> ToKeyValueObservable<T>(this IChannel<T> channel, out IObservable<RedisBindingModel> Model)
         {
 
             var model = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
@@ -71,9 +71,6 @@ namespace VL.IO.Redis
                     return model; 
                 }
             );
-
-            AfterFrame = model.AfterFrame;
-            BeforFrame = model.BeforFrame;
 
             return Observable.Create<KeyValuePair<RedisBindingModel, T>>((obs) =>
             {

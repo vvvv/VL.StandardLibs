@@ -9,15 +9,6 @@ using VL.Core.Reactive;
 
 namespace VL.IO.Redis
 {
-    public enum RedisBindingType
-    {
-        None = 0,
-        Send = 1,
-        Receive = 2,
-        SendAndReceive = Send | Receive,
-        AllwaysReceive = 8,
-    }
-
     public enum Initialisation
     {
         None = 0,
@@ -34,19 +25,22 @@ namespace VL.IO.Redis
 
     public record RedisBindingModel
     {
-        public RedisKey Key;
-        public RedisBindingType BindingType;
-        public Initialisation Initialisation;
-        public CollisionHandling CollisionHandling;
-        public string ChannelPath;
+        public readonly RedisKey Key;
+        public readonly BindingType BindingType;
+        public readonly Initialisation Initialisation;
+        public readonly CollisionHandling CollisionHandling;
+        public readonly string ChannelPath;
 
-        public IObservable<RedisCommandQueue> AfterFrame;
-        public IObservable<ImmutableDictionary<Guid, object>> BeforFrame;
+        public readonly IObservable<RedisCommandQueue> AfterFrame;
+        public readonly IObservable<ImmutableDictionary<Guid, object>> BeforFrame;
+
+        public readonly Guid setID;
+        public readonly Guid getID;
 
         public RedisBindingModel
         (
             string Key,
-            RedisBindingType BindingType,
+            BindingType BindingType,
             Initialisation Initialisation,
             CollisionHandling CollisionHandling,
             string ChannelPath,
@@ -61,6 +55,8 @@ namespace VL.IO.Redis
             this.ChannelPath = ChannelPath;
             this.AfterFrame = AfterFrame;
             this.BeforFrame = BeforFrame;
+            this.setID = Guid.NewGuid();
+            this.getID = Guid.NewGuid();
         }
     }
 }
