@@ -20,23 +20,21 @@ using VL.Core.Reactive;
 namespace VL.IO.Redis
 {
 
-
     public static class RedisExtensions
     {
         public static Guid getID(this RedisCommandQueue queue) { return queue._id; }
 
         public static IObservable<RedisCommandQueue> RedisChangedCommand<TOutput>(
-            IObservable<RedisBindingModel> model, 
-            IObservable<Unit> enabled, 
+            IChannel channel,
             Func<ITransaction, RedisKey, Task<TOutput>> RedisChangedCommand)
         {
             bool firstFrame = true;
 
-            return ReactiveExtensions
-                .WithLatestWhenNew(enabled, /*queue*/ model.Wait().AfterFrame, (f, s) => s)
-                .WithLatestFrom(model,
-                (queue, model) =>
+            return channel.Components.OfType<RedisBindingModel>().FirstOrDefault().AfterFrame
+                .Select((queue) =>
                 {
+                    var model = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
+
                     if (queue.Transaction != null)
                     {
                         if
@@ -46,8 +44,6 @@ namespace VL.IO.Redis
                                 (queue.ReceivedChanges.Contains(model.Key) && queue.ReceivedChanges.Count > 0) ||
                                 (firstFrame && model.Initialisation == Initialisation.Redis)
                             )
-                            //||
-                            //model.BindingType == BindingType.AllwaysReceive
                         )
                         {
                             queue.Cmds.Enqueue
@@ -61,13 +57,14 @@ namespace VL.IO.Redis
                             firstFrame = false;
                         }
                     }
+
                     return queue;
                 }
             );
         }
 
-        public static IObservable<ValueTuple<RedisCommandQueue, KeyValuePair<RedisBindingModel, TInput>>> SerializeSetAndPushChanges<TInput, TInputSerialized, TOutput>(
-            IObservable<KeyValuePair<RedisBindingModel, TInput>> channel,
+        public static IObservable<ValueTuple<RedisCommandQueue,  TInput>> SerializeSetAndPushChanges<TInput, TInputSerialized, TOutput>(
+            IChannel<TInput> channel,
             IObservable<RedisCommandQueue> queue,
             Func<TInput, TInputSerialized> serialize,
             Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TOutput>> ChannelChangedCommand,
@@ -81,10 +78,11 @@ namespace VL.IO.Redis
                 Select((input) =>
                 {
                     var queue = input.Item1;
-                    var model = input.Item2.Key;
-                    var value = input.Item2.Value;
 
-                    if (queue.Transaction != null)
+                    var model = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
+                    var value = input.Item2;
+
+                    if (queue.Transaction != null && channel.LatestAuthor != "RedisOther")
                     {
                         if (model.BindingType == BindingType.Send || model.BindingType == BindingType.SendAndReceive)
                         {
@@ -104,43 +102,40 @@ namespace VL.IO.Redis
         }
 
         public static IObservable<ValueTuple<bool,bool>> Deserialize<TSetResult,TGetResult>(
-            IChannel channel,
-            IObservable<RedisBindingModel> model, 
+            IChannel<TGetResult> channel,
             Func<object, TSetResult> DeserializeSet,
             Func<object, TGetResult> DeserializeGet)
         {
-            return /*result*/model.Wait().BeforFrame.WithLatestFrom(model)
+            var beforeFrameResult = channel.Components.OfType<RedisBindingModel>().FirstOrDefault().BeforFrame
                 .Select(t => 
                 {
-                    var dict = t.Item1;
-                    var model = t.Item2;
+                    var dict = t;
+                    var model = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
 
                     bool OnSuccessfulWrite = false;
                     bool OnSuccessfulRead  = false;
 
                     if (dict != null)
                     {
-                        //if (dict.ContainsKey(setGuid) || dict.ContainsKey(getGuid))
-                        //{
-                        //    if (model.CollisionHandling == CollisionHandling.RedisWins)
-                        //    {
-                        //        if (dict.TryGetValue(getGuid, out var getValue))
-                        //        {
-                        //            channel.SetObjectAndAuthor(DeserializeGet(getValue), "RedisOther");
-                        //            OnSuccessfulRead = true;
-                        //        }
-                        //    }
-                        //    else if (model.CollisionHandling == CollisionHandling.LocalWins)
-                        //    {
-                        //        if (dict.TryGetValue(setGuid, out var setValue))
-                        //        {
-                        //            DeserializeSet(setValue);
-                        //            OnSuccessfulWrite = true;
-                        //        }
-                        //    }
-                        //}
-                        //else
-                        //{
+                        if (model.CollisionHandling == CollisionHandling.RedisWins)
+                        {
+                            if (dict.TryGetValue(model.getID, out var getValue))
+                            {
+                                channel.SetObjectAndAuthor(DeserializeGet(getValue), "RedisOther");
+                                OnSuccessfulRead = true;
+                            }
+                            else
+                            {
+                                if (dict.TryGetValue(model.setID, out var setValue))
+                                {
+                                    DeserializeSet(setValue);
+                                    OnSuccessfulWrite = true;
+                                }
+                                
+                            }
+                        }
+                        else
+                        {
                             if (dict.TryGetValue(model.setID, out var setValue))
                             {
                                 DeserializeSet(setValue);
@@ -154,66 +149,35 @@ namespace VL.IO.Redis
                                     OnSuccessfulRead = true;
                                 }
                             }
-                        //}
+                        }
                     }
 
 
                     return ValueTuple.Create(OnSuccessfulWrite, OnSuccessfulRead);
                 });
+
+            var nextFrameChannelUpdates = channel
+                .Where((value) => channel.LatestAuthor != "RedisOther")
+                .WithLatestFrom(channel.Components.OfType<RedisBindingModel>().FirstOrDefault().BeforFrame, 
+                (value,dict) => 
+                {
+                    var model = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
+                    if (dict != null)
+                    {
+                        if (model.CollisionHandling == CollisionHandling.RedisWins)
+                        {
+                            if (dict.TryGetValue(model.getID, out var getValue))
+                            {
+                                channel.SetObjectAndAuthor(DeserializeGet(getValue), "RedisOther");
+                            }
+                        }
+                    }
+                    return value;
+                });
+
+
+            return beforeFrameResult.CombineLatest(nextFrameChannelUpdates, (befor,next) => befor);
         }
-
-
-
-        /*
-        public static RedisCommandQueue GetWhenChangeReceived<TOutput>
-        (
-            RedisCommandQueue queue,
-            RedisBindingModel model,
-            Func<ITransaction, RedisKey, Task<TOutput>> RedisChangedCommand,
-            Guid guid,
-            out bool ChangeReceived
-        )
-        {
-            ChangeReceived = queue.ReceivedChanges.Contains(model.Key) && queue.ReceivedChanges.Count > 0 ;
-
-            if (queue.Transaction != null && ChangeReceived) 
-            {
-                queue.Cmds.Enqueue
-                (
-                    (tran) => ValueTuple.Create
-                    (
-                        RedisChangedCommand(tran, model.Key).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)),
-                        Enumerable.Empty<RedisKey>()
-                    )
-                );
-            }
-            return queue;
-        }
-
-
-        public static ValueTuple<RedisCommandQueue, KeyValuePair<RedisBindingModel, TInput>> SerializeSetAndPushChanges<TInput, TInputSerialized, TOutput>
-        (
-            ValueTuple<RedisCommandQueue, KeyValuePair<RedisBindingModel, TInput>> input,
-            Func<TInput, TInputSerialized> serialize,
-            Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TOutput>> ChannelChangedCommand,
-            Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges,
-            Guid guid
-        )
-        {
-            if (input.Item1.Transaction != null)
-            {
-                input.Item1.Cmds.Enqueue
-                (
-                    (tran) => ValueTuple.Create 
-                    (
-                        ChannelChangedCommand(tran, KeyValuePair.Create(input.Item2.Key.Key, serialize(input.Item2.Value))).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)),
-                        pushChanges.HasValue ? pushChanges.Value(input.Item2.Key.Key) : Enumerable.Empty<RedisKey>()
-                    )
-                );
-            }
-            return input;
-        }
-        */
 
         public static ValueTuple<RedisCommandQueue, TInput> Enqueue<TInput, TOutput>
         (

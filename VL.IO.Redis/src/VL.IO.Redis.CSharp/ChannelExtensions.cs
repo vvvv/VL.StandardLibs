@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -66,9 +67,9 @@ namespace VL.IO.Redis
             var model = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
 
             Model = Observable.Start(
-                () => 
-                { 
-                    return model; 
+                () =>
+                {
+                    return model;
                 }
             );
 
