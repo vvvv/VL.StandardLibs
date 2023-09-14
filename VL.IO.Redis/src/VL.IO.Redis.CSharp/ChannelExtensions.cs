@@ -18,19 +18,41 @@ namespace VL.IO.Redis
     {
         public static IChannel<T> EnsureSingleRedisBinding<T>(this IChannel<T> channel, RedisBindingModel redisBinding)
         {
-            var keys = channel.Components.OfType<RedisBindingModel>();
+            var result = channel.Components.OfType<RedisResult>();
 
-            if (keys.Any())
+            if (result.Any())
             {
-                if (keys.Count() == 1)
+                if (result.Count() > 1)
+
                 {
-                    if (keys.FirstOrDefault() ==  redisBinding)
+                    var builder = channel.Components.ToBuilder();
+
+                    foreach (var k in result)
+                    {
+                        builder.Remove(k);
+                    }
+                    builder.Add(new RedisResult());
+                    channel.Components = builder.ToImmutable();
+                }
+            }
+            else
+            {
+                channel.Components = channel.Components.Add(new RedisResult());
+            }
+
+            var binding = channel.Components.OfType<RedisBindingModel>();
+
+            if (binding.Any())
+            {
+                if (binding.Count() == 1)
+                {
+                    if (binding.FirstOrDefault() ==  redisBinding)
                     {
                         return channel;
                     }
                     else
                     {
-                        channel.Components = channel.Components.Replace(keys.First(), redisBinding);
+                        channel.Components = channel.Components.Replace(binding.First(), redisBinding);
                         return channel;
                     }
                 }
@@ -38,7 +60,7 @@ namespace VL.IO.Redis
                 {
                     var builder = channel.Components.ToBuilder();
                     
-                    foreach (var k in keys)
+                    foreach (var k in binding)
                     {
                         builder.Remove(k);
                     }
@@ -51,13 +73,31 @@ namespace VL.IO.Redis
             {
                 channel.Components = channel.Components.Add(redisBinding);
                 return channel;
-            }       
+            }
         }
 
         public static IChannel<T> TryGetRedisBinding<T>(this IChannel<T> channel, out bool success, out RedisBindingModel redisBindingModel)
         {
             redisBindingModel = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
             success = redisBindingModel != null;
+            return channel;
+        }
+
+        public static IChannel<T> GetRedisResult<T>(this IChannel<T> channel, out bool OnSuccessfulWrite, out bool OnSuccessfulRead, out bool OnRedisOverWrite)
+        {
+            var result = channel.Components.OfType<RedisResult>().FirstOrDefault();
+            if (result != null)
+            {
+                OnSuccessfulWrite = result.OnSuccessfulWrite;
+                OnSuccessfulRead = result.OnSuccessfulRead;
+                OnRedisOverWrite = result.OnRedisOverWrite;
+            }
+            else
+            {
+                OnSuccessfulWrite = false;
+                OnSuccessfulRead = false;
+                OnRedisOverWrite = false;
+            }
             return channel;
         }
 

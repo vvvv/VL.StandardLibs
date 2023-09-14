@@ -16,6 +16,7 @@ using VL.Lib.Reactive;
 using System.Reactive.Subjects;
 using System.Data.SqlTypes;
 using VL.Core.Reactive;
+using System.Threading.Channels;
 
 namespace VL.IO.Redis
 {
@@ -24,9 +25,27 @@ namespace VL.IO.Redis
     {
         public static Guid getID(this RedisCommandQueue queue) { return queue._id; }
 
-        public static IObservable<RedisCommandQueue> RedisChangedCommand<TOutput>(
-            IChannel channel,
-            Func<ITransaction, RedisKey, Task<TOutput>> RedisChangedCommand)
+        public static IDisposable Transaction<TInput, TInputSerialized, TGetResult, TSetResult>(
+            IChannel<TInput> channel,
+            Func<ITransaction, RedisKey, Task<TGetResult>> RedisChangedCommand,
+            Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TSetResult>> ChannelChangedCommand,
+            Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges,
+            Func<TInput, TInputSerialized> serialize,
+            Func<TSetResult, bool> DeserializeSet,
+            Func<TGetResult, TInput> DeserializeGet)
+        {
+            var onRedisChangeNotificationOrFirstFrame = OnRedisChangeNotificationOrFirstFrame(channel, RedisChangedCommand);
+
+            var onChannelChange = SerializeSetAndPushChanges(channel, onRedisChangeNotificationOrFirstFrame, serialize, ChannelChangedCommand, pushChanges);
+
+            var deserializeResult = Deserialize(channel, DeserializeSet, DeserializeGet);
+
+            return onChannelChange.CombineLatest(deserializeResult, (c, d) => d).Subscribe();
+        }
+
+        internal static IObservable<RedisCommandQueue> OnRedisChangeNotificationOrFirstFrame<TInput, TGetResult>(
+            IChannel<TInput> channel,
+            Func<ITransaction, RedisKey, Task<TGetResult>> RedisChangedCommand)
         {
             bool firstFrame = true;
 
@@ -63,11 +82,11 @@ namespace VL.IO.Redis
             );
         }
 
-        public static IObservable<ValueTuple<RedisCommandQueue,  TInput>> SerializeSetAndPushChanges<TInput, TInputSerialized, TOutput>(
+        internal static IObservable<ValueTuple<RedisCommandQueue,  TInput>> SerializeSetAndPushChanges<TInput, TInputSerialized, TSetResult>(
             IChannel<TInput> channel,
             IObservable<RedisCommandQueue> queue,
             Func<TInput, TInputSerialized> serialize,
-            Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TOutput>> ChannelChangedCommand,
+            Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TSetResult>> ChannelChangedCommand,
             Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges)
         {
             return ReactiveExtensions.
@@ -101,10 +120,10 @@ namespace VL.IO.Redis
             );
         }
 
-        public static IObservable<ValueTuple<bool,bool>> Deserialize<TSetResult,TGetResult>(
-            IChannel<TGetResult> channel,
-            Func<object, TSetResult> DeserializeSet,
-            Func<object, TGetResult> DeserializeGet)
+        internal static IObservable<ValueTuple<bool,bool,bool>> Deserialize<TInput, TSetResult, TGetResult>(
+            IChannel<TInput> channel,
+            Func<TSetResult, bool> DeserializeSet,
+            Func<TGetResult, TInput> DeserializeGet)
         {
             var beforeFrameResult = channel.Components.OfType<RedisBindingModel>().FirstOrDefault().BeforFrame
                 .Select(t => 
@@ -114,6 +133,7 @@ namespace VL.IO.Redis
 
                     bool OnSuccessfulWrite = false;
                     bool OnSuccessfulRead  = false;
+                    TInput result = default(TInput);
 
                     if (dict != null)
                     {
@@ -121,15 +141,15 @@ namespace VL.IO.Redis
                         {
                             if (dict.TryGetValue(model.getID, out var getValue))
                             {
-                                channel.SetObjectAndAuthor(DeserializeGet(getValue), "RedisOther");
+                                result = DeserializeGet((TGetResult)getValue);
+                                channel.SetObjectAndAuthor(result, "RedisOther");
                                 OnSuccessfulRead = true;
                             }
                             else
                             {
                                 if (dict.TryGetValue(model.setID, out var setValue))
                                 {
-                                    DeserializeSet(setValue);
-                                    OnSuccessfulWrite = true;
+                                    OnSuccessfulWrite = DeserializeSet((TSetResult)setValue);
                                 }
                                 
                             }
@@ -138,14 +158,14 @@ namespace VL.IO.Redis
                         {
                             if (dict.TryGetValue(model.setID, out var setValue))
                             {
-                                DeserializeSet(setValue);
-                                OnSuccessfulWrite = true;
+                                OnSuccessfulWrite = DeserializeSet((TSetResult)setValue);
                             }
                             else
                             {
                                 if (dict.TryGetValue(model.getID, out var getValue))
                                 {
-                                    channel.SetObjectAndAuthor(DeserializeGet(getValue), "RedisOther");
+                                    result = DeserializeGet((TGetResult)getValue);
+                                    channel.SetObjectAndAuthor(result, "RedisOther");
                                     OnSuccessfulRead = true;
                                 }
                             }
@@ -153,30 +173,43 @@ namespace VL.IO.Redis
                     }
 
 
-                    return ValueTuple.Create(OnSuccessfulWrite, OnSuccessfulRead);
-                });
+                    return ValueTuple.Create(OnSuccessfulWrite, OnSuccessfulRead, false, result);
+                })
+                .Publish()
+                .RefCount();
 
             var nextFrameChannelUpdates = channel
-                .Where((value) => channel.LatestAuthor != "RedisOther")
-                .WithLatestFrom(channel.Components.OfType<RedisBindingModel>().FirstOrDefault().BeforFrame, 
-                (value,dict) => 
+                .Where(
+                (value) => 
+                    channel.LatestAuthor != "RedisOther" && 
+                    channel.Components.OfType<RedisBindingModel>().FirstOrDefault().CollisionHandling == CollisionHandling.RedisWins)
+                .WithLatestFrom(beforeFrameResult, 
+                (value,resultTuple) => 
                 {
-                    var model = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
-                    if (dict != null)
-                    {
-                        if (model.CollisionHandling == CollisionHandling.RedisWins)
-                        {
-                            if (dict.TryGetValue(model.getID, out var getValue))
+                    bool OnSuccessfulRead = false;
+                    bool OnRedisOverWrite = false;
+                    
+                            if (resultTuple.Item2)
                             {
-                                channel.SetObjectAndAuthor(DeserializeGet(getValue), "RedisOther");
+                                channel.SetObjectAndAuthor(resultTuple.Item4, "RedisOther");
+                                OnSuccessfulRead = true;
+                                OnRedisOverWrite = true;
                             }
-                        }
-                    }
-                    return value;
-                });
 
+                    return ValueTuple.Create(false, OnSuccessfulRead, OnRedisOverWrite, default(TInput));
+                })
+                .Where(T => T.Item3);
 
-            return beforeFrameResult.CombineLatest(nextFrameChannelUpdates, (befor,next) => befor);
+            return beforeFrameResult
+                    .Merge(nextFrameChannelUpdates)
+                    .Select(t =>
+                    {
+                        var result = channel.Components.OfType<RedisResult>().FirstOrDefault();
+                        result.OnSuccessfulWrite = t.Item1;
+                        result.OnSuccessfulRead = t.Item2;
+                        result.OnRedisOverWrite = t.Item3;
+                        return ValueTuple.Create(t.Item1, t.Item2, t.Item3);
+                    });
         }
 
         public static ValueTuple<RedisCommandQueue, TInput> Enqueue<TInput, TOutput>

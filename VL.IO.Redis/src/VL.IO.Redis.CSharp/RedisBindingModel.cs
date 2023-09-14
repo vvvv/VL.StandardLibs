@@ -9,6 +9,13 @@ using VL.Core.Reactive;
 
 namespace VL.IO.Redis
 {
+    public class RedisResult
+    {
+        public bool OnSuccessfulWrite{ get; internal set; }
+        public bool OnSuccessfulRead { get; internal set; }
+        public bool OnRedisOverWrite { get; internal set; }
+    }
+
     public enum Initialisation
     {
         None = 0,
