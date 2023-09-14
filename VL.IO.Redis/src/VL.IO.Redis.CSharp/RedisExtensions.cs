@@ -58,11 +58,13 @@ namespace VL.IO.Redis
                     {
                         if
                         (
-                            (model.BindingType == BindingType.Receive || model.BindingType == BindingType.SendAndReceive) &&
+                            (model.BindingType == RedisBindingType.Receive || model.BindingType == RedisBindingType.SendAndReceive) &&
                             (
                                 (queue.ReceivedChanges.Contains(model.Key) && queue.ReceivedChanges.Count > 0) ||
                                 (firstFrame && model.Initialisation == Initialisation.Redis)
                             )
+                            ||
+                            model.BindingType == RedisBindingType.AlwaysReceive
                         )
                         {
                             queue.Cmds.Enqueue
@@ -103,7 +105,7 @@ namespace VL.IO.Redis
 
                     if (queue.Transaction != null && channel.LatestAuthor != "RedisOther")
                     {
-                        if (model.BindingType == BindingType.Send || model.BindingType == BindingType.SendAndReceive)
+                        if (model.BindingType == RedisBindingType.Send || model.BindingType == RedisBindingType.SendAndReceive)
                         {
                             queue.Cmds.Enqueue
                             (

@@ -16,6 +16,15 @@ namespace VL.IO.Redis
         public bool OnRedisOverWrite { get; internal set; }
     }
 
+    public enum RedisBindingType
+    {
+        None = 0,
+        Send = 1,
+        Receive = 2,
+        SendAndReceive = Send | Receive,
+        AlwaysReceive = 8,
+    }
+
     public enum Initialisation
     {
         None = 0,
@@ -33,7 +42,7 @@ namespace VL.IO.Redis
     public record RedisBindingModel
     {
         public readonly RedisKey Key;
-        public readonly BindingType BindingType;
+        public readonly RedisBindingType BindingType;
         public readonly Initialisation Initialisation;
         public readonly CollisionHandling CollisionHandling;
         public readonly string ChannelPath;
@@ -47,7 +56,7 @@ namespace VL.IO.Redis
         public RedisBindingModel
         (
             string Key,
-            BindingType BindingType,
+            RedisBindingType BindingType,
             Initialisation Initialisation,
             CollisionHandling CollisionHandling,
             string ChannelPath,
