@@ -18,7 +18,8 @@ namespace VL.IO.Redis
     {
         internal  Guid _id;
 
-        internal  ITransaction Transaction;
+        internal ConnectionMultiplexer Multiplexer;
+        internal ITransaction Transaction;
 
         internal ConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>> Cmds = new ConcurrentQueue<Func<ITransaction, (Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>)>>();
         internal ConcurrentQueue<Task<KeyValuePair<Guid, object>>> Tasks = new ConcurrentQueue<Task<KeyValuePair<Guid, object>>>();
@@ -31,8 +32,9 @@ namespace VL.IO.Redis
             _id                 = id;
         }
 
-        public void CreateTransaction(IDatabase database)
+        public void CreateTransaction(IDatabase database, ConnectionMultiplexer Multiplexer)
         {
+            this.Multiplexer = Multiplexer;
             Transaction = database.CreateTransaction();
         }
 

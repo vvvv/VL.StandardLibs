@@ -260,7 +260,7 @@ namespace VL.IO.Redis
                     {
                         var sw = Stopwatch.StartNew();
 
-                        if (queue.Transaction == null)
+                        if (queue.Transaction == null && queue.Multiplexer.IsConnected)
                         {
                             return;
                         }
@@ -317,38 +317,47 @@ namespace VL.IO.Redis
                         {
                             var sw = Stopwatch.StartNew();
 
-                            if (queue.Transaction != null)
+                            if (queue.Transaction != null && queue.Multiplexer.IsConnected)
                             {
-                                if (await queue.Transaction.ExecuteAsync())
-                                {
+                                
                                     try
                                     {
-                                        var resultAwaiter = Task.WhenAll(queue.Tasks).GetAwaiter();
-
-                                        resultAwaiter.OnCompleted(() =>
+                                        bool succsess = false;
+                                        try
                                         {
-                                            builder.Clear(); 
-                                            foreach (var kv in resultAwaiter.GetResult())
+                                            succsess = await queue.Transaction.ExecuteAsync();
+                                        }
+                                        catch (Exception ex) { }
+                                    
+                                        if (succsess)
+                                        {
+
+                                            var resultAwaiter = Task.WhenAll(queue.Tasks).GetAwaiter();
+
+                                            resultAwaiter.OnCompleted(() =>
                                             {
-                                                builder.TryAdd(kv.Key, kv.Value);
+                                                builder.Clear(); 
+                                                foreach (var kv in resultAwaiter.GetResult())
+                                                {
+                                                    builder.TryAdd(kv.Key, kv.Value);
 
-                                            }
-                                            syncObs.OnNext(builder.ToImmutable());
+                                                }
+                                                syncObs.OnNext(builder.ToImmutable());
 
-                                            action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond));
-                                        });
+                                                action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond));
+                                            });
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("TransactionFailed");
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
                                         Console.WriteLine(ex);
                                         syncObs.OnError(ex);
                                     }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("TransactionFailed");
-                                    syncObs.OnError(new Exception("TransactionFailed"));
-                                }
+                               
                             }
                         }
                         catch (Exception ex)
