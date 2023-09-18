@@ -16,7 +16,7 @@ namespace VL.IO.Redis
 
     public static class ChannelExtensions
     {
-        public static IChannel<T> EnsureSingleRedisBinding<T>(this IChannel<T> channel, RedisBindingModel redisBinding)
+        public static IChannel<T> EnsureSingleRedisBinding<T>(this IChannel<T> channel, RedisBinding redisBinding)
         {
             var result = channel.Components.OfType<RedisResult>();
 
@@ -40,7 +40,7 @@ namespace VL.IO.Redis
                 channel.Components = channel.Components.Add(new RedisResult());
             }
 
-            var binding = channel.Components.OfType<RedisBindingModel>();
+            var binding = channel.Components.OfType<RedisBinding>();
 
             if (binding.Any())
             {
@@ -76,9 +76,9 @@ namespace VL.IO.Redis
             }
         }
 
-        public static IChannel<T> TryGetRedisBinding<T>(this IChannel<T> channel, out bool success, out RedisBindingModel redisBindingModel)
+        public static IChannel<T> TryGetRedisBinding<T>(this IChannel<T> channel, out bool success, out RedisBinding redisBindingModel)
         {
-            redisBindingModel = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
+            redisBindingModel = channel.Components.OfType<RedisBinding>().FirstOrDefault();
             success = redisBindingModel != null;
             return channel;
         }
@@ -101,10 +101,10 @@ namespace VL.IO.Redis
             return channel;
         }
 
-        public static IObservable<KeyValuePair<RedisBindingModel, T>> ToKeyValueObservable<T>(this IChannel<T> channel, out IObservable<RedisBindingModel> Model)
+        public static IObservable<KeyValuePair<RedisBinding, T>> ToKeyValueObservable<T>(this IChannel<T> channel, out IObservable<RedisBinding> Model)
         {
 
-            var model = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
+            var model = channel.Components.OfType<RedisBinding>().FirstOrDefault();
 
             Model = Observable.Start(
                 () =>
@@ -113,14 +113,14 @@ namespace VL.IO.Redis
                 }
             );
 
-            return Observable.Create<KeyValuePair<RedisBindingModel, T>>((obs) =>
+            return Observable.Create<KeyValuePair<RedisBinding, T>>((obs) =>
             {
                 var syncObs = Observer.Synchronize(obs);
                 return channel.Subscribe(
                     (v) =>
                     {
                         if (channel.LatestAuthor != "RedisOther")
-                            syncObs.OnNext(KeyValuePair.Create(channel.Components.OfType<RedisBindingModel>().FirstOrDefault(), v));
+                            syncObs.OnNext(KeyValuePair.Create(channel.Components.OfType<RedisBinding>().FirstOrDefault(), v));
                     },
                     (ex) =>
                     {

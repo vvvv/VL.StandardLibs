@@ -49,10 +49,10 @@ namespace VL.IO.Redis
         {
             bool firstFrame = true;
 
-            return channel.Components.OfType<RedisBindingModel>().FirstOrDefault().AfterFrame
+            return channel.Components.OfType<RedisBinding>().FirstOrDefault().AfterFrame
                 .Select((queue) =>
                 {
-                    var model = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
+                    var model = channel.Components.OfType<RedisBinding>().FirstOrDefault();
 
                     if (queue.Transaction != null)
                     {
@@ -100,7 +100,7 @@ namespace VL.IO.Redis
                 {
                     var queue = input.Item1;
 
-                    var model = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
+                    var model = channel.Components.OfType<RedisBinding>().FirstOrDefault();
                     var value = input.Item2;
 
                     if (queue.Transaction != null && channel.LatestAuthor != "RedisOther")
@@ -127,11 +127,11 @@ namespace VL.IO.Redis
             Func<TSetResult, bool> DeserializeSet,
             Func<TGetResult, TInput> DeserializeGet)
         {
-            var beforeFrameResult = channel.Components.OfType<RedisBindingModel>().FirstOrDefault().BeforFrame
+            var beforeFrameResult = channel.Components.OfType<RedisBinding>().FirstOrDefault().BeforFrame
                 .Select(t => 
                 {
                     var dict = t;
-                    var model = channel.Components.OfType<RedisBindingModel>().FirstOrDefault();
+                    var model = channel.Components.OfType<RedisBinding>().FirstOrDefault();
 
                     bool OnSuccessfulWrite = false;
                     bool OnSuccessfulRead  = false;
@@ -184,7 +184,7 @@ namespace VL.IO.Redis
                 .Where(
                 (value) => 
                     channel.LatestAuthor != "RedisOther" && 
-                    channel.Components.OfType<RedisBindingModel>().FirstOrDefault().CollisionHandling == CollisionHandling.RedisWins)
+                    channel.Components.OfType<RedisBinding>().FirstOrDefault().CollisionHandling == CollisionHandling.RedisWins)
                 .WithLatestFrom(beforeFrameResult, 
                 (value,resultTuple) => 
                 {
