@@ -9,7 +9,7 @@ namespace VL.IO.Redis
 {
     public static class SubscriberExtension
     {
-        public static IObservable<Int64> Publish<T>(this ConnectionMultiplexer connectionMultiplexer, IChannel<T> channel, Func<T,RedisValue> serialize, string RedisChannel, RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto)
+        public static IObservable<Int64> Publish<T>(this ConnectionMultiplexer connectionMultiplexer, IObservable<T> value, Func<T,RedisValue> serialize, string RedisChannel, RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto)
         {
             var redisChannel = new RedisChannel(RedisChannel, pattern);
 
@@ -20,11 +20,15 @@ namespace VL.IO.Redis
                 var syncObs = Observer.Synchronize(obs);
                 var subscriber = connectionMultiplexer.GetSubscriber();
 
-                channel.Subscribe(
+                value.Subscribe(
                     // onNext
                     async value => 
                     {
-                        syncObs.OnNext(await subscriber.PublishAsync(redisChannel, serialize(value)));
+                        if (connectionMultiplexer.IsConnected)
+                        {
+                            syncObs.OnNext(await subscriber.PublishAsync(redisChannel, serialize(value)));
+                        }
+                        
                     }
                     // onError
                     , (ex) =>
@@ -46,7 +50,7 @@ namespace VL.IO.Redis
 
         }
 
-        public static IObservable<TResult> Subscribe<TResult>(this ConnectionMultiplexer connectionMultiplexer, Func<RedisChannel, RedisValue, TResult> selector, string RedisChannel, RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto)
+        public static IObservable<TResult> Subscribe<TResult>(this ConnectionMultiplexer connectionMultiplexer, Func<RedisChannel, RedisValue, TResult> deserialize, string RedisChannel, RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto)
         {
             var channel = new RedisChannel(RedisChannel, pattern);
 
@@ -68,14 +72,14 @@ namespace VL.IO.Redis
                 {
                     await subscriber.SubscribeAsync(channel, (chan, message) =>
                     {
-                        syncObs.OnNext(selector.Invoke(chan, message));
+                        syncObs.OnNext(deserialize.Invoke(chan, message));
                     }).ConfigureAwait(false);
                 };
 
                 // Subscribe
                 await subscriber.SubscribeAsync(channel, (chan, message) =>
                 {
-                    syncObs.OnNext(selector.Invoke(chan, message));
+                    syncObs.OnNext(deserialize.Invoke(chan, message));
                 }).ConfigureAwait(false);
 
                 // Return Disposable
