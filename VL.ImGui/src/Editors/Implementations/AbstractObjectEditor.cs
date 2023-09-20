@@ -34,9 +34,11 @@ namespace VL.ImGui.Editors
             this.editorContext = editorContext;
             this.factory = editorContext.Factory;
 
-            if (!editorContext.ViewOnly && typeInfo.IsInterface || (!typeInfo.IsPatched && typeInfo.ClrType.IsAbstract))
+            if (!editorContext.ViewOnly && 
+                channel.TryGetAttribute<TypeSelectorAttribute>(out var typeSelectorAttribute) && 
+                (typeInfo.IsInterface || (!typeInfo.IsPatched && typeInfo.ClrType.IsAbstract)))
             {
-                this.possibleTypes = GetImplementingTypes(typeInfo).ToImmutableArray();
+                this.possibleTypes = GetImplementingTypes(typeInfo, typeSelectorAttribute).ToImmutableArray();
                 this.possibleTypeEntries = possibleTypes.Select(GetLabel).ToArray();
             }
 
@@ -150,12 +152,15 @@ namespace VL.ImGui.Editors
             }
         }
 
-        IEnumerable<IVLTypeInfo> GetImplementingTypes(IVLTypeInfo typeInfo)
+        IEnumerable<IVLTypeInfo> GetImplementingTypes(IVLTypeInfo typeInfo, TypeSelectorAttribute typeSelectorAttribute)
         {
             var clrType = typeInfo.ClrType;
             var typeRegistry = editorContext.AppHost.TypeRegistry;
             foreach (var vlType in typeRegistry.RegisteredTypes)
             {
+                if (!typeSelectorAttribute.IsMatch(vlType.Name))
+                    continue;
+
                 var type = vlType.ClrType;
                 if (type.IsAbstract || type.IsGenericTypeDefinition)
                     continue;

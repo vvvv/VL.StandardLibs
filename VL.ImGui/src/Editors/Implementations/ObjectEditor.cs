@@ -60,7 +60,7 @@ namespace VL.ImGui.Editors
                                     initialization: ChannelMergeInitialization.UseA,
                                     pushEagerlyTo: ChannelSelection.ChannelA));
 
-                            var attributes = property.GetAttributes<Attribute>().ToList();
+                            var attributes = property.GetAttributes<Attribute>().ToSpread();
                             propertyChannel.Attributes().Value = attributes;
                             var label = attributes.OfType<LabelAttribute>().FirstOrDefault()?.Label ?? property.OriginalName;
                             var contextForProperty = new ObjectEditorContext(instance.AppHost, factory, label, ViewOnly: parentContext.ViewOnly, PrimitiveOnly: parentContext.PrimitiveOnly);

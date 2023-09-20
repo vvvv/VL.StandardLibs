@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using VL.Core;
 using VL.Lib.Collections;
 
@@ -497,6 +498,21 @@ namespace System.Collections.Generic
         public static bool Contains(this string source, string value, StringComparison comparisonType)
         {
             return source != null && source.IndexOf(value, comparisonType) >= 0;
+        }
+
+        // https://stackoverflow.com/questions/188892/glob-pattern-matching-in-net
+        /// <summary>
+        /// Compares the string against a given pattern.
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <param name="pattern">The pattern to match, where "*" means any sequence of characters, and "?" means any single character.</param>
+        /// <returns><c>true</c> if the string matches the given pattern; otherwise <c>false</c>.</returns>
+        public static bool Like(this string str, string pattern)
+        {
+            return new Regex(
+                "^" + Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".") + "$",
+                RegexOptions.IgnoreCase | RegexOptions.Singleline
+            ).IsMatch(str);
         }
     }
 
