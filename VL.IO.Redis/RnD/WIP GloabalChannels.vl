@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="FJ4M9rs6SJDNe3zR0Lfp3u" LanguageVersion="2023.5.3-0052-gd114b32994" Version="0.128">
+  <NugetDependency Id="KpbeKpcobIFPeowI7Q2rBL" Location="VL.CoreLib" Version="2023.5.1-0074-gd1560906cc" />
+  <Patch Id="S2YiW1d0T1XPvOLctcX6Rw">
+    <Canvas Id="UvXKKYYLLnDLmaCxzesf4O" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="DMuRSCuGOGoOif5CVowlYK">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="EuZdfjKDcrFQTfxDMPKidg">
+        <Canvas Id="U5LtGR6n6lfO0Chy9U5qea" CanvasType="Group">
+          <Node Bounds="357,240,74,19" Id="JmOi8roPEnjN3Gn6bJN6wD">
+            <p:NodeReference LastCategoryFullName="Main" LastDependency="RedisModule.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="RedisModule" />
+            </p:NodeReference>
+            <Pin Id="QsynWF7RyQUOtB0RtVY3sZ" Name="Configuration" Kind="InputPin" />
+            <Pin Id="KUaKh0leIUqPZloKJpws6g" Name="LogToConsole" Kind="InputPin" />
+            <Pin Id="VqTGqIhAVBsMNFvlfWMzaa" Name="ClientSideChaching" Kind="InputPin" />
+            <Pin Id="TxJnMRZ4nfBPajpCudDB0Q" Name="TrackingID" Kind="OutputPin" />
+            <Pin Id="SyKeY03NnpzO5lzFgV0Rd9" Name="Is Connected" Kind="OutputPin" />
+            <Pin Id="FGsrp3Y8J8ZPTjxq4GRKYb" Name="Client Name" Kind="OutputPin" />
+          </Node>
+          <Pad Id="VJJtEdB1XK1MqEtJeDSYDI" Comment="Configuration" Bounds="357,131,79,15" ShowValueBox="true" isIOBox="true" Value="127.0.0.1:6379">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="LG44nnEqywULU2sAgmmQym" Comment="LogToConsole" Bounds="393,154,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="TkTIwLFhKFIMeaaEjNaZuV" Comment="ClientSideChaching" Bounds="428,195,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="812,147,55,19" Id="FlfMyyp5ve5L3R7NdI8XVY">
+            <p:NodeReference LastCategoryFullName="System.Conversion" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="ToString" />
+            </p:NodeReference>
+            <Pin Id="S1v8GTVg8UVMOA62fuzYLO" Name="Input" Kind="InputPin" />
+            <Pin Id="QDqIwE2SB5fPVMmp88t7EZ" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="812,218,80,19" Id="JsUoJUHbt2uNhJ05VPYykd">
+            <p:NodeReference LastCategoryFullName="Reactive.GlobalChannels" LastDependency="VL.CoreLib.GlobalsChannels (D:\_DEV\_Devvvvs\nuget.Repos\VL.StandardLibs\VL.IO.Redis\help\Overview)">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessNode" Name="MyRedisString" />
+            </p:NodeReference>
+            <Pin Id="P7VQYbxBSNrQbCTL4jvqFe" Name="Value" Kind="InputPin" />
+            <Pin Id="N5r61SQ1U0LLGHdpeY13uc" Name="Channel" Kind="OutputPin" />
+            <Pin Id="LmIYJDp9vc8OqD5HgNmFeG" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="GRk2NTNfn5qO6pYUOt35rV" Comment="" Bounds="814,186,111,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="TQ0TZO7VWQIPNATFNBBW9z" Comment="" Bounds="889,253,113,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="L5JJ0OIXQKSQYcXH6NtVA8" Comment="Is Connected" Bounds="394,310,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="TbDZAqNAwatOyves5AUvgE" Comment="Client Name" Bounds="523,309,140,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="SKNmFSRuWqmMIzEdfGNSIu" Comment="TrackingID" Bounds="278,310,35,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="812,99,81,19" Id="C8Mmvzv4jZcPlkGAbELbp3">
+            <p:NodeReference LastCategoryFullName="Animation.FrameBased" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="FrameCounter" />
+            </p:NodeReference>
+            <Pin Id="QDjeR84z6f1NgsNCGNzke0" Name="Count" Kind="ApplyPin" />
+            <Pin Id="MY9kd8yTs7HNvEl6gCK1ww" Name="Reset" Kind="ApplyPin" DefaultValue="False" />
+            <Pin Id="VIS1l5QMUoPM2ArQN3gJ4P" Name="Value" Kind="OutputPin" />
+          </Node>
+        </Canvas>
+        <Patch Id="PZ2sV2cER1NOhzP4d97QFR" Name="Create" />
+        <Patch Id="DIqpECQDboEPJci2bDLhBb" Name="Update" />
+        <ProcessDefinition Id="HuMkdrMiKnaOJBk8jcwd5j">
+          <Fragment Id="UWlm68mKf0rOMF2hsP87hP" Patch="PZ2sV2cER1NOhzP4d97QFR" Enabled="true" />
+          <Fragment Id="CTBtzdCtbvcOY1lxrh2lR9" Patch="DIqpECQDboEPJci2bDLhBb" Enabled="true" />
+        </ProcessDefinition>
+        <Slot Id="RKG7ZaOEZnrLADcnHTpAlx" Name="Time">
+          <p:TypeAnnotation p:Type="TypeReference" LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+            <Choice Kind="TypeFlag" Name="String" />
+          </p:TypeAnnotation>
+        </Slot>
+        <Link Id="DNqGx4BtXteO735QhGJDrz" Ids="VJJtEdB1XK1MqEtJeDSYDI,QsynWF7RyQUOtB0RtVY3sZ" />
+        <Link Id="A2zr5n5kHs2OOKD5SR8v3x" Ids="LG44nnEqywULU2sAgmmQym,KUaKh0leIUqPZloKJpws6g" />
+        <Link Id="GKgqHKEOJYDL1pvHEQ0Cj6" Ids="TkTIwLFhKFIMeaaEjNaZuV,VqTGqIhAVBsMNFvlfWMzaa" />
+        <Link Id="I7TpUsSGJhwOtKO2HgtX5w" Ids="QDqIwE2SB5fPVMmp88t7EZ,GRk2NTNfn5qO6pYUOt35rV" />
+        <Link Id="RgeYRtgdt5VMDj3GBg23Yc" Ids="GRk2NTNfn5qO6pYUOt35rV,P7VQYbxBSNrQbCTL4jvqFe" />
+        <Link Id="TyPc64DiQJ2N7TzVB7C4yH" Ids="LmIYJDp9vc8OqD5HgNmFeG,TQ0TZO7VWQIPNATFNBBW9z" />
+        <Link Id="RAdRmP0BCxMNsI2tmmuxi2" Ids="SyKeY03NnpzO5lzFgV0Rd9,L5JJ0OIXQKSQYcXH6NtVA8" />
+        <Link Id="K442HYewBluN3zIP99mv0G" Ids="FGsrp3Y8J8ZPTjxq4GRKYb,TbDZAqNAwatOyves5AUvgE" />
+        <Link Id="Jn1UgN73AUTQJZLdkvhzV7" Ids="TxJnMRZ4nfBPajpCudDB0Q,SKNmFSRuWqmMIzEdfGNSIu" />
+        <Link Id="VFz4LAAUZPcLMT8W4RL4O1" Ids="VIS1l5QMUoPM2ArQN3gJ4P,S1v8GTVg8UVMOA62fuzYLO" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="JRdH06hvLFRNeydb2nqmYs" Location="VL.IO.Redis" Version="0.0.0" />
+  <NugetDependency Id="EzVKpCRuQrFNkunCnGdePW" Location="VL.Stride" Version="0.0.0" />
+  <DocumentDependency Id="A6YZxndv76SQM2PNwfOquM" Location="../../RedisModule.vl" />
+</Document>
