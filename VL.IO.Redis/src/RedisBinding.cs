@@ -1,12 +1,6 @@
 ﻿using StackExchange.Redis;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using VL.Core.Reactive;
 using VL.Lib.Reactive;
 
@@ -117,6 +111,7 @@ namespace VL.IO.Redis
         public readonly Guid setID;
         public readonly Guid getID;
         public readonly IChannel channel;
+        public readonly IDisposable transaction;
 
         #region Model
         public readonly RedisBindingModel Model;
@@ -164,12 +159,14 @@ namespace VL.IO.Redis
         (
             IChannel channel,
             RedisBindingModel redisBindingModel,
-            IRedisModule redisModule
+            IRedisModule redisModule,
+            Func<RedisBinding,IDisposable> transaction
         )
         {
             this.channel = channel;
             this.Model = redisBindingModel;
             this.Module = redisModule;
+            this.transaction = transaction(this);
             this.setID = Guid.NewGuid();
             this.getID = Guid.NewGuid();
         }
@@ -192,6 +189,7 @@ namespace VL.IO.Redis
 
         public void Dispose()
         {
+            transaction?.Dispose();
             channel.RemoveComponent(this);
         }
     }

@@ -16,7 +16,14 @@ namespace VL.IO.Redis
 
     public static class ChannelExtensions
     {
-        public static IChannel<T> EnsureSingleRedisBinding<T>(this IChannel<T> channel, RedisBinding redisBinding)
+        public static void EnsureSingleRedisBinding(this IChannel channel, 
+            RedisBindingModel redisBindingModel,
+            IRedisModule redisModule,
+            Func<RedisBinding, IDisposable> transaction)
+        {
+            EnsureSingleRedisBinding(channel, new RedisBinding(channel, redisBindingModel, redisModule, transaction));
+        }
+        public static void EnsureSingleRedisBinding(this IChannel channel, RedisBinding redisBinding)
         {
             var result = channel.Components.OfType<RedisResult>();
 
@@ -48,12 +55,12 @@ namespace VL.IO.Redis
                 {
                     if (binding.FirstOrDefault() ==  redisBinding)
                     {
-                        return channel;
+                        return;
                     }
                     else
                     {
                         channel.Components = channel.Components.Replace(binding.First(), redisBinding);
-                        return channel;
+                        return;
                     }
                 }
                 else
@@ -63,27 +70,28 @@ namespace VL.IO.Redis
                     foreach (var k in binding)
                     {
                         builder.Remove(k);
+                        k.Dispose();
                     }
                     builder.Add(redisBinding);
                     channel.Components = builder.ToImmutable();
-                    return channel;
+                    return;
                 }
             }
             else 
             {
                 channel.Components = channel.Components.Add(redisBinding);
-                return channel;
+                return;
             }
         }
 
-        public static IChannel<T> TryGetRedisBinding<T>(this IChannel<T> channel, out bool success, out RedisBinding redisBindingModel)
+        public static IChannel TryGetRedisBinding(this IChannel channel, out bool success, out RedisBinding redisBindingModel)
         {
             redisBindingModel = channel.Components.OfType<RedisBinding>().FirstOrDefault();
             success = redisBindingModel != null;
             return channel;
         }
 
-        public static IChannel<T> GetRedisResult<T>(this IChannel<T> channel, out bool OnSuccessfulWrite, out bool OnSuccessfulRead, out bool OnRedisOverWrite)
+        public static IChannel GetRedisResult(this IChannel channel, out bool OnSuccessfulWrite, out bool OnSuccessfulRead, out bool OnRedisOverWrite)
         {
             var result = channel.Components.OfType<RedisResult>().FirstOrDefault();
             if (result != null)
@@ -99,38 +107,6 @@ namespace VL.IO.Redis
                 OnRedisOverWrite = false;
             }
             return channel;
-        }
-
-        public static IObservable<KeyValuePair<RedisBinding, T>> ToKeyValueObservable<T>(this IChannel<T> channel, out IObservable<RedisBinding> Model)
-        {
-
-            var model = channel.Components.OfType<RedisBinding>().FirstOrDefault();
-
-            Model = Observable.Start(
-                () =>
-                {
-                    return model;
-                }
-            );
-
-            return Observable.Create<KeyValuePair<RedisBinding, T>>((obs) =>
-            {
-                var syncObs = Observer.Synchronize(obs);
-                return channel.Subscribe(
-                    (v) =>
-                    {
-                        if (channel.LatestAuthor != "RedisOther")
-                            syncObs.OnNext(KeyValuePair.Create(channel.Components.OfType<RedisBinding>().FirstOrDefault(), v));
-                    },
-                    (ex) =>
-                    {
-                        syncObs.OnError(ex);
-                    },
-                    () => 
-                    {
-                        syncObs.OnCompleted();
-                    });      
-            });
         }
     }
 }
