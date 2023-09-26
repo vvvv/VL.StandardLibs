@@ -17,10 +17,19 @@ namespace VL.IO.Redis
     public static class ChannelExtensions
     {
         public static void EnsureSingleRedisBinding(this IChannel channel, 
-            RedisBindingModel redisBindingModel,
+            IRedisBindingModel redisBindingModel,
             IRedisModule redisModule,
             Func<RedisBinding, IDisposable> transaction)
         {
+            EnsureSingleRedisBinding(channel, new RedisBinding(channel, redisBindingModel, redisModule, transaction));
+        }
+        public static void EnsureSingleRedisBinding(this IChannel channel,
+            IRedisBindingModel redisBindingModel,
+            IRedisModule redisModule,
+            Func<RedisBinding, IDisposable> transaction,
+            out IRedisBindingModel redisBinding)
+        {
+            redisBinding = redisBindingModel;
             EnsureSingleRedisBinding(channel, new RedisBinding(channel, redisBindingModel, redisModule, transaction));
         }
         public static void EnsureSingleRedisBinding(this IChannel channel, RedisBinding redisBinding)
