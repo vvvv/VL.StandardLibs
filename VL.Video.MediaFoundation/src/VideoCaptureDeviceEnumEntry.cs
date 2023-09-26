@@ -1,4 +1,5 @@
 ﻿using System;
+using VL.Core.CompilerServices;
 using VL.Lib.Collections;
 
 namespace VL.Video.MediaFoundation
@@ -11,7 +12,7 @@ namespace VL.Video.MediaFoundation
         {
         }
 
-        //this method needs to be imported in VL to set the default
+        [CreateDefault]
         public static VideoCaptureDeviceEnumEntry CreateDefault() => CreateDefaultBase("No video capture device found");
     }
 }
