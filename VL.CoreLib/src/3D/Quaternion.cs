@@ -76,8 +76,8 @@ namespace VL.Lib.Mathematics
 
         public static void RotationVector(Vector3 pitchYawRoll, out Quaternion result)
         {
-            Stride.Core.Mathematics.Quaternion.RotationYawPitchRoll(pitchYawRoll.X * Float32Extensions.cyclesToRadians,
-                pitchYawRoll.Y * Float32Extensions.cyclesToRadians,
+            Stride.Core.Mathematics.Quaternion.RotationYawPitchRoll(pitchYawRoll.Y * Float32Extensions.cyclesToRadians,
+                pitchYawRoll.X * Float32Extensions.cyclesToRadians,
                 pitchYawRoll.Z * Float32Extensions.cyclesToRadians, out result);
         }
 

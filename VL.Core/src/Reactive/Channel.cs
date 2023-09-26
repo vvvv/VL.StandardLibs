@@ -11,6 +11,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using VL.Core;
+using VL.Lib.Collections;
 
 #nullable enable
 
@@ -289,13 +290,33 @@ namespace VL.Lib.Reactive
             return component;
         }
 
-        public static IChannel<IReadOnlyCollection<Attribute>> Attributes(this IChannel channel)
+        public static IChannel<Spread<Attribute>> Attributes(this IChannel channel)
             => channel.EnsureSingleComponentOfType(() =>
                 {
-                    var c = CreateChannelOfType<IReadOnlyCollection<Attribute>>();
-                    c.Value = Array.Empty<Attribute>();
+                    var c = CreateChannelOfType<Spread<Attribute>>();
+                    c.Value = Spread<Attribute>.Empty;
                     return c;
                 }, false);
+
+        public static bool TryGetAttribute<T>(this IChannel channel, [NotNullWhen(true)] out T? attribute) where T : Attribute
+        {
+            var attributes = channel.TryGetComponent<IChannel<Spread<Attribute>>>()?.Value;
+
+            if (attributes is not null)
+            {
+                foreach (var a in attributes)
+                {
+                    if (a is T t)
+                    {
+                        attribute = t;
+                        return true;
+                    }
+                }
+            }
+
+            attribute = null;
+            return false;
+        }
 
         public static IChannel<T> CreateChannelOfType<T>()
         {
