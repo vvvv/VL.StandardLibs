@@ -411,8 +411,9 @@ namespace VL.Core
 
         public static readonly IVLObject Default = new DefaultImpl();
 
-        static readonly Regex FValueIndexerRegex = new Regex(@"(.+)\[([0-9]+)\]$", RegexOptions.Compiled);
-        static readonly Regex FStringIndexerRegex = new Regex(@"(.+)\[""(.*?)""\]$", RegexOptions.Compiled);
+        static readonly Regex FPropertyRegex = new Regex(@"\.?([^/[/.]+)($|\[.*|\..*)$", RegexOptions.Compiled);
+        static readonly Regex FValueIndexerRegex = new Regex(@"\[(-?[0-9]+)\](.*)$", RegexOptions.Compiled);
+        static readonly Regex FStringIndexerRegex = new Regex(@"\[""(.+)""\](.*)$", RegexOptions.Compiled);
 
         /// <summary>
         /// Tries to retrieve the path from the instance to the descendant.
@@ -707,12 +708,22 @@ namespace VL.Core
         /// <param name="value">The value to set.</param>
         /// <returns>The new instance (if it is a record) with the set value.</returns>
         public static TInstance WithValue<TInstance, TValue>(this TInstance instance, string name, TValue value)
-            where TInstance : class, IVLObject
+            where TInstance : class
         {
-            var property = instance.Type.GetProperty(name);
-            if (property != null)
-                return (property.WithValue(instance, value) as TInstance) ?? instance;
-            return instance;
+            if (instance is IVLObject vlObj)
+            {
+                var property = vlObj.Type.GetProperty(name);
+                if (property != null)
+                    return (property.WithValue(vlObj, value) as TInstance) ?? instance;
+                return instance;
+            }
+
+            {
+                var type = instance.GetType();
+                var property = type.GetProperty(name);
+                property?.SetValue(instance, value);
+                return instance;
+            }
         }
 
         /// <summary>
@@ -724,27 +735,80 @@ namespace VL.Core
         /// <param name="defaultValue">The default value to use in case the lookup failed.</param>
         /// <param name="value">The returned value.</param>
         /// <returns>True if the lookup succeeded.</returns>
-        public static bool TryGetValueByPath<T>(this IVLObject instance, string path, T defaultValue, out T value)
+        public static bool TryGetValueByPath<T>(this object instance, string path, T defaultValue, out T value)
         {
-            var spine = instance.GetSpine(path);
-            var entry = spine.Pop();
-            var leaf = entry.Value;
-            return TryGetValueByExpression(leaf, entry.Key, defaultValue, out value);
-        }
+            if (path == "")
+            {
+                value = (T)instance; 
+                return value is T;
+            }
 
-        /// <summary>
-        /// Tries to set the value of the given path. The path is a dot separated string of property names.
-        /// </summary>
-        /// <typeparam name="TInstance">The type of the instance.</typeparam>
-        /// <typeparam name="TValue">The expected type of the value.</typeparam>
-        /// <param name="instance">The root instance to start the lookup from.</param>
-        /// <param name="path">A dot separated string of property names. Spreaded properties can be indexed using [N] for example "MySpread[0]" sets the first value in MySpread.</param>
-        /// <param name="value">The value to set.</param>
-        /// <returns>The new root instance (if it is a record) with the updated spine.</returns>
-        public static TInstance WithValueByPath<TInstance, TValue>(this TInstance instance, string path, TValue value)
-            where TInstance : class, IVLObject
-        {
-            return ((IVLObject)instance).WithValueByPath(path, value) as TInstance;
+            if (instance is IVLObject vlObj)
+            {
+                var match = FPropertyRegex.Match(path);
+                if (match.Success)
+                {
+                    var property = match.Groups[1].Value;
+                    var rest = match.Groups[2].Value;
+                    if (vlObj.TryGetValue(property, default(object), out var o))
+                    {
+                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                    }
+                }
+                value = default;
+                return false;
+            }
+
+            if (instance is ISpread spread)
+            {
+                var match = FValueIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    {
+                        var rest = match.Groups[2].Value;
+                        var o = spread.GetItem(index);
+                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                    }
+                }
+                value = default;
+                return false;
+            }
+
+            if (instance is IDictionary dict)
+            {
+                var match = FStringIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    var key = match.Groups[1].Value;
+                    var rest = match.Groups[2].Value;
+                    if (dict.Contains(key))
+                    {
+                        var o = dict[key];
+                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                    }
+                }
+                value = default;
+                return false;
+            }
+
+            {
+                var match = FPropertyRegex.Match(path);
+                if (match.Success)
+                {
+                    var type = instance.GetType();
+                    var propertyName = match.Groups[1].Value;
+                    var rest = match.Groups[2].Value;
+                    var property = type.GetProperty(propertyName);
+                    if (property != null)
+                    {
+                        var o = property.GetValue(instance);
+                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                    }
+                }
+                value = default;
+                return false;
+            }
         }
 
         /// <summary>
@@ -847,110 +911,88 @@ namespace VL.Core
             return false;
         }
 
-        static IVLObject WithValueByPath<T>(this IVLObject instance, string path, T value)
+        /// <summary>
+        /// Tries to set the value of the given path. The path is a dot separated string of property names.
+        /// </summary>
+        /// <typeparam name="TInstance">The type of the instance.</typeparam>
+        /// <typeparam name="TValue">The expected type of the value.</typeparam>
+        /// <param name="instance">The root instance to start the lookup from.</param>
+        /// <param name="path">A dot separated string of property names. Spreaded properties can be indexed using [N] for example "MySpread[0]" sets the first value in MySpread.</param>
+        /// <param name="value">The value to set.</param>
+        /// <returns>The new root instance (if it is a record) with the updated spine.</returns>
+
+        public static TInstance WithValueByPath<TInstance, TValue>(this TInstance instance, string path, TValue value)
+            where TInstance : class
         {
-            var spine = instance.GetSpine(path);
+            if (path == "")
+                return value as TInstance;
 
-            // Update the leaf with the value
-            var entry = spine.Pop();
-            var leaf = entry.Value;
-
-            var updatedInstance = leaf.WithValueFromExpression(entry.Key, value);
-
-            // Update the VL objects along the spine
-            while (spine.Count > 0)
+            if (instance is IVLObject vlObj)
             {
-                entry = spine.Pop();
-                updatedInstance = entry.Value.WithValueFromExpression(entry.Key, updatedInstance);
-            }
-
-            return updatedInstance;
-        }
-
-        static Stack<KeyValuePair<string, IVLObject>> GetSpine(this IVLObject instance, string path)
-        {
-            var stack = new Stack<KeyValuePair<string, IVLObject>>();
-            var p = path.Split('.');
-            var current = instance;
-            for (int i = 0; i < p.Length; i++)
-            {
-                stack.Push(new KeyValuePair<string, IVLObject>(p[i], current));
-                if (TryGetValueByExpression(current, p[i], default(IVLObject), out var next))
+                var match = FPropertyRegex.Match(path);
+                if (match.Success)
                 {
-                    current = next;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            return stack;
-        }
-
-        static bool TryGetValueByExpression<T>(this IVLObject instance, string expression, T defaultValue, out T value)
-        {
-            if (string.IsNullOrWhiteSpace(expression))
-            {
-                value = defaultValue;
-                return false;
-            }
-
-            if (TryParseValueIndexer(expression, out var propertyName, out var index))
-            {
-                if (TryGetValueByExpression(instance, propertyName, default(ISpread), out ISpread spread) && spread.Count > index)
-                {
-                    var item = spread.GetItem(index);
-                    if (item is T)
+                    var property = match.Groups[1].Value;
+                    var rest = match.Groups[2].Value;
+                    if (vlObj.TryGetValue(property, default(object), out var o))
                     {
-                        value = (T)item;
-                        return true;
+                        o = o.WithValueByPath(rest, value);
+                        return vlObj.WithValue(property, o) as TInstance;
                     }
                 }
-                value = defaultValue;
-                return false;
+                return instance;
             }
-            else if (TryParseStringIndexer(expression, out propertyName, out var key))
+
+            if (instance is ISpread spread)
             {
-                if (TryGetValueByExpression(instance, propertyName, default(IDictionary), out IDictionary dict))
+                var match = FValueIndexerRegex.Match(path);
+                if (match.Success)
                 {
+                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    {
+                        var rest = match.Groups[2].Value;
+                        var o = spread.GetItem(index);
+                        o = o.WithValueByPath(rest, value);
+                        return spread.SetItem(index, o) as TInstance;
+                    }
+                }
+                return instance;
+            }
+
+            if (instance is IDictionary dict)
+            {
+                var match = FStringIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    var key = match.Groups[1].Value;
+                    var rest = match.Groups[2].Value;
                     if (dict.Contains(key))
                     {
-                        var item = dict[key];
-                        if (item is T)
-                        {
-                            value = (T)item;
-                            return true;
-                        }
+                        var o = dict[key];
+                        o = o.WithValueByPath(rest, value);
+                        return SetItem(dict, key, o) as TInstance;
                     }
                 }
-                value = defaultValue;
-                return false;
-            }
-            else
-            {
-                return instance.TryGetValue(propertyName, defaultValue, out value);
-            }
-        }
-
-        static IVLObject WithValueFromExpression<T>(this IVLObject instance, string expression, T value)
-        {
-            if (string.IsNullOrWhiteSpace(expression))
-                return instance;
-
-            if (TryParseValueIndexer(expression, out var propertyName, out var index))
-            {
-                if (instance.TryGetValueByExpression(propertyName, null, out ISpread spread))
-                    return instance.WithValueFromExpression(propertyName, spread.SetItem(index, value));
-                return instance;
-            }
-            if (TryParseStringIndexer(expression, out propertyName, out var key))
-            {
-                if (instance.TryGetValueByExpression(propertyName, null, out IDictionary dict))
-                    return instance.WithValueFromExpression(propertyName, SetItem(dict, key, value));
                 return instance;
             }
 
-            return instance.WithValue(propertyName, value);
+            {
+                var match = FPropertyRegex.Match(path);
+                if (match.Success)
+                { 
+                    var type = instance.GetType();
+                    var propertyName = match.Groups[1].Value;
+                    var rest = match.Groups[2].Value;
+                    var property = type.GetProperty(propertyName);
+                    if (property != null)
+                    {
+                        var o = property.GetValue(instance);
+                        o = o.WithValueByPath(rest, value);
+                        property?.SetValue(instance, o);
+                    }
+                }
+                return instance;
+            }
         }
 
         static IDictionary SetItem(IDictionary dict, object key, object value)
@@ -969,42 +1011,6 @@ namespace VL.Core
                 dict[key] = value;
                 return dict;
             }
-        }
-
-        // Assume expression.Length > 0
-        static bool TryParseValueIndexer(string expression, out string propertyName, out int index)
-        {
-            if (expression[expression.Length - 1] == ']')
-            {
-                var match = FValueIndexerRegex.Match(expression);
-                if (match.Success)
-                {
-                    propertyName = match.Groups[1].Value;
-                    if (int.TryParse(match.Groups[2].Value, out index))
-                        return true;
-                }
-            }
-            propertyName = expression;
-            index = -1;
-            return false;
-        }
-
-        // Assume expression.Length > 0
-        static bool TryParseStringIndexer(string expression, out string propertyName, out string key)
-        {
-            if (expression[expression.Length - 1] == ']')
-            {
-                var match = FStringIndexerRegex.Match(expression);
-                if (match.Success)
-                {
-                    propertyName = match.Groups[1].Value;
-                    key = match.Groups[2].Value;
-                    return true;
-                }
-            }
-            propertyName = expression;
-            key = null;
-            return false;
         }
     }
 
