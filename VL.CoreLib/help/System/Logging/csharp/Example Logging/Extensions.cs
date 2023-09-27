@@ -32,10 +32,10 @@ namespace VL.System.Logging
             return builder;
         }
 
-        public static void Log(this ILogger logger, LogLevel logLevel, string message, Spread<object> args)
+        public static void Log(this ILogger logger, LogLevel logLevel, EventId eventId, string message, Spread<object> args)
         {
             if (logger.IsEnabled(logLevel))
-                logger.Log(logLevel, message, args.GetInternalArray());
+                logger.Log(logLevel, eventId, message, args.GetInternalArray());
         }
     }
 }

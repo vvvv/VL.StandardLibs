@@ -45,9 +45,9 @@ namespace VL.System.Logging
             return _loggerFactory.CreateLogger(categoryName);
         }
 
-        public ILogger CreateLogger(NodeContext nodeContext)
+        public ILogger CreateLogger(string categoryName, NodeContext nodeContext)
         {
-            var category = InferCategory(nodeContext) ?? "";
+            var category = string.IsNullOrEmpty(categoryName) ? InferCategory(nodeContext) ?? "" : categoryName;
             // Let MEL build a logger for the infered category
             var logger = CreateLogger(category);
             // Wrap that logger with one which will always attach the node context to the message
@@ -55,8 +55,7 @@ namespace VL.System.Logging
 
             string? InferCategory(NodeContext nodeContext)
             {
-                // First one is the node itself in which we're not interested here
-                return GetTypes(nodeContext).Skip(1).FirstOrDefault()?.FullName;
+                return GetTypes(nodeContext).FirstOrDefault()?.FullName;
             }
 
             IEnumerable<IVLTypeInfo> GetTypes(NodeContext nodeContext)
