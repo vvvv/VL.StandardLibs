@@ -58,7 +58,7 @@ namespace VL.Lib.Text
         private static unsafe void GetFonts_Gdi32(List<string> fonts)
         {
             var hdc = PInvoke.GetDC(default);
-            if (hdc.IsNull)
+            if (hdc.Value == 0)
                 return;
 
             try
