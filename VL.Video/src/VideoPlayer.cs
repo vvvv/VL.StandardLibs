@@ -27,7 +27,14 @@ namespace VL.Video
 
         public float SeekTime { get; set; }
 
-        public bool Seek { get; set; }
+        public bool Seek
+        {
+            set
+            {
+                if (value)
+                    SeekCount++;
+            }
+        }
 
         public float LoopStartTime { get; set; }
 
@@ -90,6 +97,8 @@ namespace VL.Video
         /// </summary>
         public ErrorState ErrorCode => currentPlayer?.ErrorCode ?? default;
 
+        internal int SeekCount;
+
         // This method is not really needed but makes it simpler to work with inside VL
         public IVideoSource Update(
             string url,
@@ -126,10 +135,10 @@ namespace VL.Video
             if (OperatingSystem.IsWindowsVersionAtLeast(8))
             {
                 var devicePtr = ctx.GraphicsDeviceType == GraphicsDeviceType.Direct3D11 ? ctx.GraphicsDevice : default;
-                var player = new MF.MFVideoPlayerImpl(this, devicePtr);
+                //var player = new MF.MFVideoPlayerImpl(this, devicePtr);
 
                 // TODO: Reads the file frame by frame. Nice! We need to explore this more.
-                //var player = new MF.MFVideoPlayer2Impl(ctx.FrameClock, Url, devicePtr);
+                var player = new MF.MFVideoPlayer2Impl(this, ctx.FrameClock, Url, devicePtr);
 
                 var previousPlayer = Interlocked.Exchange(ref currentPlayer, player);
                 player.DisposeAction = () =>

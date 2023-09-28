@@ -17,7 +17,7 @@ using Windows.Win32.Graphics.Direct3D10;
 using Windows.Win32.Graphics.Direct3D11;
 using Windows.Win32.Media.MediaFoundation;
 using Windows.Win32.System.Com;
-
+using Windows.Win32.System.Com.StructuredStorage;
 using static Windows.Win32.PInvoke;
 
 namespace VL.Video.MF
@@ -132,10 +132,30 @@ namespace VL.Video.MF
                 currentMediaType->GetUINT64(MF_MT_FRAME_RATE, out var frameRateRatio);
                 Utils.ParseFrameRate(frameRateRatio, out frameRate.n, out frameRate.d);
                 currentMediaType->Release();
+
+            }
+
+            // Retrieve duration
+            unchecked 
+            {
+                try
+                {
+                    reader->GetPresentationAttribute((uint)MF_SOURCE_READER_CONSTANTS.MF_SOURCE_READER_MEDIASOURCE, in MF_PD_DURATION, out var propVar);
+                    PropVariantToInt64(in propVar, out var duration);
+                    Duration = (float)(new TimeSpan(duration).TotalSeconds);
+                }
+                catch (Exception)
+                {
+
+                }
             }
         }
 
         public (int n, int d) FrameRate => frameRate;
+
+        public float FrameRateInFPS => Utils.ToFrameRate(frameRate.n, frameRate.d);
+
+        public float Duration { get; }
 
         private unsafe void TriggerRead()
         {
@@ -269,6 +289,20 @@ namespace VL.Video.MF
                         var sample = (IMFSample*)b.ToPointer();
                         sample->Release();
                     });
+            }
+        }
+
+        public unsafe void Seek(TimeSpan value)
+        {
+            var reader = (IMFSourceReader*)this.reader;
+            PROPVARIANT prop;
+            InitPropVariantFromInt64(value.Ticks, &prop);
+            reader->SetCurrentPosition(Guid.Empty, in prop);
+
+            void InitPropVariantFromInt64(long llVal, PROPVARIANT* ppropvar)
+            {
+                ppropvar->Anonymous.Anonymous.vt = Windows.Win32.System.Variant.VARENUM.VT_I8;
+                ppropvar->Anonymous.Anonymous.Anonymous.hVal = llVal;
             }
         }
 

@@ -45,6 +45,7 @@ namespace VL.Video.MF
         private float duration, currentTime;
         private NetworkState networkState;
         private ReadyState readyState;
+        private int seekCount;
 
         public MFVideoPlayerImpl(VideoPlayer videoPlayer, IntPtr devicePtr)
         {
@@ -255,8 +256,11 @@ namespace VL.Video.MF
 
             if (ReadyState >= ReadyState.HaveMetadata)
             {
-                if (videoPlayer.Seek)
+                var seekCount = videoPlayer.SeekCount;
+                if (seekCount > this.seekCount)
                 {
+                    this.seekCount = seekCount;
+
                     var seekTime = VLMath.Clamp(videoPlayer.SeekTime, 0, Duration);
                     engine->SetCurrentTime(seekTime).ThrowOnFailure();
                 }
