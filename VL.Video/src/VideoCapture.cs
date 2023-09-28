@@ -3,6 +3,7 @@ using Stride.Core.Mathematics;
 using System;
 using System.Reactive.Subjects;
 using System.Threading;
+using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
 using VL.Video.CaptureControl;
 
@@ -94,6 +95,7 @@ namespace VL.Video
                     return null;
 
                 var previousCapture = Interlocked.Exchange(ref currentCapture, capture);
+                capture.VideoCapture = this;
                 capture.DisposeAction = () =>
                 {
                     Interlocked.CompareExchange(ref currentCapture, previousCapture, capture);
