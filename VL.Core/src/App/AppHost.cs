@@ -8,6 +8,7 @@ using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading;
 using VL.Core.CompilerServices;
+using VL.Core.Logging;
 
 namespace VL.Core
 {
@@ -143,6 +144,11 @@ namespace VL.Core
         /// </summary>
         [Browsable(false)]
         public abstract IVLFactory Factory { get; }
+
+        /// <summary>
+        /// The logger factory of the app.
+        /// </summary>
+        public abstract LoggerFactory LoggerFactory { get; }
 
         /// <summary>
         /// The application patch.

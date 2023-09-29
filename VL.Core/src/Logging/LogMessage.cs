@@ -1,9 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using VL.Core;
+﻿#nullable enable
+using Microsoft.Extensions.Logging;
+using System;
 
-namespace VL.System.Logging
+namespace VL.Core.Logging
 {
     public record struct LogMessage(
+            NodePath NodePath,
             string Category,
             LogLevel LogLevel,
             EventId EventId,
@@ -13,8 +15,6 @@ namespace VL.System.Logging
     {
         public override string ToString() => Formatter(State, Exception);
 
-        public bool HasNodeContext => State is ILogMessageWithNodeContext;
-
-        public NodeContext NodeContext => State is ILogMessageWithNodeContext c ? c.NodeContext : NodeContext.Default;
+        public bool HasNodePath => !NodePath.IsDefault;
     }
 }
