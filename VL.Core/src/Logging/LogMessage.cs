@@ -5,6 +5,7 @@ using System;
 namespace VL.Core.Logging
 {
     public record struct LogMessage(
+            AppHost Host,
             NodePath NodePath,
             string Category,
             LogLevel LogLevel,
