@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>..\lib</OutputPath>
+
+    <!-- Warning about x64 MSIL mismatch on Stride native assemblies. Ignore because we're the Windows only package. -->
+    <NoWarn>$(NoWarn)MSB3270</NoWarn>
+
+    <Version>1.1.0-preview</Version>
+
+    <!-- Package properties -->
+    <VLPackageBasePath>..\</VLPackageBasePath>
+    <Description>Video player and capture nodes based on the Windows MediaFoundation API</Description>
+    <PackageTags>VL, videoin, videoplayer, camera, capture, movie, stream, avi, wmv, mp4, h264, mjpeg, mpeg, dv, mov</PackageTags>
+
+    <!-- When working in this repo is too slow, outcomment the following line, let it compiles once and then disable CsWin32 further down -->
+    <!--<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>-->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWin32">
+      <!-- Uncomment when using generated files directly -->
+      <!--<IncludeAssets>none</IncludeAssets>-->
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

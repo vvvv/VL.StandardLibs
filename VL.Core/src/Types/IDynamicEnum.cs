@@ -333,17 +333,12 @@ namespace VL.Lib.Collections
        where TDefinitionSubclass : DynamicEnumDefinitionBase<TDefinitionSubclass>, new()
     {
         //singleton pattern
-        static readonly Lazy<TDefinitionSubclass> Singleton = new Lazy<TDefinitionSubclass>(() => new TDefinitionSubclass());
-        public static TDefinitionSubclass Instance
-        {
-            get
-            {
-                var singleton = Singleton.Value;
-                if (!singleton.FInitialized)
-                    singleton.InternalInitialize();
 
-                return singleton;
-            }
+        public static TDefinitionSubclass Instance { get; } = new TDefinitionSubclass();
+
+        public DynamicEnumDefinitionBase()
+        {
+            InternalInitialize();
         }
              
         //IDynamicEnumDefinition interface implementation
@@ -365,8 +360,6 @@ namespace VL.Lib.Collections
 
         IReadOnlyDictionary<string, object> FEntriesLookup;
 
-        //init setup
-        bool FInitialized;
         protected virtual void Initialize() { }
         private void InternalInitialize()
         {
@@ -385,8 +378,6 @@ namespace VL.Lib.Collections
                 .DisposeBy(AppHost.Global);
 
             SetNewEntries();
-
-            FInitialized = true;
         }
 
         public string EmptyEnumFallbackMessage
