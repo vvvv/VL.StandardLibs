@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="AeLw27X3UZTPbUKzkJqoag" LanguageVersion="2023.5.3-0173-gab83e16b7b" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="AeLw27X3UZTPbUKzkJqoag" LanguageVersion="2023.5.3-0199-g6349bafafc" Version="0.128">
   <Patch Id="R1hgnY3rx8dQUrxE9sHqpq">
     <Canvas Id="IZD4vCZBBJGPV5bGjq6SQa" DefaultCategory="Reactive" CanvasType="FullCategory">
       <!--
@@ -14521,11 +14521,6 @@
                   </Node>
                   <ControlPoint Id="OkKl6HIxFREPdxvL9fSNDe" Bounds="364,460" />
                 </Canvas>
-                <!--
-
-    ************************  ************************
-
--->
                 <ProcessDefinition Id="DOEuIEuB4ppPV1AJ83xuUC">
                   <Fragment Id="OYXL9Dp9QlIP3nPsYgWblj" Patch="Hpo1KBOedlNO1TmHOcS3fk" Enabled="true" />
                   <Fragment Id="CiyB7w5FLnHNqAtV3CTfMf" Patch="C8Qafi441h2Pm3TqtEV4i5" Enabled="true" />
@@ -15618,6 +15613,14 @@
                     <Pin Id="QPp6pcPZL2lPCLpUQjQD1y" Name="Result" Kind="OutputPin" />
                     <Pin Id="D3YUEfBeDUlQaKVKvazmgp" Name="Not Assigned" Kind="OutputPin" />
                   </Node>
+                  <Node Bounds="279,119,58,19" Id="NvbRaKWrWyJPUwR37TJ6OS">
+                    <p:NodeReference LastCategoryFullName="Primitive.Object" LastDependency="CoreLibBasics.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <Choice Kind="OperationCallFlag" Name="HardCast" />
+                    </p:NodeReference>
+                    <Pin Id="G5tpJoS5dXnOBQExRrGSJC" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="P49Kfpime2vOlELyxDjShT" Name="Result" Kind="OutputPin" />
+                  </Node>
                 </Canvas>
                 <ProcessDefinition Id="MekWoE6C7qlLQe9KrfMd2a">
                   <Fragment Id="OB01MbGzp8sMYTfblznf1n" Patch="AJ8tY7Mffo0NrhKAtlacXH" Enabled="true" />
@@ -15634,7 +15637,7 @@
                 <Link Id="M41CxbvMbWfNEQ6VlqT48g" Ids="JwB2CEnIne5PKhI6GbA6Ew,SE8PsAYhX5iO2c6Xju5les" />
                 <Link Id="KY0xQCUTBWFLMJ0lKQgYxb" Ids="KujKnuBeXHeO914zWuXtOZ,HHEHr16GDE1OtzDf0ShqwJ" />
                 <Link Id="GpaSt0TOCf4QH99EYzhWP5" Ids="JhGgDB7rOQ6MjDuzIBsQ42,TBQhZreLH2xQZFrBnB4kpI" />
-                <Link Id="Hv0KjhhnsdcQTBlCXZwqDT" Ids="KujKnuBeXHeO914zWuXtOZ,COw9VfhCioxOg24WXJa8K5" />
+                <Link Id="Hv0KjhhnsdcQTBlCXZwqDT" Ids="KujKnuBeXHeO914zWuXtOZ,G5tpJoS5dXnOBQExRrGSJC" />
                 <Link Id="ERiQ1zypllCLBQMFHHylmG" Ids="VY9A21hBxntMjalrrEKLow,Ga4AMSloaVAMszfmDcA1AN" />
                 <Link Id="Jiyu8gOnUJbMsH8clEW9EX" Ids="HHEHr16GDE1OtzDf0ShqwJ,JhGgDB7rOQ6MjDuzIBsQ42" IsFeedback="true" />
                 <Link Id="SQJFN4sODyPLK5MDZw2xZH" Ids="HHEHr16GDE1OtzDf0ShqwJ,JhGgDB7rOQ6MjDuzIBsQ42" />
@@ -15651,6 +15654,7 @@
                 <Link Id="KTT0GAFeuftOSJrXJqodOl" Ids="VsmbV0Rq3BxO2AgNbzM9rK,CHKdW6xsoFEOZUtru30vV9" />
                 <Link Id="UnJ3OJ1BbC5NtxjSmqfwQd" Ids="HHEHr16GDE1OtzDf0ShqwJ,PXD8G6pafcJOYNvrU3GCJV" />
                 <Link Id="NLNs1HM1bm3QURxss4ogyc" Ids="K61WUeUfdiQN4AKi9MLvMk,DRgodYwODSLO4EpcskeSCq" />
+                <Link Id="VnQVkkebQtePwtXw4AakZq" Ids="P49Kfpime2vOlELyxDjShT,COw9VfhCioxOg24WXJa8K5" />
                 <Patch Id="AJ8tY7Mffo0NrhKAtlacXH" Name="Create" />
                 <Patch Id="Pp2ECsMSZ8mNRHWHgmSSmh" Name="Update" ManuallySortedPins="true">
                   <Pin Id="UDrEBlncWsaOw7wr97JmE6" Name="Path" Kind="InputPin" />
@@ -15664,7 +15668,16 @@
                       </p:TypeArguments>
                     </p:TypeAnnotation>
                   </Pin>
-                  <Pin Id="Cog0YvwPSJxOuWX8N33GGz" Name="Channel" Kind="OutputPin" />
+                  <Pin Id="Cog0YvwPSJxOuWX8N33GGz" Name="Channel" Kind="OutputPin">
+                    <p:TypeAnnotation LastCategoryFullName="Reactive" LastDependency="VL.Reactive.vl">
+                      <Choice Kind="TypeFlag" Name="Channel" />
+                      <p:TypeArguments>
+                        <TypeReference>
+                          <Choice Kind="TypeFlag" Name="T" />
+                        </TypeReference>
+                      </p:TypeArguments>
+                    </p:TypeAnnotation>
+                  </Pin>
                   <Pin Id="JZCVG44NcDGP8PD8cfRwbH" Name="Value" Kind="OutputPin">
                     <p:TypeAnnotation>
                       <Choice Kind="TypeFlag" Name="T" />
