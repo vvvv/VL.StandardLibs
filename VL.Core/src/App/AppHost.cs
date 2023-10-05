@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -146,9 +147,14 @@ namespace VL.Core
         public abstract IVLFactory Factory { get; }
 
         /// <summary>
-        /// The logger factory of the app.
+        /// The logger factory of the app. Logging gets configured by <see cref="IStartup.SetupLogging(AppHost, Microsoft.Extensions.Logging.ILoggingBuilder)"/>.
         /// </summary>
         public abstract LoggerFactory LoggerFactory { get; }
+
+        /// <summary>
+        /// The configuration of the app. The configuration gets initialized by <see cref="IStartup.SetupConfiguration(AppHost, IConfigurationBuilder)"/>.
+        /// </summary>
+        public abstract IConfiguration Configuration { get; }
 
         /// <summary>
         /// The application patch.
