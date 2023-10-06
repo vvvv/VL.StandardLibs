@@ -11,7 +11,7 @@ using VL.Lib.Reactive;
 
 namespace VL.IO.Redis
 {
-    public class Transaction : IDisposable
+    public class Transaction<T> : IDisposable
     {
         readonly IDisposable disposable = null;
         readonly RedisBinding binding;
@@ -22,9 +22,9 @@ namespace VL.IO.Redis
             Func<ITransaction, RedisKey, Task<RedisValue>> RedisChangedCommand,
             Func<ITransaction, KeyValuePair<RedisKey, RedisValue>, Task<bool>> ChannelChangedCommand,
             Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges,
-            Func<object, RedisValue> serialize,
+            Func<T, RedisValue> serialize,
             Func<bool, bool> DeserializeSet,
-            Func<RedisValue, object> DeserializeGet)
+            Func<RedisValue, T> DeserializeGet)
         {
             this.binding = binding;
 
@@ -73,16 +73,16 @@ namespace VL.IO.Redis
             );
         }
 
-        private IObservable<ValueTuple<RedisCommandQueue, object>> SerializeSetAndPushChanges(
+        private IObservable<ValueTuple<RedisCommandQueue, T>> SerializeSetAndPushChanges(
             IObservable<RedisCommandQueue> queue,
-            Func<object, RedisValue> serialize,
+            Func<T, RedisValue> serialize,
             Func<ITransaction, KeyValuePair<RedisKey, RedisValue>, Task<bool>> ChannelChangedCommand,
             Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges)
         {
             return ReactiveExtensions.
                 WithLatestWhenNew(binding.channel.ChannelOfObject, queue, (c, q) =>
                 {
-                    return ValueTuple.Create(q, c);
+                    return ValueTuple.Create(q, (T)c);
                 }).
                 Select((input) =>
                 {
@@ -111,7 +111,7 @@ namespace VL.IO.Redis
 
         private IObservable<ValueTuple<bool, bool, bool>> Deserialize(
             Func<bool, bool> DeserializeSet,
-            Func<RedisValue, object> DeserializeGet)
+            Func<RedisValue, T> DeserializeGet)
         {
             var beforeFrameResult = binding.BeforFrame
                 .Select(t =>
@@ -120,7 +120,7 @@ namespace VL.IO.Redis
 
                     bool OnSuccessfulWrite = false;
                     bool OnSuccessfulRead = false;
-                    object result = default(object);
+                    T result = default(T);
 
                     if (dict != null)
                     {
@@ -191,7 +191,7 @@ namespace VL.IO.Redis
                         OnRedisOverWrite = true;
                     }
 
-                    return ValueTuple.Create(false, OnSuccessfulRead, OnRedisOverWrite, default(object));
+                    return ValueTuple.Create(false, OnSuccessfulRead, OnRedisOverWrite, default(T));
                 })
                 .Where(T => T.Item3);
 
