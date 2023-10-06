@@ -479,17 +479,27 @@
                 <Patch Id="T99sZ6XGx2pM8UHI4JfDpj" Name="Create" ManuallySortedPins="true" />
                 <Patch Id="S63WGk5M02uP4KVP5DEkTE" Name="Then" ManuallySortedPins="true" />
                 <Node Bounds="778,582,292,26" Id="BjZSHW45d6IPmbDTbIPexI">
-                  <p:NodeReference LastCategoryFullName="VL.IO.Redis.ChannelExtensions" LastDependency="VL.IO.Redis.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+                  <p:NodeReference LastCategoryFullName="VL.IO.Redis.ChannelExtensions" LastDependency="VL.IO.RedisRuntime.vl" OverloadStrategy="AllPinsThatAreNotCommon">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                     <Choice Kind="OperationCallFlag" Name="EnsureSingleRedisBinding" />
-                    <PinReference Kind="InputPin" Name="Redis Binding Model" />
+                    <PinReference Kind="InputPin" Name="Redis Binding Model">
+                      <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="IO.Redis" LastDependency="VL.IO.RedisRuntime.vl">
+                        <Choice Kind="TypeFlag" Name="IRedisBindingModel" />
+                      </p:DataTypeReference>
+                    </PinReference>
                     <PinReference Kind="InputPin" Name="Redis Module" />
                     <PinReference Kind="InputPin" Name="Transaction" />
+                    <PinReference Kind="OutputPin" Name="Redis Binding" ParameterModifier="ref">
+                      <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="Reactive.ChannelHub.Modules" LastDependency="VL.CoreLib.vl">
+                        <Choice Kind="TypeFlag" Name="IBinding" />
+                      </p:DataTypeReference>
+                    </PinReference>
                   </p:NodeReference>
                   <Pin Id="APIuunuzaEEMkmcrYjCInV" Name="Input" Kind="StateInputPin" />
                   <Pin Id="IUzHk1AHzcOLHk4I3czZ6S" Name="Redis Binding Model" Kind="InputPin" />
                   <Pin Id="FqoOwcTSnjYL4Z9SSofXLm" Name="Redis Module" Kind="InputPin" />
                   <Pin Id="DI6QNqhDGd1LKHqxc9epfE" Name="Transaction" Kind="InputPin" />
+                  <Pin Id="COhFa99MxoFPMEBN56NHSc" Name="Redis Binding" Kind="OutputPin" />
                 </Node>
                 <Node Bounds="969,408,113,19" Id="IwV01fTlEYGO2uREScP1g1">
                   <p:NodeReference LastCategoryFullName="IO.Redis" LastDependency="VL.IO.RedisRuntime.vl">
@@ -499,7 +509,7 @@
                   <Pin Id="HY5DVtQWAHjNsdQXIbfzrH" Name="Input" Kind="InputPin" />
                   <Pin Id="KHczYkbriF3Nf6SFMAsRky" Name="Output" Kind="OutputPin" />
                 </Node>
-                <Node Bounds="873,180,347,19" Id="SXV6YVWop2KPH4Kd4Rj9AM">
+                <Node Bounds="873,180,347,26" Id="SXV6YVWop2KPH4Kd4Rj9AM">
                   <p:NodeReference LastCategoryFullName="IO.Redis.RedisBindingModel" LastDependency="VL.IO.RedisRuntime.vl">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                     <CategoryReference Kind="RecordType" Name="RedisBindingModel" />
@@ -740,10 +750,19 @@
                   </Patch>
                 </Node>
               </Patch>
+              <ControlPoint Id="IhnhD7YVvocPC4XVZgVMKL" Bounds="780,622" Alignment="Bottom" />
             </Node>
             <ControlPoint Id="DmuSGUEQYddLx5f7Rs1Dl3" Bounds="1047,41" />
             <ControlPoint Id="OO4wONvDy42NzY0o7K5Q2m" Bounds="1133,41" />
             <ControlPoint Id="LqWjBUBxP2yPq5iowsVcJD" Bounds="961,41" />
+            <Pad Id="Ujq9Dfz5K3BNSdoFTk6FRf" Comment="Dispose Cached Outputs" Bounds="2820,95,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+              </p:TypeAnnotation>
+              <p:ValueBoxSettings>
+                <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+              </p:ValueBoxSettings>
+            </Pad>
           </Canvas>
           <Link Id="FNp3OKSNVCANGZHrtKkBRs" Ids="AzOYtNLma0hP1aQPSqVYGw,MK5Ut4jqi4XLTR2uoZmsid" IsHidden="true" />
           <Link Id="PM5R9nke4qINKmdTdTOYlB" Ids="AiWXRYnV6DgNzogNiKWSVE,MclBGS42zMKMsZ5bYTpXmo" IsHidden="true" />
@@ -850,6 +869,8 @@
             </Pin>
             <Pin Id="CT9wjXTCLprOvpUjnPYi51" Name="Client" Kind="OutputPin" Bounds="759,1360" Visibility="Optional" />
           </Patch>
+          <Link Id="SQYLwgtTWyVLeyYQil1bRw" Ids="COhFa99MxoFPMEBN56NHSc,IhnhD7YVvocPC4XVZgVMKL" />
+          <Link Id="D5UuiwbkHZRLqevGJ0iJ61" Ids="Ujq9Dfz5K3BNSdoFTk6FRf,K15LBDomRqlLpqLLKzbtmg" />
         </Patch>
       </Node>
       <Canvas Id="FK5EVy1uzK3Nvy9tJGJ9PK" Name="Experimental" Position="963,311">
