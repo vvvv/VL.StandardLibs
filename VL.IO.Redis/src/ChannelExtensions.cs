@@ -38,10 +38,10 @@ namespace VL.IO.Redis
             IRedisBindingModel redisBindingModel,
             IRedisModule redisModule,
             Func<RedisBinding, IDisposable> transaction,
-            out IBinding RedisBinding)
+            out RedisBinding RedisBinding)
         {
             RedisBinding = new RedisBinding(channel, redisBindingModel, redisModule, transaction);
-            EnsureSingleRedisBinding(channel, (RedisBinding)RedisBinding);
+            EnsureSingleRedisBinding(channel, RedisBinding);
         }
 
         public static void EnsureSingleRedisBinding(this IChannel channel, RedisBinding redisBinding)
