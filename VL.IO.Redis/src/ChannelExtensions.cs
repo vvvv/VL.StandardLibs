@@ -9,6 +9,7 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using VL.Core.Reactive;
 using VL.Lib.Reactive;
 
 namespace VL.IO.Redis
@@ -16,23 +17,17 @@ namespace VL.IO.Redis
 
     public static class ChannelExtensions
     {
-        public static void EnsureSingleRedisBinding(this IChannel channel, 
-            IRedisBindingModel redisBindingModel,
+        public static void EnsureSingleRedisBinding(
             IRedisModule redisModule,
-            Func<RedisBinding, IDisposable> transaction)
-        {
-            EnsureSingleRedisBinding(channel, new RedisBinding(channel, redisBindingModel, redisModule, transaction));
-        }
-        public static void EnsureSingleRedisBinding(this IChannel channel,
+            IChannel channel,
             IRedisBindingModel redisBindingModel,
-            IRedisModule redisModule,
             Func<RedisBinding, IDisposable> transaction,
-            out IRedisBindingModel redisBinding)
+            out RedisBinding RedisBinding)
         {
-            redisBinding = redisBindingModel;
-            EnsureSingleRedisBinding(channel, new RedisBinding(channel, redisBindingModel, redisModule, transaction));
+            RedisBinding = new RedisBinding(channel, redisBindingModel, redisModule, transaction);
+            EnsureSingleRedisBinding(channel, RedisBinding);
         }
-        public static void EnsureSingleRedisBinding(this IChannel channel, RedisBinding redisBinding)
+        private static void EnsureSingleRedisBinding(this IChannel channel, RedisBinding redisBinding)
         {
             var result = channel.Components.OfType<RedisResult>();
 

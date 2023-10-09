@@ -11,21 +11,24 @@ using VL.Lib.Reactive;
 
 namespace VL.IO.Redis
 {
-    public class Transaction : IDisposable
+    public class Transaction<T> : IDisposable
     {
         readonly IDisposable disposable = null;
         readonly RedisBinding binding;
+        private bool init = false;
 
         public Transaction(
             RedisBinding binding,
             Func<ITransaction, RedisKey, Task<RedisValue>> RedisChangedCommand,
             Func<ITransaction, KeyValuePair<RedisKey, RedisValue>, Task<bool>> ChannelChangedCommand,
             Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges,
-            Func<object, RedisValue> serialize,
+            Func<T, RedisValue> serialize,
             Func<bool, bool> DeserializeSet,
-            Func<RedisValue, object> DeserializeGet)
+            Func<RedisValue, T> DeserializeGet)
         {
             this.binding = binding;
+
+            this.init = binding.Initialisation == Initialisation.Redis;
 
             var onRedisChangeNotificationOrFirstFrame = OnRedisChangeNotificationOrFirstFrame(RedisChangedCommand);
 
@@ -39,8 +42,6 @@ namespace VL.IO.Redis
         private IObservable<RedisCommandQueue> OnRedisChangeNotificationOrFirstFrame(
             Func<ITransaction, RedisKey, Task<RedisValue>> RedisChangedCommand)
         {
-            bool firstFrame = true;
-
             return binding.AfterFrame
                 .Select((queue) =>
                 {
@@ -50,8 +51,7 @@ namespace VL.IO.Redis
                         (
                             (binding.BindingType == RedisBindingType.Receive || binding.BindingType == RedisBindingType.SendAndReceive) &&
                             (
-                                (queue.ReceivedChanges.Contains(binding.Key) && queue.ReceivedChanges.Count > 0) ||
-                                (firstFrame && binding.Initialisation == Initialisation.Redis)
+                                (queue.ReceivedChanges.Contains(binding.Key) && queue.ReceivedChanges.Count > 0) || init
                             )
                             ||
                             binding.BindingType == RedisBindingType.AlwaysReceive
@@ -65,7 +65,6 @@ namespace VL.IO.Redis
                                     Enumerable.Empty<RedisKey>()
                                 )
                             );
-                            firstFrame = false;
                         }
                     }
 
@@ -74,16 +73,16 @@ namespace VL.IO.Redis
             );
         }
 
-        private IObservable<ValueTuple<RedisCommandQueue, object>> SerializeSetAndPushChanges(
+        private IObservable<ValueTuple<RedisCommandQueue, T>> SerializeSetAndPushChanges(
             IObservable<RedisCommandQueue> queue,
-            Func<object, RedisValue> serialize,
+            Func<T, RedisValue> serialize,
             Func<ITransaction, KeyValuePair<RedisKey, RedisValue>, Task<bool>> ChannelChangedCommand,
             Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges)
         {
             return ReactiveExtensions.
                 WithLatestWhenNew(binding.channel.ChannelOfObject, queue, (c, q) =>
                 {
-                    return ValueTuple.Create(q, c);
+                    return ValueTuple.Create(q, (T)c);
                 }).
                 Select((input) =>
                 {
@@ -112,7 +111,7 @@ namespace VL.IO.Redis
 
         private IObservable<ValueTuple<bool, bool, bool>> Deserialize(
             Func<bool, bool> DeserializeSet,
-            Func<RedisValue, object> DeserializeGet)
+            Func<RedisValue, T> DeserializeGet)
         {
             var beforeFrameResult = binding.BeforFrame
                 .Select(t =>
@@ -121,7 +120,7 @@ namespace VL.IO.Redis
 
                     bool OnSuccessfulWrite = false;
                     bool OnSuccessfulRead = false;
-                    object result = default(object);
+                    T result = default(T);
 
                     if (dict != null)
                     {
@@ -129,17 +128,20 @@ namespace VL.IO.Redis
                         {
                             if (dict.TryGetValue(binding.getID, out var getValue))
                             {
-                                result = DeserializeGet((RedisValue)getValue);
-                                binding.channel.SetObjectAndAuthor(result, "RedisOther");
-                                OnSuccessfulRead = true;
-                            }
-                            else
-                            {
-                                if (dict.TryGetValue(binding.setID, out var setValue))
+                                if (!((RedisValue)getValue).IsNull)
                                 {
-                                    OnSuccessfulWrite = DeserializeSet((bool)setValue);
+                                    result = DeserializeGet((RedisValue)getValue);
+                                    binding.channel.SetObjectAndAuthor(result, "RedisOther");
+                                    OnSuccessfulRead = true;
+                                    if (init)
+                                    {
+                                        init = false;
+                                    }
                                 }
-
+                            }
+                            if (dict.TryGetValue(binding.setID, out var setValue))
+                            {
+                                OnSuccessfulWrite = DeserializeSet((bool)setValue);
                             }
                         }
                         else
@@ -148,13 +150,17 @@ namespace VL.IO.Redis
                             {
                                 OnSuccessfulWrite = DeserializeSet((bool)setValue);
                             }
-                            else
+                            if (dict.TryGetValue(binding.getID, out var getValue))
                             {
-                                if (dict.TryGetValue(binding.getID, out var getValue))
+                                if (!((RedisValue)getValue).IsNull)
                                 {
                                     result = DeserializeGet((RedisValue)getValue);
                                     binding.channel.SetObjectAndAuthor(result, "RedisOther");
                                     OnSuccessfulRead = true;
+                                    if (init)
+                                    {
+                                        init = false;
+                                    }
                                 }
                             }
                         }
@@ -185,7 +191,7 @@ namespace VL.IO.Redis
                         OnRedisOverWrite = true;
                     }
 
-                    return ValueTuple.Create(false, OnSuccessfulRead, OnRedisOverWrite, default(object));
+                    return ValueTuple.Create(false, OnSuccessfulRead, OnRedisOverWrite, default(T));
                 })
                 .Where(T => T.Item3);
 

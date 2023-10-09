@@ -12,9 +12,10 @@ namespace VL.IO.Redis
 {
     public class RedisCommandQueue : IDisposable
     {
-        internal  Guid _id;
+        internal  Guid id;
 
         internal ConnectionMultiplexer Multiplexer;
+        internal IDatabase Database;
         internal ITransaction Transaction;
 
         internal ConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>> Cmds = new ConcurrentQueue<Func<ITransaction, (Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>)>>();
@@ -23,15 +24,16 @@ namespace VL.IO.Redis
         internal PooledSet<string> Changes = new PooledSet<string>();
         internal PooledSet<string> ReceivedChanges = new PooledSet<string>();
 
-        public RedisCommandQueue(Guid id)
-        {
-            _id                 = id;
-        }
-
-        public void CreateTransaction(IDatabase database, ConnectionMultiplexer Multiplexer)
+        public RedisCommandQueue(ConnectionMultiplexer Multiplexer, Guid id)
         {
             this.Multiplexer = Multiplexer;
-            Transaction = database.CreateTransaction();
+            this.id = id;
+        }
+
+        public void CreateTransaction(IDatabase Database)
+        {
+            this.Database = Database;
+            Transaction = Database.CreateTransaction();
         }
 
         public void Clear()

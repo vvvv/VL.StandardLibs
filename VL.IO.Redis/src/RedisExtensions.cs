@@ -17,7 +17,7 @@ namespace VL.IO.Redis
 
     public static class RedisExtensions
     {
-        public static Guid getID(this RedisCommandQueue queue) { return queue._id; }
+        public static Guid getID(this RedisCommandQueue queue) { return queue.id; }
 
         public static ValueTuple<RedisCommandQueue, TInput> Enqueue<TInput, TOutput>
         (
@@ -78,7 +78,7 @@ namespace VL.IO.Redis
                         if (!queue.Changes.IsEmpty())
                         {
                             var p = publishChanges.Invoke(queue.Changes.ToImmutable());
-                            queue.Tasks.Enqueue(queue.Transaction.PublishAsync(new RedisChannel(p.Item2 + "_" + queue._id.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(queue._id, (object)t.Result)));
+                            queue.Tasks.Enqueue(queue.Transaction.PublishAsync(new RedisChannel(p.Item2 + "_" + queue.id.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(queue.id, (object)t.Result)));
                         }
                         action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond), queue.Tasks.Count);
 
