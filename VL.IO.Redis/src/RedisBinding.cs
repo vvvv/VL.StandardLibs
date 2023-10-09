@@ -1,12 +1,6 @@
 ﻿using StackExchange.Redis;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using VL.Core.Reactive;
 using VL.Lib.Reactive;
 
@@ -46,6 +40,7 @@ namespace VL.IO.Redis
     {
         public IObservable<RedisCommandQueue> AfterFrame { get; }
         public IObservable<ImmutableDictionary<Guid,object>> BeforFrame { get; }
+        public void RemoveBinding(string ChannelPath);
     }
 
     public record RedisModuleRuntime : IRedisModule
@@ -69,77 +64,92 @@ namespace VL.IO.Redis
             this.afterFrame = AfterFrame;
             this.beforFrame = BeforFrame;
         }
+
+        public void RemoveBinding(string ChannelPath)
+        {
+            
+        }
     }
 
-    public record RedisBindingModel
+    public interface IRedisBindingModel
     {
-        public readonly RedisKey Key;
-        public readonly RedisBindingType BindingType;
-        public readonly Initialisation Initialisation;
-        public readonly CollisionHandling CollisionHandling;
-        public readonly string ChannelPath;
-
-        public RedisBindingModel
-        (
-            string Key,
-            RedisBindingType BindingType,
-            Initialisation Initialisation,
-            CollisionHandling CollisionHandling,
-            string ChannelPath
-        )
-        {
-            this.Key = Key;
-            this.BindingType = BindingType;
-            this.Initialisation = Initialisation;
-            this.CollisionHandling = CollisionHandling;
-            this.ChannelPath = ChannelPath;
-        }
-
-        public void Split
-        (
-            out string Key,
-            out RedisBindingType BindingType,
-            out Initialisation Initialisation,
-            out CollisionHandling CollisionHandling,
-            out string ChannelPath
-        )
-        {
-            Key = this.Key;
-            BindingType = this.BindingType;
-            Initialisation = this.Initialisation;
-            CollisionHandling = this.CollisionHandling;
-            ChannelPath = this.ChannelPath;
-        }
+        public string Key { get; }
+        public RedisBindingType BindingType { get; }
+        public Initialisation Initialisation { get; }
+        public CollisionHandling CollisionHandling { get; }
+        public string ChannelPath { get; }
     }
+
+    //public record RedisBindingModel : IRedisBindingModel
+    //{
+    //    public string Key { get; }
+    //    public RedisBindingType BindingType{ get; }
+    //    public Initialisation Initialisation { get; }
+    //    public CollisionHandling CollisionHandling { get; }
+    //    public string ChannelPath { get; }
+
+    //    public RedisBindingModel
+    //    (
+    //        string Key,
+    //        RedisBindingType BindingType,
+    //        Initialisation Initialisation,
+    //        CollisionHandling CollisionHandling,
+    //        string ChannelPath
+    //    )
+    //    {
+    //        this.Key = Key;
+    //        this.BindingType = BindingType;
+    //        this.Initialisation = Initialisation;
+    //        this.CollisionHandling = CollisionHandling;
+    //        this.ChannelPath = ChannelPath;
+    //    }
+
+    //    public void Split
+    //    (
+    //        out string Key,
+    //        out RedisBindingType BindingType,
+    //        out Initialisation Initialisation,
+    //        out CollisionHandling CollisionHandling,
+    //        out string ChannelPath
+    //    )
+    //    {
+    //        Key = this.Key;
+    //        BindingType = this.BindingType;
+    //        Initialisation = this.Initialisation;
+    //        CollisionHandling = this.CollisionHandling;
+    //        ChannelPath = this.ChannelPath;
+    //    }
+    //}
 
     public record RedisBinding : IBinding
     {
         public readonly Guid setID;
         public readonly Guid getID;
         public readonly IChannel channel;
+        public readonly IDisposable transaction;
 
         #region Model
-        public readonly RedisBindingModel Model;
-        public RedisKey Key => Model.Key;
-        public RedisBindingType BindingType => Model.BindingType;
-        public Initialisation Initialisation => Model.Initialisation;
-        public CollisionHandling CollisionHandling => Model.CollisionHandling;
-        public string ChannelPath => Model.ChannelPath;
+        public readonly IRedisBindingModel redisBindingModel;
+        public RedisKey Key => redisBindingModel.Key;
+        public RedisBindingType BindingType => redisBindingModel.BindingType;
+        public Initialisation Initialisation => redisBindingModel.Initialisation;
+        public CollisionHandling CollisionHandling => redisBindingModel.CollisionHandling;
+        public string ChannelPath => redisBindingModel.ChannelPath;
         #endregion Model
 
         #region Module
-        public readonly IRedisModule Module;
-        public IObservable<RedisCommandQueue> AfterFrame => Module.AfterFrame;
-        public IObservable<ImmutableDictionary<Guid, object>> BeforFrame => Module.BeforFrame;
+        public readonly IRedisModule redisModule;
+        public IObservable<RedisCommandQueue> AfterFrame => redisModule.AfterFrame;
+        public IObservable<ImmutableDictionary<Guid, object>> BeforFrame => redisModule.BeforFrame;
         #endregion Module
 
         #region IBinding
-        IModule IBinding.Module => Module;
-        public string Description => Module.Description;
+        IModule IBinding.Module => redisModule;
+        public string Description => redisModule.Description;
         BindingType IBinding.BindingType
         {
             get {  
-                switch (Model.BindingType)
+                switch (redisBindingModel.BindingType)
                 {
                     case RedisBindingType.None:
                         // code block
@@ -163,13 +173,15 @@ namespace VL.IO.Redis
         public RedisBinding
         (
             IChannel channel,
-            RedisBindingModel redisBindingModel,
-            IRedisModule redisModule
+            IRedisBindingModel redisBindingModel,
+            IRedisModule redisModule,
+            Func<RedisBinding,IDisposable> transaction
         )
         {
             this.channel = channel;
-            this.Model = redisBindingModel;
-            this.Module = redisModule;
+            this.redisBindingModel = redisBindingModel;
+            this.redisModule = redisModule;
+            this.transaction = transaction(this);
             this.setID = Guid.NewGuid();
             this.getID = Guid.NewGuid();
         }
@@ -183,15 +195,17 @@ namespace VL.IO.Redis
             out string ChannelPath
         )
         {
-            Key = this.Model.Key;
-            BindingType = this.Model.BindingType;
-            Initialisation = this.Model.Initialisation;
-            CollisionHandling = this.Model.CollisionHandling;
-            ChannelPath = this.Model.ChannelPath;
+            Key = this.redisBindingModel.Key;
+            BindingType = this.redisBindingModel.BindingType;
+            Initialisation = this.redisBindingModel.Initialisation;
+            CollisionHandling = this.redisBindingModel.CollisionHandling;
+            ChannelPath = this.redisBindingModel.ChannelPath;
         }
 
         public void Dispose()
         {
+            transaction?.Dispose();
+            redisModule.RemoveBinding(redisBindingModel.ChannelPath);
             channel.RemoveComponent(this);
         }
     }

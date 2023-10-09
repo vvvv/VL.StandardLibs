@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="U2ZbJel0MizMMsNbPOikK1" LanguageVersion="2023.5.3-0192-g8dd4ea9c96" Version="0.128">
+  <NugetDependency Id="NxljJx3pu0xM3PrefbDqLZ" Location="VL.CoreLib" Version="2023.5.3-0192-g8dd4ea9c96" />
+  <Patch Id="J0sqiKmFIXZNksRluNM3mW">
+    <Canvas Id="KgVixrH3ciILWZ1rUV0h3j" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="C40eXLw5TmxLG3CccqcmD2">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="MWRKEKhHiyHMxALacIfGfK">
+        <Canvas Id="ONBwr5dpmreNJwi9aokrWd" CanvasType="Group">
+          <Node Bounds="591,187,239,19" Id="TmdfbP9xGfINqa8DQiR0N8">
+            <p:NodeReference LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="RedisClient" />
+            </p:NodeReference>
+            <Pin Id="RPjsTpGR7P9NDSQdJ4wouT" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="VYSp1SADcBsNJBXbc7H9iK" Name="Configuration" Kind="InputPin" />
+            <Pin Id="NW7vqRpzkcTL9Hglc2NHmW" Name="Configure" Kind="InputPin" IsHidden="true" />
+            <Pin Id="KqIXhQnr2O0PBMEDILno2l" Name="Log to Console" Kind="InputPin" IsHidden="true" />
+            <Pin Id="UQbtZ7uJJhpOhuPAbUaDdr" Name="Database" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Pvnc2U1eIwsNtBwHT4da9i" Name="Client" Kind="OutputPin" />
+            <Pin Id="NbPL7IX7Vt8M0t8mj7PJZQ" Name="Is Connected" Kind="OutputPin" />
+            <Pin Id="IozvN6aaGorPHdJIScaWiG" Name="Client Name" Kind="OutputPin" />
+          </Node>
+          <Pad Id="KHALrM97UypLJAw5z1Svvp" Comment="Configuration" Bounds="593,140,79,15" ShowValueBox="true" isIOBox="true" Value="127.0.0.1:6379">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="KuiLLyDawlwPESAZ4w5Aj2" Comment="Is Connected" Bounds="710,226,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="R5NJJEXUpOzO77r3O7T4Vw" Comment="Client Name" Bounds="827,226,220,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="591,394,200,19" Id="QIXyGFciodSPDIIExCHFvS">
+            <p:NodeReference LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Redis" NeedsToBeDirectParent="true" />
+              <Choice Kind="ProcessAppFlag" Name="Scan" />
+            </p:NodeReference>
+            <Pin Id="CX4SH2WeQrnPf3Jf4ba3DZ" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="CZcgwhhDMymQOLQ84h7cdp" Name="Client" Kind="InputPin" />
+            <Pin Id="IUpLRXEGEaCM54J6xMSE3t" Name="Host And Port" Kind="InputPin" />
+            <Pin Id="Qi8cO7aPUsCNdXa8GmlNhI" Name="Database" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Aao2i6Ku0dGNlZmYYXaLU8" Name="Pattern" Kind="InputPin" IsHidden="true" />
+            <Pin Id="V4bGyOwMf3SMiYTQwIriK1" Name="Scan" Kind="InputPin" />
+            <Pin Id="UR1NlGzNQ2oPzVZbcqRDxW" Name="Client" Kind="OutputPin" />
+            <Pin Id="OitwJRAp5jZLKjbir1EFWW" Name="Keys" Kind="OutputPin" />
+          </Node>
+          <Pad Id="DL19BSpHCrDP3UhtAAFT8l" Comment="Scan" Bounds="788,291,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="BcPXmMmyDgsMJRm6SuPUNn" Comment="Keys" Bounds="788,443,100,96" ShowValueBox="true" isIOBox="true">
+            <p:Value>
+              <Item>MyKey</Item>
+            </p:Value>
+          </Pad>
+          <Node Bounds="591,667,201,19" Id="An7oSxZlwbuLgdmg3s13B7">
+            <p:NodeReference LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="FlushDB" />
+            </p:NodeReference>
+            <Pin Id="Qw5KFdx7wsDN1yxb1bpe2k" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="HaKU4uTzEWMN1xej9fhrqB" Name="Client" Kind="InputPin" />
+            <Pin Id="SyuBUdZm62KQFHy9b1J504" Name="Host And Port" Kind="InputPin" />
+            <Pin Id="GIxscpfUwJsMTjGORloeB9" Name="Database" Kind="InputPin" IsHidden="true" />
+            <Pin Id="AH5Odz7WEJjLoJmJRFlEGS" Name="Flush" Kind="InputPin" />
+            <Pin Id="JygrLK0NUlnPtFgxUwBKcY" Name="Client" Kind="OutputPin" />
+          </Node>
+          <Pad Id="N2kxMsRgu74PCYo3sfMchZ" Comment="Flush" Bounds="788,565,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="592,811,61,19" Id="IcJlrlBKXjLOi8OTNW9yeA">
+            <p:NodeReference LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="DeleteKey" />
+            </p:NodeReference>
+            <Pin Id="Jc2SGkyLbEdLUqoUYLYyAn" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="N99l4WHZmyuPC90xv7LHA5" Name="Client" Kind="InputPin" />
+            <Pin Id="E5OXzImMYbYMsKMQPwptdE" Name="Key" Kind="InputPin" />
+            <Pin Id="DsSsfo0WXXDMgkYr3ydIoJ" Name="Delete" Kind="InputPin" />
+            <Pin Id="C7l3p7aLqlDOjnEq3NmyPV" Name="Client" Kind="OutputPin" />
+            <Pin Id="LGSZkAmZ2WLLZMbwpvIPLW" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="HLtl1sdJ3CpPWgRJP5xcbM" Comment="Key" Bounds="622,768,97,15" ShowValueBox="true" isIOBox="true" Value="MyRecord">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="Ap5gx8UYR88O9yKjfzuHzn" Comment="Delete" Bounds="789,779,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="C41TEuLntu3OUadG70C8Ns" Comment="" Bounds="789,885,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="DLvdMJFHZvONlCCDKVIpFl" Comment="Host And Port" Bounds="614,368,79,15" ShowValueBox="true" isIOBox="true" Value="127.0.0.1:6379">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="U1FYv8gIgHSPfExNhcsBgW" Comment="Host And Port" Bounds="623,644,79,15" ShowValueBox="true" isIOBox="true" Value="127.0.0.1:6379">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+        </Canvas>
+        <Patch Id="JEmTJ0E9Iz0Op6yxWUZ0K7" Name="Create" />
+        <Patch Id="RNKQUR4VIOQMlyY69snqYN" Name="Update" />
+        <ProcessDefinition Id="Ue4EYB2WOWpQSWOrToTX6R">
+          <Fragment Id="VN4PqMmnR7NPtCFUzJqRiY" Patch="JEmTJ0E9Iz0Op6yxWUZ0K7" Enabled="true" />
+          <Fragment Id="IoM80PzICl7N9cGMpDOu77" Patch="RNKQUR4VIOQMlyY69snqYN" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="Mi15WHteKtyLmOsvnyRhD9" Ids="KHALrM97UypLJAw5z1Svvp,VYSp1SADcBsNJBXbc7H9iK" />
+        <Link Id="KwKTJVPCjsPNGGuSYL7FfX" Ids="NbPL7IX7Vt8M0t8mj7PJZQ,KuiLLyDawlwPESAZ4w5Aj2" />
+        <Link Id="DiMQVR4u3RaM6Di20gb87T" Ids="IozvN6aaGorPHdJIScaWiG,R5NJJEXUpOzO77r3O7T4Vw" />
+        <Link Id="JBFdpLwNWYtMDAzepKJQJH" Ids="DL19BSpHCrDP3UhtAAFT8l,V4bGyOwMf3SMiYTQwIriK1" />
+        <Link Id="OMz8kKLSis6MfjvrkJNVzb" Ids="OitwJRAp5jZLKjbir1EFWW,BcPXmMmyDgsMJRm6SuPUNn" />
+        <Link Id="BXFeHjsyJ4DQOMxg3UHCCm" Ids="UR1NlGzNQ2oPzVZbcqRDxW,HaKU4uTzEWMN1xej9fhrqB" />
+        <Link Id="SS0n66qRP6oPf0k2ggoy69" Ids="N2kxMsRgu74PCYo3sfMchZ,AH5Odz7WEJjLoJmJRFlEGS" />
+        <Link Id="TtXPEvoPSy4OXp3GKCtCsa" Ids="JygrLK0NUlnPtFgxUwBKcY,N99l4WHZmyuPC90xv7LHA5" />
+        <Link Id="FMRxmdoXLIKNzEJdtYIPaG" Ids="HLtl1sdJ3CpPWgRJP5xcbM,E5OXzImMYbYMsKMQPwptdE" />
+        <Link Id="R9sAgAfQOr2NOTI5vJDjcP" Ids="Ap5gx8UYR88O9yKjfzuHzn,DsSsfo0WXXDMgkYr3ydIoJ" />
+        <Link Id="CbLC6QO2dAdNs2wvRjnLlD" Ids="LGSZkAmZ2WLLZMbwpvIPLW,C41TEuLntu3OUadG70C8Ns" />
+        <Link Id="J0MXxWs3MQyMVbWNO3DjZE" Ids="Pvnc2U1eIwsNtBwHT4da9i,CZcgwhhDMymQOLQ84h7cdp" />
+        <Link Id="Fhc9r1qUYNbPemDhdmEktb" Ids="DLvdMJFHZvONlCCDKVIpFl,IUpLRXEGEaCM54J6xMSE3t" />
+        <Link Id="AYwH4mYXcmfN71utW5Lm3t" Ids="U1FYv8gIgHSPfExNhcsBgW,SyuBUdZm62KQFHy9b1J504" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="F9ho1qmf5INN0a8dzwNMCI" Location="VL.IO.Redis" Version="0.0.0" />
+</Document>

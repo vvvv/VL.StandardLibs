@@ -4,21 +4,18 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using VL.Core;
-using VL.Core.Utils;
-using VL.Lib.Collections;
+
 
 namespace VL.IO.Redis
 {
     public class RedisCommandQueue : IDisposable
     {
-        internal  Guid _id;
+        internal  Guid id;
 
         internal ConnectionMultiplexer Multiplexer;
+        internal IDatabase Database;
         internal ITransaction Transaction;
 
         internal ConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>> Cmds = new ConcurrentQueue<Func<ITransaction, (Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>)>>();
@@ -27,15 +24,16 @@ namespace VL.IO.Redis
         internal PooledSet<string> Changes = new PooledSet<string>();
         internal PooledSet<string> ReceivedChanges = new PooledSet<string>();
 
-        public RedisCommandQueue(Guid id)
-        {
-            _id                 = id;
-        }
-
-        public void CreateTransaction(IDatabase database, ConnectionMultiplexer Multiplexer)
+        public RedisCommandQueue(ConnectionMultiplexer Multiplexer, Guid id)
         {
             this.Multiplexer = Multiplexer;
-            Transaction = database.CreateTransaction();
+            this.id = id;
+        }
+
+        public void CreateTransaction(IDatabase Database)
+        {
+            this.Database = Database;
+            Transaction = Database.CreateTransaction();
         }
 
         public void Clear()
