@@ -10,14 +10,12 @@ using VL.Core;
 using VL.Lib.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using MessagePack.Resolvers;
+using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace VL.MessagePack
 {
-    public static class MsgPackEx
-    {
-
-    }
-
     public class IVLObjectFormatter : IMessagePackFormatter<IVLObject>
     {
         Dictionary<string, object> propertys = new Dictionary<string, object>();
@@ -34,16 +32,20 @@ namespace VL.MessagePack
             var type = value.Type;
             var prop = type.Properties;
 
+            
+
+            var keyFormatter = options.Resolver.GetFormatterWithVerify<string>();
+            var valueFormatter = options.Resolver.GetFormatterWithVerify<object?>();
+
+            // Write TypeName
             writer.Write(type.Name);
 
             // Write all Propertys as Dict
             writer.WriteMapHeader(prop.Count);
             foreach (var p in prop) 
             {
-                //writer.WriteString((ReadOnlySpan<byte>)Encoding.ASCII.GetBytes(p.NameForTextualCode).AsSpan());
-                writer.WriteString(MemoryMarshal.AsBytes(p.NameForTextualCode.AsSpan()));
-                writer.WriteString(MemoryMarshal.AsBytes(p.GetVLTypeInfo().Name.AsSpan()));
-                MessagePackSerializer.Serialize(p.GetType() ,ref writer, p.GetValue(value), options);
+                keyFormatter.Serialize(ref writer, p.NameForTextualCode, options);
+                valueFormatter.Serialize(ref writer, p.GetValue(value), options);
             }
         }
 
@@ -61,10 +63,10 @@ namespace VL.MessagePack
             propertys.Clear(); 
 
             var apphost = AppHost.CurrentOrGlobal;
-            if (apphost == null)
+            if (apphost != null)
             {
                 var factory = AppHost.CurrentOrGlobal.Factory;
-                if (factory == null)
+                if (factory != null)
                 {
                     var type = factory.GetTypeByName(ivlType);
                     if (type != null)
@@ -72,16 +74,27 @@ namespace VL.MessagePack
                         var typeinfo = factory.GetTypeInfo(type);
                         if (typeinfo != null) 
                         {
-                            for (int i = 0; i < propCount; i++)
-                            {
-                                var propName = reader.ReadString();
-                                var propType = reader.ReadString();
-                                var propValue = MessagePackSerializer.Deserialize(factory.GetTypeByName(propType), ref reader, options);
-                                propertys.Add(propName, propValue);
-                            }
+                            IFormatterResolver resolver = options.Resolver;
+                            IMessagePackFormatter<string> keyFormatter = resolver.GetFormatterWithVerify<string>();
+                            IMessagePackFormatter<object> valueFormatter = resolver.GetFormatterWithVerify<object>();
+
                             IVLObject instance = (IVLObject)apphost.CreateInstance(typeinfo);
-                            instance.With(propertys);
-                            return instance;
+
+                            options.Security.DepthStep(ref reader);
+                            try
+                            {
+                                for (int i = 0; i < propCount; i++)
+                                {
+                                    string key = keyFormatter.Deserialize(ref reader, options);
+                                    object value = valueFormatter.Deserialize(ref reader, options);
+                                    propertys.Add(key, value);
+                                }
+                            }
+                            finally
+                            {
+                                reader.Depth--;
+                            }
+                            return instance.With(propertys);
                         }
                     }
                 }
@@ -90,47 +103,51 @@ namespace VL.MessagePack
         }
     }
 
-    //public class VLResolver : IFormatterResolver
-    //{
-    //    public static readonly IFormatterResolver Instance = new VLResolver();
+    public class VLResolver : IFormatterResolver
+    {
+        public static readonly IFormatterResolver Instance = new VLResolver();
 
-    //    // configure your custom resolvers.
-    //    private static readonly IFormatterResolver[] Resolvers = new IFormatterResolver[]
-    //    {
-    //    };
+        // configure your custom resolvers.
+        private static readonly IFormatterResolver[] Resolvers = new IFormatterResolver[]
+        {
+            StandardResolver.Instance,TypelessContractlessStandardResolver.Instance,ContractlessStandardResolver.Instance
+        };
 
-    //    private VLResolver() { }
+        private VLResolver() 
+        { 
 
-    //    public IMessagePackFormatter<T> GetFormatter<T>()
-    //    {
-    //        return Cache<T>.Formatter;
-    //    }
+        }
 
-    //    private static class Cache<T>
-    //    {
-    //        public static IMessagePackFormatter<T> Formatter;
+        public IMessagePackFormatter<T> GetFormatter<T>()
+        {
+            return Cache<T>.Formatter;
+        }
 
-    //        static Cache()
-    //        {
-    //            // configure your custom formatters.
-    //            if (typeof(T) == typeof(XXX))
-    //            {
-    //                Formatter = new ICustomFormatter();
-    //                return;
-    //            }
+        private static class Cache<T>
+        {
+            public static IMessagePackFormatter<T> Formatter;
 
-    //            foreach (var resolver in Resolvers)
-    //            {
-    //                var f = resolver.GetFormatter<T>();
-    //                if (f != null)
-    //                {
-    //                    Formatter = f;
-    //                    return;
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
+            static Cache()
+            {
+                // configure your custom formatters.
+                if (typeof(T) == typeof(IVLObject))
+                {
+                    Formatter = (IMessagePackFormatter<T>)new IVLObjectFormatter();
+                    return;
+                }
+
+                foreach (var resolver in Resolvers)
+                {
+                    var f = resolver.GetFormatter<T>();
+                    if (f != null)
+                    {
+                        Formatter = f;
+                        return;
+                    }
+                }
+            }
+        }
+    }
 
     static class MessagePack
     {

@@ -2,7 +2,342 @@
 <Document xmlns:p="property" xmlns:r="reflection" Id="ElNAZaAK8PGON9DzXjEceW" LanguageVersion="2023.5.3-0183-g3a6e89124d" Version="0.128">
   <NugetDependency Id="J211bL5j5U4M79Bb2J68fh" Location="VL.CoreLib" Version="2023.5.3-0183-g3a6e89124d" />
   <Patch Id="CSerPB3FF9ENTyt8o0lnEa">
-    <Canvas Id="IDAxqZTIoYJPVNRnA3v4tr" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <Canvas Id="IDAxqZTIoYJPVNRnA3v4tr" DefaultCategory="VL.MessagePack" CanvasType="FullCategory">
+      <!--
+
+    ************************ Serialize ************************
+
+-->
+      <Node Name="Serialize" Bounds="413,199,113,82" Id="AlmD0tjl7m6Pb0ji977Jn0">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="FLTHr1I7K5HMqfPsN0aO09" IsGeneric="true">
+          <Node Bounds="426,231,54,19" AutoConnect="true" Id="ASx7043QE01PyNwWUuO3GN">
+            <p:NodeReference LastCategoryFullName="MessagePack.MessagePackSerializer" LastDependency="MessagePack.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationNode" Name="Serialize" />
+              <FullNameCategoryReference ID="MessagePack.MessagePackSerializer" />
+              <PinReference Kind="InputPin" Name="Value">
+                <p:DataTypeReference p:Type="TypeParameterReference" />
+              </PinReference>
+              <PinReference Kind="InputPin" Name="Options">
+                <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="MessagePack" LastDependency="MessagePack.dll">
+                  <Choice Kind="TypeFlag" Name="MessagePackSerializerOptions" />
+                </p:DataTypeReference>
+              </PinReference>
+              <PinReference Kind="InputPin" Name="Cancellation Token">
+                <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
+                  <Choice Kind="TypeFlag" Name="CancellationToken" />
+                </p:DataTypeReference>
+              </PinReference>
+              <PinReference Kind="OutputPin" Name="Result">
+                <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="System" LastDependency="VL.CoreLib.vl">
+                  <Choice Kind="TypeFlag" Name="Array`1" />
+                  <p:TypeArguments>
+                    <TypeReference LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="TypeFlag" Name="Byte" />
+                    </TypeReference>
+                  </p:TypeArguments>
+                </p:DataTypeReference>
+              </PinReference>
+            </p:NodeReference>
+            <Pin Id="UQDcGCbKkIuL8Ar8SIZy9T" Name="Value" Kind="InputPin" />
+            <Pin Id="EIzN7QioL97OJXCGuqqFSe" Name="Options" Kind="InputPin" />
+            <Pin Id="JF0eqcLhY2xQYMcM60wQnu" Name="Cancellation Token" Kind="InputPin" />
+            <Pin Id="R7mFt66jA6sLEc4Ao5vpCB" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="U5d4t2h0e1KNUQ54K5OFHA" Name="Value" Kind="InputPin" />
+          <Pin Id="SNCiR5A3W3yNTivkXqSI5l" Name="Options" Kind="InputPin" />
+          <Pin Id="GbXY4DCgoL5M2snSTlkkmG" Name="Cancellation Token" Kind="InputPin" />
+          <Pin Id="PyNSUB9jw5gLvzoXAzFTM7" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ ConvertToJson ************************
+
+-->
+      <Node Name="ConvertToJson" Bounds="560,199,112,82" Id="IqEOsOOWzMkNosXdMnE0bH">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="HgbbQtzeO9iMMr8HIfDn6V">
+          <Node Bounds="572,231,83,19" AutoConnect="true" Id="SPBkFrXpjoCO0cQmcWDwyX">
+            <p:NodeReference LastCategoryFullName="MessagePack.MessagePackSerializer" LastDependency="MessagePack.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+              <Choice Kind="OperationNode" Name="ConvertToJson" />
+              <FullNameCategoryReference ID="MessagePack.MessagePackSerializer" />
+              <PinReference Kind="InputPin" Name="Bytes">
+                <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="System" LastDependency="VL.CoreLib.vl">
+                  <Choice Kind="TypeFlag" Name="ReadOnlyMemory`1" />
+                  <p:TypeArguments>
+                    <TypeReference LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="TypeFlag" Name="Byte" />
+                    </TypeReference>
+                  </p:TypeArguments>
+                </p:DataTypeReference>
+              </PinReference>
+            </p:NodeReference>
+            <Pin Id="TpNs0UoSZORO6abl3jS5j1" Name="Bytes" Kind="InputPin" />
+            <Pin Id="No8tPiJctQJO4KKIKNNLWG" Name="Options" Kind="InputPin" />
+            <Pin Id="FUxpiUVTKYcPheLEZM7u6e" Name="Cancellation Token" Kind="InputPin" />
+            <Pin Id="NK1OrphiqIILzekIFi46yI" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="E4CdTJzmAZVOuJNBhsquA4" Name="Bytes" Kind="InputPin" />
+          <Pin Id="FmnvMd4140fOlo5I6Iy2Sb" Name="Options" Kind="InputPin" />
+          <Pin Id="TSytTjE4LbtN5RZooA4Pb9" Name="Cancellation Token" Kind="InputPin" />
+          <Pin Id="BDiK3S0JTzkM5Xpa06QPQi" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ MessagePackSerializationException ************************
+
+-->
+      <Node Name="MessagePackSerializationException" Bounds="817,266" Id="AJb3kyaMgJaPm5DQgAE1BX">
+        <p:NodeReference>
+          <Choice Kind="ForwardDefinition" Name="Forward" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:TypeAnnotation LastCategoryFullName="MessagePack" LastDependency="MessagePack.dll">
+          <Choice Kind="TypeFlag" Name="MessagePackSerializationException" />
+        </p:TypeAnnotation>
+        <Patch Id="AdlAXx063zEPuF4SWQbhoR">
+          <Canvas Id="H5WEgcNofsWMrtvYNmU6LI" BordersChecked="false" CanvasType="Group" />
+          <ProcessDefinition Id="NuYrGsWbuOhMIqyS6a5PeS" IsHidden="true" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ MessagePackVLOptions ************************
+
+-->
+      <Node Name="MessagePackVLOptions" Bounds="824,495,210,180" Id="IYRKsremHHoOCMdDIOdH5I">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="NPCARRIzVL6NwVAg2NGn7D">
+          <Node Bounds="836,623,124,26" Id="HSVtEOLvGRhNXz0xBDEu6K">
+            <p:NodeReference LastCategoryFullName="MessagePack.MessagePackSerializerOptions" LastDependency="MessagePack.dll">
+              <Choice Kind="OperationNode" Name="WithResolver" />
+              <FullNameCategoryReference ID="MessagePack.MessagePackSerializerOptions" />
+            </p:NodeReference>
+            <Pin Id="SvvP6DkcaswN0Q7581a3k0" Name="Input" Kind="StateInputPin" />
+            <Pin Id="LV4lvSf9TcuLhu6TEDhitW" Name="Resolver" Kind="InputPin" />
+            <Pin Id="AdJvwGcF5ESMB11IVMLbL7" Name="Output" Kind="StateOutputPin" />
+            <Pin Id="KHmXSOqFgEYNwGeU8GCDGM" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="837,518,57,19" AutoConnect="true" Id="BOd4tgfx40oQKEfTz9QkBs">
+            <p:NodeReference LastCategoryFullName="MessagePack.MessagePackSerializerOptions" LastDependency="MessagePack.dll">
+              <Choice Kind="OperationNode" Name="Standard" />
+              <FullNameCategoryReference ID="MessagePack.MessagePackSerializerOptions" />
+            </p:NodeReference>
+            <Pin Id="PuXupTBsRSaMAMghiiwFJ8" Name="Standard" Kind="OutputPin" />
+          </Node>
+          <Link Id="KS1BMD13otNQa7Ge0Du4cd" Ids="PuXupTBsRSaMAMghiiwFJ8,SvvP6DkcaswN0Q7581a3k0" />
+          <Node Bounds="954,542,66,26" Id="FV9lN4jJOq7LOolif74p5R">
+            <p:NodeReference LastCategoryFullName="VL.MessagePack" LastDependency="VL.MessagePack.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="VLResolver" />
+            </p:NodeReference>
+            <Pin Id="HAKCh8zDBeqPqcUl6IqwhI" Name="Instance" Kind="OutputPin" />
+          </Node>
+          <Link Id="OiQTbmLXkJUO9OmkF1WiZQ" Ids="HAKCh8zDBeqPqcUl6IqwhI,LV4lvSf9TcuLhu6TEDhitW" />
+          <ControlPoint Id="BUj3qbmQvlTMsCJ4TWv2ve" Bounds="974,658" />
+          <Link Id="HbAd8okoROdPxLTCyIDe7y" Ids="KHmXSOqFgEYNwGeU8GCDGM,BUj3qbmQvlTMsCJ4TWv2ve" />
+          <Link Id="CYoLmx6VGNwNigmYVZwlff" Ids="BUj3qbmQvlTMsCJ4TWv2ve,QLegshoBnqnL5yYlUHbKI6" IsHidden="true" />
+          <Pin Id="QLegshoBnqnL5yYlUHbKI6" Name="Result 2" Kind="OutputPin" Bounds="974,658" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ IFormatterResolver ************************
+
+-->
+      <Node Name="IFormatterResolver" Bounds="829,324" Id="EmMkC4LSz5JPu6lDuAdfcm">
+        <p:NodeReference>
+          <Choice Kind="ForwardDefinition" Name="Forward" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:TypeAnnotation LastCategoryFullName="MessagePack" LastDependency="MessagePack.dll">
+          <Choice Kind="TypeFlag" Name="IFormatterResolver" />
+        </p:TypeAnnotation>
+        <Patch Id="I5JeAdrjhb8LMzHUujsab5">
+          <Canvas Id="Q5Xj55ylWqzPWivJJHh90a" BordersChecked="false" CanvasType="Group" />
+          <ProcessDefinition Id="FbSvvnwgEswMVaMWgexera" IsHidden="true" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ ContractlessStandardResolver ************************
+
+-->
+      <Node Name="ContractlessStandardResolver" Bounds="1587,742,113,82" Id="Tjr6Ah6empwLxhHfB7LDDk">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="KHqwpCpYbxzM70Q8Ridjlz">
+          <Node Bounds="1600,774,54,19" AutoConnect="true" Id="VsMOvMJPFYQOwWb5q5A3cp">
+            <p:NodeReference LastCategoryFullName="MessagePack.Resolvers.ContractlessStandardResolver" LastDependency="MessagePack.dll">
+              <Choice Kind="OperationNode" Name="Instance" />
+              <FullNameCategoryReference ID="MessagePack.Resolvers.ContractlessStandardResolver" />
+            </p:NodeReference>
+            <Pin Id="AtpEd8MM4uqNAbTpnie92m" Name="Instance" Kind="OutputPin" />
+          </Node>
+          <Pin Id="BtxOVn3qBPhLLFqHo2jhkp" Name="Instance" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ TypelessObjectResolver ************************
+
+-->
+      <Node Name="TypelessObjectResolver" Bounds="1593,876,113,82" Id="MJG4nqdCBUnMJfuuCP1jEp">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="R1ZFSrin3USOKi32XxFSf1">
+          <Node Bounds="1606,908,54,19" AutoConnect="true" Id="LrdG58gU2qgMtt3YxdOYsc">
+            <p:NodeReference LastCategoryFullName="MessagePack.Resolvers.TypelessObjectResolver" LastDependency="MessagePack.dll">
+              <Choice Kind="OperationNode" Name="Instance" />
+              <FullNameCategoryReference ID="MessagePack.Resolvers.TypelessObjectResolver" />
+            </p:NodeReference>
+            <Pin Id="UB9xtvcsIgpMMUgYOBH5eG" Name="Instance" Kind="OutputPin" />
+          </Node>
+          <Pin Id="TThOuEbaWEdPZYbCEqSS5P" Name="Instance" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ StandardResolver ************************
+
+-->
+      <Node Name="StandardResolver" Bounds="1833,749,113,82" Id="BpD7WwlZlJCMG0cpWoQRgJ">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="QqS2BxiiDAOQD6N5k0Uu8V">
+          <Node Bounds="1846,781,54,19" AutoConnect="true" Id="Sp8oybPKXI6NqgZZF3lWrR">
+            <p:NodeReference LastCategoryFullName="MessagePack.Resolvers.StandardResolver" LastDependency="MessagePack.dll">
+              <Choice Kind="OperationNode" Name="Instance" />
+              <FullNameCategoryReference ID="MessagePack.Resolvers.StandardResolver" />
+            </p:NodeReference>
+            <Pin Id="ROn18pE6Y6ELjY5BjPNwiK" Name="Instance" Kind="OutputPin" />
+          </Node>
+          <Pin Id="RrlvkVmun9ROSbPdp81iTs" Name="Instance" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ VLResolver ************************
+
+-->
+      <Node Name="VLResolver" Bounds="1783,413,113,82" Id="NRtdsMgKpIBLwU1pHztiAQ">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="BvZwwWc8mvxPCzdVhOzfgY">
+          <Node Bounds="1796,445,54,19" AutoConnect="true" Id="Ad61eCzD9vdP5IhWQeNoq7">
+            <p:NodeReference LastCategoryFullName="VL.MessagePack.VLResolver" LastDependency="VL.MessagePack.dll">
+              <Choice Kind="OperationNode" Name="Instance" />
+              <FullNameCategoryReference ID="VL.MessagePack.VLResolver" />
+            </p:NodeReference>
+            <Pin Id="OOE8Aa4O6bKMdOz8A0K3TP" Name="Instance" Kind="OutputPin" />
+          </Node>
+          <Pin Id="Vm5PX6JXEzFLaynSbKFspj" Name="Instance" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Deserialize ************************
+
+-->
+      <Node Name="Deserialize" Bounds="413,330,112,82" Id="UYtR0rNlxPaNLoRHOaPPGI">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="E8DDWNPMGFDPIYtBRCVPMQ" IsGeneric="true">
+          <Node Bounds="425,362,66,19" AutoConnect="true" Id="KSKu75jP4lbPqP104bNDX2">
+            <p:NodeReference LastCategoryFullName="MessagePack.MessagePackSerializer" LastDependency="MessagePack.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+              <Choice Kind="OperationNode" Name="Deserialize" />
+              <FullNameCategoryReference ID="MessagePack.MessagePackSerializer" />
+              <PinReference Kind="InputPin" Name="Buffer" />
+              <PinReference Kind="InputPin" Name="Options" />
+            </p:NodeReference>
+            <Pin Id="BKMNx1YisUwOlOjm96FduL" Name="Buffer" Kind="InputPin" />
+            <Pin Id="SW2iS8SBwi4PneFvEuhr5r" Name="Options" Kind="InputPin" />
+            <Pin Id="A6xKdboWCSxNxHF8YkpyM8" Name="Cancellation Token" Kind="InputPin" />
+            <Pin Id="QQNErHtWdgSL1UQMiVsyH0" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="NST35PWrlsmPfnndtJOP9B" Name="Buffer" Kind="InputPin" />
+          <Pin Id="VJZXQ7n4IaGOEUbi6mHTZA" Name="Options" Kind="InputPin" />
+          <Pin Id="Pu4Xmqikss1L7c8uPwWKjD" Name="Cancellation Token" Kind="InputPin" />
+          <Pin Id="BWF8UGRbcFmNt3K39KM9Qf" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ SerializeToJson ************************
+
+-->
+      <Node Name="SerializeToJson" Bounds="587,349,112,82" Id="FTf3pKQh4DuLshnmfpo9kF">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="DudeFwg7xRDPbdxWj8wj74" IsGeneric="true">
+          <Node Bounds="599,381,85,19" AutoConnect="true" Id="ILKKhhmrkSyLSVCqotytLQ">
+            <p:NodeReference LastCategoryFullName="MessagePack.MessagePackSerializer" LastDependency="MessagePack.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+              <Choice Kind="OperationNode" Name="SerializeToJson" />
+              <FullNameCategoryReference ID="MessagePack.MessagePackSerializer" />
+              <PinReference Kind="InputPin" Name="Obj">
+                <p:DataTypeReference p:Type="TypeParameterReference" />
+              </PinReference>
+              <PinReference Kind="InputPin" Name="Options">
+                <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="MessagePack" LastDependency="MessagePack.dll">
+                  <Choice Kind="TypeFlag" Name="MessagePackSerializerOptions" />
+                </p:DataTypeReference>
+              </PinReference>
+              <PinReference Kind="InputPin" Name="Cancellation Token">
+                <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
+                  <Choice Kind="TypeFlag" Name="CancellationToken" />
+                </p:DataTypeReference>
+              </PinReference>
+              <PinReference Kind="OutputPin" Name="Result">
+                <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                  <Choice Kind="TypeFlag" Name="String" />
+                </p:DataTypeReference>
+              </PinReference>
+            </p:NodeReference>
+            <Pin Id="R4xLi0sGOhINN4jFVPXFRI" Name="Obj" Kind="InputPin" />
+            <Pin Id="Pcp0gzyoy54O23z7oi0kIg" Name="Options" Kind="InputPin" />
+            <Pin Id="Jiyf996AddPNUupRxdgfNF" Name="Cancellation Token" Kind="InputPin" />
+            <Pin Id="LAwLR6nUy2gNq0YU4FBvb4" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="GeTUmF81jsYOnZW9NShaMU" Name="Obj" Kind="InputPin" />
+          <Pin Id="UTFddftVeHbOE79Cth0IGp" Name="Options" Kind="InputPin" />
+          <Pin Id="Vxu9tEjhQ4KN5PkPqjj35M" Name="Cancellation Token" Kind="InputPin" />
+          <Pin Id="TfhCM8LSI8EPXiriUv2EXi" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+    </Canvas>
     <!--
 
     ************************ Application ************************
@@ -25,4 +360,5 @@
     </Node>
   </Patch>
   <NugetDependency Id="NLU5tFqT1mZP95t7oyKVNa" Location="MessagePack" Version="2.5.124" />
+  <PlatformDependency Id="EPa65aUK5nIOc6rerMGlJv" Location="./lib/net6.0/VL.MessagePack.dll" />
 </Document>
