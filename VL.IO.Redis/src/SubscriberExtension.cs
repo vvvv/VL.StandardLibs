@@ -49,6 +49,16 @@ namespace VL.IO.Redis
 
         }
 
+        private static async void subscribe<TResult>(IObserver<TResult> syncObs, ISubscriber subscriber, RedisChannel channel, Func<RedisChannel, RedisValue, TResult> deserialize)
+        {
+            await subscriber.SubscribeAsync(channel, (chan, message) =>
+            {
+                syncObs.OnNext(deserialize.Invoke(chan, message));
+            }).ConfigureAwait(false);
+        }
+
+        
+
         public static IObservable<TResult> Subscribe<TResult>(this ConnectionMultiplexer connectionMultiplexer, Func<RedisChannel, RedisValue, TResult> deserialize, string RedisChannel, RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto)
         {
             var channel = new RedisChannel(RedisChannel, pattern);
@@ -69,21 +79,23 @@ namespace VL.IO.Redis
                 // Handle Connection Restored
                 connectionMultiplexer.ConnectionRestored += async (s, e) =>
                 {
-                    await subscriber.SubscribeAsync(channel, (chan, message) =>
-                    {
-                        syncObs.OnNext(deserialize.Invoke(chan, message));
-                    }).ConfigureAwait(false);
+                    subscribe(syncObs, subscriber, channel, deserialize);
                 };
 
                 // Subscribe
-                await subscriber.SubscribeAsync(channel, (chan, message) =>
-                {
-                    syncObs.OnNext(deserialize.Invoke(chan, message));
-                }).ConfigureAwait(false);
+                subscribe(syncObs, subscriber, channel, deserialize);
 
                 // Return Disposable
                 return Disposable.Create(() => subscriber.Unsubscribe(channel));
             });
+        }
+
+        private static async void subscribeScan<TSeed, TResult>(IObserver<TResult> syncObs, ISubscriber subscriber, RedisChannel channel, Func<TSeed, RedisChannel, RedisValue, TResult> selector, TSeed seed)
+        {
+            await subscriber.SubscribeAsync(channel, (chan, message) =>
+            {
+                syncObs.OnNext(selector.Invoke(seed, chan, message));
+            }).ConfigureAwait(false);
         }
 
         public static IObservable<TResult> SubscribeScan<TSeed, TResult>(this ConnectionMultiplexer connectionMultiplexer, Func<TSeed, RedisChannel, RedisValue, TResult> selector, string RedisChannel, RedisChannel.PatternMode pattern, TSeed seed)
@@ -107,17 +119,11 @@ namespace VL.IO.Redis
                 // Handle Connection Restored
                 connectionMultiplexer.ConnectionRestored += async (s, e) =>
                 {
-                    await subscriber.SubscribeAsync(channel, (chan, message) =>
-                    {
-                        syncObs.OnNext(selector.Invoke(seed, chan, message));
-                    }).ConfigureAwait(false);
+                    subscribeScan(syncObs, subscriber, channel, selector, seed);
                 };
 
                 // Subscribe
-                await subscriber.SubscribeAsync(channel, (chan, message) =>
-                {
-                    syncObs.OnNext(selector.Invoke(seed, chan, message));
-                }).ConfigureAwait(false);
+                subscribeScan(syncObs, subscriber, channel, selector, seed);
 
                 // Return Disposable
                 return Disposable.Create(() => subscriber.Unsubscribe(channel));
