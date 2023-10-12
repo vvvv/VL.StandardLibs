@@ -64,7 +64,6 @@ namespace VL.IO.Redis
                         Console.WriteLine("### MESSAGE FAIL TO DESERIALIZE ###");
                         Console.WriteLine(message.ToString());
                         Console.WriteLine("###################################");
-
                     }
                 }
             }).ConfigureAwait(false);

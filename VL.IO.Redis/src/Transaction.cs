@@ -28,7 +28,7 @@ namespace VL.IO.Redis
         {
             this.binding = binding;
 
-            this.init = binding.Initialisation == Initialisation.Redis;
+            this.init = true;
 
             var onRedisChangeNotificationOrFirstFrame = OnRedisChangeNotificationOrFirstFrame(RedisChangedCommand);
 
@@ -128,14 +128,37 @@ namespace VL.IO.Redis
                         {
                             if (dict.TryGetValue(binding.getID, out var getValue))
                             {
-                                if (!((RedisValue)getValue).IsNull)
+                                if (!((RedisValue)getValue).IsNullOrEmpty)
                                 {
-                                    result = DeserializeGet((RedisValue)getValue);
-                                    binding.channel.SetObjectAndAuthor(result, "RedisOther");
-                                    OnSuccessfulRead = true;
-                                    if (init)
+                                    try
                                     {
-                                        init = false;
+                                        result = DeserializeGet((RedisValue)getValue);
+                                        OnSuccessfulRead = true;
+                                        if (init)
+                                        {
+                                            init = false;
+                                            if (binding.Initialisation == Initialisation.Redis)
+                                                binding.channel.SetObjectAndAuthor(result, "RedisOther");
+                                        }
+                                        else
+                                        {
+                                            binding.channel.SetObjectAndAuthor(result, "RedisOther");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("### MESSAGE FAIL TO DESERIALIZE ###");
+                                        Console.WriteLine((RedisValue)getValue.ToString());
+                                        Console.WriteLine("###################################");
+                                        OnSuccessfulRead = false;
+                                    }
+                                    finally 
+                                    { 
+                                        //OnSuccessfulRead = false;
+                                        //if (init)
+                                        //{
+                                        //    init = false;
+                                        //}
                                     }
                                 }
                             }
@@ -152,14 +175,38 @@ namespace VL.IO.Redis
                             }
                             if (dict.TryGetValue(binding.getID, out var getValue))
                             {
-                                if (!((RedisValue)getValue).IsNull)
+                                if (!((RedisValue)getValue).IsNullOrEmpty)
                                 {
-                                    result = DeserializeGet((RedisValue)getValue);
-                                    binding.channel.SetObjectAndAuthor(result, "RedisOther");
-                                    OnSuccessfulRead = true;
-                                    if (init)
+                                    try
                                     {
-                                        init = false;
+
+                                        result = DeserializeGet((RedisValue)getValue);
+                                        OnSuccessfulRead = true;
+                                        if (init)
+                                        {
+                                            init = false;
+                                            if (binding.Initialisation == Initialisation.Redis)
+                                                binding.channel.SetObjectAndAuthor(result, "RedisOther");
+                                        }
+                                        else
+                                        {
+                                            binding.channel.SetObjectAndAuthor(result, "RedisOther");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("### MESSAGE FAIL TO DESERIALIZE ###");
+                                        Console.WriteLine((RedisValue)getValue.ToString());
+                                        Console.WriteLine("###################################");
+                                        OnSuccessfulRead = false;
+                                    }
+                                    finally
+                                    {
+                                        //OnSuccessfulRead = false;
+                                        //if (init)
+                                        //{
+                                        //    init = false;
+                                        //}
                                     }
                                 }
                             }
