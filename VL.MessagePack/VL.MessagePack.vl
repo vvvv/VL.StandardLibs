@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="ElNAZaAK8PGON9DzXjEceW" LanguageVersion="2023.5.3-0183-g3a6e89124d" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="ElNAZaAK8PGON9DzXjEceW" LanguageVersion="2023.5.3-0203-g579cc42b10" Version="0.128">
   <NugetDependency Id="J211bL5j5U4M79Bb2J68fh" Location="VL.CoreLib" Version="2023.5.3-0183-g3a6e89124d" />
   <Patch Id="CSerPB3FF9ENTyt8o0lnEa">
     <Canvas Id="IDAxqZTIoYJPVNRnA3v4tr" DefaultCategory="VL.MessagePack" CanvasType="FullCategory">
@@ -98,7 +98,7 @@
     ************************ MessagePackSerializationException ************************
 
 -->
-      <Node Name="MessagePackSerializationException" Bounds="817,266" Id="AJb3kyaMgJaPm5DQgAE1BX">
+      <Node Name="MessagePackSerializationException" Bounds="939,280" Id="AJb3kyaMgJaPm5DQgAE1BX">
         <p:NodeReference>
           <Choice Kind="ForwardDefinition" Name="Forward" />
           <CategoryReference Kind="Category" Name="Primitive" />
@@ -160,7 +160,7 @@
     ************************ IFormatterResolver ************************
 
 -->
-      <Node Name="IFormatterResolver" Bounds="829,324" Id="EmMkC4LSz5JPu6lDuAdfcm">
+      <Node Name="IFormatterResolver" Bounds="951,338" Id="EmMkC4LSz5JPu6lDuAdfcm">
         <p:NodeReference>
           <Choice Kind="ForwardDefinition" Name="Forward" />
           <CategoryReference Kind="Category" Name="Primitive" />
@@ -335,6 +335,55 @@
           <Pin Id="UTFddftVeHbOE79Cth0IGp" Name="Options" Kind="InputPin" />
           <Pin Id="Vxu9tEjhQ4KN5PkPqjj35M" Name="Cancellation Token" Kind="InputPin" />
           <Pin Id="TfhCM8LSI8EPXiriUv2EXi" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ TestClass ************************
+
+-->
+      <Node Name="TestClass" Bounds="955,396" Id="EI6J9nKY74SQY3lAQgBWvu">
+        <p:NodeReference>
+          <Choice Kind="ForwardDefinition" Name="Forward" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:TypeAnnotation LastCategoryFullName="VL.MessagePack" LastDependency="VL.MessagePack.dll">
+          <Choice Kind="TypeFlag" Name="TestClass" />
+        </p:TypeAnnotation>
+        <Patch Id="VB0gi18hxYcMJ6quWoCSo3">
+          <Canvas Id="FUhwBUi5e81MW2gLYw5y2N" BordersChecked="false" CanvasType="Group" />
+          <ProcessDefinition Id="PLrWnxCdZ13OL6xl7aVP5V" IsHidden="true" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ ConvertFromJson ************************
+
+-->
+      <Node Name="ConvertFromJson" Bounds="722,194,118,82" Id="MYXs2OqYjEiOHVmVcgRo9T">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="SxkQqS6flPoOuROKNXv23K">
+          <Node Bounds="734,226,94,19" AutoConnect="true" Id="CpMwvl2QdLrPjdQxzvV2er">
+            <p:NodeReference LastCategoryFullName="MessagePack.MessagePackSerializer" LastDependency="MessagePack.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+              <Choice Kind="OperationNode" Name="ConvertFromJson" />
+              <FullNameCategoryReference ID="MessagePack.MessagePackSerializer" />
+              <PinReference Kind="InputPin" Name="Str" />
+              <PinReference Kind="InputPin" Name="Options" />
+              <PinReference Kind="InputPin" Name="Cancellation Token" />
+            </p:NodeReference>
+            <Pin Id="TcTbXvaevrLNXJiAlUaHYd" Name="Str" Kind="InputPin" />
+            <Pin Id="KKzf2njnse2QJuCH8mNYKK" Name="Options" Kind="InputPin" />
+            <Pin Id="OA4Jqv4mmqUQFi78bL0dhS" Name="Cancellation Token" Kind="InputPin" />
+            <Pin Id="RkxWHbKno5WMMqrWhdhu5y" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="TbIcN8DKZiJP5yJzaMYoDk" Name="Str" Kind="InputPin" />
+          <Pin Id="KAPtCns5ibXOxmz3KnV0Jz" Name="Options" Kind="InputPin" />
+          <Pin Id="TxgjsUPnnIKQNmFvisorx4" Name="Cancellation Token" Kind="InputPin" />
+          <Pin Id="EbVbIkV3XBQQGsqYnhObAK" Name="Result" Kind="OutputPin" />
         </Patch>
       </Node>
     </Canvas>

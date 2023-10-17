@@ -16,13 +16,13 @@ using Newtonsoft.Json.Linq;
 
 namespace VL.MessagePack
 {
-    public class IVLObjectFormatter : IMessagePackFormatter<IVLObject>
+    public class IVLObjectFormatter : IMessagePackFormatter<IVLObject?>
     {
         Dictionary<string, object> propertys = new Dictionary<string, object>();
         
 
         public void Serialize(
-          ref MessagePackWriter writer, IVLObject value, MessagePackSerializerOptions options)
+          ref MessagePackWriter writer, IVLObject? value, MessagePackSerializerOptions options)
         {
             if (value == null)
             {
@@ -37,10 +37,14 @@ namespace VL.MessagePack
             var keyFormatter = options.Resolver.GetFormatterWithVerify<string>();
             var valueFormatter = options.Resolver.GetFormatterWithVerify<object?>();
 
+            writer.WriteMapHeader(2);
+
             // Write TypeName
+            writer.Write("Type");
             writer.Write(type.Name);
 
-            // Write all Propertys as Dict
+            // Write all Propertys as Dict 
+            writer.Write("Properties");
             writer.WriteMapHeader(prop.Count);
             foreach (var p in prop) 
             {
@@ -49,7 +53,7 @@ namespace VL.MessagePack
             }
         }
 
-        public IVLObject Deserialize(
+        public IVLObject? Deserialize(
           ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
             if (reader.TryReadNil())
@@ -78,7 +82,7 @@ namespace VL.MessagePack
                             IMessagePackFormatter<string> keyFormatter = resolver.GetFormatterWithVerify<string>();
                             IMessagePackFormatter<object> valueFormatter = resolver.GetFormatterWithVerify<object>();
 
-                            IVLObject instance = (IVLObject)apphost.CreateInstance(typeinfo);
+                            IVLObject? instance = (IVLObject)apphost.CreateInstance(typeinfo);
 
                             options.Security.DepthStep(ref reader);
                             try
@@ -94,7 +98,7 @@ namespace VL.MessagePack
                             {
                                 reader.Depth--;
                             }
-                            return instance.With(propertys);
+                            return instance?.With(propertys);
                         }
                     }
                 }
@@ -103,51 +107,53 @@ namespace VL.MessagePack
         }
     }
 
-    public class VLResolver : IFormatterResolver
-    {
-        public static readonly IFormatterResolver Instance = new VLResolver();
+    //public class VLResolver : IFormatterResolver
+    //{
+    //    public static readonly IFormatterResolver Instance = new VLResolver();
 
-        // configure your custom resolvers.
-        private static readonly IFormatterResolver[] Resolvers = new IFormatterResolver[]
-        {
-            StandardResolver.Instance,TypelessContractlessStandardResolver.Instance,ContractlessStandardResolver.Instance
-        };
+    //    // configure your custom resolvers.
+    //    private static readonly IFormatterResolver[] Resolvers = new IFormatterResolver[]
+    //    {
+    //        StandardResolver.Instance,
+    //        TypelessContractlessStandardResolver.Instance,
+    //        ContractlessStandardResolver.Instance
+    //    };
 
-        private VLResolver() 
-        { 
+    //    private VLResolver() 
+    //    { 
 
-        }
+    //    }
 
-        public IMessagePackFormatter<T> GetFormatter<T>()
-        {
-            return Cache<T>.Formatter;
-        }
+    //    public IMessagePackFormatter<T> GetFormatter<T>()
+    //    {
+    //        return Cache<T>.Formatter;
+    //    }
 
-        private static class Cache<T>
-        {
-            public static IMessagePackFormatter<T> Formatter;
+    //    private static class Cache<T>
+    //    {
+    //        public static IMessagePackFormatter<T> Formatter;
 
-            static Cache()
-            {
-                // configure your custom formatters.
-                if (typeof(T) == typeof(IVLObject))
-                {
-                    Formatter = (IMessagePackFormatter<T>)new IVLObjectFormatter();
-                    return;
-                }
+    //        static Cache()
+    //        {
+    //            // configure your custom formatters.
+    //            if (typeof(T) == typeof(IVLObject))
+    //            {
+    //                Formatter = (IMessagePackFormatter<T>)new IVLObjectFormatter();
+    //                return;
+    //            }
 
-                foreach (var resolver in Resolvers)
-                {
-                    var f = resolver.GetFormatter<T>();
-                    if (f != null)
-                    {
-                        Formatter = f;
-                        return;
-                    }
-                }
-            }
-        }
-    }
+    //            foreach (var resolver in Resolvers)
+    //            {
+    //                var f = resolver.GetFormatter<T>();
+    //                if (f != null)
+    //                {
+    //                    Formatter = f;
+    //                    return;
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
     static class MessagePack
     {
