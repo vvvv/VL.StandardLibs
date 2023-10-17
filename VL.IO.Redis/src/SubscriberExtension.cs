@@ -71,30 +71,14 @@ namespace VL.IO.Redis
                 {
                     await subscriber.SubscribeAsync(channel, (chan, message) =>
                     {
-                        var value = deserialize.Invoke(chan, message);
-                        if (value == null)
-                        {
-                            syncObs.OnError(new NullReferenceException("deserialize fails"));
-                        }
-                        else
-                        {
-                            syncObs.OnNext(deserialize.Invoke(chan, message));
-                        }
+                        syncObs.OnNext(deserialize.Invoke(chan, message));
                     }).ConfigureAwait(false);
                 };
 
                 // Subscribe
                 await subscriber.SubscribeAsync(channel, (chan, message) =>
                 {
-                    var value = deserialize.Invoke(chan, message);
-                    if (value == null)
-                    {
-                        syncObs.OnError(new NullReferenceException("deserialize fails"));
-                    }   
-                    else
-                    {
-                        syncObs.OnNext(deserialize.Invoke(chan, message));
-                    }  
+                    syncObs.OnNext(deserialize.Invoke(chan, message));
                 }).ConfigureAwait(false);
 
                 // Return Disposable
