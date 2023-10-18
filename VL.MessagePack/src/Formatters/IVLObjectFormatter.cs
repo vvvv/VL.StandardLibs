@@ -14,12 +14,17 @@ using MessagePack.Resolvers;
 using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
 
-namespace VL.MessagePack
+namespace VL.MessagePack.Formatters
 {
     public class IVLObjectFormatter : IMessagePackFormatter<IVLObject?>
     {
-        Dictionary<string, object> propertys = new Dictionary<string, object>();
-        
+        private readonly Dictionary<string, object> propertys = new Dictionary<string, object>();
+        private readonly AppHost appHost;
+
+        public IVLObjectFormatter(AppHost appHost)
+        {
+            this.appHost = appHost;
+        }
 
         public void Serialize(
           ref MessagePackWriter writer, IVLObject? value, MessagePackSerializerOptions options)
@@ -66,10 +71,9 @@ namespace VL.MessagePack
 
             propertys.Clear(); 
 
-            var apphost = AppHost.CurrentOrGlobal;
-            if (apphost != null)
+            if (appHost != null)
             {
-                var factory = AppHost.CurrentOrGlobal.Factory;
+                var factory = appHost.Factory;
                 if (factory != null)
                 {
                     var type = factory.GetTypeByName(ivlType);
@@ -82,7 +86,7 @@ namespace VL.MessagePack
                             IMessagePackFormatter<string> keyFormatter = resolver.GetFormatterWithVerify<string>();
                             IMessagePackFormatter<object> valueFormatter = resolver.GetFormatterWithVerify<object>();
 
-                            IVLObject? instance = (IVLObject)apphost.CreateInstance(typeinfo);
+                            IVLObject? instance = (IVLObject)appHost.CreateInstance(typeinfo);
 
                             options.Security.DepthStep(ref reader);
                             try
@@ -105,59 +109,5 @@ namespace VL.MessagePack
             }
             return null;
         }
-    }
-
-    //public class VLResolver : IFormatterResolver
-    //{
-    //    public static readonly IFormatterResolver Instance = new VLResolver();
-
-    //    // configure your custom resolvers.
-    //    private static readonly IFormatterResolver[] Resolvers = new IFormatterResolver[]
-    //    {
-    //        StandardResolver.Instance,
-    //        TypelessContractlessStandardResolver.Instance,
-    //        ContractlessStandardResolver.Instance
-    //    };
-
-    //    private VLResolver() 
-    //    { 
-
-    //    }
-
-    //    public IMessagePackFormatter<T> GetFormatter<T>()
-    //    {
-    //        return Cache<T>.Formatter;
-    //    }
-
-    //    private static class Cache<T>
-    //    {
-    //        public static IMessagePackFormatter<T> Formatter;
-
-    //        static Cache()
-    //        {
-    //            // configure your custom formatters.
-    //            if (typeof(T) == typeof(IVLObject))
-    //            {
-    //                Formatter = (IMessagePackFormatter<T>)new IVLObjectFormatter();
-    //                return;
-    //            }
-
-    //            foreach (var resolver in Resolvers)
-    //            {
-    //                var f = resolver.GetFormatter<T>();
-    //                if (f != null)
-    //                {
-    //                    Formatter = f;
-    //                    return;
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
-
-    static class MessagePack
-    {
-
-
     }
 }

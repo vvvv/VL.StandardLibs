@@ -4,7 +4,7 @@ using MessagePack.Formatters;
 using Stride.Core.Mathematics;
 using Half = Stride.Core.Mathematics.Half;
 
-namespace VL.MessagePack
+namespace VL.MessagePack.Formatters
 {
     #region Angle
     public sealed class AngleSingleFormatter : IMessagePackFormatter<AngleSingle>
@@ -938,7 +938,7 @@ namespace VL.MessagePack
     {
         public void Serialize(ref MessagePackWriter writer, Matrix value, MessagePackSerializerOptions options)
         {
-            writer.WriteArrayHeader(4);
+            writer.WriteArrayHeader(16);
             writer.Write(value.M11);
             writer.Write(value.M12);
             writer.Write(value.M13);
