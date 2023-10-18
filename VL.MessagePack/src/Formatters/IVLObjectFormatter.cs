@@ -42,14 +42,12 @@ namespace VL.MessagePack.Formatters
             var keyFormatter = options.Resolver.GetFormatterWithVerify<string>();
             var valueFormatter = options.Resolver.GetFormatterWithVerify<object?>();
 
-            writer.WriteMapHeader(2);
+            writer.WriteMapHeader(1);
 
             // Write TypeName
-            writer.Write("Type");
             writer.Write(type.Name);
 
             // Write all Propertys as Dict 
-            writer.Write("Properties");
             writer.WriteMapHeader(prop.Count);
             foreach (var p in prop) 
             {
@@ -65,49 +63,55 @@ namespace VL.MessagePack.Formatters
             {
                 return null;
             }
-
-            var ivlType   = reader.ReadString();
-            int propCount = reader.ReadMapHeader();
-
-            propertys.Clear(); 
-
-            if (appHost != null)
+            if (reader.ReadMapHeader() == 1)
             {
-                var factory = appHost.Factory;
-                if (factory != null)
+                var ivlType   = reader.ReadString();
+                int propCount = reader.ReadMapHeader();
+
+                propertys.Clear(); 
+
+                if (appHost != null)
                 {
-                    var type = factory.GetTypeByName(ivlType);
-                    if (type != null)
+                    var factory = appHost.Factory;
+                    if (factory != null)
                     {
-                        var typeinfo = factory.GetTypeInfo(type);
-                        if (typeinfo != null) 
+                        var type = factory.GetTypeByName(ivlType);
+                        if (type != null)
                         {
-                            IFormatterResolver resolver = options.Resolver;
-                            IMessagePackFormatter<string> keyFormatter = resolver.GetFormatterWithVerify<string>();
-                            IMessagePackFormatter<object> valueFormatter = resolver.GetFormatterWithVerify<object>();
-
-                            IVLObject? instance = (IVLObject)appHost.CreateInstance(typeinfo);
-
-                            options.Security.DepthStep(ref reader);
-                            try
+                            var typeinfo = factory.GetTypeInfo(type);
+                            if (typeinfo != null) 
                             {
-                                for (int i = 0; i < propCount; i++)
+                                IFormatterResolver resolver = options.Resolver;
+                                IMessagePackFormatter<string> keyFormatter = resolver.GetFormatterWithVerify<string>();
+                                IMessagePackFormatter<object> valueFormatter = resolver.GetFormatterWithVerify<object>();
+
+                                IVLObject? instance = (IVLObject)appHost.CreateInstance(typeinfo);
+
+                                options.Security.DepthStep(ref reader);
+                                try
                                 {
-                                    string key = keyFormatter.Deserialize(ref reader, options);
-                                    object value = valueFormatter.Deserialize(ref reader, options);
-                                    propertys.Add(key, value);
+                                    for (int i = 0; i < propCount; i++)
+                                    {
+                                        string key = keyFormatter.Deserialize(ref reader, options);
+                                        object value = valueFormatter.Deserialize(ref reader, options);
+                                        propertys.Add(key, value);
+                                    }
                                 }
+                                finally
+                                {
+                                    reader.Depth--;
+                                }
+                                return instance?.With(propertys);
                             }
-                            finally
-                            {
-                                reader.Depth--;
-                            }
-                            return instance?.With(propertys);
                         }
                     }
                 }
+                return null;
             }
-            return null;
+            else
+            {
+                return null;
+            }
         }
     }
 }
