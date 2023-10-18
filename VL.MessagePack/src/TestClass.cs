@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace VL.MessagePack
 {
+    public static class Test
+    {
+        public static object TestObject () { return new object[] { 1, "a", new TestClass("test",42,0.23f) }; }
+    }
+
     public class TestClass
     {
         public string MyString;

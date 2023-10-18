@@ -13,6 +13,8 @@ using System.Runtime.CompilerServices;
 using MessagePack.Resolvers;
 using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
+using VL.MessagePack.Internal;
+using System.Runtime.Serialization;
 
 namespace VL.MessagePack.Formatters
 {
@@ -20,6 +22,8 @@ namespace VL.MessagePack.Formatters
     {
         private readonly Dictionary<string, object> propertys = new Dictionary<string, object>();
         private readonly AppHost appHost;
+        private readonly ThreadsafeTypeKeyHashTable<IMessagePackFormatter?> formatters = new();
+
 
         public IVLObjectFormatter(AppHost appHost)
         {
@@ -37,10 +41,28 @@ namespace VL.MessagePack.Formatters
             var type = value.Type;
             var prop = type.Properties;
 
-            
-
             var keyFormatter = options.Resolver.GetFormatterWithVerify<string>();
             var valueFormatter = options.Resolver.GetFormatterWithVerify<object?>();
+
+            //using (var scratchRental = new ArrayBufferWriter())
+            //{
+            //    MessagePackWriter scratchWriter = writer.Clone(scratchRental);
+            //    // Write TypeName
+            //    scratchWriter.Write(type.Name);
+
+            //    // Write all Propertys as Dict 
+            //    scratchWriter.WriteMapHeader(prop.Count);
+            //    foreach (var p in prop)
+            //    {
+            //        keyFormatter.Serialize(ref scratchWriter, p.NameForTextualCode, options);
+            //        valueFormatter.Serialize(ref scratchWriter, p.GetValue(value), options);
+            //    }
+
+            //    scratchWriter.Flush();
+
+            //    // mark as extension with code 100
+            //    writer.WriteExtensionFormat(new ExtensionResult(100, scratchRental.OutputAsMemory));
+            //}
 
             writer.WriteMapHeader(1);
 
@@ -49,7 +71,7 @@ namespace VL.MessagePack.Formatters
 
             // Write all Propertys as Dict 
             writer.WriteMapHeader(prop.Count);
-            foreach (var p in prop) 
+            foreach (var p in prop)
             {
                 keyFormatter.Serialize(ref writer, p.NameForTextualCode, options);
                 valueFormatter.Serialize(ref writer, p.GetValue(value), options);
@@ -65,10 +87,10 @@ namespace VL.MessagePack.Formatters
             }
             if (reader.ReadMapHeader() == 1)
             {
-                var ivlType   = reader.ReadString();
+                var ivlType = reader.ReadString();
                 int propCount = reader.ReadMapHeader();
 
-                propertys.Clear(); 
+                propertys.Clear();
 
                 if (appHost != null)
                 {
@@ -79,7 +101,7 @@ namespace VL.MessagePack.Formatters
                         if (type != null)
                         {
                             var typeinfo = factory.GetTypeInfo(type);
-                            if (typeinfo != null) 
+                            if (typeinfo != null)
                             {
                                 IFormatterResolver resolver = options.Resolver;
                                 IMessagePackFormatter<string> keyFormatter = resolver.GetFormatterWithVerify<string>();

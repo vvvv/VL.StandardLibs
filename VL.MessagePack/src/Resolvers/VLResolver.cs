@@ -31,8 +31,9 @@ namespace VL.MessagePack.Resolvers
         {
             StrideResolver.Instance,
             StandardResolver.Instance,
-            TypelessContractlessStandardResolver.Instance,
-            ContractlessStandardResolver.Instance
+            TypelessObjectResolver.Instance, 
+            //TypelessContractlessStandardResolver.Instance,
+            //ContractlessStandardResolver.Instance
         };
 
         private readonly ResolverCache resolverCache = new ResolverCache(Resolvers);
