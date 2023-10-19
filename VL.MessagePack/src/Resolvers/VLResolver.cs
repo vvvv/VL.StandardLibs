@@ -51,9 +51,9 @@ namespace VL.MessagePack.Resolvers
 
             protected override IMessagePackFormatter<T>? GetFormatterCore<T>()
             {
-                if (typeof(T) == typeof(IVLObject))
+                if (typeof(IVLObject).IsAssignableFrom(typeof(T)))
                 {
-                    return (IMessagePackFormatter<T>)new IVLObjectFormatter(AppHost.Current);
+                    return (IMessagePackFormatter<T>)new IVLObjectFormatter<T>(AppHost.Current);
                 }
 
                 foreach (IFormatterResolver item in this.resolvers)
