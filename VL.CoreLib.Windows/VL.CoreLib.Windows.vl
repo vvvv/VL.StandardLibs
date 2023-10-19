@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="HylXxkKPeF0O6LWz4fSQKo" LanguageVersion="2022.5.0-0685-ga251664bc1" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="HylXxkKPeF0O6LWz4fSQKo" LanguageVersion="2023.5.3-0220-g0d81e44990" Version="0.128">
   <Patch Id="CIpooRlXrt2Mw6BF6VPBFy">
     <Canvas Id="MZJPVCn2BIUMOoc9sC9i0L" CanvasType="FullCategory">
       <Canvas Id="GY9BpSq9QojOdC4IqvEFgr" Name="System.Windows" Position="253,108">
@@ -447,6 +447,7 @@
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessAppFlag" Name="TogEdge" />
                 </p:NodeReference>
+                <Pin Id="DW8F4UrP16uPNHoQiPfx5i" Name="Node Context" Kind="InputPin" IsHidden="true" />
                 <Pin Id="A5QQa4ahue7NqsWPqUYuTv" Name="Value" Kind="InputPin" />
                 <Pin Id="GUo7wv6kJtWQBgShvUygOG" Name="Up Edge" Kind="OutputPin" />
                 <Pin Id="SBupuMlXZkYQPbqasQF4Sa" Name="Down Edge" Kind="OutputPin" />
@@ -538,6 +539,7 @@
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessAppFlag" Name="TogEdge" />
                 </p:NodeReference>
+                <Pin Id="ICxzyq1tgVDLKxVftN2l5R" Name="Node Context" Kind="InputPin" IsHidden="true" />
                 <Pin Id="O9qfTdYJpb7MBEBe4Z9rIf" Name="Value" Kind="InputPin" />
                 <Pin Id="AGi5oVbdRq3MiIUb9ydR0p" Name="Up Edge" Kind="OutputPin" />
                 <Pin Id="Gmg48MK3RbONXdTwABYZHz" Name="Down Edge" Kind="OutputPin" />
@@ -629,6 +631,7 @@
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessAppFlag" Name="TogEdge" />
                 </p:NodeReference>
+                <Pin Id="Fn91p1FPHh8M8NGdB0ryMK" Name="Node Context" Kind="InputPin" IsHidden="true" />
                 <Pin Id="Rnntuohu8PONsz5gABhCIV" Name="Value" Kind="InputPin" />
                 <Pin Id="NHvdz4RTw1ANenr34fr5yD" Name="Up Edge" Kind="OutputPin" />
                 <Pin Id="BPjojRguC15PreJA5J73JZ" Name="Down Edge" Kind="OutputPin" />
@@ -1287,6 +1290,7 @@
                     <Pin Id="CxJIYVmxZnyNqydgbnSFyE" Name="Result" Kind="OutputPin" />
                   </Node>
                 </Patch>
+                <Pin Id="FxL1KbnZ2l0N7UtjNUnFID" Name="Node Context" Kind="InputPin" IsHidden="true" />
               </Node>
               <Link Id="HIdLtRxaXERMEVux8tPB6J" Ids="CxJIYVmxZnyNqydgbnSFyE,C77gNrKuX9dOVdtHhJeQvQ" />
               <Link Id="PYp4MJFstbzPeAR0TzeftH" Ids="C77gNrKuX9dOVdtHhJeQvQ,CBAoZUDW8EhNGaiBwQdfOr" />
@@ -1951,6 +1955,51 @@
                 <Pin Id="UawCks6VBPpMkFOAB3J73F" Name="Play" Kind="InputPin" />
               </Node>
               <Pin Id="UGNUQuFmCkjNH8yWCY0uoz" Name="Play" Kind="InputPin" />
+            </Patch>
+          </Node>
+        </Canvas>
+        <Canvas Id="NpI5p0kb1X8QMU1y5yIEBY" Name="Application" Position="484,267">
+          <!--
+
+    ************************ Exit ************************
+
+-->
+          <Node Name="Exit" Bounds="554,273" Id="CWVIYgmSRh5OCpUOr22plx" Summary="Informs all message pumps that they must terminate, and then closes all application windows after the messages have been processed." Tags="quit,close">
+            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+              <Choice Kind="ContainerDefinition" Name="Process" />
+            </p:NodeReference>
+            <Patch Id="P33EAO8eV5cMoyQN72jTAW">
+              <Canvas Id="PnXHYBI3qWoO6amy9WiTsC" CanvasType="Group">
+                <Node Bounds="444,260,80,80" Id="QFY7ko7jTQLMs4dWi5uxvg">
+                  <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+                    <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+                    <CategoryReference Kind="Category" Name="Primitive" />
+                    <Choice Kind="ApplicationStatefulRegion" Name="If" />
+                  </p:NodeReference>
+                  <Pin Id="BOzL2u3D3cRLte2PRCdtrb" Name="Condition" Kind="InputPin" />
+                  <Patch Id="JZWMOAkWzeoLXuneJmcoPn" ManuallySortedPins="true">
+                    <Patch Id="FZeSC5jOebpM4mNNWsZYmL" Name="Create" ManuallySortedPins="true" />
+                    <Patch Id="NdKuJy5otBINqmRagmkDuY" Name="Then" ManuallySortedPins="true" />
+                    <Node Bounds="468,292,33,19" Id="LeWFGNNvtP4Nxfwgzk41BA">
+                      <p:NodeReference LastCategoryFullName="System.Windows.Forms.Application" LastDependency="System.Windows.Forms.dll">
+                        <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                        <Choice Kind="OperationCallFlag" Name="Exit" />
+                      </p:NodeReference>
+                    </Node>
+                  </Patch>
+                </Node>
+                <ControlPoint Id="Jff61dq3hE8P3Wmq2YDXR7" Bounds="446,228" />
+              </Canvas>
+              <Patch Id="PGpUwAVp53RNtQ6VZavf1K" Name="Create" />
+              <Patch Id="UbFRLG4eVH3NucYYpM2L36" Name="Update">
+                <Pin Id="BEFRrSbhZFEPW2O1b2SaaN" Name="Execute" Kind="InputPin" Bounds="482,228" DefaultValue="False" />
+              </Patch>
+              <ProcessDefinition Id="HkPVh8hZ1IDOe3qnAmH0UF">
+                <Fragment Id="HWkz4F6tAh5NaEjm4ZPHRG" Patch="PGpUwAVp53RNtQ6VZavf1K" Enabled="true" />
+                <Fragment Id="NyIjXnJgjDML19TqJSvHpx" Patch="UbFRLG4eVH3NucYYpM2L36" Enabled="true" />
+              </ProcessDefinition>
+              <Link Id="LTGX8RE4vfjP9kHnA1mihm" Ids="Jff61dq3hE8P3Wmq2YDXR7,BOzL2u3D3cRLte2PRCdtrb" />
+              <Link Id="B88shS7K1pfPNgLVNGjq2M" Ids="BEFRrSbhZFEPW2O1b2SaaN,Jff61dq3hE8P3Wmq2YDXR7" IsHidden="true" />
             </Patch>
           </Node>
         </Canvas>
