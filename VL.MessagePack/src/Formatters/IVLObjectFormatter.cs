@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
 using VL.MessagePack.Internal;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 namespace VL.MessagePack.Formatters
 {
@@ -23,6 +24,8 @@ namespace VL.MessagePack.Formatters
         private readonly Dictionary<string, object> propertys = new Dictionary<string, object>();
         private readonly AppHost appHost;
         private readonly ThreadsafeTypeKeyHashTable<IMessagePackFormatter?> formatters = new();
+
+        private readonly Regex removeCategories = new Regex(@"\s\[.+?\]", RegexOptions.Compiled);
 
 
         public IVLObjectFormatter(AppHost appHost)
@@ -44,30 +47,10 @@ namespace VL.MessagePack.Formatters
             var keyFormatter = options.Resolver.GetFormatterWithVerify<string>();
             var valueFormatter = options.Resolver.GetFormatterWithVerify<object?>();
 
-            //using (var scratchRental = new ArrayBufferWriter())
-            //{
-            //    MessagePackWriter scratchWriter = writer.Clone(scratchRental);
-            //    // Write TypeName
-            //    scratchWriter.Write(type.Name);
-
-            //    // Write all Propertys as Dict 
-            //    scratchWriter.WriteMapHeader(prop.Count);
-            //    foreach (var p in prop)
-            //    {
-            //        keyFormatter.Serialize(ref scratchWriter, p.NameForTextualCode, options);
-            //        valueFormatter.Serialize(ref scratchWriter, p.GetValue(value), options);
-            //    }
-
-            //    scratchWriter.Flush();
-
-            //    // mark as extension with code 100
-            //    writer.WriteExtensionFormat(new ExtensionResult(100, scratchRental.OutputAsMemory));
-            //}
-
             writer.WriteMapHeader(1);
 
             // Write TypeName
-            writer.Write(type.Name);
+            writer.Write(removeCategories.Replace(type.FullName, ""));
 
             // Write all Propertys as Dict 
             writer.WriteMapHeader(prop.Count);
