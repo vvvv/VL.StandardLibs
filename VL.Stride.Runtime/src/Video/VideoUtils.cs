@@ -1,4 +1,5 @@
-﻿using SharpDX.Direct3D11;
+﻿#nullable enable
+using SharpDX.Direct3D11;
 using Stride.Core;
 using Stride.Graphics;
 using Stride.Rendering;
@@ -35,12 +36,12 @@ namespace VL.Stride.Video
                 // Since we made a copy, we can release the video frame (might put it back into a pool)
                 handle.Dispose();
                 return ResourceProvider.Return(
-                    singleItem: texture,
+                    singleItem: texture!,
                     disposeAction: texture => texture.Dispose());
             }
         }
 
-        private static unsafe Texture CopyFromMemory(VideoFrame videoFrame, RenderDrawContext renderDrawContext)
+        private static unsafe Texture? CopyFromMemory(VideoFrame videoFrame, RenderDrawContext renderDrawContext)
         {
             if (!videoFrame.TryGetMemory(out var memory))
                 return null;
