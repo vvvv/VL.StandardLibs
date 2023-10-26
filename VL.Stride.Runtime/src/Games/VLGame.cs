@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Reactive.Disposables;
 using VL.Core;
 using VL.Stride.Engine;
 using VL.Stride.Rendering;
@@ -16,6 +17,16 @@ namespace VL.Stride.Games
 {
     public class VLGame : Game
     {
+        [ThreadStatic]
+        private static LogListener logListenerToUse;
+
+        // GetLogListener gets called in base constructor, we therefor need to provide a way to pass it in beforehand
+        public static IDisposable SetLogListenerToUseForGame(LogListener logListener)
+        {
+            logListenerToUse = logListener;
+            return Disposable.Create(() => logListenerToUse = null);
+        }
+
         private readonly TimeSpan maximumElapsedTime = TimeSpan.FromMilliseconds(2000.0);
         private TimeSpan accumulatedElapsedGameTime;
         private bool forceElapsedTimeToZero;
@@ -38,6 +49,11 @@ namespace VL.Stride.Games
             // for now we don't let the user decide upon the colorspace
             // as we'd need to either recreate all textures and swapchains in that moment or make sure that these weren't created yet.
             GraphicsDeviceManager.PreferredColorSpace = ColorSpace.Linear;
+        }
+
+        protected override LogListener GetLogListener()
+        {
+            return logListenerToUse ?? base.GetLogListener();
         }
 
         protected override void Destroy()

@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 using Silk.NET.SDL;
 using Stride.Core;
 using ServiceRegistry = VL.Core.ServiceRegistry;
+using VL.Stride.Core;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Lib.Initialization))]
 
@@ -42,6 +43,8 @@ namespace VL.Stride.Lib
         {
             var services = appHost.Services.RegisterService<IResourceProvider<Game>>(_ =>
             {
+                var logger = appHost.LoggerFactory.CreateLogger("VL.Stride");
+                using var __ = VLGame.SetLogListenerToUseForGame(new LogBridge(appHost.LoggerFactory, logger));
                 var game = new VLGame(appHost.NodeFactoryRegistry).DisposeBy(appHost);
 
                 var assetBuildService = new AssetBuilderServiceScript();
