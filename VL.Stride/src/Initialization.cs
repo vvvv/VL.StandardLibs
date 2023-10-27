@@ -43,8 +43,9 @@ namespace VL.Stride.Lib
         {
             var services = appHost.Services.RegisterService<IResourceProvider<Game>>(_ =>
             {
-                var logger = appHost.LoggerFactory.CreateLogger("VL.Stride");
-                using var __ = VLGame.SetLogListenerToUseForGame(new LogBridge(appHost.LoggerFactory, logger));
+                // TODO: Once we collect all system messages re-enabled these lines
+                // var logger = appHost.LoggerFactory.CreateLogger("VL.Stride");
+                // using var __ = VLGame.SetLogListenerToUseForGame(new LogBridge(appHost.LoggerFactory, logger));
                 var game = new VLGame(appHost.NodeFactoryRegistry).DisposeBy(appHost);
 
                 var assetBuildService = new AssetBuilderServiceScript();
