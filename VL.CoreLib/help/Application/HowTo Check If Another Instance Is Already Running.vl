@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="MPTeVKiJqsnMzV5qzt4NxY" LanguageVersion="2023.5.3-0222-gc9b9f1b9c9" Version="0.128">
+  <Patch Id="J993qDGeassNjH78uEwNvM">
+    <Canvas Id="Tgac8O7g8WUP8stz709JHN" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="319,214" Id="Qe3M4hUMQqgNwO1N6xAwUc">
+      <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+        <Choice Kind="ContainerDefinition" Name="Process" />
+      </p:NodeReference>
+      <Patch Id="Q4KYAHzeVz3LnA4p7z4zB8">
+        <Canvas Id="ThsLeEisveJPcXWHjJ9H0Z" CanvasType="Group">
+          <Pad Id="HVbIwi2Goj7M4SRQFYz3J1" Bounds="169,119,285,31" ShowValueBox="true" isIOBox="true" Value="Use OtherRunningInstances">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">15</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="CieFKiIuNJSLSS6K2IgHI7" Bounds="169,167,304,116" ShowValueBox="true" isIOBox="true" Value="For example you want to do something to other instance's processes, like `Kill` them.&#xD;&#xA;&#xD;&#xA;Or you want to exit current instance immediately, if any other instance is already running.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="581,214,122,19" Id="MnOxAQGUDUkL98zGjZ6Bgu">
+            <p:NodeReference LastCategoryFullName="System.Application" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OtherRunningInstances" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="FbC3VdS3Cj9NbgHUbTpY1m" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="TwhXAia8BqaLBzTrpNip5F" Name="Update" Kind="InputPin" />
+            <Pin Id="L5fSfniQOnbQNOeNRFdIkp" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="581,288,34,19" Id="PRbMzVPetvMMZV4z8vaDNc">
+            <p:NodeReference LastCategoryFullName="Collections.Sequence" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="MutableInterfaceType" Name="Sequence" NeedsToBeDirectParent="true" />
+              <Choice Kind="OperationCallFlag" Name="Any" />
+            </p:NodeReference>
+            <Pin Id="Pvnr60repq8PJ3BokK95xy" Name="Input" Kind="StateInputPin" />
+            <Pin Id="MLSrfBSml4OOQSDORGJhkd" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="RxbOH5CyasPQIIDScb2X81" Comment="Update" Bounds="583,169,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="581,347,53,19" Id="VHzVx4PioY4Oc6OB8o37Wx">
+            <p:NodeReference LastCategoryFullName="System.Application" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Exit" />
+            </p:NodeReference>
+            <Pin Id="HrexuQPL3LwPzcH65DYrwQ" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="EGfuSM2FO9YNeV34Y1aQdb" Name="Execute" Kind="InputPin" />
+          </Node>
+          <Pad Id="SGxeViHvzvgMJZbe37Bja9" Bounds="585,264,177,19" ShowValueBox="true" isIOBox="true" Value="&lt; A Spread of Process Ids.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="ScGb1anQliBQEuzymRusro" Name="Create" />
+        <Patch Id="PcT2WE30PNbObdDlM2ItuX" Name="Update" />
+        <ProcessDefinition Id="LJTKSwnFdlXOFAHC3AG76h">
+          <Fragment Id="ONHWTIJf5tiPM1xdMWlmPV" Patch="ScGb1anQliBQEuzymRusro" Enabled="true" />
+          <Fragment Id="SQx3OwHHYwPQSlLRmbAeyB" Patch="PcT2WE30PNbObdDlM2ItuX" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="LSJUjUf9JswNu2yeAxqRFi" Ids="L5fSfniQOnbQNOeNRFdIkp,Pvnr60repq8PJ3BokK95xy" />
+        <Link Id="SqMZZLNJob5LKGdmWfVv17" Ids="RxbOH5CyasPQIIDScb2X81,TwhXAia8BqaLBzTrpNip5F" />
+        <Link Id="ODSBMvSWRYcPvkMnq3ska6" Ids="MLSrfBSml4OOQSDORGJhkd,EGfuSM2FO9YNeV34Y1aQdb" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="I8fCdivVlzZQHxgA4vtDii" Location="VL.CoreLib.Windows" Version="2019.2.0-0342-g6bc9b61985" />
+</Document>
