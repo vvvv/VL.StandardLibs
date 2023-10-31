@@ -15,6 +15,7 @@ using Silk.NET.SDL;
 using Stride.Core;
 using ServiceRegistry = VL.Core.ServiceRegistry;
 using VL.Stride.Core;
+using Stride.Core.Diagnostics;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Lib.Initialization))]
 
@@ -34,6 +35,12 @@ namespace VL.Stride.Lib
             // In our deployment the dll is not beside the exe (what Silk.NET expects) and sadly Silk.NET is not using Load but instead uses TryLoad
             // which doesn't go through the resolve event.
             NativeLibrary.Load("openxr_loader.dll", typeof(Initialization).Assembly, default);
+
+            // Logging in Stride is static - all messages go through the static GlobalLogger.GlobalMessageLogged event.
+            // That event does not tell us from which game a message originated. Therefor hookup our logging system once and use a null listener in each game.
+            var loggerFactory = AppHost.Global.LoggerFactory;
+            var logger = loggerFactory.CreateLogger("VL.Stride");
+            GlobalLogger.GlobalMessageLogged += new LogBridge(loggerFactory, logger);
         }
 
         // Remove once tested enough
@@ -43,9 +50,6 @@ namespace VL.Stride.Lib
         {
             var services = appHost.Services.RegisterService<IResourceProvider<Game>>(_ =>
             {
-                // TODO: Once we collect all system messages re-enabled these lines
-                // var logger = appHost.LoggerFactory.CreateLogger("VL.Stride");
-                // using var __ = VLGame.SetLogListenerToUseForGame(new LogBridge(appHost.LoggerFactory, logger));
                 var game = new VLGame(appHost.NodeFactoryRegistry).DisposeBy(appHost);
 
                 var assetBuildService = new AssetBuilderServiceScript();
