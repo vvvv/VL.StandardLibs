@@ -6,6 +6,7 @@ using System.Reactive.Disposables;
 using VL.Core;
 using VL.Core.CompilerServices;
 using VL.Core.Reactive;
+using TypeDescriptor = System.ComponentModel.TypeDescriptor;
 
 [assembly: AssemblyInitializer(typeof(VL.Lib.VL_CoreLib_Initializer))]
 
