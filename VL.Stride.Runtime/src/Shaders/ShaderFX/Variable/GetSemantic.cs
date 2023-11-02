@@ -9,6 +9,7 @@ using static VL.Stride.Shaders.ShaderFX.ShaderFXUtils;
 namespace VL.Stride.Shaders.ShaderFX
 {
     public class GetSemantic<T> : GetVar<T>
+        where T : unmanaged
     {
         public GetSemantic(string semantic, string name = "SemanticValue")
             : base(new DeclSemantic<T>(semantic, name))

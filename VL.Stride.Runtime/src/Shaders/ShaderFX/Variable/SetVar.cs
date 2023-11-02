@@ -16,6 +16,7 @@ namespace VL.Stride.Shaders.ShaderFX
     /// <seealso cref="IComputeVoid" />
     [Monadic(typeof(GpuMonadicFactory<>))]
     public class SetVar<T> : VarBase<T>, IComputeVoid
+        where T : unmanaged
     {
         public SetVar(IComputeValue<T> value, DeclVar<T> declaration, bool evaluateChildren = true)
             : base(declaration)
@@ -74,20 +75,18 @@ namespace VL.Stride.Shaders.ShaderFX
     }
 
     public sealed class GpuMonadicFactory<T> : IMonadicFactory<T, SetVar<T>>
+        where T : unmanaged
     {
         public static readonly GpuMonadicFactory<T> Default = new GpuMonadicFactory<T>();
 
         public IMonadBuilder<T, SetVar<T>> GetMonadBuilder(bool isConstant)
         {
-            if (typeof(T).IsValueType)
-                return (IMonadBuilder<T, SetVar<T>>)Activator.CreateInstance(typeof(GpuValueBuilder<>).MakeGenericType(typeof(T)));
-            else
-                throw new NotImplementedException();
+            return (IMonadBuilder<T, SetVar<T>>)Activator.CreateInstance(typeof(GpuValueBuilder<>).MakeGenericType(typeof(T)));
         }
     }
 
     public sealed class GpuValueBuilder<T> : IMonadBuilder<T, SetVar<T>>
-        where T : struct
+        where T : unmanaged
     {
         private readonly InputValue<T> inputValue;
         private readonly SetVar<T> gpuValue;
