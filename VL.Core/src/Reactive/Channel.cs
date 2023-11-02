@@ -30,7 +30,7 @@ namespace VL.Lib.Reactive
         IDisposable BeginChange();
     }
 
-    [Monadic(typeof(Monadic.ChannelFactory<>))]
+    [Monadic(typeof(Monadic.ChannelFactory<>), typeof(Monadic.ChannelTypeFilter))]
     public interface IChannel<T> : IChannel, ISubject<T?>, IDisposable
     {
         public T? Value { get; set; }

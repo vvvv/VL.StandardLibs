@@ -14,4 +14,15 @@ namespace VL.Lib.Reactive.Monadic
             return new ChannelBuilder<T>();
         }
     }
+
+    /// <summary>
+    /// We only allow primitive types on those auto-connections to avoid 
+    /// </summary>
+    internal sealed class ChannelTypeFilter : IMonadicTypeFilter
+    {
+        public bool Accepts(TypeDescriptor typeDescriptor)
+        {
+            return typeDescriptor.IsPrimitive;
+        }
+    }
 }
