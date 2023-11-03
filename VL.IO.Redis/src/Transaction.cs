@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,10 @@ namespace VL.IO.Redis
         readonly RedisBinding binding;
         private bool init = false;
 
+        readonly NodeContext nodeContext;
+        readonly CompositeDisposable warnings;
+        readonly IVLRuntime runtime;
+
         public Transaction(
             RedisBinding binding,
             Func<ITransaction, RedisKey, Task<RedisValue>> RedisChangedCommand,
@@ -24,9 +29,14 @@ namespace VL.IO.Redis
             Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges,
             Func<T, RedisValue> serialize,
             Func<bool, bool> DeserializeSet,
-            Func<RedisValue, T> DeserializeGet)
+            Func<RedisValue, T> DeserializeGet,
+            NodeContext nodeContext
+            )
         {
             this.binding = binding;
+            this.nodeContext = nodeContext;
+            this.warnings = new CompositeDisposable();
+            this.runtime = IVLRuntime.Current;
 
             this.init = true;
 
@@ -94,14 +104,27 @@ namespace VL.IO.Redis
                     {
                         if (binding.BindingType == RedisBindingType.Send || binding.BindingType == RedisBindingType.SendAndReceive)
                         {
-                            queue.Cmds.Enqueue
-                            (
-                                (tran) => ValueTuple.Create
+                            try
+                            {
+                                // Try serialize
+                                RedisValue result = serialize.Invoke(value);
+
+                                // If serialize don't throw an exeption
+                                queue.Cmds.Enqueue
                                 (
-                                    ChannelChangedCommand(tran, KeyValuePair.Create(binding.Key, serialize(value))).ContinueWith(t => new KeyValuePair<Guid, object>(binding.setID, (object)t.Result)),
-                                    pushChanges.HasValue ? pushChanges.Value(binding.Key) : Enumerable.Empty<RedisKey>()
-                                )
-                            );
+                                    (tran) => ValueTuple.Create
+                                    (
+                                        ChannelChangedCommand(tran, KeyValuePair.Create(binding.Key, result)).ContinueWith(t => new KeyValuePair<Guid, object>(binding.setID, (object)t.Result)),
+                                        pushChanges.HasValue ? pushChanges.Value(binding.Key) : Enumerable.Empty<RedisKey>()
+                                    )
+                                );
+
+                                if (warnings.Count > 0) warnings.Clear();
+                            }
+                            catch (Exception ex)
+                            {
+                                warnings.AddExeption("Binding fail to Serialize.", ex, nodeContext, runtime);
+                            }
                         }
                     }
                     return input;
@@ -144,21 +167,13 @@ namespace VL.IO.Redis
                                         {
                                             binding.channel.SetObjectAndAuthor(result, "RedisOther");
                                         }
+
+                                        if (warnings.Count > 0) warnings.Clear();
                                     }
                                     catch (Exception ex)
                                     {
-                                        Console.WriteLine("### MESSAGE FAIL TO DESERIALIZE ###");
-                                        Console.WriteLine((RedisValue)getValue.ToString());
-                                        Console.WriteLine("###################################");
+                                        warnings.AddExeption("Binding fail to Deserialize.", ex, nodeContext, runtime);
                                         OnSuccessfulRead = false;
-                                    }
-                                    finally 
-                                    { 
-                                        //OnSuccessfulRead = false;
-                                        //if (init)
-                                        //{
-                                        //    init = false;
-                                        //}
                                     }
                                 }
                             }
@@ -192,21 +207,13 @@ namespace VL.IO.Redis
                                         {
                                             binding.channel.SetObjectAndAuthor(result, "RedisOther");
                                         }
+
+                                        if (warnings.Count > 0) warnings.Clear();
                                     }
                                     catch (Exception ex)
                                     {
-                                        Console.WriteLine("### MESSAGE FAIL TO DESERIALIZE ###");
-                                        Console.WriteLine((RedisValue)getValue.ToString());
-                                        Console.WriteLine("###################################");
+                                        warnings.AddExeption("Binding fail to Deserialize.", ex, nodeContext , runtime);
                                         OnSuccessfulRead = false;
-                                    }
-                                    finally
-                                    {
-                                        //OnSuccessfulRead = false;
-                                        //if (init)
-                                        //{
-                                        //    init = false;
-                                        //}
                                     }
                                 }
                             }
@@ -260,6 +267,9 @@ namespace VL.IO.Redis
         public void Dispose()
         {
             disposable?.Dispose();
+
+            if (!warnings.IsDisposed)
+                warnings.Dispose();
         }
     }
 }

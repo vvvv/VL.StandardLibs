@@ -1,17 +1,25 @@
-﻿using StackExchange.Redis;
+﻿using Newtonsoft.Json.Linq;
+using ServiceWire;
+using StackExchange.Redis;
 using System;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading.Channels;
 using VL.Core;
 
 namespace VL.IO.Redis
 {
     public static class SubscriberExtension
     {
-        public static IObservable<Int64> Publish<T>(this ConnectionMultiplexer connectionMultiplexer, IObservable<T> value, Func<T,RedisValue> serialize, string RedisChannel, RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto)
+
+        public static IObservable<Int64> Publish<T>(this ConnectionMultiplexer connectionMultiplexer, NodeContext nodeContext, IObservable<T> value, Func<T,RedisValue> serialize, string RedisChannel, RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto)
         {
             var redisChannel = new RedisChannel(RedisChannel, pattern);
+
+            var warnings = new CompositeDisposable();
+            IVLRuntime runtime = IVLRuntime.Current;
 
             return Observable.Create<Int64>(async (obs, ct) =>
             {
@@ -20,97 +28,107 @@ namespace VL.IO.Redis
                 var syncObs = Observer.Synchronize(obs);
                 var subscriber = connectionMultiplexer.GetSubscriber();
 
-                value.Subscribe(
+                var disposable = value.Subscribe(
                     // onNext
                     async value => 
                     {
                         if (connectionMultiplexer.IsConnected)
                         {
-                            syncObs.OnNext(await subscriber.PublishAsync(redisChannel, serialize(value)));
+                            try
+                            {
+                                // Try serialize
+                                RedisValue result = serialize.Invoke(value);
+
+                                // If serialize don't throw an exeption
+                                syncObs.OnNext(await subscriber.PublishAsync(redisChannel, result));
+
+                                if (warnings.Count > 0) warnings.Clear();
+                            }
+                            catch (Exception ex)
+                            {
+                                warnings.AddExeption("Published message fail to Serialize.", ex, nodeContext, runtime);
+                            }
                         }
                         
                     }
                     // onError
                     , (ex) =>
                     {
-                        Console.WriteLine(ex);
-                        syncObs.OnError(ex);
+                        warnings.Clear();
+                        warnings.AddExeption("Observable throw an Exeption.", ex, nodeContext, runtime);
                     }
                     // onComplete
                     , () =>
                     {
-                        Console.WriteLine("COMPLETED");
-                        syncObs.OnCompleted();
-                    });
+                        warnings.Clear();
+                        warnings.AddExeption("Observable completed.", new Exception(), nodeContext, runtime);
+                    }
+                );
 
 
                 // Return Disposable
-                return Disposable.Create(() => subscriber.Unsubscribe(redisChannel));
+                return Disposable.Create(() =>
+                {
+                    disposable.Dispose();
+
+                    if (!warnings.IsDisposed)
+                        warnings.Dispose();
+                });
             });
 
         }
 
-        private static async void subscribe<TResult>(IVLRuntime? vLRuntime, NodeContext nodeContext, CompositeDisposable warnings, IObserver<TResult> syncObs, ISubscriber subscriber, RedisChannel channel, Func<RedisChannel, RedisValue, TResult> deserialize)
+        private static async void subscribe<TResult>(NodeContext nodeContext, CompositeDisposable warnings, IObserver<TResult> syncObs, ISubscriber subscriber, RedisChannel channel, Func<RedisChannel, RedisValue, TResult> deserialize)
         {
-            
+            IVLRuntime runtime = IVLRuntime.Current;
+
             await subscriber.SubscribeAsync(channel, (chan, message) =>
             {
                 if (!message.IsNullOrEmpty)
                 {
                     try
                     {
-                        syncObs.OnNext(deserialize.Invoke(chan, message));
-                        if (!warnings.IsDisposed)
-                            warnings.Dispose();
-                        foreach (var id in nodeContext.Path.Stack)
-                        {
-                            vLRuntime.AddMessage(new VL.Lang.Message(id, Lang.MessageSeverity.Warning, "Subscribed message fail to Deserialize."));
-                        }
+                        // Try deserialize
+                        TResult result = deserialize.Invoke(chan, message);
+
+                        // If deserialize don't throw an exeption
+                        syncObs.OnNext(result);
+
+                        if (warnings.Count > 0) warnings.Clear();
                     }
                     catch (Exception ex)
                     {
-                        foreach (var id in nodeContext.Path.Stack)
-                        {
-                            vLRuntime.AddPersistentMessage(new VL.Lang.Message(id, Lang.MessageSeverity.Error, "Subscribed message fail to Deserialize." + Environment.NewLine + ex.Message)).DisposeBy(warnings);
-                        }
+                        
+                        warnings.AddExeption("Subscribed message fail to Deserialize.", ex, nodeContext, runtime);
                     }
                 }
             }).ConfigureAwait(false);
         }
 
-        private static async void subscribeScan<TSeed, TResult>(IVLRuntime? vLRuntime, NodeContext nodeContext, CompositeDisposable warnings, IObserver<TResult> syncObs, ISubscriber subscriber, RedisChannel channel, Func<TSeed, RedisChannel, RedisValue, TResult> selector, TSeed seed)
+        private static async void subscribeScan<TSeed, TResult>(NodeContext nodeContext, CompositeDisposable warnings, IObserver<TResult> syncObs, ISubscriber subscriber, RedisChannel channel, Func<TSeed, RedisChannel, RedisValue, TResult> selector, TSeed seed)
         {
+            IVLRuntime runtime = IVLRuntime.Current;
+
             await subscriber.SubscribeAsync(channel, (chan, message) =>
             {
                 if (!message.IsNullOrEmpty)
                 {
                     try
                     {
-                        syncObs.OnNext(selector.Invoke(seed, chan, message));
-                        if (!warnings.IsDisposed)
-                            warnings.Dispose();
+                        // Try deserialize
+                        TResult result = selector.Invoke(seed, chan, message);
+
+                        // If deserialize don't throw an exeption
+                        syncObs.OnNext(result);
+
+                        if (warnings.Count > 0) warnings.Clear();
                     }
                     catch (Exception ex)
                     {
-                        foreach (var id in nodeContext.Path.Stack)
-                        {
-                            vLRuntime.AddPersistentMessage(new VL.Lang.Message(id, Lang.MessageSeverity.Error, "Subscribed message fail to Deserialize." + Environment.NewLine + ex.Message)).DisposeBy(warnings);
-                        }
+                        warnings.AddExeption("Subscribed message fail to Deserialize.", ex, nodeContext, runtime);
                     }
                 }
-                foreach (var id in nodeContext.Path.Stack)
-                {
-                    vLRuntime.AddMessage(new VL.Lang.Message(id, Lang.MessageSeverity.Error, "Subscribed message fail to Deserialize."));
-                }
             }).ConfigureAwait(false);
-        }
-
-        public static void Warning(NodeContext nodeContext)
-        {
-            foreach (var id in nodeContext.Path.Stack)
-            {
-                IVLRuntime.Current?.AddMessage(new VL.Lang.Message(id, Lang.MessageSeverity.Error, "Subscribed message fail to Deserialize."));
-            }
         }
 
         public static IObservable<TResult> Subscribe<TResult>(this ConnectionMultiplexer connectionMultiplexer, NodeContext nodeContext, Func<RedisChannel, RedisValue, TResult> deserialize, string RedisChannel, RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto)
@@ -134,11 +152,11 @@ namespace VL.IO.Redis
                 // Handle Connection Restored
                 connectionMultiplexer.ConnectionRestored += async (s, e) =>
                 {
-                    subscribe(IVLRuntime.Current, nodeContext, warnings, syncObs, subscriber, channel, deserialize);
+                    subscribe(nodeContext, warnings, syncObs, subscriber, channel, deserialize);
                 };
 
                 // Subscribe
-                subscribe(IVLRuntime.Current, nodeContext, warnings, syncObs, subscriber, channel, deserialize);
+                subscribe(nodeContext, warnings, syncObs, subscriber, channel, deserialize);
 
                 // Return Disposable
                 return Disposable.Create(() =>
@@ -172,11 +190,11 @@ namespace VL.IO.Redis
                 // Handle Connection Restored
                 connectionMultiplexer.ConnectionRestored += async (s, e) =>
                 {
-                    subscribeScan(IVLRuntime.Current, nodeContext, warnings, syncObs, subscriber, channel, selector, seed);
+                    subscribeScan(nodeContext, warnings, syncObs, subscriber, channel, selector, seed);
                 };
 
                 // Subscribe
-                subscribeScan(IVLRuntime.Current, nodeContext, warnings, syncObs, subscriber, channel, selector, seed);
+                subscribeScan(nodeContext, warnings, syncObs, subscriber, channel, selector, seed);
 
                 // Return Disposable
                 return Disposable.Create(() =>

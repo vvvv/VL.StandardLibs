@@ -4,17 +4,24 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-
+using VL.Core;
 
 namespace VL.IO.Redis
 {
     public class RedisCommandQueue : IDisposable
     {
-        internal  Guid id;
+        private readonly NodeContext nodeContext;
+        private readonly CompositeDisposable warnings;
+        private readonly IVLRuntime runtime;
 
-        internal ConnectionMultiplexer Multiplexer;
+        internal readonly ConnectionMultiplexer Multiplexer;
+        internal readonly Guid id;
+        
+
         internal IDatabase Database;
         internal ITransaction Transaction;
 
@@ -24,8 +31,12 @@ namespace VL.IO.Redis
         internal PooledSet<string> Changes = new PooledSet<string>();
         internal PooledSet<string> ReceivedChanges = new PooledSet<string>();
 
-        public RedisCommandQueue(ConnectionMultiplexer Multiplexer, Guid id)
+        public RedisCommandQueue(NodeContext nodeContext, ConnectionMultiplexer Multiplexer, Guid id)
         {
+            this.nodeContext = nodeContext;
+            this.warnings = new CompositeDisposable();
+            this.runtime = IVLRuntime.Current;
+
             this.Multiplexer = Multiplexer;
             this.id = id;
         }
@@ -49,10 +60,11 @@ namespace VL.IO.Redis
                         task.Dispose();
                 }
 
+                if (warnings.Count > 0) warnings.Clear();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-
+                warnings.AddExeption("RedisCommandQueue failed to dispose Tasks in Clear().", ex, nodeContext, runtime);
             }
             Tasks.Clear();
         }
@@ -63,8 +75,10 @@ namespace VL.IO.Redis
         // To detect redundant calls
         private bool _disposedValue;
 
+        #nullable enable
         // Instantiate a SafeHandle instance.
         private SafeHandle? _safeHandle = new SafeFileHandle(IntPtr.Zero, true);
+        #nullable disable
 
         public void Dispose()
         {
@@ -90,11 +104,17 @@ namespace VL.IO.Redis
                             task.Dispose();
                     }
 
+                    if (warnings.Count > 0) warnings.Clear();
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-
+                    warnings.AddExeption("RedisCommandQueue failed to dispose Tasks in Clear().", ex, nodeContext, runtime);
                 }
+
+
+                if (!warnings.IsDisposed)
+                    warnings.Dispose();
+
                 Tasks.Clear();
                 Cmds.Clear();
                 Changes.Dispose();
