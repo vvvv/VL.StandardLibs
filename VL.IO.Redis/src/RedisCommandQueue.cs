@@ -26,10 +26,9 @@ namespace VL.IO.Redis
         internal IDatabase Database;
         internal ITransaction Transaction;
 
-        internal ConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>> Cmds = new ConcurrentQueue<Func<ITransaction, (Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>)>>();
+        internal ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> Cmds = new ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
         internal ConcurrentQueue<Task<KeyValuePair<Guid, object>>> Tasks = new ConcurrentQueue<Task<KeyValuePair<Guid, object>>>();
 
-        internal PooledSet<string> Changes = new PooledSet<string>();
         internal PooledSet<string> ReceivedChanges = new PooledSet<string>();
 
         public RedisCommandQueue(NodeContext nodeContext, ConnectionMultiplexer Multiplexer, Guid id, string ClientName)
@@ -58,7 +57,6 @@ namespace VL.IO.Redis
         public void Clear()
         {
             Cmds.Clear();
-            Changes.Clear();
             ReceivedChanges.Clear();
             try
             {
@@ -125,7 +123,6 @@ namespace VL.IO.Redis
 
                 Tasks.Clear();
                 Cmds.Clear();
-                Changes.Dispose();
                 ReceivedChanges.Dispose();
 
                 _disposedValue = true;

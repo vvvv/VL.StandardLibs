@@ -64,11 +64,7 @@ namespace VL.IO.Redis
             if (input.Item1.Transaction != null)
             {
                 input.Item1.Cmds.Enqueue(
-                    (tran) => ValueTuple.Create
-                    (
-                        cmd.Invoke(tran, input.Item2).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result)),
-                        keys.HasValue ? keys.Value.Invoke(input.Item2).Select(k => new RedisKey(k)) : Enumerable.Empty<RedisKey>()
-                    )   
+                    (tran) => cmd.Invoke(tran, input.Item2).ContinueWith(t => new KeyValuePair<Guid, object>(guid, (object)t.Result))
                 );
             }
             return input;
@@ -108,13 +104,7 @@ namespace VL.IO.Redis
                             foreach (var cmd in queue.Cmds)
                             {
                                 var taskKey = cmd(queue.Transaction);
-                                queue.Tasks.Enqueue(taskKey.Item1);
-                                queue.Changes.UnionWith(taskKey.Item2.Select(v => v.ToString()));
-                            }
-                            if (!queue.Changes.IsEmpty())
-                            {
-                                var p = publishChanges.Invoke(queue.Changes.ToImmutable());
-                                queue.Tasks.Enqueue(queue.Transaction.PublishAsync(new RedisChannel(p.Item2 + "_" + queue.id.ToString(), p.Item3), p.Item1).ContinueWith(t => new KeyValuePair<Guid, object>(queue.id, (object)t.Result)));
+                                queue.Tasks.Enqueue(taskKey);
                             }
                             action.Invoke((float)sw.ElapsedTicks / (float)(TimeSpan.TicksPerMillisecond), queue.Tasks.Count);
 

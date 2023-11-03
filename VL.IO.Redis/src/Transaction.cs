@@ -26,7 +26,6 @@ namespace VL.IO.Redis
             RedisBinding binding,
             Func<ITransaction, RedisKey, Task<RedisValue>> RedisChangedCommand,
             Func<ITransaction, KeyValuePair<RedisKey, RedisValue>, Task<bool>> ChannelChangedCommand,
-            Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges,
             Func<T, RedisValue> serialize,
             Func<bool, bool> DeserializeSet,
             Func<RedisValue, T> DeserializeGet,
@@ -42,7 +41,7 @@ namespace VL.IO.Redis
 
             var onRedisChangeNotificationOrFirstFrame = OnRedisChangeNotificationOrFirstFrame(RedisChangedCommand);
 
-            var onChannelChange = SerializeSetAndPushChanges(onRedisChangeNotificationOrFirstFrame, serialize, ChannelChangedCommand, pushChanges);
+            var onChannelChange = SerializeSetAndPushChanges(onRedisChangeNotificationOrFirstFrame, serialize, ChannelChangedCommand);
 
             var deserializeResult = Deserialize(DeserializeSet, DeserializeGet);
 
@@ -69,11 +68,7 @@ namespace VL.IO.Redis
                         {
                             queue.Cmds.Enqueue
                             (
-                                (tran) => ValueTuple.Create
-                                (
-                                    RedisChangedCommand(tran, binding.Key).ContinueWith(t => new KeyValuePair<Guid, object>(binding.getID, (object)t.Result)),
-                                    Enumerable.Empty<RedisKey>()
-                                )
+                                (tran) => RedisChangedCommand(tran, binding.Key).ContinueWith(t => new KeyValuePair<Guid, object>(binding.getID, (object)t.Result))
                             );
                         }
                     }
@@ -86,8 +81,7 @@ namespace VL.IO.Redis
         private IObservable<ValueTuple<RedisCommandQueue, T>> SerializeSetAndPushChanges(
             IObservable<RedisCommandQueue> queue,
             Func<T, RedisValue> serialize,
-            Func<ITransaction, KeyValuePair<RedisKey, RedisValue>, Task<bool>> ChannelChangedCommand,
-            Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges)
+            Func<ITransaction, KeyValuePair<RedisKey, RedisValue>, Task<bool>> ChannelChangedCommand)
         {
             return ReactiveExtensions.
                 WithLatestWhenNew(binding.channel.ChannelOfObject, queue, (c, q) =>
@@ -112,11 +106,7 @@ namespace VL.IO.Redis
                                 // If serialize don't throw an exeption
                                 queue.Cmds.Enqueue
                                 (
-                                    (tran) => ValueTuple.Create
-                                    (
-                                        ChannelChangedCommand(tran, KeyValuePair.Create(binding.Key, result)).ContinueWith(t => new KeyValuePair<Guid, object>(binding.setID, (object)t.Result)),
-                                        pushChanges.HasValue ? pushChanges.Value(binding.Key) : Enumerable.Empty<RedisKey>()
-                                    )
+                                    (tran) => ChannelChangedCommand(tran, KeyValuePair.Create(binding.Key, result)).ContinueWith(t => new KeyValuePair<Guid, object>(binding.setID, (object)t.Result))
                                 );
 
                                 if (warnings.Count > 0) warnings.Clear();
