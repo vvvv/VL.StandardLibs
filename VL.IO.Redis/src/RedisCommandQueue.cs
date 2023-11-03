@@ -9,6 +9,7 @@ using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Lib.Collections;
 
 namespace VL.IO.Redis
 {
@@ -31,14 +32,21 @@ namespace VL.IO.Redis
         internal PooledSet<string> Changes = new PooledSet<string>();
         internal PooledSet<string> ReceivedChanges = new PooledSet<string>();
 
-        public RedisCommandQueue(NodeContext nodeContext, ConnectionMultiplexer Multiplexer, Guid id)
+        public RedisCommandQueue(NodeContext nodeContext, ConnectionMultiplexer Multiplexer, Guid id, string ClientName)
         {
             this.nodeContext = nodeContext;
             this.warnings = new CompositeDisposable();
             this.runtime = IVLRuntime.Current;
 
-            this.Multiplexer = Multiplexer;
+            this.Multiplexer = Multiplexer.EnableClientSideCaching(ClientName,out Spread<long> ClientID, out Spread<bool> IsEnabled);
             this.id = id;
+
+            // Handle Connection Restored
+            this.Multiplexer.ConnectionRestored +=  (s, e) =>
+            {
+                // ReSubscribe
+                Multiplexer.EnableClientSideCaching(ClientName, out Spread<long> ClientID, out Spread<bool> IsEnabled);
+            };
         }
 
         public void CreateTransaction(IDatabase Database)

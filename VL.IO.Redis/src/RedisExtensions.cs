@@ -17,6 +17,40 @@ namespace VL.IO.Redis
 
     public static class RedisExtensions
     {
+        internal static ConnectionMultiplexer EnableClientSideCaching(this ConnectionMultiplexer ConnectionMultiplexer, string ClientName, out Spread<long> ClientID, out Spread<bool> IsEnabled)
+        {
+            SpreadBuilder<long> ClientIDBuilder = new SpreadBuilder<long>();
+            SpreadBuilder<bool> IsEnabledBuilder = new SpreadBuilder<bool>();
+
+            foreach (var server in ConnectionMultiplexer.GetServers())
+            {
+                var info = server.ClientList().FirstOrDefault(
+                    (ClientInfo info) =>
+                    {
+                        return info.Name == ClientName && info.SubscriptionCount > 0;
+                    }
+                );
+                if (info != null) 
+                {
+                    ClientIDBuilder.Add(info.Id);
+                    try
+                    {
+                        server.Execute("CLIENT", new object[] { "TRACKING", "ON", "REDIRECT", info.Id.ToString(), "BCAST", "NOLOOP" });
+                        IsEnabledBuilder.Add(true);
+                    }
+                    catch 
+                    {
+                        IsEnabledBuilder.Add(false);
+                    }
+                    
+                }
+            }
+
+            ClientID = ClientIDBuilder.ToSpread();
+            IsEnabled = IsEnabledBuilder.ToSpread();
+            return ConnectionMultiplexer;
+        }
+
         public static Guid getID(this RedisCommandQueue queue) { return queue.id; }
 
         public static ValueTuple<RedisCommandQueue, TInput> Enqueue<TInput, TOutput>
