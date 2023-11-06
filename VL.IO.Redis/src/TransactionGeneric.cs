@@ -28,14 +28,13 @@ namespace VL.IO.Redis
             IChannel<TInput> channel,
             Func<ITransaction, RedisKey, Task<TGetResult>> RedisChangedCommand,
             Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TSetResult>> ChannelChangedCommand,
-            Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges,
             Func<TInput, TInputSerialized> serialize,
             Func<TSetResult, bool> DeserializeSet,
             Func<TGetResult, TInput> DeserializeGet)
         {
             var onRedisChangeNotificationOrFirstFrame = OnRedisChangeNotificationOrFirstFrame(channel, RedisChangedCommand);
 
-            var onChannelChange = SerializeSetAndPushChanges(channel, onRedisChangeNotificationOrFirstFrame, serialize, ChannelChangedCommand, pushChanges);
+            var onChannelChange = SerializeSetAndPushChanges(channel, onRedisChangeNotificationOrFirstFrame, serialize, ChannelChangedCommand);
 
             var deserializeResult = Deserialize(channel, DeserializeSet, DeserializeGet);
 
@@ -68,11 +67,7 @@ namespace VL.IO.Redis
                         {
                             queue.Cmds.Enqueue
                             (
-                                (tran) => ValueTuple.Create
-                                (
-                                    RedisChangedCommand(tran, model.Key).ContinueWith(t => new KeyValuePair<Guid, object>(model.getID, (object)t.Result)),
-                                    Enumerable.Empty<RedisKey>()
-                                )
+                                (tran) => RedisChangedCommand(tran, model.Key).ContinueWith(t => new KeyValuePair<Guid, object>(model.getID, (object)t.Result))
                             );
                             firstFrame = false;
                         }
@@ -87,8 +82,7 @@ namespace VL.IO.Redis
             IChannel<TInput> channel,
             IObservable<RedisCommandQueue> queue,
             Func<TInput, TInputSerialized> serialize,
-            Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TSetResult>> ChannelChangedCommand,
-            Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges)
+            Func<ITransaction, KeyValuePair<RedisKey, TInputSerialized>, Task<TSetResult>> ChannelChangedCommand)
         {
             return ReactiveExtensions.
                 WithLatestWhenNew(channel, queue, (c, q) =>
@@ -108,11 +102,7 @@ namespace VL.IO.Redis
                         {
                             queue.Cmds.Enqueue
                             (
-                                (tran) => ValueTuple.Create
-                                (
-                                    ChannelChangedCommand(tran, KeyValuePair.Create(model.Key, serialize(value))).ContinueWith(t => new KeyValuePair<Guid, object>(model.setID, (object)t.Result)),
-                                    pushChanges.HasValue ? pushChanges.Value(model.Key) : Enumerable.Empty<RedisKey>()
-                                )
+                                (tran) => ChannelChangedCommand(tran, KeyValuePair.Create(model.Key, serialize(value))).ContinueWith(t => new KeyValuePair<Guid, object>(model.setID, (object)t.Result))
                             );
                         }
                     }

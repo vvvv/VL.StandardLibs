@@ -46,7 +46,7 @@ namespace VL.IO.Redis
     public record RedisModuleRuntime : IRedisModule
     {
         public string Name => "Redis";
-        public string Description => "Bind a Channel to Redis";
+        public string Description => "Bound to Redis via a Binding node";
         public bool SupportsType(Type type) => true;
 
         private readonly IObservable<RedisCommandQueue> afterFrame;

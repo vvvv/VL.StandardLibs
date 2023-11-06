@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,22 +18,30 @@ namespace VL.IO.Redis
         readonly RedisBinding binding;
         private bool init = false;
 
+        readonly NodeContext nodeContext;
+        readonly CompositeDisposable warnings;
+        readonly IVLRuntime runtime;
+
         public Transaction(
             RedisBinding binding,
             Func<ITransaction, RedisKey, Task<RedisValue>> RedisChangedCommand,
             Func<ITransaction, KeyValuePair<RedisKey, RedisValue>, Task<bool>> ChannelChangedCommand,
-            Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges,
             Func<T, RedisValue> serialize,
             Func<bool, bool> DeserializeSet,
-            Func<RedisValue, T> DeserializeGet)
+            Func<RedisValue, T> DeserializeGet,
+            NodeContext nodeContext
+            )
         {
             this.binding = binding;
+            this.nodeContext = nodeContext;
+            this.warnings = new CompositeDisposable();
+            this.runtime = IVLRuntime.Current;
 
-            this.init = binding.Initialisation == Initialisation.Redis;
+            this.init = true;
 
             var onRedisChangeNotificationOrFirstFrame = OnRedisChangeNotificationOrFirstFrame(RedisChangedCommand);
 
-            var onChannelChange = SerializeSetAndPushChanges(onRedisChangeNotificationOrFirstFrame, serialize, ChannelChangedCommand, pushChanges);
+            var onChannelChange = SerializeSetAndPushChanges(onRedisChangeNotificationOrFirstFrame, serialize, ChannelChangedCommand);
 
             var deserializeResult = Deserialize(DeserializeSet, DeserializeGet);
 
@@ -59,11 +68,7 @@ namespace VL.IO.Redis
                         {
                             queue.Cmds.Enqueue
                             (
-                                (tran) => ValueTuple.Create
-                                (
-                                    RedisChangedCommand(tran, binding.Key).ContinueWith(t => new KeyValuePair<Guid, object>(binding.getID, (object)t.Result)),
-                                    Enumerable.Empty<RedisKey>()
-                                )
+                                (tran) => RedisChangedCommand(tran, binding.Key).ContinueWith(t => new KeyValuePair<Guid, object>(binding.getID, (object)t.Result))
                             );
                         }
                     }
@@ -76,8 +81,7 @@ namespace VL.IO.Redis
         private IObservable<ValueTuple<RedisCommandQueue, T>> SerializeSetAndPushChanges(
             IObservable<RedisCommandQueue> queue,
             Func<T, RedisValue> serialize,
-            Func<ITransaction, KeyValuePair<RedisKey, RedisValue>, Task<bool>> ChannelChangedCommand,
-            Optional<Func<RedisKey, IEnumerable<RedisKey>>> pushChanges)
+            Func<ITransaction, KeyValuePair<RedisKey, RedisValue>, Task<bool>> ChannelChangedCommand)
         {
             return ReactiveExtensions.
                 WithLatestWhenNew(binding.channel.ChannelOfObject, queue, (c, q) =>
@@ -94,14 +98,23 @@ namespace VL.IO.Redis
                     {
                         if (binding.BindingType == RedisBindingType.Send || binding.BindingType == RedisBindingType.SendAndReceive)
                         {
-                            queue.Cmds.Enqueue
-                            (
-                                (tran) => ValueTuple.Create
+                            try
+                            {
+                                // Try serialize
+                                RedisValue result = serialize.Invoke(value);
+
+                                // If serialize don't throw an exeption
+                                queue.Cmds.Enqueue
                                 (
-                                    ChannelChangedCommand(tran, KeyValuePair.Create(binding.Key, serialize(value))).ContinueWith(t => new KeyValuePair<Guid, object>(binding.setID, (object)t.Result)),
-                                    pushChanges.HasValue ? pushChanges.Value(binding.Key) : Enumerable.Empty<RedisKey>()
-                                )
-                            );
+                                    (tran) => ChannelChangedCommand(tran, KeyValuePair.Create(binding.Key, result)).ContinueWith(t => new KeyValuePair<Guid, object>(binding.setID, (object)t.Result))
+                                );
+
+                                if (warnings.Count > 0) warnings.Clear();
+                            }
+                            catch (Exception ex)
+                            {
+                                warnings.AddExeption("Binding fail to Serialize.", ex, nodeContext, runtime);
+                            }
                         }
                     }
                     return input;
@@ -128,14 +141,29 @@ namespace VL.IO.Redis
                         {
                             if (dict.TryGetValue(binding.getID, out var getValue))
                             {
-                                if (!((RedisValue)getValue).IsNull)
+                                if (!((RedisValue)getValue).IsNullOrEmpty)
                                 {
-                                    result = DeserializeGet((RedisValue)getValue);
-                                    binding.channel.SetObjectAndAuthor(result, "RedisOther");
-                                    OnSuccessfulRead = true;
-                                    if (init)
+                                    try
                                     {
-                                        init = false;
+                                        result = DeserializeGet((RedisValue)getValue);
+                                        OnSuccessfulRead = true;
+                                        if (init)
+                                        {
+                                            init = false;
+                                            if (binding.Initialisation == Initialisation.Redis)
+                                                binding.channel.SetObjectAndAuthor(result, "RedisOther");
+                                        }
+                                        else
+                                        {
+                                            binding.channel.SetObjectAndAuthor(result, "RedisOther");
+                                        }
+
+                                        if (warnings.Count > 0) warnings.Clear();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        warnings.AddExeption("Binding fail to Deserialize.", ex, nodeContext, runtime);
+                                        OnSuccessfulRead = false;
                                     }
                                 }
                             }
@@ -152,14 +180,30 @@ namespace VL.IO.Redis
                             }
                             if (dict.TryGetValue(binding.getID, out var getValue))
                             {
-                                if (!((RedisValue)getValue).IsNull)
+                                if (!((RedisValue)getValue).IsNullOrEmpty)
                                 {
-                                    result = DeserializeGet((RedisValue)getValue);
-                                    binding.channel.SetObjectAndAuthor(result, "RedisOther");
-                                    OnSuccessfulRead = true;
-                                    if (init)
+                                    try
                                     {
-                                        init = false;
+
+                                        result = DeserializeGet((RedisValue)getValue);
+                                        OnSuccessfulRead = true;
+                                        if (init)
+                                        {
+                                            init = false;
+                                            if (binding.Initialisation == Initialisation.Redis)
+                                                binding.channel.SetObjectAndAuthor(result, "RedisOther");
+                                        }
+                                        else
+                                        {
+                                            binding.channel.SetObjectAndAuthor(result, "RedisOther");
+                                        }
+
+                                        if (warnings.Count > 0) warnings.Clear();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        warnings.AddExeption("Binding fail to Deserialize.", ex, nodeContext , runtime);
+                                        OnSuccessfulRead = false;
                                     }
                                 }
                             }
@@ -213,6 +257,9 @@ namespace VL.IO.Redis
         public void Dispose()
         {
             disposable?.Dispose();
+
+            if (!warnings.IsDisposed)
+                warnings.Dispose();
         }
     }
 }

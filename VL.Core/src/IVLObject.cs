@@ -411,9 +411,9 @@ namespace VL.Core
 
         public static readonly IVLObject Default = new DefaultImpl();
 
-        static readonly Regex FPropertyRegex = new Regex(@"\.?([^/[/.]+)($|\[.*|\..*)$", RegexOptions.Compiled);
-        static readonly Regex FValueIndexerRegex = new Regex(@"\[(-?[0-9]+)\](.*)$", RegexOptions.Compiled);
-        static readonly Regex FStringIndexerRegex = new Regex(@"\[""(.+)""\](.*)$", RegexOptions.Compiled);
+        static readonly Regex FPropertyRegex = new Regex(@"^\.?([^\[\.]+)($|\[.*|\..*)$", RegexOptions.Compiled);
+        static readonly Regex FValueIndexerRegex = new Regex(@"^\[(-?[0-9]+)\](.*)$", RegexOptions.Compiled);
+        static readonly Regex FStringIndexerRegex = new Regex(@"^\[""([^""]*)""\](.*)$", RegexOptions.Compiled);
 
         /// <summary>
         /// Tries to retrieve the path from the instance to the descendant.
