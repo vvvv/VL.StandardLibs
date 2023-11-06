@@ -55,7 +55,7 @@ namespace VL.MessagePack.Resolvers
 
             protected override IMessagePackFormatter<T>? GetFormatterCore<T>()
             {
-                if (typeof(IVLObject).IsAssignableFrom(typeof(T)))
+                if(typeof(IVLObject).IsAssignableFrom(typeof(T)))
                 {
                     return (IMessagePackFormatter<T>)new IVLObjectFormatter<T>(AppHost.Current);
                 }
@@ -64,7 +64,8 @@ namespace VL.MessagePack.Resolvers
 
                     var genericTypeArgument = typeof(T).GetGenericArguments()[0];
 
-                    MethodInfo? MI = typeof(RuntimeHelpers).GetMethod("IsReferenceOrContainsReferences");
+                    // USE ultrafast SpreadAsByteFormatter Formatter
+                    //MethodInfo? MI = typeof(RuntimeHelpers).GetMethod("IsReferenceOrContainsReferences");
                     //if (MI != null)
                     //{
                     //    MI = MI.MakeGenericMethod(new[] { genericTypeArgument });

@@ -2,26 +2,13 @@
 using MessagePack;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VL.Core;
-using VL.Lib.IO;
-using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
-using MessagePack.Resolvers;
-using System.Xml.Linq;
-using Newtonsoft.Json.Linq;
 using VL.MessagePack.Internal;
-using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
-using VL.MessagePack.Resolvers;
-using System.Collections.Concurrent;
-using MBrace.FsPickler.CSharpProxy;
-using ServiceWire;
 using System.Linq.Expressions;
 using System.Reflection;
+using VL.Core.Utils;
 
 namespace VL.MessagePack.Formatters
 {
@@ -33,7 +20,7 @@ namespace VL.MessagePack.Formatters
         private static readonly ThreadsafeTypeKeyHashTable<SerializeMethod> Serializers = new();
         private static readonly ThreadsafeTypeKeyHashTable<DeserializeMethod> Deserializers = new();
 
-        private readonly ConcurrentDictionary<string,Type> propertyTyps = new ConcurrentDictionary<string,Type>();
+        //private readonly ConcurrentDictionary<string,Type> propertyTyps = new ConcurrentDictionary<string,Type>();
 
         private readonly AppHost appHost;
         private readonly IVLFactory factory;
@@ -41,9 +28,6 @@ namespace VL.MessagePack.Formatters
         private readonly IVLObject? instance;
 
         private readonly Regex removeCategories = new Regex(@"\s\[.+?\]", RegexOptions.Compiled);
-
-        private readonly Dictionary<string, object> propertys = new Dictionary<string, object>();
-
 
         public IVLObjectFormatter(AppHost appHost)
         {
@@ -61,8 +45,6 @@ namespace VL.MessagePack.Formatters
             {
                 TryAddSerializers(prop.Type.ClrType);
                 TryAddDeserializers(prop.Type.ClrType);
-
-                propertyTyps.TryAdd(prop.NameForTextualCode, prop.Type.ClrType);
             }
 
         }
@@ -156,7 +138,7 @@ namespace VL.MessagePack.Formatters
             {
                 writer.Write(prop.NameForTextualCode);
                 var formatter = options.Resolver.GetFormatterDynamic(prop.Type.ClrType);
-                SerializeMethod? serializeMethod = TryAddSerializers(prop.Type.ClrType);
+                SerializeMethod ? serializeMethod = TryAddSerializers(prop.Type.ClrType);
                 if (serializeMethod != null && formatter != null)
                     serializeMethod(formatter, ref writer, prop.GetValue((IVLObject)value), options);
 
@@ -172,7 +154,7 @@ namespace VL.MessagePack.Formatters
             }
             int propCount = reader.ReadMapHeader();
 
-            propertys.Clear();
+            var builder = Pooled.GetDictionaryBuilder<string, object>();
 
             options.Security.DepthStep(ref reader);
             try
@@ -190,7 +172,8 @@ namespace VL.MessagePack.Formatters
                             DeserializeMethod? deserializeMethod = TryAddDeserializers(type);
                             if (deserializeMethod != null && formatter != null)
                             {
-                                propertys.Add(key, deserializeMethod(formatter, ref reader, options));
+                                var obj = deserializeMethod(formatter, ref reader, options);
+                                builder.Value.Add(key, obj);
                             }     
                         }
                     }
@@ -203,109 +186,109 @@ namespace VL.MessagePack.Formatters
 
             if (instance != null)
             {
-                return (T)instance.With(propertys);
+                return (T)instance.With(builder.ToImmutableAndFree());
             }
             return default(T);
         }
     }
 
-    public class IVLObjectFormatter : IMessagePackFormatter<IVLObject?>
-    {
-        private readonly Dictionary<string, object> propertys = new Dictionary<string, object>();
-        private readonly AppHost appHost;
-        private readonly ThreadsafeTypeKeyHashTable<IMessagePackFormatter?> formatters = new();
+    //public class IVLObjectFormatter : IMessagePackFormatter<IVLObject?>
+    //{
+    //    private readonly Dictionary<string, object> propertys = new Dictionary<string, object>();
+    //    private readonly AppHost appHost;
+    //    private readonly ThreadsafeTypeKeyHashTable<IMessagePackFormatter?> formatters = new();
 
-        private readonly Regex removeCategories = new Regex(@"\s\[.+?\]", RegexOptions.Compiled);
+    //    private readonly Regex removeCategories = new Regex(@"\s\[.+?\]", RegexOptions.Compiled);
 
 
-        public IVLObjectFormatter(AppHost appHost)
-        {
-            this.appHost = appHost;
-        }
+    //    public IVLObjectFormatter(AppHost appHost)
+    //    {
+    //        this.appHost = appHost;
+    //    }
 
-        public void Serialize(
-          ref MessagePackWriter writer, IVLObject? value, MessagePackSerializerOptions options)
-        {
-            if (value == null)
-            {
-                writer.WriteNil();
-                return;
-            }
-            var type = value.Type;
-            var prop = type.Properties;
+    //    public void Serialize(
+    //      ref MessagePackWriter writer, IVLObject? value, MessagePackSerializerOptions options)
+    //    {
+    //        if (value == null)
+    //        {
+    //            writer.WriteNil();
+    //            return;
+    //        }
+    //        var type = value.Type;
+    //        var prop = type.Properties;
 
-            var valueFormatter = options.Resolver.GetFormatterWithVerify<object?>();
+    //        var valueFormatter = FormatterResolverExtensions.GetFormatterWithVerify<object?>(options.Resolver);// options.Resolver.GetFormatterWithVerify<object?>();
 
-            writer.WriteMapHeader(1);
+    //        writer.WriteMapHeader(1);
 
-            // Write TypeName
-            writer.Write(removeCategories.Replace(type.FullName, ""));
+    //        // Write TypeName
+    //        writer.Write(removeCategories.Replace(type.FullName, ""));
 
-            // Write all Propertys as Dict 
-            writer.WriteMapHeader(prop.Count);
-            foreach (var p in prop)
-            {
-                writer.Write(p.NameForTextualCode);
-                valueFormatter.Serialize(ref writer, p.GetValue(value), options);
-            }
-        }
+    //        // Write all Propertys as Dict 
+    //        writer.WriteMapHeader(prop.Count);
+    //        foreach (var p in prop)
+    //        {
+    //            writer.Write(p.NameForTextualCode);
+    //            valueFormatter.Serialize(ref writer, p.GetValue(value), options);
+    //        }
+    //    }
 
-        public IVLObject? Deserialize(
-          ref MessagePackReader reader, MessagePackSerializerOptions options)
-        {
-            if (reader.TryReadNil())
-            {
-                return null;
-            }
-            if (reader.ReadMapHeader() == 1)
-            {
-                var ivlType = reader.ReadString();
-                int propCount = reader.ReadMapHeader();
+    //    public IVLObject? Deserialize(
+    //      ref MessagePackReader reader, MessagePackSerializerOptions options)
+    //    {
+    //        if (reader.TryReadNil())
+    //        {
+    //            return null;
+    //        }
+    //        if (reader.ReadMapHeader() == 1)
+    //        {
+    //            var ivlType = reader.ReadString();
+    //            int propCount = reader.ReadMapHeader();
 
-                propertys.Clear();
+    //            propertys.Clear();
 
-                if (appHost != null)
-                {
-                    var factory = appHost.Factory;
-                    if (factory != null)
-                    {
-                        var type = factory.GetTypeByName(ivlType);
-                        if (type != null)
-                        {
-                            var typeinfo = factory.GetTypeInfo(type);
-                            if (typeinfo != null)
-                            {
-                                IFormatterResolver resolver = options.Resolver;
-                                IMessagePackFormatter<object> valueFormatter = resolver.GetFormatterWithVerify<object>();
+    //            if (appHost != null)
+    //            {
+    //                var factory = appHost.Factory;
+    //                if (factory != null)
+    //                {
+    //                    var type = factory.GetTypeByName(ivlType);
+    //                    if (type != null)
+    //                    {
+    //                        var typeinfo = factory.GetTypeInfo(type);
+    //                        if (typeinfo != null)
+    //                        {
+    //                            IFormatterResolver resolver = options.Resolver;
+    //                            IMessagePackFormatter<object> valueFormatter = resolver.GetFormatterWithVerify<object>();
 
-                                IVLObject? instance = (IVLObject)appHost.CreateInstance(typeinfo);
+    //                            IVLObject? instance = (IVLObject)appHost.CreateInstance(typeinfo);
 
-                                options.Security.DepthStep(ref reader);
-                                try
-                                {
-                                    for (int i = 0; i < propCount; i++)
-                                    {
-                                        string? key = reader.ReadString();
-                                        object value = valueFormatter.Deserialize(ref reader, options);
-                                        if (key != null)
-                                            propertys.Add(key, value);
-                                    }
-                                }
-                                finally
-                                {
-                                    reader.Depth--;
-                                }
-                                return instance?.With(propertys);
-                            }
-                        }
-                    }
-                }
-                return null;
-            }
-            else
-            {
-                return null;
-            }
-        }
-    }
+    //                            options.Security.DepthStep(ref reader);
+    //                            try
+    //                            {
+    //                                for (int i = 0; i < propCount; i++)
+    //                                {
+    //                                    string? key = reader.ReadString();
+    //                                    object value = valueFormatter.Deserialize(ref reader, options);
+    //                                    if (key != null)
+    //                                        propertys.Add(key, value);
+    //                                }
+    //                            }
+    //                            finally
+    //                            {
+    //                                reader.Depth--;
+    //                            }
+    //                            return instance?.With(propertys);
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //            return null;
+    //        }
+    //        else
+    //        {
+    //            return null;
+    //        }
+    //    }
+    //}
 }
