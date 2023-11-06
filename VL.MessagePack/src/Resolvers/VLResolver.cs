@@ -1,10 +1,14 @@
 ﻿using MessagePack;
 using MessagePack.Formatters;
 using MessagePack.Resolvers;
+using Stride.Core.Mathematics;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using VL.Core;
+using VL.Lib.Collections;
 using VL.MessagePack.Formatters;
 
 namespace VL.MessagePack.Resolvers
@@ -55,6 +59,25 @@ namespace VL.MessagePack.Resolvers
                 {
                     return (IMessagePackFormatter<T>)new IVLObjectFormatter<T>(AppHost.Current);
                 }
+                else if (typeof(ISpread).IsAssignableFrom(typeof(T)))
+                {
+
+                    var genericTypeArgument = typeof(T).GetGenericArguments()[0];
+
+                    MethodInfo? MI = typeof(RuntimeHelpers).GetMethod("IsReferenceOrContainsReferences");
+                    //if (MI != null)
+                    //{
+                    //    MI = MI.MakeGenericMethod(new[] { genericTypeArgument });
+                    //    var isRef =  MI.Invoke(null, new object[] { });
+
+                    //    if (isRef != null && !(bool)isRef)
+                    //    {
+                    //        return  (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadAsByteFormatter<>).MakeGenericType(genericTypeArgument));
+                    //    }
+                    //}
+                    return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadFormatter<>).MakeGenericType(genericTypeArgument));
+                }
+
 
                 foreach (IFormatterResolver item in this.resolvers)
                 {
