@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="RVoT306j7lXM8mO8hrLGwx" LanguageVersion="2023.5.3-0203-g579cc42b10" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="RVoT306j7lXM8mO8hrLGwx" LanguageVersion="2023.5.3-0260-g05270d386c" Version="0.128">
   <NugetDependency Id="E0Ruoyyr69YLEosglyzAuA" Location="VL.CoreLib" Version="2023.5.3-0164-g883a868a2e" />
   <Patch Id="D0qe4WFgAj3QN2GSaSZhvs">
     <Canvas Id="ELDkzj4gv8iMFmeQhbqUrW" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -29,11 +29,11 @@
             </p:NodeReference>
             <Pin Id="Vvzsb7Ng4A5NgwLdaqIFSi" Name="Model" Kind="InputPin">
               <p:DefaultValue>
+                <Item Key="MyInteger">
+                  <Value BindingType="SendAndReceive" ChannelPath="MyInteger" CollisionHandling="RedisWins" Initialisation="Redis" Key="MyInteger" />
+                </Item>
                 <Item Key="MyFloat">
                   <Value BindingType="SendAndReceive" ChannelPath="MyFloat" CollisionHandling="RedisWins" Initialisation="Redis" Key="MyFloat" />
-                </Item>
-                <Item Key="MyInterger">
-                  <Value BindingType="SendAndReceive" ChannelPath="MyInterger" CollisionHandling="RedisWins" Initialisation="Redis" Key="MyInterger" />
                 </Item>
               </p:DefaultValue>
             </Pin>
@@ -56,7 +56,64 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Link</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Overlay Id="DsyFlxJiZHRQWzC1cuIB2F" Name="Write from external, for example" Bounds="883,246,483,354" />
+          <Node Bounds="404,499,51,19" Id="B8IUo4stEcRLXe626X7aJ8">
+            <p:NodeReference LastCategoryFullName="Reactive.GlobalChannels" LastDependency="VL.CoreLib.GlobalsChannels (D:\_DEV\_Devvvvs\nuget.Repos\VL.StandardLibs\VL.IO.Redis\help)">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessNode" Name="MyFloat" />
+            </p:NodeReference>
+            <Pin Id="Sx2QRFqSFreLd0sZKWzEKX" Name="Value" Kind="InputPin" />
+            <Pin Id="BBwR1j8iifmOElGCb9G85m" Name="Channel" Kind="OutputPin" />
+            <Pin Id="Eo8gNTGgNUCOoMv5xbNZZk" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="591,499,65,19" Id="Ls7w63LJQlHOu4jfus1VgZ">
+            <p:NodeReference LastCategoryFullName="Reactive.GlobalChannels" LastDependency="VL.CoreLib.GlobalsChannels (D:\_DEV\_Devvvvs\nuget.Repos\VL.StandardLibs\VL.IO.Redis\help)">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessNode" Name="MyInteger" />
+            </p:NodeReference>
+            <Pin Id="BQBZFIn4nqLOB0tc2gpK3A" Name="Value" Kind="InputPin" />
+            <Pin Id="GouMDW1UJ3mMO7TXAj3oCl" Name="Channel" Kind="OutputPin" />
+            <Pin Id="RRPx01yCLVOP4vfYm2OOr6" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="Q4hQpgVkJ0UNrbMAzM2J5t" Comment="" Bounds="452,546,103,39" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="UgYgozegcqwNTjx8TdgCR8" Comment="" Bounds="653,552,92,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="APXekoeQcGELYPzpWJ1pTI" Bounds="902,325,205,19" ShowValueBox="true" isIOBox="true" Value="write to a single Gloabel Channel">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="SaZxRzXkbVcLykm1f5nhoR" Comment="" Bounds="902,359,188,34" ShowValueBox="true" isIOBox="true" Value="SET MyFloat 4.2">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="VdL8FvNMdUzOosv2HWEp38" Comment="" Bounds="902,464,202,65" ShowValueBox="true" isIOBox="true" Value="MULTI&#xD;&#xA;SET MyFloat 2.3&#xD;&#xA;SET MyInteger 23&#xD;&#xA;EXEC">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="DpLx2jx0w3oOcMI0nvBZQe" Bounds="1100,357,200,41" ShowValueBox="true" isIOBox="true" Value="Note: if you try &quot;SET MyFloat 4&quot; &#xD;&#xA;it will break the serializer TODO">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">7</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="LWXwupabJhCNWXDIJEeRvF" Bounds="902,408,310,41" ShowValueBox="true" isIOBox="true" Value="write to multible Channels and ensure &#xD;&#xA;the update will happens in one Frame">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Overlay Id="DP72yglbCmbOBCJqYrWJZl" Bounds="876,243,431,356" />
         </Canvas>
         <Patch Id="E9FmPDA2rgkMCqf2w5riEi" Name="Create" />
         <Patch Id="IlztFaGX1NgMWyi3F4mm0s" Name="Update" />
@@ -67,6 +124,8 @@
         <Link Id="MxC211GfPtZMa1WK4yxrRf" Ids="BYko4cwHpSALHfcRdfrGoz,KhgnckaM6ZPOW7HcDZTacZ" />
         <Link Id="Dfr7xSVSF9rLayOxHUdGQf" Ids="FDSFFKtVopUNEI4OUbMO7n,PcmU92DzvvWLSXcMmCprra" />
         <Link Id="S0YaGt80YgnMnnaqGxX9dm" Ids="PwFNVfyh37pPZBMSZ8aCM5,TdlreAYwDuZQDa7yIl7drR" />
+        <Link Id="TNX8IJzyyhHN5pKn95XUPB" Ids="Eo8gNTGgNUCOoMv5xbNZZk,Q4hQpgVkJ0UNrbMAzM2J5t" />
+        <Link Id="GsUo3HP9X5xLTTk3tvfRyr" Ids="RRPx01yCLVOP4vfYm2OOr6,UgYgozegcqwNTjx8TdgCR8" />
       </Patch>
     </Node>
   </Patch>
