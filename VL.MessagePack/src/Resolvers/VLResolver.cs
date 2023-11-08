@@ -64,18 +64,19 @@ namespace VL.MessagePack.Resolvers
 
                     var genericTypeArgument = typeof(T).GetGenericArguments()[0];
 
-                    // USE ultrafast SpreadAsByteFormatter Formatter
-                    //MethodInfo? MI = typeof(RuntimeHelpers).GetMethod("IsReferenceOrContainsReferences");
-                    //if (MI != null)
-                    //{
-                    //    MI = MI.MakeGenericMethod(new[] { genericTypeArgument });
-                    //    var isRef =  MI.Invoke(null, new object[] { });
+                    switch (typeof(T).Name)
+                    {
+                        case nameof(Vector3):
+                            return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadAsByteFormatter<>).MakeGenericType(genericTypeArgument));
+                        default:
+                            return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadFormatter<>).MakeGenericType(genericTypeArgument));
+                    }
+                    
+                    if (genericTypeArgument.IsBlitable())
+                    {
+                        return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadAsByteFormatter<>).MakeGenericType(genericTypeArgument));
+                    }
 
-                    //    if (isRef != null && !(bool)isRef)
-                    //    {
-                    //        return  (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadAsByteFormatter<>).MakeGenericType(genericTypeArgument));
-                    //    }
-                    //}
                     return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadFormatter<>).MakeGenericType(genericTypeArgument));
                 }
 

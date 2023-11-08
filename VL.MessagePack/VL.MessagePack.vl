@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="ElNAZaAK8PGON9DzXjEceW" LanguageVersion="2023.5.3-0203-g579cc42b10" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="ElNAZaAK8PGON9DzXjEceW" LanguageVersion="2023.5.3-0260-g05270d386c" Version="0.128">
   <NugetDependency Id="J211bL5j5U4M79Bb2J68fh" Location="VL.CoreLib" Version="2023.5.3-0183-g3a6e89124d" />
   <Patch Id="CSerPB3FF9ENTyt8o0lnEa">
     <Canvas Id="IDAxqZTIoYJPVNRnA3v4tr" DefaultCategory="VL.MessagePack" CanvasType="FullCategory">
@@ -294,21 +294,117 @@
     ************************ Options ************************
 
 -->
-      <Node Name="Options" Bounds="1031,353,114,82" Id="BOphecv0chGQHwmavYD6OV">
+      <Node Name="Options" Bounds="1061,377,114,82" Id="HUeILQjzYSsLMZF9UR1HXY">
         <p:NodeReference>
           <Choice Kind="OperationDefinition" Name="Operation" />
           <CategoryReference Kind="Category" Name="Primitive" />
         </p:NodeReference>
         <p:HideCategory p:Type="Boolean">false</p:HideCategory>
-        <Patch Id="KEDVtAk3JotLSDtF3mJipw">
-          <Node Bounds="1045,385,52,19" AutoConnect="true" Id="KB04KJ8R70tNYPoAFHLJPt">
-            <p:NodeReference LastCategoryFullName="VL.MessagePack.Resolvers.VLResolver" LastDependency="VL.MessagePack.dll">
+        <Patch Id="PrWLBnRehLSNvrVxYio2YJ">
+          <Node Bounds="1075,409,52,19" AutoConnect="true" Id="RoRzAES6QkAPsKBxgkCKh9">
+            <p:NodeReference LastCategoryFullName="VL.MessagePack.Resolvers.AsBytesResolver" LastDependency="VL.MessagePack.dll">
               <Choice Kind="OperationNode" Name="Options" />
-              <FullNameCategoryReference ID="VL.MessagePack.Resolvers.VLResolver" />
+              <FullNameCategoryReference ID="VL.MessagePack.Resolvers.AsBytesResolver" />
             </p:NodeReference>
-            <Pin Id="QdpFHqz2g68Pr3jGOq2r1v" Name="Options" Kind="OutputPin" />
+            <Pin Id="BHY2TM3JjaNMugBD2504Ot" Name="Options" Kind="OutputPin" />
           </Node>
-          <Pin Id="HZoWHP5kQXmNaJ5DQn7DzC" Name="Options" Kind="OutputPin" />
+          <Pin Id="Okdbb3g9ETsLxPEy4YJIk9" Name="Options" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ ToBytes ************************
+
+-->
+      <Node Name="ToBytes" Bounds="775,489,101,98" Id="FcJXNfhQoZrOMLiLIyh4sp">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="SuC1Vy6F7ejPA8Ra7TCZr7" IsGeneric="true">
+          <Node Bounds="787,548,54,19" AutoConnect="true" Id="EHC8jBZIr8hPTbfZIGZiXG">
+            <p:NodeReference LastCategoryFullName="MessagePack.MessagePackSerializer" LastDependency="MessagePack.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationNode" Name="Serialize" />
+              <FullNameCategoryReference ID="MessagePack.MessagePackSerializer" />
+              <PinReference Kind="InputPin" Name="Value">
+                <p:DataTypeReference p:Type="TypeParameterReference" />
+              </PinReference>
+              <PinReference Kind="InputPin" Name="Options">
+                <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="MessagePack" LastDependency="MessagePack.dll">
+                  <Choice Kind="TypeFlag" Name="MessagePackSerializerOptions" />
+                </p:DataTypeReference>
+              </PinReference>
+              <PinReference Kind="InputPin" Name="Cancellation Token">
+                <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
+                  <Choice Kind="TypeFlag" Name="CancellationToken" />
+                </p:DataTypeReference>
+              </PinReference>
+              <PinReference Kind="OutputPin" Name="Result">
+                <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="System" LastDependency="VL.CoreLib.vl">
+                  <Choice Kind="TypeFlag" Name="Array`1" />
+                  <p:TypeArguments>
+                    <TypeReference LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="TypeFlag" Name="Byte" />
+                    </TypeReference>
+                  </p:TypeArguments>
+                </p:DataTypeReference>
+              </PinReference>
+            </p:NodeReference>
+            <Pin Id="IQpOMWlNZLOQFc4EEPtYyD" Name="Value" Kind="InputPin" />
+            <Pin Id="DJ7Sotn2zigQUKvm0eU1Dw" Name="Options" Kind="InputPin" />
+            <Pin Id="GADfuTHWFDWPvObr5pvX8W" Name="Cancellation Token" Kind="InputPin" />
+            <Pin Id="NZI10Jnq25lMviRbGs2hBn" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="812,512,52,19" AutoConnect="true" Id="IM6nDKIpGpELaQd9s0GZQd">
+            <p:NodeReference LastCategoryFullName="VL.MessagePack.Resolvers.AsBytesResolver" LastDependency="VL.MessagePack.dll">
+              <Choice Kind="OperationNode" Name="Options" />
+              <FullNameCategoryReference ID="VL.MessagePack.Resolvers.AsBytesResolver" />
+            </p:NodeReference>
+            <Pin Id="NPC4k6NYAnMObmBx2IVYd0" Name="Options" Kind="OutputPin" />
+          </Node>
+          <Link Id="G7vtcnevkoALQv6x4qOHzK" Ids="NPC4k6NYAnMObmBx2IVYd0,DJ7Sotn2zigQUKvm0eU1Dw" />
+          <Pin Id="MUVWQIJvewbNMfqkatQCqd" Name="Value" Kind="InputPin" />
+          <Pin Id="GmmmSoh1nX5LQchRNADRS9" Name="Cancellation Token" Kind="InputPin" />
+          <Pin Id="HXI8mIcejJ6PrHhRPED6y6" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ FromBytes ************************
+
+-->
+      <Node Name="FromBytes" Bounds="906,491,102,98" Id="S6gjgO4zHKTNorqITLJbSh">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+        <Patch Id="DWaDLkyMzlDNO66gUow8HS" IsGeneric="true">
+          <Node Bounds="944,514,52,19" AutoConnect="true" Id="VCHDEQ1b5SSLvXoBqfjbIQ">
+            <p:NodeReference LastCategoryFullName="VL.MessagePack.Resolvers.AsBytesResolver" LastDependency="VL.MessagePack.dll">
+              <Choice Kind="OperationNode" Name="Options" />
+              <FullNameCategoryReference ID="VL.MessagePack.Resolvers.AsBytesResolver" />
+            </p:NodeReference>
+            <Pin Id="FeAKRMzYFhDOl4eIguVFtb" Name="Options" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="918,550,66,19" AutoConnect="true" Id="OLI9WobLwNNOUj5dcBcnxP">
+            <p:NodeReference LastCategoryFullName="MessagePack.MessagePackSerializer" LastDependency="MessagePack.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+              <Choice Kind="OperationNode" Name="Deserialize" />
+              <FullNameCategoryReference ID="MessagePack.MessagePackSerializer" />
+              <PinReference Kind="InputPin" Name="Buffer" />
+              <PinReference Kind="InputPin" Name="Options" />
+            </p:NodeReference>
+            <Pin Id="QYajIpqaE1zQYSHLw39pKn" Name="Buffer" Kind="InputPin" />
+            <Pin Id="JdvSnzE34zrMrTXMrjr1h0" Name="Options" Kind="InputPin" />
+            <Pin Id="HkVjyckZfgUNHeQLKORAvL" Name="Cancellation Token" Kind="InputPin" />
+            <Pin Id="FuZ5apl11o0L80xUBVu1Qx" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Link Id="LtKufOYmjiyMj1pSZVPdgf" Ids="FeAKRMzYFhDOl4eIguVFtb,JdvSnzE34zrMrTXMrjr1h0" />
+          <Pin Id="VW59q5LihZ5ODcUReM1pQy" Name="Buffer" Kind="InputPin" />
+          <Pin Id="H5DX0o7KSljLRlqIILG8Fc" Name="Cancellation Token" Kind="InputPin" />
+          <Pin Id="A3domVDLJi2OLI5DMJBQBf" Name="Result" Kind="OutputPin" />
         </Patch>
       </Node>
     </Canvas>

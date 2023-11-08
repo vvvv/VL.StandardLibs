@@ -46,7 +46,7 @@ namespace VL.MessagePack.Formatters
 
                     for (int i = 0; i < span.Length; i++)
                     {
-                        writer.CancellationToken.ThrowIfCancellationRequested();
+                        //writer.CancellationToken.ThrowIfCancellationRequested();
                         formatter.Serialize(ref writer, span[i], options);
                     }
                 }
@@ -91,54 +91,6 @@ namespace VL.MessagePack.Formatters
                 }
 
                 return Spread<T>.Empty;
-            }
-        }
-    }
-
-    public class SpreadAsByteFormatter<T> : IMessagePackFormatter<Spread<T>?> where T : unmanaged
-    {
-        public void Serialize(ref MessagePackWriter writer, Spread<T>? value, MessagePackSerializerOptions options)
-        {
-            if (value == null)
-            {
-                writer.WriteNil();
-            }
-            else if (value.IsEmpty)
-            {
-                writer.WriteBinHeader(0);
-            }
-            else
-            {
-                var span = MemoryMarshal.AsBytes(value.AsSpan());
-                writer.Write(span);
-            }
-        }
-
-        public Spread<T>? Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
-        {
-            if (reader.TryReadNil())
-            {
-                return default;
-            }
-            else
-            {
-                var bytes = reader.ReadBytes() is ReadOnlySequence<byte> b ? b.FirstSpan : default;
-
-                if (bytes.Length == 0)
-                {
-                    return Spread<T>.Empty;
-                }
-                else
-                {
-                    var span = MemoryMarshal.Cast<byte, T>(bytes);
-                    
-                    var builder =  Pooled.GetArrayBuilder<T>();
-                    builder.Value.Count = span.Length;
-                    span.CopyTo(builder.Value.AsSpan());
-
-                    return Spread.Create<T>(builder.ToImmutableAndFree());
-                    
-                }
             }
         }
     }
