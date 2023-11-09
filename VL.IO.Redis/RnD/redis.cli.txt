@@ -1,0 +1,35 @@
+CLIENT ID
+SUBSCRIBE __redis__:invalidate
+
+CLIENT TRACKING ON REDIRECT 35 BCAST
+CLIENT ID
+
+MULTI
+SET foo1 'test'
+SET foo2 'test'
+SET foo3 'test'
+SET foo4 'test'
+SET foo5 'test'
+EXEC
+
+
+
+
+
+MULTI
+TOUCH '{'
+SET '{' ''
+TOUCH foo
+SET foo 'test'
+TOUCH bar
+SET bar 'test'
+TOUCH '}'
+SET '}' ''
+EXEC
+
+
+CONFIG GET notify-keyspace-events
+
+CONFIG SET notify-keyspace-events sE
+
+PSUBSCRIBE '__key*__:*'

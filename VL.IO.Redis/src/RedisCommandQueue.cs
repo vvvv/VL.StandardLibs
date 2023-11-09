@@ -4,30 +4,48 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-
+using VL.Core;
+using VL.Lib.Collections;
 
 namespace VL.IO.Redis
 {
     public class RedisCommandQueue : IDisposable
     {
-        internal  Guid id;
+        private readonly NodeContext nodeContext;
+        private readonly CompositeDisposable warnings;
+        private readonly IVLRuntime runtime;
 
-        internal ConnectionMultiplexer Multiplexer;
+        internal readonly ConnectionMultiplexer Multiplexer;
+        internal readonly Guid id;
+        
+
         internal IDatabase Database;
         internal ITransaction Transaction;
 
-        internal ConcurrentQueue<Func<ITransaction, ValueTuple<Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>>>> Cmds = new ConcurrentQueue<Func<ITransaction, (Task<KeyValuePair<Guid, object>>, IEnumerable<RedisKey>)>>();
+        internal ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>> Cmds = new ConcurrentQueue<Func<ITransaction, Task<KeyValuePair<Guid, object>>>>();
         internal ConcurrentQueue<Task<KeyValuePair<Guid, object>>> Tasks = new ConcurrentQueue<Task<KeyValuePair<Guid, object>>>();
 
-        internal PooledSet<string> Changes = new PooledSet<string>();
         internal PooledSet<string> ReceivedChanges = new PooledSet<string>();
 
-        public RedisCommandQueue(ConnectionMultiplexer Multiplexer, Guid id)
+        public RedisCommandQueue(NodeContext nodeContext, ConnectionMultiplexer Multiplexer, Guid id, string ClientName)
         {
-            this.Multiplexer = Multiplexer;
+            this.nodeContext = nodeContext;
+            this.warnings = new CompositeDisposable();
+            this.runtime = IVLRuntime.Current;
+
+            this.Multiplexer = Multiplexer.EnableClientSideCaching(ClientName,out Spread<long> ClientID, out Spread<bool> IsEnabled);
             this.id = id;
+
+            // Handle Connection Restored
+            this.Multiplexer.ConnectionRestored +=  (s, e) =>
+            {
+                // ReSubscribe
+                Multiplexer.EnableClientSideCaching(ClientName, out Spread<long> ClientID, out Spread<bool> IsEnabled);
+            };
         }
 
         public void CreateTransaction(IDatabase Database)
@@ -39,7 +57,6 @@ namespace VL.IO.Redis
         public void Clear()
         {
             Cmds.Clear();
-            Changes.Clear();
             ReceivedChanges.Clear();
             try
             {
@@ -49,10 +66,11 @@ namespace VL.IO.Redis
                         task.Dispose();
                 }
 
+                if (warnings.Count > 0) warnings.Clear();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-
+                warnings.AddExeption("RedisCommandQueue failed to dispose Tasks in Clear().", ex, nodeContext, runtime);
             }
             Tasks.Clear();
         }
@@ -63,8 +81,10 @@ namespace VL.IO.Redis
         // To detect redundant calls
         private bool _disposedValue;
 
+        #nullable enable
         // Instantiate a SafeHandle instance.
         private SafeHandle? _safeHandle = new SafeFileHandle(IntPtr.Zero, true);
+        #nullable disable
 
         public void Dispose()
         {
@@ -90,14 +110,19 @@ namespace VL.IO.Redis
                             task.Dispose();
                     }
 
+                    if (warnings.Count > 0) warnings.Clear();
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-
+                    warnings.AddExeption("RedisCommandQueue failed to dispose Tasks in Clear().", ex, nodeContext, runtime);
                 }
+
+
+                if (!warnings.IsDisposed)
+                    warnings.Dispose();
+
                 Tasks.Clear();
                 Cmds.Clear();
-                Changes.Dispose();
                 ReceivedChanges.Dispose();
 
                 _disposedValue = true;
