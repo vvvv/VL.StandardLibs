@@ -39,8 +39,8 @@ namespace VL.Stride.Lib
             // Logging in Stride is static - all messages go through the static GlobalLogger.GlobalMessageLogged event.
             // That event does not tell us from which game a message originated. Therefor hookup our logging system once and use a null listener in each game.
             var loggerFactory = AppHost.Global.LoggerFactory;
-            var logger = loggerFactory.CreateLogger("VL.Stride");
-            GlobalLogger.GlobalMessageLogged += new LogBridge(loggerFactory, logger);
+            var defaultLogger = AppHost.Global.DefaultLogger;
+            GlobalLogger.GlobalMessageLogged += new LogBridge(loggerFactory, defaultLogger);
         }
 
         // Remove once tested enough

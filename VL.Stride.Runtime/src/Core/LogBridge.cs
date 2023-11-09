@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using Microsoft.Extensions.Logging;
 using Stride.Core.Diagnostics;
+using VL.Core;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace VL.Stride.Core
@@ -8,21 +9,21 @@ namespace VL.Stride.Core
     sealed class LogBridge : LogListener
     {
         private readonly ILoggerFactory loggerFactory;
-        private readonly ILogger logger;
+        private readonly ILogger defaultLogger;
 
         private string? lastModule;
         private ILogger? lastLogger;
 
-        public LogBridge(ILoggerFactory loggerFactory, ILogger logger)
+        public LogBridge(ILoggerFactory loggerFactory, ILogger defaultLogger)
         {
             this.loggerFactory = loggerFactory;
-            this.logger = logger;
+            this.defaultLogger = defaultLogger;
         }
 
         private ILogger GetLogger(string? module)
         {
             if (module is null)
-                return logger;
+                return AppHost.CurrentDefaultLogger ?? defaultLogger;
 
             if (module == lastModule)
                 return lastLogger!;
