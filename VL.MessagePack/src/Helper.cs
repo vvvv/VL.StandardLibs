@@ -24,29 +24,6 @@ namespace VL.MessagePack
 
     public static class Helper
     {
-
-        private static ReadOnlyMemory<byte> ToBytes<T>(this T input) where T : unmanaged
-        {
-            return ReadOnlyMemoryExtensions.AsBytes(new ReadOnlyMemory<T>(new T[] { input }));
-        }
-        public static ReadOnlyMemory<byte> ToBytes<T>(this Spread<T> input) where T : unmanaged
-        {
-            return ReadOnlyMemoryExtensions.Cast<T, byte>(input.AsMemory());
-        }
-        public static Spread<T> FromBytes<T>(this ReadOnlyMemory<byte> input) where T : unmanaged
-        {
-            var span = MemoryMarshal.Cast<byte, T>(input.Span);
-            var builder = Pooled.GetArrayBuilder<T>();
-            builder.Value.Count = span.Length;
-            span.CopyTo(builder.Value.AsSpan());
-            return Spread.Create<T>(builder.ToImmutableAndFree());
-        }
-        public static ReadOnlyMemory<byte> ToBytes<T>(this string input) where T : unmanaged
-        {
-            return new ReadOnlyMemory<byte>(UTF8Encoding.UTF8.GetBytes(input));
-        }
-
-
         public static bool IsBlitable<T>(this IHasMemory<T> value)
         {
             return !RuntimeHelpers.IsReferenceOrContainsReferences<T>(); ;

@@ -36,8 +36,6 @@ namespace VL.MessagePack.Resolvers
             StrideResolver.Instance,
             StandardResolver.Instance,
             TypelessObjectResolver.Instance, 
-            //TypelessContractlessStandardResolver.Instance,
-            //ContractlessStandardResolver.Instance
         };
 
         private readonly ResolverCache resolverCache = new ResolverCache(Resolvers);
@@ -63,23 +61,8 @@ namespace VL.MessagePack.Resolvers
                 {
 
                     var genericTypeArgument = typeof(T).GetGenericArguments()[0];
-
-                    switch (typeof(T).Name)
-                    {
-                        case nameof(Vector3):
-                            return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadAsByteFormatter<>).MakeGenericType(genericTypeArgument));
-                        default:
-                            return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadFormatter<>).MakeGenericType(genericTypeArgument));
-                    }
-                    
-                    if (genericTypeArgument.IsBlitable())
-                    {
-                        return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadAsByteFormatter<>).MakeGenericType(genericTypeArgument));
-                    }
-
                     return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadFormatter<>).MakeGenericType(genericTypeArgument));
                 }
-
 
                 foreach (IFormatterResolver item in this.resolvers)
                 {
