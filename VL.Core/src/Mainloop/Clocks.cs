@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Disposables;
 using VL.Core;
 
 namespace VL.Lib.Animation
@@ -82,11 +83,16 @@ namespace VL.Lib.Animation
         private static IFrameClock currentFrameClock;
 
         /// <summary>
-        /// Sets the clock for the current thread.
+        /// Sets the clock for the current thread. The returned disposable will set the previous clock when disposed.
         /// </summary>
-        public static void SetCurrentFrameClock(IFrameClock clock)
+        public static IDisposable SetCurrentFrameClock(IFrameClock clock)
         {
+            var previousClock = currentFrameClock;
             currentFrameClock = clock;
+            return Disposable.Create(() =>
+            {
+                currentFrameClock = previousClock;
+            });
         }
 
         /// <summary>

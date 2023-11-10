@@ -524,7 +524,8 @@ namespace VL.ImGui
 
                 foreach (var layer in _context.Layers)
                 {
-                    layer.Notify(notification, caller);
+                    if (layer.Notify(notification, caller))
+                        return true;
                 }
 
                 return false;

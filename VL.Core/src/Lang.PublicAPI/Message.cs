@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -148,5 +149,22 @@ namespace VL.Lang
         public static MessageSeverity MaxSeverity(this MessageSeverity a, MessageSeverity b) => (MessageSeverity)Math.Max((sbyte)a, (sbyte)b);
         public static MessageSeverity MaxSeverity(this IEnumerable<Message> messages) => messages.Aggregate(MessageSeverity.None, (acc, m) => acc.MaxSeverity(m.Severity));
         public static MessageSeverity MaxSeverity(this ImmutableArray<Message> messages) => messages.Aggregate(MessageSeverity.None, (acc, m) => acc.MaxSeverity(m.Severity));
+
+        public static LogLevel ToLogLevel(this MessageSeverity severity)
+        {
+            switch (severity)
+            {
+                case MessageSeverity.Debug:
+                    return LogLevel.Debug;
+                case MessageSeverity.Info:
+                    return LogLevel.Information;
+                case MessageSeverity.Warning:
+                    return LogLevel.Warning;
+                case MessageSeverity.Error:
+                    return LogLevel.Error;
+                default:
+                    return LogLevel.None;
+            }
+        }
     }
 }

@@ -40,6 +40,12 @@ namespace VL.Stride.Games
             GraphicsDeviceManager.PreferredColorSpace = ColorSpace.Linear;
         }
 
+        protected override LogListener GetLogListener()
+        {
+            // Our logging system is already hooked up, we must not do it multiple times!
+            return null;
+        }
+
         protected override void Destroy()
         {
             BeforeDestroy?.Invoke(this, EventArgs.Empty);

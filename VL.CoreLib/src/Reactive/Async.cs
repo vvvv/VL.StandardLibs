@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Lib.Animation;
 using VL.Lib.Threading;
 
 namespace VL.Lib.Reactive
@@ -43,10 +45,16 @@ namespace VL.Lib.Reactive
                 {
                     FCurrentTask = Task.Run(() =>
                     {
+                        var st = Stopwatch.StartNew();
+                        var frameClock = new FrameClock();
+                        using var _ = Clocks.SetCurrentFrameClock(frameClock);
+
                         while (!token.IsCancellationRequested)
                         {
                             try
                             {
+                                frameClock.SetFrameTime(new Time(st.Elapsed.TotalSeconds));
+
                                 var state = FState ?? FCreate?.Invoke();
                                 if (state != null && FUpdate != null)
                                 {

@@ -113,6 +113,7 @@ namespace VL.Stride.Rendering
 
         // For example T = SetVar<Vector3> and TInner = Vector3
         static void BuildOutput<T, TInner>(NodeBuilding.NodeInstanceBuildContext context, ShaderFXNodeState nodeState, IReadOnlyList<IVLPin> inputPins)
+            where TInner : unmanaged
         {
             var compositionPins = inputPins.OfType<ShaderFXPin>().ToList();
             var inputs = inputPins.OfType<ParameterPin>().ToList();

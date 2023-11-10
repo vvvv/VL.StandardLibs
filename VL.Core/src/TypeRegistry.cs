@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Immutable;
 
 namespace VL.Core
@@ -10,6 +11,8 @@ namespace VL.Core
 
         public abstract IVLTypeInfo GetTypeInfo(Type type);
 
-        public abstract IVLTypeInfo GetTypeByName(string typeName);
+        public abstract IVLTypeInfo? GetTypeByName(string typeName);
+
+        public abstract IVLTypeInfo? GetTypeById(UniqueId id);
     }
 }

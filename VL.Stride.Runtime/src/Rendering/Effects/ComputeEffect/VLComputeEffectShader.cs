@@ -120,16 +120,7 @@ namespace VL.Stride.Rendering.ComputeEffect
 
             var renderView = context.RenderContext.RenderView;
             var parentTransformation = context.RenderContext.Tags.Get(EntityRendererRenderFeature.CurrentParentTransformation);
-            if (Parameters.ContainsKey(TransformationKeys.World))
-            {
-                var world = Parameters.Get(TransformationKeys.World);
-                Matrix.Multiply(ref world, ref parentTransformation, out var result);
-                Parameters.SetPerDrawParameters(perDrawParams, renderView, ref result);
-            }
-            else
-            {
-                Parameters.SetPerDrawParameters(perDrawParams, renderView, ref parentTransformation);
-            }
+            Parameters.SetPerDrawParameters(perDrawParams, renderView, ref parentTransformation);
 
             Parameters.SetPerViewParameters(perViewParams, renderView);
 

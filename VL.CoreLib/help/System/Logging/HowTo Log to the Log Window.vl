@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="NKeZZOfjQRTPbhNJ8ClcAC" LanguageVersion="2023.5.3-0272-ge73aaa08da" Version="0.128">
+  <NugetDependency Id="ClYA5o6yKPqOq6sSseD69e" Location="VL.CoreLib" Version="2022.5.0" />
+  <Patch Id="BqoUNqUZVnFM0JjTIpw81h">
+    <Canvas Id="ITmboDOwavFPxr6JeOTxjC" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="VRyuDQzteVzM7YLTm0RaBT">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="ABlanfoQY5yOf9jk8koRv7">
+        <Canvas Id="FPErUUy8KxFOYT8sq5LrgA" CanvasType="Group">
+          <Pad Id="R3pDr8Ys5WsOqQN3vcPTQD" Comment="Message" Bounds="203,459,155,49" ShowValueBox="true" isIOBox="true" Value="A structured message showing:&#xD;&#xA;&#x9;- a number: {number}&#xD;&#xA;&#x9;- and a string:  {string}&#xD;&#xA;">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="String" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="QDq2xej4UdAQT7fViWrzrI" Comment="Apply" Bounds="474,594,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="CsxIEZbYqLfMYQdQBCqacU" Comment="Log Level" Bounds="174,396,82,15" ShowValueBox="true" isIOBox="true" Value="Debug">
+            <p:TypeAnnotation LastCategoryFullName="Microsoft.Extensions.Logging" LastDependency="Microsoft.Extensions.Logging.Abstractions.dll">
+              <Choice Kind="TypeFlag" Name="LogLevel" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="409,542,39,19" Id="Gp56Yo68mMLLqWSFCcaKaj">
+            <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="ClassType" Name="Spread" NeedsToBeDirectParent="true" />
+              <Choice Kind="OperationCallFlag" Name="Cons" />
+            </p:NodeReference>
+            <Pin Id="HdfIJy0LhLzOlkZNBYheqr" Name="Input" Kind="InputPin" />
+            <Pin Id="DWoTieopgVyON25Cb12mHf" Name="Result" Kind="OutputPin" />
+            <Pin Id="Pwjs4ONM1shL02stLmC0em" Name="Input 2" Kind="InputPin" />
+          </Node>
+          <Pad Id="MLwIHpZWm2YOdALacEDKxz" Comment="The string" Bounds="445,514,35,15" ShowValueBox="true" isIOBox="true" Value="vvvv">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="162,611,125,19" Id="HbWePMgNeYoOiuajWqgwlA">
+            <p:NodeReference LastCategoryFullName="System.Logging" LastDependency="VL.CoreLib.vl" OverloadStrategy="AllPinsThatAreNotCommon">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Logging" NeedsToBeDirectParent="true" />
+              <Choice Kind="ProcessAppFlag" Name="Log" />
+              <PinReference Kind="InputPin" Name="Node Context" />
+              <PinReference Kind="InputPin" Name="Category" />
+              <PinReference Kind="InputPin" Name="Event Id" />
+              <PinReference Kind="InputPin" Name="Apply" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="VMF8WKBAg7tQIKMlxZV4uB" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="FPg95hrRo9ZQJGYdFov7ax" Name="Category" Kind="InputPin" />
+            <Pin Id="IZl9mUwO5utMGNixXD7FmL" Name="Log Level" Kind="InputPin" />
+            <Pin Id="LJ0EBBE5oZIMyrGkK8g2xL" Name="Event Id" Kind="InputPin" />
+            <Pin Id="IBpnCvcui69LpO57KjF0oy" Name="Exception" Kind="InputPin" />
+            <Pin Id="PyTHOVlwKtQQB3tqYBDS5v" Name="Message" Kind="InputPin" />
+            <Pin Id="NrPP3JoLVPPMhbAABVMWlZ" Name="Args" Kind="InputPin" />
+            <Pin Id="EO4qdTVTICRMSQ4v5VpWEd" Name="Apply" Kind="InputPin" />
+          </Node>
+          <Pad Id="H5Qp2OV830qOBX5R0IGPJ6" Bounds="205,191,230,104" ShowValueBox="true" isIOBox="true" Value="Open the Log Window via ...&#xD;&#xA;&#xD;&#xA;Main Menu &#xD;&#xA;  -&gt; Extensions &#xD;&#xA;    -&gt; Log Window">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="ELtpgVPGG8NLR9CMhlw0un" Comment="Category" Bounds="160,356,92,15" ShowValueBox="true" isIOBox="true" Value="">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="FbQHcbWzPlzQFGwKgL9XKJ" Bounds="340,352,275,40" ShowValueBox="true" isIOBox="true" Value="&lt; Optional. If not specified, the category will be the name of the type of the patch">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="B7mY1rpL4aHLCZAiPKWlC0" Comment="The number" Bounds="411,485,35,15" ShowValueBox="true" isIOBox="true" Value="0.42">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
+        </Canvas>
+        <Patch Id="KfGeABeuBEAODKjEndBo8W" Name="Create" />
+        <Patch Id="PTXkg0SG8gpLEGRkEwU3Zs" Name="Update" />
+        <ProcessDefinition Id="KuiZF3BvF87NPqGvr1W7pE">
+          <Fragment Id="Je3GuSRsNpyPVMi7UDUt2N" Patch="KfGeABeuBEAODKjEndBo8W" Enabled="true" />
+          <Fragment Id="DEWZmwN9H62POlSUEIgtDe" Patch="PTXkg0SG8gpLEGRkEwU3Zs" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="JqTLvAjDRjzLdIynuc4mMV" Ids="MLwIHpZWm2YOdALacEDKxz,Pwjs4ONM1shL02stLmC0em" />
+        <Link Id="GRHKO4LJI2vPZ5DR7iIkHr" Ids="CsxIEZbYqLfMYQdQBCqacU,IZl9mUwO5utMGNixXD7FmL" />
+        <Link Id="T6k21SjGIp2QQMeEdrq2ft" Ids="R3pDr8Ys5WsOqQN3vcPTQD,PyTHOVlwKtQQB3tqYBDS5v" />
+        <Link Id="OEKirR0usAjL8ILA5r4NpR" Ids="DWoTieopgVyON25Cb12mHf,NrPP3JoLVPPMhbAABVMWlZ" />
+        <Link Id="AEWM0B1pdkxOqTqT0w7C4H" Ids="QDq2xej4UdAQT7fViWrzrI,EO4qdTVTICRMSQ4v5VpWEd" />
+        <Link Id="RaLXEqU8MGHO73NfGTL49Y" Ids="ELtpgVPGG8NLR9CMhlw0un,FPg95hrRo9ZQJGYdFov7ax" />
+        <Link Id="GsVGoKHqfDuOgKfvfBUsIR" Ids="B7mY1rpL4aHLCZAiPKWlC0,HdfIJy0LhLzOlkZNBYheqr" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="IjfmZeisCMaOhg1eL4TmCl" Location="VL.Stride" Version="0.0.0" />
+</Document>
