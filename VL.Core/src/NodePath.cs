@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -13,11 +14,21 @@ namespace VL.Core
 {
     public struct NodePath : IEquatable<NodePath>
     {
-        public ImmutableStack<UniqueId> Stack { get; }
+        private readonly NodeContext? _nodeContext;
+        private readonly ImmutableStack<UniqueId>? _stack;
+
+        public ImmutableStack<UniqueId> Stack => _stack ?? _nodeContext?.Stack ?? ImmutableStack<UniqueId>.Empty;
 
         public NodePath(ImmutableStack<UniqueId> stack)
         {
-            Stack = stack;
+            _nodeContext = null;
+            _stack = stack;
+        }
+
+        internal NodePath(NodeContext nodeContext)
+        {
+            _nodeContext = nodeContext;
+            _stack = null;
         }
 
         [Obsolete("Please use Stack")]
@@ -28,11 +39,11 @@ namespace VL.Core
             get => ImmutableStack.CreateRange(Stack.Reverse().Select(x => x.VolatileId));
         }
 
-        public bool IsDefault => Stack == null;
+        public bool IsDefault => _nodeContext is null && _stack is null;
 
         public bool Equals(NodePath other) => other == this;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is NodePath other)
                 return Equals(other);
@@ -41,15 +52,13 @@ namespace VL.Core
 
         public override int GetHashCode()
         {
-            if (Stack == null || Stack.IsEmpty)
+            if (Stack.IsEmpty)
                 return 0;
             return Stack.PeekRef().GetHashCode();
         }
 
-        public override string ToString()
+        public override string? ToString()
         {
-            if (Stack == null)
-                return base.ToString();
             var sb = new StringBuilder();
             foreach (var x in Stack)
             {
