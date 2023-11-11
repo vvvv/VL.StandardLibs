@@ -10,7 +10,21 @@ namespace VL.Serialization.FSPickler
 {
     public static class FSPicklerSerialization
     {
-        static FSharpOption<ITypeNameConverter> TypeNameConverter => new FSharpOption<ITypeNameConverter>(AppHost.CurrentOrGlobal.Services.GetOrAddService<ITypeNameConverter>(s => new FSPickler.TypeNameConverter(s.GetRequiredService<TypeRegistry>())));
+        static FSharpOption<ITypeNameConverter> TypeNameConverter
+        {
+            get
+            {
+                var appHost = AppHost.CurrentOrGlobal;
+                var typeNameConverter = appHost.Services.GetService<ITypeNameConverter>();
+                if (typeNameConverter is null)
+                {
+                    typeNameConverter = new TypeNameConverter(appHost.TypeRegistry);
+                    appHost.Services.RegisterService(typeNameConverter);
+                }
+                return new FSharpOption<ITypeNameConverter>(typeNameConverter);
+            }
+        }
+
         static FSharpOption<IPicklerResolver> PicklerResolver => new FSharpOption<IPicklerResolver>(FSPickler.PicklerResolver.Instance);
 
         public static string SerializeXml<T>(T value, bool indent = false)
