@@ -25,7 +25,6 @@ namespace VL.MessagePack.Formatters
         private readonly AppHost appHost;
         private readonly IVLFactory factory;
         private readonly IVLTypeInfo typeInfo;
-        private readonly IVLObject? instance;
 
         private readonly Regex removeCategories = new Regex(@"\s\[.+?\]", RegexOptions.Compiled);
 
@@ -34,18 +33,6 @@ namespace VL.MessagePack.Formatters
             this.appHost = appHost;
             this.factory = appHost.Factory;
             this.typeInfo = factory.GetTypeInfo(typeof(T));
-
-            object? obj = appHost.CreateInstance(typeInfo);
-            if (obj != null)
-            {
-                this.instance = (IVLObject)obj;
-            }
-
-            foreach (var prop in typeInfo.Properties)
-            {
-                TryAddSerializers(prop.Type.ClrType);
-                TryAddDeserializers(prop.Type.ClrType);
-            }
 
         }
 
@@ -152,6 +139,11 @@ namespace VL.MessagePack.Formatters
             {
                 return default(T);
             }
+
+            var instance = appHost.CreateInstance(typeInfo) as IVLObject;
+            if (instance is null)
+                return default;
+
             int propCount = reader.ReadMapHeader();
 
             var builder = Pooled.GetDictionaryBuilder<string, object>();
@@ -184,11 +176,7 @@ namespace VL.MessagePack.Formatters
                 reader.Depth--;
             }
 
-            if (instance != null)
-            {
-                return (T)instance.With(builder.ToImmutableAndFree());
-            }
-            return default(T);
+            return (T)instance.With(builder.ToImmutableAndFree());
         }
     }
 }
