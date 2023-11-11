@@ -16,9 +16,9 @@ using System.Collections;
 using CommunityToolkit.HighPerformance;
 using VL.Core.Utils;
 
-namespace VL.MessagePack.Formatters
+namespace VL.Serialization.MessagePack.Formatters
 {
-    public class SpreadFormatter<T> : IMessagePackFormatter<Spread<T>?>
+    sealed class SpreadFormatter<T> : IMessagePackFormatter<Spread<T>?>
     {
         IMessagePackFormatter<T>? formatter = null;
 

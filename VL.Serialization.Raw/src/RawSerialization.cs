@@ -1,52 +1,48 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Text;
 using VL.Core.Utils;
 using VL.Lib.Collections;
 
 
-namespace VL.MessagePack
+namespace VL.Serialization.Raw
 {
-    public static class BytesExtensions
+    public static class RawSerialization
     {
-        public static void ToBytes<T>(T input, out ReadOnlyMemory<byte> bytes, out bool successful)
+        /// <summary>
+        /// Supports blitable types, strings, and collections thereof.
+        /// </summary>
+        public static ReadOnlyMemory<byte> Serialize<T>(T input)
         {
             if (input is null)
-            {
-                bytes = default;
-                successful = false;
-                return;
-            }
+                throw new ArgumentNullException(nameof(input));
 
-            var ToMemoryMap = BytesExtensions.ToMemoryMap.Value;
             if (ToMemoryMap.TryGetValue(typeof(T), out Func<object, ReadOnlyMemory<byte>>? ToDelegate))
             {
-                bytes = ToDelegate(input);
-                successful = true;
-                return;
+                return ToDelegate(input);
             }
             else
             {
                 // Struct, Vector2,Vector3 ...
                 if (typeof(T).IsBlitable())
                 {
-                    var blitableToBytes = typeof(BytesExtensions).GetMethod(nameof(BlitableToBytes), BindingFlags.NonPublic | BindingFlags.Static);
+                    var blitableToBytes = typeof(RawSerialization).GetMethod(nameof(BlitableToBytes), BindingFlags.NonPublic | BindingFlags.Static);
 
                     if (blitableToBytes != null)
                     {
                         blitableToBytes = blitableToBytes.MakeGenericMethod(new[] { typeof(T) });
                         var BlitableToBytesDel = StaticMethodDelegate<object, ReadOnlyMemory<byte>>(blitableToBytes);
-                        ToMemoryMap.Add(typeof(T), BlitableToBytesDel);
+                        ToMemoryMap.TryAdd(typeof(T), BlitableToBytesDel);
 
-                        bytes = BlitableToBytesDel(input);
-                        successful = true;
-                        return;
+                        return BlitableToBytesDel(input);
                     }
                 }
                 // Spread of Struct 
@@ -57,16 +53,14 @@ namespace VL.MessagePack
                         var genericType = typeof(T).GetGenericArguments()[0];
                         if (genericType != null && genericType.IsBlitable())
                         {
-                            var spreadToBytes = typeof(BytesExtensions).GetMethod(nameof(SpreadToBytes), BindingFlags.NonPublic | BindingFlags.Static);
+                            var spreadToBytes = typeof(RawSerialization).GetMethod(nameof(SpreadToBytes), BindingFlags.NonPublic | BindingFlags.Static);
                             if (spreadToBytes != null)
                             {
                                 spreadToBytes = spreadToBytes.MakeGenericMethod(new[] { genericType });
                                 var SpreadToBytesDel = StaticMethodDelegate<object, ReadOnlyMemory<byte>>(spreadToBytes);
-                                ToMemoryMap.Add(typeof(T), SpreadToBytesDel);
+                                ToMemoryMap.TryAdd(typeof(T), SpreadToBytesDel);
 
-                                bytes = SpreadToBytesDel(input);
-                                successful = true;
-                                return;
+                                return SpreadToBytesDel(input);
                             }
                         }
                     }
@@ -79,37 +73,33 @@ namespace VL.MessagePack
                         var genericType = typeof(T).GetGenericArguments()[0];
                         if (genericType != null && genericType.IsBlitable())
                         {
-                            var immutableArrayToBytes = typeof(BytesExtensions).GetMethod(nameof(ImmutableArrayToBytes), BindingFlags.NonPublic | BindingFlags.Static);
+                            var immutableArrayToBytes = typeof(RawSerialization).GetMethod(nameof(ImmutableArrayToBytes), BindingFlags.NonPublic | BindingFlags.Static);
                             if (immutableArrayToBytes != null)
                             {
                                 immutableArrayToBytes = immutableArrayToBytes.MakeGenericMethod(new[] { genericType });
                                 var ImmutableArrayToBytesDel = StaticMethodDelegate<object, ReadOnlyMemory<byte>>(immutableArrayToBytes);
-                                ToMemoryMap.Add(typeof(T), ImmutableArrayToBytesDel);
+                                ToMemoryMap.TryAdd(typeof(T), ImmutableArrayToBytesDel);
 
-                                bytes = ImmutableArrayToBytesDel(input);
-                                successful = true;
-                                return;
+                                return ImmutableArrayToBytesDel(input);
                             }
                         }
                     }
 
                 }
                 // Array
-                else if (typeof(T).IsArray && typeof(T).HasElementType)
+                else if (typeof(T).IsArray)
                 {
-                    var genericType = typeof(T).GetElementType();
-                    if (genericType != null && genericType.IsBlitable())
+                    var elementType = typeof(T).GetElementType();
+                    if (elementType != null && elementType.IsBlitable())
                     {
-                        var arrayToBytes = typeof(BytesExtensions).GetMethod(nameof(ArrayToBytes), BindingFlags.NonPublic | BindingFlags.Static);
+                        var arrayToBytes = typeof(RawSerialization).GetMethod(nameof(ArrayToBytes), BindingFlags.NonPublic | BindingFlags.Static);
                         if (arrayToBytes != null)
                         {
-                            arrayToBytes = arrayToBytes.MakeGenericMethod(new[] { genericType });
+                            arrayToBytes = arrayToBytes.MakeGenericMethod(new[] { elementType });
                             var ArrayToBytesDel = StaticMethodDelegate<object, ReadOnlyMemory<byte>>(arrayToBytes);
-                            ToMemoryMap.Add(typeof(T), ArrayToBytesDel);
+                            ToMemoryMap.TryAdd(typeof(T), ArrayToBytesDel);
 
-                            bytes = ArrayToBytesDel(input);
-                            successful = true;
-                            return;
+                            return ArrayToBytesDel(input);
                         }
                     }
                 }
@@ -117,45 +107,36 @@ namespace VL.MessagePack
                 else if (typeof(T) == typeof(String))
                 {
                     Func<object, ReadOnlyMemory<byte>> StringToBytesDel = (obj) => StringToBytes((string)obj);
-                    ToMemoryMap.Add(typeof(T), StringToBytesDel);
+                    ToMemoryMap.TryAdd(typeof(T), StringToBytesDel);
 
-                    bytes = StringToBytesDel(input);
-                    successful = true;
-                    return;
+                    return StringToBytesDel(input);
                 }
             }
 
-            bytes = default;
-            successful = false;
-            return;
+            throw new SerializationException($"Can't serialize {typeof(T)}");
         }
 
-        public static void FromBytes<T>(ReadOnlyMemory<byte> bytes, out T? output, out bool successful)
+        public static T Deserialize<T>(ReadOnlyMemory<byte> bytes)
         {
-            var FromMemoryMap = BytesExtensions.FromMemoryMap.Value;
             if (FromMemoryMap.TryGetValue(typeof(T), out Func<ReadOnlyMemory<byte>, object>? FromDelegate))
             {
-                output = (T)FromDelegate(bytes);
-                successful = true;
-                return;
+                return (T)FromDelegate(bytes);
             }
             else
             {
                 // Struct, Vector2,Vector3 ...
                 if (typeof(T).IsBlitable())
                 {
-                    var bytesToBlitable = typeof(BytesExtensions).GetMethod(nameof(BytesToBlitable), BindingFlags.NonPublic | BindingFlags.Static);
+                    var bytesToBlitable = typeof(RawSerialization).GetMethod(nameof(BytesToBlitable), BindingFlags.NonPublic | BindingFlags.Static);
 
                     if (bytesToBlitable != null)
                     {
                         bytesToBlitable = bytesToBlitable.MakeGenericMethod(new[] { typeof(T) });
 
                         var BytesToBlitableDel = StaticMethodDelegate<ReadOnlyMemory<byte>, object>(bytesToBlitable);
-                        FromMemoryMap.Add(typeof(T), BytesToBlitableDel);
+                        FromMemoryMap.TryAdd(typeof(T), BytesToBlitableDel);
 
-                        output = (T)BytesToBlitableDel(bytes);
-                        successful = true;
-                        return;
+                        return (T)BytesToBlitableDel(bytes);
                     }
                 }
                 // Spread of Struct 
@@ -166,16 +147,14 @@ namespace VL.MessagePack
                         var genericType = typeof(T).GetGenericArguments()[0];
                         if (genericType != null && genericType.IsBlitable())
                         {
-                            var bytesToSpread = typeof(BytesExtensions).GetMethod(nameof(BytesToSpread), BindingFlags.NonPublic | BindingFlags.Static);
+                            var bytesToSpread = typeof(RawSerialization).GetMethod(nameof(BytesToSpread), BindingFlags.NonPublic | BindingFlags.Static);
                             if (bytesToSpread != null)
                             {
                                 bytesToSpread = bytesToSpread.MakeGenericMethod(new[] { genericType });
                                 var BytesToSpreadDel = StaticMethodDelegate<ReadOnlyMemory<byte>, object>(bytesToSpread);
-                                FromMemoryMap.Add(typeof(T), BytesToSpreadDel);
+                                FromMemoryMap.TryAdd(typeof(T), BytesToSpreadDel);
 
-                                output = (T)BytesToSpreadDel(bytes);
-                                successful = true;
-                                return;
+                                return (T)BytesToSpreadDel(bytes);
                             }
                         }
                     }
@@ -188,16 +167,14 @@ namespace VL.MessagePack
                         var genericType = typeof(T).GetGenericArguments()[0];
                         if (genericType != null && genericType.IsBlitable())
                         {
-                            var bytesToImmutableArray = typeof(BytesExtensions).GetMethod(nameof(BytesToImmutableArray), BindingFlags.NonPublic | BindingFlags.Static);
+                            var bytesToImmutableArray = typeof(RawSerialization).GetMethod(nameof(BytesToImmutableArray), BindingFlags.NonPublic | BindingFlags.Static);
                             if (bytesToImmutableArray != null)
                             {
                                 bytesToImmutableArray = bytesToImmutableArray.MakeGenericMethod(new[] { genericType });
                                 var BytesToImmutableArrayDel = StaticMethodDelegate<ReadOnlyMemory<byte>, object>(bytesToImmutableArray);
-                                FromMemoryMap.Add(typeof(T), BytesToImmutableArrayDel);
+                                FromMemoryMap.TryAdd(typeof(T), BytesToImmutableArrayDel);
 
-                                output = (T)BytesToImmutableArrayDel(bytes);
-                                successful = true;
-                                return;
+                                return (T)BytesToImmutableArrayDel(bytes);
                             }
                         }
                     }
@@ -208,16 +185,14 @@ namespace VL.MessagePack
                     var genericType = typeof(T).GetElementType();
                     if (genericType != null && genericType.IsBlitable())
                     {
-                        var bytesToArray = typeof(BytesExtensions).GetMethod(nameof(BytesToArray), BindingFlags.NonPublic | BindingFlags.Static);
+                        var bytesToArray = typeof(RawSerialization).GetMethod(nameof(BytesToArray), BindingFlags.NonPublic | BindingFlags.Static);
                         if (bytesToArray != null)
                         {
                             bytesToArray = bytesToArray.MakeGenericMethod(new[] { genericType });
                             var BytesToArrayDel = StaticMethodDelegate<ReadOnlyMemory<byte>, object>(bytesToArray);
-                            FromMemoryMap.Add(typeof(T), BytesToArrayDel);
+                            FromMemoryMap.TryAdd(typeof(T), BytesToArrayDel);
 
-                            output = (T)BytesToArrayDel(bytes);
-                            successful = true;
-                            return;
+                            return (T)BytesToArrayDel(bytes);
                         }
                     }
                 }
@@ -225,21 +200,17 @@ namespace VL.MessagePack
                 else if (typeof(T) == typeof(String))
                 {
                     Func<ReadOnlyMemory<byte>, object> BytesToStringDel = (b) => BytesToString(b);
-                    FromMemoryMap.Add(typeof(T), BytesToStringDel);
+                    FromMemoryMap.TryAdd(typeof(T), BytesToStringDel);
 
-                    output = (T)BytesToStringDel(bytes);
-                    successful = true;
-                    return;
+                    return (T)BytesToStringDel(bytes);
                 }
             }
 
-            output = default;
-            successful = false;
-            return;
+            throw new SerializationException($"Can't deserialize {typeof(T)}");
         }
 
-        private static readonly Lazy<Dictionary<Type, Func<object, ReadOnlyMemory<byte>>>> ToMemoryMap = new Lazy<Dictionary<Type, Func<object, ReadOnlyMemory<byte>>>>(() => new Dictionary<Type, Func<object, ReadOnlyMemory<byte>>>());
-        private static readonly Lazy<Dictionary<Type, Func<ReadOnlyMemory<byte>, object>>> FromMemoryMap = new Lazy<Dictionary<Type, Func<ReadOnlyMemory<byte>, object>>>(() => new Dictionary<Type, Func<ReadOnlyMemory<byte>, object>>());
+        private static readonly ConcurrentDictionary<Type, Func<object, ReadOnlyMemory<byte>>> ToMemoryMap = new();
+        private static readonly ConcurrentDictionary<Type, Func<ReadOnlyMemory<byte>, object>> FromMemoryMap = new();
 
         private static Func<Tinput, TOutput> StaticMethodDelegate<Tinput, TOutput>(MethodInfo method)
         {

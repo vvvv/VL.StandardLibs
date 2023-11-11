@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VL.MessagePack
+namespace VL.Serialization.MessagePack
 {
-    public class JsonHelper
+    static class JsonHelper
     {
         private const string INDENT_STRING = "    ";
         public static string FormatJson(string str)

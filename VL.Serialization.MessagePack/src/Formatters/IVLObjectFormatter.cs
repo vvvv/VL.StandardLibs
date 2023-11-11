@@ -4,16 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using VL.Core;
-using VL.MessagePack.Internal;
+using VL.Serialization.MessagePack.Internal;
 using System.Text.RegularExpressions;
 using System.Linq.Expressions;
 using System.Reflection;
 using VL.Core.Utils;
 
-namespace VL.MessagePack.Formatters
+namespace VL.Serialization.MessagePack.Formatters
 {
 
-    public class IVLObjectFormatter<T> : IMessagePackFormatter<T?> 
+    sealed class IVLObjectFormatter<T> : IMessagePackFormatter<T?> 
     {
         private delegate void SerializeMethod(object dynamicContractlessFormatter, ref MessagePackWriter writer, object value, MessagePackSerializerOptions options);
         private delegate object DeserializeMethod(object dynamicContractlessFormatter, ref MessagePackReader reader, MessagePackSerializerOptions options);

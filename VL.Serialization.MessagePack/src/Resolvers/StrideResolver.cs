@@ -3,14 +3,14 @@ using MessagePack;
 using System;
 using System.Collections.Generic;
 using Stride.Core.Mathematics;
-using VL.MessagePack.Formatters;
+using VL.Serialization.MessagePack.Formatters;
 using Half = Stride.Core.Mathematics.Half;
-using HalfFormatter = VL.MessagePack.Formatters.HalfFormatter;
+using HalfFormatter = VL.Serialization.MessagePack.Formatters.HalfFormatter;
 
 
-namespace VL.MessagePack
+namespace VL.Serialization.MessagePack
 {
-    public class StrideResolver : IFormatterResolver
+    sealed class StrideResolver : IFormatterResolver
     {
         public static readonly StrideResolver Instance = new StrideResolver();
 

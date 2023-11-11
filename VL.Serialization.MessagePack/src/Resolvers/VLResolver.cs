@@ -9,12 +9,12 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using VL.Core;
 using VL.Lib.Collections;
-using VL.MessagePack.Formatters;
+using VL.Serialization.MessagePack.Formatters;
 
-namespace VL.MessagePack.Resolvers
+namespace VL.Serialization.MessagePack.Resolvers
 {
 
-    public sealed class VLResolver : IFormatterResolver
+    sealed class VLResolver : IFormatterResolver
     {
         /// <summary>
         /// The singleton instance that can be used.

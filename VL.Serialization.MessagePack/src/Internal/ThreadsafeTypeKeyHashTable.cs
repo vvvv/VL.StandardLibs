@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace VL.MessagePack.Internal
+namespace VL.Serialization.MessagePack.Internal
 {
     /// <summary>
     /// A dictionary where <see cref="Type"/> is the key, and a configurable <typeparamref name="TValue"/> type

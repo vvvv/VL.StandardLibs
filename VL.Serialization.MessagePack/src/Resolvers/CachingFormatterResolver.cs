@@ -3,9 +3,9 @@
 
 using MessagePack;
 using MessagePack.Formatters;
-using VL.MessagePack.Internal;
+using VL.Serialization.MessagePack.Internal;
 
-namespace VL.MessagePack.Resolvers
+namespace VL.Serialization.MessagePack.Resolvers
 {
     /// <summary>
     /// A base class for <see cref="IFormatterResolver"/> classes that want to cache their responses for perf reasons.

@@ -8,10 +8,10 @@ using MessagePack.Formatters;
 using Stride.Core.Mathematics;
 using Half = Stride.Core.Mathematics.Half;
 
-namespace VL.MessagePack.Formatters
+namespace VL.Serialization.MessagePack.Formatters
 {
     #region Angle
-    public sealed class AngleSingleFormatter : IMessagePackFormatter<AngleSingle>
+    sealed class AngleSingleFormatter : IMessagePackFormatter<AngleSingle>
     {
         public void Serialize(ref MessagePackWriter writer, AngleSingle value, MessagePackSerializerOptions options)
         {
@@ -30,7 +30,7 @@ namespace VL.MessagePack.Formatters
     #endregion
 
     #region Bounding
-    public sealed class BoundingBoxFormatter : IMessagePackFormatter<BoundingBox>
+    sealed class BoundingBoxFormatter : IMessagePackFormatter<BoundingBox>
     {
         IMessagePackFormatter<Vector3>? formatter = null;
 
@@ -83,7 +83,7 @@ namespace VL.MessagePack.Formatters
         }
     }
     
-    public sealed class BoundingBoxExtFormatter : IMessagePackFormatter<BoundingBoxExt>
+    sealed class BoundingBoxExtFormatter : IMessagePackFormatter<BoundingBoxExt>
     {
         IMessagePackFormatter<Vector3>? formatter = null;
 
@@ -136,7 +136,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    //public sealed class BoundingFrustumFormatter : IMessagePackFormatter<BoundingFrustum>
+    //sealed class BoundingFrustumFormatter : IMessagePackFormatter<BoundingFrustum>
     //{
     //    IMessagePackFormatter<Plane>? formatter = null;
 
@@ -193,7 +193,7 @@ namespace VL.MessagePack.Formatters
     //    }
     //}
 
-    public sealed class BoundingSphereFormatter : IMessagePackFormatter<BoundingSphere>
+    sealed class BoundingSphereFormatter : IMessagePackFormatter<BoundingSphere>
     {
         IMessagePackFormatter<Vector3>? formatter = null;
 
@@ -249,7 +249,7 @@ namespace VL.MessagePack.Formatters
     #endregion Bounding
 
     #region Color
-    public sealed class ColorFormatter : IMessagePackFormatter<Color>
+    sealed class ColorFormatter : IMessagePackFormatter<Color>
     {
         public void Serialize(ref MessagePackWriter writer, Color value, MessagePackSerializerOptions options)
         {
@@ -300,7 +300,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class Color3Formatter : IMessagePackFormatter<Color3>
+    sealed class Color3Formatter : IMessagePackFormatter<Color3>
     {
         public void Serialize(ref MessagePackWriter writer, Color3 value, MessagePackSerializerOptions options)
         {
@@ -346,7 +346,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class Color4Formatter : IMessagePackFormatter<Color4>
+    sealed class Color4Formatter : IMessagePackFormatter<Color4>
     {
         public void Serialize(ref MessagePackWriter writer, Color4 value, MessagePackSerializerOptions options)
         {
@@ -397,7 +397,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class ColorBGRAFormatter : IMessagePackFormatter<ColorBGRA>
+    sealed class ColorBGRAFormatter : IMessagePackFormatter<ColorBGRA>
     {
         public void Serialize(ref MessagePackWriter writer, ColorBGRA value, MessagePackSerializerOptions options)
         {
@@ -448,7 +448,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class ColorHSVFormatter : IMessagePackFormatter<ColorHSV>
+    sealed class ColorHSVFormatter : IMessagePackFormatter<ColorHSV>
     {
         public void Serialize(ref MessagePackWriter writer, ColorHSV value, MessagePackSerializerOptions options)
         {
@@ -501,7 +501,7 @@ namespace VL.MessagePack.Formatters
     #endregion Color
 
     #region Double
-    public sealed class Double2Formatter : IMessagePackFormatter<Double2>
+    sealed class Double2Formatter : IMessagePackFormatter<Double2>
     {
         public void Serialize(ref MessagePackWriter writer, Double2 value, MessagePackSerializerOptions options)
         {
@@ -542,7 +542,7 @@ namespace VL.MessagePack.Formatters
         }
     }
     
-    public sealed class Double3Formatter : IMessagePackFormatter<Double3>
+    sealed class Double3Formatter : IMessagePackFormatter<Double3>
     {
         public void Serialize(ref MessagePackWriter writer, Double3 value, MessagePackSerializerOptions options)
         {
@@ -588,7 +588,7 @@ namespace VL.MessagePack.Formatters
         }
     }
     
-    public sealed class Double4Formatter : IMessagePackFormatter<Double4>
+    sealed class Double4Formatter : IMessagePackFormatter<Double4>
     {
         public void Serialize(ref MessagePackWriter writer, Double4 value, MessagePackSerializerOptions options)
         {
@@ -641,7 +641,7 @@ namespace VL.MessagePack.Formatters
     #endregion Double
 
     #region Half
-    public sealed class HalfFormatter : IMessagePackFormatter<Half>
+    sealed class HalfFormatter : IMessagePackFormatter<Half>
     {
         public void Serialize(ref MessagePackWriter writer, Half value, MessagePackSerializerOptions options)
         {
@@ -658,7 +658,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class Half2Formatter : IMessagePackFormatter<Half2>
+    sealed class Half2Formatter : IMessagePackFormatter<Half2>
     {
         public void Serialize(ref MessagePackWriter writer, Half2 value, MessagePackSerializerOptions options)
         {
@@ -699,7 +699,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class Half3Formatter : IMessagePackFormatter<Half3>
+    sealed class Half3Formatter : IMessagePackFormatter<Half3>
     {
         public void Serialize(ref MessagePackWriter writer, Half3 value, MessagePackSerializerOptions options)
         {
@@ -745,7 +745,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class Half4Formatter : IMessagePackFormatter<Half4>
+    sealed class Half4Formatter : IMessagePackFormatter<Half4>
     {
         public void Serialize(ref MessagePackWriter writer, Half4 value, MessagePackSerializerOptions options)
         {
@@ -798,7 +798,7 @@ namespace VL.MessagePack.Formatters
     #endregion Half
 
     #region Int
-    public sealed class Int2Formatter : IMessagePackFormatter<Int2>
+    sealed class Int2Formatter : IMessagePackFormatter<Int2>
     {
         public void Serialize(ref MessagePackWriter writer, Int2 value, MessagePackSerializerOptions options)
         {
@@ -839,7 +839,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class Int3Formatter : IMessagePackFormatter<Int3>
+    sealed class Int3Formatter : IMessagePackFormatter<Int3>
     {
         public void Serialize(ref MessagePackWriter writer, Int3 value, MessagePackSerializerOptions options)
         {
@@ -885,7 +885,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class Int4Formatter : IMessagePackFormatter<Int4>
+    sealed class Int4Formatter : IMessagePackFormatter<Int4>
     {
         public void Serialize(ref MessagePackWriter writer, Int4 value, MessagePackSerializerOptions options)
         {
@@ -938,7 +938,7 @@ namespace VL.MessagePack.Formatters
     #endregion Int
 
     #region Geo
-    public sealed class MatrixFormatter : IMessagePackFormatter<Matrix>
+    sealed class MatrixFormatter : IMessagePackFormatter<Matrix>
     {
         public void Serialize(ref MessagePackWriter writer, Matrix value, MessagePackSerializerOptions options)
         {
@@ -1049,7 +1049,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class PlaneFormatter : IMessagePackFormatter<Plane>
+    sealed class PlaneFormatter : IMessagePackFormatter<Plane>
     {
         IMessagePackFormatter<Vector3>? formatter = null;
 
@@ -1103,7 +1103,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class PointFormatter : IMessagePackFormatter<Point>
+    sealed class PointFormatter : IMessagePackFormatter<Point>
     {
         public void Serialize(ref MessagePackWriter writer, Point value, MessagePackSerializerOptions options)
         {
@@ -1144,7 +1144,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class QuaternionFormatter : IMessagePackFormatter<Quaternion>
+    sealed class QuaternionFormatter : IMessagePackFormatter<Quaternion>
     {
         public void Serialize(ref MessagePackWriter writer, Quaternion value, MessagePackSerializerOptions options)
         {
@@ -1195,7 +1195,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class RayFormatter : IMessagePackFormatter<Ray>
+    sealed class RayFormatter : IMessagePackFormatter<Ray>
     {
         IMessagePackFormatter<Vector3>? formatter = null;
 
@@ -1250,7 +1250,7 @@ namespace VL.MessagePack.Formatters
     #endregion
 
     #region Rect
-    public sealed class RectangleFormatter : IMessagePackFormatter<Rectangle>
+    sealed class RectangleFormatter : IMessagePackFormatter<Rectangle>
     {
         public void Serialize(ref MessagePackWriter writer, Rectangle value, MessagePackSerializerOptions options)
         {
@@ -1301,7 +1301,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class RectangleFFormatter : IMessagePackFormatter<RectangleF>
+    sealed class RectangleFFormatter : IMessagePackFormatter<RectangleF>
     {
         public void Serialize(ref MessagePackWriter writer, RectangleF value, MessagePackSerializerOptions options)
         {
@@ -1354,7 +1354,7 @@ namespace VL.MessagePack.Formatters
     #endregion
 
     #region Size
-    public sealed class Size2Formatter : IMessagePackFormatter<Size2>
+    sealed class Size2Formatter : IMessagePackFormatter<Size2>
     {
         public void Serialize(ref MessagePackWriter writer, Size2 value, MessagePackSerializerOptions options)
         {
@@ -1395,7 +1395,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class Size2FFormatter : IMessagePackFormatter<Size2F>
+    sealed class Size2FFormatter : IMessagePackFormatter<Size2F>
     {
         public void Serialize(ref MessagePackWriter writer, Size2F value, MessagePackSerializerOptions options)
         {
@@ -1436,7 +1436,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class Size3Formatter : IMessagePackFormatter<Size3>
+    sealed class Size3Formatter : IMessagePackFormatter<Size3>
     {
         public void Serialize(ref MessagePackWriter writer, Size3 value, MessagePackSerializerOptions options)
         {
@@ -1482,7 +1482,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class UInt4Formatter : IMessagePackFormatter<UInt4>
+    sealed class UInt4Formatter : IMessagePackFormatter<UInt4>
     {
         public void Serialize(ref MessagePackWriter writer, UInt4 value, MessagePackSerializerOptions options)
         {
@@ -1535,7 +1535,7 @@ namespace VL.MessagePack.Formatters
     #endregion
 
     #region Vector
-    public sealed class Vector2Formatter : IMessagePackFormatter<Vector2>
+    sealed class Vector2Formatter : IMessagePackFormatter<Vector2>
     {
         public void Serialize(ref MessagePackWriter writer, Vector2 value, MessagePackSerializerOptions options)
         {
@@ -1576,7 +1576,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class Vector3Formatter : IMessagePackFormatter<Vector3>
+    sealed class Vector3Formatter : IMessagePackFormatter<Vector3>
     {
         public void Serialize(ref MessagePackWriter writer, Vector3 value, MessagePackSerializerOptions options)
         {
@@ -1622,7 +1622,7 @@ namespace VL.MessagePack.Formatters
         }
     }
 
-    public sealed class Vector4Formatter : IMessagePackFormatter<Vector4>
+    sealed class Vector4Formatter : IMessagePackFormatter<Vector4>
     {
         public void Serialize(ref MessagePackWriter writer, Vector4 value, MessagePackSerializerOptions options)
         {

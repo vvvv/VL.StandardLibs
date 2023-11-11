@@ -1,34 +1,18 @@
-﻿using CommunityToolkit.HighPerformance;
-using MathNet.Numerics.RootFinding;
-using MessagePack.Formatters;
-using Newtonsoft.Json.Linq;
-using Stride.Core.Mathematics;
+﻿#nullable enable
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using VL.Core;
-using VL.Core.Utils;
-using VL.Lib.Collections;
-using VL.Lib.IO;
-using VL.MessagePack.Formatters;
 
-namespace VL.MessagePack
+namespace VL.Serialization.Raw
 {
-
-    public static class Helper
+    static class BlitableUtils
     {
-        public static bool IsBlitable<T>(this IHasMemory<T> value)
+        public static bool IsBlitable<T>(this IHasMemory<T>? value)
         {
             return !RuntimeHelpers.IsReferenceOrContainsReferences<T>(); ;
         }
-        public static bool IsBlitable<T>(this T value)
+        public static bool IsBlitable<T>(this T? value)
         {
             return !RuntimeHelpers.IsReferenceOrContainsReferences<T>(); ;
         }
