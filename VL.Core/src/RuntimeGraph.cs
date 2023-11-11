@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace VL.Core
@@ -8,6 +9,9 @@ namespace VL.Core
     /// </summary>
     public static class RuntimeGraph
     {
+        [ThreadStatic]
+        private static int s_rethrowExceptions;
+
         static RuntimeGraph()
         {
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
@@ -25,6 +29,29 @@ namespace VL.Core
             if (allHandled)
                 e.SetObserved();
         }
+
+        internal readonly struct Frame : IDisposable
+        {
+            private readonly int _previousState;
+
+            public Frame(int previousState)
+            {
+                this._previousState = previousState;
+            }
+
+            public void Dispose()
+            {
+                s_rethrowExceptions = _previousState;
+            }
+        }
+
+        internal static Frame EnableExceptionRethrow()
+        {
+            var previous = Interlocked.Exchange(ref s_rethrowExceptions, 1);
+            return new Frame(previous);
+        }
+
+        internal static bool RethrowExceptions() => s_rethrowExceptions == 1;
 
         /// <summary>
         /// The exception to throw by the HandleAsyncException call.
