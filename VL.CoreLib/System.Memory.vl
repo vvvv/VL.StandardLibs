@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="TbpIhqjOLSBPFhdxbH8kpm" LanguageVersion="2022.5.0-0685-ga251664bc1" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="TbpIhqjOLSBPFhdxbH8kpm" LanguageVersion="2023.5.3-0281-g14e0cbce71" Version="0.128">
   <Patch Id="UU5d9rcBLYsO5U8ouxkHGx">
     <Canvas Id="QB6pI2Y06gFP2BQBfcQhK8" DefaultCategory="System.Advanced" CanvasType="FullCategory">
       <!--
@@ -68,12 +68,12 @@
     ************************ CreateDefault ************************
 
 -->
-            <Node Name="CreateDefault" Bounds="260,204,96,84" Id="AIDfAJlWStZOcoiIsvtiv9">
+            <Node Name="CreateDefault" Bounds="260,204,100,87" Id="AIDfAJlWStZOcoiIsvtiv9">
               <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
                 <Choice Kind="OperationDefinition" Name="Operation" />
               </p:NodeReference>
               <Patch Id="PchTk0NLgukQUfOZH2sRWJ" IsGeneric="true">
-                <Node Bounds="298,243,37,13" AutoConnect="true" Id="EyL22mhpuIYO0LQWvwMpbJ">
+                <Node Bounds="298,243,45,19" AutoConnect="true" Id="EyL22mhpuIYO0LQWvwMpbJ">
                   <p:NodeReference LastCategoryFullName="System.ReadOnlyMemory`1" LastDependency="System.Memory.dll">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                     <Choice Kind="OperationCallFlag" Name="Empty" />
@@ -84,9 +84,42 @@
                 <Pin Id="G1zGpgfsigpQHiVR8bPfsX" Name="Empty" Kind="OutputPin" />
               </Patch>
             </Node>
+            <!--
+
+    ************************ ToSpread ************************
+
+-->
+            <Node Name="ToSpread" Bounds="477,202,112,80" Id="DD2Ee2nEjTYMq4UB8dbxiE">
+              <p:NodeReference>
+                <Choice Kind="OperationDefinition" Name="Operation" />
+                <CategoryReference Kind="Category" Name="Primitive" />
+              </p:NodeReference>
+              <p:HideCategory p:Type="Boolean">true</p:HideCategory>
+              <Patch Id="JaPKAyFmZMfNMdz03G1iMU" IsGeneric="true">
+                <Node Bounds="489,231,59,26" AutoConnect="true" Id="Kq1hDRXExIcLWgS7VxUSoF">
+                  <p:NodeReference LastCategoryFullName="VL.Lib.Collections.Spread" LastDependency="VL.Core.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+                    <Choice Kind="OperationNode" Name="ToSpread" />
+                    <FullNameCategoryReference ID="VL.Lib.Collections.Spread" />
+                    <PinReference Kind="InputPin" Name="Input">
+                      <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="System" LastDependency="System.Memory.dll">
+                        <Choice Kind="TypeFlag" Name="ReadOnlyMemory`1" />
+                        <p:TypeArguments>
+                          <TypeParameterReference />
+                        </p:TypeArguments>
+                      </p:DataTypeReference>
+                    </PinReference>
+                  </p:NodeReference>
+                  <Pin Id="Sf89BH999bGNHLKvM47Lx0" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="Mgush8hy76SNr8aZF9Ax9D" Name="Result" Kind="OutputPin" />
+                </Node>
+                <Pin Id="VUKsGbNG9rlMoAgVzXaspc" Name="Input" Kind="InputPin" />
+                <Pin Id="PFvHZlW2XIvMO1DM75CNjT" Name="Result" Kind="OutputPin" />
+              </Patch>
+            </Node>
           </Canvas>
           <ProcessDefinition Id="VCainJsv0vmP2Xc6Zv77wd" IsHidden="true">
             <Fragment Id="LUdkQcijGnwMafRw3nwMJ8" Patch="AIDfAJlWStZOcoiIsvtiv9" Enabled="true" />
+            <Fragment Id="Es1Art7mEO6PXlIGUZp8gU" Patch="DD2Ee2nEjTYMq4UB8dbxiE" />
           </ProcessDefinition>
         </Patch>
       </Node>

@@ -116,11 +116,11 @@ namespace VL.Serialization.Raw
             throw new SerializationException($"Can't serialize {typeof(T)}");
         }
 
-        public static T Deserialize<T>(ReadOnlyMemory<byte> bytes)
+        public static T Deserialize<T>(ReadOnlyMemory<byte> input)
         {
             if (FromMemoryMap.TryGetValue(typeof(T), out Func<ReadOnlyMemory<byte>, object>? FromDelegate))
             {
-                return (T)FromDelegate(bytes);
+                return (T)FromDelegate(input);
             }
             else
             {
@@ -136,7 +136,7 @@ namespace VL.Serialization.Raw
                         var BytesToBlitableDel = StaticMethodDelegate<ReadOnlyMemory<byte>, object>(bytesToBlitable);
                         FromMemoryMap.TryAdd(typeof(T), BytesToBlitableDel);
 
-                        return (T)BytesToBlitableDel(bytes);
+                        return (T)BytesToBlitableDel(input);
                     }
                 }
                 // Spread of Struct 
@@ -154,7 +154,7 @@ namespace VL.Serialization.Raw
                                 var BytesToSpreadDel = StaticMethodDelegate<ReadOnlyMemory<byte>, object>(bytesToSpread);
                                 FromMemoryMap.TryAdd(typeof(T), BytesToSpreadDel);
 
-                                return (T)BytesToSpreadDel(bytes);
+                                return (T)BytesToSpreadDel(input);
                             }
                         }
                     }
@@ -174,7 +174,7 @@ namespace VL.Serialization.Raw
                                 var BytesToImmutableArrayDel = StaticMethodDelegate<ReadOnlyMemory<byte>, object>(bytesToImmutableArray);
                                 FromMemoryMap.TryAdd(typeof(T), BytesToImmutableArrayDel);
 
-                                return (T)BytesToImmutableArrayDel(bytes);
+                                return (T)BytesToImmutableArrayDel(input);
                             }
                         }
                     }
@@ -192,7 +192,7 @@ namespace VL.Serialization.Raw
                             var BytesToArrayDel = StaticMethodDelegate<ReadOnlyMemory<byte>, object>(bytesToArray);
                             FromMemoryMap.TryAdd(typeof(T), BytesToArrayDel);
 
-                            return (T)BytesToArrayDel(bytes);
+                            return (T)BytesToArrayDel(input);
                         }
                     }
                 }
@@ -202,7 +202,7 @@ namespace VL.Serialization.Raw
                     Func<ReadOnlyMemory<byte>, object> BytesToStringDel = (b) => BytesToString(b);
                     FromMemoryMap.TryAdd(typeof(T), BytesToStringDel);
 
-                    return (T)BytesToStringDel(bytes);
+                    return (T)BytesToStringDel(input);
                 }
             }
 
