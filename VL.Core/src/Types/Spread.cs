@@ -290,6 +290,12 @@ namespace VL.Lib.Collections
             return new Spread<T>(ImmutableArray.CreateRange(source));
         }
 
+        public static Spread<T> ToSpread<T>(this ReadOnlyMemory<T> source)
+        {
+            var array = source.ToArray();
+            return AsSpreadUnsafe(array);
+        }
+
         public static SpreadBuilder<T> ToSpreadBuilder<T>(this IEnumerable<T> source)
         {
             var builder = new SpreadBuilder<T>();
