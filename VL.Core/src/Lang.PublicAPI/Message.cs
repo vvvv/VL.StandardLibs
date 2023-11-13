@@ -26,6 +26,8 @@ namespace VL.Lang
         Runtime
     }
 
+    public delegate void MessageInfoProducer(out string what, out string why, out string how, out string ignore);
+
     public class Message : IEquatable<Message>
     {
         public readonly UniqueId Location;
