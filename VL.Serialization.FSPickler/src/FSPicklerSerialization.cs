@@ -27,45 +27,45 @@ namespace VL.Serialization.FSPickler
 
         static FSharpOption<IPicklerResolver> PicklerResolver => new FSharpOption<IPicklerResolver>(FSPickler.PicklerResolver.Instance);
 
-        public static string SerializeXml<T>(T value, bool indent = false)
+        public static string SerializeXml<T>(T input, bool indent = false)
         {
             var serializer = new XmlSerializer(indent, TypeNameConverter, PicklerResolver);
-            return serializer.PickleToString(value);
+            return serializer.PickleToString(input);
         }
 
-        public static T DeserializeXml<T>(string serializedValue, bool indent = false)
+        public static T DeserializeXml<T>(string input, bool indent = false)
         {
             var serializer = new XmlSerializer(indent, TypeNameConverter, PicklerResolver);
-            return serializer.UnPickleOfString<T>(serializedValue);
+            return serializer.UnPickleOfString<T>(input);
         }
 
-        public static string SerializeJson<T>(T value, bool indent = false, bool omitHeader = true)
+        public static string SerializeJson<T>(T input, bool indent = false, bool omitHeader = true)
         {
             var serializer = new JsonSerializer(indent, omitHeader, TypeNameConverter, PicklerResolver);
-            return serializer.PickleToString(value);
+            return serializer.PickleToString(input);
         }
 
-        public static T DeserializeJson<T>(string serializedValue, bool indent = false, bool omitHeader = true)
+        public static T DeserializeJson<T>(string input, bool indent = false, bool omitHeader = true)
         {
             var serializer = new JsonSerializer(indent, omitHeader, TypeNameConverter, PicklerResolver);
-            return serializer.UnPickleOfString<T>(serializedValue);
+            return serializer.UnPickleOfString<T>(input);
         }
 
-        public static byte[] SerializeBinary<T>(T value, bool forceLittleEndian = false)
+        public static byte[] SerializeBinary<T>(T input, bool forceLittleEndian = false)
         {
             var serializer = new BinarySerializer(forceLittleEndian, TypeNameConverter, PicklerResolver);
-            return serializer.Pickle(value);
+            return serializer.Pickle(input);
         }
 
-        public static T DeserializeBinary<T>(IEnumerable<byte> serializedValue, bool forceLittleEndian = false)
+        public static T DeserializeBinary<T>(IEnumerable<byte> input, bool forceLittleEndian = false)
         {
-            if (serializedValue.TryGetMemory(out var memory))
+            if (input.TryGetMemory(out var memory))
             {
                 var stream = memory.AsStream();
                 var serializer = new BinarySerializer(forceLittleEndian, TypeNameConverter, PicklerResolver);
                 return serializer.Deserialize<T>(stream);
             }
-            throw new ArgumentException($"Couldn't retrieve memory from {typeof(T)}", nameof(serializedValue));
+            throw new ArgumentException($"Couldn't retrieve memory from {typeof(T)}", nameof(input));
         }
 
 
