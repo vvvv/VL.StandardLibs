@@ -15,7 +15,7 @@ namespace VL.Core.Import
         public int Order { get; set; }
 
         /// <summary>
-        /// Whether or not the fragment shall be hidden. Useful when the fragment selection is set to <see cref="FragmentSelection.Explicit"/>.
+        /// Whether or not the fragment shall be hidden. Useful when the fragment selection is set to <see cref="FragmentSelection.Implicit"/> and certain members shall not be part of the process.
         /// </summary>
         public bool IsHidden { get; set; }
     }
