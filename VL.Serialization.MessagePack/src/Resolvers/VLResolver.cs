@@ -55,7 +55,7 @@ namespace VL.Serialization.MessagePack.Resolvers
             {
                 if(typeof(IVLObject).IsAssignableFrom(typeof(T)))
                 {
-                    return (IMessagePackFormatter<T>)new IVLObjectFormatter<T>(AppHost.Current);
+                    return new IVLObjectFormatter<T>(AppHost.Current);
                 }
                 else if (typeof(ISpread).IsAssignableFrom(typeof(T)))
                 {

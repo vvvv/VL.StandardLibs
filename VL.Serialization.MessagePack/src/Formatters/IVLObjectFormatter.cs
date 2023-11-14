@@ -13,7 +13,7 @@ using VL.Core.Utils;
 namespace VL.Serialization.MessagePack.Formatters
 {
 
-    sealed class IVLObjectFormatter<T> : IMessagePackFormatter<T?> 
+    sealed class IVLObjectFormatter<T> : IMessagePackFormatter<T>
     {
         private delegate void SerializeMethod(object dynamicContractlessFormatter, ref MessagePackWriter writer, object value, MessagePackSerializerOptions options);
         private delegate object DeserializeMethod(object dynamicContractlessFormatter, ref MessagePackReader reader, MessagePackSerializerOptions options);
@@ -110,9 +110,9 @@ namespace VL.Serialization.MessagePack.Formatters
         }
 
         public void Serialize(
-          ref MessagePackWriter writer, T? value, MessagePackSerializerOptions options)
+          ref MessagePackWriter writer, T value, MessagePackSerializerOptions options)
         {
-            if (value == null)
+            if (value is null)
             {
                 writer.WriteNil();
                 return;
@@ -132,17 +132,17 @@ namespace VL.Serialization.MessagePack.Formatters
             }
         }
 
-        public T? Deserialize(
+        public T Deserialize(
           ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
             if (reader.TryReadNil())
             {
-                return default(T);
+                return default(T)!;
             }
 
             var instance = appHost.CreateInstance(typeInfo) as IVLObject;
             if (instance is null)
-                return default;
+                return default!;
 
             int propCount = reader.ReadMapHeader();
 

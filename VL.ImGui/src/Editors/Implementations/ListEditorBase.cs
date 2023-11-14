@@ -86,6 +86,9 @@ namespace VL.ImGui.Editors
 
         private void RemoveSuperfluousEntries(TList? list)
         {
+            if (list is null)
+                return;
+
             for (int i = editors.Count - 1; i >= list.Count; i--)
             {
                 editors[i].ownership.Dispose();

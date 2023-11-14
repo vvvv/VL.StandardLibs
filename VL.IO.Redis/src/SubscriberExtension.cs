@@ -7,6 +7,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Channels;
+using System.Threading.Tasks;
 using VL.Core;
 
 namespace VL.IO.Redis
@@ -21,7 +22,7 @@ namespace VL.IO.Redis
             var warnings = new CompositeDisposable();
             IVLRuntime runtime = IVLRuntime.Current;
 
-            return Observable.Create<Int64>(async (obs, ct) =>
+            return Observable.Create<Int64>((obs, ct) =>
             {
                 // as the SubscribeAsync callback can be invoked concurrently
                 // a thread-safe wrapper for OnNext is needed
@@ -72,13 +73,13 @@ namespace VL.IO.Redis
 
 
                 // Return Disposable
-                return Disposable.Create(() =>
+                return Task.FromResult(Disposable.Create(() =>
                 {
                     disposable.Dispose();
 
                     if (!warnings.IsDisposed)
                         warnings.Dispose();
-                });
+                }));
             });
 
         }

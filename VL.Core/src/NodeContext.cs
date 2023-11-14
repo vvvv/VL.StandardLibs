@@ -85,20 +85,20 @@ namespace VL.Core
         /// </summary>
         [Obsolete("Use Clocks.FrameClock")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public IFrameClock FrameClock => ServiceRegistry.Current.GetService<IFrameClock>();
+        public IFrameClock FrameClock => ServiceRegistry.Current.GetRequiredService<IFrameClock>();
 
         /// <summary>
         /// The real time clock.
         /// </summary>
         [Obsolete("Use Clocks.RealTimeClock")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public IClock RealTimeClock => ServiceRegistry.Current.GetService<IClock>();
+        public IClock RealTimeClock => ServiceRegistry.Current.GetRequiredService<IClock>();
 
         internal ImmutableStack<UniqueId> Stack
         {
             get
             {
-                return _stack ?? Compute();
+                return _stack ??= Compute();
 
                 ImmutableStack<UniqueId> Compute()
                 {
