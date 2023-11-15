@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="R2LICEmlSXxL8HJLbLuhGm" LanguageVersion="2023.5.3-0296-gdf4d6be1cc" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="R2LICEmlSXxL8HJLbLuhGm" LanguageVersion="2023.5.3-0305-g52c92ccfb4" Version="0.128">
   <NugetDependency Id="OBrNmIfxsdpN6JWirSFRRP" Location="VL.CoreLib" Version="2023.5.3-0206-gc024672b94" />
   <Patch Id="N1C4uEVY2koOIOYR8R6OZ9">
     <Canvas Id="ApOayCXQuioQUClP3dE9Ga" DefaultCategory="LoggingView" CanvasType="FullCategory">
@@ -1503,6 +1503,9 @@
               <Pin Id="JPQIDLtw8XYMw08XnHPnu5" Name="Color" Kind="InputPin" />
               <Pin Id="V8gWPjAu1SlLYW8LKtSxDi" Name="Hovered" Kind="InputPin" />
               <Pin Id="QwsQLc7voZmOSOW8cm85KL" Name="Active" Kind="InputPin" />
+              <Pin Id="BoR5VUkpx7GQZwfrv46LgZ" Name="Text Border Size" Kind="InputPin" />
+              <Pin Id="K4BBbgHoGLRMMANiHghaSM" Name="Text Align" Kind="InputPin" />
+              <Pin Id="MxpSeQGgjYHOxeq5XUhCqc" Name="Text Padding" Kind="InputPin" />
               <Pin Id="BXWaatFYb7lOg0oe2dxOfP" Name="Output" Kind="OutputPin" />
             </Node>
             <ControlPoint Id="NmshirmsPWaPeCxvWfxGsE" Bounds="601,1178" />
@@ -8885,7 +8888,7 @@
               <Pin Id="SPafGArA0PlNWpVjjpdaC0" Name="Context" Kind="OutputPin" />
               <Pin Id="KY8DEiQJ1OYMI4xdSgQKfY" Name="Value" Kind="OutputPin" />
             </Node>
-            <Node Bounds="156,389,105,19" Id="OABhtEzKpStL8aHLWny4mu">
+            <Node Bounds="157,412,105,19" Id="OABhtEzKpStL8aHLWny4mu">
               <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastDependency="VL.ImGui.vl">
                 <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                 <Choice Kind="ProcessNode" Name="Selectable" />
@@ -8911,14 +8914,6 @@
               <Pin Id="TzmV3dqDgCgL7RWH8oKb9Q" Name="Result" Kind="OutputPin" />
             </Node>
             <ControlPoint Id="T31ZJ6vTzwBOd74HHE4yjy" Bounds="851,-263" />
-            <Node Bounds="156,420,110,19" Id="JhbmLJulBDqMA7euQwYpTg">
-              <p:NodeReference LastCategoryFullName="ImGui.Commands" LastDependency="VL.ImGui.vl">
-                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                <Choice Kind="ProcessNode" Name="SetItemAllowOverlap" />
-              </p:NodeReference>
-              <Pin Id="ETvnqjMJzJuLhUazbzKzc5" Name="Context" Kind="InputPin" />
-              <Pin Id="ToXwAVwpkCcN7IQz8uFPwe" Name="Context" Kind="OutputPin" />
-            </Node>
             <Node Bounds="233,497,88,19" Id="QZ5Sr3OphNkNnBMDM483Sk">
               <p:NodeReference LastCategoryFullName="LoggingView" LastDependency="VL.LogView.vl">
                 <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -9197,6 +9192,26 @@
               <Pin Id="F9hSNehqMkYOrnoT3JhIxP" Name="Apply" Kind="InputPin" />
               <Pin Id="VW4993dAlIUMbozh5fIsZO" Name="Output" Kind="StateOutputPin" />
             </Node>
+            <Pad Id="OYO3bvMrHioPzHG6blCkDQ" Comment="Flags" Bounds="266,350,104,15" ShowValueBox="true" isIOBox="true" Value="SpanAllColumns">
+              <p:TypeAnnotation LastCategoryFullName="ImGuiNET" LastDependency="VL.ImGui.Skia.vl">
+                <Choice Kind="TypeFlag" Name="ImGuiSelectableFlags" />
+              </p:TypeAnnotation>
+            </Pad>
+            <Node Bounds="264,381,25,19" Id="AozsEBQMMTBLRcvqVhDWo9">
+              <p:NodeReference LastCategoryFullName="System.BitsAndBytes" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="Category" Name="BitsAndBytes" NeedsToBeDirectParent="true" />
+                <Choice Kind="OperationCallFlag" Name="|" />
+              </p:NodeReference>
+              <Pin Id="TufN89Ce3BfPdr0GfoMU0O" Name="Input" Kind="InputPin" />
+              <Pin Id="PsPj9NHsBtvMLyyzYNBTke" Name="Input 2" Kind="InputPin" />
+              <Pin Id="RXWK55skd2BLgaVnti4V3p" Name="Output" Kind="OutputPin" />
+            </Node>
+            <Pad Id="KageAYsz9lyMphPgLuRtLQ" Comment="" Bounds="286,366,104,15" ShowValueBox="true" isIOBox="true" Value="AllowOverlap">
+              <p:TypeAnnotation LastCategoryFullName="ImGuiNET" LastDependency="VL.ImGui.Skia.vl">
+                <Choice Kind="TypeFlag" Name="ImGuiSelectableFlags" />
+              </p:TypeAnnotation>
+            </Pad>
           </Canvas>
           <ProcessDefinition Id="SFZLTAEoL5VO9bHTqmmudD">
             <Fragment Id="Hn8sSU7u9lhM4Ge1bPcHBO" Patch="Em5JiL6axliM82R2Hd10VU" Enabled="true" />
@@ -9279,8 +9294,6 @@
             <Pin Id="OqkI5vbkV5yOKjNIpipO2y" Name="Bang" Kind="OutputPin" Bounds="208,616" />
             <Pin Id="OmCQ2AtYDwMQatXIkfGLCP" Name="Context" Kind="OutputPin" Bounds="449,628" />
           </Patch>
-          <Link Id="R234ApZxb91OuVxmnpfgo0" Ids="SaNwP817cRDNLlsrlrX9qY,ETvnqjMJzJuLhUazbzKzc5" />
-          <Link Id="Ifki0a0xG0kNsc0eiisMs2" Ids="ToXwAVwpkCcN7IQz8uFPwe,SY1uUM5eSgcLs1y4eHbXjR" />
           <Link Id="HXjONLCT8tFNa8j62K3GH9" Ids="CsfCuPsF0mKP2sHzLCDkyW,Fbor6HSRyX0PewCUs7RfQn" />
           <Link Id="RUV8UvvyxQkOLcwI8xomVX" Ids="SoRt9LRrWDcM5V8VNfVZs6,TcUAqG6QO2XMehd2H4eFuE" />
           <Link Id="Az8ydwNiySqNEOuNZ0eeu6" Ids="L9Aji9zCpdZMl29TyEddiJ,UPTqJRTTzwoLiVr9MUTz7h" />
@@ -9325,6 +9338,10 @@
           <Link Id="TzHiSUxIZ2EOgFRIwhfEwE" Ids="D8Udxh6Z3lBLYaG3XZXtMF,U0aX7HsraU8LyYrX8C2YYy" />
           <Link Id="Rigg54hPuTWNFArT3nClSa" Ids="VW4993dAlIUMbozh5fIsZO,G5vUGEMmi2iLTCdDtPJtkt" />
           <Link Id="K4H15ef7rrcLeq6kPfSJhc" Ids="TzmV3dqDgCgL7RWH8oKb9Q,KSTEiaysSYzLnudZ5Rmjg0" />
+          <Link Id="UlpnjWEs5Y2PQzRhaEwmUx" Ids="SaNwP817cRDNLlsrlrX9qY,SY1uUM5eSgcLs1y4eHbXjR" />
+          <Link Id="TymP5zvtzGfNgSytnnI1nE" Ids="RXWK55skd2BLgaVnti4V3p,E6s5FL15f5POlYDBgTlvS5" />
+          <Link Id="AdhhVJ5DLlUOG2prCkdAOz" Ids="OYO3bvMrHioPzHG6blCkDQ,TufN89Ce3BfPdr0GfoMU0O" />
+          <Link Id="CRdIhok8SJuPm646Okdqn5" Ids="KageAYsz9lyMphPgLuRtLQ,PsPj9NHsBtvMLyyzYNBTke" />
         </Patch>
       </Node>
       <!--
