@@ -249,63 +249,73 @@ namespace VL.IO.Redis
     }
 
     [ProcessNode]
-    public class Binding<T> : IParticipant, IDisposable
+    public class Binding : IDisposable
+    {
+        private readonly SerialDisposable _current = new();
+        private (RedisClient? client, IChannel? channel, string? key, Initialization initialization, RedisBindingType bindingType, CollisionHandling collisionHandling, SerializationFormat serializationFormat) _config;
+
+        public void Update(RedisClient? client, IChannel? channel, string? key, Initialization initialization, RedisBindingType bindingType, CollisionHandling collisionHandling, SerializationFormat serializationFormat)
+        {
+            var config = (client, channel, key, initialization, bindingType, collisionHandling, serializationFormat);
+            if (config == _config)
+                return;
+
+            _config = config;
+            _current.Disposable = null;
+
+            if (client is null || channel is null || key is null)
+                return;
+
+            _current.Disposable = Activator.CreateInstance(
+                type: typeof(Binding<>).MakeGenericType(channel.ClrTypeOfValues),
+                args: new object[] { client, channel, key, initialization, bindingType, collisionHandling, serializationFormat }) as IDisposable;
+        }
+
+        public void Dispose()
+        {
+            _current.Dispose();
+        }
+    }
+
+    internal class Binding<T> : IParticipant, IDisposable
     {
         private readonly SerialDisposable _clientSubscription = new();
         private readonly SerialDisposable _channelSubscription = new();
         private readonly string _authorId;
+        private readonly RedisClient _client;
+        private readonly IChannel<T> _channel;
+        private readonly string _key;
+        private readonly Initialization _initialization;
+        private readonly RedisBindingType _bindingType;
+        private readonly CollisionHandling _collisionHandling;
+        private readonly SerializationFormat? _format;
 
-        private RedisClient? _redisClient;
-        private IChannel<T>? _channel;
         private bool _initialized;
         private bool _weHaveNewData;
         private bool _othersHaveNewData;
 
-        public Binding()
+        public Binding(RedisClient client, IChannel<T> channel, string key, Initialization initialization, RedisBindingType bindingType, CollisionHandling collisionHandling, SerializationFormat serializationFormat)
         {
+            _client = client;
+            _channel = channel;
+            _key = key;
+            _initialization = initialization;
+            _bindingType = bindingType;
+            _collisionHandling = collisionHandling;
+            _format = serializationFormat;
+
+            _initialized = initialization == Initialization.None;
             _authorId = this.GetHashCode().ToString();
-        }
 
-        public RedisClient? Client
-        {
-            private get => _redisClient;
-            set
+            _clientSubscription.Disposable = client.Subscribe(this);
+            _channelSubscription.Disposable = channel.Subscribe(v =>
             {
-                if (value != _redisClient)
+                if (_channel.LatestAuthor != _authorId)
                 {
-                    _redisClient = value;
-                    _initialized = false;
-                    _clientSubscription.Disposable = value?.Subscribe(this);
+                    _weHaveNewData = true;
                 }
-            }
+            });
         }
-
-        public IChannel<T>? Channel 
-        { 
-            private get => _channel; 
-            set
-            {
-                if (value != _channel)
-                {
-                    _channel = value;
-                    _channelSubscription.Disposable = value?.Subscribe(v =>
-                    {
-                        if (value.LatestAuthor != _authorId)
-                            _weHaveNewData = true;
-                    });
-                }
-            }
-        }
-
-        public string? Key { private get; set; }
-
-        public Initialization Initialization { private get; set; }
-
-        public RedisBindingType RedisBindingType { private get; set; }
-
-        public CollisionHandling CollisionHandling { private get; set; }
-
-        public SerializationFormat? Format { private get; set; }
 
         public void Dispose()
         {
@@ -315,18 +325,12 @@ namespace VL.IO.Redis
 
         void IParticipant.Invalidate(string key)
         {
-            if (key == Key)
+            if (key == _key)
                 _othersHaveNewData = true;
         }
 
         void IParticipant.BuildUp(TransactionBuilder builder)
         {
-            if (Key is null || Channel is null)
-                return;
-
-            if (Initialization == Initialization.None)
-                _initialized = true;
-
             var needToReadFromDb = NeedToReadFromDb();
             var needToWriteToDb = NeedToWriteToDb();
             if (!needToReadFromDb && !needToWriteToDb)
@@ -334,9 +338,9 @@ namespace VL.IO.Redis
 
             if (needToReadFromDb && needToWriteToDb)
             {
-                if (CollisionHandling == CollisionHandling.LocalWins)
+                if (_collisionHandling == CollisionHandling.LocalWins)
                     needToReadFromDb = false;
-                else if (CollisionHandling == CollisionHandling.RedisWins)
+                else if (_collisionHandling == CollisionHandling.RedisWins)
                     needToWriteToDb = false;
             }
 
@@ -348,41 +352,41 @@ namespace VL.IO.Redis
 
                 if (needToWriteToDb)
                 {   
-                    _ = transaction.StringSetAsync(Key, Serialize(Channel.Value), flags: CommandFlags.FireAndForget);
+                    _ = transaction.StringSetAsync(_key, Serialize(_channel.Value), flags: CommandFlags.FireAndForget);
                 }
                 if (needToReadFromDb)
                 {
-                    var redisValue = await transaction.StringGetAsync(Key).ConfigureAwait(false);
+                    var redisValue = await transaction.StringGetAsync(_key).ConfigureAwait(false);
                     if (redisValue.HasValue)
                     {
                         var value = Deserialize(redisValue);
 
-                        var networkSync = Client.FrameClock.GetTicks();
+                        var networkSync = _client.FrameClock.GetTicks();
                         await networkSync.Take(1);
 
-                        Channel.SetValueAndAuthor(value, author: _authorId);
+                        _channel.SetValueAndAuthor(value, author: _authorId);
                     }
                 }
             });
 
             bool NeedToReadFromDb()
             {
-                if (RedisBindingType == RedisBindingType.AlwaysReceive)
+                if (_bindingType == RedisBindingType.AlwaysReceive)
                     return true;
-                if (!RedisBindingType.HasFlag(RedisBindingType.Receive))
+                if (!_bindingType.HasFlag(RedisBindingType.Receive))
                     return false;
                 if (_initialized)
                     return _othersHaveNewData;
-                return Initialization == Initialization.Redis;
+                return _initialization == Initialization.Redis;
             }
 
             bool NeedToWriteToDb()
             {
-                if (!RedisBindingType.HasFlag(RedisBindingType.Send))
+                if (!_bindingType.HasFlag(RedisBindingType.Send))
                     return false;
                 if (_initialized)
                     return _weHaveNewData;
-                return Initialization == Initialization.Local;
+                return _initialization == Initialization.Local;
             }
 
             RedisValue Serialize(T? value)
@@ -415,7 +419,7 @@ namespace VL.IO.Redis
                 }
             }
 
-            SerializationFormat GetEffectiveSerializationFormat() => Format ?? Client!.Format;
+            SerializationFormat GetEffectiveSerializationFormat() => _format ?? _client.Format;
         }
     }
 }
