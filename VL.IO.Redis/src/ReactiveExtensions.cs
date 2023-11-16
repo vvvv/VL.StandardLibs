@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VL.IO.Redis
 {
@@ -70,7 +67,17 @@ namespace VL.IO.Redis
         /// <returns></returns>
         public static IObservable<TResult> SelectOrWithLatestFrom<TFirst, TSecond, TResult>(IObservable<TFirst> first, IObservable<TSecond> second, Func<TFirst, TResult> select, Func<TResult, TSecond, TResult> WithLatestFromSecondWhenFirst)
         {
-            var secondRef = second.Publish().RefCount();
+            var secondRef = second
+                .Select((s) => 
+                { 
+                    lock (s) 
+                    {
+                        return s;
+                    }
+                })
+                .Publish()
+                .RefCount();
+
             //  var firstTransformedRef = first.WithLatestFrom(second.StartWith(new[] { default(TSecond) })).Select((t) => select(t.Item1,t.Item2)).Publish().RefCount();
             var firstTransformedRef = first.Select(select).Publish().RefCount();
 
@@ -82,7 +89,13 @@ namespace VL.IO.Redis
                 // rightDurationSellector
                 _ => Observable.Empty<Unit>(),
                 // resultSelector
-                (l, r) => { return WithLatestFromSecondWhenFirst(r, l); }
+                (l, r) => 
+                { 
+                    lock (l)
+                    {
+                        return WithLatestFromSecondWhenFirst(r, l);
+                    }
+                }
                 )
                 .Merge(firstTransformedRef)
                 .Buffer(firstTransformedRef)

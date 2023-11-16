@@ -6,6 +6,7 @@ using System.Linq;
 using VL.Core;
 using VL.Core.CompilerServices;
 using VL.Lib.Collections;
+using TypeDescriptor = System.ComponentModel.TypeDescriptor;
 
 [assembly: AssemblyInitializer(typeof(VL.Lib.VL_Core_Initializer))]
 

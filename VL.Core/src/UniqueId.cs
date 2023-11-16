@@ -43,8 +43,6 @@ namespace VL.Core
         /// <summary>
         /// Only valid while the session is running. Used by some obsolete APIs.
         /// </summary>
-        [Browsable(false)]
-        [Obsolete("Don't use in new code. It's only here to support some obsolete APIs.")]
         internal uint VolatileId => volatileId;
 
         public bool IsDefault => documentId is null;

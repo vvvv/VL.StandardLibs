@@ -13,16 +13,19 @@ namespace VL.ImGui.Editors
         private readonly IChannel<TList> channel;
         private readonly ObjectEditorContext editorContext;
         private readonly string label;
+        private IDisposable mainSpreadSync;
 
         public ListEditorBase(IChannel<TList> channel, ObjectEditorContext editorContext)
         {
             this.channel = channel;
+            this.mainSpreadSync = channel.Subscribe(RemoveSuperfluousEntries);
             this.editorContext = editorContext;
             this.label = $"##{GetHashCode()}";
         }
 
         public void Dispose()
         {
+            this.mainSpreadSync.Dispose();
             foreach (var item in editors)
                 item.ownership.Dispose();
             editors.Clear();
@@ -34,11 +37,7 @@ namespace VL.ImGui.Editors
             if (list is null)
                 return;
 
-            for (int i = editors.Count - 1; i >= list.Count; i--)
-            {
-                editors[i].ownership.Dispose();
-                editors.RemoveAt(i);
-            }
+            RemoveSuperfluousEntries(list);
 
             if (list.Count == 0)
                 return;
@@ -56,9 +55,11 @@ namespace VL.ImGui.Editors
 
                         var ownership = new CompositeDisposable
                         {
-                            channel.Merge(itemChannel, c => c != null ? c.ElementAtOrDefault(j) : default, item => channel.Value != null ? SetItem(channel.Value, j, item) : default, 
-                            initialization: ChannelMergeInitialization.UseA, 
-                            pushEagerlyTo: ChannelSelection.ChannelA)
+                            channel.Merge(itemChannel,
+                                c => c != null ? c[j] : default,
+                                item => channel.Value != null ? SetItem(channel.Value, j, item) : default,
+                                initialization: ChannelMergeInitialization.UseA,
+                                pushEagerlyTo: ChannelSelection.ChannelA)
                         };
 
                         editor = editorContext.Factory.CreateObjectEditor(itemChannel.ChannelOfObject, editorContext);
@@ -80,6 +81,18 @@ namespace VL.ImGui.Editors
                 }
 
                 ImGui.EndListBox();
+            }
+        }
+
+        private void RemoveSuperfluousEntries(TList? list)
+        {
+            if (list is null)
+                return;
+
+            for (int i = editors.Count - 1; i >= list.Count; i--)
+            {
+                editors[i].ownership.Dispose();
+                editors.RemoveAt(i);
             }
         }
 

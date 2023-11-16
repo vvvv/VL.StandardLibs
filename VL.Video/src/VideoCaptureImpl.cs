@@ -11,9 +11,18 @@ namespace VL.Video
 
         public Action? DisposeAction { get; set; }
 
+        public VideoCapture? VideoCapture { get; set; }
+
         public abstract string SupportedFormats { get; }
 
-        public abstract IResourceProvider<VideoFrame>? GrabVideoFrame();
+        public IResourceProvider<VideoFrame>? GrabVideoFrame()
+        {
+            if (VideoCapture!.Enabled)
+                return DoGrabVideoFrame();
+            return null;
+        }
+
+        protected abstract IResourceProvider<VideoFrame>? DoGrabVideoFrame();
 
         public virtual void Dispose()
         {

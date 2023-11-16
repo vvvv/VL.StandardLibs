@@ -18,3 +18,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("VL.CoreLib")]
 [assembly: InternalsVisibleTo("VL.Skia")]
 [assembly: InternalsVisibleTo("VL.Stride.Runtime")]
+[assembly: InternalsVisibleTo("VL.Serialization.FSPickler")]

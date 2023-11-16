@@ -59,6 +59,9 @@ namespace VL.Lib.Reactive
                 }
                 catch (Exception e)
                 {
+                    if (RuntimeGraph.RethrowExceptions())
+                        throw;
+
                     RuntimeGraph.ReportException(e, appHost);
                 }
             }

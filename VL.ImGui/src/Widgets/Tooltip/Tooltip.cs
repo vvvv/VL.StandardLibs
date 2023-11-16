@@ -7,14 +7,16 @@
 
         internal override void UpdateCore(Context context)
         {
-            ImGuiNET.ImGui.BeginTooltip();
-            try
+            if (ImGuiNET.ImGui.BeginTooltip())
             {
-                context.Update(Content);
-            }
-            finally
-            {
-                ImGuiNET.ImGui.EndTooltip();
+                try
+                {
+                    context.Update(Content);
+                }
+                finally
+                {
+                    ImGuiNET.ImGui.EndTooltip();
+                }
             }
         }
     }

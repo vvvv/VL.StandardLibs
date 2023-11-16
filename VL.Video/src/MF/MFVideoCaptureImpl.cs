@@ -90,7 +90,7 @@ namespace VL.Video.MF
 
         public override string SupportedFormats => supportedFormats;
 
-        public override unsafe IResourceProvider<VideoFrame>? GrabVideoFrame()
+        protected override unsafe IResourceProvider<VideoFrame>? DoGrabVideoFrame()
         {
             return sourceReader.GrabVideoFrame();
         }

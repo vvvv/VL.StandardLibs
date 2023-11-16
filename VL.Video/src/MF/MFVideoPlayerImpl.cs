@@ -343,7 +343,7 @@ namespace VL.Video.MF
                             ToRawColorBGRA(videoPlayer.BorderColor));
 
                         var videoFrame = new GpuVideoFrame<BgraPixel>(texture);
-                        return ResourceProvider.Return(videoFrame, texture, texture => texturePool.Return(texture));
+                        return ResourceProvider.Return(videoFrame, (texture, texturePool), x => x.texturePool.Return(x.texture));
                     }
                     else if (bitmapPool != null)
                     {

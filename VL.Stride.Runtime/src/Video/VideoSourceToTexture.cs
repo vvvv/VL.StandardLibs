@@ -44,8 +44,8 @@ namespace VL.Stride.Video
         protected override void OnPull(IResourceProvider<VideoFrame>? videoFrameProvider, bool mipmapped)
         {
             var renderDrawContext = renderContextHandle.Resource.GetThreadContext();
-            var handle = videoFrameProvider.ToTexture(renderDrawContext).GetHandle();
-            if (!resultQueue.TryAddSafe(handle, millisecondsTimeout: 100))
+            var handle = videoFrameProvider?.ToTexture(renderDrawContext).GetHandle();
+            if (handle != null && !resultQueue.TryAddSafe(handle, millisecondsTimeout: 10))
                 handle.Dispose();
         }
 

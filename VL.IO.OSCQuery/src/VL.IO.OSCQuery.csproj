@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <OutputPath>..\lib</OutputPath>
+	<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeReferencedAssembliesInPackage</TargetsForTfmSpecificBuildOutput>
+    <VLPackageBasePath>..\</VLPackageBasePath>
+      <Description>OSCQuery support for VL</Description>
+      <PackageTags>VL, OSC</PackageTags>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MeaMod.DNS" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="WatsonWebsocket" />
+  </ItemGroup>
+
+  <Target Name="IncludeReferencedAssembliesInPackage" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <!-- Include assemblies from transitive package references https://github.com/NuGet/Home/issues/5103 -->
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'vrc-oscquery-lib'" />
+    </ItemGroup>
+  </Target>	
+    
+  <ItemGroup>
+    <Reference Include="vrc-oscquery-lib">
+      <HintPath>..\dependencies\vrc-oscquery-lib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
+    <ProjectReference Include="..\..\VL.Serialization.FSPickler\src\VL.Serialization.FSPickler.csproj" />
+  </ItemGroup>
+
+</Project>

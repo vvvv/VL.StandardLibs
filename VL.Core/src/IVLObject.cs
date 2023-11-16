@@ -196,6 +196,11 @@ namespace VL.Core
         bool IsManaged { get; }
 
         /// <summary>
+        /// Whether or not this property should be serialized.
+        /// </summary>
+        internal bool ShouldBeSerialized { get; }
+
+        /// <summary>
         /// Gets the property value of the given instance.
         /// </summary>
         /// <param name="instance">The instance to get the value from.</param>
@@ -411,9 +416,9 @@ namespace VL.Core
 
         public static readonly IVLObject Default = new DefaultImpl();
 
-        static readonly Regex FPropertyRegex = new Regex(@"\.?([^/[/.]+)($|\[.*|\..*)$", RegexOptions.Compiled);
-        static readonly Regex FValueIndexerRegex = new Regex(@"\[(-?[0-9]+)\](.*)$", RegexOptions.Compiled);
-        static readonly Regex FStringIndexerRegex = new Regex(@"\[""(.+)""\](.*)$", RegexOptions.Compiled);
+        static readonly Regex FPropertyRegex = new Regex(@"^\.?([^\[\.]+)($|\[.*|\..*)$", RegexOptions.Compiled);
+        static readonly Regex FValueIndexerRegex = new Regex(@"^\[(-?[0-9]+)\](.*)$", RegexOptions.Compiled);
+        static readonly Regex FStringIndexerRegex = new Regex(@"^\[""([^""]*)""\](.*)$", RegexOptions.Compiled);
 
         /// <summary>
         /// Tries to retrieve the path from the instance to the descendant.
@@ -1024,6 +1029,7 @@ namespace VL.Core
             public string OriginalName => Name;
             public uint Id => 0;
             public bool IsManaged => false;
+            public bool ShouldBeSerialized => false;
             public IVLTypeInfo Type => VLObjectExtensions.Default.Type;
             public object DefaultValue => null;
             public object GetValue(IVLObject instance) => null;

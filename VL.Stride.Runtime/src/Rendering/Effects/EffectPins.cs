@@ -195,6 +195,7 @@ namespace VL.Stride.Rendering
         }
 
         public static IVLPin CreateGPUValueSinkPin<T>(ParameterCollection parameters, PermutationParameterKey<ShaderSource> key, SetVar<T> value)
+            where T : unmanaged
         {
             return new GPUValueSinkPin<T>(key, value);
         }
@@ -425,6 +426,7 @@ namespace VL.Stride.Rendering
     }
 
     sealed class GPUValueSinkPin<T> : ShaderFXPin<SetVar<T>>
+        where T : unmanaged
     {
         public GPUValueSinkPin(PermutationParameterKey<ShaderSource> key, SetVar<T> value) 
             : base(key, value)

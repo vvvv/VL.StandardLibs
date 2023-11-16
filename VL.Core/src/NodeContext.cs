@@ -1,7 +1,10 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
+using VL.Core.Utils;
 using VL.Lib.Animation;
 
 namespace VL.Core
@@ -11,24 +14,34 @@ namespace VL.Core
     /// </summary>
     public sealed class NodeContext
     {
-        public static readonly NodeContext Default = new NodeContext(ImmutableStack<UniqueId>.Empty);
+        public static readonly NodeContext Default = new NodeContext(parent: null, localId: default);
 
         /// <summary>
         /// Creates a new root context.
         /// </summary>
         /// <returns>The new root context.</returns>
-        public static NodeContext Create(UniqueId rootId) => new NodeContext(ImmutableStack.Create(rootId));
+        public static NodeContext Create(UniqueId rootId) => new NodeContext(null, rootId, definitionId: rootId);
 
-        /// <summary>
-        /// Creates a new context.
-        /// </summary>
-        /// <param name="path">The path to the node for which this context gets created.</param>
-        /// <param name="isImmutable">Whether the context must be immutable.</param>
-        public NodeContext(ImmutableStack<UniqueId> path, bool isImmutable = false)
+        private readonly NodeContext? _parent;
+        private readonly UniqueId _localId;
+        private readonly UniqueId? _definitionId;
+        private ImmutableStack<UniqueId>? _stack;
+
+        private NodeContext(NodeContext? parent, UniqueId localId, bool isImmutable = false, UniqueId? definitionId = null)
         {
-            Path = new NodePath(path);
+            _parent = parent;
+            _localId = localId;
             IsImmutable = isImmutable;
+            _definitionId = definitionId;
+
+            Path = new NodePath(this);
         }
+
+        internal NodeContext? Parent => _parent;
+
+        internal UniqueId LocalId => _localId;
+
+        internal UniqueId? DefinitionId => _definitionId;
 
         /// <summary>
         /// The path to the node.
@@ -55,9 +68,13 @@ namespace VL.Core
         /// <summary>
         /// Creates a new sub context.
         /// </summary>
-        public NodeContext CreateSubContext(UniqueId id) => new NodeContext(Path.Stack.Push(id), IsImmutable);
+        public NodeContext CreateSubContext(UniqueId id) => new NodeContext(this, id, IsImmutable, _definitionId);
 
-        public NodeContext WithIsImmutable(bool value) => value != IsImmutable ? new NodeContext(Path.Stack, value) : this;
+        public NodeContext WithIsImmutable(bool value) => value != IsImmutable ? new NodeContext(_parent, _localId, value, _definitionId) : this;
+
+        public NodeContext WithDefinitionId(string documentId, string elementId) => WithDefinitionId(new UniqueId(documentId, elementId));
+
+        public NodeContext WithDefinitionId(UniqueId value) => value != DefinitionId ? new NodeContext(_parent, _localId, IsImmutable, value) : this;
 
         [Obsolete]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -68,13 +85,36 @@ namespace VL.Core
         /// </summary>
         [Obsolete("Use Clocks.FrameClock")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public IFrameClock FrameClock => ServiceRegistry.Current.GetService<IFrameClock>();
+        public IFrameClock FrameClock => ServiceRegistry.Current.GetRequiredService<IFrameClock>();
 
         /// <summary>
         /// The real time clock.
         /// </summary>
         [Obsolete("Use Clocks.RealTimeClock")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public IClock RealTimeClock => ServiceRegistry.Current.GetService<IClock>();
+        public IClock RealTimeClock => ServiceRegistry.Current.GetRequiredService<IClock>();
+
+        internal ImmutableStack<UniqueId> Stack
+        {
+            get
+            {
+                return _stack ??= Compute();
+
+                ImmutableStack<UniqueId> Compute()
+                {
+                    using var builder = Pooled.GetList<UniqueId>();
+                    Collect(builder.Value, this);
+                    return ImmutableStack.CreateRange(builder.Value);
+
+                    static void Collect(List<UniqueId> ids, NodeContext nodeContext)
+                    {
+                        if (nodeContext._parent != null)
+                            Collect(ids, nodeContext._parent);
+
+                        ids.Add(nodeContext.LocalId);
+                    }
+                }
+            }
+        }
     }
 }

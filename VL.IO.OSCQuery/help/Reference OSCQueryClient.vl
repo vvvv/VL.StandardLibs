@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="NpC2SzIWr4ZNelkV6eHbWw" LanguageVersion="2023.5.3-0241-g9559c3918d" Version="0.128">
+  <NugetDependency Id="Oa72r9DCsBTOz5hOoSLhCw" Location="VL.CoreLib" Version="2023.5.3-0214-g25d0a9da2c" />
+  <Patch Id="LsKyZjWfSbuMUN6MZTfbwm">
+    <Canvas Id="Grw8cpb91cELXqR75P5njV" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="VE9sNgEDZfANnG68WsJMvb">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="SXEVMPErRi5ODVFXQKIDjw">
+        <Canvas Id="NZa4shBUyJHMElElZzB4EQ" CanvasType="Group">
+          <Node Bounds="120,237,89,19" Id="RVBy4CK7Ra0OmfVhNDWu1e">
+            <p:NodeReference LastCategoryFullName="Main" LastDependency="VL.IO.OSCQuery.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OSCQueryClient" />
+            </p:NodeReference>
+            <Pin Id="DWZX09TL8XLQRNeaRbos3B" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="TVFTpFcEvcJNLdSBbUBVjf" Name="Update" Kind="InputPin" />
+            <Pin Id="Dymuwg9X4qqMkve3IrKnqB" Name="Name" Kind="OutputPin" />
+            <Pin Id="DzR7PVIhr70NNgzsV53X2M" Name="Host Info" Kind="OutputPin" />
+            <Pin Id="LtT9h3qWPmCLC1eX0YB81W" Name="OSC Tree" Kind="OutputPin" />
+          </Node>
+          <Pad Id="D8qSGEjHl4pLAaqrdEP8ap" Comment="Update" Bounds="122,150,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Uq6E4uhvHR1NGLHciEDsVx" Comment="Name" Bounds="122,300,195,50" ShowValueBox="true" isIOBox="true">
+            <p:Value>
+              <Item></Item>
+            </p:Value>
+          </Pad>
+          <Node Bounds="120,196,54,19" Id="U77zkHNgm65Mngo0ak73xE">
+            <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OnOpen" />
+            </p:NodeReference>
+            <Pin Id="JBI1PJaSwN3N52slZTmvPt" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="EfgDFUm0u8OMjRHn8g4R0Q" Name="Simulate" Kind="InputPin" />
+            <Pin Id="D8gdxXv0HIRNqOuwtAN7p7" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="C0aZ4D1TIurNLbo9OS6ZoG" Comment="Host Info" Bounds="382,302,299,267" ShowValueBox="true" isIOBox="true">
+            <p:Value>
+              <Item></Item>
+            </p:Value>
+          </Pad>
+          <Pad Id="KDRdH4EGM9BPSjvC2wqBDB" Comment="OSC Tree" Bounds="760,303,188,269" ShowValueBox="true" isIOBox="true">
+            <p:Value>
+              <Item></Item>
+            </p:Value>
+          </Pad>
+          <Pad Id="EhUq6Qnwam3P3uVTz1o2yH" Bounds="263,161,202,82" ShowValueBox="true" isIOBox="true" Value="EXPERIMENTAL&#xD;&#xA;For now this Client can only return Host Info and OSC Tree of the detected servers. ">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="OpnQjbPJiTlQJAPXvRCV8F" Name="Create" />
+        <Patch Id="MGWvZXyqQBYNt7Ynp86Xnc" Name="Update" />
+        <ProcessDefinition Id="RK9Tg70fh7XQJnQjPBaE3c">
+          <Fragment Id="ILBci9h7mKtPV6oETKgcmg" Patch="OpnQjbPJiTlQJAPXvRCV8F" Enabled="true" />
+          <Fragment Id="FCDyQeLOWSSNsNQASWoioF" Patch="MGWvZXyqQBYNt7Ynp86Xnc" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="OJ3iUosNwZoMxXV5a8wpAj" Ids="D8qSGEjHl4pLAaqrdEP8ap,EfgDFUm0u8OMjRHn8g4R0Q" />
+        <Link Id="SWH26sLqXKdOPloGGxpusG" Ids="Dymuwg9X4qqMkve3IrKnqB,Uq6E4uhvHR1NGLHciEDsVx" />
+        <Link Id="B8QTVcpvhBmMq6mFzKYWD3" Ids="D8gdxXv0HIRNqOuwtAN7p7,TVFTpFcEvcJNLdSBbUBVjf" />
+        <Link Id="Ved7AathT9qPobP6qX53aB" Ids="DzR7PVIhr70NNgzsV53X2M,C0aZ4D1TIurNLbo9OS6ZoG" />
+        <Link Id="Ob5EbN9hv0PN0VCbtOAhm6" Ids="LtT9h3qWPmCLC1eX0YB81W,KDRdH4EGM9BPSjvC2wqBDB" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="LxPVcgH5HxfPxum3X7cz4f" Location="VL.IO.OSCQuery" Version="0.0.0" />
+</Document>

@@ -35,6 +35,7 @@ namespace VL.Lib.Reactive
     {
         public T? Value { get; set; }
         void SetValueAndAuthor(T? value, string? author);
+        Func<T?, Optional<T?>>? Validator { set; }
     }
 
     internal abstract class C<T> : IChannel<T>
@@ -64,11 +65,21 @@ namespace VL.Lib.Reactive
             }
         }
 
+        public Func<T?, Optional<T?>>? Validator { private get; set; } = null;
+
         public void SetValueAndAuthor(T? value, string? author)
         {
             AssertAlive();
             if (!Enabled || !this.IsValid())
                 return;
+
+            if (Validator != null)
+            {
+                var x = Validator(value);
+                if (x.HasNoValue)
+                    return;
+                value = x.Value;
+            }
 
             LatestAuthor = author;
             this.value = value;
@@ -183,7 +194,26 @@ namespace VL.Lib.Reactive
         protected override IChannel<object> channelOfObject => this;
 
         object? IChannel<object>.Value { get => Value; set { Value = (T?)value; } }
-        
+
+        Func<object?, Optional<object?>>? IChannel<object>.Validator 
+        {
+            set
+            {
+                if (value == null)
+                {
+                    Validator = null;
+                    return;
+                }
+                Validator = v =>
+                {
+                    var opt = value!.Invoke(v);
+                    if (opt.HasValue)
+                        return (T?)opt.Value;
+                    return new Optional<T?>();
+                };
+            }
+        }
+
         void IChannel<object>.SetValueAndAuthor(object? value, string? author)
         {
             SetValueAndAuthor((T?)value, author);
