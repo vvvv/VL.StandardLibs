@@ -5,6 +5,7 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -31,14 +32,15 @@ namespace VL.IO.Redis
         private readonly IFrameClock _frameClock;
         private readonly ILoggerFactory? _loggerFactory;
         private readonly ILogger _logger;
+        private readonly Dictionary<string, (BindingModel model, IDisposable binding)> _bindings = new();
 
         private ImmutableArray<IParticipant> _participants = ImmutableArray<IParticipant>.Empty;
 
         private ConnectionMultiplexer? _multiplexer;
 
         private ChannelMessageQueue? _invalidations;
-        private ConfigurationOptions? _configuration;
         private Task? _lastTransaction;
+        private string? _configuration;
 
         public RedisClient(IFrameClock frameClock, ILoggerFactory? loggerFactory)
         {
@@ -61,20 +63,28 @@ namespace VL.IO.Redis
             Disconnect();
         }
 
-        public ConfigurationOptions? Options
+        [Fragment(Order = int.MinValue)]
+        public void Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null)
         {
-            get => _configuration;
-            set
-            {
-                if (_configuration != value)
-                {
-                    _configuration = value;
-                    Reconnect(value?.Clone());
-                }
-            }
+            if (_configuration == configuration)
+                return;
+
+            _configuration = configuration;
+
+            var options = new ConfigurationOptions();
+            if (configuration != null)
+                options = ConfigurationOptions.Parse(configuration);
+            if (configure != null)
+                options.Apply(configure);
+
+            Reconnect(options);
         }
 
-        public SerializationFormat Format { internal get; set; }
+        [DefaultValue(SerializationFormat.MessagePack)]
+        public SerializationFormat Format { internal get; set; } = SerializationFormat.MessagePack;
+
+        [DefaultValue(-1)]
+        public int Database { internal get; set; } = -1;
 
         internal IFrameClock FrameClock => _frameClock;
 
@@ -83,6 +93,23 @@ namespace VL.IO.Redis
             _participants = _participants.Add(participant);
             return Disposable.Create(() => _participants = _participants.Remove(participant));
         }
+
+        internal IDisposable AddBinding(BindingModel model, IChannel channel)
+        {
+            if (_bindings.ContainsKey(model.Key))
+                throw new InvalidOperationException($"The redis key \"{model.Key}\" is already bound to a different channel.");
+
+            var binding = (IDisposable)Activator.CreateInstance(
+                type: typeof(Binding<>).MakeGenericType(channel.ClrTypeOfValues),
+                args: new object[] { this, channel, model })!;
+            _bindings[model.Key] = (model, binding);
+            return Disposable.Create(() =>
+            {
+                _bindings.Remove(model.Key);
+                binding.Dispose();
+            });
+        }
+
 
         private void Connect(ConfigurationOptions options)
         {
@@ -204,10 +231,17 @@ namespace VL.IO.Redis
                 return;
 
             // 2) Send the transaction
-            var database = _multiplexer.GetDatabase();
+            var database = _multiplexer.GetDatabase(Database);
             _lastTransaction = _transactionBuilder.BuildAndExecuteAsync(database);
         }
     }
+
+    public record struct BindingModel(
+        string Key, 
+        Initialization Initialization = Initialization.Redis,
+        RedisBindingType BindingType = RedisBindingType.SendAndReceive, 
+        CollisionHandling CollisionHandling = default, 
+        SerializationFormat? SerializationFormat = default);
 
     sealed class TransactionBuilder
     {
@@ -252,9 +286,23 @@ namespace VL.IO.Redis
     public class Binding : IDisposable
     {
         private readonly SerialDisposable _current = new();
-        private (RedisClient? client, IChannel? channel, string? key, Initialization initialization, RedisBindingType bindingType, CollisionHandling collisionHandling, SerializationFormat serializationFormat) _config;
+        private readonly NodeContext _nodeContext;
 
-        public void Update(RedisClient? client, IChannel? channel, string? key, Initialization initialization, RedisBindingType bindingType, CollisionHandling collisionHandling, SerializationFormat serializationFormat)
+        private (RedisClient? client, IChannel? channel, string? key, Initialization initialization, RedisBindingType bindingType, CollisionHandling collisionHandling, SerializationFormat? serializationFormat) _config;
+
+        public Binding(NodeContext nodeContext)
+        {
+            _nodeContext = nodeContext;
+        }
+
+        public void Update(
+            RedisClient? client, 
+            IChannel? channel, 
+            string? key,
+            Initialization initialization = Initialization.Redis,
+            RedisBindingType bindingType = RedisBindingType.SendAndReceive,
+            CollisionHandling collisionHandling = default,
+            SerializationFormat? serializationFormat = default)
         {
             var config = (client, channel, key, initialization, bindingType, collisionHandling, serializationFormat);
             if (config == _config)
@@ -263,12 +311,19 @@ namespace VL.IO.Redis
             _config = config;
             _current.Disposable = null;
 
-            if (client is null || channel is null || key is null)
+            if (client is null || channel is null || string.IsNullOrWhiteSpace(key))
                 return;
 
-            _current.Disposable = Activator.CreateInstance(
-                type: typeof(Binding<>).MakeGenericType(channel.ClrTypeOfValues),
-                args: new object[] { client, channel, key, initialization, bindingType, collisionHandling, serializationFormat }) as IDisposable;
+            var model = new BindingModel(key, initialization, bindingType, collisionHandling, serializationFormat);
+            try
+            {
+                _current.Disposable = client.AddBinding(model, channel);
+            }
+            catch (Exception e)
+            {
+                // TODO: Use logger / add better API which also works in exported apps
+                _current.Disposable = IVLRuntime.Current?.AddException(_nodeContext, e);
+            }
         }
 
         public void Dispose()
@@ -284,27 +339,19 @@ namespace VL.IO.Redis
         private readonly string _authorId;
         private readonly RedisClient _client;
         private readonly IChannel<T> _channel;
-        private readonly string _key;
-        private readonly Initialization _initialization;
-        private readonly RedisBindingType _bindingType;
-        private readonly CollisionHandling _collisionHandling;
-        private readonly SerializationFormat? _format;
+        private readonly BindingModel _bindingModel;
 
         private bool _initialized;
         private bool _weHaveNewData;
         private bool _othersHaveNewData;
 
-        public Binding(RedisClient client, IChannel<T> channel, string key, Initialization initialization, RedisBindingType bindingType, CollisionHandling collisionHandling, SerializationFormat serializationFormat)
+        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel)
         {
             _client = client;
             _channel = channel;
-            _key = key;
-            _initialization = initialization;
-            _bindingType = bindingType;
-            _collisionHandling = collisionHandling;
-            _format = serializationFormat;
+            _bindingModel = bindingModel;
 
-            _initialized = initialization == Initialization.None;
+            _initialized = bindingModel.Initialization == Initialization.None;
             _authorId = this.GetHashCode().ToString();
 
             _clientSubscription.Disposable = client.Subscribe(this);
@@ -325,7 +372,7 @@ namespace VL.IO.Redis
 
         void IParticipant.Invalidate(string key)
         {
-            if (key == _key)
+            if (key == _bindingModel.Key)
                 _othersHaveNewData = true;
         }
 
@@ -338,9 +385,9 @@ namespace VL.IO.Redis
 
             if (needToReadFromDb && needToWriteToDb)
             {
-                if (_collisionHandling == CollisionHandling.LocalWins)
+                if (_bindingModel.CollisionHandling == CollisionHandling.LocalWins)
                     needToReadFromDb = false;
-                else if (_collisionHandling == CollisionHandling.RedisWins)
+                else if (_bindingModel.CollisionHandling == CollisionHandling.RedisWins)
                     needToWriteToDb = false;
             }
 
@@ -350,13 +397,14 @@ namespace VL.IO.Redis
                 _weHaveNewData = false;
                 _othersHaveNewData = false;
 
+                var key = _bindingModel.Key;
                 if (needToWriteToDb)
                 {   
-                    _ = transaction.StringSetAsync(_key, Serialize(_channel.Value), flags: CommandFlags.FireAndForget);
+                    _ = transaction.StringSetAsync(key, Serialize(_channel.Value), flags: CommandFlags.FireAndForget);
                 }
                 if (needToReadFromDb)
                 {
-                    var redisValue = await transaction.StringGetAsync(_key).ConfigureAwait(false);
+                    var redisValue = await transaction.StringGetAsync(key).ConfigureAwait(false);
                     if (redisValue.HasValue)
                     {
                         var value = Deserialize(redisValue);
@@ -371,22 +419,23 @@ namespace VL.IO.Redis
 
             bool NeedToReadFromDb()
             {
-                if (_bindingType == RedisBindingType.AlwaysReceive)
+                var bindingType = _bindingModel.BindingType;
+                if (bindingType == RedisBindingType.AlwaysReceive)
                     return true;
-                if (!_bindingType.HasFlag(RedisBindingType.Receive))
+                if (!bindingType.HasFlag(RedisBindingType.Receive))
                     return false;
                 if (_initialized)
                     return _othersHaveNewData;
-                return _initialization == Initialization.Redis;
+                return _bindingModel.Initialization == Initialization.Redis;
             }
 
             bool NeedToWriteToDb()
             {
-                if (!_bindingType.HasFlag(RedisBindingType.Send))
+                if (!_bindingModel.BindingType.HasFlag(RedisBindingType.Send))
                     return false;
                 if (_initialized)
                     return _weHaveNewData;
-                return _initialization == Initialization.Local;
+                return _bindingModel.Initialization == Initialization.Local;
             }
 
             RedisValue Serialize(T? value)
@@ -419,7 +468,7 @@ namespace VL.IO.Redis
                 }
             }
 
-            SerializationFormat GetEffectiveSerializationFormat() => _format ?? _client.Format;
+            SerializationFormat GetEffectiveSerializationFormat() => _bindingModel.SerializationFormat ?? _client.Format;
         }
     }
 }
