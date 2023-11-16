@@ -59,7 +59,7 @@ namespace VL.IO.Redis
                             (model.BindingType == RedisBindingType.Receive || model.BindingType == RedisBindingType.SendAndReceive) &&
                             (
                                 (queue.ReceivedChanges.Contains(model.Key) && queue.ReceivedChanges.Count > 0) ||
-                                (firstFrame && model.Initialisation == Initialisation.Redis)
+                                (firstFrame && model.Initialisation == Initialization.Redis)
                             )
                             ||
                             model.BindingType == RedisBindingType.AlwaysReceive

@@ -150,7 +150,7 @@ namespace VL.IO.Redis
                                         if (init)
                                         {
                                             init = false;
-                                            if (binding.Initialisation == Initialisation.Redis)
+                                            if (binding.Initialisation == Initialization.Redis)
                                                 binding.channel.SetObjectAndAuthor(result, "RedisOther");
                                         }
                                         else
@@ -190,7 +190,7 @@ namespace VL.IO.Redis
                                         if (init)
                                         {
                                             init = false;
-                                            if (binding.Initialisation == Initialisation.Redis)
+                                            if (binding.Initialisation == Initialization.Redis)
                                                 binding.channel.SetObjectAndAuthor(result, "RedisOther");
                                         }
                                         else

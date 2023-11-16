@@ -22,7 +22,7 @@ namespace VL.IO.Redis
         AlwaysReceive = 8,
     }
 
-    public enum Initialisation
+    public enum Initialization
     {
         None = 0,
         Local = 1,
@@ -34,6 +34,13 @@ namespace VL.IO.Redis
         None = 0,
         LocalWins = 1,
         RedisWins = 2,
+    }
+
+    public enum SerializationFormat
+    {
+        MessagePack,
+        Json,
+        Raw
     }
 
     public interface IRedisModule : IModule
@@ -75,7 +82,7 @@ namespace VL.IO.Redis
     {
         public string Key { get; }
         public RedisBindingType BindingType { get; }
-        public Initialisation Initialisation { get; }
+        public Initialization Initialisation { get; }
         public CollisionHandling CollisionHandling { get; }
         public string ChannelPath { get; }
     }
@@ -132,7 +139,7 @@ namespace VL.IO.Redis
         public readonly IRedisBindingModel redisBindingModel;
         public RedisKey Key => redisBindingModel.Key;
         public RedisBindingType BindingType => redisBindingModel.BindingType;
-        public Initialisation Initialisation => redisBindingModel.Initialisation;
+        public Initialization Initialisation => redisBindingModel.Initialisation;
         public CollisionHandling CollisionHandling => redisBindingModel.CollisionHandling;
         public string ChannelPath => redisBindingModel.ChannelPath;
         #endregion Model
@@ -190,7 +197,7 @@ namespace VL.IO.Redis
         (
             out string Key,
             out RedisBindingType BindingType,
-            out Initialisation Initialisation,
+            out Initialization Initialisation,
             out CollisionHandling CollisionHandling,
             out string ChannelPath
         )
