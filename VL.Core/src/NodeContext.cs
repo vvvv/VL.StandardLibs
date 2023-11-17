@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -14,21 +15,39 @@ namespace VL.Core
     /// </summary>
     public sealed class NodeContext
     {
-        public static readonly NodeContext Default = new NodeContext(parent: null, localId: default);
+        // Shouldn't be used - for unit tests only
+        [Obsolete("Node context needs to be bound to an app host", error: true)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly NodeContext Default = new NodeContext(appHost: AppHost.Global, parent: null, localId: default);
+
+        /// <summary>
+        /// The current root context provided by the current app host. See <see cref="AppHost.CurrentOrGlobal"/> and <see cref="AppHost.RootContext"/>.
+        /// </summary>
+        public static NodeContext CurrentRoot => AppHost.CurrentOrGlobal.RootContext;
+
+        [Obsolete("Use the overload which takes the app host")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static NodeContext Create(UniqueId rootId) => Create(AppHost.CurrentOrGlobal, rootId);
 
         /// <summary>
         /// Creates a new root context.
         /// </summary>
-        /// <returns>The new root context.</returns>
-        public static NodeContext Create(UniqueId rootId) => new NodeContext(null, rootId, definitionId: rootId);
+        public static NodeContext Create(AppHost appHost) => Create(appHost, default);
 
+        /// <summary>
+        /// Creates a new root context.
+        /// </summary>
+        public static NodeContext Create(AppHost appHost, UniqueId rootId) => new NodeContext(appHost, null, rootId, definitionId: rootId);
+
+        private readonly AppHost _appHost;
         private readonly NodeContext? _parent;
         private readonly UniqueId _localId;
         private readonly UniqueId? _definitionId;
         private ImmutableStack<UniqueId>? _stack;
 
-        private NodeContext(NodeContext? parent, UniqueId localId, bool isImmutable = false, UniqueId? definitionId = null)
+        private NodeContext(AppHost appHost, NodeContext? parent, UniqueId localId, bool isImmutable = false, UniqueId? definitionId = null)
         {
+            _appHost = appHost ?? throw new ArgumentNullException(nameof(appHost));
             _parent = parent;
             _localId = localId;
             IsImmutable = isImmutable;
@@ -36,6 +55,8 @@ namespace VL.Core
 
             Path = new NodePath(this);
         }
+
+        internal AppHost AppHost => _appHost;
 
         internal NodeContext? Parent => _parent;
 
@@ -68,13 +89,13 @@ namespace VL.Core
         /// <summary>
         /// Creates a new sub context.
         /// </summary>
-        public NodeContext CreateSubContext(UniqueId id) => new NodeContext(this, id, IsImmutable, _definitionId);
+        public NodeContext CreateSubContext(UniqueId id) => new NodeContext(_appHost, this, id, IsImmutable, _definitionId);
 
-        public NodeContext WithIsImmutable(bool value) => value != IsImmutable ? new NodeContext(_parent, _localId, value, _definitionId) : this;
+        public NodeContext WithIsImmutable(bool value) => value != IsImmutable ? new NodeContext(_appHost, _parent, _localId, value, _definitionId) : this;
 
         public NodeContext WithDefinitionId(string documentId, string elementId) => WithDefinitionId(new UniqueId(documentId, elementId));
 
-        public NodeContext WithDefinitionId(UniqueId value) => value != DefinitionId ? new NodeContext(_parent, _localId, IsImmutable, value) : this;
+        public NodeContext WithDefinitionId(UniqueId value) => value != DefinitionId ? new NodeContext(_appHost, _parent, _localId, IsImmutable, value) : this;
 
         [Obsolete]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -93,6 +114,8 @@ namespace VL.Core
         [Obsolete("Use Clocks.RealTimeClock")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public IClock RealTimeClock => ServiceRegistry.Current.GetRequiredService<IClock>();
+
+        public ILogger GetLogger() => _appHost.LoggerFactory.CreateLogger(null, this);
 
         internal ImmutableStack<UniqueId> Stack
         {

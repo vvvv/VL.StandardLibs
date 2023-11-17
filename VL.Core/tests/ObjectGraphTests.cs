@@ -15,7 +15,7 @@ namespace VL.Core.Tests
 
     class CCCC : FactoryBasedVLNode, IIII
     {
-        public CCCC() : base(NodeContext.Default)
+        public CCCC() : base(NodeContext.CurrentRoot)
         {
         }
     }

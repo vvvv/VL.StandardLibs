@@ -278,7 +278,7 @@ namespace VL.Core
         /// <returns>The newly created instance or null if the type is not known to VL.</returns>
         [Obsolete("Please use AppHost.CreateInstance")]
         public static object CreateInstance(this IVLFactory factory, Type type, UniqueId rootId)
-            => factory.AppHost.CreateInstance(type, NodeContext.Create(rootId));
+            => factory.AppHost.CreateInstance(type, NodeContext.Create(factory.AppHost, rootId));
 
         /// <summary>
         /// Creates a new instance of the given type using the VL generated constructor.
@@ -299,7 +299,7 @@ namespace VL.Core
         /// <returns>The newly created instance or null if the type is not known to VL.</returns>
         [Obsolete("Please use AppHost.CreateInstance")]
         public static object CreateInstance(this IVLFactory factory, IVLTypeInfo type, UniqueId rootId) 
-            => factory.CreateInstance(type.ClrType, NodeContext.Create(rootId));
+            => factory.CreateInstance(type.ClrType, NodeContext.Create(factory.AppHost, rootId));
 
         /// <summary>
         /// Registers a factory function which gets invoked when a service of type <typeparamref name="TService"/> is requested for
@@ -414,7 +414,7 @@ namespace VL.Core
         sealed class DefaultImpl : IVLObject
         {
             public AppHost AppHost => AppHost.CurrentOrGlobal;
-            public NodeContext Context => NodeContext.Default;
+            public NodeContext Context => AppHost.RootContext;
             public uint Identity => 0;
             public IVLObject With(IReadOnlyDictionary<string, object> values) => this;
         }
