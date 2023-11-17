@@ -47,6 +47,7 @@ namespace VL.Core
         uint Identity { get; }
 
         IVLObject With(IReadOnlyDictionary<string, object> values);
+        object ReadProperty(string key);
     }
 
 #nullable enable
@@ -412,6 +413,7 @@ namespace VL.Core
             public NodeContext Context => NodeContext.Default;
             public uint Identity => 0;
             public IVLObject With(IReadOnlyDictionary<string, object> values) => this;
+            object IVLObject.ReadProperty(string key) => null;
         }
 
         public static readonly IVLObject Default = new DefaultImpl();
