@@ -29,7 +29,5 @@ namespace VL.Core
         {
             return this;
         }
-
-        object IVLObject.ReadProperty(string key) => null;
     }
 }

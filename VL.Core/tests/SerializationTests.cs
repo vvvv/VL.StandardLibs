@@ -69,6 +69,13 @@ namespace VL.Core.Tests
                     return this;
             }
 
+            protected override object __ReadProperty__(string key)
+            {
+                if (key == nameof(SomeValue))
+                    return SomeValue;
+                return base.__ReadProperty__(key);
+            }
+
             protected override IVLObject __With__(IReadOnlyDictionary<string, object> values)
             {
                 return __With__(CompilationHelper.GetValueOrExisting(values, nameof(SomeValue), in SomeValue));
