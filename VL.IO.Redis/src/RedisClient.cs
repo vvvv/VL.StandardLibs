@@ -37,8 +37,8 @@ namespace VL.IO.Redis
         private ImmutableArray<IParticipant> _participants = ImmutableArray<IParticipant>.Empty;
 
         private ConnectionMultiplexer? _multiplexer;
+        private CancellationTokenSource? _cancellationTokenSource;
 
-        private ChannelMessageQueue? _invalidations;
         private Task? _lastTransaction;
         private string? _configuration;
 
@@ -81,7 +81,7 @@ namespace VL.IO.Redis
         }
 
         [DefaultValue(SerializationFormat.MessagePack)]
-        public SerializationFormat Format { internal get; set; } = SerializationFormat.MessagePack;
+        public SerializationFormat Format { private get; set; } = SerializationFormat.MessagePack;
 
         [DefaultValue(-1)]
         public int Database { internal get; set; } = -1;
@@ -92,6 +92,16 @@ namespace VL.IO.Redis
         {
             _participants = _participants.Add(participant);
             return Disposable.Create(() => _participants = _participants.Remove(participant));
+        }
+
+        internal (ISubscriber? subscriber, CancellationToken cancellationToken) GetSubscriber()
+        {
+            if (_multiplexer is null)
+                return default;
+
+            var subscriber = _multiplexer.GetSubscriber();
+            var token = _cancellationTokenSource!.Token;
+            return (subscriber, token);
         }
 
         internal IDisposable AddBinding(BindingModel model, IChannel channel)
@@ -110,6 +120,37 @@ namespace VL.IO.Redis
             });
         }
 
+        internal RedisValue Serialize<T>(T? value, SerializationFormat? preferredFormat)
+        {
+            switch (GetEffectiveSerializationFormat(preferredFormat))
+            {
+                case SerializationFormat.Raw:
+                    return RawSerialization.Serialize(value);
+                case SerializationFormat.MessagePack:
+                    return MessagePackSerialization.Serialize(value);
+                case SerializationFormat.Json:
+                    return MessagePackSerialization.SerializeJson(value);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        internal T? Deserialize<T>(RedisValue redisValue, SerializationFormat? preferredFormat)
+        {
+            switch (GetEffectiveSerializationFormat(preferredFormat))
+            {
+                case SerializationFormat.Raw:
+                    return RawSerialization.Deserialize<T>(redisValue);
+                case SerializationFormat.MessagePack:
+                    return MessagePackSerialization.Deserialize<T>(redisValue);
+                case SerializationFormat.Json:
+                    return MessagePackSerialization.DeserializeJson<T>(redisValue.ToString());
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        SerializationFormat GetEffectiveSerializationFormat(SerializationFormat? preferredFormat) => preferredFormat ?? Format;
 
         private void Connect(ConfigurationOptions options)
         {
@@ -123,6 +164,7 @@ namespace VL.IO.Redis
                 options.AllowAdmin = true;
 
                 _multiplexer = ConnectionMultiplexer.Connect(options);
+                _cancellationTokenSource = new CancellationTokenSource();
 
                 // HACK: It seems the StackExchange API is a little too high level here / doesn't support this yet properly:
                 // 1) CLIENT TRACKING ON without the REDIRECT option requires RESP3, but StackExchange will crash in that case not being able to handle the incoming server message
@@ -132,9 +174,10 @@ namespace VL.IO.Redis
                 // Hopefully the situation should improve once https://github.com/StackExchange/StackExchange.Redis/tree/server-cache-invalidation is merged back.
 
                 // This opens a Pub/Sub connection internally
-                var subscriber = _multiplexer.GetSubscriber();
-                _invalidations = subscriber.Subscribe(RedisChannel.Literal("__redis__:invalidate"));
+                var (subscriber, token) = GetSubscriber();
+                var _invalidations = subscriber!.Subscribe(RedisChannel.Literal("__redis__:invalidate"));
                 _invalidations.OnMessage(OnInvalidationMessage);
+                token.Register(() => _invalidations.Unsubscribe(CommandFlags.FireAndForget));
 
                 // Let's try to find that one now
                 foreach (var s in _multiplexer.GetServers())
@@ -157,8 +200,8 @@ namespace VL.IO.Redis
         {
             try
             {
-                if (_invalidations != null)
-                    _invalidations.Unsubscribe();
+                if (_cancellationTokenSource != null)
+                    _cancellationTokenSource.Cancel();
 
                 if (_multiplexer != null)
                     _multiplexer.Dispose();
@@ -169,8 +212,9 @@ namespace VL.IO.Redis
             }
             finally
             {
-                _invalidations = null;
                 _multiplexer = null;
+                _cancellationTokenSource?.Dispose();
+                _cancellationTokenSource = null;
             }
         }
 
@@ -399,15 +443,16 @@ namespace VL.IO.Redis
 
                 var key = _bindingModel.Key;
                 if (needToWriteToDb)
-                {   
-                    _ = transaction.StringSetAsync(key, Serialize(_channel.Value), flags: CommandFlags.FireAndForget);
+                {
+                    var redisValue = _client.Serialize(_channel.Value, _bindingModel.SerializationFormat);
+                    _ = transaction.StringSetAsync(key, redisValue, flags: CommandFlags.FireAndForget);
                 }
                 if (needToReadFromDb)
                 {
                     var redisValue = await transaction.StringGetAsync(key).ConfigureAwait(false);
                     if (redisValue.HasValue)
                     {
-                        var value = Deserialize(redisValue);
+                        var value = _client.Deserialize<T>(redisValue, _bindingModel.SerializationFormat);
 
                         var networkSync = _client.FrameClock.GetTicks();
                         await networkSync.Take(1);
@@ -437,38 +482,65 @@ namespace VL.IO.Redis
                     return _weHaveNewData;
                 return _bindingModel.Initialization == Initialization.Local;
             }
+        }
+    }
 
-            RedisValue Serialize(T? value)
+    // TODO: Fix node name - has stupid `1 inside!
+    [ProcessNode]
+    public class Publish<T> : IDisposable
+    {
+        private readonly SerialDisposable _subscription = new();
+        private readonly ILogger _logger;
+
+        private (RedisClient? client, string? redisChannel, IObservable<T>? value, RedisChannel.PatternMode pattern, SerializationFormat? format) _config;
+
+        // TODO: For unit testing it would be nice to take the logger directly!
+        public Publish(NodeContext nodeContext)
+        {
+            _logger = nodeContext.GetLogger();
+        }
+
+        public void Dispose() 
+        {
+            _subscription.Dispose();
+        }
+
+        public void Update(
+            RedisClient? client, 
+            string? redisChannel, 
+            IObservable<T>? stream, 
+            RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto, 
+            SerializationFormat? serializationFormat = default)
+        {
+            var config = (client, redisChannel, stream, pattern, serializationFormat);
+            if (config == _config)
+                return;
+
+            _subscription.Disposable = null;
+
+            if (client is null || redisChannel is null || stream is null)
+                return;
+
+            var (subscriber, token) = client.GetSubscriber();
+            if (subscriber is null)
+                return;
+
+            _config = config;
+            var streamSubscription = stream.Subscribe(v =>
             {
-                switch (GetEffectiveSerializationFormat())
+                try
                 {
-                    case SerializationFormat.Raw:
-                        return RawSerialization.Serialize(value);
-                    case SerializationFormat.MessagePack:
-                        return MessagePackSerialization.Serialize(value);
-                    case SerializationFormat.Json:
-                        return MessagePackSerialization.SerializeJson(value);
-                    default:
-                        throw new NotImplementedException();
+                    var channel = new RedisChannel(redisChannel, pattern);
+                    var value = client.Serialize(v, serializationFormat);
+                    subscriber.Publish(channel, value, CommandFlags.FireAndForget);
                 }
-            }
-
-            T? Deserialize(RedisValue redisValue)
-            {
-                switch (GetEffectiveSerializationFormat())
+                catch (Exception e)
                 {
-                    case SerializationFormat.Raw:
-                        return RawSerialization.Deserialize<T>(redisValue);
-                    case SerializationFormat.MessagePack:
-                        return MessagePackSerialization.Deserialize<T>(redisValue);
-                    case SerializationFormat.Json:
-                        return MessagePackSerialization.DeserializeJson<T>(redisValue.ToString());
-                    default:
-                        throw new NotImplementedException();
+                    _logger.LogError(e, "Exception while publishing.");
                 }
-            }
-
-            SerializationFormat GetEffectiveSerializationFormat() => _bindingModel.SerializationFormat ?? _client.Format;
+            });
+            var cancellationSubscription = token.Register(() => streamSubscription.Dispose());
+            _subscription.Disposable = new CompositeDisposable(streamSubscription, cancellationSubscription);
         }
     }
 }
