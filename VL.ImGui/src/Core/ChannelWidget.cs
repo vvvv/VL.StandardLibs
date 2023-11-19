@@ -7,11 +7,11 @@ namespace VL.ImGui.Widgets
     {
         private T? value;
 
-        public IChannel<T> Channel
+        public IChannel<T>? Channel
         {
             protected get;
             set;
-        } = ChannelHelpers.Dummy<T>(); // This is the VL default
+        }
 
         public bool Bang 
         { 

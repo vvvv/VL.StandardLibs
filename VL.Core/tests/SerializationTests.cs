@@ -29,7 +29,7 @@ namespace VL.Core.Tests
         [SetUp]
         public void Setup()
         {
-            typeRegistry = new();
+            typeRegistry = new(new VLTypeInfoFactory(scanAssemblies: false));
             appHost = new(typeRegistry);
             factory = appHost.Factory;
             context = NodeContext.Default;

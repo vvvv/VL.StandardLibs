@@ -26,7 +26,7 @@ namespace VL.Core.Tests
         [SetUp]
         public void Setup()
         {
-            appHost = new(new TypeRegistryImpl());
+            appHost = new(new TypeRegistryImpl(new VLTypeInfoFactory(scanAssemblies: false)));
             appHost.MakeCurrent().DisposeBy(appHost);
             Foo.__IsOutdated = false;
             Foo2.__IsOutdated = false;
