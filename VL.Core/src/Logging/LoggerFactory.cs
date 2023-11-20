@@ -31,7 +31,7 @@ namespace VL.Core.Logging
         /// </summary>
         /// <param name="categoryName">The category of the logger. If not set it will be infered from the node context.</param>
         /// <param name="nodeContext">The node context. Will be used to infer the category (if not specified) and can later be used to locate the patch associated with a logged message.</param>
-        public abstract ILogger CreateLogger(string categoryName, NodeContext nodeContext);
+        public abstract ILogger CreateLogger(string? categoryName, NodeContext nodeContext);
 
         public abstract void Dispose();
     }

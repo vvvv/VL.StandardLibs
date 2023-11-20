@@ -24,7 +24,6 @@ namespace VL.Core.Tests
             registry = new TypeRegistryImpl(new VLTypeInfoFactory(scanAssemblies: false));
             appHost = new(registry);
             appHost.Services.RegisterService(adaptiveProvider = new AdaptiveImplementationProvider(ImmutableArray<Type>.Empty));
-            appHost.Services.RegisterService<SerializationService>(new SerializationServiceImpl(appHost));
         }
 
         [TearDown]

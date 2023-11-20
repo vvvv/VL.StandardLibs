@@ -32,8 +32,8 @@ namespace VL.Core.Tests
             typeRegistry = new(new VLTypeInfoFactory(scanAssemblies: false));
             appHost = new(typeRegistry);
             factory = appHost.Factory;
-            context = NodeContext.Default;
             appHost.MakeCurrent().DisposeBy(appHost);
+            context = NodeContext.Create(appHost);
         }
 
         [TearDown]
