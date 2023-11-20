@@ -1,14 +1,20 @@
 ﻿#nullable enable
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using ServiceWire.NamedPipes;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Joins;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,29 +30,21 @@ using VL.Serialization.Raw;
 
 namespace VL.IO.Redis
 {
-    [ProcessNode(HasStateOutput = true)]
-    public class RedisClient : IDisposable
+    [ProcessNode(Name = "RedisClient")]
+    public class RedisClientNode : IDisposable
     {
         private readonly CompositeDisposable _disposables = new();
-        private readonly TransactionBuilder _transactionBuilder = new();
-        private readonly IFrameClock _frameClock;
-        private readonly ILoggerFactory? _loggerFactory;
+
+        private readonly NodeContext _nodeContext;
         private readonly ILogger _logger;
-        private readonly Dictionary<string, (BindingModel model, IDisposable binding)> _bindings = new();
 
-        private ImmutableArray<IParticipant> _participants = ImmutableArray<IParticipant>.Empty;
-
-        private ConnectionMultiplexer? _multiplexer;
-        private CancellationTokenSource? _cancellationTokenSource;
-
-        private Task? _lastTransaction;
         private string? _configuration;
+        private RedisClient? _redisClient;
 
-        public RedisClient(IFrameClock frameClock, ILoggerFactory? loggerFactory)
+        public RedisClientNode(NodeContext nodeContext, IFrameClock frameClock)
         {
-            _frameClock = frameClock;
-            _loggerFactory = loggerFactory;
-            _logger = loggerFactory?.CreateLogger<RedisClient>() ?? NullLogger<RedisClient>.Instance;
+            _nodeContext = nodeContext;
+            _logger = nodeContext.GetLogger();
 
             frameClock.GetTicks()
                 .Subscribe(BeginFrame)
@@ -59,17 +57,32 @@ namespace VL.IO.Redis
 
         public void Dispose()
         {
-            _disposables.Dispose();
-            Disconnect();
+            _redisClient?.Dispose();
+            _redisClient = null;
         }
 
-        [Fragment(Order = int.MinValue)]
-        public void Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null)
+        [return: Pin(Name = "Output")]
+        public RedisClient? Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, int database = -1, SerializationFormat serializationFormat = SerializationFormat.MessagePack)
         {
-            if (_configuration == configuration)
-                return;
+            if (configuration != _configuration)
+            {
+                _configuration = configuration;
+                Reconnect(configuration, configure);
+            }
 
-            _configuration = configuration;
+            if (_redisClient != null)
+            {
+                _redisClient.Database = database;
+                _redisClient.Format = serializationFormat;
+            }
+
+            return _redisClient;
+        }
+
+        private void Reconnect(string? configuration, Action<ConfigurationOptions>? configure)
+        {
+            _redisClient?.Dispose();
+            _redisClient = null;
 
             var options = new ConfigurationOptions();
             if (configuration != null)
@@ -77,7 +90,72 @@ namespace VL.IO.Redis
             if (configure != null)
                 options.Apply(configure);
 
-            Reconnect(options);
+            options.LoggerFactory ??= _nodeContext.AppHost.LoggerFactory;
+            options.Protocol = RedisProtocol.Resp2;
+            // Attach our unique id so we can identify our pub/sub connection later (see below)
+            options.ClientName = $"{options.ClientName ?? options.Defaults.ClientName}{GetHashCode()}";
+            // Needed to get the client list, see comment in RedisClient
+            options.AllowAdmin = true;
+
+            var multiplexer = ConnectionMultiplexer.Connect(options);
+            _redisClient = new RedisClient(multiplexer, _logger);
+        }
+
+        private void BeginFrame(FrameTimeMessage message)
+        {
+            _redisClient?.BeginFrame(message);
+        }
+
+        private void EndFrame(FrameFinishedMessage message)
+        {
+            _redisClient?.EndFrame(message);
+        }
+    }
+
+    public class RedisClient : IDisposable
+    {
+        private readonly TransactionBuilder _transactionBuilder = new();
+        private readonly ILogger _logger;
+        private readonly Dictionary<string, (BindingModel model, IDisposable binding)> _bindings = new();
+        private readonly ConnectionMultiplexer _multiplexer;
+        private readonly Subject<Unit> _networkSync = new Subject<Unit>();
+
+        private ImmutableArray<IParticipant> _participants = ImmutableArray<IParticipant>.Empty;
+
+        private Task? _lastTransaction;
+
+        public RedisClient(ConnectionMultiplexer multiplexer, ILogger logger)
+        {
+            _multiplexer = multiplexer;
+            _logger = logger;
+
+            // HACK: It seems the StackExchange API is a little too high level here / doesn't support this yet properly:
+            // 1) CLIENT TRACKING ON without the REDIRECT option requires RESP3, but StackExchange will crash in that case not being able to handle the incoming server message
+            // 2) CLIENT TRACKING ON with the REDIRECT option only seems to work in RESP2, but in RESP2 we need to use a 2nd connection for Pub/Sub.
+            //    However getting the ID of that 2nd connection is not possible in StackExchange (https://stackoverflow.com/questions/66964604/how-do-i-get-the-client-id-for-the-isubscriber-connection)
+            //    we need to ask the server (requires the AllowAdmin option) for the client list and then identify our pub/sub connection.
+            // Hopefully the situation should improve once https://github.com/StackExchange/StackExchange.Redis/tree/server-cache-invalidation is merged back.
+
+            // This opens a Pub/Sub connection internally
+            var subscriber = multiplexer.GetSubscriber();
+            var _invalidations = subscriber.Subscribe(RedisChannel.Literal("__redis__:invalidate"));
+            _invalidations.OnMessage(OnInvalidationMessage);
+
+            // Let's try to find that one now
+            foreach (var s in _multiplexer.GetServers())
+            {
+                var pubSubClient = s.ClientList().FirstOrDefault(c => c.Name == _multiplexer.ClientName && c.ClientType == ClientType.PubSub);
+                if (pubSubClient != null)
+                {
+                    s.Execute("CLIENT", new object[] { "TRACKING", "ON", "REDIRECT", pubSubClient.Id.ToString(), "BCAST", "NOLOOP" });
+                    break;
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            _multiplexer.Dispose();
         }
 
         [DefaultValue(SerializationFormat.MessagePack)]
@@ -86,7 +164,7 @@ namespace VL.IO.Redis
         [DefaultValue(-1)]
         public int Database { internal get; set; } = -1;
 
-        internal IFrameClock FrameClock => _frameClock;
+        internal IObservable<Unit> NetworkSync => _networkSync;
 
         internal IDisposable Subscribe(IParticipant participant)
         {
@@ -94,15 +172,7 @@ namespace VL.IO.Redis
             return Disposable.Create(() => _participants = _participants.Remove(participant));
         }
 
-        internal (ISubscriber? subscriber, CancellationToken cancellationToken) GetSubscriber()
-        {
-            if (_multiplexer is null)
-                return default;
-
-            var subscriber = _multiplexer.GetSubscriber();
-            var token = _cancellationTokenSource!.Token;
-            return (subscriber, token);
-        }
+        internal ISubscriber GetSubscriber() => _multiplexer.GetSubscriber();
 
         internal IDisposable AddBinding(BindingModel model, IChannel channel)
         {
@@ -152,80 +222,6 @@ namespace VL.IO.Redis
 
         SerializationFormat GetEffectiveSerializationFormat(SerializationFormat? preferredFormat) => preferredFormat ?? Format;
 
-        private void Connect(ConfigurationOptions options)
-        {
-            try
-            {
-                options.LoggerFactory ??= _loggerFactory;
-                options.Protocol = RedisProtocol.Resp2;
-                // Attach our unique id so we can identify our pub/sub connection later (see below)
-                options.ClientName = $"{options.ClientName ?? options.Defaults.ClientName}{GetHashCode()}";
-                // Needed to get the client list, see bwloe
-                options.AllowAdmin = true;
-
-                _multiplexer = ConnectionMultiplexer.Connect(options);
-                _cancellationTokenSource = new CancellationTokenSource();
-
-                // HACK: It seems the StackExchange API is a little too high level here / doesn't support this yet properly:
-                // 1) CLIENT TRACKING ON without the REDIRECT option requires RESP3, but StackExchange will crash in that case not being able to handle the incoming server message
-                // 2) CLIENT TRACKING ON with the REDIRECT option only seems to work in RESP2, but in RESP2 we need to use a 2nd connection for Pub/Sub.
-                //    However getting the ID of that 2nd connection is not possible in StackExchange (https://stackoverflow.com/questions/66964604/how-do-i-get-the-client-id-for-the-isubscriber-connection)
-                //    we need to ask the server (requires the AllowAdmin option) for the client list and then identify our pub/sub connection.
-                // Hopefully the situation should improve once https://github.com/StackExchange/StackExchange.Redis/tree/server-cache-invalidation is merged back.
-
-                // This opens a Pub/Sub connection internally
-                var (subscriber, token) = GetSubscriber();
-                var _invalidations = subscriber!.Subscribe(RedisChannel.Literal("__redis__:invalidate"));
-                _invalidations.OnMessage(OnInvalidationMessage);
-                token.Register(() => _invalidations.Unsubscribe(CommandFlags.FireAndForget));
-
-                // Let's try to find that one now
-                foreach (var s in _multiplexer.GetServers())
-                {
-                    var pubSubClient = s.ClientList().FirstOrDefault(c => c.Name == _multiplexer.ClientName && c.ClientType == ClientType.PubSub);
-                    if (pubSubClient != null)
-                    {
-                        s.Execute("CLIENT", new object[] { "TRACKING", "ON", "REDIRECT", pubSubClient.Id.ToString(), "BCAST", "NOLOOP" });
-                        break;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                _logger?.LogError(e, "Exception while connecting.");
-            }
-        }
-
-        private void Disconnect()
-        {
-            try
-            {
-                if (_cancellationTokenSource != null)
-                    _cancellationTokenSource.Cancel();
-
-                if (_multiplexer != null)
-                    _multiplexer.Dispose();
-            }
-            catch (Exception e)
-            {
-                _logger?.LogError(e, "Exception while disconnecting.");
-            }
-            finally
-            {
-                _multiplexer = null;
-                _cancellationTokenSource?.Dispose();
-                _cancellationTokenSource = null;
-            }
-        }
-
-        private void Reconnect(ConfigurationOptions? options)
-        {
-            Disconnect();
-
-            if (options != null)
-                Connect(options);
-        }
-
         private void OnInvalidationMessage(ChannelMessage message)
         {
             var key = message.Message.ToString();
@@ -239,7 +235,7 @@ namespace VL.IO.Redis
                 p.Invalidate(key);
         }
 
-        private void BeginFrame(FrameTimeMessage _)
+        internal void BeginFrame(FrameTimeMessage _)
         {
             // Make room for the next transaction
             if (_lastTransaction != null)
@@ -255,13 +251,13 @@ namespace VL.IO.Redis
                     _lastTransaction = null;
                 }
             }
+
+            // Simulate new network sync event -> values are now written back to the channels
+            _networkSync.OnNext(default);
         }
 
-        private void EndFrame(FrameFinishedMessage _) 
+        internal void EndFrame(FrameFinishedMessage _) 
         {
-            if (_multiplexer is null)
-                return;
-
             // Do not build a new transaction while another one is still in progress
             if (_lastTransaction != null)
                 return;
@@ -454,8 +450,7 @@ namespace VL.IO.Redis
                     {
                         var value = _client.Deserialize<T>(redisValue, _bindingModel.SerializationFormat);
 
-                        var networkSync = _client.FrameClock.GetTicks();
-                        await networkSync.Take(1);
+                        await _client.NetworkSync.Take(1);
 
                         _channel.SetValueAndAuthor(value, author: _authorId);
                     }
@@ -516,20 +511,17 @@ namespace VL.IO.Redis
             if (config == _config)
                 return;
 
+            _config = config;
             _subscription.Disposable = null;
 
             if (client is null || redisChannel is null || stream is null)
                 return;
 
-            var (subscriber, token) = client.GetSubscriber();
-            if (subscriber is null)
-                return;
-
-            _config = config;
-            var streamSubscription = stream.Subscribe(v =>
+            _subscription.Disposable = stream.Subscribe(v =>
             {
                 try
                 {
+                    var subscriber = client.GetSubscriber();
                     var channel = new RedisChannel(redisChannel, pattern);
                     var value = client.Serialize(v, serializationFormat);
                     subscriber.Publish(channel, value, CommandFlags.FireAndForget);
@@ -539,8 +531,96 @@ namespace VL.IO.Redis
                     _logger.LogError(e, "Exception while publishing.");
                 }
             });
-            var cancellationSubscription = token.Register(() => streamSubscription.Dispose());
-            _subscription.Disposable = new CompositeDisposable(streamSubscription, cancellationSubscription);
+        }
+    }
+
+    [ProcessNode]
+    public class Subscribe<T> : IDisposable
+    {
+        private readonly SerialDisposable _subscription = new();
+        private readonly Subject<T?> _subject = new();
+        private readonly ILogger _logger;
+
+        record struct Config(RedisClient? Client, string? Channel, RedisChannel.PatternMode Pattern, SerializationFormat? Format, bool ProcessMessagesConcurrently);
+
+        private Config _config;
+
+        // TODO: For unit testing it would be nice to take the logger directly!
+        public Subscribe(NodeContext nodeContext)
+        {
+            _logger = nodeContext.GetLogger();
+        }
+
+        public void Dispose()
+        {
+            _subscription.Dispose();
+        }
+
+        public IObservable<T?> Update(
+            RedisClient? client,
+            string? redisChannel,
+            RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto,
+            SerializationFormat? serializationFormat = default,
+            bool processMessagesConcurrently = false)
+        {
+            var config = new Config(client, redisChannel, pattern, serializationFormat, processMessagesConcurrently);
+            if (config != _config)
+            {
+                _config = config;
+                Resubscribe(config);
+            }
+            return _subject;
+        }
+
+        private void Resubscribe(Config config)
+        {
+            // Unsubscribe
+            _subscription.Disposable = null;
+
+            var client = config.Client;
+            if (client is null || config.Channel is null)
+                return;
+
+            var subscriber = client.GetSubscriber();
+            var channel = new RedisChannel(config.Channel, config.Pattern);
+
+            if (config.ProcessMessagesConcurrently)
+            {
+                Action<RedisChannel, RedisValue> handler = (redisChannel, redisValue) =>
+                {
+                    try
+                    {
+                        var value = client.Deserialize<T>(redisValue, config.Format);
+                        _subject.OnNext(value);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, "Unexpected exception in subscribe.");
+                    }
+                };
+                subscriber.Subscribe(channel, handler);
+                _subscription.Disposable = Disposable.Create(() => subscriber.Unsubscribe(channel, handler));
+            }
+            else
+            {
+                Action<ChannelMessage> handler = (channelMessage) =>
+                {
+                    try
+                    {
+                        var redisValue = channelMessage.Message;
+                        var value = client.Deserialize<T>(redisValue, config.Format);
+                        _subject.OnNext(value);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, "Unexpected exception in subscribe.");
+                    }
+                };
+
+                var queue = subscriber.Subscribe(channel);
+                queue.OnMessage(handler);
+                _subscription.Disposable = Disposable.Create(() => queue.Unsubscribe());
+            }
         }
     }
 }
