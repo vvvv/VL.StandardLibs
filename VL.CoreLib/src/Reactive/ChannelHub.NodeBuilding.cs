@@ -70,7 +70,7 @@ namespace VL.Core.Reactive
 
                 return context.Node(_inputs, _outputs, buildcontext =>
                 {
-                    var channelType = channelBuildDescription.RuntimeType;
+                    var channelType = channelBuildDescription.GetRuntimeType(AppHost.Current);
                     var c = IChannelHub.HubForApp.TryAddChannel(channelBuildDescription.Name, channelType);
 
                     bool refetched()

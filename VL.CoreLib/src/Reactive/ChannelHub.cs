@@ -56,7 +56,7 @@ namespace VL.Core.Reactive
                         foreach (var d in descriptions)
                         {
                             var name = d.Name;
-                            var type = d.RuntimeType;
+                            var type = d.GetRuntimeType(AppHost);
                             TryAddChannel(name, type);
                         }
                     });
