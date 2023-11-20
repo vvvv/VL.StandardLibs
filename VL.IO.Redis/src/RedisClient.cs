@@ -481,7 +481,7 @@ namespace VL.IO.Redis
     }
 
     // TODO: Fix node name - has stupid `1 inside!
-    [ProcessNode]
+    [ProcessNode(Name = "Publish")]
     public class Publish<T> : IDisposable
     {
         private readonly SerialDisposable _subscription = new();
@@ -534,7 +534,7 @@ namespace VL.IO.Redis
         }
     }
 
-    [ProcessNode]
+    [ProcessNode(Name = "Subscribe")]
     public class Subscribe<T> : IDisposable
     {
         private readonly SerialDisposable _subscription = new();
