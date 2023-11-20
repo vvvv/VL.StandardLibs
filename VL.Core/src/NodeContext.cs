@@ -56,7 +56,7 @@ namespace VL.Core
             Path = new NodePath(this);
         }
 
-        internal AppHost AppHost => _appHost;
+        public AppHost AppHost => _appHost;
 
         internal NodeContext? Parent => _parent;
 
