@@ -180,9 +180,9 @@ namespace VL.Core.Reactive
 
     public interface IBinding : IDisposable
     {
-        IModule Module { get; }
+        IModule? Module { get; }
 
-        string ShortLabel => Module.Name;
+        string ShortLabel => Module?.Name ?? GetType().Name;
 
         string? Description { get; }
 

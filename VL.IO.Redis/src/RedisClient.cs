@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using VL.Core;
 using VL.Core.Import;
 using VL.Core.Logging;
+using VL.Core.Reactive;
 using VL.Lib.Animation;
 using VL.Lib.Reactive;
 using VL.Serialization.MessagePack;
@@ -372,7 +373,7 @@ namespace VL.IO.Redis
         }
     }
 
-    internal class Binding<T> : IParticipant, IDisposable
+    internal class Binding<T> : IParticipant, IDisposable, IBinding
     {
         private readonly SerialDisposable _clientSubscription = new();
         private readonly SerialDisposable _channelSubscription = new();
@@ -402,10 +403,13 @@ namespace VL.IO.Redis
                     _weHaveNewData = true;
                 }
             });
+
+            _channel.AddComponent(this);
         }
 
         public void Dispose()
         {
+            _channel.RemoveComponent(this);
             _clientSubscription.Dispose();
             _channelSubscription.Dispose();
         }
@@ -476,6 +480,34 @@ namespace VL.IO.Redis
                 if (_initialized)
                     return _weHaveNewData;
                 return _bindingModel.Initialization == Initialization.Local;
+            }
+        }
+
+        IModule? IBinding.Module => null;
+
+        string IBinding.ShortLabel => "Redis";
+
+        string? IBinding.Description => _bindingModel.Key;
+
+        BindingType IBinding.BindingType
+        {
+            get
+            {
+                switch (_bindingModel.BindingType)
+                {
+                    case RedisBindingType.None:
+                        return BindingType.None;
+                    case RedisBindingType.Send:
+                        return BindingType.Send;
+                    case RedisBindingType.Receive:
+                        return BindingType.Receive;
+                    case RedisBindingType.SendAndReceive:
+                        return BindingType.SendAndReceive;
+                    case RedisBindingType.AlwaysReceive:
+                        return BindingType.None;
+                    default:
+                        return BindingType.None;
+                }
             }
         }
     }
