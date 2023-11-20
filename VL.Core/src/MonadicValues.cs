@@ -97,27 +97,4 @@ namespace VL.Core
         /// </summary>
         TMonad? Default() => default;
     }
-
-    public static class MonadicUtils
-    {
-        public static bool IsMonadicType(this Type type) => type.GetCustomAttributeSafe<MonadicAttribute>() != null;
-
-        public static Type? GetMonadicFactoryType(this Type monadicType, Type valueType)
-        {
-            var attribute = monadicType.GetCustomAttributeSafe<MonadicAttribute>();
-            if (attribute is null)
-                return null;
-
-            return attribute.Factory?.MakeGenericType(valueType);
-        }
-
-        public static IMonadicFactory<TValue, TMonad>? GetMonadicFactory<TValue, TMonad>(this Type monadicType)
-        {
-            var factoryType = monadicType.GetMonadicFactoryType(typeof(TValue));
-            if (factoryType is null)
-                return null;
-
-            return Activator.CreateInstance(factoryType) as IMonadicFactory<TValue, TMonad>;
-        }
-    }
 }
