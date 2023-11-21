@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 using System;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -18,6 +19,7 @@ namespace VL.IO.Redis.Internal
         private readonly SerialDisposable _channelSubscription = new();
         private readonly string _authorId;
         private readonly RedisClient _client;
+        private readonly ILogger? _logger;
         private readonly IChannel<T> _channel;
         private readonly BindingModel _bindingModel;
         private readonly RedisModule? _module;
@@ -26,9 +28,10 @@ namespace VL.IO.Redis.Internal
         private bool _weHaveNewData;
         private bool _othersHaveNewData;
 
-        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel, RedisModule? module)
+        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel, RedisModule? module, ILogger? logger)
         {
             _client = client;
+            _logger = logger;
             _channel = channel;
             _bindingModel = bindingModel;
             _module = module;
@@ -70,6 +73,10 @@ namespace VL.IO.Redis.Internal
         {
             var needToReadFromDb = NeedToReadFromDb();
             var needToWriteToDb = NeedToWriteToDb();
+
+            // Consider this binding to be initialized from now on
+            _initialized = true;
+
             if (!needToReadFromDb && !needToWriteToDb)
                 return;
 
@@ -83,14 +90,25 @@ namespace VL.IO.Redis.Internal
 
             builder.Add(async transaction =>
             {
-                _initialized = true;
                 _weHaveNewData = false;
                 _othersHaveNewData = false;
 
                 var key = _bindingModel.Key;
                 if (needToWriteToDb)
                 {
-                    var redisValue = _client.Serialize(_channel.Value, _bindingModel.SerializationFormat);
+                    RedisValue redisValue;
+                    try
+                    {
+                        redisValue = _client.Serialize(_channel.Value, _bindingModel.SerializationFormat);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (_logger is null)
+                            throw;
+
+                        _logger.LogError(ex, "Error while serializing");
+                        return;
+                    }
                     _ = transaction.StringSetAsync(key, redisValue, flags: CommandFlags.FireAndForget);
                 }
                 if (needToReadFromDb)
@@ -98,7 +116,19 @@ namespace VL.IO.Redis.Internal
                     var redisValue = await transaction.StringGetAsync(key).ConfigureAwait(false);
                     if (redisValue.HasValue)
                     {
-                        var value = _client.Deserialize<T>(redisValue, _bindingModel.SerializationFormat);
+                        T? value;
+                        try
+                        {
+                            value = _client.Deserialize<T>(redisValue, _bindingModel.SerializationFormat);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (_logger is null)
+                                throw;
+
+                            _logger.LogError(ex, "Error while deserializing");
+                            return;
+                        }
 
                         await _client.NetworkSync.Take(1);
 

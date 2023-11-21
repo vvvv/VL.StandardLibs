@@ -101,14 +101,14 @@ namespace VL.IO.Redis
 
         internal ISubscriber GetSubscriber() => _multiplexer.GetSubscriber();
 
-        internal IDisposable AddBinding(BindingModel model, IChannel channel, RedisModule? module = null)
+        internal IDisposable AddBinding(BindingModel model, IChannel channel, RedisModule? module = null, ILogger? logger = null)
         {
             if (_bindings.ContainsKey(model.Key))
                 throw new InvalidOperationException($"The redis key \"{model.Key}\" is already bound to a different channel.");
 
             var binding = (IRedisBinding)Activator.CreateInstance(
                 type: typeof(Binding<>).MakeGenericType(channel.ClrTypeOfValues),
-                args: new object?[] { this, channel, model, module })!;
+                args: new object?[] { this, channel, model, module, logger })!;
             _bindings[model.Key] = (model, binding);
             return Disposable.Create(() =>
             {

@@ -5,6 +5,7 @@ using VL.Core.Import;
 using VL.Model;
 using VL.Lib.Reactive;
 using VL.IO.Redis.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace VL.IO.Redis
 {
@@ -13,12 +14,14 @@ namespace VL.IO.Redis
     {
         private readonly SerialDisposable _current = new();
         private readonly NodeContext _nodeContext;
+        private readonly ILogger _logger;
 
         private (RedisClient? client, IChannel? channel, string? key, Initialization initialization, RedisBindingType bindingType, CollisionHandling collisionHandling, SerializationFormat? serializationFormat) _config;
 
         public BindingNode([Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext)
         {
             _nodeContext = nodeContext;
+            _logger = nodeContext.GetLogger();
         }
 
         public void Update(
@@ -43,7 +46,7 @@ namespace VL.IO.Redis
             var model = new BindingModel(key, initialization, bindingType, collisionHandling, serializationFormat);
             try
             {
-                _current.Disposable = client.AddBinding(model, channel);
+                _current.Disposable = client.AddBinding(model, channel, logger: _logger);
             }
             catch (Exception e)
             {
