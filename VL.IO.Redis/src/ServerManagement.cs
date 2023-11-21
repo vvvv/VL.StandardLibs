@@ -1,5 +1,4 @@
-﻿#nullable enable
-using VL.Lib.Collections;
+﻿using VL.Lib.Collections;
 
 namespace VL.IO.Redis
 {

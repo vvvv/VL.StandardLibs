@@ -1,16 +1,17 @@
-﻿#nullable enable
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using System;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using VL.Core.Reactive;
-using VL.IO.Redis.Internal;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
 
-namespace VL.IO.Redis
+namespace VL.IO.Redis.Internal
 {
+    /// <summary>
+    /// Represents a binding of a channel to a Redis key.
+    /// </summary>
     internal class Binding<T> : IParticipant, IDisposable, IRedisBinding
     {
         private readonly SerialDisposable _clientSubscription = new();
@@ -33,7 +34,7 @@ namespace VL.IO.Redis
             _module = module;
 
             _initialized = bindingModel.Initialization == Initialization.None;
-            _authorId = this.GetHashCode().ToString();
+            _authorId = GetHashCode().ToString();
 
             _clientSubscription.Disposable = client.Subscribe(this);
             _channelSubscription.Disposable = channel.Subscribe(v =>

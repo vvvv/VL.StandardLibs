@@ -1,11 +1,13 @@
-﻿#nullable enable
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace VL.IO.Redis
+namespace VL.IO.Redis.Internal
 {
+    /// <summary>
+    /// Used to build a Redis transaction.
+    /// </summary>
     sealed class TransactionBuilder
     {
         private readonly List<Func<ITransaction, Task>> _actions = new();
