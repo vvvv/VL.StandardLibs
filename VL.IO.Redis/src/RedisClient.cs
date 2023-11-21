@@ -22,17 +22,169 @@ using VL.Core;
 using VL.Core.Import;
 using VL.Core.Logging;
 using VL.Core.Reactive;
+using VL.Core.Utils;
+using VL.Model;
+using VL.Lang.PublicAPI;
 using VL.Lib.Animation;
+using VL.Lib.Collections;
 using VL.Lib.Reactive;
 using VL.Serialization.MessagePack;
 using VL.Serialization.Raw;
+using Stride.Core.Mathematics;
+using System.Reflection;
 
 [assembly: ImportAsIs(Namespace = "VL")]
 
 namespace VL.IO.Redis
 {
+    [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
+    public sealed class RedisModule : IModule, IDisposable
+    {
+        private readonly ILogger _logger;
+        private readonly NodeContext _nodeContext;
+        private readonly IChannel<ImmutableDictionary<string, BindingModel>> _modelStream;
+        private readonly IDisposable _modelSubscription;
+        private readonly IChannelHub _channelHub;
+        private readonly RedisClientManager _redisClientManager;
+        private RedisClient? _redisClient;
+
+        [Fragment]
+        public RedisModule(
+            [Pin(Visibility = PinVisibility.Hidden)]   NodeContext nodeContext,
+            [Pin(Visibility = PinVisibility.Hidden)]   AppHost appHost,
+            [Pin(Visibility = PinVisibility.Hidden)]   IFrameClock frameClock,
+            [Pin(Visibility = PinVisibility.Hidden)]   IChannelHub channelHub,
+            [Pin(Visibility = PinVisibility.Optional)] IChannel<ImmutableDictionary<string, BindingModel>> model)
+        {
+            _nodeContext = nodeContext;
+            _logger = nodeContext.GetLogger();
+
+            if (model.IsValid())
+                _modelStream = model;
+            else
+            {
+                _modelStream = ChannelHelpers.CreateChannelOfType<ImmutableDictionary<string, BindingModel>>();
+                _modelStream.Value = ImmutableDictionary<string, BindingModel>.Empty;
+            }
+
+            _channelHub = channelHub ?? appHost.Services.GetRequiredService<IChannelHub>();
+            _redisClientManager = new RedisClientManager(nodeContext, frameClock);
+            _channelHub.RegisterModule(this);
+
+            _modelSubscription = _modelStream
+                .Throttle(TimeSpan.FromSeconds(0.2))
+                .ObserveOn(appHost.SynchronizationContext)
+                .Subscribe(m =>
+                {
+                    if (m != null)
+                        UpdateBindingsFromModel(m);
+
+                    var solution = SessionNodes.CurrentSolution
+                        .SetPinValue(nodeContext.Path.Stack, "Model", m);
+                    solution.Confirm();
+                });
+        }
+
+        public void Dispose() 
+        {
+            // TODO: UNREGISTER?
+            //_channelHub.UNREGISTER(this);
+            _modelSubscription?.Dispose();
+            _redisClientManager.Dispose();
+        }
+
+        [Fragment]
+        public void Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, int database = -1, SerializationFormat serializationFormat = SerializationFormat.MessagePack)
+        {
+            var client = _redisClientManager.Update(configuration, configure, database, serializationFormat);
+            if (client != _redisClient)
+            {
+                _redisClient = client;
+                if (client != null)
+                    UpdateBindingsFromModel(_modelStream.Value!);
+            }
+        }
+
+        [Fragment]
+        public RedisClient? Client => _redisClient;
+
+        // Called from patched ModuleView
+        public void AddBinding(string channelPath, IChannel channel, BindingModel bindingModel)
+        {
+            if (_redisClient is null)
+                return;
+
+            // Save in our pin - this will trigger a sync
+            var model = _modelStream.Value!.SetItem(channelPath, bindingModel);
+            _modelStream.Value = model;
+        }
+
+        private void UpdateBindingsFromModel(ImmutableDictionary<string, BindingModel> model)
+        {
+            if (_redisClient is null)
+            {
+                _logger.LogWarning("No active Redis client. Can't sync bindings.");
+                return;
+            }
+
+            // Cleanup
+            var obsoleteKeys = new List<string>();
+            foreach (var entry in _redisClient._bindings)
+                if (!model.TryGetValue(entry.Key, out var m) || m != entry.Value.model)
+                    obsoleteKeys.Add(entry.Key);
+
+            foreach (var key in obsoleteKeys)
+            {
+                var (_, binding) = _redisClient._bindings[key];
+                binding.Dispose();
+            }
+
+            // Add new
+            foreach (var (key, bindingModel) in model)
+            {
+                var channel = _channelHub.TryGetChannel(key);
+                if (channel is null)
+                {
+                    _logger.LogWarning("Couldn't find global channel with name \"{channelName}\"", key);
+                    continue;
+                }
+
+                _redisClient.AddBinding(bindingModel, channel, this);
+            }
+        }
+
+        string IModule.Name => "Redis";
+
+        string IModule.Description => "This module binds a channel to a Redis key";
+
+        bool IModule.SupportsType(Type type) => true;
+    }
+
+    internal sealed class RedisModuleView : IModuleView
+    {
+        private readonly RedisModule _module;
+
+        public RedisModuleView(RedisModule module)
+        {
+            _module = module;
+        }
+
+        public BindingUserEditingCapabilities? BindingEditingCapabilities =>
+            BindingUserEditingCapabilities.OnlyAllowSingle | BindingUserEditingCapabilities.Editable | BindingUserEditingCapabilities.ManuallyRemovable;
+
+        public IPlainProcessNode CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<Action> responeChannel, IBinding? initialBinding, Vector2 expectedSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveBinding(IBinding binding)
+        {
+            binding.Dispose();
+        }
+    }
+
     [ProcessNode(Name = "RedisClient")]
-    public class RedisClientNode : IDisposable
+    public sealed class RedisClientManager : IDisposable
     {
         private readonly CompositeDisposable _disposables = new();
 
@@ -42,7 +194,7 @@ namespace VL.IO.Redis
         private string? _configuration;
         private RedisClient? _redisClient;
 
-        public RedisClientNode(NodeContext nodeContext, IFrameClock frameClock)
+        public RedisClientManager(NodeContext nodeContext, IFrameClock frameClock)
         {
             _nodeContext = nodeContext;
             _logger = nodeContext.GetLogger();
@@ -117,7 +269,7 @@ namespace VL.IO.Redis
     {
         private readonly TransactionBuilder _transactionBuilder = new();
         private readonly ILogger _logger;
-        private readonly Dictionary<string, (BindingModel model, IDisposable binding)> _bindings = new();
+        internal readonly Dictionary<string, (BindingModel model, IDisposable binding)> _bindings = new();
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly Subject<Unit> _networkSync = new Subject<Unit>();
 
@@ -167,6 +319,12 @@ namespace VL.IO.Redis
 
         internal IObservable<Unit> NetworkSync => _networkSync;
 
+        internal IDatabase GetDatabase() => _multiplexer.GetDatabase(Database);
+
+        internal IServer? GetServer() => _multiplexer.GetServers().FirstOrDefault();
+
+        internal ConnectionMultiplexer Multiplexer => _multiplexer;
+
         internal IDisposable Subscribe(IParticipant participant)
         {
             _participants = _participants.Add(participant);
@@ -175,14 +333,14 @@ namespace VL.IO.Redis
 
         internal ISubscriber GetSubscriber() => _multiplexer.GetSubscriber();
 
-        internal IDisposable AddBinding(BindingModel model, IChannel channel)
+        internal IDisposable AddBinding(BindingModel model, IChannel channel, RedisModule? module = null)
         {
             if (_bindings.ContainsKey(model.Key))
                 throw new InvalidOperationException($"The redis key \"{model.Key}\" is already bound to a different channel.");
 
             var binding = (IDisposable)Activator.CreateInstance(
                 type: typeof(Binding<>).MakeGenericType(channel.ClrTypeOfValues),
-                args: new object[] { this, channel, model })!;
+                args: new object?[] { this, channel, model, module })!;
             _bindings[model.Key] = (model, binding);
             return Disposable.Create(() =>
             {
@@ -323,15 +481,15 @@ namespace VL.IO.Redis
         void Invalidate(string key);
     }
 
-    [ProcessNode]
-    public class Binding : IDisposable
+    [ProcessNode(Name = "Binding")]
+    public class BindingNode : IDisposable
     {
         private readonly SerialDisposable _current = new();
         private readonly NodeContext _nodeContext;
 
         private (RedisClient? client, IChannel? channel, string? key, Initialization initialization, RedisBindingType bindingType, CollisionHandling collisionHandling, SerializationFormat? serializationFormat) _config;
 
-        public Binding(NodeContext nodeContext)
+        public BindingNode(NodeContext nodeContext)
         {
             _nodeContext = nodeContext;
         }
@@ -381,16 +539,18 @@ namespace VL.IO.Redis
         private readonly RedisClient _client;
         private readonly IChannel<T> _channel;
         private readonly BindingModel _bindingModel;
+        private readonly RedisModule? _module;
 
         private bool _initialized;
         private bool _weHaveNewData;
         private bool _othersHaveNewData;
 
-        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel)
+        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel, RedisModule? module)
         {
             _client = client;
             _channel = channel;
             _bindingModel = bindingModel;
+            _module = module;
 
             _initialized = bindingModel.Initialization == Initialization.None;
             _authorId = this.GetHashCode().ToString();
@@ -483,7 +643,7 @@ namespace VL.IO.Redis
             }
         }
 
-        IModule? IBinding.Module => null;
+        IModule? IBinding.Module => _module;
 
         string IBinding.ShortLabel => "Redis";
 
@@ -653,6 +813,57 @@ namespace VL.IO.Redis
                 queue.OnMessage(handler);
                 _subscription.Disposable = Disposable.Create(() => queue.Unsubscribe());
             }
+        }
+    }
+
+    public static class ServerManagement
+    {
+        public static bool DeleteKey(this RedisClient? client, string? key, bool apply)
+        {
+            if (!apply)
+                return false;
+
+            if (client is null)
+                return false;
+
+            if (string.IsNullOrEmpty(key))
+                return false;
+
+            return client.GetDatabase().KeyDelete(key);
+        }
+
+        public static void FlushDB(this RedisClient? client, bool apply)
+        {
+            if (!apply)
+                return;
+
+            if (client is null)
+                return;
+
+            var server = client.GetServer();
+            if (server is null)
+                return;
+
+            server.FlushDatabase(client.Database);
+        }
+
+        public static Spread<string> Scan(this RedisClient? client, string? pattern, bool apply)
+        {
+            if (!apply)
+                return Spread<string>.Empty;
+
+            if (client is null)
+                return Spread<string>.Empty;
+
+            var server = client.GetServer();
+            if (server is null)
+                return Spread<string>.Empty;
+
+            var builder = new SpreadBuilder<string>();
+            foreach (var key in server.Keys(client.Database, pattern))
+                builder.Add(key.ToString());
+
+            return builder.ToSpread();
         }
     }
 }
