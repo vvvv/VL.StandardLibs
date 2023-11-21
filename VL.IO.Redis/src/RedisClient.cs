@@ -40,19 +40,27 @@ namespace VL.IO.Redis
             _multiplexer = multiplexer;
             _logger = logger;
 
+            // This opens a Pub/Sub connection internally
+            var subscriber = multiplexer.GetSubscriber();
+            var _invalidations = subscriber.Subscribe(RedisChannel.Literal("__redis__:invalidate"));
+            _invalidations.OnMessage(OnInvalidationMessage);
+
+            EnableClientSideTracking();
+            _multiplexer.ConnectionRestored += (s, e) =>
+            {
+                // Re-enable client side tracking
+                EnableClientSideTracking();
+            };
+        }
+
+        private void EnableClientSideTracking()
+        {
             // HACK: It seems the StackExchange API is a little too high level here / doesn't support this yet properly:
             // 1) CLIENT TRACKING ON without the REDIRECT option requires RESP3, but StackExchange will crash in that case not being able to handle the incoming server message
             // 2) CLIENT TRACKING ON with the REDIRECT option only seems to work in RESP2, but in RESP2 we need to use a 2nd connection for Pub/Sub.
             //    However getting the ID of that 2nd connection is not possible in StackExchange (https://stackoverflow.com/questions/66964604/how-do-i-get-the-client-id-for-the-isubscriber-connection)
             //    we need to ask the server (requires the AllowAdmin option) for the client list and then identify our pub/sub connection.
             // Hopefully the situation should improve once https://github.com/StackExchange/StackExchange.Redis/tree/server-cache-invalidation is merged back.
-
-            // This opens a Pub/Sub connection internally
-            var subscriber = multiplexer.GetSubscriber();
-            var _invalidations = subscriber.Subscribe(RedisChannel.Literal("__redis__:invalidate"));
-            _invalidations.OnMessage(OnInvalidationMessage);
-
-            // Let's try to find that one now
             foreach (var s in _multiplexer.GetServers())
             {
                 var pubSubClient = s.ClientList().FirstOrDefault(c => c.Name == _multiplexer.ClientName && c.ClientType == ClientType.PubSub);
