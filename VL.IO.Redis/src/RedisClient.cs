@@ -12,6 +12,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using VL.Core.Import;
+using VL.IO.Redis.Internal;
 using VL.Lib.Animation;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
@@ -27,7 +28,7 @@ namespace VL.IO.Redis
     {
         private readonly TransactionBuilder _transactionBuilder = new();
         private readonly ILogger _logger;
-        internal readonly Dictionary<string, (BindingModel model, IDisposable binding)> _bindings = new();
+        internal readonly Dictionary<string, (BindingModel model, IRedisBinding binding)> _bindings = new();
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly Subject<Unit> _networkSync = new Subject<Unit>();
 
@@ -106,7 +107,7 @@ namespace VL.IO.Redis
             if (_bindings.ContainsKey(model.Key))
                 throw new InvalidOperationException($"The redis key \"{model.Key}\" is already bound to a different channel.");
 
-            var binding = (IDisposable)Activator.CreateInstance(
+            var binding = (IRedisBinding)Activator.CreateInstance(
                 type: typeof(Binding<>).MakeGenericType(channel.ClrTypeOfValues),
                 args: new object?[] { this, channel, model, module })!;
             _bindings[model.Key] = (model, binding);

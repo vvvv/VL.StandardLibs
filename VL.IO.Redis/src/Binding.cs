@@ -5,12 +5,13 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using VL.Core.Reactive;
+using VL.IO.Redis.Internal;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
 
 namespace VL.IO.Redis
 {
-    internal class Binding<T> : IParticipant, IDisposable, IBinding
+    internal class Binding<T> : IParticipant, IDisposable, IRedisBinding
     {
         private readonly SerialDisposable _clientSubscription = new();
         private readonly SerialDisposable _channelSubscription = new();
@@ -52,6 +53,8 @@ namespace VL.IO.Redis
             _clientSubscription.Dispose();
             _channelSubscription.Dispose();
         }
+
+        public BindingModel Model => _bindingModel;
 
         void IParticipant.Invalidate(string key)
         {

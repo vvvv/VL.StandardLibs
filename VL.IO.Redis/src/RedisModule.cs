@@ -115,13 +115,29 @@ namespace VL.IO.Redis
             // Cleanup
             var obsoleteKeys = new List<string>();
             foreach (var entry in _redisClient._bindings)
-                if (!model.TryGetValue(entry.Key, out var m) || m != entry.Value.model)
+            {
+                var binding = entry.Value.binding;
+                if (binding.Module != this)
+                    continue;
+
+                if (model.TryGetValue(entry.Key, out var bindingModel))
+                {
+                    // Did the model change?
+                    if (binding.Model != bindingModel)
+                        obsoleteKeys.Add(entry.Key);
+                }
+                else
+                {
+                    // Deleted
                     obsoleteKeys.Add(entry.Key);
+                }
+            }
 
             foreach (var key in obsoleteKeys)
             {
                 var (_, binding) = _redisClient._bindings[key];
                 binding.Dispose();
+                _redisClient._bindings.Remove(key);
             }
 
             // Add new
