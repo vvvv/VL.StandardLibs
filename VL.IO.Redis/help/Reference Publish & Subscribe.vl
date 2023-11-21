@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="RVoT306j7lXM8mO8hrLGwx" LanguageVersion="2023.5.3-0175-g954e54d8d0" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="RVoT306j7lXM8mO8hrLGwx" LanguageVersion="2023.5.3-0321-g0605d75f63" Version="0.128">
   <NugetDependency Id="E0Ruoyyr69YLEosglyzAuA" Location="VL.CoreLib" Version="2023.5.3-0164-g883a868a2e" />
   <Patch Id="D0qe4WFgAj3QN2GSaSZhvs">
     <Canvas Id="ELDkzj4gv8iMFmeQhbqUrW" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -23,11 +23,12 @@
               <Choice Kind="ProcessAppFlag" Name="RedisClient" />
             </p:NodeReference>
             <Pin Id="DVoGhkKD6EdPAMMde0vWRc" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="KQVCyD8hYdIMyJjokmSJjJ" Name="Frame Clock" Kind="InputPin" IsHidden="true" />
             <Pin Id="K8pDgkqcxDDOUlHVsb13im" Name="Configuration" Kind="InputPin" />
-            <Pin Id="TZbDwhkHD1DNeHowJLVVlg" Name="Configure" Kind="InputPin" IsHidden="true" />
-            <Pin Id="S7IoYrflZatNESq9Kj6D0j" Name="Log to Console" Kind="InputPin" IsHidden="true" />
-            <Pin Id="QyfPV4b8LSrLbB9ZjCYsz0" Name="Database" Kind="InputPin" IsHidden="true" />
-            <Pin Id="M4NQhFGALlkQAxWXtny6cV" Name="Client" Kind="OutputPin" />
+            <Pin Id="TZbDwhkHD1DNeHowJLVVlg" Name="Configure" Kind="InputPin" />
+            <Pin Id="QyfPV4b8LSrLbB9ZjCYsz0" Name="Database" Kind="InputPin" />
+            <Pin Id="NoeeB79YzndLhuDQVfL7np" Name="Serialization Format" Kind="InputPin" />
+            <Pin Id="JMHoQkNsU5zP22OTNfBbZ9" Name="Output" Kind="OutputPin" />
             <Pin Id="BrCHfdXhaLyNi2zJQiGKTu" Name="Is Connected" Kind="OutputPin" />
             <Pin Id="Q1H62ZjD41YN6TWMx5nSfw" Name="Client Name" Kind="OutputPin" />
           </Node>
@@ -38,7 +39,7 @@
           </Pad>
           <Pad Id="UhN1atuKg9TLitVMKq5Bnd" Comment="Is Connected" Bounds="969,281,35,35" ShowValueBox="true" isIOBox="true" />
           <Overlay Id="AUGcl5ZWHyMNEAC0YUNKf8" Name="RedisClient" Bounds="878,126,656,198" />
-          <Node Bounds="926,584,49,19" Id="D9y37NkB5viNgRjSqnXpO8">
+          <Node Bounds="926,584,85,19" Id="D9y37NkB5viNgRjSqnXpO8">
             <p:NodeReference LastCategoryFullName="V.IO.Redis" LastDependency="VL.IO.Redis.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="Redis" NeedsToBeDirectParent="true" />
@@ -46,10 +47,10 @@
             </p:NodeReference>
             <Pin Id="Q5NHy9VZLh6Qb50D1X1czH" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="CtjW1NWIvgHPQWbl9O4mwB" Name="Client" Kind="InputPin" />
-            <Pin Id="Satcl03URWiLg6USYi9WZS" Name="Input" Kind="InputPin" />
             <Pin Id="UBzzZFPAfwiPRcLUwCN8wt" Name="Redis Channel" Kind="InputPin" />
-            <Pin Id="HSPWemjlF7bN6h6CaqwCFI" Name="Pattern" Kind="InputPin" IsHidden="true" />
-            <Pin Id="NgeNPlt9aR4OmvBnrcfSg6" Name="Client" Kind="OutputPin" IsHidden="true" />
+            <Pin Id="Satcl03URWiLg6USYi9WZS" Name="Input" Kind="InputPin" />
+            <Pin Id="HSPWemjlF7bN6h6CaqwCFI" Name="Pattern" Kind="InputPin" />
+            <Pin Id="IMC2o77g2Q4PoWDjo4zmzp" Name="Serialization Format" Kind="InputPin" />
           </Node>
           <Pad Id="D0zLH813yIwQKfdjpQIoN6" Comment="Redis Channel" Bounds="972,550,83,15" ShowValueBox="true" isIOBox="true" Value="MyRedisLFO">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
@@ -84,7 +85,7 @@
             <Pin Id="NgRo0nR9DD4OrcuL3YjUFG" Name="Cycles" Kind="OutputPin" />
           </Node>
           <Pad Id="TFDNyCsoOT3OjJZ0BtcUo4" Comment="Phase" Bounds="951,449,35,15" ShowValueBox="true" isIOBox="true" />
-          <Node Bounds="926,734,60,19" Id="QWcycaho3HkMv2jBJhf6G0">
+          <Node Bounds="926,734,85,19" Id="QWcycaho3HkMv2jBJhf6G0">
             <p:NodeReference LastCategoryFullName="V.IO.Redis" LastDependency="VL.IO.Redis.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="Redis" NeedsToBeDirectParent="true" />
@@ -93,8 +94,9 @@
             <Pin Id="Hy20gLNUBSYNwxu39A5oUB" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="OfCQMSbkNXsL4EJUTz8kIi" Name="Client" Kind="InputPin" />
             <Pin Id="PbNGWPmFGFcLqeADjZqYFL" Name="Redis Channel" Kind="InputPin" />
-            <Pin Id="GgjB23MHDGbMjZ2B0D4TyG" Name="Pattern" Kind="InputPin" IsHidden="true" />
-            <Pin Id="CjPdSF0vkOyQFXlh9swQDz" Name="Client" Kind="OutputPin" IsHidden="true" />
+            <Pin Id="GgjB23MHDGbMjZ2B0D4TyG" Name="Pattern" Kind="InputPin" />
+            <Pin Id="Ovsbzdr9HDDMi1fXzFs1NG" Name="Serialization Format" Kind="InputPin" />
+            <Pin Id="UX4PoQLF8BRMbqaE4W4AVg" Name="Process Messages Concurrently" Kind="InputPin" />
             <Pin Id="RgyQeqAFxvIPZLtXYuobxZ" Name="Output" Kind="OutputPin" />
           </Node>
           <Pad Id="SOZS8OxSeZEOdkxtowt6WI" Comment="Redis Channel" Bounds="983,705,83,15" ShowValueBox="true" isIOBox="true" Value="MyRedisLFO">
@@ -205,8 +207,8 @@
         <Link Id="FpmtCztfVzgPhKPK0O5jli" Ids="PnLvDmblSQVPP6vxIAkTOC,UNYNBYVkPAfOPBh8sT4tL9" />
         <Link Id="AGmI1NhBB8SLtO3kEKt0ZN" Ids="RgyQeqAFxvIPZLtXYuobxZ,PQ6sfbYJ9wbLlpQASiJu0N" />
         <Link Id="TvwTfGDGluKLkCUUxAg3A7" Ids="SDcfPBq52OYPyyh0CIXYOH,FLq0AVuD3iIMKXUsCdZyCX" />
-        <Link Id="Hx4mTV24VVhNAiCDRm2QOG" Ids="M4NQhFGALlkQAxWXtny6cV,CtjW1NWIvgHPQWbl9O4mwB" />
-        <Link Id="VGcu9XOXEfwODzh8bdQmiL" Ids="M4NQhFGALlkQAxWXtny6cV,OfCQMSbkNXsL4EJUTz8kIi" />
+        <Link Id="MV0mtqvkQBAP47Ir2ARTwn" Ids="JMHoQkNsU5zP22OTNfBbZ9,CtjW1NWIvgHPQWbl9O4mwB" />
+        <Link Id="TIBz9D3vl7XP1amPEwTdWr" Ids="JMHoQkNsU5zP22OTNfBbZ9,OfCQMSbkNXsL4EJUTz8kIi" />
       </Patch>
     </Node>
   </Patch>

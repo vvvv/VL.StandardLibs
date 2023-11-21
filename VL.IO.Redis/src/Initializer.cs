@@ -7,9 +7,10 @@ using VL.Core;
 using VL.Core.CompilerServices;
 using VL.IO.Redis;
 
-[assembly:AssemblyInitializer(typeof(Initializer))]
+[assembly:AssemblyInitializer(typeof(_VL_.IO.Redis.Initializer))]
 
-namespace VL.IO.Redis
+// By using _VL_ we can hide this class from direct import (we should find a nicer way probably)
+namespace _VL_.IO.Redis
 {
     public sealed class Initializer : AssemblyInitializer<Initializer>
     {
