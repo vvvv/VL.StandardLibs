@@ -20,6 +20,11 @@ namespace VL.Serialization.MessagePack
             throw new ArgumentException($"Couldn't retrieve memory from {typeof(T)}", nameof(input));
         }
 
+        public static T Deserialize<T>(ReadOnlyMemory<byte> input)
+        {
+            return MessagePackSerializer.Deserialize<T>(input, VLResolver.Options);
+        }
+
         public static string SerializeJson<T>(T input, bool prettify = true)
         {
             var json = MessagePackSerializer.SerializeToJson(input, VLResolver.Options);
@@ -31,7 +36,7 @@ namespace VL.Serialization.MessagePack
         public static T DeserializeJson<T>(string input)
         {
             var bytes = MessagePackSerializer.ConvertFromJson(input, VLResolver.Options);
-            return Deserialize<T>(bytes);
+            return Deserialize<T>((ReadOnlyMemory<byte>)bytes);
         }
     }
 }

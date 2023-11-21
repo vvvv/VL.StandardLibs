@@ -20,5 +20,15 @@ namespace VL.IO.Redis
                 }
             }
         }
+
+        public static IDisposable AddException(this IVLRuntime runtime, NodeContext nodeContext, Exception exception)
+        {
+            var warnings = new CompositeDisposable();
+            foreach (var id in nodeContext.Path.Stack.SkipLast(1))
+            {
+                warnings.Add(runtime.AddPersistentMessage(new VL.Lang.Message(id, VL.Lang.MessageSeverity.Warning, exception.Message)));
+            }
+            return warnings;
+        }
     }
 }
