@@ -52,6 +52,9 @@ namespace VL.IO.Redis
             _channel.RemoveComponent(this);
             _clientSubscription.Dispose();
             _channelSubscription.Dispose();
+
+            if (_module != null)
+                _module.RemoveBinding(this);
         }
 
         public BindingModel Model => _bindingModel;

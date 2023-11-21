@@ -13,6 +13,7 @@ using VL.Lang.PublicAPI;
 using VL.Lib.Animation;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
+using VL.IO.Redis.Internal;
 
 namespace VL.IO.Redis
 {
@@ -137,7 +138,6 @@ namespace VL.IO.Redis
             {
                 var (_, binding) = _redisClient._bindings[key];
                 binding.Dispose();
-                _redisClient._bindings.Remove(key);
             }
 
             // Add new
@@ -149,9 +149,14 @@ namespace VL.IO.Redis
                     _logger.LogWarning("Couldn't find global channel with name \"{channelName}\"", key);
                     continue;
                 }
-
-                _redisClient.AddBinding(bindingModel, channel, this);
+                if (!_redisClient._bindings.ContainsKey(key))
+                    _redisClient.AddBinding(bindingModel, channel, this);
             }
+        }
+
+        internal void RemoveBinding(IRedisBinding binding)
+        {
+            _redisClient?._bindings.Remove(binding.Model.Key);
         }
 
         string IModule.Name => "Redis";
