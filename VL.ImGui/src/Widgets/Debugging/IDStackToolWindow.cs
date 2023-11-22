@@ -3,7 +3,7 @@
 namespace VL.ImGui.Windows
 {
     [GenerateNode(Category = "ImGui.Advanced.Debug")]
-    public sealed partial class StackToolWindow : Widget
+    public sealed partial class IDStackToolWindow : Widget
     {
         public bool HasCloseButton { get; set; } = true;
 
@@ -19,12 +19,12 @@ namespace VL.ImGui.Windows
             if (HasCloseButton)
             {
                 var open = true;
-                ImGuiNET.ImGui.ShowStackToolWindow(ref open);
+                ImGuiNET.ImGui.ShowIDStackToolWindow(ref open);
                 Closing = !open;
             }
             else
             {
-                ImGuiNET.ImGui.ShowStackToolWindow();
+                ImGuiNET.ImGui.ShowIDStackToolWindow();
             }
         }
     }
