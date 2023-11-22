@@ -5,8 +5,6 @@ namespace VL.Core
 {
     public abstract class SerializationService
     {
-        public static SerializationService Current => AppHost.CurrentOrGlobal.SerializationService;
-
         /// <summary>
         /// Registers a VL serializer to the factory. 
         /// In case the type for which the serializer gets registered is generic a dummy type instantiation paired with a dummy

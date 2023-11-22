@@ -25,6 +25,12 @@ namespace VL.ImGui.Styling
 
         public Optional<Color4> Active { private get; set; }
 
+        public Optional<float> TextBorderSize { private get; set; }
+
+        public Optional<Vector2> TextAlign { private get; set; }
+
+        public Optional<Vector2> TextPadding { private get; set; }
+
         internal override void SetCore(Context context)
         {
             if (Color.HasValue)
@@ -41,6 +47,21 @@ namespace VL.ImGui.Styling
             {
                 colorCount++;
                 ImGui.PushStyleColor(ImGuiCol.SeparatorActive, Active.Value.ToImGui());
+            }
+            if (TextBorderSize.HasValue)
+            {
+                valueCount++;
+                ImGui.PushStyleVar(ImGuiStyleVar.SeparatorTextBorderSize, TextBorderSize.Value.FromHectoToImGui());
+            }
+            if (TextAlign.HasValue)
+            {
+                valueCount++;
+                ImGui.PushStyleVar(ImGuiStyleVar.SeparatorTextAlign, TextAlign.Value.ToImGui());
+            }
+            if (TextPadding.HasValue)
+            {
+                valueCount++;
+                ImGui.PushStyleVar(ImGuiStyleVar.SeparatorTextPadding, TextPadding.Value.FromHectoToImGui());
             }
         }
     }

@@ -29,11 +29,11 @@ namespace VL.Core.Tests
         [SetUp]
         public void Setup()
         {
-            typeRegistry = new();
+            typeRegistry = new(new VLTypeInfoFactory(scanAssemblies: false));
             appHost = new(typeRegistry);
             factory = appHost.Factory;
-            context = NodeContext.Default;
             appHost.MakeCurrent().DisposeBy(appHost);
+            context = NodeContext.Create(appHost);
         }
 
         [TearDown]
@@ -67,6 +67,13 @@ namespace VL.Core.Tests
                     return new SomeVLObject(someValue);
                 else
                     return this;
+            }
+
+            protected override object __ReadProperty__(string key)
+            {
+                if (key == nameof(SomeValue))
+                    return SomeValue;
+                return base.__ReadProperty__(key);
             }
 
             protected override IVLObject __With__(IReadOnlyDictionary<string, object> values)

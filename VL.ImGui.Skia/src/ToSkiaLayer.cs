@@ -204,7 +204,7 @@ namespace VL.ImGui
                     SizePixels = size,
                     FontDataOwnedByAtlas = 0,
                     EllipsisChar = unchecked((ushort)-1),
-                    OversampleH = 1,
+                    OversampleH = 2,
                     OversampleV = 1,
                     PixelSnapH = 1,
                     GlyphOffset = new Vector2(0, 0),
@@ -310,7 +310,7 @@ namespace VL.ImGui
 
                 for (int i = 0; i < drawData.CmdListsCount; ++i)
                 {
-                    var drawList = drawData.CmdListsRange[i];
+                    var drawList = drawData.CmdLists[i];
 
                     // De-interleave all vertex data (sigh), convert to Skia types
                     //pos.Clear(); uv.Clear(); color.Clear();
@@ -510,7 +510,6 @@ namespace VL.ImGui
                                 _io.AddMouseWheelEvent(hWheel.WheelDelta / 120, 0);
                             break;
                         case MouseNotificationKind.DeviceLost:
-                            _io.ClearInputCharacters();
                             _io.ClearInputKeys();
                             break;
                         default:
@@ -524,7 +523,8 @@ namespace VL.ImGui
 
                 foreach (var layer in _context.Layers)
                 {
-                    layer.Notify(notification, caller);
+                    if (layer.Notify(notification, caller))
+                        return true;
                 }
 
                 return false;

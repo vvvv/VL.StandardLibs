@@ -239,7 +239,7 @@ namespace VL.Lib.Experimental
 
         static StaticPatches()
         {
-            StaticField = (T)AppHost.Current.CreateInstance(typeof(T), NodeContext.Default);
+            StaticField = (T)AppHost.Current.CreateInstance(typeof(T));
         }
 
         public static T Singleton

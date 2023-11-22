@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="RtP4abdhgYMLZTtyqO4yNY" LanguageVersion="2023.5.3-0222-gc9b9f1b9c9" Version="0.128">
+  <Patch Id="J993qDGeassNjH78uEwNvM">
+    <Canvas Id="Tgac8O7g8WUP8stz709JHN" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="319,214" Id="Qe3M4hUMQqgNwO1N6xAwUc">
+      <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+        <Choice Kind="ContainerDefinition" Name="Process" />
+      </p:NodeReference>
+      <Patch Id="Q4KYAHzeVz3LnA4p7z4zB8">
+        <Canvas Id="ThsLeEisveJPcXWHjJ9H0Z" CanvasType="Group">
+          <Pad Id="HVbIwi2Goj7M4SRQFYz3J1" Bounds="169,119,201,31" ShowValueBox="true" isIOBox="true" Value="Use `Exit` node.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="CoreLibBasics.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">15</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="CieFKiIuNJSLSS6K2IgHI7" Bounds="169,167,264,203" ShowValueBox="true" isIOBox="true" Value="Application exits when all of its windows are closed. But sometimes you want to close your App when some condition is met, or when user cliks a button in your UI.&#xD;&#xA;&#xD;&#xA;`IsExported` is useful to check if the App is exported or runs from the editor.&#xD;&#xA;&#xD;&#xA;If the `Exit` is executed in the editor, editor exits.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="596,337,92,19" Id="ClOMe5pH88bLCdVpov93MC">
+            <p:NodeReference LastCategoryFullName="System.Application" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Exit" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="FrFdanN2lm4LzSqCpILJbC" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="UlEMZnoLPW3QEK6QjlsjQH" Name="Execute" Kind="InputPin" />
+          </Node>
+          <Node Bounds="547,162,36,19" Id="TJ4hA8YRThMOAh9HRLEteX">
+            <p:NodeReference LastCategoryFullName="System.DateTime" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="4026531840" Name="DateTime" NeedsToBeDirectParent="true" />
+              <Choice Kind="OperationCallFlag" Name="Now" />
+            </p:NodeReference>
+            <Pin Id="UcDCp3ga9seNeztWarOHXr" Name="Now" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="547,190,51,26" Id="DRAfnksWzK6LEZiG3UPvfE">
+            <p:NodeReference LastCategoryFullName="System.DateTime" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="4026531840" Name="DateTime" />
+              <Choice Kind="OperationCallFlag" Name="Hour" />
+            </p:NodeReference>
+            <Pin Id="RDEI57o0YJANx3yqxDmOsd" Name="Input" Kind="StateInputPin" />
+            <Pin Id="L4M2Qc0Kg3ALVa18UkwS96" Name="Hour" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="576,241,25,19" Id="I2e72c0XLIeLjjanL3NyFd">
+            <p:NodeReference LastCategoryFullName="Math" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="=" />
+            </p:NodeReference>
+            <Pin Id="II7gzZ78aisQGamd9OaU7Z" Name="Input" Kind="InputPin" />
+            <Pin Id="BeSniFn3JxsOCGHLzIbOAE" Name="Input 2" Kind="InputPin" />
+            <Pin Id="PbX2pp3nq24P3rF9hwzYUd" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="VcntuVgn8hrP9hvpHz12k4" Comment="" Bounds="616,204,35,15" ShowValueBox="true" isIOBox="true" Value="18">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="TypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="645,241,65,19" Id="OOXmuBcX7k9PnylrDxQzaz">
+            <p:NodeReference LastCategoryFullName="System.Application" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Application" NeedsToBeDirectParent="true" />
+              <Choice Kind="OperationCallFlag" Name="IsExported" />
+            </p:NodeReference>
+            <Pin Id="DZm27HAxF5RNh0Y4Dmn9Yg" Name="Is Exported" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="596,288,37,19" Id="Ua5p2p1puPHLMBLOA2Rvhj">
+            <p:NodeReference LastCategoryFullName="Primitive.Boolean" LastDependency="VL.CoreLib.Windows.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="AND" />
+            </p:NodeReference>
+            <Pin Id="H8MQfJkcQlYMOD187XzXpO" Name="Input" Kind="StateInputPin" />
+            <Pin Id="OzrQ9Gk81vyMekCaysCPaw" Name="Input 2" Kind="InputPin" />
+            <Pin Id="S8zaoGPcNX0L75V9saJ7nq" Name="Output" Kind="StateOutputPin" />
+          </Node>
+        </Canvas>
+        <Patch Id="ScGb1anQliBQEuzymRusro" Name="Create" />
+        <Patch Id="PcT2WE30PNbObdDlM2ItuX" Name="Update" />
+        <ProcessDefinition Id="LJTKSwnFdlXOFAHC3AG76h">
+          <Fragment Id="ONHWTIJf5tiPM1xdMWlmPV" Patch="ScGb1anQliBQEuzymRusro" Enabled="true" />
+          <Fragment Id="SQx3OwHHYwPQSlLRmbAeyB" Patch="PcT2WE30PNbObdDlM2ItuX" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="BSzzSGfYmmLPgl0hH3VVH4" Ids="UcDCp3ga9seNeztWarOHXr,RDEI57o0YJANx3yqxDmOsd" />
+        <Link Id="JUxrdJv2okRLwEzXfzr1mn" Ids="L4M2Qc0Kg3ALVa18UkwS96,II7gzZ78aisQGamd9OaU7Z" />
+        <Link Id="PwA07lVr3JhLtcVf4LqcTV" Ids="VcntuVgn8hrP9hvpHz12k4,BeSniFn3JxsOCGHLzIbOAE" />
+        <Link Id="SyzbQnCA4jpLbSistmUmFq" Ids="PbX2pp3nq24P3rF9hwzYUd,H8MQfJkcQlYMOD187XzXpO" />
+        <Link Id="D4nAyHDAzjyO7RgIjhQXBc" Ids="DZm27HAxF5RNh0Y4Dmn9Yg,OzrQ9Gk81vyMekCaysCPaw" />
+        <Link Id="BTZL0L4QMhBPcltzsodrVK" Ids="S8zaoGPcNX0L75V9saJ7nq,UlEMZnoLPW3QEK6QjlsjQH" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="I8fCdivVlzZQHxgA4vtDii" Location="VL.CoreLib.Windows" Version="2019.2.0-0342-g6bc9b61985" />
+</Document>

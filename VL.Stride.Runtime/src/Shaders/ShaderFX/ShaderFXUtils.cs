@@ -20,29 +20,29 @@ namespace VL.Stride.Shaders.ShaderFX
 
     public static class ShaderFXUtils
     {
-        public static GetVar<T> GetConstant<T>(T value)
+        public static GetVar<T> GetConstant<T>(T value) where T : unmanaged
             => new GetConstant<T>(value);
 
-        public static GetVar<T> GetConstant<T>(DeclConstant<T> declConstant)
+        public static GetVar<T> GetConstant<T>(DeclConstant<T> declConstant) where T : unmanaged
             => new GetVar<T>(declConstant);
 
-        public static GetVar<T> GetSemantic<T>(string semantic, string name = "SemanticValue")
+        public static GetVar<T> GetSemantic<T>(string semantic, string name = "SemanticValue") where T : unmanaged
             => new GetSemantic<T>(semantic, name);
 
-        public static GetVar<T> GetSemantic<T>(DeclSemantic<T> declSemantic)
+        public static GetVar<T> GetSemantic<T>(DeclSemantic<T> declSemantic) where T : unmanaged
             => new GetVar<T>(declSemantic);
 
-        public static SetVar<T> Constant<T>(T value)
+        public static SetVar<T> Constant<T>(T value) where T : unmanaged
             => new SetVar<T>(null, new DeclConstant<T>(value));
 
-        public static SetVar<T> Semantic<T>(string semantic, string name = "SemanticValue")
+        public static SetVar<T> Semantic<T>(string semantic, string name = "SemanticValue") where T : unmanaged
             => new SetVar<T>(null, new DeclSemantic<T>(semantic, name));
 
-        public static SetVar<T> SetSemantic<T>(IComputeValue<T> value, string semantic, string name = "SemanticValue")
+        public static SetVar<T> SetSemantic<T>(IComputeValue<T> value, string semantic, string name = "SemanticValue") where T : unmanaged
             => new SetVar<T>(value, new DeclSemantic<T>(semantic, name));
 
 
-        public static SetVar<T> InputValue<T>(T value) where T : struct
+        public static SetVar<T> InputValue<T>(T value) where T : unmanaged
         {
             var input = new InputValue<T>();
             input.Input = value;
@@ -56,6 +56,7 @@ namespace VL.Stride.Shaders.ShaderFX
         /// <param name="valueGetter"></param>
         /// <returns></returns>
         public static SetVar<T> DeclAndSetVar<T>(IComputeValue<T> valueGetter)
+            where T : unmanaged
         {
             if (valueGetter is GetVar<T> getVar)
                 return new SetVar<T>(valueGetter, getVar.Declaration);
@@ -69,7 +70,7 @@ namespace VL.Stride.Shaders.ShaderFX
         /// <param name="varName"></param>
         /// <param name="valueGetter"></param>
         /// <returns></returns>
-        public static SetVar<T> DeclAndSetVar<T>(string varName, IComputeValue<T> valueGetter)
+        public static SetVar<T> DeclAndSetVar<T>(string varName, IComputeValue<T> valueGetter) where T : unmanaged
             => new SetVar<T>(valueGetter, new DeclVar<T>(varName));
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace VL.Stride.Shaders.ShaderFX
         /// <param name="existingVar"></param>
         /// <param name="valueGetter"></param>
         /// <returns></returns>
-        public static SetVar<T> SetVar<T>(this SetVar<T> existingVar, IComputeValue<T> valueGetter)
+        public static SetVar<T> SetVar<T>(this SetVar<T> existingVar, IComputeValue<T> valueGetter) where T : unmanaged
             => new SetVar<T>(valueGetter, existingVar.Declaration);
 
         /// <summary>
@@ -89,6 +90,7 @@ namespace VL.Stride.Shaders.ShaderFX
         /// <param name="existingVar"></param>
         /// <returns></returns>
         public static IComputeValue<T> GetVarValue<T>(this SetVar<T> existingVar)
+            where T : unmanaged
         {
             return new GetVar<T>(existingVar);
         }

@@ -13,7 +13,7 @@ namespace VL.Core.Tests
     {
         static TypeRegistry SetupRegistry()
         {
-            var registry = new TypeRegistryImpl();
+            var registry = new TypeRegistryImpl(new VLTypeInfoFactory(scanAssemblies: false));
             registry.RegisterType(typeof(object), "Object", "Primitive");
             registry.RegisterType(typeof(int), "Integer32", "Primitive");
             registry.RegisterType(typeof(List<>), "MutableList", "Collections");

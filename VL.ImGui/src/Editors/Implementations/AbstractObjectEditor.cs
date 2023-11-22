@@ -61,7 +61,7 @@ namespace VL.ImGui.Editors
                 return;
 
             var type = value?.GetType();
-            if (type is null || type == typeof(object))
+            if (type is null || type == typeof(object) || type.IsNotPublic /* We can only wrap public types, otherwise we might run into type load exception when building adaptive nodes*/)
             {
                 privateChannelSubscription.Disposable = null;
                 privateChannel?.Dispose();

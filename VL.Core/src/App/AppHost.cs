@@ -1,4 +1,6 @@
 ﻿#nullable enable
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +10,8 @@ using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading;
 using VL.Core.CompilerServices;
+using VL.Core.Logging;
+using LoggerFactory = VL.Core.Logging.LoggerFactory;
 
 namespace VL.Core
 {
@@ -39,6 +43,8 @@ namespace VL.Core
         /// Whether or not a context is installed on the current thread.
         /// </summary>
         internal static bool IsCurrent() => current != null;
+
+        internal static ILogger? CurrentDefaultLogger => current?.DefaultLogger;
 
         private static AppHost? global;
 
@@ -145,6 +151,18 @@ namespace VL.Core
         public abstract IVLFactory Factory { get; }
 
         /// <summary>
+        /// The logger factory of the app. Logging gets configured by <see cref="IStartup.SetupLogging(AppHost, Microsoft.Extensions.Logging.ILoggingBuilder)"/>.
+        /// </summary>
+        public abstract LoggerFactory LoggerFactory { get; }
+
+        public abstract ILogger DefaultLogger { get; }
+
+        /// <summary>
+        /// The configuration of the app. The configuration gets initialized by <see cref="IStartup.SetupConfiguration(AppHost, IConfigurationBuilder)"/>.
+        /// </summary>
+        public abstract IConfiguration Configuration { get; }
+
+        /// <summary>
         /// The application patch.
         /// </summary>
         public abstract IVLObject App { get; }
@@ -199,6 +217,8 @@ namespace VL.Core
         internal object? GetDefaultValue(Type type) => GetDefaultValue(TypeRegistry.GetTypeInfo(type));
 
         internal abstract SerializationService SerializationService { get; }
+
+        internal abstract NodeContext RootContext { get; }
     }
 
     //public class NestedApp : IDisposable

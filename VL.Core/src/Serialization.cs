@@ -27,7 +27,8 @@ namespace VL.Core
         /// <returns>The serialized content as an <see cref="XElement"/>.</returns>
         public static XElement Serialize<T>(this NodeContext nodeContext, T value, bool includeDefaults = false)
         {
-            return (XElement)SerializationService.Current.Serialize(nodeContext, value, typeof(T), includeDefaults, pathsAreRelativeToDocument: false, forceElement: true);
+            var serialization = nodeContext.AppHost.SerializationService;
+            return (XElement)serialization.Serialize(nodeContext, value, typeof(T), includeDefaults, pathsAreRelativeToDocument: false, forceElement: true);
         }
 
         /// <summary>
@@ -48,14 +49,15 @@ namespace VL.Core
         /// <returns>The serialized content as an <see cref="XElement"/>.</returns>
         public static XElement Serialize<T>(this NodeContext nodeContext, T value, bool throwOnError, bool includeDefaults, out IReadOnlyList<string> errorMessages)
         {
+            var serialization = nodeContext.AppHost.SerializationService;
             if (throwOnError)
             {
                 errorMessages = Spread<string>.Empty;
-                return (XElement)SerializationService.Current.Serialize(nodeContext, value, typeof(T), includeDefaults, forceElement: true, pathsAreRelativeToDocument: false);
+                return (XElement)serialization.Serialize(nodeContext, value, typeof(T), includeDefaults, forceElement: true, pathsAreRelativeToDocument: false);
             }
             else
             {
-                return (XElement)SerializationService.Current.Serialize(nodeContext, value, typeof(T), includeDefaults, forceElement: true, pathsAreRelativeToDocument: false, out errorMessages);
+                return (XElement)serialization.Serialize(nodeContext, value, typeof(T), includeDefaults, forceElement: true, pathsAreRelativeToDocument: false, out errorMessages);
             }
         }
 
@@ -72,7 +74,8 @@ namespace VL.Core
         /// <returns>The deserialized value.</returns>
         public static T Deserialize<T>(this NodeContext nodeContext, XElement content)
         {
-            return (T)SerializationService.Current.Deserialize(nodeContext, content, typeof(T), pathsAreRelativeToDocument: false);
+            var serialization = nodeContext.AppHost.SerializationService;
+            return (T)serialization.Deserialize(nodeContext, content, typeof(T), pathsAreRelativeToDocument: false);
         }
 
         /// <summary>
@@ -89,14 +92,15 @@ namespace VL.Core
         /// <returns>The deserialized value.</returns>
         public static T Deserialize<T>(this NodeContext nodeContext, XElement content, bool throwOnError, out IReadOnlyList<string> errorMessages)
         {
+            var serialization = nodeContext.AppHost.SerializationService;
             if (throwOnError)
             {
                 errorMessages = Spread<string>.Empty;
-                return (T)SerializationService.Current.Deserialize(nodeContext, content, typeof(T), pathsAreRelativeToDocument: false);
+                return (T)serialization.Deserialize(nodeContext, content, typeof(T), pathsAreRelativeToDocument: false);
             }
             else
             {
-                return (T)SerializationService.Current.Deserialize(nodeContext, content, typeof(T), pathsAreRelativeToDocument: false, out errorMessages);
+                return (T)serialization.Deserialize(nodeContext, content, typeof(T), pathsAreRelativeToDocument: false, out errorMessages);
             }
         }
     }

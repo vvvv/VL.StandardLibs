@@ -1,4 +1,5 @@
 ﻿using Stride.Core;
+using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Graphics;
 using Stride.Rendering;
@@ -55,6 +56,7 @@ namespace VL.Stride.Rendering
             var _outputs = new List<IVLPinDescription>() { buildContext.Pin("Output", typeof(IEffect)) };
 
             var _parameterSetterInput = new PinDescription<Action<ParameterCollection, RenderView, RenderDrawContext>>("Parameter Setter");
+            var _worldIn = default(PinDescription<Matrix>);
 
             var usedNames = new HashSet<string>() { _parameterSetterInput.Name };
             var needsWorld = false;
@@ -81,7 +83,7 @@ namespace VL.Stride.Rendering
             }
 
             if (needsWorld)
-                _inputs.Add(new ParameterPinDescription(usedNames, TransformationKeys.World));
+                _inputs.Add(_worldIn = new PinDescription<Matrix>(TransformationKeys.World.GetPinName(usedNames), Matrix.Identity));
 
             _inputs.Add(_parameterSetterInput);
 
@@ -112,6 +114,8 @@ namespace VL.Stride.Rendering
                             inputs.Add(nodeBuildContext.Input<Action<ParameterCollection, RenderView, RenderDrawContext>>(v => effect.ParameterSetter = v));
                         else if (_input is ParameterPinDescription parameterPinDescription)
                             inputs.Add(parameterPinDescription.CreatePin(game.GraphicsDevice, effect.Parameters));
+                        else if (_input == _worldIn)
+                            inputs.Add(effect.WorldIn = (IVLPin<Matrix>)_worldIn.CreatePin(graphicsDevice, effect.Parameters));
                     }
 
                     var compositionPins = inputs.OfType<ShaderFXPin>().ToList();

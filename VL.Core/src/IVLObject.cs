@@ -47,6 +47,11 @@ namespace VL.Core
         uint Identity { get; }
 
         IVLObject With(IReadOnlyDictionary<string, object> values);
+        object ReadProperty(string key)
+        {
+            var fieldInfo = GetType().GetField(key, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            return fieldInfo?.GetValue(this);
+        }
     }
 
 #nullable enable
@@ -196,6 +201,11 @@ namespace VL.Core
         bool IsManaged { get; }
 
         /// <summary>
+        /// Whether or not this property should be serialized.
+        /// </summary>
+        internal bool ShouldBeSerialized { get; }
+
+        /// <summary>
         /// Gets the property value of the given instance.
         /// </summary>
         /// <param name="instance">The instance to get the value from.</param>
@@ -268,7 +278,7 @@ namespace VL.Core
         /// <returns>The newly created instance or null if the type is not known to VL.</returns>
         [Obsolete("Please use AppHost.CreateInstance")]
         public static object CreateInstance(this IVLFactory factory, Type type, UniqueId rootId)
-            => factory.AppHost.CreateInstance(type, NodeContext.Create(rootId));
+            => factory.AppHost.CreateInstance(type, NodeContext.Create(factory.AppHost, rootId));
 
         /// <summary>
         /// Creates a new instance of the given type using the VL generated constructor.
@@ -289,7 +299,7 @@ namespace VL.Core
         /// <returns>The newly created instance or null if the type is not known to VL.</returns>
         [Obsolete("Please use AppHost.CreateInstance")]
         public static object CreateInstance(this IVLFactory factory, IVLTypeInfo type, UniqueId rootId) 
-            => factory.CreateInstance(type.ClrType, NodeContext.Create(rootId));
+            => factory.CreateInstance(type.ClrType, NodeContext.Create(factory.AppHost, rootId));
 
         /// <summary>
         /// Registers a factory function which gets invoked when a service of type <typeparamref name="TService"/> is requested for
@@ -404,16 +414,16 @@ namespace VL.Core
         sealed class DefaultImpl : IVLObject
         {
             public AppHost AppHost => AppHost.CurrentOrGlobal;
-            public NodeContext Context => NodeContext.Default;
+            public NodeContext Context => AppHost.RootContext;
             public uint Identity => 0;
             public IVLObject With(IReadOnlyDictionary<string, object> values) => this;
         }
 
         public static readonly IVLObject Default = new DefaultImpl();
 
-        static readonly Regex FPropertyRegex = new Regex(@"\.?([^/[/.]+)($|\[.*|\..*)$", RegexOptions.Compiled);
-        static readonly Regex FValueIndexerRegex = new Regex(@"\[(-?[0-9]+)\](.*)$", RegexOptions.Compiled);
-        static readonly Regex FStringIndexerRegex = new Regex(@"\[""(.+)""\](.*)$", RegexOptions.Compiled);
+        static readonly Regex FPropertyRegex = new Regex(@"^\.?([^\[\.]+)($|\[.*|\..*)$", RegexOptions.Compiled);
+        static readonly Regex FValueIndexerRegex = new Regex(@"^\[(-?[0-9]+)\](.*)$", RegexOptions.Compiled);
+        static readonly Regex FStringIndexerRegex = new Regex(@"^\[""([^""]*)""\](.*)$", RegexOptions.Compiled);
 
         /// <summary>
         /// Tries to retrieve the path from the instance to the descendant.
@@ -1024,6 +1034,7 @@ namespace VL.Core
             public string OriginalName => Name;
             public uint Id => 0;
             public bool IsManaged => false;
+            public bool ShouldBeSerialized => false;
             public IVLTypeInfo Type => VLObjectExtensions.Default.Type;
             public object DefaultValue => null;
             public object GetValue(IVLObject instance) => null;

@@ -31,19 +31,20 @@ namespace VL.Lib.Control
             var oldStates = States.ToBuilder();
             var newStates = ImmutableDictionary<TInput, TState>.Empty.ToBuilder();
             var outputsBuilder = SpreadBuilder<TOutput>.Empty;
+            foreach (var key in input)
+                oldStates.Remove(key);
+            foreach (var dying in oldStates.Values)
+                (dying as IDisposable)?.Dispose();
             foreach (var i in input)
             {
                 var key = i;
-                if (!oldStates.TryGetValue(key, out TState state))
+                if (!States.TryGetValue(key, out TState state))
                     state = create(i);
-                oldStates.Remove(key);
                 TOutput output;
                 (state, output) = updator(state, i);
                 newStates[key] = state;
                 outputsBuilder.Add(output);
             }
-            foreach (var dying in oldStates.Values)
-                (dying as IDisposable)?.Dispose();
 
             outputs = outputsBuilder.ToSpread();
             return new SynchronizerInputIsKey<TState, TInput, TOutput>(newStates.ToImmutable());
@@ -84,17 +85,20 @@ namespace VL.Lib.Control
             foreach (var i in input)
             {
                 var key = keySelector(i);
-                if (!oldStates.TryGetValue(key, out TState state))
-                    state = create(i);
                 oldStates.Remove(key);
+            }
+            foreach (var dying in oldStates.Values)
+                (dying as IDisposable)?.Dispose();
+            foreach (var i in input)
+            {
+                var key = keySelector(i);
+                if (!States.TryGetValue(key, out TState state))
+                    state = create(i);
                 TOutput output;
                 (state, output) = updator(state, i);
                 newStates[key] = state;
                 outputsBuilder.Add(output);
             }
-            foreach (var dying in oldStates.Values)
-                (dying as IDisposable)?.Dispose();
-
             outputs = outputsBuilder.ToSpread();
             return new Synchronizer<TState, TInput, TOutput>(newStates.ToImmutable());
         }
@@ -134,16 +138,20 @@ namespace VL.Lib.Control
             foreach (var i in input)
             {
                 var key = i.Identity;
-                if (!oldStates.TryGetValue(key, out TState state))
-                    state = create(i);
                 oldStates.Remove(key);
+            }
+            foreach (var dying in oldStates.Values)
+                (dying as IDisposable)?.Dispose();
+            foreach (var i in input)
+            {
+                var key = i.Identity;
+                if (!States.TryGetValue(key, out TState state))
+                    state = create(i);
                 TOutput output;
                 (state, output) = updator(state, i);
                 newStates[key] = state;
                 outputsBuilder.Add(output);
             }
-            foreach (var dying in oldStates.Values)
-                (dying as IDisposable)?.Dispose();
 
             outputs = outputsBuilder.ToSpread();
             return new SynchronizerVLObjectInput<TState, TInput, TOutput>(newStates.ToImmutable());

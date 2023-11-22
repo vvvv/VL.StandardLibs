@@ -14,6 +14,9 @@ using System.Runtime.InteropServices;
 using Silk.NET.SDL;
 using Stride.Core;
 using ServiceRegistry = VL.Core.ServiceRegistry;
+using VL.Stride.Core;
+using Stride.Core.Diagnostics;
+using System.Threading;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Lib.Initialization))]
 
@@ -21,6 +24,8 @@ namespace VL.Stride.Lib
 {
     public sealed class Initialization : AssemblyInitializer<Initialization>
     {
+        private static int s_init;
+
         public Initialization()
         {
             if (UseSDL)
@@ -40,6 +45,15 @@ namespace VL.Stride.Lib
 
         public override void Configure(AppHost appHost)
         {
+            if (Interlocked.CompareExchange(ref s_init, 1, 0) == 0)
+            {
+                // Logging in Stride is static - all messages go through the static GlobalLogger.GlobalMessageLogged event.
+                // That event does not tell us from which game a message originated. Therefor hookup our logging system once and use a null listener in each game.
+                var loggerFactory = AppHost.Global.LoggerFactory;
+                var defaultLogger = AppHost.Global.DefaultLogger;
+                GlobalLogger.GlobalMessageLogged += new LogBridge(loggerFactory, defaultLogger);
+            }
+
             var services = appHost.Services.RegisterService<IResourceProvider<Game>>(_ =>
             {
                 var game = new VLGame(appHost.NodeFactoryRegistry).DisposeBy(appHost);

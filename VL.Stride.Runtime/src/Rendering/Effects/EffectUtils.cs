@@ -421,7 +421,7 @@ namespace VL.Stride.Rendering
                 switch (perDraw)
                 {
                     case PerDrawParameters.World:
-                        // Already handled. DON'T write it again or we introduce a feedback between render calls!
+                        parameters.Set(TransformationKeys.World, ref world);
                         break;
                     case PerDrawParameters.WorldInverse:
                         parameters.Set(TransformationKeys.WorldInverse, ref worldInverse);

@@ -1,13 +1,17 @@
-﻿using System;
+﻿#nullable enable
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Reflection;
 
 namespace VL.Core.CompilerServices
 {
-    public abstract class AssemblyInitializer
+    public abstract class AssemblyInitializer : IStartup
     {
         internal const string DefaultFieldName = "Default";
 
         internal virtual bool ContainsUserCode => false;
+
+        internal bool IsAllowedToRun(bool allowUserCode) => allowUserCode || !ContainsUserCode;
 
         internal Assembly Assembly => this.GetType().Assembly;
 
@@ -15,6 +19,14 @@ namespace VL.Core.CompilerServices
         public virtual void CollectDependencies(DependencyCollector collector)
         {
             collector.AddDependency(this);
+        }
+
+        public virtual void SetupConfiguration(AppHost appHost, IConfigurationBuilder configurationBuilder)
+        {
+        }
+
+        public virtual void SetupLogging(AppHost appHost, ILoggingBuilder loggingBuilder)
+        {
         }
 
         public virtual void Configure(AppHost appHost)

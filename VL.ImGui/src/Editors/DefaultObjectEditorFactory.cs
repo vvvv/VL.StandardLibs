@@ -121,6 +121,7 @@ namespace VL.ImGui.Editors
                 s_visited = _v_;
             }
 
+            /*
             static bool HasEditor(ObjectEditorContext context, IVLTypeInfo typeInfo)
             {
                 using var channel = ChannelHelpers.CreateChannelOfType(typeInfo);
@@ -131,6 +132,7 @@ namespace VL.ImGui.Editors
 
                 return editor != null;
             }
+            */
         }
 
         [ThreadStatic]

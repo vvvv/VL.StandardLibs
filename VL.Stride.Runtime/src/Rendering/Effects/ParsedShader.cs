@@ -302,7 +302,7 @@ namespace VL.Stride.Rendering
             }
         }
 
-        class CompDefaultValue<T> : CompDefault where T : struct
+        class CompDefaultValue<T> : CompDefault where T : unmanaged
         {
             public CompDefaultValue(T defaultValue = default)
                 : base(defaultValue, BuildInput, typeof(T))

@@ -1,0 +1,409 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="H6T34bkBkJ0MzKm3OMZO5X" LanguageVersion="2023.5.3-0218-g11161a69e5" Version="0.128">
+  <NugetDependency Id="HNlR1GABmsSO5t5McIKxWz" Location="VL.CoreLib" Version="2023.5.3-0043-g9a167bc1d8" />
+  <Patch Id="QKMsv0NpfpXM1IVXYFJkb5">
+    <Canvas Id="OD9guY5GVxxNg4W4APp160" DefaultCategory="System.Logging" CanvasType="FullCategory">
+      <!--
+
+    ************************ Log ************************
+
+-->
+      <Node Name="Log" Bounds="279,115" Id="DvDdPYIRHD7PSd8KqZHXag">
+        <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+          <Choice Kind="ContainerDefinition" Name="Process" />
+        </p:NodeReference>
+        <Patch Id="EQnKvTyfZ3CQZSWivvjdSw">
+          <Canvas Id="E5p0jdgN4jyOKMM9M0VLHp" CanvasType="Group">
+            <Node Bounds="436,237,48,19" AutoConnect="true" Id="RKNwfmxF5SaLCqq0Nqy5iL">
+              <p:NodeReference LastCategoryFullName="System.Logging" LastDependency="VL.Logging.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="ProcessAppFlag" Name="Logger" />
+              </p:NodeReference>
+              <Pin Id="SrEGagoSF4wMZRrgmtbyhO" Name="Node Context" Kind="InputPin" />
+              <Pin Id="CJTg1fEPVYCO64d9Ots6y6" Name="Category" Kind="InputPin" />
+              <Pin Id="Me1G9uC0bw1MnHKMMdgVJZ" Name="Logger" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="436,311,125,26" AutoConnect="true" Id="TxulviZ9DKvL5H9wd31kvk">
+              <p:NodeReference LastCategoryFullName="VL.Lib.Logging.VLLoggerExtensions" LastDependency="VL.CoreLib.dll">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="AssemblyCategory" Name="VLLoggerExtensions" NeedsToBeDirectParent="true" />
+                <Choice Kind="OperationCallFlag" Name="Log" />
+              </p:NodeReference>
+              <Pin Id="GyTVEnI3EoYLTTkt1laW6s" Name="Input" Kind="StateInputPin" />
+              <Pin Id="RZxVkPnLPaOL9r3FR4yz6u" Name="Log Level" Kind="InputPin" />
+              <Pin Id="O0rp9WsdLqeMxUNAjxuttO" Name="Event Id" Kind="InputPin" />
+              <Pin Id="Jo5FSPLcOdbM6FtLtYsM2j" Name="Message" Kind="InputPin" />
+              <Pin Id="RUKsM7YsXqHPjaT3El8dWH" Name="Args" Kind="InputPin" />
+              <Pin Id="EtdU6ldRHQmP6xsAfkOBTf" Name="Exception" Kind="InputPin" />
+              <Pin Id="ALZIWleyuSBP1Ff5vcqemM" Name="Apply" Kind="InputPin" />
+            </Node>
+          </Canvas>
+          <ProcessDefinition Id="L25QMHQwYJfLqmCN3Cs6Lr">
+            <Fragment Id="QF2uQhDXAD5NBeurW3E5EQ" Patch="NkSMigESwR9MPvhD4EeguR" Enabled="true" />
+            <Fragment Id="MRo6VUOams5QMLAFrMa2Ke" Patch="KNsLbwx9FsmPSjfsNeOiW2" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="EOzLl1moizjNPVr6jucgMg" Ids="Me1G9uC0bw1MnHKMMdgVJZ,GyTVEnI3EoYLTTkt1laW6s" />
+          <Patch Id="NkSMigESwR9MPvhD4EeguR" Name="Create">
+            <Pin Id="IpSgjVob7O3MrNunsJ0uv8" Name="Node Context" Kind="InputPin" Visibility="Optional" />
+          </Patch>
+          <Patch Id="KNsLbwx9FsmPSjfsNeOiW2" Name="Update" ManuallySortedPins="true">
+            <Pin Id="PgrexbDPb6yPRU2ORS7gfL" Name="Category" Kind="InputPin" />
+            <Pin Id="IaOmKkN6mC1NWqOxK26R8a" Name="Log Level" Kind="InputPin" DefaultValue="Information" />
+            <Pin Id="KjAQnalX7ukPv5ruWbKWuc" Name="Event Id" Kind="InputPin" />
+            <Pin Id="SMSLUj5kp13Nl18g2FTboA" Name="Exception" Kind="InputPin" />
+            <Pin Id="KMyTfYZm9j7NlaXafjCUNn" Name="Message" Kind="InputPin" />
+            <Pin Id="V76trmX1xyfMk2dZgugSFk" Name="Args" Kind="InputPin" />
+            <Pin Id="ScPHK2FvpjPNkfsHhKac3u" Name="Apply" Kind="InputPin" DefaultValue="False" />
+          </Patch>
+        </Patch>
+      </Node>
+      <Canvas Id="DsoHaZxsGTFPOfiNG041WQ" Name="Advanced" Position="278,59">
+        <!--
+
+    ************************ EventId ************************
+
+-->
+        <Node Name="EventId" Bounds="634,279" Id="V1T37u3S8IHN7vkkKviUZg">
+          <p:NodeReference>
+            <Choice Kind="ForwardDefinition" Name="Forward" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="Microsoft.Extensions.Logging" LastDependency="Microsoft.Extensions.Logging.Abstractions.dll">
+            <Choice Kind="TypeFlag" Name="EventId" />
+          </p:TypeAnnotation>
+          <Patch Id="O4An4duVhfkL4II77ow6jd">
+            <Canvas Id="O7GklwaVXjyO26Swum4U2h" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="IsTWv5blyR2NiRzpd5zvcM" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ Log (Advanced) ************************
+
+-->
+        <Node Name="Log (Advanced)" Bounds="372,397,384,204" Id="GbA0EvuSvt4QQhe7tAVjLc">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+          <Patch Id="LmDUoDLhsqrL4wzXHFPWZd" ManuallySortedPins="true">
+            <Node Bounds="436,502,129,80" Id="RZPdC8UOOgFOqvqzHR4Yru">
+              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+                <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+                <CategoryReference Kind="Category" Name="Primitive" />
+                <Choice Kind="ApplicationStatefulRegion" Name="If" />
+              </p:NodeReference>
+              <Pin Id="DysXZ5qkUwwOAJWJLZlolC" Name="Condition" Kind="InputPin" />
+              <Patch Id="RnYU4bmMiM1O543ySe48eC" ManuallySortedPins="true">
+                <Patch Id="PQsHBqrrnHhNAVeSjYDBmn" Name="Create" ManuallySortedPins="true" />
+                <Patch Id="KYUICUiruHRP1N8yPlyBYD" Name="Then" ManuallySortedPins="true" />
+                <Node Bounds="448,530,105,26" Id="SEpo2vhCqxiNnIV2dxnoJD">
+                  <p:NodeReference LastCategoryFullName="VL.Lib.Logging.VLLoggerExtensions" LastDependency="VL.CoreLib.dll">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <CategoryReference Kind="AssemblyCategory" Name="VLLoggerExtensions" />
+                    <Choice Kind="OperationCallFlag" Name="Log" />
+                  </p:NodeReference>
+                  <Pin Id="IitTCkLt8KjOHCmCWciLiB" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="UdHCZt66MCyOY8ROSxsvpx" Name="Log Level" Kind="InputPin" />
+                  <Pin Id="UVxaUpLoc3yO4mwxm77hMD" Name="Event Id" Kind="InputPin" />
+                  <Pin Id="MOCHk11zFCgNpbHJhXGHS0" Name="Message" Kind="InputPin" />
+                  <Pin Id="DIQUoOMgksNO3b8XoHoDC1" Name="Args" Kind="InputPin" />
+                  <Pin Id="RktZPDm0DrsPRjA3d4Vmpi" Name="Exception" Kind="InputPin" />
+                </Node>
+              </Patch>
+            </Node>
+            <Link Id="CxQwLCleYpaNZxbjq1OQps" Ids="MBS0cOJ03RYOFSu1Bb64IB,IitTCkLt8KjOHCmCWciLiB" />
+            <ControlPoint Id="MBS0cOJ03RYOFSu1Bb64IB" Bounds="386,416" />
+            <Link Id="Tbvud2bHcYTORpTACLVa4b" Ids="UQP1IFjRRvcOkQ47YZyxGT,MBS0cOJ03RYOFSu1Bb64IB" IsHidden="true" />
+            <Link Id="UpTlL7NXgTxPWqe7Ja3wbI" Ids="MBS0cOJ03RYOFSu1Bb64IB,MsqLB9WyIA7No05aYLZdJH" />
+            <Node Bounds="385,454,65,19" Id="Ffon4WiJvg1LRp7GSaIcn4">
+              <p:NodeReference LastCategoryFullName="Primitive.Object" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="OperationCallFlag" Name="IsAssigned" />
+              </p:NodeReference>
+              <Pin Id="MsqLB9WyIA7No05aYLZdJH" Name="X" Kind="InputPin" />
+              <Pin Id="TqyEu1LgkdoMsaQl6NO5WO" Name="Result" Kind="OutputPin" />
+              <Pin Id="LWfpFLF6UhhN3u52bqJACE" Name="Not Assigned" Kind="OutputPin" />
+            </Node>
+            <Link Id="NIpmjViSz43NdNWOlOmwk9" Ids="TqyEu1LgkdoMsaQl6NO5WO,DysXZ5qkUwwOAJWJLZlolC" />
+            <Pin Id="UQP1IFjRRvcOkQ47YZyxGT" Name="Input" Kind="InputPin" Bounds="340,364" />
+            <Link Id="TdkODgeWGBHQTsJkhtZ4fh" Ids="K8RQhnhTtC8P8WFU3DGNxK,UdHCZt66MCyOY8ROSxsvpx" />
+            <ControlPoint Id="K8RQhnhTtC8P8WFU3DGNxK" Bounds="463,415" />
+            <Pin Id="Au4pEHzCGalPcCKSUr2A8g" Name="Log Level" Kind="InputPin" Bounds="416,415" DefaultValue="Information" />
+            <Link Id="OFuAfrMawqNPGS7gsGr3lQ" Ids="Au4pEHzCGalPcCKSUr2A8g,K8RQhnhTtC8P8WFU3DGNxK" IsHidden="true" />
+            <Link Id="QiCpqkH5ItVNowDHbnPABr" Ids="D4k4BjzYEYdMvf29E6FEjb,MOCHk11zFCgNpbHJhXGHS0" />
+            <ControlPoint Id="D4k4BjzYEYdMvf29E6FEjb" Bounds="643,415" />
+            <Pin Id="AQ6wEwoSFmOPvf6nYxklBY" Name="Message" Kind="InputPin" Bounds="471,441" />
+            <Link Id="KTbX0nrLOEiNX3vJKKQlqB" Ids="AQ6wEwoSFmOPvf6nYxklBY,D4k4BjzYEYdMvf29E6FEjb" IsHidden="true" />
+            <Link Id="Fvqh6ZtvoesNixFhEQKtIn" Ids="Ng3aZOF7XQQPlKBQ8QpcRl,DIQUoOMgksNO3b8XoHoDC1" />
+            <ControlPoint Id="Ng3aZOF7XQQPlKBQ8QpcRl" Bounds="712,415" />
+            <Pin Id="EZc6V5pFJ4NN002dsHOpSp" Name="Args" Kind="InputPin" Bounds="532,460" />
+            <Link Id="IO7krx1XcK6MLccXkehwK9" Ids="EZc6V5pFJ4NN002dsHOpSp,Ng3aZOF7XQQPlKBQ8QpcRl" IsHidden="true" />
+            <Link Id="Hkr2QQuRcOYPIi2cdEZRZq" Ids="Q3MWN7uxp3cMXmoArsceFo,UVxaUpLoc3yO4mwxm77hMD" />
+            <ControlPoint Id="Q3MWN7uxp3cMXmoArsceFo" Bounds="522,415" />
+            <Pin Id="LnT0khyfofWLAp7FOtAeWu" Name="Event Id" Kind="InputPin" Bounds="521,436" />
+            <Link Id="Vxb2o2QabrCL7dTYoM2yUh" Ids="LnT0khyfofWLAp7FOtAeWu,Q3MWN7uxp3cMXmoArsceFo" IsHidden="true" />
+            <Link Id="ELPFufHsHYlOE9lRVSVZvV" Ids="M7odyuNQWeZLkrLSyQfpRw,RktZPDm0DrsPRjA3d4Vmpi" />
+            <ControlPoint Id="M7odyuNQWeZLkrLSyQfpRw" Bounds="578,415" />
+            <Pin Id="C94MFQEJDQmOtIS2vZFVuh" Name="Exception" Kind="InputPin" Bounds="658,448" />
+            <Link Id="HSGwfwIZzxlM5Bvtcn87lm" Ids="C94MFQEJDQmOtIS2vZFVuh,M7odyuNQWeZLkrLSyQfpRw" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ Logger (Generic) ************************
+
+-->
+        <Node Name="Logger (Generic)" Bounds="375,227" Id="JFfjUkpRQ1rOvcnd97dcza">
+          <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+            <Choice Kind="ContainerDefinition" Name="Process" />
+          </p:NodeReference>
+          <Patch Id="QSy1kDEHuBpLuL7EpZHZjW" IsGeneric="true">
+            <Canvas Id="Pz6GH2JLfvsPPw9hRhlf6C" CanvasType="Group">
+              <ControlPoint Id="OIpcsw5nnqhPkuYtzy89UR" Bounds="404,533" />
+              <Node Bounds="390,334,129,173" Id="DnQs4l0WDFVLEACfXhWgiD">
+                <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+                  <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+                  <CategoryReference Kind="Category" Name="Primitive" />
+                  <Choice Kind="ProcessStatefulRegion" Name="Cache" />
+                </p:NodeReference>
+                <Pin Id="P3PlXeqp7jIPXBa1miuTq6" Name="Force" Kind="InputPin" />
+                <Pin Id="LVYYYfGAJCnOKiHxcWTIgO" Name="Dispose Cached Outputs" Kind="InputPin" />
+                <Pin Id="PgDlTbCnQmEMNfjqE9X3WN" Name="Has Changed" Kind="OutputPin" />
+                <ControlPoint Id="LVqFS4SAab1Mzmjc7UKq1h" Bounds="404,501" Alignment="Bottom" />
+                <Patch Id="HCmeMSfdJzGN3e7blCB8wM" ManuallySortedPins="true">
+                  <Patch Id="Q7p9dbxzVAbM0IkRxrEsqY" Name="Create" ManuallySortedPins="true" />
+                  <Patch Id="OxBUUidDRrbQGi93Wy0GQz" Name="Then" ManuallySortedPins="true" />
+                  <Node Bounds="402,357,51,19" Id="V8h9oxFzbLhObK0OZt7FDF">
+                    <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <CategoryReference Kind="ClassType" Name="AppHost" />
+                      <Choice Kind="OperationCallFlag" Name="Current" />
+                    </p:NodeReference>
+                    <Pin Id="GUUtzUk5HtIMpBwBk7hLtX" Name="Current" Kind="OutputPin" />
+                  </Node>
+                  <Node Bounds="402,388,81,26" Id="IOArZNMcUtOPKvDPE5tPBd">
+                    <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <Choice Kind="OperationCallFlag" Name="LoggerFactory" />
+                    </p:NodeReference>
+                    <Pin Id="JsU3DvLsS7NQKoLMf3mteR" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="BNIXzMy0MHeLAuL5Q4knD7" Name="Output" Kind="OutputPin" IsHidden="true" />
+                    <Pin Id="GJ0dp7fE8yON1yFX6UlrCm" Name="Logger Factory" Kind="OutputPin" />
+                  </Node>
+                  <Node Bounds="402,441,105,26" Id="M5O8ehsbJssNBgpxXWPVJi">
+                    <p:NodeReference LastCategoryFullName="Microsoft.Extensions.Logging.LoggerFactoryExtensions" LastDependency="Microsoft.Extensions.Logging.Abstractions.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <CategoryReference Kind="AssemblyCategory" Name="LoggerFactoryExtensions" NeedsToBeDirectParent="true" />
+                      <Choice Kind="OperationCallFlag" Name="CreateLogger" />
+                      <PinReference Kind="OutputPin" Name="Result">
+                        <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="Microsoft.Extensions.Logging" LastDependency="Microsoft.Extensions.Logging.Abstractions.dll">
+                          <Choice Kind="TypeFlag" Name="ILogger`1" />
+                          <p:TypeArguments>
+                            <TypeParameterReference />
+                          </p:TypeArguments>
+                        </p:DataTypeReference>
+                      </PinReference>
+                    </p:NodeReference>
+                    <Pin Id="HRbRnoyvsfxN2zf7vjeHUp" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="KTwAP7WaEaCMMgCKSSt7fH" Name="Result" Kind="OutputPin" />
+                  </Node>
+                </Patch>
+              </Node>
+              <Node Bounds="391,297,54,19" Id="H0lSnuvBX93NUWE4OAy8wS">
+                <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="ProcessAppFlag" Name="OnOpen" />
+                </p:NodeReference>
+                <Pin Id="MTAf07T0LipQV4CpD4o7vs" Name="Node Context" Kind="InputPin" IsHidden="true" />
+                <Pin Id="AQgvOeHV0KAM92whvvxa6o" Name="Simulate" Kind="InputPin" />
+                <Pin Id="LYb4IbbT2wWQEKUzZJRFY2" Name="Output" Kind="OutputPin" />
+              </Node>
+            </Canvas>
+            <ProcessDefinition Id="GXkbO7MfQnzLZe0VOEnLvc">
+              <Fragment Id="He9cvLJMGr6N2UNv67Ixhx" Patch="NkAkjOeZvi6NPv4DrebF0v" Enabled="true" />
+              <Fragment Id="LCKqSZoWoOUP7mjONautO5" Patch="IcUGgpeVjfiMCZRsarENbq" Enabled="true" />
+            </ProcessDefinition>
+            <Link Id="Ss1M5mRkYrMNFGvuwcCFne" Ids="OIpcsw5nnqhPkuYtzy89UR,OqYCqTvXjaaOJ5FrQluDgu" IsHidden="true" />
+            <Patch Id="NkAkjOeZvi6NPv4DrebF0v" Name="Create" />
+            <Patch Id="IcUGgpeVjfiMCZRsarENbq" Name="Update">
+              <Pin Id="OqYCqTvXjaaOJ5FrQluDgu" Name="Logger" Kind="OutputPin" Bounds="438,546" />
+            </Patch>
+            <Link Id="V7s3FqW2x27LzGtZ3yYxA0" Ids="LVqFS4SAab1Mzmjc7UKq1h,OIpcsw5nnqhPkuYtzy89UR" />
+            <Link Id="U4aZK8wMs3nOEo5JNjw6Ee" Ids="GUUtzUk5HtIMpBwBk7hLtX,JsU3DvLsS7NQKoLMf3mteR" />
+            <Link Id="UA3Bo6PbUKzMmJMbzhi97t" Ids="GJ0dp7fE8yON1yFX6UlrCm,HRbRnoyvsfxN2zf7vjeHUp" />
+            <Link Id="SZPKCqkjSS3M9uxvEpHteE" Ids="KTwAP7WaEaCMMgCKSSt7fH,LVqFS4SAab1Mzmjc7UKq1h" />
+            <Link Id="TgoMZEf49q8PxKoeJJFwgU" Ids="LYb4IbbT2wWQEKUzZJRFY2,P3PlXeqp7jIPXBa1miuTq6" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ LoggerFactory ************************
+
+-->
+        <Node Name="LoggerFactory" Bounds="633,176" Id="GtnYrltCLVfOGKKJULTolI">
+          <p:NodeReference>
+            <Choice Kind="ForwardDefinition" Name="Forward" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Core.Logging" LastDependency="VL.Core.dll">
+            <Choice Kind="TypeFlag" Name="LoggerFactory" />
+          </p:TypeAnnotation>
+          <Patch Id="VJTgFCuSV4SNk7GlXpY7ad">
+            <Canvas Id="PeSTf6nMh0VNBKgh0qGz0P" CanvasType="Group" />
+            <ProcessDefinition Id="REjWvVP0rNGPE1TL8boftr" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ LogMessage ************************
+
+-->
+        <Node Name="LogMessage" Bounds="633,226" Id="IfxFL4so5nsNuriQLhsCvE">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Core.Logging" LastDependency="VL.Core.dll">
+            <Choice Kind="TypeFlag" Name="LogMessage" />
+          </p:TypeAnnotation>
+          <Patch Id="RSOAECYC4NOM6pkxqibubs">
+            <Canvas Id="Ve3QRiJjIHCMET58FYWG2P" CanvasType="Group" />
+            <ProcessDefinition Id="Uy2BkjdquQXPsf7GEle0WI" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ LogLevel ************************
+
+-->
+        <Node Name="LogLevel" Bounds="755,280" Id="PDiPKAjj0eaOj4yRg7D5Bb">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="Microsoft.Extensions.Logging" LastDependency="Microsoft.Extensions.Logging.Abstractions.dll">
+            <Choice Kind="TypeFlag" Name="LogLevel" />
+          </p:TypeAnnotation>
+          <Patch Id="KiUNTyA5uaSL386i2z5ner">
+            <Canvas Id="J4gnOTPA1H3LFu1hcWIqOV" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="Uh8otXdW1xcMi3gD3DY5rd" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ Logger ************************
+
+-->
+        <Node Name="Logger" Bounds="375,181" Id="LhT54wmx0yBMqlbPTllKSD">
+          <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+            <Choice Kind="ContainerDefinition" Name="Process" />
+          </p:NodeReference>
+          <Patch Id="GRwliwAQ2ctOE3s3gm1V4Q">
+            <Canvas Id="UDPE7OzhbHAMtfz4iOGBJT" CanvasType="Group">
+              <ControlPoint Id="VC6D26nLsLbL4TaNphBiQK" Bounds="404,533" />
+              <ControlPoint Id="PDLtbt8AdB0PyrsJRka8s1" Bounds="477,280" />
+              <ControlPoint Id="SjWKtIdALpiNrRZy4GgR1u" Bounds="404,297" />
+              <Node Bounds="390,334,105,173" Id="S6CvqfI2HFANReL5WOqxwL">
+                <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+                  <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+                  <CategoryReference Kind="Category" Name="Primitive" />
+                  <Choice Kind="ProcessStatefulRegion" Name="Cache" />
+                </p:NodeReference>
+                <Pin Id="BECiqleNFw2NE37UuJ9Izv" Name="Force" Kind="InputPin" />
+                <Pin Id="N6ArOIQkpcDNaHdXlhT2mr" Name="Dispose Cached Outputs" Kind="InputPin" />
+                <Pin Id="UeJyF3ARGeZMkG4FrGFblo" Name="Has Changed" Kind="OutputPin" />
+                <ControlPoint Id="BXaIAgtXe4sONKGrnAJVaq" Bounds="404,340" Alignment="Top" />
+                <ControlPoint Id="OWFvFOea4qvMUI0otJ4gxM" Bounds="404,501" Alignment="Bottom" />
+                <ControlPoint Id="H5WDjesHqCZNiHYT1M2nLh" Bounds="477,340" Alignment="Top" />
+                <Patch Id="M6s8Bo9pDrHQdIXFUfgpJe" ManuallySortedPins="true">
+                  <Patch Id="ITSybkEA904QEe63tzUr1P" Name="Create" ManuallySortedPins="true" />
+                  <Patch Id="LvjelWMgmB3PPpPeFNyRNK" Name="Then" ManuallySortedPins="true" />
+                  <Node Bounds="402,357,51,19" Id="A8JdfrHwi1SMl5ggRHcvZa">
+                    <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <CategoryReference Kind="ClassType" Name="AppHost" />
+                      <Choice Kind="OperationCallFlag" Name="Current" />
+                    </p:NodeReference>
+                    <Pin Id="GNb9ZwsEXSpMJ0Zbncsw92" Name="Current" Kind="OutputPin" />
+                  </Node>
+                  <Node Bounds="402,388,81,26" Id="InMfB281J19NTKrOxlbDuo">
+                    <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <Choice Kind="OperationCallFlag" Name="LoggerFactory" />
+                    </p:NodeReference>
+                    <Pin Id="FN5GegttCqtPkgke0kTEBm" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="ACoAjJeMIhGMjEU8TTjvFC" Name="Output" Kind="OutputPin" IsHidden="true" />
+                    <Pin Id="NihOQhiVpeKMp0LusoqnTX" Name="Logger Factory" Kind="OutputPin" />
+                  </Node>
+                  <Node Bounds="402,434,77,26" Id="LorFqVYUsR9NwGMforM4bC">
+                    <p:NodeReference LastCategoryFullName="VL.Core.Logging.LoggerFactory" LastDependency="VL.Core.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <FullNameCategoryReference ID="VL.Core.Logging.LoggerFactory" />
+                      <Choice Kind="OperationCallFlag" Name="CreateLogger" />
+                      <PinReference Kind="InputPin" Name="Node Context" />
+                    </p:NodeReference>
+                    <Pin Id="MSM009B8gh2MSNvYaWnwHA" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="SZEyhTLRHM6POFfSn4iruZ" Name="Category Name" Kind="InputPin" />
+                    <Pin Id="Glp2D70NY4iOfT4dDupuEf" Name="Node Context" Kind="InputPin" />
+                    <Pin Id="L26XQfMyipELvC27EfMnVl" Name="Output" Kind="StateOutputPin" />
+                    <Pin Id="NUa1H34Xcj5PtAjamRx5f5" Name="Result" Kind="OutputPin" />
+                  </Node>
+                </Patch>
+              </Node>
+              <Pad Id="IEGNXhJr8xpQVEgf7Gbqa1" Bounds="477,311" />
+            </Canvas>
+            <ProcessDefinition Id="BGurBhpHEBHNBnoceXNYFW">
+              <Fragment Id="FxlNcsNJjqEQUDzRDFvIsA" Patch="JEpcASmbo7UOSu0AHkoDYa" Enabled="true" />
+              <Fragment Id="JlDaEqjDPZoNS25QOLg3FP" Patch="OoPIGE236wTMlO82MI6EcC" Enabled="true" />
+            </ProcessDefinition>
+            <Link Id="PM0SZZxJWpcL9Iu8WFugzt" Ids="VC6D26nLsLbL4TaNphBiQK,OUQLS259yXMLgZLZLtPVzZ" IsHidden="true" />
+            <Link Id="EEzuu91dB9uPYFWIzZFjhg" Ids="LbZwyUTVDPWOzNysYEAZ2R,PDLtbt8AdB0PyrsJRka8s1" IsHidden="true" />
+            <Patch Id="JEpcASmbo7UOSu0AHkoDYa" Name="Create">
+              <Pin Id="LbZwyUTVDPWOzNysYEAZ2R" Name="Node Context" Kind="InputPin" Visibility="Optional" />
+            </Patch>
+            <Patch Id="OoPIGE236wTMlO82MI6EcC" Name="Update">
+              <Pin Id="OUQLS259yXMLgZLZLtPVzZ" Name="Logger" Kind="OutputPin" Bounds="438,546" />
+              <Pin Id="DkUci37GZkNNFBg4anxmfT" Name="Category" Kind="InputPin" Bounds="514,397" Summary="Optional. If not specified, this loggers category will be the name of the type of patch it is placed in" />
+            </Patch>
+            <Link Id="EpkHpvS7BZPPj04Per1aoP" Ids="DkUci37GZkNNFBg4anxmfT,SjWKtIdALpiNrRZy4GgR1u" IsHidden="true" />
+            <Link Id="JmNp4ffBil8NqjidpM7K0l" Ids="SjWKtIdALpiNrRZy4GgR1u,BXaIAgtXe4sONKGrnAJVaq" />
+            <Link Id="J53AVPKfAiDOql8u0RMqQu" Ids="PDLtbt8AdB0PyrsJRka8s1,IEGNXhJr8xpQVEgf7Gbqa1" />
+            <Link Id="DllmAug3F0WLKf2ldIWVrv" Ids="OWFvFOea4qvMUI0otJ4gxM,VC6D26nLsLbL4TaNphBiQK" />
+            <Link Id="HRw6OtnLsK5NqQcbSxuilj" Ids="IEGNXhJr8xpQVEgf7Gbqa1,H5WDjesHqCZNiHYT1M2nLh" />
+            <Link Id="Fh6bqA8zYsQOeYUWrZKBuv" Ids="NihOQhiVpeKMp0LusoqnTX,MSM009B8gh2MSNvYaWnwHA" />
+            <Link Id="Ff0Vbl73SzLP92BNxe2uBX" Ids="BXaIAgtXe4sONKGrnAJVaq,SZEyhTLRHM6POFfSn4iruZ" />
+            <Link Id="AYPIMAd0paoONoxZPCRnRS" Ids="H5WDjesHqCZNiHYT1M2nLh,Glp2D70NY4iOfT4dDupuEf" />
+            <Link Id="UpOOB2Tfh6HOLbTNHianyo" Ids="NUa1H34Xcj5PtAjamRx5f5,OWFvFOea4qvMUI0otJ4gxM" />
+            <Link Id="LTCpZ2W2TqZQcYKBrZqdWu" Ids="GNb9ZwsEXSpMJ0Zbncsw92,FN5GegttCqtPkgke0kTEBm" />
+          </Patch>
+        </Node>
+      </Canvas>
+    </Canvas>
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="CUS5EFnHAhtM201F3UCXrI">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="FqpvTftjUoyNR8cQgqoV0f">
+        <Canvas Id="RRtsKSuFDiGLG0KpW2nko7" CanvasType="Group" />
+        <Patch Id="EiiyFT7GpmLN9Boo5vmWIo" Name="Create" />
+        <Patch Id="Uthh4of0LBQMRG0Cre58xd" Name="Update" />
+        <ProcessDefinition Id="ITUSqvaN6SwNZWEWDCX4vN">
+          <Fragment Id="OrUkvYUqlpZLVrGT7aMcS0" Patch="EiiyFT7GpmLN9Boo5vmWIo" Enabled="true" />
+          <Fragment Id="LWF2LUcVR4eNzxksOCpaVr" Patch="Uthh4of0LBQMRG0Cre58xd" Enabled="true" />
+        </ProcessDefinition>
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="PvCgmwCNcbQQOYSrlTamTO" Location="Microsoft.Extensions.Logging" Version="7.0.0" />
+  <NugetDependency Id="Vhc5DfQpMEALqeO7Ku9G1O" Location="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+  <PlatformDependency Id="Mov7bIZ7rsDQC9g6pbtlFI" Location="./lib/net6.0/VL.Core.dll" />
+  <PlatformDependency Id="OP7Lqi5QR6mM6vpAO4irbN" Location="./lib/net6.0/VL.CoreLib.dll" />
+</Document>

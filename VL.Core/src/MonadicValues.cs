@@ -1,5 +1,7 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Reflection;
+using VL.Lib.IO;
 
 namespace VL.Core
 {
@@ -11,10 +13,51 @@ namespace VL.Core
     {
         public Type Factory { get; }
 
+        /// <summary>
+        /// An optional type filter. The type must have a default constructor and implement <see cref="IMonadicTypeFilter"/>.
+        /// </summary>
+        public Type? TypeFilter { get; }
+
         public MonadicAttribute(Type factory)
         {
             Factory = factory;
         }
+
+        public MonadicAttribute(Type factory, Type typeFilter)
+        {
+            Factory = factory;
+            TypeFilter = typeFilter;
+        }
+    }
+
+    /// <summary>
+    /// Allows to define what types the factory accepts.
+    /// </summary>
+    public interface IMonadicTypeFilter
+    {
+        bool Accepts(TypeDescriptor typeDescriptor);
+    }
+
+    /// <summary>
+    /// Used in the <see cref="IMonadicTypeFilter.Accepts(TypeDescriptor)"/> method to decribe a type.
+    /// </summary>
+    /// <param name="Name">The name of the type as defined in VL.</param>
+    /// <param name="Category">The category of the type as defined in VL.</param>
+    /// <param name="IsImmutable">Whether or not the type is immutable.</param>
+    /// <param name="IsValueType">Whether or not the type is a value type.</param>
+    /// <param name="IsUnmanaged">Whether or not the type is an unmanaged (blittable) type.</param>
+    /// <param name="ClrType">The dotnet runtime type. Can be null for patched types.</param>
+    public record struct TypeDescriptor(
+        string Name, 
+        string Category, 
+        bool IsImmutable, 
+        bool IsValueType, 
+        bool IsUnmanaged, 
+        Type? ClrType)
+    {
+        public bool IsString => ClrType == typeof(string);
+        public bool IsPath => ClrType == typeof(Path);
+        public bool IsPrimitive => IsUnmanaged || IsString || IsPath;
     }
 
     /// <summary>
@@ -52,29 +95,6 @@ namespace VL.Core
         /// <summary>
         /// Called when the system has no value yet. This is usually true for unconnected input pins.
         /// </summary>
-        TMonad Default() => default;
-    }
-
-    public static class MonadicUtils
-    {
-        public static bool IsMonadicType(this Type type) => type.GetCustomAttributeSafe<MonadicAttribute>() != null;
-
-        public static Type GetMonadicFactoryType(this Type monadicType, Type valueType)
-        {
-            var attribute = monadicType.GetCustomAttributeSafe<MonadicAttribute>();
-            if (attribute is null)
-                return null;
-
-            return attribute.Factory?.MakeGenericType(valueType);
-        }
-
-        public static IMonadicFactory<TValue, TMonad> GetMonadicFactory<TValue, TMonad>(this Type monadicType)
-        {
-            var factoryType = monadicType.GetMonadicFactoryType(typeof(TValue));
-            if (factoryType is null)
-                return null;
-
-            return Activator.CreateInstance(factoryType) as IMonadicFactory<TValue, TMonad>;
-        }
+        TMonad? Default() => default;
     }
 }
