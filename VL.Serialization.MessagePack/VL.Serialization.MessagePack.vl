@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="CCW3IaNKWuKQVZrZYkZLKl" LanguageVersion="2023.5.3-0280-g7a559dd2ee" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="CCW3IaNKWuKQVZrZYkZLKl" LanguageVersion="2023.5.3-0321-g0605d75f63" Version="0.128">
   <NugetDependency Id="J211bL5j5U4M79Bb2J68fh" Location="VL.CoreLib" Version="2023.5.3-0183-g3a6e89124d" />
   <Patch Id="CSerPB3FF9ENTyt8o0lnEa">
     <Canvas Id="IDAxqZTIoYJPVNRnA3v4tr" DefaultCategory="Serialization.MessagePack" CanvasType="FullCategory">
@@ -16,9 +16,20 @@
         <p:HideCategory p:Type="Boolean">true</p:HideCategory>
         <Patch Id="ISJF4XboHhiOzVltwYNPjp" IsGeneric="true">
           <Node Bounds="552,285,66,19" AutoConnect="true" Id="G3EXp6NxVuAOyEK8JUudjV">
-            <p:NodeReference LastCategoryFullName="VL.Serialization.MessagePack.MessagePackSerialization" LastDependency="VL.Serialization.MessagePack.dll">
-              <Choice Kind="OperationNode" Name="Deserialize" />
+            <p:NodeReference LastCategoryFullName="VL.Serialization.MessagePack.MessagePackSerialization" LastDependency="VL.Serialization.MessagePack.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <FullNameCategoryReference ID="VL.Serialization.MessagePack.MessagePackSerialization" />
+              <Choice Kind="OperationNode" Name="Deserialize" />
+              <PinReference Kind="InputPin" Name="Input">
+                <p:DataTypeReference p:Type="TypeReference">
+                  <Choice Kind="TypeFlag" Name="IEnumerable`1" />
+                  <p:TypeArguments>
+                    <TypeReference LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="TypeFlag" Name="Byte" />
+                    </TypeReference>
+                  </p:TypeArguments>
+                </p:DataTypeReference>
+              </PinReference>
             </p:NodeReference>
             <Pin Id="KqFGkoVFcXfPCIgWMnJMY6" Name="Input" Kind="InputPin" />
             <Pin Id="UKmL3IWfyP6PxlubDxXjVd" Name="Result" Kind="OutputPin" />

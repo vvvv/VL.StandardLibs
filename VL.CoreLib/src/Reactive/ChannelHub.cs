@@ -56,7 +56,7 @@ namespace VL.Core.Reactive
                         foreach (var d in descriptions)
                         {
                             var name = d.Name;
-                            var type = d.RuntimeType;
+                            var type = d.GetRuntimeType(AppHost);
                             TryAddChannel(name, type);
                         }
                     });
@@ -197,12 +197,14 @@ namespace VL.Core.Reactive
                 if (newValue != value)
                 {
                     var newElementType = entryPoint.SwapType(channel.ClrTypeOfValues);
-                    var newChannel = entryPoint.Swap(channel, typeof(Channel<>).MakeGenericType(newElementType));
+                    var newChannel = (IChannel)entryPoint.Swap(channel, typeof(Channel<>).MakeGenericType(newElementType));
                     if (channel != newChannel)
                     {
                         channels[key] = (IChannel<object>)newChannel;
                         changed = true;
                     }
+                    
+                    newChannel.SetObjectAndAuthor(newValue, "hotswap");
                 }
             }
             if (changed)

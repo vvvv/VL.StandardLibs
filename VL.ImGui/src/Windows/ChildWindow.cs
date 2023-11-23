@@ -14,8 +14,6 @@ namespace VL.ImGui.Widgets
 
         public string? Label { get; set; }
 
-        public bool HasBorder { get; set; }
-
         /// <summary>
         /// For each independent axis of 'size': 
         /// ==0.0f: use remaining host window size 
@@ -24,6 +22,8 @@ namespace VL.ImGui.Widgets
         /// Each axis can use a different mode, e.g. (0,400).
         /// </summary>
         public Vector2 Size { get; set; }
+
+        public ImGuiNET.ImGuiChildFlags ChildFlags { private get; set; }
 
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
@@ -34,8 +34,7 @@ namespace VL.ImGui.Widgets
 
         internal override void UpdateCore(Context context)
         {
-
-            ContentIsVisible = ImGui.BeginChild(widgetLabel.Update(Label), Size.FromHectoToImGui(), HasBorder, Flags);
+            ContentIsVisible = ImGui.BeginChild(widgetLabel.Update(Label), Size.FromHectoToImGui(), ChildFlags, Flags);
             
             try
             {

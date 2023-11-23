@@ -209,7 +209,8 @@ namespace VL.ImGui
                     PixelSnapH = 1,
                     GlyphOffset = new Vector2(0, 0),
                     GlyphMaxAdvanceX = float.MaxValue,
-                    RasterizerMultiply = 1.0f
+                    RasterizerMultiply = 1.0f,
+                    RasterizerDensity = 1.0f
                 };
 
                 unsafe
@@ -630,6 +631,20 @@ namespace VL.ImGui
                 case Keys.F10: return ImGuiKey.F10;
                 case Keys.F11: return ImGuiKey.F11;
                 case Keys.F12: return ImGuiKey.F12;
+                case Keys.F13: return ImGuiKey.F13;
+                case Keys.F14: return ImGuiKey.F14;
+                case Keys.F15: return ImGuiKey.F15;
+                case Keys.F16: return ImGuiKey.F16;
+                case Keys.F17: return ImGuiKey.F17;
+                case Keys.F18: return ImGuiKey.F18;
+                case Keys.F19: return ImGuiKey.F19;
+                case Keys.F20: return ImGuiKey.F20;
+                case Keys.F21: return ImGuiKey.F21;
+                case Keys.F22: return ImGuiKey.F22;
+                case Keys.F23: return ImGuiKey.F23;
+                case Keys.F24: return ImGuiKey.F24;
+                case Keys.BrowserBack: return ImGuiKey.AppBack;
+                case Keys.BrowserForward: return ImGuiKey.AppForward;
                 case Keys.NumLock: return ImGuiKey.NumLock;
                 case Keys.Scroll: return ImGuiKey.ScrollLock;
                 case Keys.LShiftKey: return ImGuiKey.LeftShift;

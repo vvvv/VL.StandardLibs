@@ -24,12 +24,9 @@ namespace VL.Core.Reactive
         /// <summary>
         /// Returns the type itself. Must not be called during compilation.
         /// </summary>
-        public Type RuntimeType
+        public Type GetRuntimeType(AppHost appHost)
         {
-            get
-            {
-                return TypeRegistry.GetTypeByName(TypeName)?.ClrType ?? typeof(object);
-            }
+            return appHost.TypeRegistry.GetTypeByName(TypeName)?.ClrType ?? typeof(object);
         }
     }
 }

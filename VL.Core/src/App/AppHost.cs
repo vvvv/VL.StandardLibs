@@ -217,6 +217,8 @@ namespace VL.Core
         internal object? GetDefaultValue(Type type) => GetDefaultValue(TypeRegistry.GetTypeInfo(type));
 
         internal abstract SerializationService SerializationService { get; }
+
+        internal abstract NodeContext RootContext { get; }
     }
 
     //public class NestedApp : IDisposable
