@@ -17,16 +17,10 @@ namespace VL.ImGui.Widgets
 
         public bool Selectable { get; set; }
 
-        public bool isSelected
-        {
-            get
-            {
-                return IsSelectedFlange.Value;
-            }
-        }
+        public bool IsSelected => IsSelectedFlange.Value;
 
         [Pin(DefaultValue = "false")]
-        public IChannel<bool>? IsSelected { private get; set; }
+        public IChannel<bool>? SelectedChannel { private get; set; }
         ChannelFlange<bool> IsSelectedFlange = new ChannelFlange<bool>(true);
 
         internal override void UpdateCore(Context context)
@@ -35,7 +29,7 @@ namespace VL.ImGui.Widgets
 
             if (Selectable)
             {
-                var isSelected = IsSelectedFlange.Update(IsSelected);
+                var isSelected = IsSelectedFlange.Update(SelectedChannel);
                 if (ImGuiNET.ImGui.MenuItem(widgetLabel.Update(Label), Shortcut, ref isSelected, enabled: Enabled))
                     Value = Unit.Default;
                 IsSelectedFlange.Value = isSelected;
