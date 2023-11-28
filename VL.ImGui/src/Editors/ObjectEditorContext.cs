@@ -7,5 +7,6 @@ namespace VL.ImGui.Editors
         IObjectEditorFactory Factory, 
         string? Label = null, 
         bool ViewOnly = false, 
-        bool PrimitiveOnly = false);
+        bool PrimitiveOnly = false,
+        bool IsSubContext = false);
 }
