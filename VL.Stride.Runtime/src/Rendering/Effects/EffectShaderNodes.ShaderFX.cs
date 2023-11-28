@@ -83,14 +83,14 @@ namespace VL.Stride.Rendering
                             var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var game = gameHandle.Resource;
 
-                            var tempParameters = new ParameterCollection(); // only needed for pin construction - parameter updater will later take care of multiple sinks
+                            var context = new ShaderGeneratorContext(game.GraphicsDevice); // only needed for pin construction - parameter updater will later take care of multiple sinks
                             var nodeState = new ShaderFXNodeState(shaderName);
 
                             var inputs = new List<IVLPin>();
                             foreach (var _input in _inputs)
                             {
                                 if (_input is ParameterPinDescription parameterPinDescription)
-                                    inputs.Add(parameterPinDescription.CreatePin(game.GraphicsDevice, tempParameters));
+                                    inputs.Add(parameterPinDescription.CreatePin(context));
                             }
 
                             var outputMaker = typeof(EffectShaderNodes).GetMethod(nameof(BuildOutput), BindingFlags.Static | BindingFlags.NonPublic);

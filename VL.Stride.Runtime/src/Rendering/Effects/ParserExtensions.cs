@@ -122,6 +122,9 @@ namespace VL.Stride.Rendering
             if (type == typeof(Vector4))
                 return attr.ParseVector4();
 
+            if (type == typeof(Color4))
+                return new Color4(attr.ParseVector4());
+
             if (type == typeof(bool))
                 return attr.ParseBool();
 
