@@ -7,7 +7,6 @@ using static VL.Stride.Shaders.ShaderFX.ShaderFXUtils;
 namespace VL.Stride.Shaders.ShaderFX
 {
     public class GetVar<T> : VarBase<T>, IComputeValue<T>
-        where T : unmanaged
     {
         public GetVar(DeclVar<T> declaration)
             : base(declaration)

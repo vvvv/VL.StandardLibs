@@ -8,9 +8,21 @@ using VL.Lib.Reactive;
 
 namespace VL.ImGui.Editors
 {
+    using ImGui = ImGuiNET.ImGui;
+
     public sealed class DefaultObjectEditorFactory : IObjectEditorFactory
     {
         public IObjectEditor? CreateObjectEditor(IChannel channel, ObjectEditorContext context)
+        {
+            var editor = DoCreateObjectEditor(channel, context);
+            if (editor is null)
+                return null;
+            if (context.ViewOnly)
+                return new ViewOnlyEditor(editor);
+            return editor;
+        }
+
+        private IObjectEditor? DoCreateObjectEditor(IChannel channel, ObjectEditorContext context)
         {
             var staticType = channel.ClrTypeOfValues;
 
@@ -105,8 +117,9 @@ namespace VL.ImGui.Editors
                 {
                     //if (context.ImmutableOnly)
                     //    return typeInfo.IsImmutable && typeInfo.AllProperties.All(p => p.Type.IsImmutable || HasEditor(context, p.Type));
+                    var type = typeInfo.ClrType;
                     if (context.PrimitiveOnly)
-                        return typeInfo.ClrType.IsPrimitive || typeInfo.ClrType == typeof(string);
+                        return type.IsPrimitive || type == typeof(string) || type == typeof(object);
                     else
                         return true;
                 }
@@ -137,5 +150,28 @@ namespace VL.ImGui.Editors
 
         [ThreadStatic]
         static HashSet<IVLTypeInfo>? s_visited;
+
+        private sealed class ViewOnlyEditor : IObjectEditor
+        {
+            private readonly IObjectEditor _editor;
+
+            public ViewOnlyEditor(IObjectEditor editor)
+            {
+                _editor = editor;
+            }
+
+            public void Draw(Context? context)
+            {
+                ImGui.BeginDisabled();
+                try
+                {
+                    _editor.Draw(context);
+                }
+                finally
+                {
+                    ImGui.EndDisabled();
+                }
+            }
+        }
     }
 }

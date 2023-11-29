@@ -10,8 +10,6 @@ using static VL.Stride.Shaders.ShaderFX.ShaderFXUtils;
 namespace VL.Stride.Shaders.ShaderFX.Functions
 {
     public class Delegate1In1Out<TIn, TOut> : Funk1In1Out<TIn, TOut>
-        where TIn : unmanaged
-        where TOut : unmanaged
     {
         public Delegate1In1Out(SetVar<TIn> arg, SetVar<TOut> result, IComputeVoid body)
             : base("Delegate", null)

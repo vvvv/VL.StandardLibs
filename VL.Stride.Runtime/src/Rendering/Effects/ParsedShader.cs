@@ -159,7 +159,7 @@ namespace VL.Stride.Rendering
         public readonly string TypeName;
         public readonly string Summary;
         public readonly string Remarks;
-        public bool IsOptional;
+        public readonly bool IsOptional;
         public readonly PermutationParameterKey<ShaderSource> Key;
 
         /// <summary>
@@ -174,6 +174,7 @@ namespace VL.Stride.Rendering
             Name = v.Name.Text;
 
             // parse attributes
+            var hasColorAttribute = false;
             foreach (var attr in v.Attributes.OfType<AttributeDeclaration>())
             {
                 switch (attr.Name)
@@ -187,12 +188,20 @@ namespace VL.Stride.Rendering
                     case ShaderMetadata.RemarksName:
                         Remarks = attr.ParseString();
                         break;
+                    case ShaderMetadata.ColorAttributeName:
+                        hasColorAttribute = true;
+                        break;
                     default:
                         break;
                 }
             }
 
             TypeName = v.Type.Name.Text;
+
+            // Treat ComputeFloat4 with Color attribute as ComputeColor
+            if (TypeName == "ComputeFloat4" && hasColorAttribute)
+                TypeName = "ComputeColor";
+
             Key = new PermutationParameterKey<ShaderSource>(Name);
             LocalIndex = localIndex;
             Variable = v;
@@ -271,6 +280,7 @@ namespace VL.Stride.Rendering
             { "ComputeFloat2", new CompDefaultValue<Vector2>() },
             { "ComputeFloat3", new CompDefaultValue<Vector3>() },
             { "ComputeFloat4", new CompDefaultValue<Vector4>() },
+            { "ComputeColor", new CompDefaultValue<Color4>() },
             { "ComputeMatrix", new CompDefaultValue<Matrix>() },
             { "ComputeBool", new CompDefaultValue<bool>() },
             { "ComputeInt", new CompDefaultValue<int>() },
@@ -302,7 +312,7 @@ namespace VL.Stride.Rendering
             }
         }
 
-        class CompDefaultValue<T> : CompDefault where T : unmanaged
+        class CompDefaultValue<T> : CompDefault where T : struct
         {
             public CompDefaultValue(T defaultValue = default)
                 : base(defaultValue, BuildInput, typeof(T))

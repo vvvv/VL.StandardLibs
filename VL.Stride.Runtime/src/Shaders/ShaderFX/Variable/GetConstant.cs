@@ -11,7 +11,6 @@ using static VL.Stride.Shaders.ShaderFX.ShaderFXUtils;
 namespace VL.Stride.Shaders.ShaderFX
 {
     public class GetConstant<T> : GetVar<T>
-        where T : unmanaged
     {
         public T ConstantValue { get ; }
 

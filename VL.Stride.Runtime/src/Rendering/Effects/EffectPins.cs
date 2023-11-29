@@ -37,7 +37,7 @@ namespace VL.Stride.Rendering
             }
         }
 
-        public abstract IVLPin CreatePin(GraphicsDevice graphicsDevice, ParameterCollection parameters);
+        public abstract IVLPin CreatePin(ShaderGeneratorContext context);
     }
 
     class PinDescription<T> : EffectPinDescription
@@ -53,7 +53,7 @@ namespace VL.Stride.Rendering
         public override object DefaultValueBoxed => DefaultValue;
         public T DefaultValue { get; }
 
-        public override IVLPin CreatePin(GraphicsDevice graphicsDevice, ParameterCollection parameters) => new Pin<T>(Name, DefaultValue);
+        public override IVLPin CreatePin(ShaderGeneratorContext context) => new Pin<T>(Name, DefaultValue);
     }
 
     /// <summary>
@@ -113,9 +113,9 @@ namespace VL.Stride.Rendering
 
         // The plain value read by the compiler, for example in case of IComputeValue<Vector4> this would be just the vector itself
         public override object DefaultValueBoxed { get; }
-        public override IVLPin CreatePin(GraphicsDevice graphicsDevice, ParameterCollection parameters)
+        public override IVLPin CreatePin(ShaderGeneratorContext context)
         {
-            return EffectPins.CreatePin(graphicsDevice, parameters, Key, Count, IsPermutationKey, RuntimeDefaultValue, Type);
+            return EffectPins.CreatePin(context, Key, Count, IsPermutationKey, RuntimeDefaultValue, Type);
         }
 
         public override string ToString()
@@ -126,17 +126,14 @@ namespace VL.Stride.Rendering
 
     static class EffectPins
     {
-        public static IVLPin CreatePin(GraphicsDevice graphicsDevice, ParameterCollection parameters, ParameterKey key, int count, bool isPermutationKey, object value, Type typeInPatch)
+        public static IVLPin CreatePin(ShaderGeneratorContext context, ParameterKey key, int count, bool isPermutationKey, object value, Type typeInPatch)
         {
-            if (key is ValueParameterKey<Color4> colorKey)
-                return new ColorParameterPin(parameters, colorKey, graphicsDevice.ColorSpace, (Color4)value);
-
             var argument = key.GetType().GetGenericArguments()[0];
 
             if (typeInPatch.IsEnum)
             {
                 var createPinMethod = typeof(EffectPins).GetMethod(nameof(CreateEnumPin), BindingFlags.Static | BindingFlags.Public);
-                return createPinMethod.MakeGenericMethod(argument, typeInPatch).Invoke(null, new object[] { parameters, key, value }) as IVLPin;
+                return createPinMethod.MakeGenericMethod(argument, typeInPatch).Invoke(null, new object[] { context, key, value }) as IVLPin;
             }
 
             if (argument == typeof(ShaderSource))
@@ -145,74 +142,73 @@ namespace VL.Stride.Rendering
                 {
                     var typeParam = typeInPatch.GetGenericArguments()[0];
                     var createPinMethod = typeof(EffectPins).GetMethod(nameof(CreateGPUValueSinkPin), BindingFlags.Static | BindingFlags.Public);
-                    return createPinMethod.MakeGenericMethod(typeParam).Invoke(null, new[] { parameters, key, value }) as IVLPin;
+                    return createPinMethod.MakeGenericMethod(typeParam).Invoke(null, new[] { context, key, value }) as IVLPin;
                 }
                 else
                 {
                     var createPinMethod = typeof(EffectPins).GetMethod(nameof(CreateShaderFXPin), BindingFlags.Static | BindingFlags.Public);
-                    return createPinMethod.MakeGenericMethod(typeof(IComputeNode)).Invoke(null, new object[] { parameters, key, value }) as IVLPin;
+                    return createPinMethod.MakeGenericMethod(typeof(IComputeNode)).Invoke(null, new object[] { context, key, value }) as IVLPin;
                 }
             }
 
             if (isPermutationKey)
             {
                 var createPinMethod = typeof(EffectPins).GetMethod(nameof(CreatePermutationPin), BindingFlags.Static | BindingFlags.Public);
-                return createPinMethod.MakeGenericMethod(argument).Invoke(null, new object[] { parameters, key, value }) as IVLPin;
+                return createPinMethod.MakeGenericMethod(argument).Invoke(null, new object[] { context, key, value }) as IVLPin;
             }
             else if (argument.IsValueType)
             {
                 if (count > 1)
                 {
                     var createPinMethod = typeof(EffectPins).GetMethod(nameof(CreateArrayPin), BindingFlags.Static | BindingFlags.Public);
-                    return createPinMethod.MakeGenericMethod(argument).Invoke(null, new object[] { parameters, key, value }) as IVLPin;
+                    return createPinMethod.MakeGenericMethod(argument).Invoke(null, new object[] { context, key, value }) as IVLPin;
                 }
                 else
                 {
                     var createPinMethod = typeof(EffectPins).GetMethod(nameof(CreateValuePin), BindingFlags.Static | BindingFlags.Public);
-                    return createPinMethod.MakeGenericMethod(argument).Invoke(null, new object[] { parameters, key, value }) as IVLPin;
+                    return createPinMethod.MakeGenericMethod(argument).Invoke(null, new object[] { context, key, value }) as IVLPin;
                 }
             }
             else
             {
                 var createPinMethod = typeof(EffectPins).GetMethod(nameof(CreateResourcePin), BindingFlags.Static | BindingFlags.Public);
-                return createPinMethod.MakeGenericMethod(argument).Invoke(null, new object[] { parameters, key }) as IVLPin;
+                return createPinMethod.MakeGenericMethod(argument).Invoke(null, new object[] { context, key }) as IVLPin;
             }
         }
 
-        public static IVLPin CreatePermutationPin<T>(ParameterCollection parameters, PermutationParameterKey<T> key, T value)
+        public static IVLPin CreatePermutationPin<T>(ShaderGeneratorContext context, PermutationParameterKey<T> key, T value)
         {
-            return new PermutationParameterPin<T>(parameters, key, value);
+            return new PermutationParameterPin<T>(context, key, value);
         }
 
-        public static IVLPin CreateEnumPin<T, TEnum>(ParameterCollection parameters, ValueParameterKey<T> key, TEnum value) where T : unmanaged where TEnum : unmanaged
+        public static IVLPin CreateEnumPin<T, TEnum>(ShaderGeneratorContext context, ValueParameterKey<T> key, TEnum value) where T : unmanaged where TEnum : unmanaged
         {
-            return new EnumParameterPin<T, TEnum>(parameters, key, value);
+            return new EnumParameterPin<T, TEnum>(context, key, value);
         }
 
-        public static IVLPin CreateShaderFXPin<T>(ParameterCollection parameters, PermutationParameterKey<ShaderSource> key, T value) where T : class, IComputeNode
+        public static IVLPin CreateShaderFXPin<T>(ShaderGeneratorContext context, PermutationParameterKey<ShaderSource> key, T value) where T : class, IComputeNode
         {
             return new ShaderFXPin<T>(key, value);
         }
 
-        public static IVLPin CreateGPUValueSinkPin<T>(ParameterCollection parameters, PermutationParameterKey<ShaderSource> key, SetVar<T> value)
-            where T : unmanaged
+        public static IVLPin CreateGPUValueSinkPin<T>(ShaderGeneratorContext context, PermutationParameterKey<ShaderSource> key, SetVar<T> value)
         {
             return new GPUValueSinkPin<T>(key, value);
         }
 
-        public static IVLPin CreateValuePin<T>(ParameterCollection parameters, ValueParameterKey<T> key, T value) where T : struct
+        public static IVLPin CreateValuePin<T>(ShaderGeneratorContext context, ValueParameterKey<T> key, T value) where T : struct
         {
-            return new ValueParameterPin<T>(parameters, key, value);
+            return new ValueParameterPin<T>(context, key, value);
         }
 
-        public static IVLPin CreateArrayPin<T>(ParameterCollection parameters, ValueParameterKey<T> key, T[] value) where T : struct
+        public static IVLPin CreateArrayPin<T>(ShaderGeneratorContext context, ValueParameterKey<T> key, T[] value) where T : struct
         {
-            return new ArrayValueParameterPin<T>(parameters, key, value);
+            return new ArrayValueParameterPin<T>(context, key, value);
         }
 
-        public static IVLPin CreateResourcePin<T>(ParameterCollection parameters, ObjectParameterKey<T> key) where T : class
+        public static IVLPin CreateResourcePin<T>(ShaderGeneratorContext context, ObjectParameterKey<T> key) where T : class
         {
-            return new ResourceParameterPin<T>(parameters, key);
+            return new ResourceParameterPin<T>(context, key);
         }
     }
 
@@ -252,8 +248,8 @@ namespace VL.Stride.Rendering
 
     sealed class PermutationParameterPin<T> : ParameterPin<T, PermutationParameterKey<T>>
     {
-        public PermutationParameterPin(ParameterCollection parameters, PermutationParameterKey<T> key, T value)
-            : base(new PermutationParameterUpdater<T>(parameters, key), value)
+        public PermutationParameterPin(ShaderGeneratorContext context, PermutationParameterKey<T> key, T value)
+            : base(new PermutationParameterUpdater<T>(context, key), value)
         {
         }
     }
@@ -261,8 +257,8 @@ namespace VL.Stride.Rendering
     sealed class ValueParameterPin<T> : ParameterPin<T, ValueParameterKey<T>>
         where T : struct
     {
-        public ValueParameterPin(ParameterCollection parameters, ValueParameterKey<T> key, T value)
-            : base(new ValueParameterUpdater<T>(parameters, key), value)
+        public ValueParameterPin(ShaderGeneratorContext context, ValueParameterKey<T> key, T value)
+            : base(new ValueParameterUpdater<T>(context, key), value)
         {
         }
     }
@@ -273,9 +269,9 @@ namespace VL.Stride.Rendering
     {
         private readonly ValueParameterPin<T> pin;
 
-        public EnumParameterPin(ParameterCollection parameters, ValueParameterKey<T> key, TEnum value)
+        public EnumParameterPin(ShaderGeneratorContext context, ValueParameterKey<T> key, TEnum value)
         {
-            pin = new ValueParameterPin<T>(parameters, key, Unsafe.As<TEnum, T>(ref value));
+            pin = new ValueParameterPin<T>(context, key, Unsafe.As<TEnum, T>(ref value));
         }
 
         public TEnum Value
@@ -295,36 +291,11 @@ namespace VL.Stride.Rendering
         }
     }
 
-    sealed class ColorParameterPin : IVLPin<Color4>
-    {
-        private readonly ValueParameterPin<Color4> pin;
-
-        public readonly ColorSpace ColorSpace;
-
-        public ColorParameterPin(ParameterCollection parameters, ValueParameterKey<Color4> key, ColorSpace colorSpace, Color4 value)
-        {
-            pin = new ValueParameterPin<Color4>(parameters, key, value.ToColorSpace(colorSpace));
-            ColorSpace = colorSpace;
-        }
-
-        public Color4 Value
-        {
-            get => pin.Value;
-            set => pin.Value = value.ToColorSpace(ColorSpace);
-        }
-
-        object IVLPin.Value
-        {
-            get => Value;
-            set => Value = (Color4)value;
-        }
-    }
-
     sealed class ArrayValueParameterPin<T> : ParameterPin<T[], ValueParameterKey<T>>
         where T : struct
     {
-        public ArrayValueParameterPin(ParameterCollection parameters, ValueParameterKey<T> key, T[] value) 
-            : base(new ArrayParameterUpdater<T>(parameters, key), value)
+        public ArrayValueParameterPin(ShaderGeneratorContext context, ValueParameterKey<T> key, T[] value) 
+            : base(new ArrayParameterUpdater<T>(context, key), value)
         {
         }
     }
@@ -332,8 +303,8 @@ namespace VL.Stride.Rendering
     sealed class ResourceParameterPin<T> : ParameterPin<T, ObjectParameterKey<T>>
         where T : class
     {
-        public ResourceParameterPin(ParameterCollection parameters, ObjectParameterKey<T> key)
-            : base(new ObjectParameterUpdater<T>(parameters, key), default)
+        public ResourceParameterPin(ShaderGeneratorContext context, ObjectParameterKey<T> key)
+            : base(new ObjectParameterUpdater<T>(context, key), default)
         {
         }
     }
@@ -426,7 +397,6 @@ namespace VL.Stride.Rendering
     }
 
     sealed class GPUValueSinkPin<T> : ShaderFXPin<SetVar<T>>
-        where T : unmanaged
     {
         public GPUValueSinkPin(PermutationParameterKey<ShaderSource> key, SetVar<T> value) 
             : base(key, value)

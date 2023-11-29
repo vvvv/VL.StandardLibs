@@ -62,8 +62,8 @@ namespace VL.Stride.Rendering
                     effect = new EffectInstance(new Effect(graphicsDevice, effectBytecode) { Name = effectName });
                 else
                 {
-                    var mixinParams = BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out shaderMixinSource, parameterCollection);
-                    effect = new DynamicEffectInstance(effectName, mixinParams);
+                    var context = BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out shaderMixinSource, parameterCollection);
+                    effect = new DynamicEffectInstance(effectName, context.Parameters);
                     (effect as DynamicEffectInstance).Initialize(serviceRegistry);
                 }
 
@@ -113,7 +113,7 @@ namespace VL.Stride.Rendering
             }
         }
 
-        private static ParameterCollection BuildBaseMixin(string shaderName, ShaderMetadata shaderMetadata, GraphicsDevice graphicsDevice, out ShaderMixinSource effectInstanceMixin, ParameterCollection parameters = null)
+        private static ShaderGeneratorContext BuildBaseMixin(string shaderName, ShaderMetadata shaderMetadata, GraphicsDevice graphicsDevice, out ShaderMixinSource effectInstanceMixin, ParameterCollection parameters = null)
         {
             effectInstanceMixin = new ShaderMixinSource();
             effectInstanceMixin.Mixins.Add(new ShaderClassSource(shaderName));
@@ -138,7 +138,7 @@ namespace VL.Stride.Rendering
                 } 
             }
 
-            return mixinParams;
+            return context;
         }
 
         //used for shader source generation

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <OutputPath>..\lib</OutputPath>
+    
+    <Description>Texture effects library for vvvv</Description>
+    <PackageTags></PackageTags>
+    <RootNamespace>VL.Stride</RootNamespace>
+    <Authors>vvvv and open-source contributors</Authors>
+    <Company>vvvv</Company>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="..\*.vl" Pack="true" PackagePath=" " />
+    <!-- Setting AutoGen metadata is a hack to avoid getting picked up by asset compiler -->
+    <None Include="..\help\**\*" Link="help\%(RecursiveDir)%(Filename)%(Extension)" Pack="true" AutoGen="false" PackagePath="help\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\shaders\**\*" Link="shaders\%(RecursiveDir)%(Filename)%(Extension)" Pack="true" AutoGen="false" PackagePath="shaders\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.Stride.Runtime\src\VL.Stride.Runtime.csproj" />
+  </ItemGroup>
+</Project>
