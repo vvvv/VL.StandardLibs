@@ -128,4 +128,11 @@ namespace VL.Core
             public Optional<T> Default() => default;
         }
     }
+
+#nullable enable
+    public static class OptionalExtensions
+    {
+        public static TValue? ToNullable<TValue>(this Optional<TValue> value)
+            => value.HasValue ? value.Value : default;
+    }
 }
