@@ -16,7 +16,9 @@ namespace VL.IO.Redis
         private readonly NodeContext _nodeContext;
         private readonly ILogger _logger;
 
-        private (RedisClient? client, IChannel? channel, string? key, Initialization initialization, RedisBindingType bindingType, CollisionHandling collisionHandling, SerializationFormat? serializationFormat) _config;
+        private (RedisClient? client, IChannel? channel, string? key, Initialization initialization, 
+            RedisBindingType bindingType, CollisionHandling collisionHandling, Optional<SerializationFormat> serializationFormat,
+            Optional<TimeSpan> expiry) _config;
 
         public BindingNode([Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext)
         {
@@ -31,9 +33,10 @@ namespace VL.IO.Redis
             Initialization initialization = Initialization.Redis,
             RedisBindingType bindingType = RedisBindingType.SendAndReceive,
             CollisionHandling collisionHandling = default,
-            SerializationFormat? serializationFormat = default)
+            Optional<SerializationFormat> serializationFormat = default,
+            Optional<TimeSpan> expiry = default)
         {
-            var config = (client, channel, key, initialization, bindingType, collisionHandling, serializationFormat);
+            var config = (client, channel, key, initialization, bindingType, collisionHandling, serializationFormat, expiry);
             if (config == _config)
                 return;
 
@@ -43,7 +46,7 @@ namespace VL.IO.Redis
             if (client is null || channel is null || string.IsNullOrWhiteSpace(key))
                 return;
 
-            var model = new BindingModel(key, initialization, bindingType, collisionHandling, serializationFormat);
+            var model = new BindingModel(key, initialization, bindingType, collisionHandling, serializationFormat.ToNullable(), expiry.ToNullable());
             try
             {
                 _current.Disposable = client.AddBinding(model, channel, logger: _logger);
