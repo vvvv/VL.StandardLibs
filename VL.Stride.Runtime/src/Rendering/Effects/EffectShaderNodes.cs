@@ -50,7 +50,7 @@ namespace VL.Stride.Rendering
                                 {
                                     var assetsFolder = Path.Combine(c.DirectoryPath, "Assets");
                                     Directory.CreateDirectory(assetsFolder);
-                                    foreach (var f in Directory.EnumerateFiles(shadersPath))
+                                    foreach (var f in Directory.EnumerateFiles(shadersPath, "*", SearchOption.AllDirectories))
                                     {
                                         if (string.Equals(Path.GetExtension(f), ".sdsl", StringComparison.OrdinalIgnoreCase) || string.Equals(Path.GetExtension(f), ".sdfx", StringComparison.OrdinalIgnoreCase))
                                         {
