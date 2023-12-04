@@ -20,8 +20,8 @@ shader Tunnels_TextureFX : FilterBase
     [Default(0.5)]
     compose ComputeFloat FogDistance;
 	
-    [Color] 
-    float4 FogColor = float4(0, 0, 0, 1);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor FogColor;
 
 	float3 TunnelSquare(float2 p, float distance)
 	{
@@ -67,6 +67,6 @@ shader Tunnels_TextureFX : FilterBase
         }
 		float4 col = Texture0.SampleLevel(LinearRepeatSampler, tunnel.xy, 0);
 		float fog = 1/(1+(FogDistance.Compute()*10.0) * pow(tunnel.z/distance, 2));
-		return lerp(col, FogColor, fog);
+		return lerp(col, FogColor.Compute(), fog);
 	}
 };
