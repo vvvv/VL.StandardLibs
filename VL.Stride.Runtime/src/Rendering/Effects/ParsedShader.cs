@@ -174,7 +174,6 @@ namespace VL.Stride.Rendering
             Name = v.Name.Text;
 
             // parse attributes
-            var hasColorAttribute = false;
             foreach (var attr in v.Attributes.OfType<AttributeDeclaration>())
             {
                 switch (attr.Name)
@@ -188,19 +187,12 @@ namespace VL.Stride.Rendering
                     case ShaderMetadata.RemarksName:
                         Remarks = attr.ParseString();
                         break;
-                    case ShaderMetadata.ColorAttributeName:
-                        hasColorAttribute = true;
-                        break;
                     default:
                         break;
                 }
             }
 
             TypeName = v.Type.Name.Text;
-
-            // Treat ComputeFloat4 with Color attribute as ComputeColor
-            if (TypeName == "ComputeFloat4" && hasColorAttribute)
-                TypeName = "ComputeColor";
 
             Key = new PermutationParameterKey<ShaderSource>(Name);
             LocalIndex = localIndex;
