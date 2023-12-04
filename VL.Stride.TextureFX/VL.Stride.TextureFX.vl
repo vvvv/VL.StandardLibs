@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="HplBRXFgjfJPVyULDjUKiZ" LanguageVersion="2023.5.3-0161-g340482cdb1" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="HplBRXFgjfJPVyULDjUKiZ" LanguageVersion="2023.5.3-0360-g0d3bf9899c" Version="0.128">
   <NugetDependency Id="QNDaxjZxapFM8KPBDLuO6H" Location="VL.CoreLib" Version="2021.4.6-0793-g0b5cd91759" />
   <Patch Id="G28kmfwtWsRPWb67PHzP5Y">
     <Canvas Id="TtPf6YeHIWxLlrjYVAmnpJ" DefaultCategory="Stride.Textures" CanvasType="FullCategory">
@@ -336,7 +336,7 @@
                 <Pin Id="ANmA8TJ581aQHu7IhwZ2x9" Name="Result" Kind="OutputPin" />
               </Node>
               <Pad Id="SBQaCgZJjo8NUhYUkEcewh" Comment="" Bounds="1008,193,84,15" ShowValueBox="true" isIOBox="true" Value="TwoPasses">
-                <p:TypeAnnotation LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.Rendering.vl">
+                <p:TypeAnnotation LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.TextureFX.vl">
                   <Choice Kind="TypeFlag" Name="BlurPasses" />
                 </p:TypeAnnotation>
               </Pad>
@@ -359,7 +359,7 @@
                 <Pin Id="GmQm15X12jNNswTziPtTqX" Name="Result" Kind="OutputPin" />
               </Node>
               <Pad Id="LtGNxOMXs8BNpWqvzcxrP6" Comment="" Bounds="1150,196,84,15" ShowValueBox="true" isIOBox="true" Value="ThreePasses">
-                <p:TypeAnnotation LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.Rendering.vl">
+                <p:TypeAnnotation LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.TextureFX.vl">
                   <Choice Kind="TypeFlag" Name="BlurPasses" />
                 </p:TypeAnnotation>
               </Pad>
@@ -454,7 +454,7 @@
             <Patch Id="MlicfXg2JEDObiMJRVGbGp" Name="Create" />
             <Patch Id="JcW2ExtvDxgPghw46s2T0m" Name="Update" ManuallySortedPins="true">
               <Pin Id="Jnr8yJdRkU9NgqS1sRZ4vv" Name="Passes" Kind="InputPin" DefaultValue="TwoPasses">
-                <p:TypeAnnotation LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.Rendering.vl">
+                <p:TypeAnnotation LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.TextureFX.vl">
                   <Choice Kind="TypeFlag" Name="BlurPasses" />
                 </p:TypeAnnotation>
               </Pin>
@@ -982,6 +982,272 @@
           </Patch>
         </Node>
       </Canvas>
+      <Canvas Id="KhAMotPi7hZLb9cgkbCRST" Name="Filter.Advanced" Position="483,382">
+        <!--
+
+    ************************ AlphaChannel ************************
+
+-->
+        <Node Name="AlphaChannel" Bounds="122,240" Id="BCaoy4oelv8MIgfYEgDy63">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="AlphaChannel" />
+          </p:TypeAnnotation>
+          <Patch Id="FfbiGOO3ispLswPl0eO2cv">
+            <Canvas Id="JJcQx57je2BLSypVSjwBhu" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="Q5BlKi71vTiNxtRo6MOKMt" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ BumpType ************************
+
+-->
+        <Node Name="BumpType" Bounds="682,240" Id="VRQY7DHy9U3LqA66MuvO0F">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="BumpType" />
+          </p:TypeAnnotation>
+          <Patch Id="IfKUWZClwNLN3uY3VvmB9n">
+            <Canvas Id="BU7zzYfbTXRM7BpbNvdKud" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="IE8Bhi4lwXjPQGUy5Bv82E" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ ChannelKeyingType ************************
+
+-->
+        <Node Name="ChannelKeyingType" Bounds="400,231" Id="Rcy6edleV4rLCetrIdNwaq">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="ChannelKeyingType" />
+          </p:TypeAnnotation>
+          <Patch Id="CwmE0C0uH0EL1UDaQ9QRs4">
+            <Canvas Id="CD0xAuwlwUbMRalZF7skLd" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="JtzDXy6PXXyPY99l87l30A" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ ConvertColorType ************************
+
+-->
+        <Node Name="ConvertColorType" Bounds="122,290" Id="LvlZnNVvVavLrF0YfNtWai">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="ConvertColorType" />
+          </p:TypeAnnotation>
+          <Patch Id="Mww1Cch9plFMYaVWwYTnRP">
+            <Canvas Id="FnNWDXvgCFzOgBd8JuU5SH" CanvasType="Group" />
+            <ProcessDefinition Id="F6756WZKH0WOqRqOJbCXv2" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ CoordinatesType ************************
+
+-->
+        <Node Name="CoordinatesType" Bounds="402,290" Id="Bh2C73Ro0oTMsvzQFNwjUW">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="CoordinatesType" />
+          </p:TypeAnnotation>
+          <Patch Id="Ey4a5X4mu9WQbJQFWFAakl">
+            <Canvas Id="ApzFoOGPoUlNGboNnVoBy8" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="CIsLQgZHpDUO5Ucaa5ZCfK" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ GlowType ************************
+
+-->
+        <Node Name="GlowType" Bounds="682,290" Id="ClOGCU87owmOqflSlboWWY">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="GlowType" />
+          </p:TypeAnnotation>
+          <Patch Id="ELCkhwzxaEBNMXA65CkVd9">
+            <Canvas Id="BVH0XslZfQgQBhg536KQZR" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="KzlVvsVq3wMPhq5XphJD4R" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ LevelsClampType ************************
+
+-->
+        <Node Name="LevelsClampType" Bounds="122,340" Id="Ct7IfL0TsrhOPkOCMqSJ58">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="LevelsClampType" />
+          </p:TypeAnnotation>
+          <Patch Id="LmuPnBBJ3CHPM90gdRP9Ww">
+            <Canvas Id="SExybrBssz0LqIhBjXehju" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="GkCtRsWD8skO8j5MxuOg0g" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ LomographType ************************
+
+-->
+        <Node Name="LomographType" Bounds="402,340" Id="SUN34OItnUDOZ1L2laap5A">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="LomographType" />
+          </p:TypeAnnotation>
+          <Patch Id="GqwGHO4BXrHM33v7X2oc4M">
+            <Canvas Id="L88VtvFi2BWMyzarVxEQm2" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="GY4jsIBut3fNHjJFlqEOxD" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ MapColorType ************************
+
+-->
+        <Node Name="MapColorType" Bounds="682,340" Id="HNN795o8BMcPO9PAReFaw4">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="MapColorType" />
+          </p:TypeAnnotation>
+          <Patch Id="HOeQhatdpPVPsvQ8LnHMi3">
+            <Canvas Id="PWJWtiJQLhLLJXD6NvJJlb" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="UFMD3HZuAkXNdxkHnzjY4Y" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ TunnelType ************************
+
+-->
+        <Node Name="TunnelType" Bounds="129,399" Id="FD2bxhEX3BJPFeXCMEM07k">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="TunnelType" />
+          </p:TypeAnnotation>
+          <Patch Id="KHNq9sl2MC0Mzjh5FlfAqI">
+            <Canvas Id="PvnYcpy8vBqPVcpm7TFAx8" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="FNKmCdSs8oMMLMM8LZw4LG" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ BlurPasses ************************
+
+-->
+        <Node Name="BlurPasses" Bounds="868,236" Id="VmfoJjZXTd6Mq4ULtR7Lni">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="BlurPasses" />
+          </p:TypeAnnotation>
+          <Patch Id="D0lvlZnbiCLP9lKtcPm5HR">
+            <Canvas Id="K1x4GOgKwZCLWWU0sbPVcM" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="Co6L7W6zwELLNrOeXRHThX" IsHidden="true" />
+          </Patch>
+        </Node>
+      </Canvas>
+      <Canvas Id="Ut9v35Yzi4mOEf8nukXu0o" Name="Source.Advanced" Position="483,276">
+        <!--
+
+    ************************ HaloType ************************
+
+-->
+        <Node Name="HaloType" Bounds="228,292" Id="L3ctJKKALEEP4aoMjvZOHr">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="HaloType" />
+          </p:TypeAnnotation>
+          <Patch Id="HNHfD0LFm7hO4qPMqv9WOz">
+            <Canvas Id="EGW85aZSE6yNJJaCx2NZMw" CanvasType="Group" />
+            <ProcessDefinition Id="Ch50t56OIDeOBJ5rwACPOV" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ NoiseType ************************
+
+-->
+        <Node Name="NoiseType" Bounds="228,342" Id="M0axWx878voLXa9j2CRnlO">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="NoiseType" />
+          </p:TypeAnnotation>
+          <Patch Id="FAKCabdd7aHMttSXXD78Tm">
+            <Canvas Id="UodZY6zVBSgNjSEV65CxG6" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="FatTyrsxnDWOJ3gPbASVWd" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ PaletteType ************************
+
+-->
+        <Node Name="PaletteType" Bounds="231,388" Id="Rts2kkIGQA6OBVxJazBxKR">
+          <p:NodeReference>
+            <Choice Kind="ForwardRecordDefinition" Name="Immutable Forward" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="VL.Stride.Effects.TextureFX" LastDependency="VL.Stride.Runtime.dll">
+            <Choice Kind="TypeFlag" Name="PaletteType" />
+          </p:TypeAnnotation>
+          <Patch Id="IVbME0FeLJUNoQtHRNQ2Pa">
+            <Canvas Id="UjRjNwktfFCLvSTiieIExA" BordersChecked="false" CanvasType="Group" />
+            <ProcessDefinition Id="Kr1Ztdk9VOWNxWlVrpU8j8" IsHidden="true" />
+          </Patch>
+        </Node>
+      </Canvas>
+      <Pad Id="TWaC9Q5mNSWP9Cl4CjTjVP" Bounds="720,315,178,68" ShowValueBox="true" isIOBox="true" Value="&lt; enum forwards need to be here so they are visible to the texturefx factory">
+        <p:TypeAnnotation>
+          <Choice Kind="TypeFlag" Name="String" />
+        </p:TypeAnnotation>
+        <p:ValueBoxSettings>
+          <p:fontsize p:Type="Int32">9</p:fontsize>
+          <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+        </p:ValueBoxSettings>
+      </Pad>
+      <Canvas Id="Lh3p2XY7p1KOvDmZEZNtto" Name="Mixer.Advanced" Position="483,329" />
     </Canvas>
     <!--
 
@@ -1010,4 +1276,6 @@
   <PlatformDependency Id="TObTotiGHzEPqnDrTFPwNJ" Location="../VL.Stride/lib/net6.0-windows/Stride.Core.Mathematics.dll" />
   <PlatformDependency Id="LaDkm7AGRIfLqOq8LG18Id" Location="../VL.Stride/lib/net6.0-windows/Stride.Games.dll" />
   <NugetDependency Id="MX2njVDOyM2P5HE4wCbbgG" Location="VL.Stride" IsForward="true" Version="0.0.0" />
+  <NugetDependency Id="SPZuIwSCIAUL76mD3CdAIz" Location="VL.Stride.TextureFX" Version="2023.5.3-0359-g76f8ff031b" />
+  <PlatformDependency Id="Bsg7sgBZbdKNfZr6V1zyM0" Location="./lib/net6.0-windows/VL.Stride.TextureFX.dll" />
 </Document>
