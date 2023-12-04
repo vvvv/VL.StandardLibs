@@ -16,7 +16,7 @@ namespace VL.ImGui.Editors
         public DynamicEnumEditor(IChannel<T> channel, ObjectEditorContext editorContext)
         {
             this.channel = channel;
-            this.label = editorContext.Label ?? $"##{GetHashCode()}";
+            this.label = editorContext.LabelForImGUI;
         }
 
         IDynamicEnum dynamicEnum;
