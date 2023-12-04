@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace VL.Stride.TextureFX
 {
-    public enum AlphaChannel { Average, R, G, B, A };
     public enum BumpType { Directional, Point };
     public enum ChannelKeyingType { Alpha, Red, Green, Blue, Luma, Saturation };
     public enum ConvertColorType { HSVtoRGB, HSLtoRGB, RGBtoHSV, RGBtoHSL };
