@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 using System.Reactive.Disposables;
 using VL.Core;
 
@@ -69,12 +70,56 @@ namespace VL.Lib.Animation
         /// <summary>
         /// Gets an observable that sends an event before each frame.
         /// </summary>
-        IObservable<FrameTimeMessage> GetTicks();
+        IObservable<FrameTimeMessage> GetTicks() => GetFrameStarted();
+
+
+
+
+        IObservable<FrameTimeMessage> GetFrameStarted();
+
+        IBundledObservable<Unit> NetworkRead { get; }
+        IBundledObservable<Unit> Update { get; }
+        IBundledObservable<Unit> NetworkWrite { get; }
+        IBundledObservable<Unit> Render { get; }
 
         /// <summary>
         /// Gets an observable that sends an event directly after the Update call of each frame.
         /// </summary>
         IObservable<FrameFinishedMessage> GetFrameFinished();
+
+
+
+
+
+        IFrameEvents Events { get; }
+    }
+
+    public interface IFrameEvents : IBundle<FrameTimeMessage, FrameFinishedMessage>
+    {
+        IBundledObservable<Unit> NetworkRead { get; }
+        IBundledObservable<Unit> Update { get; }
+        IBundledObservable<Unit> NetworkWrite { get; }
+        IBundledObservable<Unit> Render { get; }
+    }
+
+    public interface IBundle<TBefore, TAfter> 
+    {
+        IObservable<TBefore> Before { get; }
+        IObservable<TAfter> After { get; }
+    }
+
+    public interface IBundledObservable<T> : IBundle<T, T>, IObservable<T>
+    { 
+    }
+
+    public static class BundleExtensions
+    {
+        public static object Using<TBefore, TAfter>(this IBundle<TBefore, TAfter> bundle, Func<IDisposable> factory)
+        {
+            IDisposable dis;
+            bundle.Before.Subscribe(x => factory());
+            bundle.After.Subscribe(x => dis.Dispose());
+        }
     }
 
     public static class Clocks
