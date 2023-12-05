@@ -10,6 +10,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using VL.Core;
 using VL.Core.Import;
 using VL.IO.Redis.Internal;
 using VL.Lib.Animation;
@@ -30,6 +31,7 @@ namespace VL.IO.Redis
         internal readonly Dictionary<string, (BindingModel model, IRedisBinding binding)> _bindings = new();
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly Subject<Unit> _networkSync = new Subject<Unit>();
+        private readonly AppHost _appHost;
 
         private ImmutableArray<IParticipant> _participants = ImmutableArray<IParticipant>.Empty;
 
@@ -39,6 +41,9 @@ namespace VL.IO.Redis
         {
             _multiplexer = multiplexer;
             _logger = logger;
+
+            // Capture the current app host - we'll need it later when serializing values
+            _appHost = AppHost.Current;
 
             // This opens a Pub/Sub connection internally
             var subscriber = multiplexer.GetSubscriber();
@@ -119,6 +124,7 @@ namespace VL.IO.Redis
 
         internal RedisValue Serialize<T>(T? value, SerializationFormat? preferredFormat)
         {
+            using var _ = _appHost.MakeCurrent();
             switch (GetEffectiveSerializationFormat(preferredFormat))
             {
                 case SerializationFormat.Raw:
@@ -134,6 +140,7 @@ namespace VL.IO.Redis
 
         internal T? Deserialize<T>(RedisValue redisValue, SerializationFormat? preferredFormat)
         {
+            using var _ = _appHost.MakeCurrent();
             switch (GetEffectiveSerializationFormat(preferredFormat))
             {
                 case SerializationFormat.Raw:
