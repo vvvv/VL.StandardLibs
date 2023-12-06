@@ -48,7 +48,7 @@ namespace VL.ImGui.Editors
 
             ImGui.SetNextItemOpen(!collapsed);
 
-            if (ImGui.TreeNodeEx($"Type [{count}]{label}", ImGuiNET.ImGuiTreeNodeFlags.CollapsingHeader))
+            if (ImGui.TreeNodeEx($"[{count}]{label}", ImGuiNET.ImGuiTreeNodeFlags.CollapsingHeader))
             {
                 collapsed = false;
 
