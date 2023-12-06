@@ -15,6 +15,7 @@ namespace VL.ImGui.Editors
         private readonly ObjectEditorContext editorContext;
         private readonly string label;
         private IDisposable mainSpreadSync;
+        private bool collapsed = true;
 
         public ListEditorBase(IChannel<TList> channel, ObjectEditorContext editorContext)
         {
@@ -43,10 +44,15 @@ namespace VL.ImGui.Editors
             if (list.Count == 0)
                 return;
 
+            var count = list.Count.ToString();
 
-            if (ImGui.TreeNodeEx(label, ImGuiNET.ImGuiTreeNodeFlags.CollapsingHeader))
+            ImGui.SetNextItemOpen(!collapsed);
+
+            if (ImGui.TreeNodeEx($"Type [{count}]{label}", ImGuiNET.ImGuiTreeNodeFlags.CollapsingHeader))
             {
-                ImGui.Indent(-ImGui.GetStyle().IndentSpacing);
+                collapsed = false;
+
+                //ImGui.Indent(-ImGui.GetStyle().IndentSpacing);
 
                 if (ImGui.BeginListBox(label))
                 {
@@ -89,6 +95,10 @@ namespace VL.ImGui.Editors
                     ImGui.EndListBox();
                 }
                 ImGui.TreePop();
+            }
+            else
+            {
+                collapsed = true;
             }
         }
 
