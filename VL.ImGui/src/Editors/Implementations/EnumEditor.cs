@@ -15,7 +15,7 @@ namespace VL.ImGui.Editors
         public EnumEditor(IChannel<T> channel, ObjectEditorContext editorContext)
         {
             this.channel = channel;
-            this.label = editorContext.Label ?? $"##{GetHashCode()}";
+            this.label = editorContext.LabelForImGUI;
             this.values = (T[])Enum.GetValues(typeof(T));
             this.names = Enum.GetNames(typeof(T));
         }
