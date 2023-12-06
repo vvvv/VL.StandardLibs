@@ -14,16 +14,6 @@ namespace VL.ImGui.Editors
     {
         public IObjectEditor? CreateObjectEditor(IChannel channel, ObjectEditorContext context)
         {
-            var editor = DoCreateObjectEditor(channel, context);
-            if (editor is null)
-                return null;
-            if (context.ViewOnly)
-                return new ViewOnlyEditor(editor);
-            return editor;
-        }
-
-        private IObjectEditor? DoCreateObjectEditor(IChannel channel, ObjectEditorContext context)
-        {
             var staticType = channel.ClrTypeOfValues;
 
             // Is there a widget for exactly that type?
@@ -36,13 +26,13 @@ namespace VL.ImGui.Editors
             if (widgetClass != null)
             {
                 var editorType = typeof(ObjectEditorBasedOnChannelWidget<>).MakeGenericType(staticType);
-                return (IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context, widgetClass });
+                return ((IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context, widgetClass }))?.ToViewOnly(context);
             }
 
             if (staticType.IsEnum)
             {
                 var editorType = typeof(EnumEditor<>).MakeGenericType(staticType);
-                return (IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context });
+                return ((IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context }))?.ToViewOnly(context);
             }
 
             if (staticType.IsAssignableTo(typeof(IDynamicEnum)))
@@ -68,7 +58,7 @@ namespace VL.ImGui.Editors
                     return new AbstractObjectEditor(channel, context, typeInfo);
 
                 var editorType = typeof(ObjectEditor<>).MakeGenericType(staticType);
-                return (IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context, typeInfo });
+                return ((IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context, typeInfo }))?.ToViewOnly(context);
             }
 
             return null;
@@ -156,28 +146,5 @@ namespace VL.ImGui.Editors
 
         [ThreadStatic]
         static HashSet<IVLTypeInfo>? s_visited;
-
-        private sealed class ViewOnlyEditor : IObjectEditor
-        {
-            private readonly IObjectEditor _editor;
-
-            public ViewOnlyEditor(IObjectEditor editor)
-            {
-                _editor = editor;
-            }
-
-            public void Draw(Context? context)
-            {
-                ImGui.BeginDisabled();
-                try
-                {
-                    _editor.Draw(context);
-                }
-                finally
-                {
-                    ImGui.EndDisabled();
-                }
-            }
-        }
     }
 }
