@@ -39,16 +39,15 @@ namespace VL.Core
 
             public IVLNodeDescriptionFactory? ForPath(string path)
             {
-                var factory = FImpl.Value.ForPath?.Invoke(path);
-                if (factory != null)
+                var identifier = $"{Identifier} ({path})";
+                return FCache.GetOrAdd(identifier, () =>
                 {
-                    var identifier = $"{Identifier} ({path})";
-                    return FCache.GetOrAdd(identifier, () =>
-                    {
-                        return new DelegateNodeDescriptionFactory(FCache, identifier, factory, filePath: path);
-                    });
-                }
-                return null;
+                    var factory = FImpl.Value.ForPath?.Invoke(path);
+                    if (factory == null)
+                        return null; // let's cache that we asked for this path already
+
+                    return new DelegateNodeDescriptionFactory(FCache, identifier, factory, filePath: path);
+                });
             }
 
             public void Export(ExportContext exportContext) => FImpl.Value.Export?.Invoke(exportContext);
