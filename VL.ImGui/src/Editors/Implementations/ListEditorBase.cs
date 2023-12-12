@@ -1,4 +1,5 @@
 ﻿using System.Reactive.Disposables;
+using System.Reflection.Emit;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
 
@@ -14,6 +15,7 @@ namespace VL.ImGui.Editors
         private readonly ObjectEditorContext editorContext;
         private readonly string label;
         private IDisposable mainSpreadSync;
+        private bool collapsed = true;
 
         public ListEditorBase(IChannel<TList> channel, ObjectEditorContext editorContext)
         {
@@ -42,45 +44,61 @@ namespace VL.ImGui.Editors
             if (list.Count == 0)
                 return;
 
-            if (ImGui.BeginListBox(label))
+            var count = list.Count.ToString();
+
+            ImGui.SetNextItemOpen(!collapsed);
+
+            if (ImGui.TreeNodeEx($"[{count}]{label}", ImGuiNET.ImGuiTreeNodeFlags.CollapsingHeader))
             {
-                for (int i = 0; i < list.Count; i++)
+                collapsed = false;
+
+                //ImGui.Indent(-ImGui.GetStyle().IndentSpacing);
+
+                if (ImGui.BeginListBox(label))
                 {
-                    var (editor, _) = editors.ElementAtOrDefault(i);
-                    if (i >= editors.Count)
+                    for (int i = 0; i < list.Count; i++)
                     {
-                        // Setup channel for item
-                        var itemChannel = ChannelHelpers.CreateChannelOfType<T>();
-                        var j = i;
-
-                        var ownership = new CompositeDisposable
+                        var (editor, _) = editors.ElementAtOrDefault(i);
+                        if (i >= editors.Count)
                         {
-                            channel.Merge(itemChannel,
-                                c => c != null ? c[j] : default,
-                                item => channel.Value != null ? SetItem(channel.Value, j, item) : default,
-                                initialization: ChannelMergeInitialization.UseA,
-                                pushEagerlyTo: ChannelSelection.ChannelA)
-                        };
+                            // Setup channel for item
+                            var itemChannel = ChannelHelpers.CreateChannelOfType<T>();
+                            var j = i;
 
-                        editor = editorContext.Factory.CreateObjectEditor(itemChannel.ChannelOfObject, editorContext);
-                        if (editor is IDisposable disposable)
-                            ownership.Add(disposable);
+                            var ownership = new CompositeDisposable
+                            {
+                                channel.Merge(itemChannel,
+                                    c => c != null ? c[j] : default,
+                                    item => channel.Value != null ? SetItem(channel.Value, j, item) : default,
+                                    initialization: ChannelMergeInitialization.UseA,
+                                    pushEagerlyTo: ChannelSelection.ChannelA)
+                            };
 
-                        editors.Add((editor, ownership));
+                            editor = editorContext.Factory.CreateObjectEditor(itemChannel.ChannelOfObject, editorContext);
+                            if (editor is IDisposable disposable)
+                                ownership.Add(disposable);
+
+                            editors.Add((editor, ownership));
+                        }
+
+                        ImGui.PushID(i);
+                        try
+                        {
+                            editor?.Draw(context);
+                        }
+                        finally
+                        {
+                            ImGui.PopID();
+                        }
                     }
 
-                    ImGui.PushID(i);
-                    try
-                    {
-                        editor?.Draw(context);
-                    }
-                    finally
-                    {
-                        ImGui.PopID();
-                    }
+                    ImGui.EndListBox();
                 }
-
-                ImGui.EndListBox();
+                ImGui.TreePop();
+            }
+            else
+            {
+                collapsed = true;
             }
         }
 

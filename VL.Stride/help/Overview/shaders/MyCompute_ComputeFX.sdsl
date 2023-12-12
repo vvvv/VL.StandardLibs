@@ -1,0 +1,17 @@
+[Summary("Increments values in a buffer.")]
+shader MyCompute_ComputeFX : ComputeShaderBase
+{
+	float Increment = 0.01;
+	RWBuffer<float> Values;
+
+    override void Compute()
+    {
+        uint index = streams.DispatchThreadId.x;
+        
+        float value = Values[index];
+
+        value += Increment + (index / 10.0);
+
+        Values[index] = value;
+    }
+};

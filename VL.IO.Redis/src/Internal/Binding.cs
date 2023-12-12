@@ -109,7 +109,7 @@ namespace VL.IO.Redis.Internal
                         _logger.LogError(ex, "Error while serializing");
                         return;
                     }
-                    _ = transaction.StringSetAsync(key, redisValue, flags: CommandFlags.FireAndForget);
+                    _ = transaction.StringSetAsync(key, redisValue, flags: CommandFlags.FireAndForget, expiry: _bindingModel.Expiry);
                 }
                 if (needToReadFromDb)
                 {

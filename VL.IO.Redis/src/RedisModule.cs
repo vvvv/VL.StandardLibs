@@ -155,7 +155,7 @@ namespace VL.IO.Redis
 
         internal void RemoveBinding(IRedisBinding binding)
         {
-            _redisClient?._bindings.Remove(binding.Model.Key);
+            _modelStream.Value = _modelStream.Value!.Remove(binding.Model.Key);
         }
 
         string IModule.Name => "Redis";

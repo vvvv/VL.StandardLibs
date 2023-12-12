@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Disposables;
+using Microsoft.Extensions.Logging;
 
 namespace VL.Core
 {
@@ -82,7 +83,7 @@ namespace VL.Core
         internal static void Complain(string exceptionMessage, RuntimeCommand runtimeCommand)
         {
             if (Shielded != 0) return;
-            Console.WriteLine(exceptionMessage);
+            AppHost.Global.DefaultLogger.LogError(exceptionMessage);
             throw new RuntimeCommandException(exceptionMessage, runtimeCommand);
         }
 

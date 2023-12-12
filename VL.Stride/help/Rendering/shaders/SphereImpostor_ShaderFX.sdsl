@@ -1,0 +1,79 @@
+shader SphereImpostor_ShaderFX : Transformation, TransformationBase, PositionStream4, Texturing, ShadingBase, NormalStream, ShaderUtils
+{
+	compose ParticleProvider Provider;
+	
+	stage stream float PSize;
+
+    // custom geometry shader, quad particle in this case
+    [maxvertexcount(4)]
+    stage void GSMain(point Input input[1], inout TriangleStream<Output> triangleStream)
+    {
+        streams = input[0];
+
+        // get data from ParticleProvider implementation
+        streams.PositionWS = Provider.GetWorldPosition();
+        streams.PSize = Provider.GetParticleSize();
+
+        float padding = 1.5;
+		float2 offset;
+		float4 cameraSpherePos = mul(streams.PositionWS, WorldView);
+		
+		for (int i = 0; i<4; i++) 
+		{
+			streams.TexCoord = QuadPositions[i].xy * padding;
+			offset = sign(QuadPositions[i].xy) * streams.PSize;
+			float4 viewCornerPos = cameraSpherePos;
+			viewCornerPos.xy += offset * padding;
+			streams.ShadingPosition = mul(viewCornerPos, Projection);
+
+			triangleStream.Append(streams);
+		}
+    }
+
+    void sphereImpostor(float2 screenCoord, float3 spherePos, float sphereRadius, out float3 pos, out float3 normal)
+	{
+		float3 cameraSpherePos = mul(float4(spherePos, 1), View).xyz;
+
+		float3 cameraPlanePos = float3(screenCoord * sphereRadius, 0.0) + cameraSpherePos;
+		float3 rayDirection = normalize(cameraPlanePos);
+	
+		float B = 2.0 * dot(rayDirection, -cameraSpherePos);
+		float C = dot(cameraSpherePos, cameraSpherePos) - (sphereRadius * sphereRadius);
+	
+		float det = (B * B) - (4 * C);
+		if(det < 0.0)
+			discard;
+		
+		float sqrtDet = sqrt(det);
+		float posT = (-B + sqrtDet)/2;
+		float negT = (-B - sqrtDet)/2;
+	
+		float intersectT = min(posT, negT);
+		pos = rayDirection * intersectT;
+		normal = normalize(pos - cameraSpherePos);
+
+		// back to world space
+		normal = normalize(mul(float4(normal, 0), ViewInverse).xyz);
+		pos = (normal * sphereRadius) + spherePos;
+	}
+
+    //override shading, create sphere impostor in this case
+    stage override float4 Shading() 
+    {
+        float size = streams.PSize;
+
+		float3 worldPos, worldNormal;
+		sphereImpostor(streams.TexCoord, streams.PositionWS.xyz, size, worldPos, worldNormal);
+	
+        streams.PositionWS = float4(worldPos, 1);
+		streams.ShadingPosition = mul(streams.PositionWS, ViewProjection);
+
+		streams.DepthVS = streams.ShadingPosition.w;
+		streams.DepthLessEqual = streams.ShadingPosition.z/streams.ShadingPosition.w;
+
+		streams.normalWS = worldNormal;
+		streams.meshNormalWS = worldNormal;
+
+		return base.Shading();
+    }
+};
