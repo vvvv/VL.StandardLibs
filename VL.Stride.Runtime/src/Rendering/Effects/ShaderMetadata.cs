@@ -82,10 +82,12 @@ namespace VL.Stride.Rendering
 
         public string GetCategory(string prefix)
         {
-            var result = prefix;
+            var category = Category;
+            if (string.IsNullOrWhiteSpace(category))
+                return prefix;
 
-            if (string.IsNullOrWhiteSpace(Category))
-                return result;
+            if (category.StartsWith(':'))
+                return category.Substring(1);
 
             if (!Category.StartsWith(prefix))
                 return prefix + "." + Category;

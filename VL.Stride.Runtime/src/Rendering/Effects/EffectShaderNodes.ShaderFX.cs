@@ -21,7 +21,7 @@ namespace VL.Stride.Rendering
         {
             return factory.NewNodeDescription(
                 name: name,
-                category: "Stride.Rendering.Experimental.ShaderFX",
+                category: shaderMetadata.GetCategory("Stride.Rendering.Experimental.ShaderFX"),
                 tags: shaderMetadata.Tags,
                 fragmented: true,
                 invalidated: changes,

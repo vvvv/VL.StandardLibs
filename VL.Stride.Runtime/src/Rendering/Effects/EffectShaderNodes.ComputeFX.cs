@@ -20,7 +20,7 @@ namespace VL.Stride.Rendering
         {
             return factory.NewNodeDescription(
                 name: name,
-                category: "Stride.Rendering.ComputeShaders",
+                category: shaderMetadata.GetCategory("Stride.Rendering.ComputeShaders"),
                 tags: shaderMetadata.Tags,
                 fragmented: true,
                 invalidated: changes,
