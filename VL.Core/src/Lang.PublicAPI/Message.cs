@@ -40,13 +40,15 @@ namespace VL.Lang
         public readonly MessageSource Source;
         public readonly DateTime Time = DateTime.Now;
         private bool? flowToParent;
+        public readonly object Symbol;
 
-        public Message(MessageSeverity severity, string what, string why = "", string how = "", string ignore = "")
-            : this(default(UniqueId), severity, what, why, how, ignore)
+        public Message(MessageSeverity severity, string what, string why = "", string how = "", string ignore = "", object symbol = null)
+            : this(default(UniqueId), severity, what, why, how, ignore, symbol: symbol)
         {
         }
 
-        public Message(UniqueId location, MessageSeverity severity, string what, string why = "", string how = "", string ignore = "", bool? flowToParent = default, bool isFollowUp = false, MessageSource source = MessageSource.Compiler)
+        public Message(UniqueId location, MessageSeverity severity, string what, string why = "", string how = "", 
+            string ignore = "", bool? flowToParent = default, bool isFollowUp = false, MessageSource source = MessageSource.Compiler, object symbol = null)
         {
             Location = location;
             Severity = severity;
@@ -57,6 +59,7 @@ namespace VL.Lang
             this.flowToParent = flowToParent;
             IsFollowUp = isFollowUp;
             Source = source;
+            Symbol = symbol;
         }
 
         public bool FlowToParent => flowToParent.HasValue ? flowToParent.Value : Severity == MessageSeverity.Error;
