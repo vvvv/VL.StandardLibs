@@ -14,7 +14,6 @@ namespace VL.Lang
     public enum MessageSeverity
     {
         None,
-        Debug,
         Info,
         Warning,
         Error
@@ -159,8 +158,6 @@ namespace VL.Lang
         {
             switch (severity)
             {
-                case MessageSeverity.Debug:
-                    return LogLevel.Debug;
                 case MessageSeverity.Info:
                     return LogLevel.Information;
                 case MessageSeverity.Warning:
