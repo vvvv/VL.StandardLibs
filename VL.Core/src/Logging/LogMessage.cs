@@ -7,14 +7,14 @@ namespace VL.Core.Logging
     public record struct LogMessage(
             AppHost Host,
             NodePath NodePath,
+            DateTime DateTime,
             string Category,
             LogLevel LogLevel,
             EventId EventId,
-            object State,
-            Exception? Exception,
-            Func<object, Exception?, string> Formatter)
+            string Message,
+            Exception? Exception)
     {
-        public override string ToString() => Formatter(State, Exception);
+        public override string ToString() => Message;
 
         public bool HasNodePath => !NodePath.IsDefault;
     }
