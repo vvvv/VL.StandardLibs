@@ -2,16 +2,18 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Text;
+using System.Threading;
 
 namespace VL.Core.Logging
 {
-    public readonly struct LogMessage
+    public class LogMessage
     {
-        internal LogMessage(LogEntry logEntry, DateTime timestamp, int repeatCount = 0)
+        private int _repeatCount;
+
+        internal LogMessage(LogEntry logEntry, DateTime timestamp)
         {
             LogEntry = logEntry;
             Timestamp = timestamp;
-            RepeatCount = repeatCount;
         }
 
         internal LogEntry LogEntry { get; }
@@ -30,9 +32,9 @@ namespace VL.Core.Logging
 
         public string? Exception => LogEntry.Exception;
 
-        public DateTime Timestamp { get; }
+        public DateTime Timestamp { get; private set; }
 
-        public int RepeatCount { get; }
+        public int RepeatCount => _repeatCount;
 
         /// <summary>
         /// A short version of the original log message containing only the first line.
@@ -69,10 +71,16 @@ namespace VL.Core.Logging
 
         public bool HasNodePath => !NodePath.IsDefault;
 
+        internal void Increment()
+        {
+            Timestamp = DateTime.Now;
+            Interlocked.Increment(ref _repeatCount);
+        }
+
         /// <summary>
         /// yyyy.MM.dd hh:mm:ss.fff [LVL] (Src) Id Category DetailedMessage
         /// </summary>
-        public override string ToString() => ToString(timestampFormat: "yyyy.MM.dd hh:mm:ss.fff");
+        public override string ToString() => ToString(timestampFormat: "yyyy/MM/dd HH:mm:ss.fff");
 
         public string ToString(string timestampFormat)
         {

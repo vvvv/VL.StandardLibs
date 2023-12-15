@@ -17,6 +17,7 @@ namespace VL.Core.Logging
 
         private int _totalCount;
         private LogRecorderOptions _config;
+        private LogMessage? _lastMessage;
 
         public LogRecorder(IOptionsMonitor<LogRecorderOptions> config)
         {
@@ -51,26 +52,22 @@ namespace VL.Core.Logging
         {
             var logEntry = new LogEntry(source, category, nodePath, logLevel, eventId, formatter(state, exception), exception?.ToString());
 
-            LogMessage message;
-            if (_messages.TryPeek(out var lastMessage) && lastMessage.LogEntry == logEntry && _messages.TryDequeue(out lastMessage))
+            if (_lastMessage?.LogEntry == logEntry)
             {
-                message = new LogMessage(logEntry, DateTime.Now, lastMessage.RepeatCount + 1);
+                _lastMessage.Increment();
             }
             else
             {
-                message = new LogMessage(logEntry, DateTime.Now);
+                var message = new LogMessage(logEntry, DateTime.Now);
+                _lastMessage = message;
+
+                while (_messages.Count >= _config.Capacity)
+                    _messages.TryDequeue(out _);
+
+                _messages.Enqueue(message);
             }
 
-            Record(in message);
-        }
-
-        private void Record(in LogMessage logMessage)
-        {
-            while (_messages.Count >= _config.Capacity)
-                _messages.TryDequeue(out _);
-
-            _messages.Enqueue(logMessage);
-            Interlocked.Increment(ref _counts[(int)logMessage.LogLevel]);
+            Interlocked.Increment(ref _counts[(int)logLevel]);
             Interlocked.Increment(ref _totalCount);
         }
 
