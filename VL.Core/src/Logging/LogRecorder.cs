@@ -14,6 +14,8 @@ namespace VL.Core.Logging
         private readonly int[] _counts = new int[(int)LogLevel.None];
 
         private readonly IDisposable? _onChangeToken;
+
+        private int _totalCount;
         private LogRecorderOptions _config;
 
         public LogRecorder(IOptionsMonitor<LogRecorderOptions> config)
@@ -24,25 +26,52 @@ namespace VL.Core.Logging
 
         public IReadOnlyCollection<LogMessage> Messages => _messages;
 
-        public int this[LogLevel level] => _counts[(int)level];
+        public int TotalCount => _totalCount;
 
-        public IReadOnlyList<int> Counts => _counts;
-
-        internal bool IsEnabled(LogLevel level) => level >= _config.Threshold;
-
-        internal void Record(LogMessage message)
-        {
-            while (_messages.Count >= _config.Capacity)
-                _messages.TryDequeue(out _);
-
-            _messages.Enqueue(message);
-            Interlocked.Increment(ref _counts[(int)message.LogLevel]);
-        }
+        public int GetCount(LogLevel level) => _counts[(int)level];
 
         public void Clear()
         {
             _messages.Clear();
             Array.Clear(_counts);
+            _totalCount = 0;
+        }
+
+        internal bool IsEnabled(LogLevel level) => level >= _config.Threshold;
+
+        internal void Record<TState>(
+            LogSource source,
+            string category,
+            NodePath nodePath,
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            var logEntry = new LogEntry(source, category, nodePath, logLevel, eventId, formatter(state, exception), exception?.ToString());
+
+            LogMessage message;
+            if (_messages.TryPeek(out var lastMessage) && lastMessage.LogEntry == logEntry && _messages.TryDequeue(out lastMessage))
+            {
+                message = new LogMessage(logEntry, DateTime.Now, lastMessage.RepeatCount + 1);
+            }
+            else
+            {
+                message = new LogMessage(logEntry, DateTime.Now);
+            }
+
+            Record(in message);
+        }
+
+        private void Record(in LogMessage logMessage)
+        {
+            while (_messages.Count >= _config.Capacity)
+                _messages.TryDequeue(out _);
+
+            _messages.Enqueue(logMessage);
+            Interlocked.Increment(ref _counts[(int)logMessage.LogLevel]);
+            Interlocked.Increment(ref _totalCount);
         }
 
         void IDisposable.Dispose()
