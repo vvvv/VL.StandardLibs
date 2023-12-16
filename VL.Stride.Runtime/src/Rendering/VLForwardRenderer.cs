@@ -242,6 +242,7 @@ namespace VL.Stride.Rendering
                     vrSystem.RequireMirror = VRSettings.CopyMirror;
                     vrSystem.MirrorWidth = GraphicsDevice.Presenter.BackBuffer.Width;
                     vrSystem.MirrorHeight = GraphicsDevice.Presenter.BackBuffer.Height;
+                    vrSystem.RequestPassthrough = VRSettings.RequestPassthrough;
 
                     vrSystem.Enabled = true; //careful this will trigger the whole chain of initialization!
                     vrSystem.Visible = true;
