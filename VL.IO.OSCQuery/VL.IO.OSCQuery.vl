@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="FWNP4Bg2ZE9K9Y46KxjftG" LanguageVersion="2023.5.3-0286-gb02f6aaffe" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="FWNP4Bg2ZE9K9Y46KxjftG" LanguageVersion="2023.5.3-0403-g984a15c5cf" Version="0.128">
   <NugetDependency Id="SKxaHpkDACDOeMS1VMa62t" Location="VL.CoreLib" Version="2023.5.3-0233-g35376658ae" />
   <Patch Id="J8pKYuHqoBHQFH8vEHFASg">
     <Canvas Id="PXrhVqQYssrPxMm9QW4h77" DefaultCategory="IO.OSCQuery" CanvasType="FullCategory">
@@ -262,6 +262,16 @@
                   <Pin Id="HdBWf6z6RM9LsvvNsCMgsV" Name="Node Context" Kind="InputPin" IsHidden="true" />
                   <ControlPoint Id="Oj4gP6XXPojMbGH08PBAvt" Bounds="243,624" Alignment="Top" />
                   <ControlPoint Id="BLdfSsPAUnTMKKFvOsWwiT" Bounds="246,796" Alignment="Bottom" />
+                </Node>
+                <Node Bounds="270,511,102,26" Id="QxW5dsaumNWPaQkbSqNg4z">
+                  <p:NodeReference LastCategoryFullName="VRC.OSCQuery.OSCQueryServiceBuilder" LastDependency="vrc-oscquery-lib.dll">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="WithLogger" />
+                  </p:NodeReference>
+                  <Pin Id="DcwiEKRx9MnOWHLR4viRwn" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="FGo0H13abliNtK2wvC1gqG" Name="Logger" Kind="InputPin" />
+                  <Pin Id="Ohcw6DUWOJwQLKTG92p8wE" Name="Output" Kind="StateOutputPin" />
+                  <Pin Id="I5tKbr8Fu8UPtU5agThVeJ" Name="Result" Kind="OutputPin" />
                 </Node>
               </Patch>
             </Node>
@@ -950,6 +960,14 @@
               <ControlPoint Id="IdgVjYqO7UVQI3Dv3f54Hg" Bounds="746,1224" Alignment="Bottom" />
             </Node>
             <Pad Id="Jzfaky6KxSaLfa1klj1ag5" Comment="" Bounds="990,1184,190,132" ShowValueBox="true" isIOBox="true" />
+            <Node Bounds="577,428,48,19" Id="I5Vz91jZg6vMQzjhD2Qk1G">
+              <p:NodeReference LastCategoryFullName="System.Logging" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="ProcessAppFlag" Name="Logger (Generic)" />
+              </p:NodeReference>
+              <Pin Id="FwPruDePGI6NMxMCpBeEMO" Name="Node Context" Kind="InputPin" IsHidden="true" />
+              <Pin Id="HfoXRi5dyJrOTWoyamIcRu" Name="Logger" Kind="OutputPin" />
+            </Node>
           </Canvas>
           <ProcessDefinition Id="AlVPDWLoOItOxZGpYMXy4K" HasStateOut="true">
             <Fragment Id="ImSW9Guf85fOnOGqheQYc8" Patch="FH7c54eLZllMEz5GIRUrAQ" Enabled="true" />
@@ -1139,8 +1157,10 @@
           <Link Id="RnSHG5W62pXOqncUFNapsa" Ids="FVk7Ls1qBa4P5VqKLgStmL,IdgVjYqO7UVQI3Dv3f54Hg" />
           <Link Id="SaBMSEktfg7PegN4TtlFBY" Ids="IdgVjYqO7UVQI3Dv3f54Hg,VGAsBPs3keFPLZflt3LQ1R" />
           <Link Id="Bb3F8Z8CiPUNJ8apW8o6YL" Ids="QL0fIKLVq7SLyOWdzCFcuF,Jzfaky6KxSaLfa1klj1ag5" />
-          <Link Id="E8mpjn9My0UL32An4XCdY5" Ids="LGlE3wBs3hEMI7I1oyhh1E,PwZABCXZyT2MzO1zXiEev3" />
           <Link Id="Qy3m0lODOMGNFMBFSQaRdE" Ids="QJSD0GENiEoMRiLxyEhScm,KHzpsoZm5fIOEmvvPCUpm7" />
+          <Link Id="Du63hBRcM7DPH26YMLpR1m" Ids="LGlE3wBs3hEMI7I1oyhh1E,DcwiEKRx9MnOWHLR4viRwn" />
+          <Link Id="NkqEEtrwOrbMhPqNzbZL0T" Ids="Ohcw6DUWOJwQLKTG92p8wE,PwZABCXZyT2MzO1zXiEev3" />
+          <Link Id="HiOMDYyxtNSQCqLIxuZXpm" Ids="HfoXRi5dyJrOTWoyamIcRu,FGo0H13abliNtK2wvC1gqG" />
         </Patch>
       </Node>
       <!--
@@ -4799,7 +4819,7 @@
       </Patch>
     </Node>
   </Patch>
-  <NugetDependency Id="NvGeTksZCtfOzXjC6RsMNh" Location="VL.IO.OSC" Version="1.0.19" />
+  <NugetDependency Id="NvGeTksZCtfOzXjC6RsMNh" Location="VL.IO.OSC" Version="1.0.23" />
   <PlatformDependency Id="ENpStrXt1GRN9o6zIRiYOw" Location="./lib/net6.0/VL.IO.OSCQuery.dll" />
   <PlatformDependency Id="DLFvpHCzbOWPrsLic3Lpit" Location="./lib/net6.0/vrc-oscquery-lib.dll" />
   <DocumentDependency Id="BNeaK1asyehLAeGWOli2bV" Location="./VL.IO.WebSocket.vl" />
