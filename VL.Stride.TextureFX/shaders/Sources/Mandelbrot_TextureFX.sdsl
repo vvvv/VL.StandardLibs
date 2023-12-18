@@ -9,11 +9,11 @@ shader Mandelbrot_TextureFX : TextureFX
 {
     float4x4 Transform;
 
-    [Color]
-    float4 BackgroundColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor BackgroundColor;
 
-    [Color]
-    float4 Color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor Color;
     
     int Iterations = 16;
     float2 Control = float2(0.35f, 0.35f);
@@ -53,7 +53,7 @@ shader Mandelbrot_TextureFX : TextureFX
             g = lerp(g, g+1, smoothstep(2, 0, length(z*ss)));
         }
         
-        col = lerp(BackgroundColor, Color, g/Iterations);
+        col = lerp(BackgroundColor.Compute(), Color.Compute(), g/Iterations);
         col.a = 1;
         return col;
     }

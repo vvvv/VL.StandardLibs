@@ -7,11 +7,11 @@ shader Checkerboard_TextureFX : TextureFX
     [Default(8, 8)]
     compose ComputeFloat2 CellCount;
     
-    [Color]
-    float4 Black = float4(0, 0, 0, 1);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor Black;
 
-    [Color]
-    float4 White = float4(1, 1, 1, 1);
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor White;
 
     stage override float4 Shading()
     {
@@ -32,6 +32,6 @@ shader Checkerboard_TextureFX : TextureFX
         bool chess = (cHV.x + cHV.y) % 2;
 
         //missuse a lerp to decide between color 1 and color 2
-        return lerp(Black, White, chess);
+        return lerp(Black.Compute(), White.Compute(), chess);
     }
 };

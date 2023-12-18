@@ -1,5 +1,6 @@
 ﻿using Stride.Core.Mathematics;
 using Stride.Rendering.Materials;
+using Stride.Shaders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,9 +105,9 @@ namespace VL.Stride
         public override Pin<TInstance> CreatePin<TInstance>(StrideNode node) => new ComputeScalarPin<TInstance>(node, property, defaultValue);
     }
 
-    sealed class ComputeColorPinDesc : PinDescription<SetVar<Vector4>>
+    sealed class ComputeColorPinDesc : PinDescription<SetVar<Color4>>
     {
-        public ComputeColorPinDesc(MemberInfo property, string name, SetVar<Vector4> defaultValue) : base(property, name, defaultValue)
+        public ComputeColorPinDesc(MemberInfo property, string name, SetVar<Color4> defaultValue) : base(property, name, defaultValue)
         {
         }
 
@@ -366,23 +367,49 @@ namespace VL.Stride
         }
     }
 
-    sealed class ComputeColorPin<TInstance> : GPUValuePin<TInstance, SetVar<Vector4>, IComputeColor>
+    sealed class ComputeColorPin<TInstance> : GPUValuePin<TInstance, SetVar<Color4>, IComputeColor>
         where TInstance : new()
     {
-        public ComputeColorPin(StrideNode node, MemberInfo property, SetVar<Vector4> value) : base(node, property, value)
+        public ComputeColorPin(StrideNode node, MemberInfo property, SetVar<Color4> value) : base(node, property, value)
         {
         }
 
-        protected override Func<SetVar<Vector4>, IComputeColor> GetValueToOriginal()
+        protected override Func<SetVar<Color4>, IComputeColor> GetValueToOriginal()
         {
             return v =>
             {
-                var input = v ?? ShaderFXUtils.Constant(Vector4.One);
+                // Not sure this needs to be so complicated was merly translating code to support Color4
+                var input = v ?? ShaderFXUtils.Constant(Color4.White);
                 var getter = ShaderFXUtils.GetVarValue(input);
                 var graph = ShaderGraph.BuildFinalShaderGraph(getter);
-                var finalVar = new Do<Vector4>(graph, getter);
-                return new Float4ToComputeColor(finalVar);
+                var finalVar = new Do<Color4>(graph, getter);
+                return new Float4ToComputeColor<Color4>(finalVar);
+
+                // This does not work, leads to DirectX invalid parameter.
+                //return new ColorBridge(getter);
             };
+        }
+
+        class ColorBridge : IComputeColor
+        {
+            private readonly IComputeValue<Color4> computeValue;
+
+            public ColorBridge(IComputeValue<Color4> computeValue)
+            {
+                this.computeValue = computeValue;
+            }
+
+            public bool HasChanged => false;
+
+            public ShaderSource GenerateShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)
+            {
+                return computeValue.GenerateShaderSource(context, baseKeys);
+            }
+
+            public IEnumerable<IComputeNode> GetChildren(object context = null)
+            {
+                return computeValue.GetChildren(context);
+            }
         }
     }
 }

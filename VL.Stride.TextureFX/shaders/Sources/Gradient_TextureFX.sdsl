@@ -5,11 +5,11 @@
 [OutputFormat("R16G16B16A16_Float")]
 shader Gradient_TextureFX : TextureFX
 {
-    [Color] 
-    float4 From = float4(0, 0, 0, 1);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor From;
 
-    [Color] 
-    float4 To = float4(1, 1, 1, 1);
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor To;
     
     bool isHorizontal;
 
@@ -27,7 +27,7 @@ shader Gradient_TextureFX : TextureFX
 
         fade = pow(fade, Gamma.Compute());
 
-        float4 c = lerp(From, To, fade);
+        float4 c = lerp(From.Compute(), To.Compute(), fade);
 
         // if (Dither) //nedds target size and is always expensive because shader doesn't get optimized when off... investigate.
         //      c = _dither(c, uv * R, DitherSeed, 256, Dithering);
