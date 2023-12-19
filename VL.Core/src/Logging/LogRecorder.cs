@@ -25,6 +25,8 @@ namespace VL.Core.Logging
             _onChangeToken = config.OnChange(c => _config = c);
         }
 
+        public LogRecorderOptions Options => _config;
+
         public IReadOnlyCollection<LogMessage> Messages => _messages;
 
         public int TotalCount => _totalCount;
