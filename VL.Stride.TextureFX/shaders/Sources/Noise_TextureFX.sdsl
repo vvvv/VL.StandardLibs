@@ -22,13 +22,13 @@ shader Noise_TextureFX : TextureFX, HappyNoise
         
         switch(Type)
         {
-            case 0 : return perlin(uv);
+            case 0 : return perlin(float3(uv, z));
             case 1 : return float4(perlinGrad(float3(uv, z)).yzw, 1.0);
-            case 2 : return valueNoise(uv);
+            case 2 : return valueNoise(float3(uv, z));
             case 3 : return float4(valueNoiseGrad(float3(uv, z)).yzw, 1.0);
-            case 4 : return simplex(uv);
+            case 4 : return simplex(float3(uv, z));
             case 5 : return float4(simplexGrad(float3(uv, z)).yzw, 1.0);
-            case 6 : return worleyFast(uv);
+            case 6 : return worleyFast(float3(uv, z));
             case 7 : return float4(worleyFastGrad(float3(uv, z)).yzw, 1.0);
         }
         return 0;
