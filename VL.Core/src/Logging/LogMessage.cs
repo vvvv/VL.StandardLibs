@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace VL.Core.Logging
 {
-    public class LogMessage
+    public sealed class LogMessage
     {
         private int _repeatCount;
 

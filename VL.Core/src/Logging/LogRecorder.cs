@@ -38,6 +38,7 @@ namespace VL.Core.Logging
             _messages.Clear();
             Array.Clear(_counts);
             _totalCount = 0;
+            _lastMessage = null;
         }
 
         internal bool IsEnabled(LogLevel level) => level >= _config.Threshold;
