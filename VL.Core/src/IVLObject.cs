@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using VL.Core.CompilerServices;
+using VL.Core.Logging;
 using VL.Lang;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
@@ -82,7 +83,7 @@ namespace VL.Core
         /// Add a message for one frame. 
         /// </summary>
         void AddMessage(UniqueId elementId, string message, MessageSeverity severity = MessageSeverity.Warning)
-            => AddMessage(new Message(elementId, severity, message, source: MessageSource.Runtime));
+            => AddMessage(new Message(elementId, severity, message, source: LogSource.App));
 
         /// <summary>
         /// Add a persistent message. Use the returned disposable to remove the message.
