@@ -4,7 +4,7 @@ using System;
 
 namespace VL.Core.Logging
 {
-    public sealed class LogRecorderOptions
+    public sealed record LogRecorderOptions
     {
         private int capacity = 8192;
 
