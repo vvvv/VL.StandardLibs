@@ -16,6 +16,7 @@ namespace VL.Core.Logging
         private readonly IDisposable? _onChangeToken;
 
         private int _totalCount;
+        private bool _overflow;
         private LogRecorderOptions _config;
         private LogMessage? _lastMessage;
 
@@ -31,6 +32,8 @@ namespace VL.Core.Logging
 
         public int TotalCount => _totalCount;
 
+        public bool Overflow => _overflow;
+
         public int GetCount(LogLevel level) => _counts[(int)level];
 
         public void Clear()
@@ -38,6 +41,7 @@ namespace VL.Core.Logging
             _messages.Clear();
             Array.Clear(_counts);
             _totalCount = 0;
+            _overflow = false;
             _lastMessage = null;
         }
 
@@ -65,7 +69,10 @@ namespace VL.Core.Logging
                 _lastMessage = message;
 
                 while (_messages.Count >= _config.Capacity)
+                {
                     _messages.TryDequeue(out _);
+                    _overflow = true;
+                }
 
                 _messages.Enqueue(message);
             }
