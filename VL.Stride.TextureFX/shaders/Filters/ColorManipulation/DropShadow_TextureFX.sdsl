@@ -9,8 +9,8 @@ shader DropShadow_TextureFX : FilterBase
     float Blur = 0.5f;
     float Offset = 0.05f;
     float Angle = 0.9f;
-    [Color]
-    float4 Color = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor Color;
     float Alpha = 1.0f;
     float Extension = 0.0f;
 
@@ -43,7 +43,7 @@ shader DropShadow_TextureFX : FilterBase
         
         col /= 9;
         
-        col = Color * float4(1, 1, 1, saturate(pow(2, Extension)*col.a)*Alpha);
+        col = Color.Compute() * float4(1, 1, 1, saturate(pow(2, Extension)*col.a)*Alpha);
 
         col.rgb = lerp(col.rgb, c0.rgb, c0.a);
         col.a = max(col.a, c0.a);

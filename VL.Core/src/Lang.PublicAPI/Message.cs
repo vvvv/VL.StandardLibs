@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Core.Logging;
 
 namespace VL.Lang
 {
@@ -16,13 +17,8 @@ namespace VL.Lang
         None,
         Info,
         Warning,
-        Error
-    }
-
-    public enum MessageSource
-    {
-        Compiler, 
-        Runtime
+        Error,
+        Critical
     }
 
     public delegate void MessageInfoProducer(out string what, out string why, out string how, out string ignore);
@@ -36,7 +32,7 @@ namespace VL.Lang
         public readonly string How;
         public readonly string Ignore;
         public readonly bool IsFollowUp;
-        public readonly MessageSource Source;
+        public readonly LogSource Source;
         public readonly DateTime Time = DateTime.Now;
         private bool? flowToParent;
         public readonly object Symbol;
@@ -47,7 +43,7 @@ namespace VL.Lang
         }
 
         public Message(UniqueId location, MessageSeverity severity, string what, string why = "", string how = "", 
-            string ignore = "", bool? flowToParent = default, bool isFollowUp = false, MessageSource source = MessageSource.Compiler, object symbol = null)
+            string ignore = "", bool? flowToParent = default, bool isFollowUp = false, LogSource source = LogSource.Sys, object symbol = null)
         {
             Location = location;
             Severity = severity;
@@ -61,7 +57,7 @@ namespace VL.Lang
             Symbol = symbol;
         }
 
-        public bool FlowToParent => flowToParent.HasValue ? flowToParent.Value : Severity == MessageSeverity.Error;
+        public bool FlowToParent => flowToParent.HasValue ? flowToParent.Value : Severity >= MessageSeverity.Error;
 
         public override string ToString()
         {
@@ -117,7 +113,7 @@ namespace VL.Lang
 
         public IEnumerable<Message> Errors
         {
-            get { return FMessages.Where(m => m.Severity == MessageSeverity.Error); }
+            get { return FMessages.Where(m => m.Severity >= MessageSeverity.Error); }
         }
 
         public IEnumerable<Message> For(UniqueId location)
@@ -164,6 +160,8 @@ namespace VL.Lang
                     return LogLevel.Warning;
                 case MessageSeverity.Error:
                     return LogLevel.Error;
+                case MessageSeverity.Critical:
+                    return LogLevel.Critical;
                 default:
                     return LogLevel.None;
             }
