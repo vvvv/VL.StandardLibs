@@ -56,7 +56,6 @@ namespace VL.Core.Reactive
             foreach (var l in lines)
             {
                 var _ = l.Split(':');
-                var t = appHost.TypeRegistry.GetTypeByName(_[1]);
                 yield return new ChannelBuildDescription(Name: _[0], _[1], appHost.TypeRegistry);
             }
         }
