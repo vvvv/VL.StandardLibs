@@ -58,7 +58,9 @@ namespace VL.ImGui.Editors
                                     (object? v) => property.GetValue((IVLObject)channel.Value),
                                     v => (T)property.WithValue((IVLObject)channel.Value, v), 
                                     initialization: ChannelMergeInitialization.UseA,
-                                    pushEagerlyTo: ChannelSelection.ChannelA));
+                                    pushEagerlyTo: ChannelSelection.Both));
+                            // this channel is private. So it should be fine to spam it (ChannelSelection.Both).
+                            // If we wouldn't spam, the changed properties in a deeply mutating object structure would not get updated.
 
                             var attributes = property.GetAttributes<Attribute>().ToSpread();
                             propertyChannel.Attributes().Value = attributes;
