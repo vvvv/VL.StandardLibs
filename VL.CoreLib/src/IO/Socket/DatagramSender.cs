@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Net.Sockets;
@@ -20,6 +21,7 @@ namespace VL.Lib.IO.Socket
     {
         private readonly SerialDisposable FSubscription = new SerialDisposable();
         private readonly NodeContext FNodeContext;
+        private readonly ILogger FLogger;
 
         object? FLocalSocketProvider;
         object? FDatagrams;
@@ -27,6 +29,7 @@ namespace VL.Lib.IO.Socket
         public DatagramSender(NodeContext nodeContext)
         {
             FNodeContext = nodeContext;
+            FLogger = nodeContext.GetLogger();
         }
 
         /// <summary>
@@ -78,7 +81,7 @@ namespace VL.Lib.IO.Socket
                                         sentBytes += args.BytesTransferred;
                                     else
                                     {
-                                        Trace.TraceError("Failed to send datagram");
+                                        FLogger.LogError("Failed to send datagram");
                                         break;
                                     }
                                 }

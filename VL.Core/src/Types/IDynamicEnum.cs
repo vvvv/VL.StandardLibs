@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -413,7 +414,7 @@ namespace VL.Lib.Collections
                 }
                 catch (Exception e)
                 {
-                    Trace.TraceError(e.ToString());
+                    AppHost.Global.DefaultLogger.LogError(e, "Exception while fetching new enum entries of {definition}.", typeof(TDefinitionSubclass));
                     return new Dictionary<string, object>();
                 }
             }
