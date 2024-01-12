@@ -901,11 +901,7 @@ namespace VL.Stride.Rendering
                     }
 
                     //draw mirror to backbuffer (if size is matching and full viewport)
-                    if (VRSettings.CopyMirror && VRSettings.VRDevice.MirrorTexture != null) //remove check for mirrortexture here, once OpenXR has one
-                    {
-                        CopyOrScaleTexture(drawContext, VRSettings.VRDevice.MirrorTexture, drawContext.CommandList.RenderTarget);
-                    }
-                    else if (hasPostEffects)
+                    if (VRSettings.CopyMirror)
                     {
                         CopyOrScaleTexture(drawContext, vrFullSurface, drawContext.CommandList.RenderTarget);
                     }
