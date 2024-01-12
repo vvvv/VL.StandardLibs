@@ -80,6 +80,9 @@ namespace VL.Stride.Rendering
     [Display("VL Forward Renderer")]
     public partial class VLForwardRenderer : SceneRendererBase, ISharedRenderer
     {
+        private static readonly ProfilingKey CollectCoreKey = new ProfilingKey("VLForwardRenderer.CollectCore");
+        private static readonly ProfilingKey DrawCoreKey = new ProfilingKey("VLForwardRenderer.DrawCore");
+
         public VLForwardRenderer()
         {
 
@@ -353,6 +356,8 @@ namespace VL.Stride.Rendering
 
         protected override unsafe void CollectCore(RenderContext context)
         {
+            using var _ = Profiler.Begin(CollectCoreKey);
+
             var camera = context.GetCurrentCamera();
 
             if (context.RenderView == null)
@@ -786,6 +791,8 @@ namespace VL.Stride.Rendering
 
         protected override void DrawCore(RenderContext context, RenderDrawContext drawContext)
         {
+            using var _ = Profiler.Begin(DrawCoreKey);
+
             var viewport = drawContext.CommandList.Viewport;
 
             if (ViewportSettings?.ViewportRenderInfo != null)
