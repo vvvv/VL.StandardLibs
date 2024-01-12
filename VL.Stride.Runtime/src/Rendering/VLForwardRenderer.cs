@@ -58,21 +58,6 @@ namespace VL.Stride.Rendering
         public ViewportRenderInfo ViewportRenderInfo { get; set; }
     }
 
-    public static class PresenterExtensions
-    {
-        public static Texture GetLeftEyeBuffer(this GraphicsPresenter presenter)
-        {
-            var prop = typeof(GraphicsPresenter).GetProperty("LeftEyeBuffer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            return (Texture)prop.GetValue(presenter);
-        }
-
-        public static Texture GetLeftRightBuffer(this GraphicsPresenter presenter)
-        {
-            var prop = typeof(GraphicsPresenter).GetProperty("LeftRightBuffer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            return (Texture)prop.GetValue(presenter);
-        }
-    }
-
     /// <summary>
     /// Same as the Stride ForwardRenderer class, but with additional ViewportSettings that work similar to the VRSettings.
     /// Renders your game. It should use current <see cref="RenderContext.RenderView"/> and <see cref="CameraComponentRendererExtensions.GetCurrentCamera"/>.
@@ -855,10 +840,12 @@ namespace VL.Stride.Rendering
 
                             for (var i = 0; i < 2; i++)
                             {
+                                // WindowsMixedRealityGraphicsPresenter is the only presenter making use of left/right eye buffer.
+                                // Since Windows Mixed Reality is deprecated anyways we can safely ignore these lines.
+                                /*
                                 // For VR GraphicsPresenter such as WindowsMixedRealityGraphicsPresenter
                                 var graphicsPresenter = drawContext.GraphicsDevice.Presenter;
-                                var leftEyeBuffer = graphicsPresenter.GetLeftEyeBuffer();
-                                if (leftEyeBuffer != null)
+                                if (graphicsPresenter.LeftEyeBuffer != null)
                                 {
                                     isWindowsMixedReality = true;
 
@@ -867,13 +854,14 @@ namespace VL.Stride.Rendering
 
                                     if (i == 0)
                                     {
-                                        currentRenderTargets.Add(leftEyeBuffer);
+                                        currentRenderTargets.Add(graphicsPresenter.LeftEyeBuffer);
                                     }
                                     else
                                     {
-                                        currentRenderTargets.Add(graphicsPresenter.GetLeftRightBuffer());
+                                        currentRenderTargets.Add(graphicsPresenter.RightEyeBuffer);
                                     }
                                 }
+                                */
 
                                 drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, currentRenderTargets.Items);
 
