@@ -1,14 +1,25 @@
 {
   "profiles": {
-    "vvvv": {
+    "Normal startup": {
       "commandName": "Executable",
       "executablePath": "$(VVVVInstallPath)\\vvvv.exe",
-      "commandLineArgs": "--package-repositories \"$(ThisPackageRepository)\""
+      "commandLineArgs": "--package-repositories $(ThisPackageRepository)"
     },
-    "vvvv (compile source packages)": {
+    "Work on CoreLib": {
       "commandName": "Executable",
       "executablePath": "$(VVVVInstallPath)\\vvvv.exe",
-      "commandLineArgs": "--package-repositories \"$(ThisPackageRepository)\" --compile-source-packages"
+      "commandLineArgs": "--package-repositories $(ThisPackageRepository) --editable-packages VL.CoreLib"
+    },
+    "Work on Stride": {
+      "commandName": "Executable",
+      "executablePath": "$(VVVVInstallPath)\\vvvv.exe",
+      "commandLineArgs": "--package-repositories $(ThisPackageRepository) --editable-packages VL.Stride*"
+    },
+    "Work on Serialization": {
+      "commandName": "Executable",
+      "executablePath": "$(VVVVInstallPath)\\vvvv.exe",
+      "commandLineArgs": "--package-repositories $(ThisPackageRepository) --editable-packages VL.Serialization.*"
+    },
     }
   }
 }

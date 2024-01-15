@@ -1,0 +1,29 @@
+// source:
+// https://shaders.skia.org/
+
+[TextureSource]
+[Category("Source")]
+[Summary("Returns an endless neuronal structure")]
+shader Neurons_TextureFX : TextureFX
+{
+    [Default(0)]
+    compose ComputeFloat Time;
+    
+    float f(float3 p) 
+    {
+        p.z -= Time.Compute();
+        float a = p.z * .1;
+        p.xy = mul(p.xy, float2x2(cos(a), sin(a), -sin(a), cos(a)));
+        return .1 - length(cos(p.xy) + sin(p.yz));
+    }
+
+    stage override float4 Shading()
+    {
+        float2 uv = streams.TexCoord * ViewSize;
+        float3 d = 0.5 - float3(uv, 1) / ViewSize.yyy;
+        float3 p;
+        for (int i = 0; i < 32; i++) 
+            p += f(p) * d;
+        return float4(((sin(p) + float3(2, 5, 9)) / length(p)), 1);
+    }
+};

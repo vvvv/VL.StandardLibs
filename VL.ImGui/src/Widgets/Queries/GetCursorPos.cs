@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
     /// Cursor position in window coordinates (relative to window position)
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class GetCursorPos : Widget
+    internal partial class GetCursorPos : Query
     {
         public Vector2 Value { get; private set; }
 

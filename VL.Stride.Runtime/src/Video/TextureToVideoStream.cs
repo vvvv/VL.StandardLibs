@@ -22,13 +22,13 @@ namespace VL.Stride.Video
         private readonly SynchronizationContext synchronizationContext = SynchronizationContext.Current;
         private readonly Queue<(Texture texture, string metadata)> textureDownloads = new Queue<(Texture texture, string metadata)>();
         private readonly Subject<IResourceProvider<VideoFrame>> frames = new Subject<IResourceProvider<VideoFrame>>();
-        private readonly ServiceRegistry serviceRegistry;
+        private readonly AppHost appHost;
         private readonly CompositeDisposable subscriptions;
         private readonly SerialDisposable texturePoolSubscription;
 
         public TextureToVideoStream()
         {
-            serviceRegistry = ServiceRegistry.Current;
+            appHost = AppHost.Current;
             subscriptions = new CompositeDisposable()
             {
                 (texturePoolSubscription = new SerialDisposable()),
@@ -52,8 +52,8 @@ namespace VL.Stride.Video
                 return;
             }
 
-            // Workaround: Re-install the service registry - should be done by vvvv itself in the render callback
-            using var _ = serviceRegistry.MakeCurrentIfNone();
+            // Workaround: Re-install the app host - should be done by vvvv itself in the render callback
+            using var _ = appHost.MakeCurrentIfNone();
 
             var texturePool = GetTexturePool(context.GraphicsDevice, texture);
 
@@ -67,7 +67,7 @@ namespace VL.Stride.Video
             {
                 // Download recently staged
                 var (stagedTexture, stagedMetadata) = textureDownloads.Peek();
-                var doNotWait = textureDownloads.Count < 4;
+                var doNotWait = textureDownloads.Count <= 8 /* Under normal scenarios we shouldn't reach this limit */;
                 var commandList = context.CommandList;
                 var mappedResource = commandList.MapSubresource(stagedTexture, 0, MapMode.Read, doNotWait);
                 var data = mappedResource.DataBox;
@@ -76,27 +76,36 @@ namespace VL.Stride.Video
                     // Dequeue
                     textureDownloads.Dequeue();
 
-                    var (memoryOwner, videoFrame) = CreateVideoFrame(stagedTexture, data, stagedMetadata);
-
-                    var videoFrameProvider = ResourceProvider.Return(videoFrame, ReleaseVideoFrame);
-
-                    using (videoFrameProvider.GetHandle())
+                    try
                     {
-                        // Push it downstream
-                        frames.OnNext(videoFrameProvider);
-                    }
+                        var (memoryOwner, videoFrame) = CreateVideoFrame(stagedTexture, data, stagedMetadata);
 
-                    void ReleaseVideoFrame(VideoFrame videoFrame)
-                    {
-                        if (SynchronizationContext.Current != synchronizationContext)
-                            synchronizationContext.Post(x => ReleaseVideoFrame((VideoFrame)x), videoFrame);
-                        else
+                        var videoFrameProvider = ResourceProvider.Return(videoFrame, ReleaseVideoFrame);
+
+                        using (videoFrameProvider.GetHandle())
                         {
-                            memoryOwner.Dispose();
-                            if (!IsDisposed)
-                                commandList.UnmapSubresource(mappedResource);
-                            texturePool.Return(stagedTexture);
+                            // Push it downstream
+                            frames.OnNext(videoFrameProvider);
                         }
+
+                        void ReleaseVideoFrame(VideoFrame videoFrame)
+                        {
+                            if (SynchronizationContext.Current != synchronizationContext)
+                                synchronizationContext.Post(x => ReleaseVideoFrame((VideoFrame)x), videoFrame);
+                            else
+                            {
+                                memoryOwner.Dispose();
+                                if (!IsDisposed)
+                                    commandList.UnmapSubresource(mappedResource);
+                                texturePool.Return(stagedTexture);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        commandList.UnmapSubresource(mappedResource);
+                        texturePool.Return(stagedTexture);
+                        throw;
                     }
                 }
             }
@@ -115,9 +124,9 @@ namespace VL.Stride.Video
                 case StridePixelFormat.B8G8R8X8_UNorm_SRgb: return CreateVideoFrame<BgrxPixel>(texture, data, metadata);
                 case StridePixelFormat.B8G8R8A8_UNorm: return CreateVideoFrame<BgraPixel>(texture, data, metadata);
                 case StridePixelFormat.B8G8R8A8_UNorm_SRgb: return CreateVideoFrame<BgraPixel>(texture, data, metadata);
-                //case StridePixelFormat.R16G16B16A16_Float: return VLPixelFormat.R16G16B16A16F;
+                case StridePixelFormat.R16G16B16A16_Float: return CreateVideoFrame<Rgba16fPixel>(texture, data, metadata);
                 //case StridePixelFormat.R32G32_Float: return VLPixelFormat.R32G32F;
-                //case StridePixelFormat.R32G32B32A32_Float: return VLPixelFormat.R32G32B32A32F;
+                case StridePixelFormat.R32G32B32A32_Float: return CreateVideoFrame<Rgba32fPixel>(texture, data, metadata);
                 default:
                     throw new Exception("Unsupported pixel format");
             }

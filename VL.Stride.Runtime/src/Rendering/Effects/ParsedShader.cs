@@ -159,7 +159,7 @@ namespace VL.Stride.Rendering
         public readonly string TypeName;
         public readonly string Summary;
         public readonly string Remarks;
-        public bool IsOptional;
+        public readonly bool IsOptional;
         public readonly PermutationParameterKey<ShaderSource> Key;
 
         /// <summary>
@@ -193,6 +193,7 @@ namespace VL.Stride.Rendering
             }
 
             TypeName = v.Type.Name.Text;
+
             Key = new PermutationParameterKey<ShaderSource>(Name);
             LocalIndex = localIndex;
             Variable = v;
@@ -212,14 +213,7 @@ namespace VL.Stride.Rendering
             {
                 if (knownShaderFXTypeInputs.TryGetValue(TypeName, out var compDefault))
                 {
-                    var boxedDefaultValue = compDefault.BoxedDefault;
-
-                    if (Variable.TryGetAttribute(ShaderMetadata.DefaultName, out var attribute))
-                    {
-                        boxedDefaultValue = attribute.ParseBoxed(compDefault.ValueType);
-                    }
-
-                    var def = compDefault.Factory(boxedDefaultValue);
+                    var def = compDefault.Factory(CompilationDefaultValue);
                     defaultComputeNode = def.func;
                     defaultGetter = def.getter;
                     return forPatch ? defaultComputeNode : defaultGetter ?? defaultComputeNode;
@@ -233,6 +227,24 @@ namespace VL.Stride.Rendering
                 return null;
             }
         }
+
+        public object CompilationDefaultValue
+        {
+            get
+            {
+                if (cachedCompilationDefaultValue != null)
+                    return cachedCompilationDefaultValue;
+
+                if (!knownShaderFXTypeInputs.TryGetValue(TypeName, out var typeDefault))
+                    return null;
+
+                if (!Variable.TryGetAttribute(ShaderMetadata.DefaultName, out var attribute))
+                    return cachedCompilationDefaultValue = typeDefault.BoxedDefault;
+
+                return cachedCompilationDefaultValue = attribute.ParseBoxed(typeDefault.ValueType);
+            }
+        }
+        object cachedCompilationDefaultValue;
 
         public ShaderSource GetDefaultShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)
         {
@@ -260,6 +272,7 @@ namespace VL.Stride.Rendering
             { "ComputeFloat2", new CompDefaultValue<Vector2>() },
             { "ComputeFloat3", new CompDefaultValue<Vector3>() },
             { "ComputeFloat4", new CompDefaultValue<Vector4>() },
+            { "ComputeColor", new CompDefaultValue<Color4>() },
             { "ComputeMatrix", new CompDefaultValue<Matrix>() },
             { "ComputeBool", new CompDefaultValue<bool>() },
             { "ComputeInt", new CompDefaultValue<int>() },

@@ -25,11 +25,11 @@ namespace VL.ImGui.Widgets.Primitives
 
             if (IsFilled)
             {
-                drawList.AddNgonFilled(Center.FromHectoToImGui(), Radius.FromHectoToImGui(), color, SegmentsCount);
+                drawList.AddNgonFilled(Center.FromHectoToImGui() + offset, Radius.FromHectoToImGui(), color, SegmentsCount);
             }
             else
             {
-                drawList.AddNgon(Center.FromHectoToImGui(), Radius.FromHectoToImGui(), color, SegmentsCount, Thickness.FromHectoToImGui());
+                drawList.AddNgon(Center.FromHectoToImGui() + offset, Radius.FromHectoToImGui(), color, SegmentsCount, Thickness.FromHectoToImGui());
             }
         }
     }

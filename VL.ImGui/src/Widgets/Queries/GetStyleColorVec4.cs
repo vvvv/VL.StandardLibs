@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
     /// Retrieve style color as stored in ImGuiStyle structure.
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries")]
-    internal partial class GetStyleColor : Widget
+    internal partial class GetStyleColor : Query
     {
         public ImGuiNET.ImGuiCol Flag { private get; set; }
 

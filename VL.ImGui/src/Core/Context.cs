@@ -1,10 +1,8 @@
 ﻿using ImGuiNET;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
-using VL.ImGui.Widgets;
-using VL.ImGui.Widgets.Primitives;
-using VL.Model;
 
 namespace VL.ImGui
 {
@@ -15,15 +13,52 @@ namespace VL.ImGui
         public static Context? Validate(this Context? c) => c ?? Context.Current;
     }
 
+    public struct WidgetLabel
+    {
+        static int widgetCreationCounter;
+        int Id;
+        string? label = "Rumpelstilzchen";
+        public string LabelForImGUI = "Rumpelstilzchen##666";
+
+        public WidgetLabel()
+        {
+            Id = widgetCreationCounter++;
+        }
+
+        public string? Label
+        {
+            get => label;
+            set
+            {
+                if (label == value) return;
+                label = value;
+                LabelForImGUI = ComputeLabelForImGui(label);
+            }
+        }
+
+        public override string ToString() => $"Label: {Label}; LabelForImGui: {LabelForImGUI}";
+
+        internal string ComputeLabelForImGui(string? label)
+        {
+            var autoGenerate = string.IsNullOrWhiteSpace(label) || !label.Contains("##");
+            if (!autoGenerate)
+                return label!;
+
+            label = label == null ? string.Empty : label;
+            label = $"{label}##__<{Id}>";
+            return label;
+        }
+
+        public string Update(string? label)
+        {
+            Label = label;
+            return LabelForImGUI;
+        }
+    }
+
 
     public class Context : IDisposable
     {
-        [ThreadStatic]
-        public static int WidgetCreationCounter;
-
-        [ThreadStatic]
-        static Dictionary<object, string> Labels = new Dictionary<object, string>();
-
         private readonly IntPtr _context;
         private readonly List<Widget> _widgetsToReset = new List<Widget>();
 
@@ -33,6 +68,7 @@ namespace VL.ImGui
         internal ImDrawListPtr DrawListPtr;
         internal DrawList DrawList;
         internal System.Numerics.Vector2 DrawListOffset;
+        internal bool IsInBeginTables;
 
         public Context()
         {
@@ -67,6 +103,11 @@ namespace VL.ImGui
             _widgetsToReset.Add(widget);
         }
 
+        internal void AddToResetQueue(Widget widget)
+        {
+            _widgetsToReset.Add(widget);
+        }
+
         internal void SetDrawList(DrawList drawList)
         {
             DrawList = drawList;
@@ -98,23 +139,19 @@ namespace VL.ImGui
             ImGui.DestroyContext(_context);
         }
 
-        internal static string GetLabel(object widget, string? label)
-        {
-            if (!string.IsNullOrWhiteSpace(label))
-                return label;
-
-            if (Labels is null)
-                Labels = new Dictionary<object, string>();
-
-            if (Labels.TryGetValue(widget, out label))
-                return label;
-
-            label = $"##__<{++WidgetCreationCounter}>";
-            Labels.Add(widget, label);
-            return label;
-        }
-
         internal readonly Dictionary<string, ImFontPtr> Fonts = new Dictionary<string, ImFontPtr>();
+
+        internal ItemState? CapturedItemState { get; set; }
+
+        /// <summary>
+        /// Captures current item state (IsClicked, IsHovered, etc.) and sets it for subsequent queries after leaving the using block.
+        /// The captured state will be unset by all widgets except query widgets (determined by <see cref="Widget.HasItemState"/>).
+        /// </summary>
+        internal ItemStateFrame CaptureItemState()
+        {
+            CapturedItemState = default;
+            return new ItemStateFrame(this);
+        }
 
         public readonly struct Frame : IDisposable
         {
@@ -133,6 +170,82 @@ namespace VL.ImGui
             {
                 Current = previous2;
                 ImGui.SetCurrentContext(previous);
+            }
+        }
+
+        internal record struct ItemState(
+            bool IsActivated, 
+            bool IsActive, 
+            bool IsLeftClicked,
+            bool IsMiddleClicked,
+            bool IsRightClicked,
+            bool IsDeactived,
+            bool IsDeactivedAfterEdit,
+            bool IsEdited,
+            bool IsFocused,
+            bool IsHovered,
+            bool IsToggledOpen,
+            bool IsVisible);
+
+        internal readonly struct ItemStateFrame : IDisposable
+        {
+            private readonly Context context;
+            private readonly ItemState itemState;
+
+            public ItemStateFrame(Context context)
+            {
+                this.context = context;
+                this.itemState = new ItemState(
+                    ImGui.IsItemActivated(),
+                    ImGui.IsItemActive(),
+                    ImGui.IsItemClicked(ImGuiMouseButton.Left),
+                    ImGui.IsItemClicked(ImGuiMouseButton.Middle),
+                    ImGui.IsItemClicked(ImGuiMouseButton.Right),
+                    ImGui.IsItemDeactivated(),
+                    ImGui.IsItemDeactivatedAfterEdit(),
+                    ImGui.IsItemEdited(),
+                    ImGui.IsItemFocused(),
+                    ImGui.IsItemHovered(),
+                    ImGui.IsItemToggledOpen(),
+                    ImGui.IsItemVisible());
+            }
+
+            public void Dispose()
+            {
+                this.context.CapturedItemState = itemState;
+            }
+        }
+
+        /// <summary>
+        /// Applies the style on the ImGui context. Intended to be called by a using statement.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// using (context.ApplyStyle(style)) { ... }
+        /// </code>
+        /// </example>
+        /// <returns>A disposable which removes the style on dispose.</returns>
+        public StyleFrame ApplyStyle(IStyle? style)
+        {
+            return new StyleFrame(this, style);
+        }
+
+        public readonly struct StyleFrame : IDisposable
+        {
+            private readonly Context context;
+            private readonly IStyle? style;
+
+            public StyleFrame(Context context, IStyle? style)
+            {
+                this.context = context;
+                this.style = style;
+
+                style?.Set(context);
+            }
+
+            public void Dispose()
+            {
+                style?.Reset(context);
             }
         }
     }

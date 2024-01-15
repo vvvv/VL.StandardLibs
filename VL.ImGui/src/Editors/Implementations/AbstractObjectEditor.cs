@@ -11,7 +11,7 @@ namespace VL.ImGui.Editors
 
     sealed class AbstractObjectEditor : IObjectEditor, IDisposable
     {
-        readonly Channel publicChannel;
+        readonly IChannel publicChannel;
         readonly IDisposable publicChannelSubscription;
         readonly IObjectEditorFactory factory;
 
@@ -22,25 +22,27 @@ namespace VL.ImGui.Editors
         readonly ImmutableArray<IVLTypeInfo> possibleTypes;
         readonly string[]? possibleTypeEntries;
 
-        Channel? privateChannel;
+        IChannel<object>? privateChannel;
         Type? currentEditorType;
         IObjectEditor? currentEditor;
         bool isBusy;
 
-        public AbstractObjectEditor(Channel channel, ObjectEditorContext editorContext, IVLTypeInfo typeInfo)
+        public AbstractObjectEditor(IChannel channel, ObjectEditorContext editorContext, IVLTypeInfo typeInfo)
         {
             this.publicChannel = channel;
             this.editorContext = editorContext;
             this.factory = editorContext.Factory;
 
-            if (!editorContext.ViewOnly && typeInfo.IsInterface || (!typeInfo.IsPatched && typeInfo.ClrType.IsAbstract))
+            if (!editorContext.ViewOnly && 
+                channel.TryGetAttribute<TypeSelectorAttribute>(out var typeSelectorAttribute) && 
+                (typeInfo.IsInterface || (!typeInfo.IsPatched && typeInfo.ClrType.IsAbstract)))
             {
-                this.possibleTypes = GetImplementingTypes(typeInfo).ToImmutableArray();
+                this.possibleTypes = GetImplementingTypes(typeInfo, typeSelectorAttribute).ToImmutableArray();
                 this.possibleTypeEntries = possibleTypes.Select(GetLabel).ToArray();
             }
 
             OnNext(channel.Object);
-            publicChannelSubscription = channel.ToObservableOfObject().Subscribe(OnNext);
+            publicChannelSubscription = channel.ChannelOfObject.Subscribe(OnNext);
         }
 
         public void Dispose()
@@ -58,7 +60,7 @@ namespace VL.ImGui.Editors
                 return;
 
             var type = value?.GetType();
-            if (type is null || type == typeof(object))
+            if (type is null || type == typeof(object) || type.IsNotPublic /* We can only wrap public types, otherwise we might run into type load exception when building adaptive nodes*/)
             {
                 privateChannelSubscription.Disposable = null;
                 privateChannel?.Dispose();
@@ -70,9 +72,9 @@ namespace VL.ImGui.Editors
             {
                 // Build new channel using the runtime type
                 privateChannel?.Dispose();
-                privateChannel = Channel.CreateChannelOfType(type);
+                privateChannel = ChannelHelpers.CreateChannelOfType(type);
                 privateChannel.Object = value;
-                privateChannelSubscription.Disposable = privateChannel.ToObservableOfObject().Subscribe(v =>
+                privateChannelSubscription.Disposable = privateChannel.Subscribe(v =>
                 {
                     // Push to upstream channel
                     PushValue(publicChannel, v);
@@ -83,7 +85,7 @@ namespace VL.ImGui.Editors
             PushValue(privateChannel, value!);
         }
 
-        void PushValue(Channel dst, object value)
+        void PushValue(IChannel dst, object? value)
         {
             if (isBusy)
                 return;
@@ -134,27 +136,30 @@ namespace VL.ImGui.Editors
             else if (publicChannel.Object is not null)
             {
                 var s = publicChannel.Object.ToString();
-                if (string.IsNullOrEmpty(editorContext.Label))
-                    ImGui.LabelText(Context.GetLabel(this, editorContext.Label), s);
+                if (!string.IsNullOrEmpty(editorContext.Label))
+                    ImGui.LabelText(editorContext.LabelForImGUI, s);
                 else
                     ImGui.TextUnformatted(s);
             }
             else
             {
                 var s = "NULL";
-                if (string.IsNullOrEmpty(editorContext.Label))
-                    ImGui.LabelText(Context.GetLabel(this, editorContext.Label), s);
+                if (!string.IsNullOrEmpty(editorContext.Label))
+                    ImGui.LabelText(editorContext.LabelForImGUI, s);
                 else
                     ImGui.TextUnformatted(s);
             }
         }
 
-        static IEnumerable<IVLTypeInfo> GetImplementingTypes(IVLTypeInfo typeInfo)
+        IEnumerable<IVLTypeInfo> GetImplementingTypes(IVLTypeInfo typeInfo, TypeSelectorAttribute typeSelectorAttribute)
         {
             var clrType = typeInfo.ClrType;
-            var typeRegistry = TypeRegistry.Default;
+            var typeRegistry = editorContext.AppHost.TypeRegistry;
             foreach (var vlType in typeRegistry.RegisteredTypes)
             {
+                if (!typeSelectorAttribute.IsMatch(vlType.Name))
+                    continue;
+
                 var type = vlType.ClrType;
                 if (type.IsAbstract || type.IsGenericTypeDefinition)
                     continue;
@@ -190,7 +195,7 @@ namespace VL.ImGui.Editors
             if (value is null)
                 return -1;
 
-            var typeInfo = TypeRegistry.Default.GetTypeInfo(value.GetType());
+            var typeInfo = editorContext.AppHost.TypeRegistry.GetTypeInfo(value.GetType());
             return possibleTypes.IndexOf(typeInfo);
         }
 
@@ -199,7 +204,7 @@ namespace VL.ImGui.Editors
             if (typeInfo is null)
                 return default;
             if (typeInfo.IsPatched)
-                return typeInfo.CreateInstance(NodeContext.Default);
+                return AppHost.Current.CreateInstance(typeInfo);
             else
                 return Activator.CreateInstance(typeInfo.ClrType);
         }

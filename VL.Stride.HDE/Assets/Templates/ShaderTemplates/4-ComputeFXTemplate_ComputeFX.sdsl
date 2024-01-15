@@ -1,0 +1,15 @@
+///Allows to work with arbitrary data on the GPU.
+
+[Summary("")]
+shader ComputeFXTemplate_ComputeFX : ComputeShaderBase
+{
+	float Constant = 1;
+	RWBuffer<float> Values;
+
+    override void Compute()
+    {
+        uint index = streams.DispatchThreadId.x;
+        
+        Values[index] *= Constant;
+    }
+};

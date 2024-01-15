@@ -1,5 +1,7 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
+using Windows.Win32;
 
 using EGLDisplay = System.IntPtr;
 
@@ -9,17 +11,19 @@ namespace VL.Skia.Egl
     {
         private static readonly Dictionary<EGLDisplay, EglDisplay> s_Displays = new Dictionary<EGLDisplay, EglDisplay>();
 
-        public static EglDisplay FromDevice(EglDevice angleDevice)
+        private readonly RefCounted? dependentResource;
+
+        public static EglDisplay? FromDevice(EglDevice angleDevice)
         {
             var display = NativeEgl.eglGetPlatformDisplayEXT(NativeEgl.EGL_PLATFORM_DEVICE_EXT, angleDevice, null);
             if (display == default)
                 throw new Exception("Failed to get EGL display from device");
-            if (!TryInitialize(display, out var eglDisplay))
+            if (!TryInitialize(display, angleDevice, out var eglDisplay))
                 throw new Exception("Failed to initialize EGL display from device");
             return eglDisplay;
         }
 
-        public static EglDisplay GetPlatformDefault()
+        public static EglDisplay GetPlatformDefault(bool createNewDevice)
         {
             int[] defaultDisplayAttributes = new[]
             {
@@ -75,20 +79,61 @@ namespace VL.Skia.Egl
                 ?? TryCreate(warpDisplayAttributes)
                 ?? throw new Exception("Failed to initialize EGL");
 
-            static EglDisplay TryCreate(int[] displayAttributes)
+            unsafe EglDisplay? TryCreate(int[] displayAttributes)
             {
-                var display = NativeEgl.eglGetPlatformDisplayEXT(NativeEgl.EGL_PLATFORM_ANGLE_ANGLE, NativeEgl.EGL_DEFAULT_DISPLAY, displayAttributes);
-                if (display == default)
-                    throw new Exception("Failed to get EGL display");
+                EGLDisplay display;
 
-                if (TryInitialize(display, out var eglDisplay))
+                if (createNewDevice && OperatingSystem.IsWindowsVersionAtLeast(5, 1, 2600))
+                {
+                    // Use a dummy window to create a device context
+                    using var moduleHandle = PInvoke.GetModuleHandle(default(string));
+
+                    var hwnd = PInvoke.CreateWindowEx(
+                        Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE.WS_EX_APPWINDOW,
+                        "Static",
+                        "EglDisplay",
+                        Windows.Win32.UI.WindowsAndMessaging.WINDOW_STYLE.WS_OVERLAPPED,
+                        PInvoke.CW_USEDEFAULT,
+                        PInvoke.CW_USEDEFAULT,
+                        PInvoke.CW_USEDEFAULT,
+                        PInvoke.CW_USEDEFAULT,
+                        default,
+                        default,
+                        hInstance: moduleHandle,
+                        default);
+
+                    if (hwnd == default)
+                        throw new Exception("Failed to create window");
+
+                    try
+                    {
+                        var hdc = PInvoke.GetDC(hwnd);
+                        if (hdc == default)
+                            throw new Exception("Failed to retrieve HDC from window");
+
+                        display = NativeEgl.eglGetPlatformDisplayEXT(NativeEgl.EGL_PLATFORM_ANGLE_ANGLE, hdc, displayAttributes);
+                    }
+                    finally
+                    {
+                        PInvoke.DestroyWindow(hwnd);
+                    }
+                }
+                else
+                {
+                    display = NativeEgl.eglGetPlatformDisplayEXT(NativeEgl.EGL_PLATFORM_ANGLE_ANGLE, NativeEgl.EGL_DEFAULT_DISPLAY, displayAttributes);
+                }
+
+                if (display == default)
+                    return null;
+
+                if (TryInitialize(display, dependentResource: null /* We should probably wrap the HDC, but should only happen once per thread */, out var eglDisplay))
                     return eglDisplay;
 
                 return null;
             }
         }
 
-        private static bool TryInitialize(EGLDisplay nativePointer, out EglDisplay display)
+        private static bool TryInitialize(EGLDisplay nativePointer, RefCounted? dependentResource, out EglDisplay? display)
         {
             lock (s_Displays)
             {
@@ -97,7 +142,7 @@ namespace VL.Skia.Egl
                     if (NativeEgl.eglInitialize(nativePointer, out int major, out int minor) == NativeEgl.EGL_FALSE)
                         return false;
 
-                    s_Displays.Add(nativePointer, display = new EglDisplay(nativePointer));
+                    s_Displays.Add(nativePointer, display = new EglDisplay(nativePointer, dependentResource));
                 }
                 else
                 {
@@ -107,8 +152,10 @@ namespace VL.Skia.Egl
             }
         }
 
-        private EglDisplay(EGLDisplay nativePointer) : base(nativePointer)
+        private EglDisplay(EGLDisplay nativePointer, RefCounted? dependentResource) : base(nativePointer)
         {
+            dependentResource?.AddRef();
+            this.dependentResource = dependentResource;
         }
 
         public bool TryGetD3D11Device(out IntPtr d3dDevice)
@@ -143,6 +190,7 @@ namespace VL.Skia.Egl
             {
                 s_Displays.Remove(NativePointer);
                 NativeEgl.eglTerminate(NativePointer);
+                dependentResource?.Release();
             }
         }
     }

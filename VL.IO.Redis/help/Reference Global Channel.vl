@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="K2fqah0VUtbPHE3KTIt1L9" LanguageVersion="2023.5.3-0321-g0605d75f63" Version="0.128">
+  <NugetDependency Id="F2pFrAkht6QLE7PnDP7oXv" Location="VL.CoreLib" Version="2023.5.3-0192-g8dd4ea9c96" />
+  <Patch Id="SjPxoeMUcc2PJRznJSPlNZ">
+    <Canvas Id="P48alCb3Qx4N1eQITPnGFi" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="ALLkv3yMU7TNZPzE8JMMMx">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="Fo6d80SJ6WtNEylFaGVLWZ">
+        <Canvas Id="RxJOU1njkdAM68SrejrhfP" CanvasType="Group">
+          <Pad Id="OfFkA3JOefQMmMczcWaPbw" Comment="Is Connected" Bounds="523,480,35,19" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="FSuxKwgfZDcNk1d6d5xoC3" Comment="Client Name" Bounds="642,479,140,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Py9nHGsOtPiMMTGml8PkG6" Comment="Configuration" Bounds="641,374,119,15" ShowValueBox="true" isIOBox="true" Value="127.0.0.1:6379">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="Q6qdZfb3g5cO21QbRWQWXm" Comment="" Bounds="598,979,190,132" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="403,401,241,19" Id="G8JtoqM2kzTPycMy0QCnV2">
+            <p:NodeReference LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="RedisModule" />
+            </p:NodeReference>
+            <Pin Id="LCCAO46fSwzOhJfHgHVNJF" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="CLJ5ItR43qJMcjb3m2JHDt" Name="App Host" Kind="InputPin" IsHidden="true" />
+            <Pin Id="T2db3d8zitQLHt4wvniga8" Name="Frame Clock" Kind="InputPin" IsHidden="true" />
+            <Pin Id="B7bOWCn3DqbOn9jLjvB83S" Name="Channel Hub" Kind="InputPin" IsHidden="true" />
+            <Pin Id="CjPcYSE9rStNCnUdVBdyyl" Name="Model" Kind="InputPin">
+              <p:DefaultValue xmlns:r="reflection" r:Version="2">
+                <Item Key="MyFloat">
+                  <Value Key="MyFloat" Initialization="None" BindingType="SendAndReceive" CollisionHandling="RedisWins">
+                    <SerializationFormat r:Type="SerializationFormat [IO.Redis]">MessagePack</SerializationFormat>
+                  </Value>
+                </Item>
+              </p:DefaultValue>
+            </Pin>
+            <Pin Id="K8vTauyEwucLyOmeZyWOtK" Name="Configuration" Kind="InputPin" />
+            <Pin Id="Q05WqWXygdaOX1T3dpIGej" Name="Configure" Kind="InputPin" />
+            <Pin Id="R9PVJSHqXuqLNCKN7QDcW0" Name="Database" Kind="InputPin" />
+            <Pin Id="Uv5P5l4CUF2NheYle1AKLK" Name="Serialization Format" Kind="InputPin" />
+            <Pin Id="LQH1SqEqFvgN9VoM6uQOMJ" Name="Client" Kind="OutputPin" />
+            <Pin Id="Mszb33cFxKbPCleBQMn6xd" Name="Is Connected" Kind="OutputPin" />
+            <Pin Id="M9RZstvWQUOORhihUe0gZC" Name="Client Name" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="402,889,197,19" Id="FJFNuXAQkljP2Wx01gcQOi">
+            <p:NodeReference LastCategoryFullName="Reactive.GlobalChannels" LastDependency="VL.CoreLib.GlobalsChannels (C:\Users\elias\vvvv\vvvv\VL.StandardLibs\VL.IO.Redis\help)">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="GlobalChannels" />
+              <Choice Kind="ProcessNode" Name="MyFloat" />
+            </p:NodeReference>
+            <Pin Id="RNQDCPeCJRbPwSjBOqVQ4C" Name="Value" Kind="InputPin" />
+            <Pin Id="TsCad8eLha3Oz09hq3yv1q" Name="Channel" Kind="OutputPin" />
+            <Pin Id="RYu5zvOqfw4OHKhwBCk2cg" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="FqWdcBR6JnQPDxTvDLFDtZ" Bounds="385,244,305,21" ShowValueBox="true" isIOBox="true" Value="1) Add a Reference to VL.IO.Redis package">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="LZ1O7jaC270LrKWUY0FYVo" Bounds="385,302,291,24" ShowValueBox="true" isIOBox="true" Value="2) Add RedisModule to your patch:">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="U6O9ssftBkAQO8utQou2Uv" Bounds="385,584,345,19" ShowValueBox="true" isIOBox="true" Value="3) Add Global Channels (e.g. via Global Channel Browser)">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="JVkvadXMpNLPOyiU9fBHil" Bounds="385,836,771,25" ShowValueBox="true" isIOBox="true" Value="4) Use Global Channel nodes (make sure that you saved your channels by hitting save button in Global Channel Browser)">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="1306,572,82,19" Id="B5zIUID3G4uQQmjzTT2YOg">
+            <p:NodeReference LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="GlobalChannel" />
+            </p:NodeReference>
+            <Pin Id="VwsTbdAS6RvPIBm4C3h5f8" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="K1ntT0vMhSdOQji94Z0k8A" Name="Path" Kind="InputPin" DefaultValue="MyInterger" />
+            <Pin Id="HAINgh4tPrwM99v0owQx6d" Name="Value" Kind="InputPin" />
+            <Pin Id="CUdoPCuj8IeOjzRjNIskLS" Name="Channel" Kind="OutputPin" />
+            <Pin Id="FDKljcpML6hQUByuJQ2F9b" Name="Value" Kind="OutputPin" />
+            <Pin Id="GexBkGkTsp7Ph4DX5FwHjh" Name="Path" Kind="OutputPin" IsHidden="true" />
+          </Node>
+          <Pad Id="KwA7o5Mt44cNnqJOpF9qC7" Comment="" Bounds="1417,596,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="1289,741,145,19" Id="DWvtAyfS3cHPhEzEVb5eIk">
+            <p:NodeReference LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Binding" />
+            </p:NodeReference>
+            <Pin Id="CCvqshnNmTvMA6GdMWrYZz" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="VqVgCNKCmFJNR7UP6KQ3rG" Name="Client" Kind="InputPin" />
+            <Pin Id="QX5EDrec2xqOtXD4mQBLvs" Name="Channel" Kind="InputPin" />
+            <Pin Id="HswRW3HsIxcMcZlOMqeZTS" Name="Key" Kind="InputPin" />
+            <Pin Id="RQeBsKpH982NfHaXQjLYqi" Name="Initialization" Kind="InputPin" />
+            <Pin Id="Q5N5iGSvgUNMaD2ZHJVSqf" Name="Binding Type" Kind="InputPin" />
+            <Pin Id="A2xWWkHLb0uPkTXRTuNMkc" Name="Collision Handling" Kind="InputPin" />
+            <Pin Id="ScDbtG7JthnPeuzqUrjJRk" Name="Serialization Format" Kind="InputPin" />
+          </Node>
+          <Pad Id="LjOaNgYuAg6P5ECsbArG29" Comment="Path" Bounds="1308,499,57,15" ShowValueBox="true" isIOBox="true" Value="MyInteger">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="R8zMpBi4ICxPrqOfrmjtY0" Comment="Initialization" Bounds="1350,648,53,15" ShowValueBox="true" isIOBox="true" Value="Redis">
+            <p:TypeAnnotation LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="TypeFlag" Name="Initialization" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="OnMquvg5ssbMozLyVP2XUn" Comment="Binding Type" Bounds="1371,674,102,15" ShowValueBox="true" isIOBox="true" Value="SendAndReceive">
+            <p:TypeAnnotation LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="TypeFlag" Name="RedisBindingType" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="Fbomxpd8NYwOQMvsgteqCV" Comment="Collision Handling" Bounds="1391,702,74,15" ShowValueBox="true" isIOBox="true" Value="RedisWins">
+            <p:TypeAnnotation LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="TypeFlag" Name="CollisionHandling" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Overlay Id="DIErfyassutMPhZ240Oa90" Name="Use Redis Module" Bounds="381,184,782,966" />
+          <Overlay Id="AfsaMRcyLlZO26gqVU5rmv" Name="Advanced: Patch Binding, not editable vie Global Channel Browser" Bounds="1208,188,656,963" />
+          <ControlPoint Id="VrmznMKTs5APCyVkVrJg4T" Bounds="405,514" />
+          <ControlPoint Id="HxUFFAqzTI9LDyNMFchMLq" Bounds="1290,640" />
+          <ControlPoint Id="UfeEIvybsl5LnTnb9oysA3" Bounds="1328,620" />
+          <Pad Id="TD1b8AJa9lcNtgqfm710lQ" Bounds="1260,436,297,48" ShowValueBox="true" isIOBox="true" Value="Use hidden Client Pin from Redis Module&#xD;&#xA;RedisModule &gt; RMB &gt; Configure &gt; Show Client &#xD;&#xA;">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="AIQSXRQ8JipOfzpUUME6c0" Name="Create" />
+        <Patch Id="CijQnuIqY4qQB0Cj9aG8jR" Name="Update" />
+        <ProcessDefinition Id="RWA2ccePWQrPBq3NB2hVTr">
+          <Fragment Id="RGZbZ52iPAcMKgis3mwoaL" Patch="AIQSXRQ8JipOfzpUUME6c0" Enabled="true" />
+          <Fragment Id="FB2Ec9yCNfbOpmMMSQCfwU" Patch="CijQnuIqY4qQB0Cj9aG8jR" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="JqVWG7FmJH2LnVzMoKpBsU" Ids="Py9nHGsOtPiMMTGml8PkG6,K8vTauyEwucLyOmeZyWOtK" />
+        <Link Id="TZExJBoF53cOGdS4izEdf2" Ids="Mszb33cFxKbPCleBQMn6xd,OfFkA3JOefQMmMczcWaPbw" />
+        <Link Id="TYnnAJibNSSQaxNvOZwA6Y" Ids="M9RZstvWQUOORhihUe0gZC,FSuxKwgfZDcNk1d6d5xoC3" />
+        <Link Id="Spx2Mcx5P2xQdBo8ECpWGc" Ids="RYu5zvOqfw4OHKhwBCk2cg,Q6qdZfb3g5cO21QbRWQWXm" />
+        <Link Id="Gm6Zxy3OEPXMTVfhUSs1xb" Ids="FDKljcpML6hQUByuJQ2F9b,KwA7o5Mt44cNnqJOpF9qC7" />
+        <Link Id="FfKxLfP03LUPSIVtuYxzuf" Ids="LjOaNgYuAg6P5ECsbArG29,K1ntT0vMhSdOQji94Z0k8A" />
+        <Link Id="Gn7ZR6oY1FDLvPpUYwnptF" Ids="LjOaNgYuAg6P5ECsbArG29,UfeEIvybsl5LnTnb9oysA3,HswRW3HsIxcMcZlOMqeZTS" />
+        <Link Id="RyLo1Yi2yPmMubJmZSVd3v" Ids="R8zMpBi4ICxPrqOfrmjtY0,RQeBsKpH982NfHaXQjLYqi" />
+        <Link Id="G17xL56Ja7aMby6KVP92Yd" Ids="OnMquvg5ssbMozLyVP2XUn,Q5N5iGSvgUNMaD2ZHJVSqf" />
+        <Link Id="KgZdc2R2bj7MvSh3RmDjNh" Ids="Fbomxpd8NYwOQMvsgteqCV,A2xWWkHLb0uPkTXRTuNMkc" />
+        <Link Id="IHwZ9PT3M40LBL2AFZbhmA" Ids="CUdoPCuj8IeOjzRjNIskLS,QX5EDrec2xqOtXD4mQBLvs" />
+        <Link Id="QdbKAi8lfSeOKLazhGONPE" Ids="LQH1SqEqFvgN9VoM6uQOMJ,VrmznMKTs5APCyVkVrJg4T,HxUFFAqzTI9LDyNMFchMLq,VqVgCNKCmFJNR7UP6KQ3rG" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="Um6zrrI7cmZL0ssd5Wat2I" Location="VL.IO.Redis" Version="0.0.0" />
+</Document>

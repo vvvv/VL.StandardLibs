@@ -8,7 +8,7 @@ namespace VL.Stride.Shaders.ShaderFX
     public class DeclResource<T> : ComputeNode<T>, IComputeVoid
         where T : class
     {
-        readonly ObjectParameterUpdater<T> updater = new ObjectParameterUpdater<T>();
+        readonly ObjectParameterUpdater<T> updater = new ObjectParameterUpdater<T>(default(ShaderGeneratorContext));
         readonly string resourceGroupName;
 
         public DeclResource(string resourceGroupName = null)

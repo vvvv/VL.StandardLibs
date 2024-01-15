@@ -7,7 +7,7 @@ namespace VL.ImGui.Widgets
     /// </summary>
 
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class GetID : Widget
+    internal partial class GetID : Query
     {
 
         public string? Label { private get; set; }

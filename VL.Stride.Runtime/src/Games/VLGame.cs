@@ -2,9 +2,12 @@ using Stride.Core.Diagnostics;
 using Stride.Engine;
 using Stride.Engine.Design;
 using Stride.Games;
+using Stride.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using VL.Core;
 using VL.Stride.Engine;
 using VL.Stride.Rendering;
@@ -18,17 +21,34 @@ namespace VL.Stride.Games
         private bool forceElapsedTimeToZero;
 
         internal readonly SchedulerSystem SchedulerSystem;
-        private NodeFactoryRegistry NodeFactoryRegistry;
+        private readonly NodeFactoryRegistry NodeFactoryRegistry;
 
-        public VLGame()
-            : base()
+        internal event EventHandler BeforeDestroy;
+
+        public VLGame(NodeFactoryRegistry nodeFactoryRegistry)
         {
+            NodeFactoryRegistry = nodeFactoryRegistry;
+
             SchedulerSystem = new SchedulerSystem(Services);
             Services.AddService(SchedulerSystem);
+
+#if DEBUG
+            GraphicsDeviceManager.DeviceCreationFlags |= DeviceCreationFlags.Debug;
+#endif
+            // for now we don't let the user decide upon the colorspace
+            // as we'd need to either recreate all textures and swapchains in that moment or make sure that these weren't created yet.
+            GraphicsDeviceManager.PreferredColorSpace = ColorSpace.Linear;
+        }
+
+        protected override LogListener GetLogListener()
+        {
+            // Our logging system is already hooked up, we must not do it multiple times!
+            return null;
         }
 
         protected override void Destroy()
         {
+            BeforeDestroy?.Invoke(this, EventArgs.Empty);
             base.Destroy();
         }
 
@@ -142,11 +162,8 @@ namespace VL.Stride.Games
 
         protected override void Update(GameTime gameTime)
         {
-            var nodeFactoryRegistry = Services.GetService<NodeFactoryRegistry>();
-
             // Ensure all the paths referenced by VL are visible to the effect system
-            if (nodeFactoryRegistry != null)
-                UpdateShaderPaths(nodeFactoryRegistry);
+            UpdateShaderPaths(NodeFactoryRegistry);
 
             base.Update(gameTime);
         }
@@ -168,14 +185,15 @@ namespace VL.Stride.Games
 
         void UpdateShaderPaths(NodeFactoryRegistry nodeFactoryRegistry)
         {
-            if (nodeFactoryRegistry == NodeFactoryRegistry)
-                return;
+            if (!knownPaths.SequenceEqual(nodeFactoryRegistry.Paths))
+            {
+                knownPaths = nodeFactoryRegistry.Paths.ToImmutableArray();
 
-            NodeFactoryRegistry = nodeFactoryRegistry;
-
-            foreach (var path in nodeFactoryRegistry.Paths)
-                if (Directory.Exists(Path.Combine(path, "shaders")))
-                    EffectSystem.EnsurePathIsVisible(path);
+                foreach (var path in nodeFactoryRegistry.Paths)
+                    if (Directory.Exists(Path.Combine(path, "shaders")))
+                        EffectSystem.EnsurePathIsVisible(path);
+            }
         }
+        private ImmutableArray<string> knownPaths = ImmutableArray<string>.Empty;
     }
 }

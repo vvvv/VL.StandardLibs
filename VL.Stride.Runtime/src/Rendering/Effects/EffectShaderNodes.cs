@@ -24,11 +24,10 @@ namespace VL.Stride.Rendering
         {
             ShaderMetadata.RegisterAdditionalShaderAttributes();
 
-            var nodes = GetNodeDescriptions(serviceRegistry, factory).ToImmutableArray();
-            return NodeBuilding.NewFactoryImpl(nodes, forPath: path => factory =>
+            return new(GetNodeDescriptions(serviceRegistry, factory), forPath: path => factory =>
             {
                 // In case "shaders" directory gets added or deleted invalidate the whole factory
-                var invalidated = NodeBuilding.WatchDir(path)
+                var invalidated = FileSystemUtils.WatchDir(path)
                     .Where(e => (e.ChangeType == WatcherChangeTypes.Created || e.ChangeType == WatcherChangeTypes.Deleted || e.ChangeType == WatcherChangeTypes.Renamed) && e.Name == EffectCompilerBase.DefaultSourceShaderFolder);
 
                 // File provider crashes if directory doesn't exist :/
@@ -39,7 +38,7 @@ namespace VL.Stride.Rendering
                     {
                         var nodes = GetNodeDescriptions(serviceRegistry, factory, path, shadersPath);
                         // Additionaly watch out for new/deleted/renamed files
-                        invalidated = invalidated.Merge(NodeBuilding.WatchDir(shadersPath)
+                        invalidated = invalidated.Merge(FileSystemUtils.WatchDir(shadersPath, includeSubdirectories: true)
                             .Where(e => IsNewOrDeletedShaderFile(e)));
                         return NodeBuilding.NewFactoryImpl(nodes.ToImmutableArray(), invalidated,
                             export: c =>
@@ -51,7 +50,7 @@ namespace VL.Stride.Rendering
                                 {
                                     var assetsFolder = Path.Combine(c.DirectoryPath, "Assets");
                                     Directory.CreateDirectory(assetsFolder);
-                                    foreach (var f in Directory.EnumerateFiles(shadersPath))
+                                    foreach (var f in Directory.EnumerateFiles(shadersPath, "*", SearchOption.AllDirectories))
                                     {
                                         if (string.Equals(Path.GetExtension(f), ".sdsl", StringComparison.OrdinalIgnoreCase) || string.Equals(Path.GetExtension(f), ".sdfx", StringComparison.OrdinalIgnoreCase))
                                         {
@@ -88,14 +87,6 @@ namespace VL.Stride.Rendering
             if (path != null)
                 effectSystem.EnsurePathIsVisible(path);
 
-            // Ensure the effect system tracks the same files as we do
-            var fieldInfo = typeof(EffectSystem).GetField("directoryWatcher", BindingFlags.NonPublic | BindingFlags.Instance);
-            var directoryWatcher = fieldInfo.GetValue(effectSystem) as DirectoryWatcher;
-            var modifications = Observable.FromEventPattern<FileEvent>(directoryWatcher, nameof(DirectoryWatcher.Modified))
-                .Select(e => e.EventArgs)
-                .Where(e => e.ChangeType == FileEventChangeType.Changed || e.ChangeType == FileEventChangeType.Renamed);
-
-
             // Effect system deals with its internal cache on update, so make sure its called.
             effectSystem.Update(default);
 
@@ -110,14 +101,14 @@ namespace VL.Stride.Rendering
             var dbFileProvider = effectSystem.FileProvider; //should include current path
             var sourceManager = dbFileProvider.GetShaderSourceManager();
             if (path != null)
-                fileProvider = new FileSystemProvider(null, path);
+                fileProvider = effectSystem.GetFileProviderForSpecificPath(path);
             else
                 fileProvider = contentManager.FileProvider;
 
 
             EffectUtils.ResetParserCache();
 
-            foreach (var file in fileProvider.ListFiles(EffectCompilerBase.DefaultSourceShaderFolder, sdslFileFilter, VirtualSearchOption.TopDirectoryOnly))
+            foreach (var file in fileProvider.ListFiles(EffectCompilerBase.DefaultSourceShaderFolder, sdslFileFilter, VirtualSearchOption.AllDirectories))
             {
                 var effectName = Path.GetFileNameWithoutExtension(file);
                 if (effectName.EndsWith(drawFXSuffix))
@@ -132,7 +123,6 @@ namespace VL.Stride.Rendering
                         effectName, 
                         shaderMetadata, 
                         TrackChanges(effectName, shaderMetadata),
-                        () => GetFilePath(effectName),
                         serviceRegistry,
                         graphicsDevice);
                     //DrawFX node
@@ -148,7 +138,6 @@ namespace VL.Stride.Rendering
                         effectName, 
                         shaderMetadata,
                         TrackChanges(effectName, shaderMetadata),
-                        () => GetFilePath(effectName),
                         serviceRegistry,
                         graphicsDevice);
 
@@ -168,7 +157,6 @@ namespace VL.Stride.Rendering
                         effectName, 
                         shaderMetadata, 
                         TrackChanges(effectName, shaderMetadata),
-                        () => GetFilePath(effectName),
                         serviceRegistry,
                         graphicsDevice);
                     //ComputeFX node
@@ -185,7 +173,6 @@ namespace VL.Stride.Rendering
                         effectName, 
                         shaderMetadata, 
                         TrackChanges(effectName, shaderMetadata), 
-                        () => GetFilePath(effectName),
                         serviceRegistry,
                         graphicsDevice);
                 }
@@ -194,6 +181,9 @@ namespace VL.Stride.Rendering
             // build an observable to track the file changes, also the files of the base shaders
             IObservable<object> TrackChanges(string shaderName, ShaderMetadata shaderMetadata)
             {
+                if (shaderMetadata?.FilePath is null)
+                    return null;
+
                 var watchNames = new HashSet<string>() { shaderName };
 
                 foreach (var baseClass in shaderMetadata.ParsedShader?.BaseShaders ?? Enumerable.Empty<ParsedShader>())
@@ -205,26 +195,45 @@ namespace VL.Stride.Rendering
                     watchNames.Add(Path.GetFileNameWithoutExtension(baseClassPath));
                 }
 
-                IObservable<object> invalidated = modifications.Where(e => watchNames.Contains(Path.GetFileNameWithoutExtension(e.Name)));
                 // Setup our own watcher as Stride doesn't track shaders with errors
-                if (path != null)
-                {
-                    invalidated = Observable.Merge(invalidated, NodeBuilding.WatchDir(shadersPath)
-                        .Where(e => watchNames.Contains(Path.GetFileNameWithoutExtension(e.Name)))
-                        .Do(e =>
+                var shadersPath = Path.GetDirectoryName(shaderMetadata.FilePath);
+                return NodeBuilding.WatchDir(shadersPath)
+                    .Select(e => Path.GetFileNameWithoutExtension(e.Name))
+                    .Where(n => watchNames.Contains(n))
+                    .Do(n =>
+                    {
+                        ((EffectCompilerBase)effectSystem.Compiler).ResetCache(new HashSet<string>() { n });
+                        foreach (var watchName in watchNames)
                         {
-                            ((EffectCompilerBase)effectSystem.Compiler).ResetCache(new HashSet<string>() { Path.GetFileNameWithoutExtension(e.Name) });
-                            foreach (var watchName in watchNames)
-                            {
-                                EffectUtils.ResetParserCache(watchName);
-                            }
-                        }));
-                }
-
-                return invalidated;
+                            EffectUtils.ResetParserCache(watchName);
+                        }
+                    });
             }
+        }
 
-            string GetFilePath(string effectName) => EffectUtils.GetPathOfSdslShader(effectName, fileProvider);
+        private static ParameterPinDescription CreatePinDescription(in ParameterKeyInfo keyInfo, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string name = null, bool? isOptionalOverride = default)
+        {
+            return CreatePinDescription(keyInfo.Key, keyInfo.Count, usedNames, shaderMetadata, name, isOptionalOverride);
+        }
+
+        private static ParameterPinDescription CreatePinDescription(ParameterKey key, int count, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string name = null, bool? isOptionalOverride = default)
+        {
+            var typeInPatch = shaderMetadata.GetPinType(key, out var runtimeDefaultValue, out var compilationDefaultValue);
+            shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);
+
+            if (isOptionalOverride.HasValue)
+                isOptional |= isOptionalOverride.Value;
+
+            return new ParameterPinDescription(usedNames, key, count,
+                compilationDefaultValue: compilationDefaultValue,
+                name: name,
+                typeInPatch: typeInPatch,
+                runtimeDefaultValue: runtimeDefaultValue)
+            {
+                IsVisible = !isOptional,
+                Summary = summary,
+                Remarks = remarks
+            };
         }
     }
 }

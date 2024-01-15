@@ -11,20 +11,21 @@ namespace VL.ImGui
         [Pin(Priority = 10)]
         public IStyle? Style { set; protected get; }
 
+        protected virtual bool HasItemState => true;
+
+        protected WidgetLabel widgetLabel = new();
+
         internal void Update(Context? context)
         {
             context = context.Validate();
             if (context != null)
             {
-                try
-                {
-                    Style?.Set(context);
+                // If the item comes with its own state, clear any captured state of ours
+                if (HasItemState)
+                    context.CapturedItemState = default;
+
+                using (context.ApplyStyle(Style))
                     UpdateCore(context);
-                }
-                finally
-                {
-                    Style?.Reset(context);
-                }
             }
         }
     }

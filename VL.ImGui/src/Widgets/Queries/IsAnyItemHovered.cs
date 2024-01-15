@@ -4,7 +4,7 @@
     /// Is any item hovered?
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class IsAnyItemHovered : Widget
+    internal partial class IsAnyItemHovered : Query
     {
 
         public bool Value { get; private set; }

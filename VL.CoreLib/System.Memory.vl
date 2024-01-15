@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="TbpIhqjOLSBPFhdxbH8kpm" LanguageVersion="2021.4.0.352" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="TbpIhqjOLSBPFhdxbH8kpm" LanguageVersion="2023.5.3-0281-g14e0cbce71" Version="0.128">
   <Patch Id="UU5d9rcBLYsO5U8ouxkHGx">
     <Canvas Id="QB6pI2Y06gFP2BQBfcQhK8" DefaultCategory="System.Advanced" CanvasType="FullCategory">
       <!--
@@ -12,7 +12,7 @@
           <Choice Kind="ForwardDefinition" Name="Forward" />
           <FullNameCategoryReference ID="Primitive" />
         </p:NodeReference>
-        <p:TypeAnnotation LastCategoryFullName="System" LastSymbolSource="System.Memory.dll">
+        <p:TypeAnnotation LastCategoryFullName="System" LastDependency="System.Memory.dll">
           <Choice Kind="TypeFlag" Name="Memory`1" />
         </p:TypeAnnotation>
         <p:ForwardAllNodesOfTypeDefinition p:Type="Boolean">true</p:ForwardAllNodesOfTypeDefinition>
@@ -24,12 +24,12 @@
 
 -->
             <Node Name="CreateDefault" Bounds="300,197,80,80" Id="Mude8ehrgshMtfguYy4BbF">
-              <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="Builtin">
+              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
                 <Choice Kind="OperationDefinition" Name="Operation" />
               </p:NodeReference>
               <Patch Id="P3YXEoW0zZzMZdIYTfnAxw" IsGeneric="true">
                 <Node Bounds="322,232,37,13" AutoConnect="true" Id="TgBppbm6T52ODf0C19okzU">
-                  <p:NodeReference LastCategoryFullName="System.Memory`1" LastSymbolSource="System.Memory.dll">
+                  <p:NodeReference LastCategoryFullName="System.Memory`1" LastDependency="System.Memory.dll">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                     <Choice Kind="OperationCallFlag" Name="Empty" />
                     <CategoryReference Kind="AssemblyCategory" Name="Memory`1" NeedsToBeDirectParent="true" />
@@ -57,7 +57,7 @@
           <Choice Kind="ForwardDefinition" Name="Forward" />
           <FullNameCategoryReference ID="Primitive" />
         </p:NodeReference>
-        <p:TypeAnnotation LastCategoryFullName="System" LastSymbolSource="System.Memory.dll">
+        <p:TypeAnnotation LastCategoryFullName="System" LastDependency="System.Memory.dll">
           <Choice Kind="TypeFlag" Name="ReadOnlyMemory`1" />
         </p:TypeAnnotation>
         <p:ForwardAllNodesOfTypeDefinition p:Type="Boolean">true</p:ForwardAllNodesOfTypeDefinition>
@@ -68,13 +68,13 @@
     ************************ CreateDefault ************************
 
 -->
-            <Node Name="CreateDefault" Bounds="260,204,96,84" Id="AIDfAJlWStZOcoiIsvtiv9">
-              <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="Builtin">
+            <Node Name="CreateDefault" Bounds="260,204,100,87" Id="AIDfAJlWStZOcoiIsvtiv9">
+              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
                 <Choice Kind="OperationDefinition" Name="Operation" />
               </p:NodeReference>
               <Patch Id="PchTk0NLgukQUfOZH2sRWJ" IsGeneric="true">
-                <Node Bounds="298,243,37,13" AutoConnect="true" Id="EyL22mhpuIYO0LQWvwMpbJ">
-                  <p:NodeReference LastCategoryFullName="System.ReadOnlyMemory`1" LastSymbolSource="System.Memory.dll">
+                <Node Bounds="298,243,45,19" AutoConnect="true" Id="EyL22mhpuIYO0LQWvwMpbJ">
+                  <p:NodeReference LastCategoryFullName="System.ReadOnlyMemory`1" LastDependency="System.Memory.dll">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                     <Choice Kind="OperationCallFlag" Name="Empty" />
                     <CategoryReference Kind="AssemblyCategory" Name="ReadOnlyMemory`1" NeedsToBeDirectParent="true" />
@@ -84,9 +84,42 @@
                 <Pin Id="G1zGpgfsigpQHiVR8bPfsX" Name="Empty" Kind="OutputPin" />
               </Patch>
             </Node>
+            <!--
+
+    ************************ ToSpread ************************
+
+-->
+            <Node Name="ToSpread" Bounds="477,202,112,80" Id="DD2Ee2nEjTYMq4UB8dbxiE">
+              <p:NodeReference>
+                <Choice Kind="OperationDefinition" Name="Operation" />
+                <CategoryReference Kind="Category" Name="Primitive" />
+              </p:NodeReference>
+              <p:HideCategory p:Type="Boolean">true</p:HideCategory>
+              <Patch Id="JaPKAyFmZMfNMdz03G1iMU" IsGeneric="true">
+                <Node Bounds="489,231,59,26" AutoConnect="true" Id="Kq1hDRXExIcLWgS7VxUSoF">
+                  <p:NodeReference LastCategoryFullName="VL.Lib.Collections.Spread" LastDependency="VL.Core.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+                    <Choice Kind="OperationNode" Name="ToSpread" />
+                    <FullNameCategoryReference ID="VL.Lib.Collections.Spread" />
+                    <PinReference Kind="InputPin" Name="Input">
+                      <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="System" LastDependency="System.Memory.dll">
+                        <Choice Kind="TypeFlag" Name="ReadOnlyMemory`1" />
+                        <p:TypeArguments>
+                          <TypeParameterReference />
+                        </p:TypeArguments>
+                      </p:DataTypeReference>
+                    </PinReference>
+                  </p:NodeReference>
+                  <Pin Id="Sf89BH999bGNHLKvM47Lx0" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="Mgush8hy76SNr8aZF9Ax9D" Name="Result" Kind="OutputPin" />
+                </Node>
+                <Pin Id="VUKsGbNG9rlMoAgVzXaspc" Name="Input" Kind="InputPin" />
+                <Pin Id="PFvHZlW2XIvMO1DM75CNjT" Name="Result" Kind="OutputPin" />
+              </Patch>
+            </Node>
           </Canvas>
           <ProcessDefinition Id="VCainJsv0vmP2Xc6Zv77wd" IsHidden="true">
             <Fragment Id="LUdkQcijGnwMafRw3nwMJ8" Patch="AIDfAJlWStZOcoiIsvtiv9" Enabled="true" />
+            <Fragment Id="Es1Art7mEO6PXlIGUZp8gU" Patch="DD2Ee2nEjTYMq4UB8dbxiE" />
           </ProcessDefinition>
         </Patch>
       </Node>
@@ -100,7 +133,7 @@
           <Choice Kind="ForwardDefinition" Name="Forward" />
           <FullNameCategoryReference ID="Primitive" />
         </p:NodeReference>
-        <p:TypeAnnotation LastCategoryFullName="VL.Core" LastSymbolSource="VL.Core.dll">
+        <p:TypeAnnotation LastCategoryFullName="VL.Core" LastDependency="VL.Core.dll">
           <Choice Kind="TypeFlag" Name="IHasMemory`1" />
         </p:TypeAnnotation>
         <Patch Id="HmufgZXcUIdLB0OseCIHeS">
@@ -111,12 +144,12 @@
 
 -->
             <Node Name="CreateDefault" Bounds="18,185,97,82" Id="RAWI2yDpAM1OVeauMnQ8xI">
-              <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="Builtin">
+              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
                 <Choice Kind="OperationDefinition" Name="Operation" />
               </p:NodeReference>
               <Patch Id="TEe9QJSpb0LOSR6jDvb1Eb" IsGeneric="true">
                 <Node Bounds="44,222,59,13" AutoConnect="true" Id="F47B8wzWp0NOq3TafQn1kB">
-                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastSymbolSource="VL.Core.dll">
+                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastDependency="VL.Core.dll">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                     <Choice Kind="OperationCallFlag" Name="Empty" />
                     <CategoryReference Kind="AssemblyCategory" Name="HasMemoryExtensions" NeedsToBeDirectParent="true" />
@@ -139,7 +172,7 @@
               <p:HideCategory p:Type="Boolean">false</p:HideCategory>
               <Patch Id="If4IwGzABolNyOyvnIUJV0" IsGeneric="true">
                 <Node Bounds="252,180,10,10" AutoConnect="true" Id="KdY4pDhjaMlOQDDVYIWnnn">
-                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastSymbolSource="VL.Core.dll">
+                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastDependency="VL.Core.dll">
                     <Choice Kind="OperationNode" Name="ElementSize" />
                     <FullNameCategoryReference ID="VL.Core.HasMemoryExtensions" />
                   </p:NodeReference>
@@ -163,7 +196,7 @@
               <p:HideCategory p:Type="Boolean">false</p:HideCategory>
               <Patch Id="VMocTOeAGJbPV2peApqSr1" IsGeneric="true">
                 <Node Bounds="532,180,10,10" AutoConnect="true" Id="VBgTCtysQo9PPmcRXAEera">
-                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastSymbolSource="VL.Core.dll">
+                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastDependency="VL.Core.dll">
                     <Choice Kind="OperationNode" Name="Empty" />
                     <FullNameCategoryReference ID="VL.Core.HasMemoryExtensions" />
                   </p:NodeReference>
@@ -185,7 +218,7 @@
               <p:HideCategory p:Type="Boolean">false</p:HideCategory>
               <Patch Id="HtuldB2j1vxN9nneaA0arZ" IsGeneric="true">
                 <Node Bounds="252,330,10,10" AutoConnect="true" Id="FM96SkBFekwOUSG8jmDUY1">
-                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastSymbolSource="VL.Core.dll">
+                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastDependency="VL.Core.dll">
                     <Choice Kind="OperationNode" Name="HasData" />
                     <FullNameCategoryReference ID="VL.Core.HasMemoryExtensions" />
                   </p:NodeReference>
@@ -209,7 +242,7 @@
               <p:HideCategory p:Type="Boolean">false</p:HideCategory>
               <Patch Id="KxFERTPgLBSPRcVnCsl3zM" IsGeneric="true">
                 <Node Bounds="532,330,10,10" AutoConnect="true" Id="RJk3Fou4MJGOYLA3K3usHg">
-                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastSymbolSource="VL.Core.dll">
+                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastDependency="VL.Core.dll">
                     <Choice Kind="OperationNode" Name="Length" />
                     <FullNameCategoryReference ID="VL.Core.HasMemoryExtensions" />
                   </p:NodeReference>
@@ -233,7 +266,7 @@
               <p:HideCategory p:Type="Boolean">false</p:HideCategory>
               <Patch Id="ThncHEtT4UbLMY1qLUvoNh" IsGeneric="true">
                 <Node Bounds="252,480,10,10" AutoConnect="true" Id="JbT7D0kX8ZFQZ3unpi4JOe">
-                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastSymbolSource="VL.Core.dll">
+                  <p:NodeReference LastCategoryFullName="VL.Core.HasMemoryExtensions" LastDependency="VL.Core.dll">
                     <Choice Kind="OperationNode" Name="Size" />
                     <FullNameCategoryReference ID="VL.Core.HasMemoryExtensions" />
                   </p:NodeReference>
@@ -265,7 +298,7 @@
           <Choice Kind="ForwardDefinition" Name="Forward" />
           <FullNameCategoryReference ID="Primitive" />
         </p:NodeReference>
-        <p:TypeAnnotation LastCategoryFullName="System.Runtime.CompilerServices" LastSymbolSource="System.Runtime.CompilerServices.Unsafe.dll">
+        <p:TypeAnnotation LastCategoryFullName="System.Runtime.CompilerServices" LastDependency="System.Runtime.CompilerServices.Unsafe.dll">
           <Choice Kind="TypeFlag" Name="Unsafe" />
         </p:TypeAnnotation>
         <Patch Id="P3Q8dobhaYhQYmq0PW5kv8">
@@ -283,7 +316,7 @@
           <Choice Kind="ForwardDefinition" Name="Forward" />
           <FullNameCategoryReference ID="Primitive" />
         </p:NodeReference>
-        <p:TypeAnnotation LastCategoryFullName="VL.Lib" LastSymbolSource="VL.CoreLib.dll">
+        <p:TypeAnnotation LastCategoryFullName="VL.Lib" LastDependency="VL.CoreLib.dll">
           <Choice Kind="TypeFlag" Name="MemoryUtils" />
         </p:TypeAnnotation>
         <Patch Id="RksXKV3fER6Mi76vuojipB">
@@ -305,7 +338,7 @@
           <p:HideCategory p:Type="Boolean">true</p:HideCategory>
           <Patch Id="NUsdC24MoNjLfYv7zGKuhT" IsGeneric="true">
             <Node Bounds="423,474,10,10" AutoConnect="true" Id="Q0gpYNXUq5nQKQ8a05UdnG">
-              <p:NodeReference LastCategoryFullName="VL.Lib.Adaptive.AdaptiveNodes" LastSymbolSource="VL.CoreLib.dll">
+              <p:NodeReference LastCategoryFullName="VL.Lib.Adaptive.AdaptiveNodes" LastDependency="VL.CoreLib.dll">
                 <Choice Kind="OperationNode" Name="AsMemory" />
                 <FullNameCategoryReference ID="VL.Lib.Adaptive.AdaptiveNodes" />
               </p:NodeReference>
@@ -329,7 +362,7 @@
           <p:HideCategory p:Type="Boolean">true</p:HideCategory>
           <Patch Id="LvNFwkenuggNRwd73il8zF" IsGeneric="true">
             <Node Bounds="631,473,107,19" AutoConnect="true" Id="T6zpjeil0hBNeI15tZLydt">
-              <p:NodeReference LastCategoryFullName="VL.Lib.Adaptive.AdaptiveNodes" LastSymbolSource="VL.CoreLib.dll">
+              <p:NodeReference LastCategoryFullName="VL.Lib.Adaptive.AdaptiveNodes" LastDependency="VL.CoreLib.dll">
                 <Choice Kind="OperationNode" Name="AsReadOnlyMemory" />
                 <FullNameCategoryReference ID="VL.Lib.Adaptive.AdaptiveNodes" />
               </p:NodeReference>
@@ -351,7 +384,7 @@
           <Choice Kind="ForwardDefinition" Name="Forward" />
           <FullNameCategoryReference ID="Primitive" />
         </p:NodeReference>
-        <p:TypeAnnotation LastCategoryFullName="System" LastSymbolSource="System.Memory.dll">
+        <p:TypeAnnotation LastCategoryFullName="System" LastDependency="System.Memory.dll">
           <Choice Kind="TypeFlag" Name="ReadOnlySpan`1" />
         </p:TypeAnnotation>
         <Patch Id="QkilwOQb8esOFuV8GGzsPY">
@@ -369,7 +402,7 @@
           <Choice Kind="ForwardDefinition" Name="Forward" />
           <FullNameCategoryReference ID="Primitive" />
         </p:NodeReference>
-        <p:TypeAnnotation LastCategoryFullName="System" LastSymbolSource="System.Memory.dll">
+        <p:TypeAnnotation LastCategoryFullName="System" LastDependency="System.Memory.dll">
           <Choice Kind="TypeFlag" Name="Span`1" />
         </p:TypeAnnotation>
         <Patch Id="QXhH2Zp1YMzLMq1tUrg9um">

@@ -39,7 +39,10 @@ namespace VL.Stride.Rendering
         public List<string> WantsMips { get; private set; }
 
         public List<string> DontConvertToLinearOnRead{ get; private set; }
+
         public bool DontConvertToSRgbOnOnWrite { get; private set; }
+
+        public string FilePath { get; init; }
 
         public void GetPixelFormats(out PixelFormat outputFormat, out PixelFormat renderFormat)
         {
@@ -79,10 +82,12 @@ namespace VL.Stride.Rendering
 
         public string GetCategory(string prefix)
         {
-            var result = prefix;
+            var category = Category;
+            if (string.IsNullOrWhiteSpace(category))
+                return prefix;
 
-            if (string.IsNullOrWhiteSpace(Category))
-                return result;
+            if (category.StartsWith(':'))
+                return category.Substring(1);
 
             if (!Category.StartsWith(prefix))
                 return prefix + "." + Category;
@@ -227,20 +232,26 @@ namespace VL.Stride.Rendering
         /// <summary>
         /// Gets the type of the pin, if overwritten by an attribute, e.g. int -> enum.
         /// </summary>
-        public Type GetPinType(ParameterKey key, out object boxedDefaultValue)
+        public Type GetPinType(ParameterKey key, out object runtimeDefaultValue, out object compilationDefaultValue)
         {
-            boxedDefaultValue = null;
+            runtimeDefaultValue = null;
+            compilationDefaultValue = null;
+
             if (pinEnumTypes.TryGetValue(key.Name, out var enumTypeName))
             {
-                boxedDefaultValue = enumTypeName.defaultValue;
+                runtimeDefaultValue = compilationDefaultValue = enumTypeName.defaultValue;
                 return enumTypeName.typeName;
             }
 
-            if (key.PropertyType == typeof(ShaderSource) && ParsedShader != null)
+            if (ParsedShader is null)
+                return null;
+
+            if (key.PropertyType == typeof(ShaderSource))
             {
                 if (ParsedShader.CompositionsWithBaseShaders.TryGetValue(key.GetVariableName(), out var composition))
                 {
-                    boxedDefaultValue = composition.GetDefaultComputeNode(forPatch: true);
+                    compilationDefaultValue = composition.CompilationDefaultValue;
+                    runtimeDefaultValue = composition.GetDefaultComputeNode(forPatch: true);
                     if (knownShaderFXTypes.TryGetValue(composition.TypeName, out var type))
                     {
                         return type;
@@ -282,6 +293,7 @@ namespace VL.Stride.Rendering
             { "ComputeFloat2", typeof(SetVar<Vector2>) },
             { "ComputeFloat3", typeof(SetVar<Vector3>) },
             { "ComputeFloat4", typeof(SetVar<Vector4>) },
+            { "ComputeColor", typeof(SetVar<Color4>) },
             { "ComputeMatrix", typeof(SetVar<Matrix>) },
             { "ComputeBool", typeof(SetVar<bool>) },
             { "ComputeInt", typeof(SetVar<int>) },
@@ -311,6 +323,7 @@ namespace VL.Stride.Rendering
         public const string WantsMipsName = "WantsMips";
         public const string DontConvertToLinearOnReadName = "DontConvertToLinearOnRead";
         public const string DontConvertToSRgbOnName = "DontConvertToSRgbOnWrite";
+        public const string ColorAttributeName = "Color";
 
         //pin
         public const string EnumTypeName = "EnumType";
@@ -335,7 +348,10 @@ namespace VL.Stride.Rendering
         public static ShaderMetadata CreateMetadata(string effectName, IVirtualFileProvider fileProvider, ShaderSourceManager shaderSourceManager)
         {
             //create metadata with default values
-            var shaderMetadata = new ShaderMetadata();
+            var shaderMetadata = new ShaderMetadata()
+            {
+                FilePath = EffectUtils.GetPathOfSdslShader(effectName, fileProvider)
+            };
 
             //try to populate metdata with information form the shader
             if (fileProvider.TryParseEffect(effectName, shaderSourceManager, out var result))

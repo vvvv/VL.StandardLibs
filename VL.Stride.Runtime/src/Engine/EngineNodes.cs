@@ -25,7 +25,7 @@ namespace VL.Stride.Engine
             yield return new CustomNodeDesc<SceneInstanceSystem>(factory,
                 ctor: nodeContext =>
                 {
-                    var gameHandle = ServiceRegistry.Current.GetGameHandle();
+                    var gameHandle = AppHost.Current.Services.GetGameHandle();
                     var game = gameHandle.Resource;
                     var instance = new SceneInstanceSystem(game.Services);
                     return (instance, () => gameHandle.Dispose());
@@ -38,7 +38,7 @@ namespace VL.Stride.Engine
             yield return new CustomNodeDesc<SceneInstanceRenderer>(factory,
                 ctor: nodeContext =>
                 {
-                    var gameHandle = ServiceRegistry.Current.GetGameHandle();
+                    var gameHandle = AppHost.Current.Services.GetGameHandle();
                     var game = gameHandle.Resource;
                     var instance = new SceneInstanceRenderer();
                     return (instance, () => gameHandle.Dispose());

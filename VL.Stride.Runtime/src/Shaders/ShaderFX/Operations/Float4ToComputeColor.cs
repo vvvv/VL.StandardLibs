@@ -10,14 +10,14 @@ using static VL.Stride.Shaders.ShaderFX.ShaderFXUtils;
 
 namespace VL.Stride.Shaders.ShaderFX
 {
-    public class Float4ToComputeColor : ComputeColor
+    public class Float4ToComputeColor<T> : ComputeColor
     {
-        public Float4ToComputeColor(IComputeValue<Vector4> value)
+        public Float4ToComputeColor(IComputeValue<T> value)
         {
             this.Value = value;
         }
 
-        public new IComputeValue<Vector4> Value { get; }
+        public new IComputeValue<T> Value { get; }
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
         {

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="GQQFKy5QFmuMChs5wf2z17" LanguageVersion="2022.5.0-0261-d97a44c3ea" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="CBYEwcLu7XEMUAt4qRaJW2" LanguageVersion="2022.5.0-0785-g501a43ba3a" Version="0.128">
   <Patch Id="K6jOtX5z4AOM2g6L5teo07">
     <Canvas Id="HuM0Neyl9P0P3djIwL4nYf" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -15,7 +15,7 @@
       <Patch Id="RxrvDdUu4cvOBXbi4KngKc">
         <Canvas Id="PuJjSWeZNf5OSPyulV1tEs" CanvasType="Group">
           <Node Bounds="156,552,165,19" Id="FMXgMbAgSJqPjBIGChZQvH">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastSymbolSource="VL.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastDependency="VL.Skia.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
@@ -33,19 +33,26 @@
             <Pin Id="Fi9FymljmNXQYNmU2h76Xz" Name="Render Time" Kind="OutputPin" />
           </Node>
           <Node Bounds="196,118,240,404" Id="TDdVdVetv9wMfe1A4ll6DB">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastSymbolSource="VL.ImGui.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastDependency="VL.ImGui.Skia.vl">
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
+            <Pin Id="GxBC24vS73xP5oGNgjarHK" Name="Docking Enabled" Kind="InputPin" />
+            <Pin Id="QnpbNf654sJOZk2HW3mmz9" Name="Fonts" Kind="InputPin" />
+            <Pin Id="J8nPTLJsk4VOUtXW4x2JQN" Name="Add Fullscreen Window" Kind="InputPin" />
+            <Pin Id="OnZzAZPLLAcNlwuJyKcthQ" Name="Fullscreen Window Style" Kind="InputPin" />
+            <Pin Id="GuOQsPqu8IfL4ym8C9FhWe" Name="Use Skia Space" Kind="InputPin" />
+            <Pin Id="VhzAjRGcrzlPCmupzmZiOT" Name="Output" Kind="OutputPin" />
             <Patch Id="DKJi5H6kh5XNwMngClHHBr" ManuallySortedPins="true">
               <Patch Id="GLQfOpCjFJjMpcidB1kOlB" Name="Create" ManuallySortedPins="true" />
               <Patch Id="MqLCdlGEEBWQXAZcrD63aE" Name="Update" ParticipatingElements="LFHazSmD08mMglOV7NFQyW,FKqHJlHSaUIONxrcOsd40n,S2FTldQu9fmPFEKY8cqRMw" ManuallySortedPins="true" />
-              <Node Bounds="208,220,165,19" Id="CBlbeFZhHyqO47tv2MmFNw">
-                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastSymbolSource="VL.ImGUI.Nodes">
+              <Node Bounds="208,220,185,19" Id="CBlbeFZhHyqO47tv2MmFNw">
+                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastDependency="VL.ImGUI.Nodes">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessNode" Name="Drag (Float)" />
                   <CategoryReference Kind="Category" Name="Widgets" NeedsToBeDirectParent="true" />
                 </p:NodeReference>
+                <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
                 <Pin Id="IZa6Vf0kztbQJMHug1BgBK" Name="Context" Kind="InputPin" />
                 <Pin Id="K15wJFTCDOeQV2fJhzgv7m" Name="Channel" Kind="InputPin" />
                 <Pin Id="UcHxGwi1S8AMaAUlpjnGMk" Name="Label" Kind="InputPin" />
@@ -54,32 +61,34 @@
                 <Pin Id="QDwj45cVKr8LunTxREWPRp" Name="Max" Kind="InputPin" />
                 <Pin Id="REiE0zq7BooNZpnvo1fgj5" Name="Format" Kind="InputPin" />
                 <Pin Id="NOS6AGumOt1LRtJfZ4a1cD" Name="Flags" Kind="InputPin" />
+                <Pin Id="T9roe9kDacNLy7BwgE8iry" Name="Notify While Typing" Kind="InputPin" />
                 <Pin Id="KuiADMYJgBRPeKdqQaKpIb" Name="Style" Kind="InputPin" />
                 <Pin Id="RKbaupdSlMrLS2aQV5Gr3j" Name="Context" Kind="OutputPin" />
                 <Pin Id="KpLHpuzyNexOH19DL50NAX" Name="Bang" Kind="OutputPin" />
                 <Pin Id="Rnvp481PGJqO9dU0sPFoGd" Name="Value" Kind="OutputPin" />
               </Node>
               <Pad Id="RIg84e6vrFDLGlynC56Tui" Comment="Label" Bounds="250,146,35,15" ShowValueBox="true" isIOBox="true" Value="Float">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="EyXGr98fFJXMlUlTLJIKrI" Comment="Min" Bounds="290,187,46,15" ShowValueBox="true" isIOBox="true" Value="0">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="Float32" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="EptMqw7nK6gPqLU3uAG4KH" Comment="Max" Bounds="310,206,35,15" ShowValueBox="true" isIOBox="true" Value="100">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="Float32" />
                 </p:TypeAnnotation>
               </Pad>
-              <Node Bounds="208,297,165,19" Id="LDuDpBvvItvQKMV7uoXcgg">
-                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastSymbolSource="VL.ImGUI.Nodes">
+              <Node Bounds="208,297,185,19" Id="LDuDpBvvItvQKMV7uoXcgg">
+                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastDependency="VL.ImGUI.Nodes">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessNode" Name="Drag (Vector2)" />
                   <CategoryReference Kind="Category" Name="Widgets" NeedsToBeDirectParent="true" />
                 </p:NodeReference>
+                <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
                 <Pin Id="HCTfTBfHvf1LynHWIEZxGg" Name="Context" Kind="InputPin" />
                 <Pin Id="VOXOBBnDdJ0MZwiEIs74UX" Name="Channel" Kind="InputPin" />
                 <Pin Id="TRsf8ow3bx1NTIKYBDyVPq" Name="Label" Kind="InputPin" />
@@ -88,22 +97,24 @@
                 <Pin Id="Lnpx1VcGE3yPTs6LRHTox0" Name="Max" Kind="InputPin" />
                 <Pin Id="Jxo0hhYEVrQN06H7qCRCTi" Name="Format" Kind="InputPin" />
                 <Pin Id="HmG5dOhXtRdNRcOGx1ra3V" Name="Flags" Kind="InputPin" DefaultValue="None" />
+                <Pin Id="JKEjYAW7I6ZNeigrxLe53d" Name="Notify While Typing" Kind="InputPin" />
                 <Pin Id="FU8pIhRgmyiNesajrIWNeA" Name="Style" Kind="InputPin" />
                 <Pin Id="TNhdoREqNHVQMpjSfV7p7y" Name="Context" Kind="OutputPin" />
                 <Pin Id="ULjTe2GLejKNHKH6v1W1Vd" Name="Bang" Kind="OutputPin" />
                 <Pin Id="Rr3FcoIv4syPpNs1cquZMc" Name="Value" Kind="OutputPin" />
               </Node>
               <Pad Id="BHLn9IlPwDwNTSlCTNXClQ" Comment="Label" Bounds="250,281,50,15" ShowValueBox="true" isIOBox="true" Value="Vector2">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
               </Pad>
-              <Node Bounds="208,359,165,19" Id="I5KGhLbCbmmOrbzuFcttX8">
-                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastSymbolSource="VL.ImGUI.Nodes">
+              <Node Bounds="208,359,185,19" Id="I5KGhLbCbmmOrbzuFcttX8">
+                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastDependency="VL.ImGUI.Nodes">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessNode" Name="Drag (Vector3)" />
                   <CategoryReference Kind="Category" Name="Widgets" NeedsToBeDirectParent="true" />
                 </p:NodeReference>
+                <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
                 <Pin Id="OxBVPfbMmYrOCJlSG3Gksl" Name="Context" Kind="InputPin" />
                 <Pin Id="NaF3CEFDRmZNwW9bTiHZPQ" Name="Channel" Kind="InputPin" />
                 <Pin Id="Llf57ZLCmlAPdYu0owMj4t" Name="Label" Kind="InputPin" />
@@ -112,22 +123,24 @@
                 <Pin Id="ANqIU05KtYGN6jfryglErE" Name="Max" Kind="InputPin" />
                 <Pin Id="KIH21xDDzugQK9mRKQZP9b" Name="Format" Kind="InputPin" />
                 <Pin Id="MJ0bMrjlIIMNRzf3i1zyhX" Name="Flags" Kind="InputPin" />
+                <Pin Id="IfTV7aHcCoHPQWnXsC5LzW" Name="Notify While Typing" Kind="InputPin" />
                 <Pin Id="KeEtiqNre8WMmzNAZATQDT" Name="Style" Kind="InputPin" />
                 <Pin Id="SfdDtFxIBFYMDN7uY7mRri" Name="Context" Kind="OutputPin" />
                 <Pin Id="AaVDoHkxpZ2LEpfGorcOlw" Name="Bang" Kind="OutputPin" />
                 <Pin Id="FoA1uDyKsVLOnZT6rznxre" Name="Value" Kind="OutputPin" />
               </Node>
               <Pad Id="Suc1rm7tsgLMXiYrZIs9RJ" Comment="Label" Bounds="250,344,49,15" ShowValueBox="true" isIOBox="true" Value="Vector3">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
               </Pad>
-              <Node Bounds="208,411,165,19" Id="QtF8hfNHxfJOm3dApq7U8f">
-                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastSymbolSource="VL.ImGUI.Nodes">
+              <Node Bounds="208,411,185,19" Id="QtF8hfNHxfJOm3dApq7U8f">
+                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastDependency="VL.ImGUI.Nodes">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessNode" Name="Drag (Vector4)" />
                   <CategoryReference Kind="Category" Name="Widgets" NeedsToBeDirectParent="true" />
                 </p:NodeReference>
+                <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
                 <Pin Id="Ow2D0pmFZRsOzBQDLAH7bb" Name="Context" Kind="InputPin" />
                 <Pin Id="HMTWD4YLpj7O4mnMyaaXKC" Name="Channel" Kind="InputPin" />
                 <Pin Id="UqwEtUkOjp4MiVGsRa1IXF" Name="Label" Kind="InputPin" />
@@ -136,30 +149,28 @@
                 <Pin Id="N1Vjys9Y6LkPyk0k1HmefE" Name="Max" Kind="InputPin" />
                 <Pin Id="DNy33lzB5v6LJ1GSC3W9p8" Name="Format" Kind="InputPin" />
                 <Pin Id="OFGHKk3kV6XPMsxIWoFmGF" Name="Flags" Kind="InputPin" />
+                <Pin Id="EgeywK1yWzbNWjKadu9IHo" Name="Notify While Typing" Kind="InputPin" />
                 <Pin Id="HOH6ztTvp9KO6kbIY6Zx1s" Name="Style" Kind="InputPin" />
                 <Pin Id="SUtkZoSpAuTQQZ1faJwGlQ" Name="Context" Kind="OutputPin" />
                 <Pin Id="JOp7aYATVvlM1gJyPENL4C" Name="Bang" Kind="OutputPin" />
                 <Pin Id="ScZcMTB2rnqN8tc990fZL4" Name="Value" Kind="OutputPin" />
               </Node>
               <Pad Id="LfxPJL1HmVaNJo6MrEkeix" Comment="Label" Bounds="250,397,51,15" ShowValueBox="true" isIOBox="true" Value="Vector4">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="AbgzxgdRO15Mh24JRElK4u" Comment="Speed" Bounds="268,166,35,15" ShowValueBox="true" isIOBox="true" Value="0.1">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="Float32" />
                 </p:TypeAnnotation>
               </Pad>
               <Pad Id="GOOwY6tYKBRO7MxkEotm4c" Comment="" Bounds="370,257,35,15" ShowValueBox="true" isIOBox="true" />
               <Pad Id="MwcpZ9UnXHZOcV40JS5F8K" Comment="" Bounds="370,452,35,57" ShowValueBox="true" isIOBox="true" />
             </Patch>
-            <Pin Id="GxBC24vS73xP5oGNgjarHK" Name="Docking Enabled" Kind="InputPin" />
-            <Pin Id="GuOQsPqu8IfL4ym8C9FhWe" Name="Use Skia Space" Kind="InputPin" />
-            <Pin Id="VhzAjRGcrzlPCmupzmZiOT" Name="Output" Kind="OutputPin" />
           </Node>
           <Pad Id="NuKQMJc3NM9MhuuGOGc2r8" Bounds="437,123,186,19" ShowValueBox="true" isIOBox="true" Value="Click and drag in the field &gt;&gt;">
-            <p:TypeAnnotation>
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>

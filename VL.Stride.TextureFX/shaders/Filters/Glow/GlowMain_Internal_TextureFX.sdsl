@@ -1,0 +1,28 @@
+﻿[Category("Filter")]
+[Summary("")]
+[WantsMips("Texture0, Texture1")]
+shader GlowMain_Internal_TextureFX : GlowBase
+{
+    float4 GlowPass(float highlightBoost)
+    {
+        float2 R = ViewSize;
+        float2 uv = streams.TexCoord;
+        float lod = log2(max(R.x,R.y));
+        float4 s = Texture1.Sample(Sampler1, uv);
+        float4 g = 0;
+        float maxRadius = MaxRadius.Compute();
+        for(float i=0; i<min(lod - (1 - maxRadius * lod), 14); i++){
+            g += pow(max(0, float4(Texture0.SampleLevel(Sampler0, uv + r2dlocal((uv * R) % 4 - 1.5, i *.25 +.125) / R *.5 * pow(2, i), i + 1).rgb, 1) * pow(2, i*Shape.Compute() - lod + 1)), .8) * saturate(maxRadius * lod - i + 1);
+        }
+        g.rgb /= g.a;
+        //g.rgb /= tex2Dlod(s0, float4(uv, 0, 33)).a;
+        float srcAvg = length(Texture1.SampleLevel(Sampler1, uv, 33).rgb);
+        float srcMax = pow(max(0, Texture0.SampleLevel(Sampler0, uv, 33).a), 1. / PW0);
+        //g.rgb *= srcAvg / srcMax;
+        g.rgb *= Amount.Compute();
+        float4 c = 0;
+        c.rgb = g.rgb;
+        c.a = pow(length(g.rgb + safenormalize(s.rgb) * sqrt(2) * pow(length(s.rgb) / sqrt(2), PreGamma(highlightBoost))), PW);
+        return c;
+    }
+};

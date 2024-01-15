@@ -77,7 +77,8 @@ namespace VL.Skia.Egl
 
 		public const int EGL_RENDERABLE_TYPE = 0x3040;
 		public const int EGL_OPENGL_ES2_BIT = 0x0004;
-		public const int EGL_SURFACE_TYPE = 0x3033;
+        public const int EGL_OPENGL_ES3_BIT = 0x00000040;
+        public const int EGL_SURFACE_TYPE = 0x3033;
 		public const int EGL_PBUFFER_BIT = 0x0001;
 		public const int EGL_WINDOW_BIT = 0x0004;
         public const int EGL_SWAP_BEHAVIOR_PRESERVED_BIT = 0x0400;
@@ -91,7 +92,7 @@ namespace VL.Skia.Egl
 
 		// ANGLE
 		public const int EGL_EXPERIMENTAL_PRESENT_PATH_ANGLE = 0x33A4;
-		public const int EGL_EXPERIMENTAL_PRESENT_PATH_FAST_ANGLE = 0x33AA;
+		public const int EGL_EXPERIMENTAL_PRESENT_PATH_FAST_ANGLE = 0x33A9;
 		public const int EGL_EXPERIMENTAL_PRESENT_PATH_COPY_ANGLE = 0x33AA;
 
 		public const int EGL_PLATFORM_ANGLE_TYPE_ANGLE = 0x3203;
@@ -110,7 +111,8 @@ namespace VL.Skia.Egl
 		public const int EGL_PLATFORM_ANGLE_DEVICE_TYPE_D3D_REFERENCE_ANGLE = 0x320C;
 		public const int EGL_PLATFORM_ANGLE_ENABLE_AUTOMATIC_TRIM_ANGLE = 0x320F;
 
-		public const int EGL_FIXED_SIZE_ANGLE = 0x3201;
+        public const int EGL_DIRECT_COMPOSITION_ANGLE = 0x33A5;
+        public const int EGL_FIXED_SIZE_ANGLE = 0x3201;
 
 		public const string EGLNativeWindowTypeProperty = "EGLNativeWindowTypeProperty";
 		public const string EGLRenderSurfaceSizeProperty = "EGLRenderSurfaceSizeProperty";
@@ -127,9 +129,9 @@ namespace VL.Skia.Egl
 		[DllImport(libEGL)]
 		public static extern EGLContext eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern EGLSurface eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, [MarshalAs(UnmanagedType.IInspectable)] EGLNativeWindowType win, int[] attrib_list);
+		public static extern EGLSurface eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, IntPtr win, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern EGLSurface eglCreatePlatformWindowSurface(EGLDisplay dpy, EGLConfig config, IntPtr native_window, int[] attrib_list);
+		public static extern EGLSurface eglCreatePlatformWindowSurface(EGLDisplay dpy, EGLConfig config, IntPtr native_window, nint[] attrib_list);
 		[DllImport(libEGL)]
 		public static extern EGLSync eglCreateSync(EGLDisplay display, int type, int[] attrib_list);
 		[DllImport(libEGL)]

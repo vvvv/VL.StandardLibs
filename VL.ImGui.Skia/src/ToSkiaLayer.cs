@@ -54,6 +54,7 @@ namespace VL.ImGui
         CallerInfo? _lastCallerInfo;
         ImDrawDataPtr _drawDataPtr;
         bool _readyToBeDrawn;
+        WidgetLabel widgetLabel = new();
 
         public unsafe ToSkiaLayer()
         {
@@ -72,7 +73,7 @@ namespace VL.ImGui
             }
         }
 
-        public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig> fonts)
+        public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig> fonts, IStyle? Style)
         {
             if (_lastCallerInfo is null)
                 return this;
@@ -96,13 +97,14 @@ namespace VL.ImGui
                 _context.NewFrame();
                 try
                 {
+                    using var _ = _context.ApplyStyle(Style);
+
                     if (DefaultWindow)
                     {
                         var viewPort = ImGui.GetMainViewport();
                         ImGui.SetNextWindowPos(viewPort.WorkPos);
                         ImGui.SetNextWindowSize(viewPort.WorkSize);
-
-                        ImGui.Begin(Context.GetLabel(this, null),
+                        ImGui.Begin(widgetLabel.Update(null),
                             ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
                             ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
                             ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |
@@ -202,12 +204,13 @@ namespace VL.ImGui
                     SizePixels = size,
                     FontDataOwnedByAtlas = 0,
                     EllipsisChar = unchecked((ushort)-1),
-                    OversampleH = 1,
+                    OversampleH = 2,
                     OversampleV = 1,
                     PixelSnapH = 1,
                     GlyphOffset = new Vector2(0, 0),
                     GlyphMaxAdvanceX = float.MaxValue,
-                    RasterizerMultiply = 1.0f
+                    RasterizerMultiply = 1.0f,
+                    RasterizerDensity = 1.0f
                 };
 
                 unsafe
@@ -308,7 +311,7 @@ namespace VL.ImGui
 
                 for (int i = 0; i < drawData.CmdListsCount; ++i)
                 {
-                    var drawList = drawData.CmdListsRange[i];
+                    var drawList = drawData.CmdLists[i];
 
                     // De-interleave all vertex data (sigh), convert to Skia types
                     //pos.Clear(); uv.Clear(); color.Clear();
@@ -455,15 +458,13 @@ namespace VL.ImGui
         {
             using (_context.MakeCurrent())
             {
-                if (notification is NotificationBase n)
-                {
-                    _io.KeyAlt = n.AltKey;
-                    _io.KeyCtrl = n.CtrlKey;
-                    _io.KeyShift = n.ShiftKey;
-                }
-
                 if (notification is KeyNotification keyNotification)
                 {
+                    // Submit modifiers, see https://github.com/ocornut/imgui/blob/master/backends/imgui_impl_win32.cpp#L620
+                    _io.AddKeyEvent(ImGuiKey.ModCtrl, keyNotification.CtrlKey);
+                    _io.AddKeyEvent(ImGuiKey.ModShift, keyNotification.ShiftKey);
+                    _io.AddKeyEvent(ImGuiKey.ModAlt, keyNotification.AltKey);
+
                     if (keyNotification is KeyCodeNotification keyCodeNotification)
                     {
                         _io.AddKeyEvent(ToImGuiKey(keyCodeNotification.KeyCode), keyCodeNotification.IsKeyDown);
@@ -510,7 +511,6 @@ namespace VL.ImGui
                                 _io.AddMouseWheelEvent(hWheel.WheelDelta / 120, 0);
                             break;
                         case MouseNotificationKind.DeviceLost:
-                            _io.ClearInputCharacters();
                             _io.ClearInputKeys();
                             break;
                         default:
@@ -524,7 +524,8 @@ namespace VL.ImGui
 
                 foreach (var layer in _context.Layers)
                 {
-                    layer.Notify(notification, caller);
+                    if (layer.Notify(notification, caller))
+                        return true;
                 }
 
                 return false;
@@ -630,6 +631,20 @@ namespace VL.ImGui
                 case Keys.F10: return ImGuiKey.F10;
                 case Keys.F11: return ImGuiKey.F11;
                 case Keys.F12: return ImGuiKey.F12;
+                case Keys.F13: return ImGuiKey.F13;
+                case Keys.F14: return ImGuiKey.F14;
+                case Keys.F15: return ImGuiKey.F15;
+                case Keys.F16: return ImGuiKey.F16;
+                case Keys.F17: return ImGuiKey.F17;
+                case Keys.F18: return ImGuiKey.F18;
+                case Keys.F19: return ImGuiKey.F19;
+                case Keys.F20: return ImGuiKey.F20;
+                case Keys.F21: return ImGuiKey.F21;
+                case Keys.F22: return ImGuiKey.F22;
+                case Keys.F23: return ImGuiKey.F23;
+                case Keys.F24: return ImGuiKey.F24;
+                case Keys.BrowserBack: return ImGuiKey.AppBack;
+                case Keys.BrowserForward: return ImGuiKey.AppForward;
                 case Keys.NumLock: return ImGuiKey.NumLock;
                 case Keys.Scroll: return ImGuiKey.ScrollLock;
                 case Keys.LShiftKey: return ImGuiKey.LeftShift;

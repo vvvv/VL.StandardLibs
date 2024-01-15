@@ -1,0 +1,97 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/Metallica.tfx
+
+[Category("Filter")]
+[Summary("")]
+[WantsMips("Texture0")]
+shader Metallica_TextureFX : FilterBase
+{
+    [Default(0.60f, 0.99f, 0.96f, 1.0f)]
+    compose ComputeColor ColorA;
+
+    [Default(0.57f, 0.41f, 0.07f, 1.0f)]
+    compose ComputeColor ColorB;
+    
+    [Default(0.0f, 0.0f)]
+    compose ComputeFloat2 Angle;
+    [Default(1.0f, 1.0f)]
+    compose ComputeFloat2 BumpAmount;
+    [Default(0.0f, 0.0f)]
+    compose ComputeFloat2 BumpGamma;
+    [Default(0.0f, 0.0f)]
+    compose ComputeFloat2 Brightness;
+
+    [Default(1)]
+    compose ComputeFloat Emboss;
+
+    [Default(0)]
+    compose ComputeFloat Shape;
+
+    [Default(1)]
+    compose ComputeFloat MaxRadius;
+
+    float mx(float3 p)
+    {
+        return max(p.x, max(p.y, p.z));
+    }
+
+    //different implementation than in Effects/Common/ShaderUtils.sdsl
+    override float2 r2d(float2 x, float a)
+    {
+        a *= acos(-1)*2;
+        
+        return float2(cos(a)*x.x + sin(a)*x.y, cos(a)*x.y - sin(a)*x.x);
+    }
+
+    #define gam(x,y) sign(x)*pow(abs(x),(y))
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float2 R = ViewSize;
+    
+        float4 col = 0;
+        float lod = log2(max(R.x, R.y));
+        float kk = 0;
+        float maxRadius = MaxRadius.Compute();
+
+        for (float i=0; i<min(lod-(1-maxRadius*lod), 14); i++)
+        {
+            float2 off = pow(2,i)/max(R.x,R.y);
+            off *= 0.5;
+            
+            float k = 1./pow(2, i*Shape.Compute() - lod)*saturate(maxRadius*lod - i);
+
+            float dx = (mx(Texture0.SampleLevel(Sampler0, uv - off*float2(1 ,0), i).xyz) - mx(Texture0.SampleLevel(Sampler0, uv + off*float2(1, 0),i).xyz));
+            float dy = (mx(Texture0.SampleLevel(Sampler0, uv - off*float2(0, 1), i).xyz) - mx(Texture0.SampleLevel(Sampler0, uv + off*float2(0,1),i).xyz));
+
+            col.xy += float2(dx, dy) * sqrt(R.x/R) * k;
+            col.z += length(float2(dx, dy) * k);
+            
+            kk += k;
+        }
+
+        col.xy /= pow(abs(col.z)*.1, .3)/.1 + .00000001;
+
+        float dd = Emboss.Compute()/pow(abs(kk), .7)*8;
+
+        col.z = pow(saturate(1-dd*length(col.xy)), .5);
+        col.xy = col.xy*dd;
+
+        float2 dir = col.xy;
+        col = 0;
+        
+        dir = gam(dir, pow(2, BumpGamma.Compute()*sqrt(smoothstep(0, 1, 1*abs(dir)))))/2;
+
+        float2 brightness = Brightness.Compute();
+        float2 bumpAmount = BumpAmount.Compute();
+        float2 angle = Angle.Compute();
+
+        col += lerp(ColorA.Compute() * pow(2, brightness.x), 0, r2d(dir, angle.x).x * bumpAmount.x + .5);
+        col += lerp(ColorB.Compute() * pow(2, brightness.y), 0, r2d(dir, angle.y + .25).x * bumpAmount.y + .5)*(1 - abs(r2d(dir, angle.x).x));
+
+        col.a = Texture0.SampleLevel(Sampler0, uv, 0).a;
+
+        return col;
+    }
+};

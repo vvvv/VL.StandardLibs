@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using VL.Core;
 using VL.Lib.Collections;
 
@@ -201,6 +202,11 @@ namespace System.Collections.Generic
                 array = _array;
                 return true;
             }
+            else if (sequence is ArraySegment<T> arraySegment)
+            {
+                array = arraySegment.Array;
+                return true;
+            }
             else if (sequence is Spread<T> spread)
             {
                 array = spread.GetInternalArray();
@@ -236,6 +242,11 @@ namespace System.Collections.Generic
                 segment = new ArraySegment<T>(_array);
                 return true;
             }
+            else if (sequence is ArraySegment<T> arraySegment)
+            {
+                segment = arraySegment;
+                return true;
+            }
             else if (sequence is ImmutableArray<T> immutableArray)
             {
                 segment = new ArraySegment<T>(Unsafe.As<ImmutableArray<T>, T[]>(ref immutableArray));
@@ -266,6 +277,11 @@ namespace System.Collections.Generic
             else if (sequence is T[] array)
             {
                 memory = array.AsMemory();
+                return true;
+            }
+            else if (sequence is ArraySegment<T> segment)
+            {
+                memory = segment;
                 return true;
             }
             else if (sequence is ImmutableArray<T> immutableArray)
@@ -310,6 +326,11 @@ namespace System.Collections.Generic
             else if (sequence is T[] array)
             {
                 span = array.AsSpan();
+                return true;
+            }
+            else if (sequence is ArraySegment<T> arraySegment)
+            {
+                span = arraySegment;
                 return true;
             }
             else if (sequence is ImmutableArray<T> immutableArray)
@@ -497,6 +518,21 @@ namespace System.Collections.Generic
         public static bool Contains(this string source, string value, StringComparison comparisonType)
         {
             return source != null && source.IndexOf(value, comparisonType) >= 0;
+        }
+
+        // https://stackoverflow.com/questions/188892/glob-pattern-matching-in-net
+        /// <summary>
+        /// Compares the string against a given pattern.
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <param name="pattern">The pattern to match, where "*" means any sequence of characters, and "?" means any single character.</param>
+        /// <returns><c>true</c> if the string matches the given pattern; otherwise <c>false</c>.</returns>
+        public static bool Like(this string str, string pattern)
+        {
+            return new Regex(
+                "^" + Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".") + "$",
+                RegexOptions.IgnoreCase | RegexOptions.Singleline
+            ).IsMatch(str);
         }
     }
 
@@ -708,10 +744,16 @@ namespace System
 
     public static class DisposableExtensions
     {
-        public static T DisposeBy<T>(this T service, ICollection<IDisposable> container) where T : IDisposable
+        public static T DisposeBy<T>(this T component, ICollection<IDisposable> container) where T : IDisposable
         {
-            container.Add(service);
-            return service;
+            container.Add(component);
+            return component;
+        }
+
+        public static T DisposeBy<T>(this T component, AppHost appHost) where T : IDisposable
+        {
+            appHost.TakeOwnership(component);
+            return component;
         }
     }
 }

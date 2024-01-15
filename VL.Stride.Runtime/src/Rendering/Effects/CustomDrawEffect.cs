@@ -35,6 +35,8 @@ namespace VL.Stride.Rendering
 
         public Action<ParameterCollection, RenderView, RenderDrawContext> ParameterSetter { get; set; }
 
+        public IVLPin<Matrix> WorldIn { get; set; }
+
         public void Dispose()
         {
             Subscriptions.Dispose();
@@ -53,9 +55,9 @@ namespace VL.Stride.Rendering
                 parameters.SetPerFrameParameters(perFrameParams, renderDrawContext.RenderContext);
 
                 var parentTransformation = renderDrawContext.RenderContext.Tags.Get(EntityRendererRenderFeature.CurrentParentTransformation);
-                if (parameters.ContainsKey(TransformationKeys.World))
+                if (WorldIn != null)
                 {
-                    var world = parameters.Get(TransformationKeys.World);
+                    var world = WorldIn.Value;
                     Matrix.Multiply(ref world, ref parentTransformation, out var result);
                     parameters.SetPerDrawParameters(perDrawParams, renderView, ref result);
                 }

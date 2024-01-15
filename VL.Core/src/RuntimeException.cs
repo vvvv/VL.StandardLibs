@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Disposables;
+using Microsoft.Extensions.Logging;
 
 namespace VL.Core
 {
@@ -12,6 +13,7 @@ namespace VL.Core
         {
             Original = inner.Original;
             Instance = instance;
+            NodeContext = instance.Context;
         }
 
         public RuntimeException(Exception original, IVLObject instance)
@@ -19,6 +21,14 @@ namespace VL.Core
         {
             Original = original;
             Instance = instance;
+            NodeContext = instance.Context;
+        }
+
+        public RuntimeException(Exception original, NodeContext nodeContext)
+            : base(original.Message, original)
+        {
+            Original = original;
+            NodeContext = nodeContext;
         }
 
         public static RuntimeException Create(Exception e, IVLObject instance)
@@ -34,6 +44,7 @@ namespace VL.Core
 
         public Exception Original { get; private set; }
         public IVLObject Instance { get; }
+        public NodeContext NodeContext { get; }
 
         public void AddValue(uint id, object value)
         {
@@ -53,13 +64,14 @@ namespace VL.Core
         [ThreadStatic]
         static int Shielded;
 
-        public RuntimeCommand RuntimeCommand { get; set; }
+        public RuntimeCommand RuntimeCommand { get; }
 
-        public RuntimeCommandException(string message) 
+        public RuntimeCommandException(string message, RuntimeCommand command) 
             : base(message)
         {
             HasBeenThrownAlready = true;
             Latest = this;
+            RuntimeCommand = command;
         }
 
         public static void Reset()
@@ -71,8 +83,8 @@ namespace VL.Core
         internal static void Complain(string exceptionMessage, RuntimeCommand runtimeCommand)
         {
             if (Shielded != 0) return;
-            Console.WriteLine(exceptionMessage);
-            throw new RuntimeCommandException(exceptionMessage) { RuntimeCommand = runtimeCommand };
+            AppHost.Global.DefaultLogger.LogError(exceptionMessage);
+            throw new RuntimeCommandException(exceptionMessage, runtimeCommand);
         }
 
         internal static void BeginShield()

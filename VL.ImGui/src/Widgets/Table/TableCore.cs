@@ -25,14 +25,17 @@ namespace VL.ImGui.Widgets
 
         internal override void UpdateCore(Context context)
         {
-            if (ImGuiNET.ImGui.BeginTable(Context.GetLabel(this, Label), Math.Max(1, Count), Flags, Size.FromHectoToImGui(), InnerWidth))
+            if (ImGuiNET.ImGui.BeginTable(widgetLabel.Update(Label), Math.Max(1, Count), Flags, Size.FromHectoToImGui(), InnerWidth))
             {
+                var isInBeginTables = context.IsInBeginTables;
+                context.IsInBeginTables = true;
                 try
                 {
-                    context?.Update(Content);
+                    context.Update(Content);
                 }
                 finally
                 {
+                    context.IsInBeginTables = isInBeginTables;
                     ImGuiNET.ImGui.EndTable();
                 }
             }

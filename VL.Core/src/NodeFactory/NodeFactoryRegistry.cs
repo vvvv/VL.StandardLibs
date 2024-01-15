@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace VL.Core
 {
@@ -30,5 +32,25 @@ namespace VL.Core
             }
         }
         Dictionary<string, IVLNodeDescriptionFactory> factoriesById;
+
+        public IVLNode CreateNode(NodeContext context, string name, string category)
+        {
+            var nodeDesc = GetNodeDescription(name, category);
+            if (nodeDesc is null)
+                throw new ArgumentException($"Node \"{name} [{category}]\" not found.");
+
+            return nodeDesc.CreateInstance(context);
+        }
+
+        public IVLNodeDescription GetNodeDescription(string name, string category)
+        {
+            foreach (var nodeFactory in Factories)
+            {
+                var nodeDesc = nodeFactory.NodeDescriptions.FirstOrDefault(d => d.Name == name && d.Category == category);
+                if (nodeDesc != null)
+                    return nodeDesc;
+            }
+            return null;
+        }
     }
 }

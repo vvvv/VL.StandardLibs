@@ -3,6 +3,7 @@ using VL.Core.CompilerServices;
 using VL.Lib.Basics.Resources;
 using SkiaSharp;
 using System.Collections.Immutable;
+using System;
 
 [assembly: AssemblyInitializer(typeof(VL.Skia.Initialization))]
 
@@ -10,13 +11,13 @@ namespace VL.Skia
 {
     public sealed class Initialization : AssemblyInitializer<Initialization>
     {
-        protected override void RegisterServices(IVLFactory factory)
+        public override void Configure(AppHost appHost)
         {
-            ServiceRegistry.Current.RegisterService<IRefCounter<SKImage>>(SKObjectRefCounter.Default);
-            ServiceRegistry.Current.RegisterService<IRefCounter<SKPicture>>(SKObjectRefCounter.Default);
+            appHost.Services.RegisterService<IRefCounter<SKImage>>(SKObjectRefCounter.Default);
+            appHost.Services.RegisterService<IRefCounter<SKPicture>>(SKObjectRefCounter.Default);
 
             // Using the node factory API allows us to keep thing internal
-            factory.RegisterNodeFactory("VL.Skia.Nodes", f =>
+            appHost.RegisterNodeFactory("VL.Skia.Nodes", f =>
             {
                 var graphicsContextNode = f.NewNodeDescription(
                     name: nameof(GRContext),
@@ -40,6 +41,8 @@ namespace VL.Skia
                 });
                 return NodeBuilding.NewFactoryImpl(ImmutableArray.Create(graphicsContextNode));
             });
+
+            appHost.Factory.RegisterSerializer<SKTypeface, SKTypefaceSerializer>(new SKTypefaceSerializer());
         }
 
         sealed class SKObjectRefCounter : IRefCounter<SKObject>
@@ -63,6 +66,42 @@ namespace VL.Skia
             public void Release(SKObject resource)
             {
                 resource?.Release();
+            }
+        }
+
+        sealed class SKTypefaceSerializer : ISerializer<SKTypeface>
+        {
+            public SKTypeface Deserialize(SerializationContext context, object content, Type type)
+            {
+                if (content is null)
+                    return SKTypeface.Default;
+
+                try
+                {
+                    return SKTypeface.FromFamilyName(
+                        context.Deserialize<string>(content, nameof(SKTypeface.FromFamilyName)),
+                        context.Deserialize<int>(content, nameof(SKTypeface.FontWeight)),
+                        context.Deserialize<int>(content, nameof(SKTypeface.FontWidth)),
+                        context.Deserialize<SKFontStyleSlant>(content, nameof(SKTypeface.FontSlant)));
+                }
+                catch
+                {
+                    return SKTypeface.Default;
+                }
+            }
+
+            public object Serialize(SerializationContext context, SKTypeface value)
+            {
+                if (value is null || value == SKTypeface.Default)
+                    return null;
+
+                return new object[]
+                {
+                    context.Serialize(nameof(SKTypeface.FamilyName), value.FamilyName),
+                    context.Serialize(nameof(SKTypeface.FontWeight), value.FontWeight),
+                    context.Serialize(nameof(SKTypeface.FontWidth), value.FontWidth),
+                    context.Serialize(nameof(SKTypeface.FontSlant), value.FontSlant),
+                };
             }
         }
     }

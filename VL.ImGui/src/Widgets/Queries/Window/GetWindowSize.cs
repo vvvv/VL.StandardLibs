@@ -6,7 +6,7 @@ namespace VL.ImGui.Widgets
     /// Get current window size
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries")]
-    internal partial class GetWindowSize : Widget
+    internal partial class GetWindowSize : Query
     {
 
         public Vector2 Value { get; private set; }

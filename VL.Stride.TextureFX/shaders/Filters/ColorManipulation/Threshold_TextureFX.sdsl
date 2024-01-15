@@ -1,0 +1,32 @@
+﻿[Category("Filter")]
+[Summary("")]
+shader Threshold_TextureFX : FilterBase
+{
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor OutputColorA;
+
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor OutputColorB;
+    
+    [Default(0.5)]
+    compose ComputeFloat Threshold;
+
+    [Default(0.02)]
+    compose ComputeFloat Smooth;
+
+    bool Invert;
+    bool Antialiasing;
+
+    float4 Filter(float4 tex0col)
+    {
+        float4 c = tex0col;
+        float f = c.r;
+        float th = (Threshold.Compute() - 0.5) * 1.001 + 0.5;
+        float fmth = f-th;
+        f = fmth / max(0.00000001 + fwidth(fmth) * Antialiasing, Smooth.Compute()) + th;
+        if (Invert)
+            f = 1-f;
+        c = lerp(OutputColorA.Compute(), OutputColorB.Compute(), saturate(f));
+        return c;
+    }
+};

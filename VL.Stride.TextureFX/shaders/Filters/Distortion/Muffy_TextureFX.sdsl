@@ -1,0 +1,30 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/Muffy.tfx
+
+[Category("Filter")]
+[Summary("")]
+shader Muffy_TextureFX : FilterBase
+{
+    [Default(2)]
+    compose ComputeFloat RingAmount;
+    
+    [Default(0.5, 0.5)]
+    compose ComputeFloat2 RingSize;
+
+    //there seems to be no pre-defined Sampler with Mirror
+    SamplerState s0
+    {
+         Filter = MIN_MAG_MIP_LINEAR;
+         AddressU = MIRROR;
+         AddressV = MIRROR;
+    };
+  
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float ringAmount = RingAmount.Compute();
+        float2 ringSize = RingSize.Compute();
+    
+        return Texture0.SampleLevel(s0, uv + ((sin(uv * ringSize*10.0)*ringAmount ) * cos (uv)) + (sin(uv * ringSize*10.0)*ringAmount), 0);
+    }
+};

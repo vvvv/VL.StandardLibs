@@ -1,0 +1,29 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/HatchDot.tfx
+
+[Category("Filter")]
+[Summary("")]
+shader Hatch_Dot_TextureFX : FilterBase
+{
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor BackgroundColor;
+
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor HatchColor;
+
+    [Default(10)]
+    compose ComputeFloat Threshold;
+
+    int Density = 12;
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float2 x = uv * ViewSize - 0.5;
+
+        float4 col = Texture0.SampleLevel(Sampler0, uv, 0);
+        col.rgb = sqrt(col.rgb);
+
+        return lerp(HatchColor.Compute(), BackgroundColor.Compute(), any(((x.x*5.0 + x.y) % Density < col.b * Threshold.Compute())) * float4(1, 1, 1, col.a));
+    }
+};

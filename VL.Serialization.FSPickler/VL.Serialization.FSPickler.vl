@@ -1,0 +1,391 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="FlDNYiCFGIPLJgVMSmQnyV" LanguageVersion="2023.5.3-0282-g05bd44a548" Version="0.128">
+  <NugetDependency Id="J211bL5j5U4M79Bb2J68fh" Location="VL.CoreLib" Version="2023.5.3-0183-g3a6e89124d" />
+  <Patch Id="CSerPB3FF9ENTyt8o0lnEa">
+    <Canvas Id="IDAxqZTIoYJPVNRnA3v4tr" DefaultCategory="Serialization.FSPickler" CanvasType="FullCategory">
+      <!--
+
+    ************************ Deserialize (Json Slicewise) ************************
+
+-->
+      <Node Name="Deserialize (Json Slicewise)" Bounds="1065,406,244,172" Id="P2rHi659NG0OGDxRKtHQKG" Summary="Counterpart of Serialize (Json Slicewise)" Remarks="Deserializing JSON that was not generated with the corresponding Serialize node will fail, if the individual attributes are not ordered alphabetically! For details, see: https://thegraybook.vvvv.org/reference/libraries/serialization.html">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+        </p:NodeReference>
+        <Patch Id="SvUUoK6C91uLJWrhw0cK11" IsGeneric="true" ManuallySortedPins="true">
+          <Node Bounds="1122,449,93,82" Id="SLuS5LsYwfpM4qTaVLpw4X">
+            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+              <Choice Kind="ApplicationStatefulRegion" Name="ForEach" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <ControlPoint Id="R4492qb9XFpQQLbJX8oyVw" Bounds="1136,455" Name="" Alignment="Top" />
+            <ControlPoint Id="GLIKp04OAjFPp16ARUxVKL" Bounds="1137,525" Name="Output" Alignment="Bottom" />
+            <Pin Id="CZ879cuMPFTOCzXKeWZFCG" Name="Break" Kind="OutputPin" />
+            <Patch Id="KgPgmKwiyiQMsCkO0VKDoO">
+              <Node Bounds="1137,486,66,19" Id="S3FVxsZ3hXXMrJ0NIdwabE">
+                <p:NodeReference LastCategoryFullName="Serialization.FSPickler" LastDependency="VL.Serialization.FSPickler.vl">
+                  <Choice Kind="OperationNode" Name="Deserialize (Json)" />
+                  <CategoryReference Kind="Category" Name="Serialization" />
+                </p:NodeReference>
+                <Pin Id="CjO5NwYikjGNOIjzVCpbD7" Name="Input" Kind="InputPin" />
+                <Pin Id="RzoaZ0UJoMPP0RE24VslOd" Name="Indent" Kind="InputPin" />
+                <Pin Id="NfITpxhNWfkOHGmuhm70n3" Name="Omit Header" Kind="InputPin" />
+                <Pin Id="JX5t16RAvcvPAw3Mrhq128" Name="Result" Kind="OutputPin" />
+              </Node>
+              <Patch Id="LKtEgNPrqfsMtYdWUTKArI" Name="Create" />
+              <Patch Id="GcFMEuMMwo3L0QhHcOBtRU" Name="Update" ParticipatingElements="S3FVxsZ3hXXMrJ0NIdwabE" IsGeneric="true" />
+              <Patch Id="QKsrBgen6UnPal9gLqj8oH" Name="Dispose" />
+            </Patch>
+          </Node>
+          <ControlPoint Id="LDCGMnDSTdzLCpys8bTllq" Bounds="1130,424" />
+          <ControlPoint Id="SLptx8FQJVEL6gFkdsdRI6" Bounds="1136,559" />
+          <Link Id="IkhcRpk86syNdKK5kosSPx" Ids="GLIKp04OAjFPp16ARUxVKL,SLptx8FQJVEL6gFkdsdRI6" />
+          <Link Id="MuRRaUrrRdkPBUW5I9OyL5" Ids="JX5t16RAvcvPAw3Mrhq128,GLIKp04OAjFPp16ARUxVKL" />
+          <Link Id="FooZqf6WFuBOIwZ0wQkQ4s" Ids="AaVqvMWGt2JMLfglHwTPCe,LDCGMnDSTdzLCpys8bTllq" IsHidden="true" />
+          <Link Id="IGUPG4EsFy0PxU1XZUUIb7" Ids="SLptx8FQJVEL6gFkdsdRI6,T2Rw0J70BWEP2vMxeEjjIp" IsHidden="true" />
+          <Link Id="L8O0a7hZX3qLuwkKD35UAh" Ids="LDCGMnDSTdzLCpys8bTllq,R4492qb9XFpQQLbJX8oyVw" />
+          <Link Id="ObEcBLlfCU0QAVzCOJIc4t" Ids="TIzsswWzNqlP2tsKnr1zsU,RzoaZ0UJoMPP0RE24VslOd" />
+          <ControlPoint Id="TIzsswWzNqlP2tsKnr1zsU" Bounds="1227,449" />
+          <Link Id="Nhjbfv7C0ScOcx3FgBKLQW" Ids="GPCuPndxyu4MCgp4ESDaSH,TIzsswWzNqlP2tsKnr1zsU" IsHidden="true" />
+          <Link Id="TjTM4kr5lBIM1botFx9F5m" Ids="D2Ay9mN5ttiQNRcrpP3MQ3,NfITpxhNWfkOHGmuhm70n3" />
+          <ControlPoint Id="D2Ay9mN5ttiQNRcrpP3MQ3" Bounds="1228,475" />
+          <Link Id="VhmDmfCu7ztOWmV5lseZ5z" Ids="Nd5HoZUlQngOBmrJY5Ptui,D2Ay9mN5ttiQNRcrpP3MQ3" IsHidden="true" />
+          <Pin Id="AaVqvMWGt2JMLfglHwTPCe" Name="Input" Kind="InputPin" />
+          <Pin Id="GPCuPndxyu4MCgp4ESDaSH" Name="Indent" Kind="InputPin" />
+          <Pin Id="Nd5HoZUlQngOBmrJY5Ptui" Name="Omit Header" Kind="InputPin" />
+          <Pin Id="T2Rw0J70BWEP2vMxeEjjIp" Name="Result" Kind="OutputPin" />
+          <Link Id="U7BxWcYkyntQKvOkU9gfbA" Ids="R4492qb9XFpQQLbJX8oyVw,CjO5NwYikjGNOIjzVCpbD7" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Deserialize (Json) ************************
+
+-->
+      <Node Name="Deserialize (Json)" Bounds="773,311,109,83" Id="AV8KwiO5qPmNWa3RsMwtHx" Summary="Counterpart of Serialize (Json)" Remarks="Deserializing JSON that was not generated with the corresponding Serialize node will fail, if the individual attributes are not ordered alphabetically! For details, see: https://thegraybook.vvvv.org/reference/libraries/serialization.html">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="CNT4WZ85wqLNtQVFesm4tw" IsGeneric="true">
+          <Node Bounds="785,346,85,19" AutoConnect="true" Id="RaN3P0BdoPgLHlerVQbwuQ">
+            <p:NodeReference LastCategoryFullName="VL.Serialization.FSPickler.FSPicklerSerialization" LastDependency="VL.Serialization.FSPickler.dll">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationNode" Name="DeserializeJson" />
+            </p:NodeReference>
+            <Pin Id="OowHjDMxzmzMKRq59pTazL" Name="Input" Kind="InputPin" />
+            <Pin Id="SSIUkkKvoIMO6yyZGDZoBt" Name="Indent" Kind="InputPin" />
+            <Pin Id="LAEoIoQvADBQPRfzPR6BmR" Name="Omit Header" Kind="InputPin" />
+            <Pin Id="NEgLgx68B6ZQdhak7a6t2s" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="TeJLKCa1FvaLPQSVnMIGz5" Name="Input" Kind="InputPin" />
+          <Pin Id="NdX3rQAHJ6NMb0ZmvQC3Kd" Name="Indent" Kind="InputPin" />
+          <Pin Id="Hv3qx7MtULSOHOqGTYlGaS" Name="Omit Header" Kind="InputPin" />
+          <Pin Id="LnrPm7UMg63QLrFhO9LT6K" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Deserialize (Xml Slicewise) ************************
+
+-->
+      <Node Name="Deserialize (Xml Slicewise)" Bounds="1066,175,225,178" Id="Sv2xUqMan7tPItnDdd7LOA" Summary="Counterpart of Serialize (Xml Slicewise)" Remarks="Deserializing XML that was not generated with the corresponding Serialize node will fail, if the individual attributes are not ordered alphabetically! For details, see:https://thegraybook.vvvv.org/reference/libraries/serialization.html">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+        </p:NodeReference>
+        <Patch Id="PPoPfNDVzFgObbCVpp9OGn" IsGeneric="true" ManuallySortedPins="true">
+          <Node Bounds="1123,229,95,82" Id="VrN3CjnQLz3Ljn6tv203lv">
+            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+              <Choice Kind="ApplicationStatefulRegion" Name="ForEach" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <ControlPoint Id="JzVftlNTOLQNoPbmeaBLF9" Bounds="1139,235" Name="" Alignment="Top" />
+            <ControlPoint Id="MiIAcJ6VCm3P2QlTLxPktC" Bounds="1137,305" Name="Output" Alignment="Bottom" />
+            <Pin Id="J4iapirp5tZLcXVUuSYMKt" Name="Break" Kind="OutputPin" />
+            <Patch Id="MaGHEPU3hjcL52QH0OhaW4">
+              <Node Bounds="1140,266,66,19" Id="UBIdbrS3TTaQMe4RBgSTEI">
+                <p:NodeReference LastCategoryFullName="Serialization.FSPickler" LastDependency="VL.Serialization.FSPickler.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationNode" Name="Deserialize (Xml)" />
+                  <CategoryReference Kind="Category" Name="Serialization" />
+                </p:NodeReference>
+                <Pin Id="LaaSOOnZXOjM2x2gi9qbWM" Name="Input" Kind="InputPin" />
+                <Pin Id="Ie5kkDzmUiZNjKlk1AlMCQ" Name="Indent" Kind="InputPin" />
+                <Pin Id="OIcyN4kSm86PxeRBHPxd0T" Name="Result" Kind="OutputPin" />
+              </Node>
+              <Patch Id="AOyZWnyEe4cLkXuEL4JRJE" Name="Create" />
+              <Patch Id="VKhGSjNUc8ELHAKBsvesGd" Name="Update" ParticipatingElements="UBIdbrS3TTaQMe4RBgSTEI" IsGeneric="true" />
+              <Patch Id="UfwhTKil9FtPOndtOgdm1t" Name="Dispose" />
+            </Patch>
+          </Node>
+          <ControlPoint Id="NB8MpxpkkEzMogpgLVAoG3" Bounds="1134,193" />
+          <ControlPoint Id="Rj4KzgRreSBN9WVpKGKeiR" Bounds="1136,334" />
+          <Link Id="Mhsxxl0UFzZOegoe9G9ggt" Ids="MiIAcJ6VCm3P2QlTLxPktC,Rj4KzgRreSBN9WVpKGKeiR" />
+          <Link Id="MF2ZWh00id9MvJXkmPQXfe" Ids="OIcyN4kSm86PxeRBHPxd0T,MiIAcJ6VCm3P2QlTLxPktC" />
+          <Link Id="JFTwCWVPx9pMupNG6UtkkW" Ids="UrDo1ODg6oHPFIeOPYCbSo,NB8MpxpkkEzMogpgLVAoG3" IsHidden="true" />
+          <Link Id="Mmq0BIbVV8mNzRBnkmn7hv" Ids="Rj4KzgRreSBN9WVpKGKeiR,DKyztJipbelNqhBq7kW9QL" IsHidden="true" />
+          <Link Id="PsrLpWU5xEPMNgwTa8jOHV" Ids="NB8MpxpkkEzMogpgLVAoG3,JzVftlNTOLQNoPbmeaBLF9" />
+          <Link Id="KvZyIj4vz1FMeXoldk7nRm" Ids="FCwwTIHKl9NOv2PjURD0oR,Ie5kkDzmUiZNjKlk1AlMCQ" />
+          <ControlPoint Id="FCwwTIHKl9NOv2PjURD0oR" Bounds="1239,244" />
+          <Link Id="VLLonPRmIJ4PzLR6uAqNut" Ids="R3efD1D6PhLN0QdA95dmtp,FCwwTIHKl9NOv2PjURD0oR" IsHidden="true" />
+          <Pin Id="UrDo1ODg6oHPFIeOPYCbSo" Name="Input" Kind="InputPin" />
+          <Pin Id="R3efD1D6PhLN0QdA95dmtp" Name="Indent" Kind="InputPin" />
+          <Pin Id="DKyztJipbelNqhBq7kW9QL" Name="Result" Kind="OutputPin" />
+          <Link Id="QhChKgZlAksPPZcI1B2OUo" Ids="JzVftlNTOLQNoPbmeaBLF9,LaaSOOnZXOjM2x2gi9qbWM" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Deserialize (Xml) ************************
+
+-->
+      <Node Name="Deserialize (Xml)" Bounds="770,180,108,83" Id="OADbAqz76HRPglDFA4gEIr" Summary="Counterpart of Serialize (Xml)" Remarks="Deserializing XML that was not generated with the corresponding Serialize node will fail, if the individual attributes are not ordered alphabetically! For details, see: https://thegraybook.vvvv.org/reference/libraries/serialization.html">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="AimUf8UP3mrMbqLXP50sdx" IsGeneric="true">
+          <Node Bounds="782,215,84,19" AutoConnect="true" Id="KwZ4iUmzow4LufPmnGmvnu">
+            <p:NodeReference LastCategoryFullName="VL.Serialization.FSPickler.FSPicklerSerialization" LastDependency="VL.Serialization.FSPickler.dll">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationNode" Name="DeserializeXml" />
+            </p:NodeReference>
+            <Pin Id="TIo83w2i2R6M1AXYkGHo0b" Name="Input" Kind="InputPin" />
+            <Pin Id="LDCkVym1RBOQKyPtRDXAFO" Name="Indent" Kind="InputPin" />
+            <Pin Id="UEgKNy848R7Otr97UtNUKu" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="MJARXxYHu6jMyYhB0xi0Hc" Name="Input" Kind="InputPin" />
+          <Pin Id="VoVgDhJBcPGMgzzAQ9R0oa" Name="Indent" Kind="InputPin" />
+          <Pin Id="Dh3e3g8DkRrMPNBFhaomHR" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Serialize (Binary) ************************
+
+-->
+      <Node Name="Serialize (Binary)" Bounds="162,474,106,83" Id="GgmmRVPnMPWMuDj0xCdjzI" Summary="Easy serialization into a binary format best used for non-persistent, network communication." Remarks="Avoid using for long-term persistence! For details, see: https://thegraybook.vvvv.org/reference/libraries/serialization.html">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="SLmx2lm4tTAPIdSNT7hnQW" IsGeneric="true">
+          <Node Bounds="174,509,82,19" AutoConnect="true" Id="GRrvNiVTgfMP9S7WMIqZCN">
+            <p:NodeReference LastCategoryFullName="VL.Serialization.FSPickler.FSPicklerSerialization" LastDependency="VL.Serialization.FSPickler.dll">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationNode" Name="SerializeBinary" />
+            </p:NodeReference>
+            <Pin Id="GiEGWhzXc1nL7bEdLGrHsV" Name="Input" Kind="InputPin" />
+            <Pin Id="ITl4QlnjykXOTdzmA0URLO" Name="Force Little Endian" Kind="InputPin" />
+            <Pin Id="BTWA61DTB02OHgFBQTgZwO" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="RwIJl9B9PTjP10qmx7Ehrl" Name="Input" Kind="InputPin" />
+          <Pin Id="IreC9j405n2O4oID9dTYVH" Name="Force Little Endian" Kind="InputPin" />
+          <Pin Id="BhgIfzi6DzsQJReSMOGgnm" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Serialize (Json Slicewise) ************************
+
+-->
+      <Node Name="Serialize (Json Slicewise)" Bounds="402,432,231,172" Id="Se5Y0ltDkv7PeuriNBVL6T" Summary="Same as Serialize (Json) but serializes the slices of a sequence individually and returns a spread of Json strings" Remarks="Avoid using for long-term persistence! For details, see: https://thegraybook.vvvv.org/reference/libraries/serialization.html">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+        </p:NodeReference>
+        <Patch Id="IDzN7PkbWAsMWzoTaU9BBb" IsGeneric="true">
+          <ControlPoint Id="DAr1uv6JcJ0ObCQeqKVbis" Bounds="475,450" />
+          <ControlPoint Id="IJdy4MkyuiqOPsvrUb1s3Q" Bounds="474,585" />
+          <Link Id="SPOkeo5NrcpLjELrghLOy0" Ids="DAr1uv6JcJ0ObCQeqKVbis,U2XLfHyNXYKNlLnp5Yg2SA" />
+          <Link Id="AP6sRnttj1YP2E4z9VuRYA" Ids="ETDP2mSamIzPd15UOyDp26,DAr1uv6JcJ0ObCQeqKVbis" IsHidden="true" />
+          <Link Id="QbePWNjVnLSMZvmsPyWjUM" Ids="IJdy4MkyuiqOPsvrUb1s3Q,NvwmjIpWGz6PxJ2iuEDVvI" IsHidden="true" />
+          <Node Bounds="462,480,89,83" Id="RGBiDjdstXzOAIpd05jZum">
+            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+              <Choice Kind="ApplicationStatefulRegion" Name="ForEach" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <ControlPoint Id="U2XLfHyNXYKNlLnp5Yg2SA" Bounds="477,486" Alignment="Top" />
+            <Pin Id="HLbMFGKjeX4LuyvkHdj2qQ" Name="Break" Kind="OutputPin" />
+            <ControlPoint Id="UShFZWE8GoiLco0WDYQgVX" Bounds="476,557" Alignment="Bottom" />
+            <Patch Id="CQZICZnevsCPN8CwpAsp69">
+              <Node Bounds="474,518,65,19" Id="DxmEKQUHcBWNiNu6evAMuL">
+                <p:NodeReference LastCategoryFullName="Serialization.FSPickler" LastDependency="VL.Serialization.FSPickler.vl">
+                  <Choice Kind="OperationNode" Name="Serialize (Json)" />
+                  <CategoryReference Kind="Category" Name="Serialization" />
+                </p:NodeReference>
+                <Pin Id="NzAmIhaxyOcQRvEtgP8Wh7" Name="Input" Kind="InputPin" />
+                <Pin Id="HIoXddQTcqiOIYoDqCIiBI" Name="Indent" Kind="InputPin" />
+                <Pin Id="EvkO5c2Nz0tPDl6mDLJ6RP" Name="Omit Header" Kind="InputPin" />
+                <Pin Id="LfajepvX328ONY4lrxhEV9" Name="Result" Kind="OutputPin" />
+              </Node>
+              <Patch Id="UoqAwlkzMZFL342mkahkSD" Name="Create" />
+              <Patch Id="JALuy7zJg0oPiB8BWed9PH" Name="Update" ParticipatingElements="DxmEKQUHcBWNiNu6evAMuL" IsGeneric="true" />
+              <Patch Id="PFobWVRexIXMzJP2te4A9V" Name="Dispose" />
+            </Patch>
+          </Node>
+          <ControlPoint Id="Vkwa4lNq5zxMDWFekHPTn5" Bounds="551,465" />
+          <Link Id="E3ylrpRrVhkOmTVGF0OM3W" Ids="JTWxQWn2HCsQMB91Aac8AO,Vkwa4lNq5zxMDWFekHPTn5" IsHidden="true" />
+          <ControlPoint Id="FrRsYqsOuCJNJslMvBwzdu" Bounds="552,494" />
+          <Link Id="RI5Bs12YthPOqEGpi9VAUq" Ids="C9SjYhNyEnqNx0N08lERsD,FrRsYqsOuCJNJslMvBwzdu" IsHidden="true" />
+          <Link Id="BaovarGeIhcNIUeaD7DbCs" Ids="Vkwa4lNq5zxMDWFekHPTn5,HIoXddQTcqiOIYoDqCIiBI" />
+          <Link Id="TnU9YZxhVbEP4KBK6GqCFZ" Ids="FrRsYqsOuCJNJslMvBwzdu,EvkO5c2Nz0tPDl6mDLJ6RP" />
+          <Link Id="HJqcc0j2pCjL1SyldMqykd" Ids="LfajepvX328ONY4lrxhEV9,UShFZWE8GoiLco0WDYQgVX" />
+          <Link Id="FHlnJiAAgytQWOxXoI5oO8" Ids="UShFZWE8GoiLco0WDYQgVX,IJdy4MkyuiqOPsvrUb1s3Q" />
+          <Pin Id="ETDP2mSamIzPd15UOyDp26" Name="Input" Kind="InputPin" />
+          <Pin Id="JTWxQWn2HCsQMB91Aac8AO" Name="Indent" Kind="InputPin" />
+          <Pin Id="C9SjYhNyEnqNx0N08lERsD" Name="Omit Header" Kind="InputPin" />
+          <Pin Id="NvwmjIpWGz6PxJ2iuEDVvI" Name="Result" Kind="OutputPin" />
+          <Link Id="G6tzO0JwkAiLJ0QareeY8K" Ids="U2XLfHyNXYKNlLnp5Yg2SA,NzAmIhaxyOcQRvEtgP8Wh7" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Serialize (Json) ************************
+
+-->
+      <Node Name="Serialize (Json)" Bounds="164,330,98,83" Id="C4ogSDptZO4OB0KkdhOLJG" Summary="Easy serialization into a JSON format best used for non-persistent, network communication." Remarks="Avoid using for long-term persistence! For details, see: https://thegraybook.vvvv.org/reference/libraries/serialization.html">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="AGpt4HCcL2qMYiGIZz15Xl" IsGeneric="true">
+          <Node Bounds="176,365,74,19" AutoConnect="true" Id="TuYzjpeMSBlONolwEnZvBh">
+            <p:NodeReference LastCategoryFullName="VL.Serialization.FSPickler.FSPicklerSerialization" LastDependency="VL.Serialization.FSPickler.dll">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationNode" Name="SerializeJson" />
+            </p:NodeReference>
+            <Pin Id="PGza7rZ83SGNee0xPCoreZ" Name="Input" Kind="InputPin" />
+            <Pin Id="Ejnz84oa8ZSLwDLAnlzM8g" Name="Indent" Kind="InputPin" />
+            <Pin Id="UqvGlEKxMqQK9XbZBSI8De" Name="Omit Header" Kind="InputPin" />
+            <Pin Id="C7JFCCKJBVQMdPBX8EgkdZ" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="Ke6d5BZZazdMfT7ttHzMxQ" Name="Input" Kind="InputPin" />
+          <Pin Id="Qu9naYhANIMLo8JezymJ1y" Name="Indent" Kind="InputPin" />
+          <Pin Id="HM3redlyu3jMRPpEp27UbG" Name="Omit Header" Kind="InputPin" />
+          <Pin Id="Rvbd2q8CpI8QHP81LgOJjR" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Serialize (Xml Slicewise) ************************
+
+-->
+      <Node Name="Serialize (Xml Slicewise)" Bounds="400,173,176,184" Id="VnIsmNiWSTXO7kYm5hAjMH" Summary="Same as Serialize (Xml) but serializes the slices of a sequence individually and returns a spread of Xml strings" Remarks="Avoid using for long-term persistence! For details, see: https://thegraybook.vvvv.org/reference/libraries/serialization.html">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+        </p:NodeReference>
+        <Patch Id="UBXY46hScGfO2pATSFfZ31" IsGeneric="true">
+          <ControlPoint Id="LtRqo9GhCCTNn0IGhT70C2" Bounds="474,193" />
+          <ControlPoint Id="PFBACCQcBgmPoE63pneSsy" Bounds="470,338" />
+          <Link Id="ApBLifEfzdKNjABWk59zMf" Ids="LtRqo9GhCCTNn0IGhT70C2,RkmWbabqvLIOP3SFYOy2rz" />
+          <Link Id="LVi9xogCbZeOmFm1AU9nOw" Ids="PfMIXdHUMEoPp6S5GOWRqA,LtRqo9GhCCTNn0IGhT70C2" IsHidden="true" />
+          <Link Id="P22iGZKEjs0NR4UwvBMpYq" Ids="PFBACCQcBgmPoE63pneSsy,P4BPVMyf31wPoAP21NJEqZ" IsHidden="true" />
+          <Node Bounds="459,225,79,88" Id="VP2WDIfAdyMQMNhaM7CYGR">
+            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+              <Choice Kind="ApplicationStatefulRegion" Name="ForEach" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <ControlPoint Id="RkmWbabqvLIOP3SFYOy2rz" Bounds="473,231" Name="" Alignment="Top" />
+            <Pin Id="Qrwsm4S7IJvN3v58QJndMA" Name="Break" Kind="OutputPin" />
+            <ControlPoint Id="JqaNYoAiIDBNGg7GsqNAoD" Bounds="474,307" Alignment="Bottom" />
+            <Patch Id="Kp7D69EYwPFPh1jjIzRBfh">
+              <Node Bounds="472,260,54,19" Id="HWkR3vurpC7OEdcSxKzGKj">
+                <p:NodeReference LastCategoryFullName="Serialization.FSPickler" LastDependency="VL.Serialization.FSPickler.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationNode" Name="Serialize (Xml)" />
+                  <CategoryReference Kind="Category" Name="Serialization" />
+                </p:NodeReference>
+                <Pin Id="BZTmsk0ihU8PB8zw7CU02A" Name="Input" Kind="InputPin" />
+                <Pin Id="LdvZXQjl7tvNW2gn6aSSm7" Name="Indent" Kind="InputPin" />
+                <Pin Id="JFO7Q7vpoQFQIb6xk86NvI" Name="Result" Kind="OutputPin" />
+              </Node>
+              <Patch Id="AbvpRZi3VDsNkzqbZbdIxB" Name="Create" />
+              <Patch Id="ULOd6QrhdI7PuhQu1SEj9R" Name="Update" ParticipatingElements="HWkR3vurpC7OEdcSxKzGKj" IsGeneric="true" />
+              <Patch Id="NxJHN8atEDML6kPjqpmo58" Name="Dispose" />
+            </Patch>
+          </Node>
+          <ControlPoint Id="Q9B5x3BMH8WLoYVR1jyqs4" Bounds="524,191" />
+          <Link Id="Sq7lzxskXl4LoE8SC7KBB7" Ids="FZmL2VLWBDxQA9ZqPTzcYZ,Q9B5x3BMH8WLoYVR1jyqs4" IsHidden="true" />
+          <Link Id="Op6AYUZNbmHNY3uI4GTyl9" Ids="Q9B5x3BMH8WLoYVR1jyqs4,LdvZXQjl7tvNW2gn6aSSm7" />
+          <Link Id="N49m4PLQ3AhLV9kxPCiTd4" Ids="JFO7Q7vpoQFQIb6xk86NvI,JqaNYoAiIDBNGg7GsqNAoD" />
+          <Link Id="Vp06w96Zd8WNmfILHI82bM" Ids="JqaNYoAiIDBNGg7GsqNAoD,PFBACCQcBgmPoE63pneSsy" />
+          <Pin Id="PfMIXdHUMEoPp6S5GOWRqA" Name="Input" Kind="InputPin" />
+          <Pin Id="FZmL2VLWBDxQA9ZqPTzcYZ" Name="Indent" Kind="InputPin" />
+          <Pin Id="P4BPVMyf31wPoAP21NJEqZ" Name="Result" Kind="OutputPin" />
+          <Link Id="K8ywXJ7uicVLXJRpAZp609" Ids="RkmWbabqvLIOP3SFYOy2rz,BZTmsk0ihU8PB8zw7CU02A" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Serialize (Xml) ************************
+
+-->
+      <Node Name="Serialize (Xml)" Bounds="162,172,96,83" Id="Nz8BSX1agAhLnMGXtIcqAr" Summary="Easy serialization into a XML format best used for non-persistent, network communication." Remarks="Avoid using for long-term persistence! For details, see: https://thegraybook.vvvv.org/reference/libraries/serialization.html">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="KbXeJF0Jo6DOInvcuIKIV4" IsGeneric="true">
+          <Node Bounds="174,207,72,19" AutoConnect="true" Id="IC7Wzh6tKRlOHgAomKo6id">
+            <p:NodeReference LastCategoryFullName="VL.Serialization.FSPickler.FSPicklerSerialization" LastDependency="VL.Serialization.FSPickler.dll">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationNode" Name="SerializeXml" />
+            </p:NodeReference>
+            <Pin Id="EJ7h2cgnabSLSm1dttAC2U" Name="Input" Kind="InputPin" />
+            <Pin Id="RsK3xBrg5AXQLrav6Nm5NO" Name="Indent" Kind="InputPin" />
+            <Pin Id="Dp1fZTRF8VANeM1v7qhE0c" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="MrTUbvCKFveOYeEkJYG1h0" Name="Input" Kind="InputPin" />
+          <Pin Id="MCOZpSGCEeoMSg7SNnziRC" Name="Indent" Kind="InputPin" />
+          <Pin Id="AwsxHJaRpzMLyILAJFNbO8" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Deserialize (Binary) ************************
+
+-->
+      <Node Name="Deserialize (Binary)" Bounds="774,447,118,83" Id="GHWUbxlpsgtNbb0arOJGSG" Summary="Counterpart of Serialize (Binary)">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <Patch Id="OmuFnCu9psENDyvFEOMgWr" IsGeneric="true">
+          <Node Bounds="786,482,94,19" AutoConnect="true" Id="N3QeNoBw1r1Pwhr0iuElLV">
+            <p:NodeReference LastCategoryFullName="VL.Serialization.FSPickler.FSPicklerSerialization" LastDependency="VL.Serialization.FSPickler.dll">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationNode" Name="DeserializeBinary" />
+            </p:NodeReference>
+            <Pin Id="Ny3fw2uWjYALkvt9GZYehD" Name="Input" Kind="InputPin" />
+            <Pin Id="Ug9q0rDyW0dMbQQdH6FKtg" Name="Force Little Endian" Kind="InputPin" />
+            <Pin Id="AQjzngw9irDMnhCrbc1iSp" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="A6uOHJTLL0HNOA5rYihLjh" Name="Input" Kind="InputPin" />
+          <Pin Id="IiE0UOfHStjP6wfBbQ94P9" Name="Force Little Endian" Kind="InputPin" />
+          <Pin Id="LleoAhUi0SGLREDzvu9J7J" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+    </Canvas>
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="ShlAgQ8laaAM3F6xu1Cec3">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="SjTcVFxD9b2QIQ50ZzMEty">
+        <Canvas Id="J4cni8VohdoPZ2iq06XKNC" CanvasType="Group" />
+        <Patch Id="KYEi9c19xBXObKDuQ0v5eM" Name="Create" />
+        <Patch Id="KH7sg72BQxsNDUplh8qeNp" Name="Update" />
+        <ProcessDefinition Id="FU2mFYR0nEBMvpE85qIekB">
+          <Fragment Id="Jq9m0H7N499OmGI2DFHFHl" Patch="KYEi9c19xBXObKDuQ0v5eM" Enabled="true" />
+          <Fragment Id="BY2QYSJi7pwNuwH0P1jkBd" Patch="KH7sg72BQxsNDUplh8qeNp" Enabled="true" />
+        </ProcessDefinition>
+      </Patch>
+    </Node>
+  </Patch>
+  <PlatformDependency Id="N2kgpi3fYBvPVrbjtvjqct" Location="./lib/net8.0/VL.Serialization.FSPickler.dll" />
+</Document>

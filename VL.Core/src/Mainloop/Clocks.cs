@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Disposables;
 using VL.Core;
 
 namespace VL.Lib.Animation
@@ -82,17 +83,22 @@ namespace VL.Lib.Animation
         private static IFrameClock currentFrameClock;
 
         /// <summary>
-        /// Sets the clock for the current thread.
+        /// Sets the clock for the current thread. The returned disposable will set the previous clock when disposed.
         /// </summary>
-        public static void SetCurrentFrameClock(IFrameClock clock)
+        public static IDisposable SetCurrentFrameClock(IFrameClock clock)
         {
+            var previousClock = currentFrameClock;
             currentFrameClock = clock;
+            return Disposable.Create(() =>
+            {
+                currentFrameClock = previousClock;
+            });
         }
 
         /// <summary>
         /// The clock used to determine the time when the current frame of the vl mainloop started
         /// </summary>
-        public static IFrameClock FrameClock => currentFrameClock ??= ServiceRegistry.Current.GetService<IFrameClock>();
+        public static IFrameClock FrameClock => currentFrameClock ??= AppHost.Current.Services.GetService<IFrameClock>();
 
         public static IClock DefaultClock => FrameClock;
 
@@ -104,7 +110,7 @@ namespace VL.Lib.Animation
         /// <summary>
         /// The clock used to determine the current time, returns a new time value for each call
         /// </summary>
-        public static IClock RealTimeClock => ServiceRegistry.Current.GetService<IClock>();
+        public static IClock RealTimeClock => AppHost.Current.Services.GetService<IClock>();
 
         /// <summary>
         /// Checks time now

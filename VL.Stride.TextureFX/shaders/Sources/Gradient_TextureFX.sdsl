@@ -1,0 +1,67 @@
+﻿[TextureSource]
+[Category("Source")]
+[Summary("Returns a texture with a linear gradient")]
+[Tags("ramp")]
+[OutputFormat("R16G16B16A16_Float")]
+shader Gradient_TextureFX : TextureFX
+{
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor From;
+
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor To;
+    
+    bool isHorizontal;
+
+    [Default(2.2)]
+    compose ComputeFloat Gamma;
+    // bool Dither = false;
+    // float Dithering = 1;
+    // float DitherSeed = 0; 
+
+    // TODO: Extend with a radial and directional gradient
+    stage override float4 Shading()
+    {
+        float2 uv = streams.TexCoord;
+        float fade = isHorizontal ? uv.x : uv.y;
+
+        fade = pow(fade, Gamma.Compute());
+
+        float4 c = lerp(From.Compute(), To.Compute(), fade);
+
+        // if (Dither) //nedds target size and is always expensive because shader doesn't get optimized when off... investigate.
+        //      c = _dither(c, uv * R, DitherSeed, 256, Dithering);
+
+        return c;
+    }
+
+    // Dither
+    float _dnoise1(float3 u)
+    {
+        u = dot(u + 0.2, float3(1, 57, 21));
+        return (u.x * (0.1 + sin(u.x)));
+    }
+
+    float4 _dnoise4(float2 x, float RandomSeed)
+    {
+        RandomSeed += 0.00001;
+
+        float4 c = {
+            _dnoise1(float3((x+RandomSeed*13+41)+11,length(sin((x-59)/151+RandomSeed*float2(11,7))))+.5),
+            _dnoise1(float3((x+RandomSeed*7+293)+5,length(sin((x+127)/163+RandomSeed*float2(13,5))))+.5),
+            _dnoise1(float3((x+RandomSeed*5+113)+7,length(sin((x+191)/173+RandomSeed*float2(7,17))))+.5),
+            _dnoise1(float3((x+RandomSeed*11+97)+13,length(sin((x-37)/181+RandomSeed*float2(5,23))))+.5)
+        };
+
+        return frac(c+x.x*2+RandomSeed+dot(c,1));
+    }
+
+    float4 _dither(float4 c, float2 x, float RandomSeed=0, float Levels=255, float AddNoise=1)
+    {
+        float4 nois = _dnoise4(x, RandomSeed);
+        c *= Levels;
+        c += (nois-.5) * AddNoise;
+        c /= Levels;
+        return c;
+    }
+};

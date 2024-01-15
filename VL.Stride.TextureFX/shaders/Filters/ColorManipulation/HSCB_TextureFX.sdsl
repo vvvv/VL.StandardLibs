@@ -1,0 +1,43 @@
+﻿[Category("Filter")]
+[Tags("hue, saturation, contrast, brightness")]
+[Summary("Applies hue, saturation, contrast and brightness color correction")]
+shader HSCB_TextureFX : FilterBase
+{
+    [Default(0)]
+    compose ComputeFloat Hue;
+
+    [Default(1)]
+    compose ComputeFloat HueCycles;
+
+    [Default(1)]
+    compose ComputeFloat Saturation;
+
+    [Default(1)]
+    compose ComputeFloat SaturationBalance;
+
+    [Default(0)]
+    compose ComputeFloat Contrast;
+
+    [Default(0)]
+    compose ComputeFloat Brightness;
+
+    float4 Filter(float4 tex0col)
+    {
+        float4 c = tex0col;
+        float3 h = base.RGBtoHSL(c.rgb);
+        h.y = pow(h.y, pow(2, SaturationBalance.Compute())) * Saturation.Compute();
+        // todo debug: disable saturation below to see the glitches again
+        // compare with hscb in beta 
+        h.y = saturate(h.y);
+        float3 k0 = base.HSLtoRGB(float3((frac(h.x + Hue.Compute()) - 0) * HueCycles.Compute(), h.y, h.z));
+        float3 k1 = base.HSLtoRGB(float3((frac(h.x + Hue.Compute()) - 1) * HueCycles.Compute(), h.y, h.z));
+        c.rgb = lerp(k0, k1, pow(smoothstep(0,1,h.x), 2));
+        // change ' = ' to ' *= ' in line below for instant coolness
+        // could we trigger that with a bool?
+        c.rgb = normalize(c.rgb) * sqrt(3) * pow(length(c.rgb) / sqrt(3), pow(2, Contrast.Compute())); // cool spell, i wish i understood it
+        c.rgb *= pow(2, Brightness.Compute());
+        return c;
+    }
+};
+
+

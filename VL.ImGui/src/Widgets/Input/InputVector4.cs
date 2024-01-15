@@ -1,11 +1,12 @@
-﻿using Stride.Core.Mathematics;
+﻿using ImGuiNET;
+using Stride.Core.Mathematics;
 using VL.Core.EditorAttributes;
 
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (Vector4)", Category = "ImGui.Widgets", Tags = "number, updown")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputVector4 : ChannelWidget<Vector4>
+    internal partial class InputVector4 : ChannelWidget<Vector4>, IHasLabel, IHasInputTextFlags
     {
 
         public string? Label { get; set; }
@@ -15,15 +16,15 @@ namespace VL.ImGui.Widgets
         /// </summary>
         public string? Format { private get; set; } = "%.3f";
 
-        public ImGuiNET.ImGuiInputTextFlags Flags { private get; set; }
+        public ImGuiInputTextFlags Flags { get; set; }
 
-        System.Numerics.Vector4 lastframeValue;
+        Vector4 lastframeValue;
 
         internal override void UpdateCore(Context context)
         {
-            var value = Update().ToImGui();
-            if (ImGuiNET.ImGui.InputFloat4(Context.GetLabel(this, Label), ref value, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags) && value != lastframeValue)
-                Value = value.ToVL();
+            var value = Update();
+            if (ImGuiUtils.InputFloat4(widgetLabel.Update(Label), ref value, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+                SetValueIfChanged(lastframeValue, value, Flags);
             lastframeValue = value;
         }
     }

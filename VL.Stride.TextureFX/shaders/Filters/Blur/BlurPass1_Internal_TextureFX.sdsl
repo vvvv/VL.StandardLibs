@@ -1,0 +1,14 @@
+﻿[Category("Filter")]
+[Summary("Applies a blur effect")]
+[WantsMips("Texture0")]
+shader BlurPass1_Internal_TextureFX : BlurPassBase
+{
+    override void ClacLodAndOffset(float2 R, float strength, out float lod, out float2 off)
+    {
+        lod = strength * log2(max(R.x, R.y));
+        off = 0.5/R * pow(2, lod) * saturate(lod);
+        lod -= 2;
+    }
+};
+
+

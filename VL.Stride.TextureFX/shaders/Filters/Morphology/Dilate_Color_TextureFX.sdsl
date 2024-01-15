@@ -1,0 +1,63 @@
+﻿//adapted from: https://github.com/lettier/3d-game-shaders-for-beginners/blob/master/sections/dilation.md
+[Category("Filter")]
+[Summary("Dilates (enlarges) the brighter areas of an image while at the same time eroding (shrinking) its darker areas")]
+[Tags("morphology")]
+shader Dilate_Color_TextureFX : FilterBase
+{
+    [Summary("A larger size increases the dilation at the cost of performance.")]
+    int Size = 1;
+    
+    [Summary("A larger separation increases the dilation at the cost of quality.")]
+    [Default(1)]
+    compose ComputeFloat Separation;
+
+    [Summary("The Threshold parameters control which parts of the image become dilated.")]
+    [Default(0.2)]
+    compose ComputeFloat MinThreshold; 
+    
+    [Summary("The Threshold parameters control which parts of the image become dilated.")]
+    [Default(0.5)]
+    compose ComputeFloat MaxThreshold;
+
+    [EnumType("VL.Stride.TextureFX.MorphologyType, VL.Stride.TextureFX")]
+    uint Shape;
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 texSize = ViewSize;
+
+        if (Size <= 0 || Size > 64) { return tex0col; }
+
+        float  mx = 0.0;
+        float4  cmx = tex0col;
+
+        for (int i = -Size; i <= Size; ++i) 
+        {
+            for (int j = -Size; j <= Size; ++j) 
+            {
+                bool skip = false;
+                switch (Shape)
+                {
+                    case 0 : if (false); break;
+                    case 1 : if (!(abs(i) <= Size - abs(j))) { skip = true; } break;
+                    case 2 : if (!(distance(float2(i, j), float2(0, 0)) <= Size)) { skip = true; } break;
+                }
+                
+                if (!skip)
+                {
+                    float4 c = Texture0.SampleLevel(Sampler0, streams.TexCoord + float2(i, j) * Separation.Compute() / texSize, 0);
+                    float mxt = dot(c.rgb, float3(0.3, 0.59, 0.11));
+
+                    if (mxt > mx) 
+                    {
+                        mx = mxt;
+                        cmx = c;
+                    }
+                }
+            }
+        }
+
+        //return float4(cmx.rgb, tex0col.a);
+        return float4(lerp(tex0col.rgb, cmx.rgb, smoothstep(MinThreshold.Compute(), MaxThreshold.Compute(), mx)), tex0col.a);
+    }
+};

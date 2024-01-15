@@ -16,11 +16,11 @@
         internal override void UpdateCore(Context context)
         {
 
-            if (ImGuiNET.ImGui.BeginMenu(Context.GetLabel(this, Label), Enabled))
+            if (ImGuiNET.ImGui.BeginMenu(widgetLabel.Update(Label), Enabled))
             {
                 try
                 {
-                    context?.Update(Content);
+                    context.Update(Content);
                 }
                 finally
                 {

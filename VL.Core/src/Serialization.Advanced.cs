@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Xml.Linq;
 
 namespace VL.Core
@@ -32,6 +33,16 @@ namespace VL.Core
     /// </summary>
     public abstract class SerializationContext
     {
+        /// <summary>
+        /// The current app host.
+        /// </summary>
+        public abstract AppHost AppHost { get; }
+
+        /// <summary>
+        /// The logger to use in case something goes wrong.
+        /// </summary>
+        public abstract ILogger Logger { get; }
+
         /// <summary>
         /// Serializes the given value and if a name is provided wraps the serialized content into an <see cref="XElement"/> or <see cref="XAttribute"/>. 
         /// </summary>
@@ -114,7 +125,7 @@ namespace VL.Core
         public static IVLFactory RegisterSerializer<TForType, TSerializer>(this IVLFactory factory, TSerializer serializer = default(TSerializer))
             where TSerializer : class, ISerializer<TForType>
         {
-            return SerializationService.Current.RegisterSerializer<TForType, TSerializer>(factory, serializer);
+            return factory.AppHost.Services.GetService<SerializationService>().RegisterSerializer<TForType, TSerializer>(factory, serializer);
         }
 
         /// <summary>
@@ -125,7 +136,7 @@ namespace VL.Core
         /// <returns>True if an instance of the given type can be serialized.</returns>
         public static bool CanSerialize(this IVLFactory factory, Type forType)
         {
-            return SerializationService.Current.CanSerialize(factory, forType);
+            return factory.AppHost.Services.GetService<SerializationService>().CanSerialize(factory, forType);
         }
     }
 }

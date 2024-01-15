@@ -1,0 +1,45 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/HatchLine.tfx
+
+[Category("Filter")]
+[Summary("")]
+shader Hatch_Line_TextureFX : FilterBase
+{
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor BackgroundColor;
+    
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor HatchColor;
+
+    [Default(5.0f)]
+    compose ComputeFloat Threshold;
+
+    [Default(4.0f)]
+    compose ComputeFloat Thickness;
+
+    [Default(0.36f)]
+    compose ComputeFloat Rotation;
+
+    //diffent implementation than in Effects/Common/ShaderUtils.sdsl
+    override float2 r2d(float2 x, float a)
+    {
+        a *= acos(-1) * 2;
+        return float2(cos(a) * x.x+sin(a) * x.y, cos(a)*x.y - sin(a)*x.x);
+    }
+
+    float4 Filter(float4 tex0col)
+    {
+        float threshold = Threshold.Compute();
+        float thickness = Thickness.Compute();
+        float rotation = Rotation.Compute();
+
+        float2 uv = streams.TexCoord;
+
+        float2 x = uv * ViewSize - 0.5;
+        
+        float4 col = Texture0.SampleLevel(Sampler0, uv, 0);
+        col.rgb = sqrt(col.rgb);
+
+        return lerp(BackgroundColor.Compute(), HatchColor.Compute(), any(((r2d(x-ViewSize*.5, rotation) + ViewSize).y) % thickness < col.rgb * threshold)) * float4(1, 1, 1, col.a);
+    }
+};

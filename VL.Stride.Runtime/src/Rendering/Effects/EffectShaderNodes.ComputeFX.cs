@@ -16,11 +16,11 @@ namespace VL.Stride.Rendering
 {
     static partial class EffectShaderNodes
     {
-        static IVLNodeDescription NewComputeEffectShaderNode(this IVLNodeDescriptionFactory factory, NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object> changes, Func<string> getFilePath, IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
+        static IVLNodeDescription NewComputeEffectShaderNode(this IVLNodeDescriptionFactory factory, NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object> changes, IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
         {
             return factory.NewNodeDescription(
                 name: name,
-                category: "Stride.Rendering.ComputeShaders",
+                category: shaderMetadata.GetCategory("Stride.Rendering.ComputeShaders"),
                 tags: shaderMetadata.Tags,
                 fragmented: true,
                 invalidated: changes,
@@ -49,12 +49,7 @@ namespace VL.Stride.Rendering
 
                     foreach (var parameter in GetParameters(_effect))
                     {
-                        var key = parameter.Key;
-                        var name = key.Name;
-
-                        var typeInPatch = shaderMetadata.GetPinType(key, out var boxedDefaultValue);
-                        shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);
-                        _inputs.Add(new ParameterPinDescription(usedNames, key, parameter.Count, defaultValue: boxedDefaultValue, typeInPatch: typeInPatch) { IsVisible = !isOptional, Summary = summary, Remarks = remarks });
+                        _inputs.Add(CreatePinDescription(in parameter, usedNames, shaderMetadata));
                     }
 
                     IVLPinDescription _enabledInput;
@@ -67,13 +62,13 @@ namespace VL.Stride.Rendering
                         messages: _messages,
                         summary: shaderMetadata.Summary,
                         remarks: shaderMetadata.Remarks,
-                        filePath: getFilePath(),
+                        filePath: shaderMetadata?.FilePath,
                         newNode: nodeBuildContext =>
                         {
-                            var gameHandle = ServiceRegistry.Current.GetGameHandle();
+                            var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var renderContext = RenderContext.GetShared(gameHandle.Resource.Services);
-                            var mixinParams = BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var shaderMixinSource);
-                            var effect = new VLComputeEffectShader(renderContext, shaderName, mixinParams);
+                            var context = BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var shaderMixinSource);
+                            var effect = new VLComputeEffectShader(renderContext, shaderName, context.Parameters);
                             var inputs = new List<IVLPin>();
                             var enabledInput = default(IVLPin);
                             foreach (var _input in _inputs)
@@ -86,7 +81,7 @@ namespace VL.Stride.Rendering
                                 else if (_input == _enabledInput)
                                     inputs.Add(enabledInput = nodeBuildContext.Input<bool>(v => effect.Enabled = v, effect.Enabled));
                                 else if (_input is ParameterPinDescription parameterPinDescription)
-                                    inputs.Add(parameterPinDescription.CreatePin(graphicsDevice, effect.Parameters));
+                                    inputs.Add(parameterPinDescription.CreatePin(context));
                             }
 
                             var compositionPins = inputs.OfType<ShaderFXPin>().ToList();
@@ -108,7 +103,7 @@ namespace VL.Stride.Rendering
                                     gameHandle.Dispose();
                                 });
                         },
-                        openEditor: () => OpenEditor(getFilePath)
+                        openEditorAction: () => OpenEditor(shaderMetadata)
                     );
                 });
         }

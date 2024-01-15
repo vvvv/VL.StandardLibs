@@ -191,14 +191,9 @@ namespace VL.Stride
             return node;
         }
 
-        public bool OpenEditor()
-        {
-            return false;
-        }
-
         public CustomNodeDesc<TInstance> AddInput<T>(string name, Func<TInstance, T> getter, Action<TInstance, T> setter, string summary = default, string remarks = default, bool isVisible = true)
         {
-            inputs.Add(new CustomPinDesc(name, summary, remarks)
+            AddInput(new CustomPinDesc(name, summary, remarks)
             {
                 Name = name.InsertSpaces(),
                 Type = typeof(T),
@@ -210,7 +205,7 @@ namespace VL.Stride
 
         public CustomNodeDesc<TInstance> AddInput<T>(string name, Func<TInstance, T> getter, Action<TInstance, T> setter, T defaultValue, string summary = default, string remarks = default, bool isVisible = true)
         {
-            inputs.Add(new CustomPinDesc(name, summary, remarks)
+            AddInput(new CustomPinDesc(name, summary, remarks)
             {
                 Name = name.InsertSpaces(),
                 Type = typeof(T),
@@ -223,7 +218,7 @@ namespace VL.Stride
 
         public CustomNodeDesc<TInstance> AddCachedInput<T>(string name, Func<TInstance, T> getter, Action<TInstance, T> setter, Func<T, T, bool> equals = default, string summary = default, string remarks = default, bool isVisible = true)
         {
-            inputs.Add(new CustomPinDesc(name, summary, remarks)
+            AddInput(new CustomPinDesc(name, summary, remarks)
             {
                 Name = name.InsertSpaces(),
                 Type = typeof(T),
@@ -235,7 +230,7 @@ namespace VL.Stride
 
         public CustomNodeDesc<TInstance> AddCachedInput<T>(string name, Func<TInstance, T> getter, Action<TInstance, T> setter, T defaultValue, string summary = default, string remarks = default, bool isVisible = true)
         {
-            inputs.Add(new CustomPinDesc(name, summary, remarks)
+            AddInput(new CustomPinDesc(name, summary, remarks)
             {
                 Name = name.InsertSpaces(),
                 Type = typeof(T),
@@ -248,7 +243,7 @@ namespace VL.Stride
 
         public CustomNodeDesc<TInstance> AddOptimizedInput<T>(string name, Func<TInstance, T> getter, Action<TInstance, T> setter, Func<T, T, bool> equals = default, string summary = default, string remarks = default, bool isVisible = true)
         {
-            inputs.Add(new CustomPinDesc(name, summary, remarks)
+            AddInput(new CustomPinDesc(name, summary, remarks)
             {
                 Name = name.InsertSpaces(),
                 Type = typeof(T),
@@ -260,7 +255,7 @@ namespace VL.Stride
 
         public CustomNodeDesc<TInstance> AddOptimizedInput<T>(string name, Func<TInstance, T> getter, Action<TInstance, T> setter, T defaultValue, string summary = default, string remarks = default, bool isVisible = true)
         {
-            inputs.Add(new CustomPinDesc(name, summary, remarks)
+            AddInput(new CustomPinDesc(name, summary, remarks)
             {
                 Name = name.InsertSpaces(),
                 Type = typeof(T),
@@ -340,7 +335,7 @@ namespace VL.Stride
 
         public CustomNodeDesc<TInstance> AddOutput<T>(string name, Func<TInstance, T> getter, string summary = default, string remarks = default, bool isVisible = true)
         {
-            outputs.Add(new CustomPinDesc(name, summary, remarks)
+            AddOutput(new CustomPinDesc(name, summary, remarks)
             {
                 Name = name.InsertSpaces(),
                 Type = typeof(T),
@@ -352,7 +347,7 @@ namespace VL.Stride
 
         public CustomNodeDesc<TInstance> AddCachedOutput<T>(string name, Func<TInstance, T> getter, string summary = default, string remarks = default, bool isVisible = true)
         {
-            outputs.Add(new CustomPinDesc(name, summary, remarks)
+            AddOutput(new CustomPinDesc(name, summary, remarks)
             {
                 Name = name.InsertSpaces(),
                 Type = typeof(T),
@@ -364,7 +359,7 @@ namespace VL.Stride
 
         public CustomNodeDesc<TInstance> AddCachedOutput<T>(string name, Func<CompositeDisposable, Func<TInstance, T>> ctor, string summary = default, string remarks = default, bool isVisible = true)
         {
-            outputs.Add(new CustomPinDesc(name, summary, remarks)
+            AddOutput(new CustomPinDesc(name, summary, remarks)
             {
                 Name = name.InsertSpaces(),
                 Type = typeof(T),
@@ -377,6 +372,22 @@ namespace VL.Stride
                 IsVisible = isVisible
             });
             return this;
+        }
+
+        private void AddInput(CustomPinDesc pin)
+        {
+            if (inputs.Any(i => i.Name == pin.Name))
+                throw new InvalidOperationException($"An input named '{pin.Name}' already exists.");
+
+            inputs.Add(pin);
+        }
+
+        private void AddOutput(CustomPinDesc pin)
+        {
+            if (outputs.Any(i => i.Name == pin.Name))
+                throw new InvalidOperationException($"An output named '{pin.Name}' already exists.");
+
+            outputs.Add(pin);
         }
 
         class CustomPinDesc : IVLPinDescription, IInfo, IVLPinDescriptionWithVisibility

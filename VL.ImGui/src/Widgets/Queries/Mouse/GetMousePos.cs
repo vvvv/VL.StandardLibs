@@ -3,7 +3,7 @@
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Queries")]
-    internal partial class GetMousePos : Widget
+    internal partial class GetMousePos : Query
     {
         public Vector2 Value { get; private set; }
 

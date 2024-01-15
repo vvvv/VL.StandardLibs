@@ -34,13 +34,16 @@ namespace VL.Stride.Core
         public static string GetPathToAssetDatabase()
         {
             var thisDirectory = Path.GetDirectoryName(typeof(Initialization).Assembly.Location);
+            if (thisDirectory is null)
+                return null; // Exported single file exe
+
             var dataDir = Path.Combine(thisDirectory, "data");
             if (Directory.Exists(dataDir))
                 return dataDir;
             else
             {
                 // Are we running as source package?
-                dataDir = Path.Combine(thisDirectory, "..", "..", "..", "VL.Stride", "lib", "net6.0-windows", "data");
+                dataDir = Path.Combine(thisDirectory, "..", "..", "..", "VL.Stride", "lib", "net8.0-windows", "data");
                 if (Directory.Exists(dataDir))
                     return dataDir;
             }
@@ -55,9 +58,9 @@ namespace VL.Stride.Core
                 ((FileSystemProvider)VirtualFileSystem.ApplicationData).ChangeBasePath(dataDir);
         }
 
-        protected override void RegisterServices(IVLFactory factory)
+        public override void Configure(AppHost appHost)
         {
-            var services = VL.Core.ServiceRegistry.Current;
+            var services = appHost.Services;
 
             // Graphics device
             services.RegisterProvider(game => ResourceProvider.Return(game.GraphicsDevice));
@@ -68,22 +71,22 @@ namespace VL.Stride.Core
             // Input manager
             services.RegisterProvider(game => ResourceProvider.Return(game.Input));
 
-            RegisterNodeFactories(factory);
+            RegisterNodeFactories(appHost);
         }
 
-        void RegisterNodeFactories(IVLFactory factory)
+        void RegisterNodeFactories(AppHost appHost)
         {
             // Use our own static node factory cache to manage the lifetime of our factories. The cache provided by VL itself is only per compilation.
             // The node factory cache will invalidate itself in case a factory or one of its nodes invalidates.
             // Not doing so can cause the hotswap to exchange nodes thereby causing weired crashes when for example
             // one of those nodes being re-created is the graphics compositor.
 
-            RegisterStaticNodeFactory(factory, "VL.Stride.Graphics.Nodes", nodeFactory =>
+            RegisterStaticNodeFactory(appHost, "VL.Stride.Graphics.Nodes", nodeFactory =>
             {
                 return GraphicsNodes.GetNodeDescriptions(nodeFactory);
             });
 
-            RegisterStaticNodeFactory(factory, "VL.Stride.Rendering.Nodes", nodeFactory =>
+            RegisterStaticNodeFactory(appHost, "VL.Stride.Rendering.Nodes", nodeFactory =>
             {
                 return MaterialNodes.GetNodeDescriptions(nodeFactory)
                     .Concat(LightNodes.GetNodeDescriptions(nodeFactory))
@@ -91,7 +94,7 @@ namespace VL.Stride.Core
                     .Concat(RenderingNodes.GetNodeDescriptions(nodeFactory));
             });
 
-            RegisterStaticNodeFactory(factory, "VL.Stride.Engine.Nodes", nodeFactory =>
+            RegisterStaticNodeFactory(appHost, "VL.Stride.Engine.Nodes", nodeFactory =>
             {
                 return EngineNodes.GetNodeDescriptions(nodeFactory)
                     .Concat(PhysicsNodes.GetNodeDescriptions(nodeFactory))
@@ -99,36 +102,41 @@ namespace VL.Stride.Core
                     ;
             });
 
-            RegisterStaticNodeFactory(factory, "VL.Stride.Rendering.EffectShaderNodes", init: EffectShaderNodes.Init);
+            RegisterStaticNodeFactory(appHost, "VL.Stride.Rendering.EffectShaderNodes", init: EffectShaderNodes.Init);
         }
 
-        void RegisterStaticNodeFactory(IVLFactory factory, string name, Func<IVLNodeDescriptionFactory, IEnumerable<IVLNodeDescription>> init)
+        void RegisterStaticNodeFactory(AppHost appHost, string name, Func<IVLNodeDescriptionFactory, IEnumerable<IVLNodeDescription>> init)
         {
-            RegisterStaticNodeFactory(factory, name, (_, nodeFactory) => NodeBuilding.NewFactoryImpl(init(nodeFactory).ToImmutableArray()));
+            RegisterStaticNodeFactory(appHost, name, (_, nodeFactory) => new(nodes: init(nodeFactory)));
         }
 
-        public static void RegisterStaticNodeFactory(IVLFactory factory, string name, Func<ServiceRegistry, IVLNodeDescriptionFactory, NodeBuilding.FactoryImpl> init)
+        public static void RegisterStaticNodeFactory(AppHost appHost, string name, Func<ServiceRegistry, IVLNodeDescriptionFactory, NodeBuilding.FactoryImpl> init)
         {
             lock (serviceCache)
             {
                 var strideServices = GetGlobalStrideServices();
-                factory.RegisterNodeFactory(NodeBuilding.NewNodeFactory(factory, name, f => init(strideServices, f)));
+                appHost.NodeFactoryRegistry.RegisterNodeFactory(appHost.NodeFactoryCache.GetOrAdd(name, f => init(strideServices, f)));
             }
+        }
+
+        [Obsolete]
+        public static void RegisterStaticNodeFactory(IVLFactory factory, string name, Func<ServiceRegistry, IVLNodeDescriptionFactory, NodeBuilding.FactoryImpl> init)
+        {
+            RegisterStaticNodeFactory(factory.AppHost, name, init);
         }
 
         public static ServiceRegistry GetGlobalStrideServices()
         {
             lock (serviceCache)
             {
-                var root = VL.Core.ServiceRegistry.CurrentOrGlobal.GetService<CompositeDisposable>();
-                return serviceCache.GetValue(root, CreateStrideServices);
+                return serviceCache.GetValue(AppHost.Global, CreateStrideServices);
             }
         }
 
-        static readonly ConditionalWeakTable<CompositeDisposable, ServiceRegistry> serviceCache = new ConditionalWeakTable<CompositeDisposable, ServiceRegistry>();
+        static readonly ConditionalWeakTable<AppHost, ServiceRegistry> serviceCache = new();
 
         // Taken from Stride/SkyboxGeneratorContext
-        static ServiceRegistry CreateStrideServices(CompositeDisposable subscriptions)
+        static ServiceRegistry CreateStrideServices(AppHost appHost)
         {
             var services = new ServiceRegistry();
 
@@ -140,23 +148,20 @@ namespace VL.Stride.Core
             services.AddService<IContentManager>(content);
             services.AddService(content);
 
-            var graphicsDevice = GraphicsDevice.New();
+            var graphicsDevice = GraphicsDevice.New().DisposeBy(appHost);
             var graphicsDeviceService = new GraphicsDeviceServiceLocal(services, graphicsDevice);
             services.AddService<IGraphicsDeviceService>(graphicsDeviceService);
 
             var graphicsContext = new GraphicsContext(graphicsDevice);
             services.AddService(graphicsContext);
 
-            var effectSystem = new EffectSystem(services);
+            var effectSystem = new EffectSystem(services).DisposeBy(appHost);
             effectSystem.InstallEffectCompilerWithCustomPaths();
 
             services.AddService(effectSystem);
             effectSystem.Initialize();
             ((IContentable)effectSystem).LoadContent();
             ((EffectCompilerCache)effectSystem.Compiler).CompileEffectAsynchronously = false;
-
-            subscriptions?.Add(effectSystem);
-            subscriptions?.Add(graphicsDevice);
 
             return services;
         }

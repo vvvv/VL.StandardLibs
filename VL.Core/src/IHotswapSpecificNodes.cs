@@ -6,7 +6,7 @@ namespace VL.Core
 {
     internal interface IHotswapSpecificNodes
     {
-        static readonly IHotswapSpecificNodes Impl = ServiceRegistry.Global.GetService<IHotswapSpecificNodes>();
+        static readonly IHotswapSpecificNodes Impl = AppHost.Global.Services.GetService<IHotswapSpecificNodes>();
 
         T HardCast<T>(object input);
 
@@ -17,6 +17,14 @@ namespace VL.Core
         IEnumerable<TResult> OfType<TResult>(IEnumerable input);
 
         ISingleInstanceHelper<T> CreateSingleInstanceHelper<T>() where T : class;
+
+        bool TryGetStateType(Type publicType, out Type stateType);
+
+        T FromStateObject<T, TState>(TState state) where T : new();
+
+        TState GetStateObject<T, TState>(T obj);
+
+        event EventHandler ProgramInstantiated;
     }
 
     internal interface ISingleInstanceHelper<T>

@@ -4,7 +4,7 @@ namespace VL.ImGui.Widgets
 {
 
     [GenerateNode(Category = "ImGui.Widgets", Button = true)]
-    internal partial class TabItemButton : ChannelWidget<Unit>
+    internal partial class TabItemButton : ChannelWidget<Unit>, IHasLabel
     {
         public string? Label { get; set; }
 
@@ -13,7 +13,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             Update();
-            if (ImGuiNET.ImGui.TabItemButton(Context.GetLabel(this, Label), Flags))
+            if (ImGuiNET.ImGui.TabItemButton(widgetLabel.Update(Label), Flags))
                 Value = Unit.Default;
         }
     }

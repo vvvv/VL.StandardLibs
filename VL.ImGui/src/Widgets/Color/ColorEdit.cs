@@ -5,7 +5,7 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Widgets", Tags = "rgba, hsv, hsl")]
     [WidgetType(WidgetType.Default)]
-    internal partial class ColorEdit : ChannelWidget<Color4>
+    internal partial class ColorEdit : ChannelWidget<Color4>, IHasLabel
     {
         public string? Label { get; set; }
 
@@ -19,7 +19,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = Update().ToImGui();
-            if (ImGuiNET.ImGui.ColorEdit4(Context.GetLabel(this, Label), ref value, Flags))
+            if (ImGuiNET.ImGui.ColorEdit4(widgetLabel.Update(Label), ref value, Flags))
                 Value = value.ToVLColor4();
         }
     }

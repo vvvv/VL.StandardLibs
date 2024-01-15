@@ -1,0 +1,58 @@
+﻿shader GlowBase : FilterBase
+{
+    [Default(1)]
+    compose ComputeFloat Amount;
+
+    [Default(0)]
+    compose ComputeFloat Shape;
+    
+    [Default(0)]
+    compose ComputeFloat HighlightBoost;
+    
+    [Default(1)]
+    compose ComputeFloat Exposure;
+
+    [Default(1)]
+    compose ComputeFloat Saturation;
+    
+    [Default(0)]
+    compose ComputeFloat AutoExposureFactor;
+    
+    [Default(1)]
+    compose ComputeFloat MaxRadius;
+    
+    [Default(8)]
+    compose ComputeFloat PreBlurWidth;
+
+    static const float PW = 4.0f;
+    static const float PW0 = 7.0;
+    
+    float mx(float3 c) 
+    {
+        return max(c.x, max(c.y, c.z));
+    }
+    
+    float2 r2dlocal(float2 x, float a)
+    {
+        a *= acos(-1) * 2;
+        return float2(cos(a) * x.x + sin(a) * x.y, cos(a) * x.y - sin(a) * x.x);
+    }
+
+    float3 safenormalize(float3 x)
+    {
+        x = lerp(x, x + .00001, x == 0);
+        return normalize(x);
+    }
+
+    float PreGamma(float highlightBoost) 
+    {
+        return pow(2, highlightBoost);
+    }
+
+    abstract float4 GlowPass(float highlightBoost);
+
+    float4 Filter(float4 tex0col)
+    {
+        return GlowPass(HighlightBoost.Compute());
+    }
+};

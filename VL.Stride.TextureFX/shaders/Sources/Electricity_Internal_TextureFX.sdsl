@@ -1,0 +1,57 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Source/Electricity.tfx
+// this node has a wrapper patch for loading the noise volume and feeding the animation time
+[TextureSource]
+[Category("Source")]
+[Summary("Returns an electricity texture")]
+[OutputFormat("R16G16B16A16_Float")]
+shader Electricity_Internal_TextureFX : TextureFX
+{
+    // set by wrapper patch
+    float Time;
+    Texture3D NoiseTexture;
+
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor BackgroundColor;
+    
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor ElectricityColor;
+    
+    float Height = 0.25f;
+    float VertexNoise = 0.5f;
+    float GlowStrength = 0.5f;
+    float GlowFallOff = 0.5f;
+    float AmbientGlow = 0.25f;
+    float AmbientGlowHeightScale = 0.5f;
+
+    stage override float4 Shading()
+    {
+        float2 uv = streams.TexCoord - 0.5;
+        float2 t = float2(Time - VertexNoise * abs(uv.y), Time);
+
+        // Sample at three positions for some horizontal blur
+        // The shader should blur fine by itself in vertical direction
+        float xs0 = uv.x;
+        float xs1 = uv.x + uv.y;
+
+        // Noise for the two samples
+        float noise0 = NoiseTexture.SampleLevel(LinearRepeatSampler, float3(xs0, t), 0).x;
+        float noise1 = NoiseTexture.SampleLevel(LinearRepeatSampler, float3(xs1, t), 0).x;
+        
+        // The position of the flash
+        float mid0 = Height * (noise0 * 2 - 1) * (1 - xs0 * xs0);
+        float mid1 = Height * (noise1 * 2 - 1) * (1 - xs1 * xs1);
+
+        // Distance to flash
+        float dist0 = abs(uv.y - mid0);
+        float dist1 = abs(uv.y - mid1);
+
+        // Glow according to distance to flash
+        float glow = 1.0 - pow(0.5 * (3*dist0 + dist1), GlowFallOff/10.0);
+
+        // Add some ambient glow to get some power in the air feeling
+        float ambGlow = AmbientGlow * (1 - uv.x * uv.x) * (1 - AmbientGlowHeightScale * AmbientGlowHeightScale * uv.y * uv.y);
+        float s = GlowStrength * glow * glow * 20 + ambGlow * ambGlow;
+        return lerp(BackgroundColor.Compute(), ElectricityColor.Compute(), s*s);
+    }
+};

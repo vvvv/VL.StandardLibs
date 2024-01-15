@@ -10,31 +10,39 @@ namespace VL.ImGui.Widgets
         public string? Label { get; set; }
 
         /// <summary>
-        /// Returns true if the TreeNode is open (not collapsed). Set to true to open the TreeNode.
+        /// Returns true if the TreeNode is collapsed. Set to true to collapse the TreeNode.
         /// </summary>
-        public Channel<bool>? IsOpen { private get; set; }
-        ChannelFlange<bool> IsOpenFlange = new ChannelFlange<bool>(false);
+        [Pin(DefaultValue = "true")]
+        public IChannel<bool>? Collapsed { private get; set; }
+        ChannelFlange<bool> CollapsedFlange = new ChannelFlange<bool>(true);
+
         /// <summary>
-        /// Returns true if the TreeNode is open (not collapsed). 
+        /// Returns true if content is visible. 
         /// </summary>
-        public bool _IsOpen => IsOpenFlange.Value;
+        public bool ContentIsVisible { get; private set; } = false;
 
         public ImGuiNET.ImGuiTreeNodeFlags Flags { private get; set; }
 
         internal override void UpdateCore(Context context)
         {
-            var isOpen = IsOpenFlange.Update(IsOpen);
+            var collapsed = CollapsedFlange.Update(Collapsed);
 
-            ImGuiNET.ImGui.SetNextItemOpen(isOpen);
+            ImGuiNET.ImGui.SetNextItemOpen(!collapsed);
 
-            isOpen = ImGuiNET.ImGui.TreeNodeEx(Context.GetLabel(this, Label), Flags);
+            ContentIsVisible = ImGuiNET.ImGui.TreeNodeEx(widgetLabel.Update(Label), Flags);
 
-            IsOpenFlange.Value = isOpen;
+            CollapsedFlange.Value = !ContentIsVisible;
 
-            if (isOpen)
+            if (ContentIsVisible)
             {
-                context?.Update(Content);
-                ImGuiNET.ImGui.TreePop();
+                // ImGui keeps track of the LAST item state only. We therefor need to keep track of those states on our own when we build up item stacks.
+                using (context.CaptureItemState())
+                {
+                    // Captured state is NOT set
+                    context.Update(Content);
+                    ImGuiNET.ImGui.TreePop();
+                }
+                // Captured state is set for subsequent queries and will be unset by non-query widgets.
             }
         }
     }

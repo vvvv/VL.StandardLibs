@@ -1,22 +1,27 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Core.Logging;
 
 namespace VL.Lang
 {
     public enum MessageSeverity
     {
         None,
-        Debug,
         Info,
         Warning,
-        Error
+        Error,
+        Critical
     }
+
+    public delegate void MessageInfoProducer(out string what, out string why, out string how, out string ignore);
 
     public class Message : IEquatable<Message>
     {
@@ -26,16 +31,19 @@ namespace VL.Lang
         public readonly string Why;
         public readonly string How;
         public readonly string Ignore;
-
+        public readonly bool IsFollowUp;
+        public readonly LogSource Source;
+        public readonly DateTime Time = DateTime.Now;
         private bool? flowToParent;
+        public readonly object Symbol;
 
-        public Message(MessageSeverity severity, string what, string why = "", string how = "", string ignore = "")
-            : this(default(UniqueId), severity, what, why, how, ignore)
+        public Message(MessageSeverity severity, string what, string why = "", string how = "", string ignore = "", object symbol = null)
+            : this(default(UniqueId), severity, what, why, how, ignore, symbol: symbol)
         {
-
         }
 
-        public Message(UniqueId location, MessageSeverity severity, string what, string why = "", string how = "", string ignore = "", bool? flowToParent = default)
+        public Message(UniqueId location, MessageSeverity severity, string what, string why = "", string how = "", 
+            string ignore = "", bool? flowToParent = default, bool isFollowUp = false, LogSource source = LogSource.Sys, object symbol = null)
         {
             Location = location;
             Severity = severity;
@@ -44,9 +52,12 @@ namespace VL.Lang
             How = how;
             Ignore = ignore;
             this.flowToParent = flowToParent;
+            IsFollowUp = isFollowUp;
+            Source = source;
+            Symbol = symbol;
         }
 
-        public bool FlowToParent => flowToParent.HasValue ? flowToParent.Value : Severity == MessageSeverity.Error;
+        public bool FlowToParent => flowToParent.HasValue ? flowToParent.Value : Severity >= MessageSeverity.Error;
 
         public override string ToString()
         {
@@ -80,7 +91,7 @@ namespace VL.Lang
 
         public Message WithElementId(UniqueId id)
         {
-            return new Message(id, Severity, What, Why, How, Ignore);
+            return new Message(id, Severity, What, Why, How, Ignore, FlowToParent, IsFollowUp, Source);
         }
     }
 
@@ -102,7 +113,7 @@ namespace VL.Lang
 
         public IEnumerable<Message> Errors
         {
-            get { return FMessages.Where(m => m.Severity == MessageSeverity.Error); }
+            get { return FMessages.Where(m => m.Severity >= MessageSeverity.Error); }
         }
 
         public IEnumerable<Message> For(UniqueId location)
@@ -138,5 +149,22 @@ namespace VL.Lang
         public static MessageSeverity MaxSeverity(this MessageSeverity a, MessageSeverity b) => (MessageSeverity)Math.Max((sbyte)a, (sbyte)b);
         public static MessageSeverity MaxSeverity(this IEnumerable<Message> messages) => messages.Aggregate(MessageSeverity.None, (acc, m) => acc.MaxSeverity(m.Severity));
         public static MessageSeverity MaxSeverity(this ImmutableArray<Message> messages) => messages.Aggregate(MessageSeverity.None, (acc, m) => acc.MaxSeverity(m.Severity));
+
+        public static LogLevel ToLogLevel(this MessageSeverity severity)
+        {
+            switch (severity)
+            {
+                case MessageSeverity.Info:
+                    return LogLevel.Information;
+                case MessageSeverity.Warning:
+                    return LogLevel.Warning;
+                case MessageSeverity.Error:
+                    return LogLevel.Error;
+                case MessageSeverity.Critical:
+                    return LogLevel.Critical;
+                default:
+                    return LogLevel.None;
+            }
+        }
     }
 }

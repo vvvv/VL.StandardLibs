@@ -1,6 +1,6 @@
 ﻿using SkiaSharp;
 using System;
-using System.Drawing;
+using VL.UI.Core;
 
 namespace VL.Skia
 {
@@ -30,17 +30,7 @@ namespace VL.Skia
             RenderInfoHack = renderInfoHack;
         }
 
-        static float FDIPFactor = -1;
-        public static float DIPFactor
-        {
-            get
-            {
-                if (FDIPFactor == -1)
-                    using (var g = Graphics.FromHwnd(IntPtr.Zero))
-                        FDIPFactor = g.DpiX / 96;
-                return FDIPFactor;
-            }
-        }
+        public static float DIPFactor => DIPHelpers.DIPFactor();
 
         /// <summary>
         /// Renderers call this to set up the caller info

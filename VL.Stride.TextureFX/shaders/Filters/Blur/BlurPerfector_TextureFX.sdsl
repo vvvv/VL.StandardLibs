@@ -1,0 +1,49 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/BlurPerfector.tfx
+
+[Category("Filter")]
+[Summary("Noise reduction / detail-preserving blur")]
+[Tags("noise")]
+[DontConvertToLinearOnRead]
+[DontConvertToSRgbOnWrite]
+shader BlurPerfector_TextureFX : TextureFX
+{
+    [Default(0.2)]
+    compose ComputeFloat Radius;
+
+    [Default(0.2)]
+    compose ComputeFloat Threshold;
+
+    stage override float4 Shading()
+    {
+        float2 uv = streams.TexCoord;
+        float2 R = ViewSize;
+
+        float lod = log2(max(R.x, R.y));
+        float kk = 1;
+        float4 cc = Texture0.SampleLevel(Sampler0, uv, 0);
+        float4 col = cc;
+        float2 w = Radius.Compute()/28*R/max(R.x, R.y);
+        
+        for (float i=0; i<1; i+=1./16)
+        {
+            float2 off = sqrt(i+.05) * sin((i*3.5 + float2(0,.25))*acos(-1)*2);
+
+            float4 nc = Texture0.SampleLevel(Sampler0, uv + off*w, 0);
+            
+            float k = pow(smoothstep(Threshold.Compute(), 0, distance(nc.rgb, cc.rgb)),.5);
+            
+            col += nc*k;
+            
+            kk += k;
+        }
+        
+        col /= kk;
+        
+        if(kk < 2) col = cc;
+        
+        col.a = cc.a;
+        
+        return col;
+    }
+};

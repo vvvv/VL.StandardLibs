@@ -1,0 +1,93 @@
+// original code:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/Keying.tfx
+
+[Category("Filter")]
+[Summary("")]
+[WantsMips("Texture0")]
+shader ChannelKeying_TextureFX : FilterBase
+{
+    [EnumType("VL.Stride.TextureFX.ChannelKeyingType, VL.Stride.TextureFX")]
+    int Type;
+    float Threshold = 0.3f;
+    float Smooth = 0.1f;
+    float AlphaBlur = 0.0f;
+    bool Invert = false;
+    bool SourceAlpha = false;
+    bool Premultiply  = false;
+    
+    float4 mmap(float2 uv, float2 R)
+    {
+        return Texture0.SampleLevel(Sampler0, uv, (saturate(AlphaBlur)*log2(max(R.x, R.y))));
+    }
+
+    float4 keyer(float4 col, float4 map, float key)
+    { 
+        col.a = smoothstep(Threshold-Smooth, Threshold+Smooth+.0001, key);
+
+        if(Invert)
+        {
+            col.a = 1-col.a;
+        }
+        
+        if(Premultiply)
+        {
+            col.rgb *= sqrt(1./col.a);
+        }
+
+        if(SourceAlpha)
+        {
+            col.a *= map.a;
+        }
+
+        return col;
+    }
+
+    float4 KeyAlpha(float4 col, float4 map)
+    {
+        return keyer(col, map, col.a);
+    }
+
+    float4 KeyRed(float4 col, float4 map)
+    {
+        return keyer(col, map, col.r);
+    }
+
+    float4 KeyGreen(float4 col, float4 map)
+    {
+        return keyer(col, map, col.g);
+    }
+
+    float4 KeyBlue(float4 col, float4 map)
+    {
+        return keyer(col, map, col.b);
+    }
+
+    float4 KeyLuma(float4 col, float4 map)
+    {
+        return keyer(col, map, dot(map.xyz, float3(.33,.59,.11)));
+    }
+
+    float4 KeySaturation(float4 col, float4 map)
+    {
+        return keyer(col, map, base.RGBtoHSV(map.xyz).y);
+    }
+
+    float4 Filter(float4 tex0col)
+    { 
+        float2 uv = streams.TexCoord;
+        float2 R = ViewSize;
+
+        float4 col = Texture0.SampleLevel(Sampler0, uv, 0);
+        float4 map = mmap(uv, R);
+        
+        switch((uint)Type%6)
+        {
+            case 0 : return KeyAlpha(col, map);
+            case 1 : return KeyRed(col, map);
+            case 2 : return KeyGreen(col, map);
+            case 3 : return KeyBlue(col, map);
+            case 4 : return KeyLuma(col, map);
+            case 5 : return KeySaturation(col, map);
+        }
+    }
+};

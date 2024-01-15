@@ -22,7 +22,7 @@ namespace VL.Stride.Rendering
         const string textureInputName = "Input";
         const string samplerInputName = "Sampler";
 
-        static IVLNodeDescription NewImageEffectShaderNode(this IVLNodeDescriptionFactory factory, NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object> changes, Func<string> getFilePath, IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
+        static IVLNodeDescription NewImageEffectShaderNode(this IVLNodeDescriptionFactory factory, NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object> changes, IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
         {
             return factory.NewNodeDescription(
                 name: name,
@@ -105,15 +105,13 @@ namespace VL.Stride.Rendering
                                 usedNames.Add(pinName);
                                 isOptional = true;
                             }
-                                // also make other samplers from Texturing shader optional
-                                else if (key.PropertyType == typeof(SamplerState) && key.Name.StartsWith("Texturing."))
+                            // also make other samplers from Texturing shader optional
+                            else if (key.PropertyType == typeof(SamplerState) && key.Name.StartsWith("Texturing."))
                             {
                                 isOptional = true;
                             }
 
-                            var pinTypeInPatch = shaderMetadata.GetPinType(key, out var boxedDefaultValue);
-                            shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptionalAttr);
-                            _inputs.Add(new ParameterPinDescription(usedNames, key, parameter.Count, name: pinName, defaultValue: boxedDefaultValue, typeInPatch: pinTypeInPatch) { IsVisible = !(isOptional || isOptionalAttr), Summary = summary, Remarks = remarks });
+                            _inputs.Add(CreatePinDescription(in parameter, usedNames, shaderMetadata, name: pinName, isOptionalOverride: isOptional));
                         }
                     }
 
@@ -134,13 +132,13 @@ namespace VL.Stride.Rendering
                         messages: _messages,
                         summary: shaderMetadata.Summary,
                         remarks: shaderMetadata.Remarks,
-                        filePath: getFilePath(),
+                        filePath: shaderMetadata?.FilePath,
                         newNode: nodeBuildContext =>
                         {
-                            var gameHandle = ServiceRegistry.Current.GetGameHandle();
-                            var effect = new TextureFXEffect("TextureFXEffect") { Name = shaderName };
+                            var gameHandle = AppHost.Current.Services.GetGameHandle();
+                            var effect = new TextureFXEffect("TextureFXEffect", logger: nodeBuildContext.NodeContext.GetLogger()) { Name = shaderName };
 
-                            BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var textureFXEffectMixin, effect.Parameters);
+                            var context = BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var textureFXEffectMixin, effect.Parameters);
 
                             //effect.Parameters.Set
                             var inputs = new List<IVLPin>();
@@ -160,7 +158,7 @@ namespace VL.Stride.Rendering
                                 else if (_input == _enabledInput)
                                     inputs.Add(enabledInput = nodeBuildContext.Input<bool>(v => effect.Enabled = v, effect.Enabled));
                                 else if (_input is ParameterPinDescription parameterPinDescription)
-                                    inputs.Add(parameterPinDescription.CreatePin(graphicsDevice, effect.Parameters));
+                                    inputs.Add(parameterPinDescription.CreatePin(context));
                                 else if (_input is ParameterKeyPinDescription<Texture> textureInput)
                                 {
                                     if (textureInput.Key.Name.StartsWith("Texturing.Texture"))
@@ -197,7 +195,7 @@ namespace VL.Stride.Rendering
                                     gameHandle.Dispose();
                                 });
                         },
-                        openEditor: () => OpenEditor(getFilePath)
+                        openEditorAction: () => OpenEditor(shaderMetadata)
                     );
                 });
         }
@@ -338,7 +336,7 @@ namespace VL.Stride.Rendering
                                 inputs.Insert(inputs.Count - 2, renderFormat);
                             }
 
-                            var gameHandle = ServiceRegistry.Current.GetGameHandle();
+                            var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var game = gameHandle.Resource;
                             var scheduler = game.Services.GetService<SchedulerSystem>();
                             var graphicsDevice = game.GraphicsDevice;
@@ -478,7 +476,7 @@ namespace VL.Stride.Rendering
                                     shaderNode.Dispose();
                                 });
                         },
-                        openEditor: () => shaderDescription.OpenEditor()
+                        openEditorAction: shaderDescription.OpenEditorAction
                     );
                 });
         }

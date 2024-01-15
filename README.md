@@ -1,12 +1,9 @@
-<div align="center">
-  <a href="https://visualprogramming.net">
-    <img src="docs/vvvv.png" width="150px" height="auto">
-  </a>
-</div>
-<div align="center"><a href="https://thegraybook.vvvv.org">Documentation</a>&emsp;■&emsp;<a href="https://www.youtube.com/vvvvtv42">Tutorials</a>&emsp;■&emsp;<a href="https://visualprogramming.net/#Blog">Blog</a>&emsp;■&emsp;<a href="https://discourse.vvvv.org/">Forum</a>&emsp;■&emsp;<a href="https://matrix.to/#/#vvvv:matrix.org">Chat</a></div>
-<h1 align="center">Standard Libraries for vvvv</h1>
+# Standard Libraries for vvvv
 
-![vvvv](docs/vvvvIO.png)
+![vvvv](.github/vvvvIO.png)
+
+To learn more about vvvv, visit: [visualprogramming.net](https://visualprogramming.net).  
+For dev-talk around libraries in this repository join our [VL.StandardLibs chat](https://matrix.to/#/#VL.StandardLibs:matrix.org).
 
 ## Working with this repository
 
@@ -14,17 +11,16 @@ If you're merely using vvvv, this repository is not for you. It is only useful f
 
 The individual libraries are organized in directories. Each directory starting with "VL." holds the sources of one library. 
 
-Working with this repository requires two steps:
-- Build `VL.StandardLibs.sln` using Visual Studio 2022
+Here are the steps required to work with this repository
+- Build `VL.StandardLibs.sln` using Visual Studio 2022 (>= Version 17.5.1)
 - Run vvvv with this directory as a [source package-repository](https://thegraybook.vvvv.org/reference/extending/contributing.html)
+
+At this point you've replaced all libraries shipping with your vvvv installation with the ones in the repository. This means you're now running them "from source" and could e.g. switch to other branches. Still at this point you'll not be able to edit files, because by default they are precompiled! To enable editing of files for specific libraries you now have to run vvvv with another commandline argument that specifies which of the libraries you want to work on, like so:
+
+- `--editable-packages VL.Stride.*;VL.Skia`
+
+Like this you still get the fast startup-time for all the other libraries that you don't work on.
 
 ## Contributing to this repository
 
-Before getting to work, please start a discussion around your proposed changes in an issue, to:
-- Make sure that no one else is working on that same topic already
-- Lay out your plans and discuss them with others to make sure your idea is properly architectured and would fit well with the project
-
-After creating a pull request and if it's your first time contributing, the [CLA assistant](https://github.com/cla-assistant) will ask you to sign the [Contributor License Agreement](docs/ContributorLicenseAgreement.md).
-
-## License
-Many VL sources in this repository are mere wrappers around original .NET libraries that come with their own open-source licenses. If not specified otherwise, sources in this repository are licensed under the [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0-standalone.html). Contributors need to sign the [Contributor License Agreement](docs/ContributorLicenseAgreement.md).
+Please see our [Contribution Guide](.github/CONTRIBUTING.md).

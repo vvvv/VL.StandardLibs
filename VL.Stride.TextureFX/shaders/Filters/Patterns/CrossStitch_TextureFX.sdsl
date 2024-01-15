@@ -1,0 +1,55 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/CrossStitching.tfx
+
+[Category("Filter")]
+[Summary("")]
+shader CrossStitch_TextureFX : FilterBase
+{
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor Color;
+
+    [Default(10)]
+    compose ComputeFloat StitchSize;
+
+    bool Invert = false;
+
+    float4 Filter(float4 tex0col)
+    {
+        float stitchSize = StitchSize.Compute();
+
+        float2 uv = streams.TexCoord;
+        float4 col = float4(0.0, 0.0, 0.0, 0.0);
+        float size = stitchSize;
+        float2 cPos = uv * ViewSize;
+        
+        float2 tlPos = floor(cPos / float2(size, size));
+        tlPos *= size;
+
+        int remX = int(cPos.x % size);
+        int remY = int(cPos.y % size);
+
+        if (remX == 0 && remY == 0)
+        {
+            tlPos = cPos;
+        }
+
+        float2 blPos = tlPos;
+        blPos.y += (size - 1.0);
+
+        if ((remX == remY) || (((int(cPos.x) - int(blPos.x)) == (int(blPos.y) - int(cPos.y)))))
+        {
+            if (Invert)
+                col = Color.Compute();
+            else
+                col = Texture0.SampleLevel(LinearRepeatSampler, tlPos * Texture0TexelSize, 0);
+        }
+        else
+        {
+            if (Invert)
+                col = Texture0.SampleLevel(LinearRepeatSampler, tlPos * Texture0TexelSize, 0);
+            else
+                col = Color.Compute();
+        }
+        return col;
+    }
+};

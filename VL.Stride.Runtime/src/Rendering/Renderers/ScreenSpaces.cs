@@ -189,12 +189,12 @@ namespace VL.Stride.Rendering
             if (ignoreExistingView)
                 renderView.View = view;
             else
-                Matrix.Multiply(ref renderView.View, ref view, out renderView.View);
+                Matrix.Multiply(ref view, ref renderView.View, out renderView.View);
 
             if (ignoreExistingProjection)
                 renderView.Projection = projection;
             else
-                Matrix.Multiply(ref renderView.Projection, ref projection, out renderView.Projection);
+                Matrix.Multiply(ref projection, ref renderView.Projection, out renderView.Projection);
                 
             Matrix.Multiply(ref renderView.View, ref renderView.Projection, out renderView.ViewProjection);
 

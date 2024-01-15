@@ -1,69 +1,44 @@
-﻿using System;
+﻿#nullable enable
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace VL.Core.CompilerServices
 {
-    public abstract class AssemblyInitializer
+    public abstract class AssemblyInitializer : IStartup
     {
-        public const string RegisterServicesMethodName = nameof(RegisterServices);
-        public const string DefaultFieldName = "Default";
+        internal const string DefaultFieldName = "Default";
 
-        [ThreadStatic]
-        internal static Assembly CurrentAssembly;
+        internal virtual bool ContainsUserCode => false;
 
-        public void Init(IVLFactory factory)
+        internal bool IsAllowedToRun(bool allowUserCode) => allowUserCode || !ContainsUserCode;
+
+        internal Assembly Assembly => this.GetType().Assembly;
+
+        // Overwritten by target code
+        public virtual void CollectDependencies(DependencyCollector collector)
         {
-            try
-            {
-                // Internal factory might have seen us already
-                if (factory is IInternalVLFactory internalFactory)
-                    internalFactory.Initialize(this);
-                else
-                    DoRegister(factory);
-            }
-            catch (Exception e)
-            {
-                throw new InitializationException(e);
-            }
+            collector.AddDependency(this);
         }
 
-        internal void Prepare()
+        public virtual void SetupConfiguration(AppHost appHost, IConfigurationBuilder configurationBuilder)
         {
-            RuntimeHelpers.PrepareMethod(GetType().GetMethod(nameof(RegisterServices), BindingFlags.Instance | BindingFlags.NonPublic).MethodHandle);
         }
 
-        internal void InitInternalFactory(IInternalVLFactory factory)
+        public virtual void SetupLogging(AppHost appHost, ILoggingBuilder loggingBuilder)
         {
-            try
-            {
-                DoRegister(factory);
-            }
-            catch (Exception e)
-            {
-                throw new InitializationException(e);
-            }
         }
 
-        private void DoRegister(IVLFactory factory)
+        public virtual void Configure(AppHost appHost)
         {
-            var current = CurrentAssembly;
-            CurrentAssembly = this.GetType().Assembly;
-            try
-            {
-                RegisterServices(factory);
-            }
-            catch (Exception e)
-            {
-                RuntimeGraph.ReportException(e);
-            }
-            finally
-            {
-                CurrentAssembly = current;
-            }
+            // For backwards compatibility
+            RegisterServices(appHost.Factory);
         }
 
-        protected abstract void RegisterServices(IVLFactory factory);
+        protected virtual void RegisterServices(IVLFactory factory)
+        {
+
+        }
     }
 
     public abstract class AssemblyInitializer<TImpl> : AssemblyInitializer

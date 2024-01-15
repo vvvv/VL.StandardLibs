@@ -1,10 +1,11 @@
 ﻿using ImGuiNET;
-using Stride.Core.Mathematics;
 
 namespace VL.ImGui.Widgets.Primitives
 {
     public abstract class PrimitiveWidget : Widget
     {
+        protected override sealed bool HasItemState => false;
+
         internal override sealed void UpdateCore(Context context)
         {
             Draw(context, in context.DrawListPtr, in context.DrawListOffset);

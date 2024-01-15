@@ -1,0 +1,66 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/HatchCrossed.tfx
+
+[Category("Filter")]
+[Summary("")]
+shader Hatch_Cross_TextureFX : FilterBase
+{
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor BackgroundColor;
+    
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor HatchColor;
+
+    [Default(0.5)]
+    compose ComputeFloat Threshold;
+
+    int Density = 12;
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float2 R = ViewSize;
+        float threshold = Threshold.Compute();
+
+        float2 x = uv*R - 0.5;
+
+        float4 col = Texture0.SampleLevel(Sampler0, uv, 0);
+        
+        float lum = dot(col.rgb, 0.33);
+        
+        float4 hc = HatchColor.Compute();
+        float4 bgc = BackgroundColor.Compute();
+        float4 tc = bgc;
+        
+        if (lum < threshold)
+        {
+            if ((x.x + x.y)%Density == 0.0)
+            {
+                tc = hc;
+            }
+        }	
+        if (lum < (threshold * 0.75))
+        {
+            if ((x.x - x.y)%Density == 0.0)
+            {
+                tc = hc;
+            }
+        }	
+        if (lum < (threshold * 0.5))
+        {
+            if ((x.x + x.y + (Density/2.0))%Density == 0.0)
+            {
+                tc = hc;
+            }
+        }	
+        if (lum < (threshold*0.5))
+        {
+            if ((x.x - x.y - (Density/2.0))%Density == 0.0)
+            {
+                tc = hc;	
+            }
+        }	
+        
+        return lerp (hc, bgc, tc);
+    }
+};

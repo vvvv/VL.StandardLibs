@@ -67,10 +67,10 @@ namespace VL.Lib.Reactive
         /// </summary>
         public static IScheduler CatchAndReportRuntimeExceptions(this IScheduler scheduler)
         {
-            var serviceRegistry = ServiceRegistry.CurrentOrGlobal;
+            var appHost = AppHost.Current;
             return scheduler.Catch<Exception>(e =>
             {
-                RuntimeGraph.ReportException(e, serviceRegistry);
+                RuntimeGraph.ReportException(e, appHost);
                 return true;
             });
         }

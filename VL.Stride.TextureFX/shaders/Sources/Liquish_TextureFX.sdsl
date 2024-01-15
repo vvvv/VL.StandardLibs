@@ -1,0 +1,112 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Source/Liquish.tfx
+
+[TextureSource]
+[Category("Source")]
+[Summary("Returns a liquish texture")]
+[DontConvertToSRgbOnWrite]
+shader Liquish_TextureFX : TextureFX
+{
+    [Default(0)]
+    compose ComputeFloat Time;
+
+    [Default(5, 5)]
+    compose ComputeFloat2 Scale;
+
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor ColorA;
+
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor ColorB;
+
+    [Default(0.5, 0, 0.15, 1)]
+    compose ComputeColor ColorC;
+    
+    float rand(float2 co)
+    {
+        // implementation found at: lumina.sourceforge.net/Tutorials/Noise.html
+        return frac(sin(dot(co.xy, float2(12.9898,78.233))) * 43758.5453);
+    }
+
+    float noise2f(in float2 p)
+    {
+        float2 ip = float2(floor(p));
+        float2 u = frac(p);
+
+        // http://www.iquilezles.org/www/articles/morenoise/morenoise.htm
+        u = u*u*(3.0 - 2.0*u);
+        
+        float res = lerp
+        (
+            lerp(rand(ip), rand(ip + float2(1.0,0.0)), u.x),
+            lerp(rand(ip + float2(0.0, 1.0)), rand(ip+float2(1.0, 1.0)), u.x),
+            u.y
+        );
+
+        return res*res;
+    }
+
+    float fbm(float2 c) 
+    {
+        float f = 0.0;
+        float w = 1.0;
+
+        for (int i = 0; i < 4; i++) 
+        {
+            f+= w*noise2f(c);
+            c*=2.0;
+            w*= 0.5;
+        }
+
+        return f;
+    }
+
+    float2 cMul(float2 a, float2 b) 
+    {
+        return float2( a.x*b.x - a.y*b.y, a.x*b.y + a.y * b.x);
+    }
+
+    float pattern(float time, float2 p, out float2 q, out float2 r) 
+    {
+        q.x = fbm(p + 0.00 * time);
+        q.y = fbm(p + float2(1.0, 1.0));
+        r.x = fbm(p + 1.0*q + float2(1.7, 9.2) + 0.15 * time);
+        r.y = fbm(p + 1.0*q + float2(8.3,2.8) + 0.126 * time);
+        return fbm(p + 1.0*r + 0.0 * time);
+    }
+
+
+    stage override float4 Shading()
+    {
+        float2 uv = streams.TexCoord;
+        
+        float2 q;
+        float2 r;
+        float2 c = uv.xy * Scale.Compute();
+        float t = Time.Compute();
+        float f = pattern(t, c, q, r);
+        
+        float4 cA = ColorA.Compute();
+        float4 cB = ColorB.Compute();
+        float4 cC = ColorC.Compute();
+        float3 colors[3];
+        colors[0] = float3 (cA.r, cA.g, cA.b);
+        colors[1] = float3 (cB.r, cB.g, cB.b);
+        colors[2] = float3 (cC.r, cC.g, cC.b);
+        
+        float3 col = lerp(colors[0], colors[1] ,clamp((f*f)*4.0, 0.0, 1.0));
+        col = lerp(col, colors[1], clamp(length(q), 0.0, 1.0));
+        col = lerp(col, colors[2], clamp(length(r.x), 0.0, 1.0));
+        
+        float alphas[3];
+        alphas[0] = float (cA.a);
+        alphas[1] = float (cB.a);
+        alphas[2] = float (cC.a);
+        
+        float alph = lerp(alphas[0], alphas[1], clamp((f*f)*4.0, 0.0, 1.0));
+        alph = lerp(alph, alphas[1], clamp(length(q), 0.0, 1.0));
+        alph = lerp(alph, alphas[2], clamp(length(r.x), 0.0, 1.0));
+        
+        return float4((0.2*f*f*f+0.6*f*f+0.5*f)*atan(col), alph);
+    }
+};

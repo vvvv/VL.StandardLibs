@@ -13,7 +13,10 @@ namespace VL.Core
         /// <summary>
         /// Serializes the given value into an <see cref="XElement"/>.
         /// </summary>
-        /// <remarks>Throws a <see cref="SerializationException"/> in case serialization fails.</remarks>
+        /// <remarks>
+        /// Paths are made relative to the application entry point.
+        /// Throws a <see cref="SerializationException"/> in case serialization fails.
+        /// </remarks>
         /// <typeparam name="T">
         /// The statically known type of the value. 
         /// In case it differs from the runtime type a type annotation will be added to the serialized content.
@@ -24,12 +27,16 @@ namespace VL.Core
         /// <returns>The serialized content as an <see cref="XElement"/>.</returns>
         public static XElement Serialize<T>(this NodeContext nodeContext, T value, bool includeDefaults = false)
         {
-            return (XElement)SerializationService.Current.Serialize(nodeContext, value, typeof(T), includeDefaults, forceElement: true);
+            var serialization = nodeContext.AppHost.SerializationService;
+            return (XElement)serialization.Serialize(nodeContext, value, typeof(T), includeDefaults, pathsAreRelativeToDocument: false, forceElement: true);
         }
 
         /// <summary>
         /// Serializes the given value into an <see cref="XElement"/>. 
         /// </summary>
+        /// <remarks>
+        /// Paths are made relative to the application entry point.
+        /// </remarks>
         /// <typeparam name="T">
         /// The statically known type of the value. 
         /// In case it differs from the runtime type a type annotation will be added to the serialized content.
@@ -42,33 +49,41 @@ namespace VL.Core
         /// <returns>The serialized content as an <see cref="XElement"/>.</returns>
         public static XElement Serialize<T>(this NodeContext nodeContext, T value, bool throwOnError, bool includeDefaults, out IReadOnlyList<string> errorMessages)
         {
+            var serialization = nodeContext.AppHost.SerializationService;
             if (throwOnError)
             {
                 errorMessages = Spread<string>.Empty;
-                return (XElement)SerializationService.Current.Serialize(nodeContext, value, typeof(T), includeDefaults, forceElement: true);
+                return (XElement)serialization.Serialize(nodeContext, value, typeof(T), includeDefaults, forceElement: true, pathsAreRelativeToDocument: false);
             }
             else
             {
-                return (XElement)SerializationService.Current.Serialize(nodeContext, value, typeof(T), includeDefaults, forceElement: true, out errorMessages);
+                return (XElement)serialization.Serialize(nodeContext, value, typeof(T), includeDefaults, forceElement: true, pathsAreRelativeToDocument: false, out errorMessages);
             }
         }
 
         /// <summary>
         /// Deserializes the given content.
         /// </summary>
-        /// <remarks>Throws a <see cref="SerializationException"/> in case deserialization fails.</remarks>
+        /// <remarks>
+        /// Relative paths are made absolute to the application entry point.
+        /// Throws a <see cref="SerializationException"/> in case deserialization fails.
+        /// </remarks>
         /// <typeparam name="T">The statically known type of the value to deserialize.</typeparam>
         /// <param name="nodeContext">The node context to use for deserialization.</param>
         /// <param name="content">The content to deserialize.</param>
         /// <returns>The deserialized value.</returns>
         public static T Deserialize<T>(this NodeContext nodeContext, XElement content)
         {
-            return (T)SerializationService.Current.Deserialize(nodeContext, content, typeof(T));
+            var serialization = nodeContext.AppHost.SerializationService;
+            return (T)serialization.Deserialize(nodeContext, content, typeof(T), pathsAreRelativeToDocument: false);
         }
 
         /// <summary>
         /// Deserializes the given content.
         /// </summary>
+        /// <remarks>
+        /// Relative paths are made absolute to the application entry point.
+        /// </remarks>
         /// <typeparam name="T">The statically known type of the value to deserialize.</typeparam>
         /// <param name="nodeContext">The node context to use for deserialization.</param>
         /// <param name="content">The content to deserialize.</param>
@@ -77,14 +92,15 @@ namespace VL.Core
         /// <returns>The deserialized value.</returns>
         public static T Deserialize<T>(this NodeContext nodeContext, XElement content, bool throwOnError, out IReadOnlyList<string> errorMessages)
         {
+            var serialization = nodeContext.AppHost.SerializationService;
             if (throwOnError)
             {
                 errorMessages = Spread<string>.Empty;
-                return (T)SerializationService.Current.Deserialize(nodeContext, content, typeof(T));
+                return (T)serialization.Deserialize(nodeContext, content, typeof(T), pathsAreRelativeToDocument: false);
             }
             else
             {
-                return (T)SerializationService.Current.Deserialize(nodeContext, content, typeof(T), out errorMessages);
+                return (T)serialization.Deserialize(nodeContext, content, typeof(T), pathsAreRelativeToDocument: false, out errorMessages);
             }
         }
     }

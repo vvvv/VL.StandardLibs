@@ -1,0 +1,94 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/Kaleidoscope.tfx
+
+[Category("Filter")]
+[Summary("")]
+[WantsMips("Texture1")]
+shader Kaleidoscope_TextureFX : FilterBase
+{
+    int Divisions = 3;
+    int Iterations = 5;
+
+    [Default(0)]
+    compose ComputeFloat IterationZoom;
+
+    [Default(0)]
+    compose ComputeFloat Rotation;
+
+    [Default(0.5)]
+    compose ComputeFloat Zoom;
+
+    [Default(0)]
+    compose ComputeFloat CellRotation;
+    
+    [Default(1, 0, 0, 0)]
+    compose ComputeFloat4 ControlFactor;
+
+    float2 Center = float2(0.0f, 0.0f);
+    float2 CellOffset = float2(0.0f, 0.0f);
+    float2 CellScale = float2(1.0f, 1.0f);
+
+    bool Aspect = true;
+
+    //diffent implementation than in Effects/Common/ShaderUtils.sdsl
+    override float2 r2d(float2 x, float a)
+    {
+        a *= acos(-1) * 2;
+        return float2(cos(a)*x.x + sin(a)*x.y, cos(a)*x.y - sin(a)*x.x);
+    }
+
+    float2 kal(float2 x, float sz)
+    {
+        float2 dx = (x - .5);
+        float an = atan2(dx.x, -dx.y)/acos(-1)/2 + .5;	
+        float2 xx = r2d(dx, floor(an*sz + .5)/sz);
+        xx.x = abs(xx.x);
+        xx += .5;
+        return xx;
+    }
+
+    // there seems to be no pre-defined Sampler with Mirror
+    SamplerState s0
+    {
+         Filter = MIN_MAG_MIP_LINEAR;
+         AddressU = MIRROR;
+         AddressV = MIRROR;
+    };
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float4 controlFactor = ControlFactor.Compute();
+        float2 asp = lerp(1, ViewSize / ViewSize.x, Aspect);
+
+        float4 mask = Texture1.SampleLevel(Sampler1, uv, 1);
+        float cr  = CellRotation.Compute() + controlFactor.x * 3 * mask.r;
+        float2 co = CellOffset + mask.xy *  controlFactor.zw;
+        
+        float sz = Divisions;
+        float zz = pow(2, Zoom.Compute() * 5.0 - 1.0);
+        
+        zz *= pow(2, controlFactor.y * (Texture1.SampleLevel(s0, uv, 1).r));
+        
+        float2 Off = Center;
+        float rotation = Rotation.Compute();
+        float2 dx  = r2d((uv -0.5 + Off) * asp, rotation) * zz + 0.5;
+        float2 xx = kal(dx, sz);
+
+        for(float i=0; i < min(Iterations - 1, 90); i++)
+        {
+            xx *= pow(2, IterationZoom.Compute() * 0.1);
+
+            if(xx.y > 1)
+            {
+                xx = kal(float2(xx.x, 2-xx.y), sz);
+            }
+        }
+
+        xx = r2d(xx-.5, cr - rotation) / asp + 0.5;
+        xx += co*2 - 1;
+        xx = (xx-.5)*CellScale + .5;
+        
+        return Texture0.SampleLevel(s0, xx, 0);
+    }
+};

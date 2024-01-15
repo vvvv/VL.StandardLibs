@@ -1,0 +1,37 @@
+// original code:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/Edge.tfx
+
+[Category("Filter")]
+[Summary("Applies edge detection")]
+[WantsMips("Texture0")]
+shader Edge_TextureFX : FilterBase
+{
+    [Default(1)]
+    compose ComputeFloat Brightness;
+    
+    [Default(1)]
+    compose ComputeFloat Radius;
+
+    float4 q(float2 uv, float2 off, float v)
+    {
+        return Texture0.SampleLevel(Sampler0, uv + off, v);
+    }
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        
+        float rad = max(Radius.Compute(), 0);
+        float ts = max(Texture0TexelSize.x, Texture0TexelSize.y);
+        float3 e = float3(1, -1, 0) * rad * ts;
+        float v = log2(rad);
+
+        float4 cx = q(uv, e.xy, v) + q(uv, e.xz, v) + q(uv, e.xx, v) - q(uv, e.yy, v) - q(uv, e.yz ,v) - q(uv, e.yx, v);
+        float4 cy = q(uv, e.yy ,v) + q(uv, e.zy, v) + q(uv, e.xy, v) - q(uv, e.yx, v) - q(uv, e.zx, v) - q(uv, e.xx, v);
+        
+        float4 col = sqrt(cx*cx+cy*cy) * Brightness.Compute() * pow(2, rad*ts)/sqrt(saturate(rad) + .001);
+        col.a = Texture0.SampleLevel(Sampler0, uv, 0).a;
+
+        return col;
+    }
+};

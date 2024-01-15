@@ -1,4 +1,5 @@
-﻿using VL.Lib.Reactive;
+﻿using ImGuiNET;
+using VL.Lib.Reactive;
 
 namespace VL.ImGui.Widgets
 {
@@ -6,11 +7,11 @@ namespace VL.ImGui.Widgets
     {
         private T? value;
 
-        public Channel<T> Channel
+        public IChannel<T>? Channel
         {
             protected get;
             set;
-        } = DummyChannel<T>.Instance; // This is the VL default
+        }
 
         public bool Bang 
         { 
@@ -41,6 +42,14 @@ namespace VL.ImGui.Widgets
         protected void SetValueWithoutNotifiying(T value)
         {
             this.value = value;
+        }
+
+        protected void SetValueIfChanged(T? oldValue, T newValue, ImGuiInputTextFlags flags)
+        {
+            if (flags.HasFlag(ImGuiInputTextFlags.EnterReturnsTrue))
+                Value = newValue;
+            else if (!EqualityComparer<T>.Default.Equals(oldValue, newValue))
+                Value = newValue;
         }
     }
 }

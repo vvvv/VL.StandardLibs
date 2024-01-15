@@ -1,0 +1,33 @@
+﻿[Category("Filter")]
+[Summary("")]
+shader Quantize_TextureFX : FilterBase
+{
+    [Default(0.1f, 0.1f, 0.1f, 0.1f)]
+    compose ComputeFloat4 StepSize;
+
+    [EnumType("VL.Stride.TextureFX.RoundingType, VL.Stride.TextureFX")]
+    uint Mode;
+    bool QuantizeAlpha;
+
+    float4 Quant(float4 col, float4 steps)
+    {
+        switch (Mode)
+        {
+            case 0 : return float4(round(col * steps) / steps);
+            case 1 : return float4(floor(col * steps) / steps);
+            case 2 : return float4(ceil(col * steps) / steps);
+        }
+        return 0;
+    }
+
+    float4 Filter(float4 tex0col)
+    {
+        float4 stepSize = StepSize.Compute();
+        float4 col = Quant(tex0col, 1 / stepSize);
+
+        if (!QuantizeAlpha)
+            col.a = tex0col.a;
+
+        return col;
+    }
+};

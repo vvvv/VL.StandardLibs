@@ -40,6 +40,8 @@ namespace VL.Lib
                 h => watcherWrapper.Watcher.EventArrived -= h)
                 .Delay(TimeSpan.FromSeconds(1.5)) //wait a bit for the usb device installer
                 .Select(GetNewDeviceCreatedEvent))
+                // Catch any exception, we don't want this class to bring down the whole app (https://discourse.vvvv.org/t/patch-throws-exception-error-on-loading-5-3-0234/22014)
+                .Catch(Observable.Empty<ManagementBaseObject>())
                 .Buffer(TimeSpan.FromSeconds(2))
                 .Where(buffer => buffer.Count > 0)
                 .Cast<IReadOnlyList<ManagementBaseObject>>()
@@ -52,6 +54,7 @@ namespace VL.Lib
                 h => watcherWrapper.Watcher.EventArrived += h,
                 h => watcherWrapper.Watcher.EventArrived -= h)
                 .Select(GetNewDeviceDeletedEvent))
+                .Catch(Observable.Empty<ManagementBaseObject>())
                 .Buffer(TimeSpan.FromSeconds(2))
                 .Where(buffer => buffer.Count > 0)
                 .Cast<IReadOnlyList<ManagementBaseObject>>()

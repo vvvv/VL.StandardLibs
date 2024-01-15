@@ -1,0 +1,53 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/DropShadow.tfx
+
+[Category("Filter")]
+[Summary("")]
+[WantsMips("Texture0")]
+shader DropShadow_TextureFX : FilterBase
+{
+    float Blur = 0.5f;
+    float Offset = 0.05f;
+    float Angle = 0.9f;
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor Color;
+    float Alpha = 1.0f;
+    float Extension = 0.0f;
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float2 R = ViewSize;
+    
+        float4 c0 = Texture0.SampleLevel(Sampler0, uv, 0);
+
+        float lod = (Blur) * log2(max(R.x, R.y));
+        
+        float4 col = 0;
+        
+        float2 sx = uv + sqrt(2)*Offset*sin((Angle+float2(0, -0.25))*acos(-1)*2);
+        float2 off = .5 * Texture0TexelSize * pow(2, lod) * saturate(lod);
+        
+        col += Texture0.SampleLevel(Sampler0, sx+float2(0,0)*off, lod);
+        col += Texture0.SampleLevel(Sampler0, sx+float2(1,1)*off, lod);
+        col += Texture0.SampleLevel(Sampler0, sx+float2(1,-1)*off, lod);
+        col += Texture0.SampleLevel(Sampler0, sx+float2(-1,-1)*off,lod);
+        col += Texture0.SampleLevel(Sampler0, sx+float2(-1,1)*off, lod);
+        
+        off *= 1.86;
+        
+        col += Texture0.SampleLevel(Sampler0, sx+float2(0,1)*off, lod);
+        col += Texture0.SampleLevel(Sampler0, sx+float2(0,-1)*off, lod);
+        col += Texture0.SampleLevel(Sampler0, sx+float2(-1,0)*off, lod);
+        col += Texture0.SampleLevel(Sampler0, sx+float2(1,0)*off, lod);
+        
+        col /= 9;
+        
+        col = Color.Compute() * float4(1, 1, 1, saturate(pow(2, Extension)*col.a)*Alpha);
+
+        col.rgb = lerp(col.rgb, c0.rgb, c0.a);
+        col.a = max(col.a, c0.a);
+        
+        return col;
+    }
+};

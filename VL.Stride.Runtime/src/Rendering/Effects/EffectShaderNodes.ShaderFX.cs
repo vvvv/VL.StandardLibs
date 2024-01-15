@@ -17,11 +17,11 @@ namespace VL.Stride.Rendering
 {
     static partial class EffectShaderNodes
     {
-        static IVLNodeDescription NewShaderFXNode(this IVLNodeDescriptionFactory factory, NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object> changes, Func<string> getFilePath, IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
+        static IVLNodeDescription NewShaderFXNode(this IVLNodeDescriptionFactory factory, NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object> changes, IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
         {
             return factory.NewNodeDescription(
                 name: name,
-                category: "Stride.Rendering.Experimental.ShaderFX",
+                category: shaderMetadata.GetCategory("Stride.Rendering.Experimental.ShaderFX"),
                 tags: shaderMetadata.Tags,
                 fragmented: true,
                 invalidated: changes,
@@ -50,9 +50,7 @@ namespace VL.Stride.Rendering
                             continue;
                         }
 
-                        var typeInPatch = shaderMetadata.GetPinType(key, out var boxedDefaultValue);
-                        shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);
-                        _inputs.Add(new ParameterPinDescription(usedNames, key, parameter.Count, defaultValue: boxedDefaultValue, typeInPatch: typeInPatch) { IsVisible = !isOptional, Summary = summary, Remarks = remarks });
+                        _inputs.Add(CreatePinDescription(in parameter, usedNames, shaderMetadata));
                     }
 
                     // local input values
@@ -67,13 +65,7 @@ namespace VL.Stride.Rendering
                             continue;
                         }
 
-                        var typeInPatch = shaderMetadata.GetPinType(key, out var boxedDefaultValue);
-                        if (boxedDefaultValue == null)
-                            boxedDefaultValue = key.DefaultValueMetadata.GetDefaultValue();
-
-                        shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);
-
-                        _inputs.Add(new ParameterPinDescription(usedNames, key, 1, defaultValue: boxedDefaultValue, typeInPatch: typeInPatch) { IsVisible = !isOptional, Summary = summary, Remarks = remarks });
+                        _inputs.Add(CreatePinDescription(key, 1, usedNames, shaderMetadata));
                     }
 
                     if (needsWorld)
@@ -85,20 +77,20 @@ namespace VL.Stride.Rendering
                         messages: _messages,
                         summary: shaderMetadata.Summary,
                         remarks: shaderMetadata.Remarks,
-                        filePath: getFilePath.Invoke(),
+                        filePath: shaderMetadata?.FilePath,
                         newNode: nodeBuildContext =>
                         {
-                            var gameHandle = ServiceRegistry.Current.GetGameHandle();
+                            var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var game = gameHandle.Resource;
 
-                            var tempParameters = new ParameterCollection(); // only needed for pin construction - parameter updater will later take care of multiple sinks
+                            var context = new ShaderGeneratorContext(game.GraphicsDevice); // only needed for pin construction - parameter updater will later take care of multiple sinks
                             var nodeState = new ShaderFXNodeState(shaderName);
 
                             var inputs = new List<IVLPin>();
                             foreach (var _input in _inputs)
                             {
                                 if (_input is ParameterPinDescription parameterPinDescription)
-                                    inputs.Add(parameterPinDescription.CreatePin(game.GraphicsDevice, tempParameters));
+                                    inputs.Add(parameterPinDescription.CreatePin(context));
                             }
 
                             var outputMaker = typeof(EffectShaderNodes).GetMethod(nameof(BuildOutput), BindingFlags.Static | BindingFlags.NonPublic);
@@ -114,7 +106,7 @@ namespace VL.Stride.Rendering
                                     gameHandle.Dispose();
                                 });
                         },
-                        openEditor: () => OpenEditor(getFilePath)
+                        openEditorAction: () => OpenEditor(shaderMetadata)
                     );
                 });
         }

@@ -27,8 +27,8 @@ namespace VL.Stride.Rendering
 
         public MipMapGenerator(NodeContext nodeContext)
         {
-            graphicsDeviceHandle = ServiceRegistry.Current.GetDeviceHandle().DisposeBy(this);
-            var gameHandle = ServiceRegistry.Current.GetGameHandle().DisposeBy(this);
+            graphicsDeviceHandle = AppHost.Current.Services.GetDeviceHandle().DisposeBy(this);
+            var gameHandle = AppHost.Current.Services.GetGameHandle().DisposeBy(this);
             schedulerSystem = gameHandle.Resource.Services.GetService<SchedulerSystem>();
         }
 

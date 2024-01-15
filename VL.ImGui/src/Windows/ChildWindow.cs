@@ -14,8 +14,6 @@ namespace VL.ImGui.Widgets
 
         public string? Label { get; set; }
 
-        public bool HasBorder { get; set; }
-
         /// <summary>
         /// For each independent axis of 'size': 
         /// ==0.0f: use remaining host window size 
@@ -25,23 +23,24 @@ namespace VL.ImGui.Widgets
         /// </summary>
         public Vector2 Size { get; set; }
 
+        public ImGuiNET.ImGuiChildFlags ChildFlags { private get; set; }
+
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
         /// <summary>
-        /// Returns true if the Window is open (not fully clipped). 
+        /// Returns true if content is visible.
         /// </summary>
-        public bool IsOpen { get;  private set; }
+        public bool ContentIsVisible { get; private set; } = false;
 
         internal override void UpdateCore(Context context)
         {
-
-            IsOpen = ImGui.BeginChild(Context.GetLabel(this, Label), Size.FromHectoToImGui(), HasBorder, Flags);
+            ContentIsVisible = ImGui.BeginChild(widgetLabel.Update(Label), Size.FromHectoToImGui(), ChildFlags, Flags);
             
             try
             {
-                if (IsOpen)
+                if (ContentIsVisible)
                 {
-                    context?.Update(Content);
+                    context.Update(Content);
                 }
             }
             finally

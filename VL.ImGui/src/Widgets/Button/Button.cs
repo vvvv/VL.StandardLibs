@@ -4,7 +4,7 @@ using System.Reactive;
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Widgets", Button = true, Tags = "bang")]
-    internal partial class Button : ChannelWidget<Unit>
+    internal partial class Button : ChannelWidget<Unit>, IHasLabel
     {
         public string? Label { get; set; }
 
@@ -13,7 +13,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             Update();
-            if (ImGuiNET.ImGui.Button(Context.GetLabel(this, Label), Size.FromHectoToImGui()))
+            if (ImGuiNET.ImGui.Button(widgetLabel.Update(Label), Size.FromHectoToImGui()))
                 Value = Unit.Default;
         }
     }

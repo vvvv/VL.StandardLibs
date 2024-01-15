@@ -4,7 +4,7 @@
     /// Return current row index.
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class TableGetRowIndex : Widget
+    internal partial class TableGetRowIndex : Query
     {
         public int Value { get; private set; }
 

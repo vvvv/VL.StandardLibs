@@ -1,0 +1,42 @@
+﻿shader BlurPassBase : FilterBase
+{
+    [Default(0.25)]
+    compose ComputeFloat Strength;
+
+    void ClacLodAndOffset(float2 R, float strength, out float lod, out float2 off)
+    {
+        lod = strength * log2(max(R.x, R.y));
+        off = 0.5/R * pow(2, lod) * saturate(lod);
+    }
+
+    float4 Filter(float4 tex0col)
+    {
+        float lod;
+        float2 off;
+
+        ClacLodAndOffset(ViewSize, Strength.Compute(), lod, off);
+
+        return BlurPass(off, lod);
+    }
+
+    float4 BlurPass(float2 off, float lod)
+    {
+        float4 c = 0;
+        float2 x = streams.TexCoord;
+        
+        // TODO: Check if this is a correct usage of lod in SampleLevel
+        c += Texture0.SampleLevel(Sampler0, x + float2( 0,  0) * off, lod);
+        c += Texture0.SampleLevel(Sampler0, x + float2( 1,  1) * off, lod);
+        c += Texture0.SampleLevel(Sampler0, x + float2( 1, -1) * off, lod);
+        c += Texture0.SampleLevel(Sampler0, x + float2(-1, -1) * off, lod);
+        c += Texture0.SampleLevel(Sampler0, x + float2(-1,  1) * off, lod);
+        off *= 1.86;
+        c += Texture0.SampleLevel(Sampler0, x + float2( 0,  1) * off, lod);
+        c += Texture0.SampleLevel(Sampler0, x + float2( 0, -1) * off, lod);
+        c += Texture0.SampleLevel(Sampler0, x + float2(-1,  0) * off, lod);
+        c += Texture0.SampleLevel(Sampler0, x + float2( 1,  0) * off, lod);
+        c /= 9;
+
+        return c;
+    }
+};

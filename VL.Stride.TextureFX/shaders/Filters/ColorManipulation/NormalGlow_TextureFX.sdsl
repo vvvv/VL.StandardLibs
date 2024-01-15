@@ -1,0 +1,57 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/NormalGlow.tfx
+
+[Category("Filter")]
+[Summary("")]
+[WantsMips("Texture0")]
+shader NormalGlow_TextureFX : FilterBase
+{
+    [Default(1.0)]
+    compose ComputeFloat aDepth;
+
+    [Default(0)]
+    compose ComputeFloat Shape;
+    
+    [Default(1.0)]
+    compose ComputeFloat MaxRadius;
+
+    float mx(float3 x)
+    {
+        return max(x.x,max(x.y,x.z));
+    }
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float maxRadius = MaxRadius.Compute();
+
+        float4 col = 0;
+        float lod = log2(max(ViewSize.x, ViewSize.y));
+        float kk = 0;
+        
+        for (float i = 1; i < min(lod - (1 - maxRadius * lod), 14); i++)
+        {
+            float2 off = pow(2, i) / max(ViewSize.x, ViewSize.y);
+            off *= 0.5;
+
+            float k = 1. / pow(2, i * Shape.Compute() - lod + 1) * saturate(maxRadius * lod - i + 1);
+
+            float dx = (mx(Texture0.SampleLevel(Sampler0, uv - off * float2(1, 0), i).xyz) - mx(Texture0.SampleLevel(Sampler0, uv + off * float2(1, 0), i).xyz)) * k;
+            float dy = (mx(Texture0.SampleLevel(Sampler0, uv - off * float2(0, 1), i).xyz) - mx(Texture0.SampleLevel(Sampler0, uv + off * float2(0, 1), i).xyz)) * k;
+            
+            col.xy += float2(dx, dy) * sqrt(ViewSize.x / ViewSize);
+            col.z += length(float2(dx, dy));
+
+            kk += k;
+        }
+
+        col.xy /= pow(abs(col.z) * .1, .3) / .1;
+        float dd = aDepth.Compute() / pow(abs(kk), .7) * 8;
+        col.z = pow(saturate(1 - dd * length(col.xy)), .5);
+        col.xy = col.xy * dd + .5;
+
+        col.a = Texture0.SampleLevel(Sampler0, uv, 0).a;
+        
+        return col;
+    }
+};

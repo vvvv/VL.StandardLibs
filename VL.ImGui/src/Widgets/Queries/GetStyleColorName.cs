@@ -4,7 +4,7 @@
     /// Get a string corresponding to the enum value (for display, saving, etc.).
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class GetStyleColorName : Widget
+    internal partial class GetStyleColorName : Query
     {
         public ImGuiNET.ImGuiCol Color { private get; set; }
 

@@ -8,7 +8,7 @@ namespace VL.ImGui.Widgets
     /// Access the Style structure (colors, sizes).
     /// </summary>
     [GenerateNode(Category = "ImGui.Queries")]
-    internal partial class GetStyle : Widget
+    internal partial class GetStyle : Query
     {
         public StyleSnapshot? Value { get; private set; }
 
@@ -54,7 +54,9 @@ namespace VL.ImGui.Widgets
             LogSliderDeadzone = ptr.LogSliderDeadzone.ToVLHecto();
             TabRounding = ptr.TabRounding.ToVLHecto();
             TabBorderSize = ptr.TabBorderSize.ToVLHecto();
+            TabBarBorderSize = ptr.TabBarBorderSize.ToVLHecto();
             TabMinWidthForCloseButton = ptr.TabMinWidthForCloseButton.ToVLHecto();
+            TableAngledHeadersAngle = ptr.TableAngledHeadersAngle;
             ColorButtonPosition = ptr.ColorButtonPosition;
             ButtonTextAlign = ptr.ButtonTextAlign.ToVL();
             SelectableTextAlign = ptr.SelectableTextAlign.ToVL();
@@ -125,7 +127,14 @@ namespace VL.ImGui.Widgets
 
         public float TabBorderSize { get; }
 
+        public float TabBarBorderSize { get; }
+
         public float TabMinWidthForCloseButton { get; }
+
+        /// <summary>
+        /// Angle of angled headers (supported values range from -50.0f degrees to +50.0f degrees).
+        /// </summary>
+        public float TableAngledHeadersAngle { get; }
 
         public ImGuiDir ColorButtonPosition { get; }
 

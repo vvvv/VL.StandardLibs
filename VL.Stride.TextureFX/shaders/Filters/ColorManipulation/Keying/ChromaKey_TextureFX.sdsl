@@ -1,0 +1,19 @@
+﻿[Category("Filter")]
+[Summary("Compares the pixels of the input texture to a color and creates a texture with the keying mask")]
+[Remarks("The default output texture has a one channel 32-bit float pixel format")]
+[Tags("keying yuv mask")]
+[OutputFormat("R32_Float")] //Valid values: https://github.com/stride3d/stride/blob/master/sources/engine/Stride/Graphics/PixelFormat.cs
+shader ChromaKey_TextureFX : KeyingBase
+{
+    [Default(0.05f, 0.63f, 0.14f, 1.0f)]
+    compose ComputeColor ChromaKey;
+
+    float CalcKeyDist(float4 col)
+    {
+        // convert to YUV
+        float4 keyYuv = RGBAtoYUV(ChromaKey.Compute());
+        float4 yuv = RGBAtoYUV(col);
+
+        return length(keyYuv.gb - yuv.gb);
+    }
+};

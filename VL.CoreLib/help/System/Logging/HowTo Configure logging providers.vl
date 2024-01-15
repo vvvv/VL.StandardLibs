@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="R8Ke3xMJ8qWP3WaSjLYjgl" LanguageVersion="2023.5.3-0403-g984a15c5cf" Version="0.128">
+  <NugetDependency Id="ClYA5o6yKPqOq6sSseD69e" Location="VL.CoreLib" Version="2022.5.0" />
+  <Patch Id="BqoUNqUZVnFM0JjTIpw81h">
+    <Canvas Id="ITmboDOwavFPxr6JeOTxjC" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="VRyuDQzteVzM7YLTm0RaBT">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="ABlanfoQY5yOf9jk8koRv7">
+        <Canvas Id="FPErUUy8KxFOYT8sq5LrgA" CanvasType="Group">
+          <Pad Id="R3pDr8Ys5WsOqQN3vcPTQD" Comment="Message" Bounds="359,397,166,36" ShowValueBox="true" isIOBox="true" Value="This message will show up on all configured logging providers">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="String" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="QDq2xej4UdAQT7fViWrzrI" Comment="Apply" Bounds="407,449,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="285,503,125,19" Id="HbWePMgNeYoOiuajWqgwlA">
+            <p:NodeReference LastCategoryFullName="System.Logging" LastDependency="VL.CoreLib.vl" OverloadStrategy="AllPinsThatAreNotCommon">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Logging" NeedsToBeDirectParent="true" />
+              <Choice Kind="ProcessAppFlag" Name="Log" />
+              <PinReference Kind="InputPin" Name="Node Context" />
+              <PinReference Kind="InputPin" Name="Category" />
+              <PinReference Kind="InputPin" Name="Event Id" />
+              <PinReference Kind="InputPin" Name="Apply" />
+            </p:NodeReference>
+            <Pin Id="VMF8WKBAg7tQIKMlxZV4uB" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="FPg95hrRo9ZQJGYdFov7ax" Name="Category" Kind="InputPin" />
+            <Pin Id="IZl9mUwO5utMGNixXD7FmL" Name="Log Level" Kind="InputPin" />
+            <Pin Id="LJ0EBBE5oZIMyrGkK8g2xL" Name="Event Id" Kind="InputPin" />
+            <Pin Id="PyTHOVlwKtQQB3tqYBDS5v" Name="Message" Kind="InputPin" />
+            <Pin Id="IBpnCvcui69LpO57KjF0oy" Name="Exception" Kind="InputPin" />
+            <Pin Id="EO4qdTVTICRMSQ4v5VpWEd" Name="Apply" Kind="InputPin" />
+          </Node>
+          <!--
+
+    ************************ MyStartup ************************
+
+-->
+          <Node Name="MyStartup" Bounds="79,293" Id="LFNzjPBmp3OPt6Jr1lbHFr">
+            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+              <Choice Kind="ClassDefinition" Name="Class" />
+            </p:NodeReference>
+            <p:Interfaces>
+              <TypeReference LastCategoryFullName="Main" LastDependency="callmenames-2023-10-04.vl">
+                <Choice Kind="MutableInterfaceType" Name="IStartup" />
+              </TypeReference>
+            </p:Interfaces>
+            <Patch Id="MoQRAQXPAkTLsIXgRs6sLv">
+              <Canvas Id="ODX65LEhBZbL4hAkyVcUsE" CanvasType="Group">
+                <ControlPoint Id="M2C9nf6ixvvMaOASrPndWu" Bounds="108,494" />
+                <Node Bounds="106,665,145,26" Id="C4ew0ULomPjLvFRuYry5Ez">
+                  <p:NodeReference LastCategoryFullName="Microsoft.Extensions.Logging.FileLoggerExtensions" LastDependency="Serilog.Extensions.Logging.File.dll" OverloadStrategy="AllPinsThatAreNotCommon">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="AddFile" />
+                    <PinReference Kind="InputPin" Name="Input">
+                      <p:DataTypeReference p:Type="TypeReference">
+                        <Choice Kind="TypeFlag" Name="ILoggingBuilder" />
+                      </p:DataTypeReference>
+                    </PinReference>
+                    <PinReference Kind="InputPin" Name="Path Format" />
+                    <PinReference Kind="InputPin" Name="Minimum Level" />
+                    <PinReference Kind="InputPin" Name="Level Overrides" />
+                    <PinReference Kind="InputPin" Name="Is Json" />
+                    <PinReference Kind="InputPin" Name="File Size Limit Bytes" />
+                    <PinReference Kind="InputPin" Name="Retained File Count Limit" />
+                    <PinReference Kind="InputPin" Name="Output Template" />
+                    <PinReference Kind="OutputPin" Name="Output">
+                      <p:DataTypeReference p:Type="TypeReference">
+                        <Choice Kind="TypeFlag" Name="ILoggingBuilder" />
+                      </p:DataTypeReference>
+                    </PinReference>
+                  </p:NodeReference>
+                  <Pin Id="ToeHSiWQ3wqLFraOL5FCpo" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="UeqtrfN2CkNPbVNtFa2vJW" Name="Path Format" Kind="InputPin" />
+                  <Pin Id="FeSR5VW1L6wLfpvQbxkYkN" Name="Minimum Level" Kind="InputPin" />
+                  <Pin Id="JTeEOKJyKDlNWdzA2By0Ly" Name="Level Overrides" Kind="InputPin" />
+                  <Pin Id="EfErEm8zj1FK90w9MG6oZM" Name="Is Json" Kind="InputPin" DefaultValue="False" />
+                  <Pin Id="PY1CydKpsvAOoYpB1j6oWV" Name="File Size Limit Bytes" Kind="InputPin" />
+                  <Pin Id="MZOAPZs1h6FNeI5q4fqumc" Name="Retained File Count Limit" Kind="InputPin" />
+                  <Pin Id="Nwm7KPZHbm0PwUix2Odev4" Name="Output Template" Kind="InputPin" />
+                  <Pin Id="R6lx6EsWLzxNl20JEjiUBC" Name="Output" Kind="OutputPin" />
+                </Node>
+                <Pad Id="H8AGSjQuOaQLvrVTAAb7aN" Comment="Path Format" Bounds="128,544,168,15" ShowValueBox="true" isIOBox="true" Value="C:\Temp\mylogs-{Date}.txt">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                </Pad>
+                <Node Bounds="256,617,40,19" Id="D9jRMlbvA2ePN9X7dbsjzd">
+                  <p:NodeReference LastCategoryFullName="Primitive.Object" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="NULL" />
+                  </p:NodeReference>
+                  <Pin Id="T1Vj3fyyVAINlKp7salXg4" Name="Result" Kind="OutputPin" />
+                </Node>
+                <Node Bounds="204,617,40,19" Id="Ml1LLDNtR8vP9Hv2lM9IjB">
+                  <p:NodeReference LastCategoryFullName="Primitive.Object" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="NULL" />
+                  </p:NodeReference>
+                  <Pin Id="JGr3Y3cdGfuMAHRhAAPIZz" Name="Result" Kind="OutputPin" />
+                </Node>
+                <Pad Id="TntQ7GJKYGxORFctBWmS4d" Comment="Minimum Level" Bounds="148,592,82,15" ShowValueBox="true" isIOBox="true" Value="Information">
+                  <p:TypeAnnotation LastCategoryFullName="System.Logging" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="TypeFlag" Name="LogLevel" />
+                  </p:TypeAnnotation>
+                </Pad>
+                <Pad Id="Fqkfq6XGmbmNFxnBgidxFh" Bounds="62,182,471,19" ShowValueBox="true" isIOBox="true" Value="https://learn.microsoft.com/en-us/dotnet/core/extensions/logging-providers#third-party-logging-providers">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                  <p:ValueBoxSettings>
+                    <p:fontsize p:Type="Int32">9</p:fontsize>
+                    <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Link</p:stringtype>
+                  </p:ValueBoxSettings>
+                </Pad>
+                <Pad Id="CrHlwBtNDWkORnJNN7BNjU" Bounds="63,215,389,215" ShowValueBox="true" isIOBox="true" Value="In this example we're using the FileLogger from Serilog which comes in this NuGet:&#xD;&#xA;&#xD;&#xA;Serilog.Extensions.Logging.File&#xD;&#xA;&#xD;&#xA;2) Implement the IStartup interfaces &quot;SetupLogging&quot; operation that will give you access to a Logging Builder&#xD;&#xA;&#xD;&#xA;3) Add the provider to the Logging Builder and configure it&#xD;&#xA;&#xD;&#xA;4) Restart your app (F9) for the provider to get activated&#xD;&#xA;">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                  <p:ValueBoxSettings>
+                    <p:fontsize p:Type="Int32">9</p:fontsize>
+                    <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+                  </p:ValueBoxSettings>
+                </Pad>
+                <Pad Id="PUQhlVCVzgcMfZF5VtMoEd" Bounds="165,717,245,41" ShowValueBox="true" isIOBox="true" Value="^ Red node? Check missing dependencies in the Document Menu!">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                  <p:ValueBoxSettings>
+                    <p:fontsize p:Type="Int32">9</p:fontsize>
+                    <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+                  </p:ValueBoxSettings>
+                </Pad>
+                <Pad Id="CJ1cPlr10FULprRoS1aths" Bounds="62,123,388,65" ShowValueBox="true" isIOBox="true" Value="1) Look for the Microsoft.Extensions.Logging compatible NuGet for your preferred logging provider and install it. There is a wide range of providers that can be used, see:">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                  <p:ValueBoxSettings>
+                    <p:fontsize p:Type="Int32">9</p:fontsize>
+                    <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+                  </p:ValueBoxSettings>
+                </Pad>
+                <Pad Id="EyD4b3GOYhbN4oolEJTbfw" Bounds="507,304,279,22" ShowValueBox="true" isIOBox="true" Value="Reference for the complete IStartup interface:">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                  <p:ValueBoxSettings>
+                    <p:fontsize p:Type="Int32">9</p:fontsize>
+                    <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+                  </p:ValueBoxSettings>
+                </Pad>
+                <Pad Id="RbSYPNhuVVfMUqsraFJeau" Bounds="507,324,466,19" ShowValueBox="true" isIOBox="true" Value="https://github.com/vvvv/VL.StandardLibs/blob/main/VL.Core/src/IStartup.cs">
+                  <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="TypeFlag" Name="String" />
+                  </p:TypeAnnotation>
+                  <p:ValueBoxSettings>
+                    <p:fontsize p:Type="Int32">9</p:fontsize>
+                    <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Link</p:stringtype>
+                  </p:ValueBoxSettings>
+                </Pad>
+              </Canvas>
+              <ProcessDefinition Id="Ozgam2k1f3lM5rJPz8tRUi" IsHidden="true">
+                <Fragment Id="Vd6TSbvUG6wOBTFyc2nYOd" Patch="G5zQipkdRBGPsR2kvRApzN" Enabled="true" />
+                <Fragment Id="GuChZlzbRKlOwoFoJlXZ1H" Patch="AutpVgvmtZIMLpe2xvQa66" />
+                <Fragment Id="HT6naSqcyELPBd10GttkNp" Patch="Of9hFGVSWVZP8bJfFFABTY" />
+              </ProcessDefinition>
+              <Link Id="QXavRhBcAGAMPAKXiLKoNL" Ids="KO9bKkGrTGGPuDJmh6nXS6,M2C9nf6ixvvMaOASrPndWu" IsHidden="true" />
+              <Link Id="CKcJ8ZRkajQLx2lFD4zyIY" Ids="H8AGSjQuOaQLvrVTAAb7aN,UeqtrfN2CkNPbVNtFa2vJW" />
+              <Link Id="RpHwrNFHGpKO3WHv86wEUV" Ids="T1Vj3fyyVAINlKp7salXg4,MZOAPZs1h6FNeI5q4fqumc" />
+              <Link Id="B7pmQdpTOf3Pft6i9w6dNe" Ids="JGr3Y3cdGfuMAHRhAAPIZz,PY1CydKpsvAOoYpB1j6oWV" />
+              <Link Id="PDtTG8kLgJ4PPrx2HP1lm2" Ids="TntQ7GJKYGxORFctBWmS4d,FeSR5VW1L6wLfpvQbxkYkN" />
+              <Patch Id="G5zQipkdRBGPsR2kvRApzN" Name="Create" />
+              <Patch Id="AutpVgvmtZIMLpe2xvQa66" Name="SetupLogging">
+                <Pin Id="QSKpCOjOBd3NbwepPdBOPz" Name="App Host" Kind="InputPin" />
+                <Pin Id="KO9bKkGrTGGPuDJmh6nXS6" Name="Logging Builder" Kind="InputPin" />
+              </Patch>
+              <Patch Id="Of9hFGVSWVZP8bJfFFABTY" Name="SetupConfiguration">
+                <Pin Id="JtXMslyo9IhQP3xNw7hybg" Name="App Host" Kind="InputPin" />
+                <Pin Id="DcsiLwgwevnNt0xWjj3Xiw" Name="Configuration Builder" Kind="InputPin" />
+              </Patch>
+              <Link Id="PMZjGInPPIjPE29QNGeMMF" Ids="M2C9nf6ixvvMaOASrPndWu,ToeHSiWQ3wqLFraOL5FCpo" />
+            </Patch>
+          </Node>
+          <Pad Id="OMo1ktIk5lwOBfgXVxXnJe" Bounds="184,276,341,19" ShowValueBox="true" isIOBox="true" Value="&lt;- implements IStartup to configure logging providers">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="J7SGC9J0KJoMmVvy2XPcaP" Bounds="66,78,484,104" ShowValueBox="true" isIOBox="true" Value="If you want to log to a file or cloud service, you've come to the right place. &#xD;&#xA;&#xD;&#xA;Everything is possible but you need to configure it yourself.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">12</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Cy9P4nprgtQNvgrZPFZ0x9" Bounds="594,138,185,19" ShowValueBox="true" isIOBox="true" Value="https://learn.microsoft.com/en-us/dotnet/core/extensions/logging">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Link</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="CEkJEiFae6EOLGOsv2SpfF" Bounds="592,115,235,19" ShowValueBox="true" isIOBox="true" Value="General info on Logging in .NET:">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Eh5P7upkcclNU214bImotW" Bounds="67,215,320,39" ShowValueBox="true" isIOBox="true" Value="In order to configure Loging, you need to implement the IStartup interface:">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="KfGeABeuBEAODKjEndBo8W" Name="Create" />
+        <Patch Id="PTXkg0SG8gpLEGRkEwU3Zs" Name="Update" />
+        <ProcessDefinition Id="KuiZF3BvF87NPqGvr1W7pE">
+          <Fragment Id="Je3GuSRsNpyPVMi7UDUt2N" Patch="KfGeABeuBEAODKjEndBo8W" Enabled="true" />
+          <Fragment Id="DEWZmwN9H62POlSUEIgtDe" Patch="PTXkg0SG8gpLEGRkEwU3Zs" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="T6k21SjGIp2QQMeEdrq2ft" Ids="R3pDr8Ys5WsOqQN3vcPTQD,PyTHOVlwKtQQB3tqYBDS5v" />
+        <Link Id="AEWM0B1pdkxOqTqT0w7C4H" Ids="QDq2xej4UdAQT7fViWrzrI,EO4qdTVTICRMSQ4v5VpWEd" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="IjfmZeisCMaOhg1eL4TmCl" Location="VL.Stride" Version="0.0.0" />
+  <NugetDependency Id="LHyfUu0bzaBLhLZHNzmESi" Location="Serilog.Extensions.Logging.File" Version="3.0.0" />
+  <NugetDependency Id="AkGG0PTNa1eP6Bww5RHlyC" Location="Sentry.Extensions.Logging" Version="3.40.1" />
+  <NugetDependency Id="GNXT8QA1j5QPxp27r5fLPI" Location="VL.Stride.TextureFX" Version="2023.5.3-0384-g6f4c4f7682" />
+</Document>

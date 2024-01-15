@@ -1,6 +1,6 @@
 ﻿namespace VL.ImGui.Widgets
 {
-    internal abstract class DragWidget<T, TComponent> : ChannelWidget<T>
+    internal abstract class DragWidget<T, TComponent> : ChannelWidget<T>, IHasLabel
         where T : unmanaged
         where TComponent : unmanaged
     {
@@ -26,12 +26,12 @@
             var value = Update();
             if (NotifyWhileTyping)
             {
-                if (Drag(Context.GetLabel(this, Label), ref value, Speed, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+                if (Drag(widgetLabel.Update(Label), ref value, Speed, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
                     Value = value;
             }
             else
             {
-                if (Drag(Context.GetLabel(this, Label), ref value, Speed, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+                if (Drag(widgetLabel.Update(Label), ref value, Speed, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
                 {
                     if (ImGuiNET.ImGui.IsMouseDragging(ImGuiNET.ImGuiMouseButton.Left))
                     {

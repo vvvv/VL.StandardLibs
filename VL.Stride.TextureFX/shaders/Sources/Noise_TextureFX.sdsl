@@ -1,0 +1,36 @@
+﻿[TextureSource]
+[Category("Source")]
+[Summary("Returns a texture with different choosable noise types")]
+shader Noise_TextureFX : TextureFX, HappyNoise
+{
+    [Default(4, 4)]
+    compose ComputeFloat2 Scale;
+
+    [Default(0, 0)]
+    compose ComputeFloat2 Offset;
+
+    [Default(1)]
+    compose ComputeFloat Z;
+
+    [EnumType("VL.Stride.TextureFX.NoiseType, VL.Stride.TextureFX")]
+    uint Type;
+
+    stage override float4 Shading()
+    {
+        float2 uv = (streams.TexCoord + Offset.Compute()) * Scale.Compute();
+        float z = Z.Compute();
+        
+        switch(Type)
+        {
+            case 0 : return perlin(uv);
+            case 1 : return float4(perlinGrad(float3(uv, z)).yzw, 1.0);
+            case 2 : return valueNoise(uv);
+            case 3 : return float4(valueNoiseGrad(float3(uv, z)).yzw, 1.0);
+            case 4 : return simplex(uv);
+            case 5 : return float4(simplexGrad(float3(uv, z)).yzw, 1.0);
+            case 6 : return worleyFast(uv);
+            case 7 : return float4(worleyFastGrad(float3(uv, z)).yzw, 1.0);
+        }
+        return 0;
+    }
+};        

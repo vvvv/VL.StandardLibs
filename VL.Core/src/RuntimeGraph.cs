@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace VL.Core
@@ -8,6 +9,9 @@ namespace VL.Core
     /// </summary>
     public static class RuntimeGraph
     {
+        [ThreadStatic]
+        private static int s_rethrowExceptions;
+
         static RuntimeGraph()
         {
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
@@ -26,24 +30,47 @@ namespace VL.Core
                 e.SetObserved();
         }
 
+        internal readonly struct Frame : IDisposable
+        {
+            private readonly int _previousState;
+
+            public Frame(int previousState)
+            {
+                this._previousState = previousState;
+            }
+
+            public void Dispose()
+            {
+                s_rethrowExceptions = _previousState;
+            }
+        }
+
+        internal static Frame EnableExceptionRethrow()
+        {
+            var previous = Interlocked.Exchange(ref s_rethrowExceptions, 1);
+            return new Frame(previous);
+        }
+
+        internal static bool RethrowExceptions() => s_rethrowExceptions == 1;
+
         /// <summary>
         /// The exception to throw by the HandleAsyncException call.
         /// </summary>
         /// <param name="exception">The exception to report.</param>
         public static bool ReportException(Exception exception)
         {
-            return ReportException(exception, ServiceRegistry.CurrentOrGlobal);
+            return ReportException(exception, AppHost.CurrentOrGlobal);
         }
 
         /// <summary>
         /// The exception to throw by the HandleAsyncException call.
         /// </summary>
         /// <param name="exception">The exception to report.</param>
-        /// <param name="capturedServiceRegistry">The captured service registry.</param>
-        public static bool ReportException(Exception exception, ServiceRegistry capturedServiceRegistry)
+        /// <param name="capturedAppHost">The captured service registry.</param>
+        public static bool ReportException(Exception exception, AppHost capturedAppHost)
         {
-            var serviceRegistry = ServiceRegistry.IsCurrent() ? ServiceRegistry.Current : capturedServiceRegistry;
-            var runtime = serviceRegistry?.GetService<IVLRuntime>();
+            var appHost = AppHost.IsCurrent() ? AppHost.Current : capturedAppHost;
+            var runtime = appHost?.Services.GetService<IVLRuntime>();
             if (runtime != null)
             {
                 runtime.ReportException(exception);

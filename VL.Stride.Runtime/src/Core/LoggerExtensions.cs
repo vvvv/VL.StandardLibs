@@ -33,29 +33,5 @@ namespace VL.Stride.Core
                 return false;
             }
         }
-
-        public static Message ToMessage(this ILogMessage m)
-        {
-            return new Message(m.Type.ToMessageType(), m.ToString());
-        }
-
-        public static MessageType ToMessageType(this LogMessageType type)
-        {
-            switch (type)
-            {
-                case LogMessageType.Debug:
-                    return MessageType.Debug;
-                case LogMessageType.Verbose:
-                case LogMessageType.Info:
-                    return MessageType.Info;
-                case LogMessageType.Warning:
-                    return MessageType.Warning;
-                case LogMessageType.Error:
-                case LogMessageType.Fatal:
-                    return MessageType.Error;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
     }
 }

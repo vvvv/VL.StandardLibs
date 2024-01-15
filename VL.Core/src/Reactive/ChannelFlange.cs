@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System.Collections.Generic;
 using System.Reactive.Subjects;
 
 namespace VL.Lib.Reactive
@@ -6,14 +7,14 @@ namespace VL.Lib.Reactive
     public class ChannelFlange<T> where T: struct
     {
         T value;
-        Channel<T>? channel;
+        IChannel<T>? channel;
 
         public ChannelFlange(T initialValue)
         {
             value = initialValue;
         }
 
-        public T Update(Channel<T>? channel)
+        public T Update(IChannel<T>? channel)
         {
             this.channel = channel;
             if (channel.IsValid())
@@ -21,7 +22,7 @@ namespace VL.Lib.Reactive
             return value;
         }
 
-        public T Update(Channel<T>? channel, out bool hasChanged)
+        public T Update(IChannel<T>? channel, out bool hasChanged)
         {
             this.channel = channel;
             hasChanged = CopyFromUpstream();
@@ -30,7 +31,7 @@ namespace VL.Lib.Reactive
 
         bool CopyFromUpstream()
         {
-            if (channel.IsValid() && !channel.Value.Equals(value))
+            if (channel.IsValid() && !EqualityComparer<T>.Default.Equals(channel.Value, value))
             {
                 value = channel.Value;
                 return true;
@@ -43,7 +44,7 @@ namespace VL.Lib.Reactive
             get => value;
             set
             {
-                if (!value.Equals(this.value))
+                if (!EqualityComparer<T>.Default.Equals(value, this.value))
                 {
                     this.value = value;
                     if (channel.IsValid())

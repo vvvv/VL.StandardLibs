@@ -14,31 +14,32 @@ using VL.Core.CompilerServices;
 using System.Reactive.Disposables;
 using VL.AppServices.CompilerServices;
 using VL.AppServices;
+using VL.TestFramework;
 
 namespace VL.Core.Tests
 {
     [TestFixture]
     public class SerializationTests
     {
-        private CompositeDisposable subscription;
-        private ServiceRegistry services;
+        private TypeRegistryImpl typeRegistry;
+        private TestAppHost appHost;
         private IVLFactory factory;
         private NodeContext context;
 
         [SetUp]
         public void Setup()
         {
-            subscription = new CompositeDisposable();
-            services = new ServiceRegistry().WithDefaults(subscription);
-            factory = services.GetService<IVLFactory>();
-            context = NodeContext.Default;
-            services.MakeCurrent().DisposeBy(subscription);
+            typeRegistry = new(new VLTypeInfoFactory(scanAssemblies: false));
+            appHost = new(typeRegistry);
+            factory = appHost.Factory;
+            appHost.MakeCurrent().DisposeBy(appHost);
+            context = NodeContext.Create(appHost);
         }
 
         [TearDown]
         public void TearDown()
         {
-            subscription.Dispose();
+            appHost.Dispose();
         }
 
         class MyGenericSerializer<TFoo, TBar> : ISerializer<Tuple<TBar>>
@@ -66,6 +67,13 @@ namespace VL.Core.Tests
                     return new SomeVLObject(someValue);
                 else
                     return this;
+            }
+
+            protected override object __ReadProperty__(string key)
+            {
+                if (key == nameof(SomeValue))
+                    return SomeValue;
+                return base.__ReadProperty__(key);
             }
 
             protected override IVLObject __With__(IReadOnlyDictionary<string, object> values)
@@ -105,9 +113,7 @@ namespace VL.Core.Tests
         [Test]
         public void GenericObjectSerializerWithRegisteredTypesTest()
         {
-            var typeRegistry = new TypeRegistryImpl();
             typeRegistry.RegisterType(typeof(float), "Foo");
-            services.RegisterService<TypeRegistry>(typeRegistry);
             factory.RegisterSerializer<Tuple<object>, MyGenericSerializer<int, object>>();
             var t = new Tuple<object>(0.3f);
             var content = context.Serialize(t);
@@ -239,9 +245,7 @@ namespace VL.Core.Tests
         {
             // Say user patched a MyRecord [Foo] in the past and new backend emits it under the very mysterios name SomeVLObject
             // We should still be able to find it
-            var typeRegistry = new TypeRegistryImpl();
             typeRegistry.RegisterType(typeof(SomeVLObject), "MyRecord", "Foo");
-            services.RegisterService<TypeRegistry>(typeRegistry);
 
             var s = @"
 <Tuple xmlns:r=""reflection"" r:Version=""1"">
@@ -259,9 +263,8 @@ namespace VL.Core.Tests
         [Test]
         public void RuntimeTypeIsPreservedTest()
         {
-            var typeRegistry = new TypeRegistryImpl();
             typeRegistry.RegisterType(typeof(SomeVLObject), "MyRecord", "Foo");
-            services.RegisterService<TypeRegistry>(typeRegistry);
+
             var value = new SomeVLObject( default(int));
             var content = context.Serialize<object>(value, includeDefaults: true);
             var v = context.Deserialize<object>(content);

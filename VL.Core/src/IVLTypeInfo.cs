@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using VL.Lib.Collections;
@@ -25,7 +27,7 @@ namespace VL.Core
         /// </summary>
         string FullName { get; }
 
-        string PersistentId { get; }
+        UniqueId Id { get; }
 
         /// <summary>
         /// The CLR type.
@@ -48,6 +50,11 @@ namespace VL.Core
         bool IsRecord { get; }
 
         /// <summary>
+        /// Whether or not this type is immutable.
+        /// </summary>
+        bool IsImmutable { get; }
+
+        /// <summary>
         /// Whether or not this type is an interface.
         /// </summary>
         bool IsInterface { get; }
@@ -67,7 +74,7 @@ namespace VL.Core
         /// </summary>
         /// <param name="name">The name of the property.</param>
         /// <returns>The property or null.</returns>
-        IVLPropertyInfo GetProperty(string name);
+        IVLPropertyInfo? GetProperty(string name);
 
         /// <summary>
         /// Returns a string representation of this type.
@@ -82,13 +89,20 @@ namespace VL.Core
         /// </summary>
         /// <param name="context">The node context to use. Used by patched types.</param>
         /// <returns>The new instance.</returns>
-        object CreateInstance(NodeContext context);
+        object? CreateInstance(NodeContext context);
 
         /// <summary>
         /// Retrieves the default value of this type. 
         /// If there's no default value registered for this type it will return the CLR default.
         /// </summary>
         /// <returns>The default of this type.</returns>
-        object GetDefaultValue();
+        object? GetDefaultValue();
+
+        /// <summary>
+        /// Creates a generic type instance of out of this generic definition using the given type arguments.
+        /// </summary>
+        /// <param name="arguments">The type arguments to use for the type parameters of this definition.</param>
+        /// <returns>The generic type instance.</returns>
+        IVLTypeInfo MakeGenericType(IReadOnlyList<IVLTypeInfo> arguments);
     }
 }

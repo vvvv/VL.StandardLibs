@@ -17,7 +17,7 @@ namespace VL.ImGui.Styling
     /// The style applies to TabItems in a TabBar.
     /// </summary>
     [GenerateNode(Fragmented = false, Category = "ImGui.Styling", GenerateImmediate = false, 
-        Tags = "TabHovered TabActive TabUnfocused TabUnfocusedActive TabRounding")]
+        Tags = "TabHovered TabActive TabUnfocused TabUnfocusedActive TabRounding TabBarBorderSize")]
     internal partial class SetTabStyle : StyleBase
     {
         public Optional<Color4> Background { private get; set; }
@@ -34,6 +34,11 @@ namespace VL.ImGui.Styling
         /// Radius of upper corners of a tab. Set to 0.0 to have rectangular tabs.
         /// </summary>
         public Optional<float> Rounding { private get; set; }
+
+        /// <summary>
+        /// Thickness of tab-bar separator, which takes on the tab active color to denote focus.
+        /// </summary>
+        public Optional<float> BorderSize { private get; set; }
 
         internal override void SetCore(Context context)
         {
@@ -67,6 +72,12 @@ namespace VL.ImGui.Styling
             {
                 valueCount++;
                 ImGui.PushStyleVar(ImGuiStyleVar.TabRounding, Rounding.Value.FromHectoToImGui());
+            }
+
+            if (BorderSize.HasValue)
+            {
+                valueCount++;
+                ImGui.PushStyleVar(ImGuiStyleVar.TabBarBorderSize, BorderSize.Value.FromHectoToImGui());
             }
         }
     }

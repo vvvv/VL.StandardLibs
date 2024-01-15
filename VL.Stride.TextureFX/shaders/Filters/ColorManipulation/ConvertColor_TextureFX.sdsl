@@ -1,0 +1,52 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/ConvertColor.tfx
+
+[Category("Filter")]
+[Summary("Converts between different color models")]
+[Tags("hsv hsl rgb")]
+shader ConvertColor_TextureFX : FilterBase
+{
+    [EnumType("VL.Stride.TextureFX.ConvertColorType, VL.Stride.TextureFX")]
+    uint Type;
+
+    float4 ConvertHSVtoRGB(float4 col)
+    {
+        float3 h = HSVtoRGB(col.rgb);
+
+        return float4(h.xyz, col.a);
+    }
+
+    float4 ConvertRGBtoHSV(float4 col)
+    {
+        float3 h = RGBtoHSV(col.rgb);
+
+        return float4(h.xyz, col.a);
+    }
+
+    float4 ConvertHSLtoRGB(float4 col)
+    {
+        float3 h = HSLtoRGB(col.rgb);
+
+        return float4(h.xyz, col.a);
+    }
+
+    float4 ConvertRGBtoHSL(float4 col)
+    {
+        float3 h = RGBtoHSL(col.rgb);
+
+        return float4(h.xyz, col.a);
+    }
+
+    float4 Filter(float4 tex0col)
+    {
+        switch (Type)
+        {
+            case 0 : return ConvertHSVtoRGB(tex0col);
+            case 1 : return ConvertHSLtoRGB(tex0col);
+            case 2 : return ConvertRGBtoHSV(tex0col);
+            case 3 : return ConvertRGBtoHSL(tex0col);
+        }
+
+        return 0;
+    }
+};

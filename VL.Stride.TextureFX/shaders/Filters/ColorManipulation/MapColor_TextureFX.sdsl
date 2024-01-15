@@ -1,0 +1,113 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/ColorMap.tfx
+
+[Category("Filter")]
+[Summary("Applies colorization by converting input one to the specified color model and then taking the resulting values as pointer into the lookup table provided with input two")]
+[Tags("lookup LUT colorize")]
+[WantsMips("Texture1")]
+shader MapColor_TextureFX : FilterBase
+{
+    [EnumType("VL.Stride.TextureFX.MapColorType, VL.Stride.TextureFX")]
+    int Type;
+
+    float2 Start = float2(0.0f, 0.0f);
+    float2 End = float2(1.0f, 1.0f);
+    float MapSmooth = 0.0f;
+    
+    float4 Ramp(float2 f)
+    {
+        float2 R = ViewSize;
+
+        float lod = log2(max(R.x, R.y)) * MapSmooth;
+        return Texture1.SampleLevel(Sampler1, Start + End*f, lod);
+    }
+
+    float4 MapHue(float4 col)
+    {
+        float f = RGBtoHSV(col.rgb).x;
+        return Ramp(f);
+    };
+
+    float4 MapHueSaturation(float4 col)
+    {
+        float2 f = RGBtoHSV(col.rgb).xy;
+        return Ramp(f);
+    };
+
+    float4 MapHueValue(float4 col)
+    {
+        float2 f = RGBtoHSV(col.rgb).xz;
+        return Ramp(f);
+    };
+
+    float4 MapLuma(float4 col)
+    {
+        float f = dot(col.rgb, float3(.33,.59,.11));
+        return Ramp(f);
+    };
+
+    float4 MapRedBlue(float4 col)
+    {
+        float2 f = col.rb - col.g;
+        return Ramp(f);
+    };
+
+    float4 MapRGBA(float4 col)
+    {
+        col.r = Ramp(col.r).r;
+        col.g = Ramp(col.g).g;
+        col.b = Ramp(col.b).b;
+        col.a = Ramp(col.a).a;
+        return col;
+    };
+
+    float4 MapSaturationValue(float4 col)
+    {
+        float2 f = base.RGBtoHSV(col.rgb).yz;
+        return Ramp(f);
+    };
+
+    float4 MapTone(float4 col)
+    {
+        float3 h = RGBtoHSV(col.rgb);
+        col.rg = sin((h.x + float2(.25,0)) * acos(-1)*2);
+        float2 f = col.rg;
+        
+        return Ramp(f);
+    };
+
+    float4 MapValue(float4 col)
+    {
+        float f = RGBtoHSV(col.rgb).z;
+        return Ramp(f);
+    };
+
+    float4 MapSaturation(float4 col)
+    {
+        float f = RGBtoHSL(col.rgb).y;
+        return Ramp(f);
+    }
+
+    float4 Filter(float4 tex0col)
+    {
+        float4 col = tex0col;
+        float pa = col.a;
+        
+        switch((uint)Type%10)
+        {
+            case 0 : col = MapLuma(col); break;
+            case 1 : col = MapHue(col); break;
+            case 2 : col = MapSaturation(col); break;
+            case 3 : col = MapValue(col); break;
+            case 4 : col = MapHueSaturation(col); break;
+            case 5 : col = MapHueValue(col); break;
+            case 6 : col = MapSaturationValue(col); break;
+            case 7 : col = MapTone(col); break;
+            case 8 : col = MapRedBlue(col); break;
+            case 9 : col = MapRGBA(col); break;
+        }
+
+        col.a *= pa;
+        return col;
+    }
+};

@@ -1,7 +1,7 @@
 ﻿namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Combo (String)", Category = "ImGui.Widgets", Tags = "dropdown, pulldown, enum")]
-    internal partial class Combo : ChannelWidget<string>
+    internal partial class Combo : ChannelWidget<string>, IHasLabel
     {
 
         public string? Label { get; set; }
@@ -18,7 +18,7 @@
 
             if (Items != null && Items.Any())
             {
-                if (ImGuiNET.ImGui.BeginCombo(Context.GetLabel(this, Label), value, Flags))
+                if (ImGuiNET.ImGui.BeginCombo(widgetLabel.Update(Label), value, Flags))
                 {
                     try
                     {

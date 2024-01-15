@@ -20,17 +20,18 @@ namespace VL.Core
             public DelegateNodeDescriptionFactory(
                 NodeFactoryCache cache,
                 string identifier,
-                Func<IVLNodeDescriptionFactory, FactoryImpl> nodesFactory)
+                Func<IVLNodeDescriptionFactory, FactoryImpl> nodesFactory,
+                string? filePath = null)
             {
                 FCache = cache;
                 Identifier = identifier;
-                Owner = nodesFactory.Method.Module.Assembly;
+                FilePath = filePath ?? nodesFactory.Method.DeclaringType?.Assembly.Location;
                 FImpl = new Lazy<FactoryImpl>(() => nodesFactory(this), LazyThreadSafetyMode.ExecutionAndPublication);
             }
 
-            public Assembly Owner { get; }
-
             public string Identifier { get; }
+
+            public string? FilePath { get; }
 
             public ImmutableArray<IVLNodeDescription> NodeDescriptions => FImpl.Value.Nodes;
 
@@ -38,13 +39,15 @@ namespace VL.Core
 
             public IVLNodeDescriptionFactory? ForPath(string path)
             {
-                var factory = FImpl.Value.ForPath?.Invoke(path);
-                if (factory != null)
+                var identifier = $"{Identifier} ({path})";
+                return FCache.GetOrAdd(identifier, () =>
                 {
-                    var identifier = $"{Identifier} ({path})";
-                    return NewNodeFactory(FCache, identifier, factory);
-                }
-                return null;
+                    var factory = FImpl.Value.ForPath?.Invoke(path);
+                    if (factory == null)
+                        return null; // let's cache that we asked for this path already
+
+                    return new DelegateNodeDescriptionFactory(FCache, identifier, factory, filePath: path);
+                });
             }
 
             public void Export(ExportContext exportContext) => FImpl.Value.Export?.Invoke(exportContext);
@@ -52,18 +55,20 @@ namespace VL.Core
 
         public class FactoryImpl
         {
-            public readonly ImmutableArray<IVLNodeDescription> Nodes;
+            private readonly Lazy<ImmutableArray<IVLNodeDescription>>nodes;
             public readonly IObservable<object> Invalidated;
             public readonly Func<string, Func<IVLNodeDescriptionFactory, FactoryImpl>>? ForPath;
             public readonly Action<ExportContext>? Export;
 
-            public FactoryImpl(ImmutableArray<IVLNodeDescription> nodes = default, IObservable<object>? invalidated = default, Func<string, Func<IVLNodeDescriptionFactory, FactoryImpl>>? forPath = default, Action<ExportContext>? export = default)
+            public FactoryImpl(IEnumerable<IVLNodeDescription>? nodes = default, IObservable<object>? invalidated = default, Func<string, Func<IVLNodeDescriptionFactory, FactoryImpl>>? forPath = default, Action<ExportContext>? export = default)
             {
-                Nodes = !nodes.IsDefault ? nodes : ImmutableArray<IVLNodeDescription>.Empty;
+                this.nodes = new(() => (nodes ?? Enumerable.Empty<IVLNodeDescription>()).ToImmutableArray(), isThreadSafe: true);
                 Invalidated = invalidated ?? Observable.Empty<IVLNodeDescriptionFactory>();
                 ForPath = forPath;
                 Export = export;
             }
+
+            public ImmutableArray<IVLNodeDescription> Nodes => nodes.Value;
         }
 
         sealed class NodeDescription : IVLNodeDescription, ITaggedInfo
@@ -118,7 +123,7 @@ namespace VL.Core
                 return FImpl.Value.CreateInstance(buildContext);
             }
 
-            public bool OpenEditor() => FImpl.Value.OpenEditor();
+            public Func<bool>? OpenEditorAction => FImpl.Value.OpenEditorAction;
 
             public override string ToString()
             {
@@ -208,7 +213,7 @@ namespace VL.Core
             public readonly ImmutableArray<IVLPinDescription> Outputs;
             public readonly Func<NodeInstanceBuildContext, IVLNode> CreateInstance;
             public readonly ImmutableArray<Message> Messages;
-            public readonly Func<bool> OpenEditor;
+            public readonly Func<bool>? OpenEditorAction;
             public readonly string? Summary;
             public readonly string? Remarks;
             public readonly string? Tags;
@@ -219,7 +224,7 @@ namespace VL.Core
                 ImmutableArray<IVLPinDescription> outputs, 
                 Func<NodeInstanceBuildContext, IVLNode> createInstance, 
                 ImmutableArray<Message> messages = default, 
-                Func<bool>? openEditor = default,
+                Func<bool>? openEditorAction = default,
                 string? summary = default,
                 string? remarks = default,
                 string? tags = default,
@@ -229,7 +234,7 @@ namespace VL.Core
                 Outputs = !outputs.IsDefault ? outputs : ImmutableArray<IVLPinDescription>.Empty;
                 CreateInstance = createInstance ?? throw new ArgumentNullException(nameof(createInstance));
                 Messages = !messages.IsDefault ? messages : ImmutableArray<Message>.Empty;
-                OpenEditor = openEditor ?? (() => false);
+                OpenEditorAction = openEditorAction;
                 Summary = summary;
                 Remarks = remarks;
                 Tags = tags;
@@ -256,7 +261,7 @@ namespace VL.Core
                 IEnumerable<IVLPinDescription> outputs,
                 Func<NodeInstanceBuildContext, IVLNode> newNode,
                 IEnumerable<Message>? messages = default,
-                Func<bool>? openEditor = default,
+                Func<bool>? openEditorAction = default,
                 string? summary = default,
                 string? remarks = default,
                 string? filePath = default)
@@ -266,7 +271,7 @@ namespace VL.Core
                     outputs?.ToImmutableArray() ?? ImmutableArray<IVLPinDescription>.Empty,
                     newNode,
                     messages: messages?.ToImmutableArray() ?? default,
-                    openEditor: openEditor,
+                    openEditorAction: openEditorAction,
                     summary: summary,
                     remarks: remarks,
                     filePath: filePath);
@@ -302,7 +307,7 @@ namespace VL.Core
                     outputs?.ToImmutableArray() ?? ImmutableArray<IVLPinDescription>.Empty,
                     newNode,
                     messages: messages?.ToImmutableArray() ?? default,
-                    openEditor: openEditor,
+                    openEditorAction: openEditor,
                     summary: summary,
                     remarks: remarks);
             }

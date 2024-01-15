@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="UYARZO1E8ZePoDYRG5YWRP" LanguageVersion="2022.5.0-0261-d97a44c3ea" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="UYARZO1E8ZePoDYRG5YWRP" LanguageVersion="2022.5.0-0785-g501a43ba3a" Version="0.128">
   <Patch Id="K6jOtX5z4AOM2g6L5teo07">
     <Canvas Id="HuM0Neyl9P0P3djIwL4nYf" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -15,7 +15,7 @@
       <Patch Id="RxrvDdUu4cvOBXbi4KngKc">
         <Canvas Id="PuJjSWeZNf5OSPyulV1tEs" CanvasType="Group">
           <Node Bounds="97,671,165,19" Id="FMXgMbAgSJqPjBIGChZQvH">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastSymbolSource="VL.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia" LastDependency="VL.Skia.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
@@ -33,7 +33,7 @@
             <Pin Id="Fi9FymljmNXQYNmU2h76Xz" Name="Render Time" Kind="OutputPin" />
           </Node>
           <Pad Id="TaMQlku23WmQVo2CUQzIWo" Bounds="102,132,295,37" ShowValueBox="true" isIOBox="true" Value="Use clipboard with text">
-            <p:TypeAnnotation>
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -42,15 +42,21 @@
             </p:ValueBoxSettings>
           </Pad>
           <Node Bounds="137,206,300,434" Id="GflNmoPwUncQYVCmTukqwR">
-            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastSymbolSource="VL.ImGui.Skia.vl">
+            <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastDependency="VL.ImGui.Skia.vl">
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
+            <Pin Id="KUATmQT0u52NmwfUerx7Ld" Name="Docking Enabled" Kind="InputPin" />
+            <Pin Id="ICQapVqE1NqP4qb0jzz23n" Name="Fonts" Kind="InputPin" />
+            <Pin Id="ARbvqMGsVzeMSI6NlXAjtK" Name="Add Fullscreen Window" Kind="InputPin" />
+            <Pin Id="G2YtwkgI9TANw80P7FMzah" Name="Fullscreen Window Style" Kind="InputPin" />
+            <Pin Id="UiSWs6IbGwtNtydawVYo5t" Name="Use Skia Space" Kind="InputPin" />
+            <Pin Id="BUGfLdjGBryNXebdWMAgxZ" Name="Output" Kind="OutputPin" />
             <Patch Id="CFXbapScIpaMLZtvlfNFAQ" ManuallySortedPins="true">
               <Patch Id="R9eRrd1OmJAPN0y5epg464" Name="Create" ManuallySortedPins="true" />
               <Patch Id="KwpPeWmNQgVL8lcqwoaCc3" Name="Update" ManuallySortedPins="true" />
               <Node Bounds="149,320,105,19" Id="ChVtakZzG4lQbW7i0dHKxZ">
-                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastSymbolSource="VL.ImGUI.Nodes" LastDependency="VL.ImGui.vl">
+                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastDependency="VL.ImGui.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessNode" Name="Input (String)" />
                 </p:NodeReference>
@@ -65,22 +71,23 @@
                 <Pin Id="LUNhVW92xSEPyRBCP1KFBl" Name="Value" Kind="OutputPin" />
               </Node>
               <Pad Id="NWm5fk2Yw6gPFwNWnFj5Xq" Comment="Label" Bounds="191,287,35,15" ShowValueBox="true" isIOBox="true" Value="String">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
               </Pad>
               <Node Bounds="149,441,95,19" Id="NHPNuFUyQQQPePZ5TUNuQF">
-                <p:NodeReference LastCategoryFullName="ImGui.Commands.Immediate" LastSymbolSource="VL.ImGUI.Nodes">
+                <p:NodeReference LastCategoryFullName="ImGui.Commands.Immediate" LastDependency="VL.ImGUI.Nodes">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessNode" Name="SetClipboardText" />
                 </p:NodeReference>
+                <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
                 <Pin Id="UJh1wsgBbcWM6fnnlnu2k8" Name="Context" Kind="InputPin" />
                 <Pin Id="HoGmvuT5Rz9LPH4Y0r6gVr" Name="Text" Kind="InputPin" />
                 <Pin Id="RNug2eLxqsWMrZWrsyCdEd" Name="Enabled" Kind="InputPin" />
                 <Pin Id="EJhTNcVrjStNzFLFzvohjX" Name="Context" Kind="OutputPin" />
               </Node>
               <Node Bounds="149,389,85,19" Id="Cr3iDTKJE7yNIDNkq0OOQI">
-                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastSymbolSource="VL.ImGUI.Nodes" LastDependency="VL.ImGui.vl">
+                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastDependency="VL.ImGui.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessNode" Name="Button" />
                   <CategoryReference Kind="Category" Name="Widgets" NeedsToBeDirectParent="true" />
@@ -94,12 +101,12 @@
                 <Pin Id="MuLnv7kbxqQLPh3WqgNJXp" Name="Bang" Kind="OutputPin" />
               </Node>
               <Pad Id="IcwqZy663XKMbthnc2jKJS" Comment="Label" Bounds="199,368,91,15" ShowValueBox="true" isIOBox="true" Value="Copy to Clipboard">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
               </Pad>
               <Node Bounds="149,519,85,19" Id="NSp4Y00giUkO4yaDOZ12Bc">
-                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastSymbolSource="VL.ImGUI.Nodes" LastDependency="VL.ImGui.vl">
+                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastDependency="VL.ImGui.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessNode" Name="Button" />
                   <CategoryReference Kind="Category" Name="Widgets" NeedsToBeDirectParent="true" />
@@ -113,12 +120,12 @@
                 <Pin Id="J29Jl1RPgpdPxAVNSJ1V2A" Name="Bang" Kind="OutputPin" />
               </Node>
               <Pad Id="EtwmOwrNicwQOVrJfJJiU2" Comment="Label" Bounds="199,495,94,15" ShowValueBox="true" isIOBox="true" Value="Set from Clipboard">
-                <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
               </Pad>
               <Node Bounds="345,229,53,19" Id="DYV5bUn50ZGP3P3GGGysF5">
-                <p:NodeReference LastCategoryFullName="Reactive" LastSymbolSource="VL.CoreLib.vl">
+                <p:NodeReference LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessAppFlag" Name="Channel" />
                 </p:NodeReference>
@@ -127,10 +134,11 @@
                 <Pin Id="EKC9VCMm1JyMAFsY6E4qDH" Name="Value" Kind="OutputPin" />
               </Node>
               <Node Bounds="149,567,96,19" Id="MBApbstdJSgLnOe0PwFUCG">
-                <p:NodeReference LastCategoryFullName="ImGui.Commands.Immediate" LastSymbolSource="VL.ImGUI.Nodes">
+                <p:NodeReference LastCategoryFullName="ImGui.Commands.Immediate" LastDependency="VL.ImGUI.Nodes">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessNode" Name="GetClipboardText" />
                 </p:NodeReference>
+                <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
                 <Pin Id="MrahpKndmwPNDQDvgoMaDx" Name="Context" Kind="InputPin" />
                 <Pin Id="ICL9lYIWaV1MfEvAwBiIJo" Name="Channel" Kind="InputPin" />
                 <Pin Id="HicTn9KXIbbMlYgMvkKxGo" Name="Enabled" Kind="InputPin" />
@@ -140,7 +148,7 @@
               </Node>
               <Pad Id="KKD4Cu2PWRkNov77zdM0fp" Comment="" Bounds="242,612,35,15" ShowValueBox="true" isIOBox="true" />
               <Pad Id="Tq3eLZEGNBmORsLX184i0A" Bounds="278,577,140,19" ShowValueBox="true" isIOBox="true" Value="&lt; Get From Clipboard">
-                <p:TypeAnnotation>
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
                 <p:ValueBoxSettings>
@@ -149,7 +157,7 @@
                 </p:ValueBoxSettings>
               </Pad>
               <Pad Id="HTiwkrNDFgWOKVY0Mhfg0L" Bounds="274,446,123,19" ShowValueBox="true" isIOBox="true" Value="&lt; Set To Clipboard">
-                <p:TypeAnnotation>
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
                 <p:ValueBoxSettings>
@@ -159,9 +167,6 @@
               </Pad>
               <ControlPoint Id="EsGFYMYyDqmL1BcJ6FDDJD" Bounds="349,534" />
             </Patch>
-            <Pin Id="KUATmQT0u52NmwfUerx7Ld" Name="Docking Enabled" Kind="InputPin" />
-            <Pin Id="UiSWs6IbGwtNtydawVYo5t" Name="Use Skia Space" Kind="InputPin" />
-            <Pin Id="BUGfLdjGBryNXebdWMAgxZ" Name="Output" Kind="OutputPin" />
           </Node>
         </Canvas>
         <Patch Id="DOR8YfYVKNAOTpcsIcbHHK" Name="Create" />

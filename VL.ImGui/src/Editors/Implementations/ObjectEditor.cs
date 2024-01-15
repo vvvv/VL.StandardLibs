@@ -15,13 +15,15 @@ namespace VL.ImGui.Editors
     {
         readonly Dictionary<IVLPropertyInfo, IObjectEditor?> editors = new Dictionary<IVLPropertyInfo, IObjectEditor?>();
         readonly CompositeDisposable subscriptions = new CompositeDisposable();
-        readonly Channel<T> channel;
+        readonly ObjectEditorContext parentContext;
+        readonly IChannel<T> channel;
         readonly IObjectEditorFactory factory;
         readonly IVLTypeInfo typeInfo;
 
-        public ObjectEditor(Channel<T> channel, ObjectEditorContext editorContext, IVLTypeInfo typeInfo)
+        public ObjectEditor(IChannel<T> channel, ObjectEditorContext editorContext, IVLTypeInfo typeInfo)
         {
             this.channel = channel;
+            this.parentContext = editorContext;
             this.factory = editorContext.Factory;
             this.typeInfo = typeInfo;
         }
@@ -49,19 +51,21 @@ namespace VL.ImGui.Editors
                         if (IsVisible(property))
                         {
                             // Setup channel
-                            var propertyChannel = Channel.CreateChannelOfType(property.Type);
+                            var propertyChannel = ChannelHelpers.CreateChannelOfType(property.Type);
                             subscriptions.Add(
-                                channel.Merge(
+                                channel.ChannelOfObject.Merge(
                                     propertyChannel.ChannelOfObject,
-                                    (object v) => property.GetValue((IVLObject)channel.Value),
+                                    (object? v) => property.GetValue((IVLObject)channel.Value),
                                     v => (T)property.WithValue((IVLObject)channel.Value, v), 
                                     initialization: ChannelMergeInitialization.UseA,
-                                    pushEagerlyTo: ChannelSelection.ChannelA));
+                                    pushEagerlyTo: ChannelSelection.Both));
+                            // this channel is private. So it should be fine to spam it (ChannelSelection.Both).
+                            // If we wouldn't spam, the changed properties in a deeply mutating object structure would not get updated.
 
-                            var attributes = property.GetAttributes<Attribute>().ToList();
-                            propertyChannel.Attributes.Value = attributes;
+                            var attributes = property.GetAttributes<Attribute>().ToSpread();
+                            propertyChannel.Attributes().Value = attributes;
                             var label = attributes.OfType<LabelAttribute>().FirstOrDefault()?.Label ?? property.OriginalName;
-                            var contextForProperty = new ObjectEditorContext(factory, label);
+                            var contextForProperty = parentContext.CreateSubContext(label);
                             editor = editors[property] = factory.CreateObjectEditor(propertyChannel, contextForProperty);
                         }
                         else

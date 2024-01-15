@@ -1,0 +1,135 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Filter/Bump.tfx
+
+[Category("Filter")]
+[Summary("")]
+shader Bump_TextureFX : FilterBase
+{
+    [EnumType("VL.Stride.TextureFX.BumpType, VL.Stride.TextureFX")]
+    int Type;
+
+    //light properties
+    float3 LightDirection = float3(0.25f, -0.5f, 0.1f);//light direction in world space
+    [Color] //Ambient Color
+    float4 AmbientColor  = float4(0.15f, 0.15f, 0.15f, 1.0f);
+    [Color] //Diffuse Color"
+    float4 DiffuseColor  = float4(0.85f, 0.85f, 0.85f, 1.0f);
+    [Color] // Specular Color
+    float4 SpecularColor  = float4(0.35f, 0.35f, 0.35f, 1.0f);
+    //shininess of specular highlight
+    float LightPower = 25.0f;    
+    //Light Range 
+    float LightRange = 10.0f;
+    //Light Attenuation 0
+    float LightAttenuation0 = 0.0f;
+    //Light Attenuation 1
+    float LightAttenuation1 = 0.3f;
+    //Light Attenuation 2
+    float LightAttenuation2 = 0.0f;
+
+    float SmoothSpot  = 0.1f; 
+    float BumpAmount = 1.0f;
+
+    float4 PhongDirectional(float3 NormV, float3 ViewDirV, float3 LightDirV)
+    {
+        float4 amb = float4(AmbientColor.rgb, 1);
+        //halfvector
+        float3 H = normalize(ViewDirV + LightDirV);
+
+        //compute blinn lighting
+        float3 shades = lit(dot(NormV, LightDirV), dot(NormV, H), LightPower).xyz;
+
+        float4 diff = DiffuseColor * shades.y;
+        diff.a = 1;
+
+        //reflection vector (view space)
+        float3 R = normalize(2 * dot(NormV, LightDirV) * NormV - LightDirV);
+
+        //normalized view direction (view space)
+        float3 V = normalize(ViewDirV);
+
+        //calculate specular light
+        float4 spec = pow(max(dot(R, V),0), LightPower*.2) * SpecularColor;
+
+        return (amb + diff) + spec;
+    }
+
+    float3 BumpDirectional(float4 nmap, float2 uv, float2 R)
+    {
+        float3 LightDirV = normalize(-LightDirection);
+        float3 NormV = float3(nmap.x - 0.5, -(nmap.y - 0.5), -1);
+        
+        NormV = lerp(float3(0, 0, -1), NormV, BumpAmount);
+        NormV = normalize(NormV);
+
+        float3 ViewDirV = -normalize(float3((uv.xy * 2 - 1) * float2(1, -1) * R/R.x, 11.1));
+
+        return PhongDirectional(NormV, ViewDirV, LightDirV).rgb;
+    };
+
+    float4 PhongPoint(float3 PosW, float3 NormV, float3 ViewDirV, float3 LightDirV)
+    {
+        float d = distance(PosW, LightDirection);
+        float atten = 0;
+
+        //compute attenuation only if vertex within lightrange
+        if (d<LightRange)
+        {
+            atten = 1/(saturate(LightAttenuation0) + saturate(LightAttenuation1) * d + saturate(LightAttenuation2) * pow(d, 2));
+        }
+
+        float4 amb = AmbientColor * atten;
+        amb.a = 1;
+
+        //halfvector
+        float3 H = normalize(ViewDirV + LightDirV);
+
+        //compute blinn lighting
+        float4 shades = lit(dot(NormV, LightDirV), dot(NormV, H), LightPower);
+
+        float4 diff = DiffuseColor * shades.y * atten;
+        diff.a = 1;
+
+        //reflection vector (view space)
+        float3 R = normalize(2 * dot(NormV, LightDirV) * NormV - LightDirV);
+
+        //normalized view direction (view space)
+        float3 V = normalize(ViewDirV);
+
+        //calculate specular light
+        float4 spec = pow(max(dot(R, V), 0), LightPower*.2) * SpecularColor;
+
+        return ((amb + diff) + spec)*smoothstep(1, 1-max(0, SmoothSpot)*0.99999, d/LightRange);
+    }
+
+    float3 BumpPoint(float4 nmap, float2 uv, float2 R)
+    {
+        float3 NormV = float3(nmap.x  -0.5, -(nmap.y  -0.5), -1);
+
+        NormV = lerp (float3(0, 0, -1), NormV, BumpAmount);
+        NormV = normalize(NormV);
+        float3 ViewDirV = -normalize(float3((uv.xy * 2 - 1) * float2(1, -1) * R/R.x, 1));
+
+        float3 PosW = float3((uv.xy * 2 - 1) * float2(1, -1) * R/R.x * 0.5, 0);
+        float3 LightDirV = normalize(LightDirection - PosW);
+
+        return PhongPoint(PosW, NormV, ViewDirV, LightDirV).rgb;
+    };
+    
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float2 R = ViewSize;
+
+        float4 col = Texture0.SampleLevel(Sampler0, uv, 0);
+        float4 nmap = Texture1.SampleLevel(Sampler1, uv, 0);
+
+        switch((uint)Type%2)
+        {
+            case 0 : col.rgb *= BumpDirectional(nmap, uv, R); break;
+            case 1 : col.rgb *= BumpPoint(nmap, uv, R); break;
+        }
+
+        return col;
+    }
+};

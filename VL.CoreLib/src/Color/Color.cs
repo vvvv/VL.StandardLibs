@@ -107,7 +107,7 @@ namespace VL.Lib.Color
             output.R = input.R * scalar;
             output.G = input.G * scalar;
             output.B = input.B * scalar;
-            output.A = input.A * scalar;
+            output.A = input.A;
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace VL.Lib.Color
             output.R = input.R * scalar;
             output.G = input.G * scalar;
             output.B = input.B * scalar;
-            output.A = input.A * scalar;
+            output.A = input.A;
         }
 
         /// <summary>

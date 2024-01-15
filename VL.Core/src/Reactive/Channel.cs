@@ -1,199 +1,414 @@
-﻿using System;
+﻿using Stride.Core;
+using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using VL.Core;
-using VL.Core.CompilerServices;
+using VL.Lib.Collections;
+
+#nullable enable
 
 namespace VL.Lib.Reactive
 {
-    public abstract class Channel : IDisposable
+    public interface IChannel
     {
-        public abstract object Object { get; set; }
-        public abstract Channel<object> ChannelOfObject { get; }
-        public abstract Channel<IReadOnlyCollection<Attribute>> Attributes { get; }
-
-        public IObservable<object> ToObservableOfObject()
-        {
-            if (this is IObservable<object> x)
-                return x;
-            return ChannelOfObject;
-        }
-
-        public abstract Type ClrTypeOfValues { get; } //ivltypeinfo would be nice. but you need scope.
-
-        public static Channel CreateChannelOfType(Type typeOfValues)
-        {
-            return Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues)) as Channel;
-        }
-        public static Channel CreateChannelOfType(IVLTypeInfo typeOfValues)
-        {
-            return Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues.ClrType)) as Channel;
-        }
-
-        public abstract void Dispose();
-
-        internal bool IsDummy;
+        Type ClrTypeOfValues { get; }
+        ImmutableList<object> Components { get; set; }
+        IChannel<object> ChannelOfObject { get; }
+        bool Enabled { get; set; }
+        bool IsBusy { get; }
+        object? Object { get; set; }
+        string? LatestAuthor { get; }
+        void SetObjectAndAuthor(object? @object, string? author);
+        IDisposable BeginChange();
     }
 
     [Monadic(typeof(Monadic.ChannelFactory<>))]
-    public class Channel<T> : Channel, ISubject<T>, ISwappableGenericType
+    public interface IChannel<T> : IChannel, ISubject<T?>, IDisposable
     {
-        readonly Subject<T> Subject = new Subject<T>();
+        public T? Value { get; set; }
+        void SetValueAndAuthor(T? value, string? author);
+        Func<T?, Optional<T?>>? Validator { set; }
+    }
 
-        public Channel()
-        {
-            FChannelOfObject = new Lazy<Channel<object>>(() =>
-            {
-                var c = new Channel<object>() { Value = Value };
-                this.Merge(c, a => a, b => (T)b, ChannelMergeInitialization.None, pushEagerlyTo: ChannelSelection.Both);
-                return c;
-            });
-            FAttributes = new Lazy<Channel<IReadOnlyCollection<Attribute>>>(() =>
-            {
-                return new Channel<IReadOnlyCollection<Attribute>>()
-                {
-                    Value = Array.Empty<Attribute>()
-                };
-            });
-        }
+    internal abstract class C<T> : IChannel<T>
+    {
+        protected readonly Subject<T?> subject = new();
+        protected int lockCount = 0;
+        protected int revision = 0;
+        protected int revisionOnLockTaken = 0;
 
-        public override void Dispose()
-        {
-            Enabled = false;
-            Subject.Dispose();
-            if (FChannelOfObject.IsValueCreated)
-                ChannelOfObject.Dispose();
-            if (FAttributes.IsValueCreated)
-                Attributes.Dispose();
-        }
-
-        void IObserver<T>.OnCompleted()
-        {
-            Subject.OnCompleted();
-        }
-
-        void IObserver<T>.OnError(Exception error)
-        {
-            Subject.OnError(error);
-        }
-
-        void IObserver<T>.OnNext(T value)
-        {
-            Value = value;
-        }
-
-        public IDisposable Subscribe(IObserver<T> observer)
-        {
-            return Subject.Subscribe(observer);
-        }
-
-        object ISwappableGenericType.Swap(Type newType, Swapper swapObject)
-        {
-            var arg = newType.GenericTypeArguments[0];
-            var channel = CreateChannelOfType(arg);
-            channel.Object = swapObject(Object, arg);
-            return channel;
-        }
+        public ImmutableList<object> Components { get; set; } = ImmutableList<object>.Empty;
 
         const int maxStack = 1;
         int stack;
 
         public bool IsBusy => stack > 0;
 
-        T value = default;
-        public T Value 
-        { 
+        T? value = default;
+        public T? Value
+        {
             get
             {
                 return value;
             }
             set
             {
-                if (!Enabled || IsDummy)
-                    return;
-
-                this.value = value;
-
-                if (stack < maxStack)
-                {
-                    stack++;
-                    try
-                    {
-                        Subject.OnNext(value);
-                    }
-                    finally
-                    {
-                        stack--;
-                    }
-                }
-            } 
+                SetValueAndAuthor(value, null);
+            }
         }
 
-        public override object Object { get => Value; set => Value = (T)value; }
+        public Func<T?, Optional<T?>>? Validator { private get; set; } = null;
 
-        Lazy<Channel<object>> FChannelOfObject;
-        Lazy<Channel<IReadOnlyCollection<Attribute>>> FAttributes;
+        public void SetValueAndAuthor(T? value, string? author)
+        {
+            AssertAlive();
+            if (!Enabled || !this.IsValid())
+                return;
 
-        public override Channel<object> ChannelOfObject => FChannelOfObject.Value;
-        public override Channel<IReadOnlyCollection<Attribute>> Attributes => FAttributes.Value;
+            if (Validator != null)
+            {
+                var x = Validator(value);
+                if (x.HasNoValue)
+                    return;
+                value = x.Value;
+            }
 
-        public override Type ClrTypeOfValues => typeof(T);
+            LatestAuthor = author;
+            this.value = value;
+            revision++;
+
+            if (stack < maxStack && lockCount == 0)
+            {
+                stack++;
+                try
+                {
+                    subject.OnNext(value);
+                }
+                finally
+                {
+                    stack--;
+                }
+            }
+        }
+
+        object? IChannel.Object { get => Value; set => Value = (T?)value; }
+
+        void IChannel.SetObjectAndAuthor(object? @object, string? author)
+        {
+            SetValueAndAuthor((T?)@object, author);
+        }
+
+        IChannel<object> IChannel.ChannelOfObject => channelOfObject;
+
+        public Type ClrTypeOfValues => typeof(T);
+
+
+        protected abstract IChannel<object> channelOfObject {get;}
+
+        void IObserver<T?>.OnCompleted()
+        {
+            AssertAlive();
+            if (Enabled)
+                subject.OnCompleted();
+        }
+
+        void IObserver<T?>.OnError(Exception error)
+        {
+            AssertAlive();
+            if (Enabled)
+                subject.OnError(error);
+        }
+
+        void IObserver<T?>.OnNext(T? value)
+        {
+            AssertAlive();
+            SetValueAndAuthor(value, null);
+        }
+
+        IDisposable IObservable<T?>.Subscribe(IObserver<T?> observer)
+        {
+            AssertAlive();
+            if (subject.IsDisposed) 
+                return Disposable.Empty;                
+            return subject.Subscribe(observer);
+        }
+
+        [Conditional("DEBUG")]
+        protected void AssertAlive()
+        {
+            // Debug.Assert causes complete crash in DEBUG builds without a debugger attached
+            //Debug.Assert(!subject.IsDisposed, "you work with a disposed channel!");
+        }
 
         public bool Enabled { get; set; } = true;
 
-        public static implicit operator T(Channel<T> c) => c.Value;
+        public string? LatestAuthor { get; set; }
+
+        bool disposing = false;
+        void IDisposable.Dispose()
+        {
+            if (disposing)
+                return;
+
+            disposing = true;
+            try
+            {
+                Enabled = false;
+                foreach (var c in Components)
+                    (c as IDisposable)?.Dispose();
+                Components = ImmutableList<object>.Empty;
+                subject.Dispose();
+            }
+            finally
+            {
+                disposing = false;
+            }
+        }
+
+        public IDisposable BeginChange()
+        {
+            if (lockCount == 0)
+                revisionOnLockTaken = revision;
+            lockCount++;
+            return Disposable.Create(EndChange);
+        }
+
+        void EndChange()
+        {
+            lockCount--;
+            if (lockCount == 0 && revisionOnLockTaken != revision)
+                SetValueAndAuthor(this.Value, LatestAuthor);
+        }
     }
 
-    public sealed class DummyChannel<T> : Channel<T>
+    internal class Channel<T> : C<T>, IChannel<object>
     {
-        public static readonly Channel<T> Instance;
+        protected override IChannel<object> channelOfObject => this;
 
-        static DummyChannel()
+        object? IChannel<object>.Value { get => Value; set { Value = (T?)value; } }
+
+        Func<object?, Optional<object?>>? IChannel<object>.Validator 
         {
-            Instance = new DummyChannel<T>();
-            Instance.Value = TypeUtils.Default<T>();
-            Instance.Enabled = false;
-            Instance.IsDummy = true;
+            set
+            {
+                if (value == null)
+                {
+                    Validator = null;
+                    return;
+                }
+                Validator = v =>
+                {
+                    var opt = value!.Invoke(v);
+                    if (opt.HasValue)
+                        return (T?)opt.Value;
+                    return new Optional<T?>();
+                };
+            }
+        }
+
+        void IChannel<object>.SetValueAndAuthor(object? value, string? author)
+        {
+            SetValueAndAuthor((T?)value, author);
+        }
+
+        void IObserver<object?>.OnCompleted()
+        {
+            AssertAlive();
+            if (Enabled)
+                subject.OnCompleted();
+        }
+
+        void IObserver<object?>.OnError(Exception error)
+        {
+            AssertAlive();
+            if (Enabled)
+                subject.OnError(error);
+        }
+
+        void IObserver<object?>.OnNext(object? value)
+        {
+            Value = (T?)value;
+        }
+        
+        IDisposable IObservable<object?>.Subscribe(IObserver<object?> observer)
+        {
+            AssertAlive();
+            if (subject.IsDisposed)
+                return Disposable.Empty;
+            if (observer is IObserver<T?> obsT)
+                return subject.Subscribe(obsT);
+            return subject.Subscribe(v => observer.OnNext(v), e => observer.OnError(e), () => observer.OnCompleted());
+        }
+
+        public static implicit operator T?(Channel<T> c) => c.Value;
+    }
+
+    interface IDummyChannel { }
+
+    internal sealed class DummyChannel<T> : Channel<T>, IDummyChannel
+    {
+        public static readonly IChannel<T> Instance = new DummyChannel<T>();
+
+        private DummyChannel()
+        {
+            Value = AppHost.CurrentOrGlobal.GetDefaultValue<T>();
+            Enabled = false;
+        }
+    }
+
+    public static class Channel
+    {
+        public static IChannel<T> Create<T>(T value)
+        {
+            var channel = ChannelHelpers.CreateChannelOfType<T>();
+            channel.Value = value;
+            return channel;
         }
     }
 
     public static class ChannelHelpers
     {
-        public static bool IsValid([NotNullWhen(true)] this Channel c)
-            => c != null && !c.IsDummy;
+        public static void AddComponent(this IChannel channel, object component)
+        {
+            channel.Components = channel.Components.Add(component);
+        }
 
-        public static void EnsureValue<T>(this Channel<T> input, T value, bool force = false)
+        public static void RemoveComponent(this IChannel channel, object component)
+        {
+            channel.Components = channel.Components.Remove(component);
+            //(component as IDisposable)?.Dispose();
+        }
+
+        public static TComponent? TryGetComponent<TComponent>(this IChannel channel) where TComponent : class
+            => channel.Components.OfType<TComponent>().FirstOrDefault();
+
+        public static TComponent EnsureSingleComponentOfType<TComponent>(this IChannel channel, Func<TComponent> producer, bool renew) where TComponent : class
+        {
+            var c = channel.TryGetComponent<TComponent>();
+            if (c is null)
+            {
+                c = producer();
+                channel.Components = channel.Components.Add(c);
+                return c;
+            }
+
+            if (!renew)
+                return c;
+
+            var newC = producer();
+            channel.Components = channel.Components.Replace(c, newC);
+            (c as IDisposable)?.Dispose();
+            return newC;
+        }
+
+        public static object EnsureSingleComponentOfType(this IChannel channel, object component, bool renew)
+        {
+            var type = component.GetType();
+            foreach (object? c in channel.Components)
+            {
+                if (c.GetType() == type)
+                {
+                    if (!renew)
+                    {
+                        (component as IDisposable)?.Dispose();
+                        return c;
+                    }
+                    channel.Components = channel.Components.Replace(c, component);
+                    (c as IDisposable)?.Dispose();
+                    return component;
+                }
+            }
+            channel.Components = channel.Components.Add(component);
+            return component;
+        }
+
+        public static IChannel<Spread<Attribute>> Attributes(this IChannel channel)
+            => channel.EnsureSingleComponentOfType(() =>
+                {
+                    var c = CreateChannelOfType<Spread<Attribute>>();
+                    c.Value = Spread<Attribute>.Empty;
+                    return c;
+                }, false);
+
+        public static bool TryGetAttribute<T>(this IChannel channel, [NotNullWhen(true)] out T? attribute) where T : Attribute
+        {
+            var attributes = channel.TryGetComponent<IChannel<Spread<Attribute>>>()?.Value;
+
+            if (attributes is not null)
+            {
+                foreach (var a in attributes)
+                {
+                    if (a is T t)
+                    {
+                        attribute = t;
+                        return true;
+                    }
+                }
+            }
+
+            attribute = null;
+            return false;
+        }
+
+        public static IChannel<T> CreateChannelOfType<T>()
+        {
+            return new Channel<T>();
+        }
+        public static IChannel<object> CreateChannelOfType(Type typeOfValues)
+        {
+            return (IChannel<object>)Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues))!;
+        }
+        public static IChannel<object> CreateChannelOfType(IVLTypeInfo typeOfValues)
+        {
+            return (IChannel<object>)Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues.ClrType))!;
+        }
+
+        public static IChannel<T> Dummy<T>() => DummyChannel<T>.Instance;
+
+        public static bool IsValid([NotNullWhen(true)] this IChannel? c)
+            => c is not null && c is not IDummyChannel;
+
+        public static void EnsureValue<T>(this IChannel<T> input, T? value, bool force = false, string? author = default)
         {
             if (force || !EqualityComparer<T>.Default.Equals(input.Value, value))
-                input.Value = value;
+                input.SetValueAndAuthor(value, author);
         }
 
-        public static void EnsureValue(this Channel input, object value, bool force = false)
+        public static void EnsureObject(this IChannel input, object? value, bool force = false, string? author = default)
         {
-            if (force || !Equals(input.Object, value))
-                input.Object = value;
+            if (force || !EqualityComparer<object>.Default.Equals(input.Object, value))
+                input.SetObjectAndAuthor(value, author);
         }
 
-        public static IDisposable Merge<T>(this Channel<T> a, Channel<T> b, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
+        public static IDisposable Merge<T>(this IChannel<T> a, IChannel<T> b, 
+            ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
         {
             return Merge(a, b, v => v, v => v, initialization, pushEagerlyTo);
         }
 
-        public static IDisposable Merge<A, B>(this Channel<A> a, Channel<B> b, Func<A, B> toB, Func<B, A> toA, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
+        public static IDisposable Merge<A, B>(this IChannel<A> a, IChannel<B> b, Func<A?, B?> toB, Func<B?, A?> toA, 
+            ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
         {
+            if (!a.IsValid() || !b.IsValid())
+                return Disposable.Empty;
+
             var subscription = new CompositeDisposable();
 
             switch (initialization)
             {
                 case ChannelMergeInitialization.UseA:
-                    b.EnsureValue(toB(a.Value));
+                    b.EnsureValue(toB(a.Value), author: a.LatestAuthor);
                     break;
                 case ChannelMergeInitialization.UseB:
-                    a.EnsureValue(toA(b.Value));
+                    a.EnsureValue(toA(b.Value), author: b.LatestAuthor);
                     break;
             }
 
@@ -205,7 +420,7 @@ namespace VL.Lib.Reactive
                     isBusy = true;
                     try
                     {
-                        b.EnsureValue(toB(v), pushEagerlyTo.HasFlag(ChannelSelection.ChannelB));
+                        b.EnsureValue(toB(v), pushEagerlyTo.HasFlag(ChannelSelection.ChannelB), a.LatestAuthor);
                     }
                     finally
                     {
@@ -220,7 +435,7 @@ namespace VL.Lib.Reactive
                     isBusy = true;
                     try
                     {
-                        a.EnsureValue(toA(v), pushEagerlyTo.HasFlag(ChannelSelection.ChannelA));
+                        a.EnsureValue(toA(v), pushEagerlyTo.HasFlag(ChannelSelection.ChannelA), b.LatestAuthor);
                     }
                     finally
                     {
@@ -232,18 +447,30 @@ namespace VL.Lib.Reactive
             return subscription;
         }
 
-        public static IDisposable Merge<A, B>(this Channel<A> a, Channel<B> b, Func<A, Optional<B>> toB, Func<B, Optional<B>> toA, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
+        public static IDisposable Merge<A, B>(this IChannel<A> a, IChannel<B> b, Func<A?, Optional<B>> toB, Func<B?, Optional<A>> toA, 
+            ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
         {
+            if (!a.IsValid() || !b.IsValid())
+                return Disposable.Empty;
+
             var subscription = new CompositeDisposable();
 
             switch (initialization)
             {
                 case ChannelMergeInitialization.UseA:
-                    b.EnsureValue(toB(a.Value));
+                {
+                    var optionalV = toB(a.Value);
+                    if (optionalV.HasValue)
+                        b.EnsureValue(optionalV.Value, author: a.LatestAuthor);
                     break;
+                }
                 case ChannelMergeInitialization.UseB:
-                    a.EnsureValue(toA(b.Value));
+                {
+                    var optionalV = toA(b.Value);
+                    if (optionalV.HasValue)
+                        a.EnsureValue(optionalV.Value, author: b.LatestAuthor);
                     break;
+                }
             }
 
             var isBusy = false;
@@ -256,7 +483,7 @@ namespace VL.Lib.Reactive
                     {
                         var x = toB(v);
                         if (x.HasValue)
-                            b.EnsureValue(x.Value, pushEagerlyTo.HasFlag(ChannelSelection.ChannelB));
+                            b.EnsureValue(x.Value, pushEagerlyTo.HasFlag(ChannelSelection.ChannelB), a.LatestAuthor);
                     }
                     finally
                     {
@@ -273,61 +500,7 @@ namespace VL.Lib.Reactive
                     {
                         var x = toA(v);
                         if (x.HasValue)
-                            a.EnsureValue(x.Value, pushEagerlyTo.HasFlag(ChannelSelection.ChannelA));
-                    }
-                    finally
-                    {
-                        isBusy = false;
-                    }
-                }
-            }));
-
-            return subscription;
-        }
-
-        public static IDisposable Merge(this Channel a, Channel b, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
-        {
-            return Merge(a, b, v => v, v => v, initialization, pushEagerlyTo);
-        }
-
-        public static IDisposable Merge(this Channel a, Channel b, Func<object, object> toB, Func<object, object> toA, ChannelMergeInitialization initialization, ChannelSelection pushEagerlyTo)
-        {
-            var subscription = new CompositeDisposable();
-
-            switch (initialization)
-            {
-                case ChannelMergeInitialization.UseA:
-                    b.EnsureValue(toB(a.Object));
-                    break;
-                case ChannelMergeInitialization.UseB:
-                    a.EnsureValue(toA(b.Object));
-                    break;
-            }
-
-            var isBusy = false;
-            subscription.Add(a.ToObservableOfObject().Subscribe(v =>
-            {
-                if (!isBusy)
-                {
-                    isBusy = true;
-                    try
-                    {
-                        b.EnsureValue(toB(a.Object), pushEagerlyTo.HasFlag(ChannelSelection.ChannelB));
-                    }
-                    finally
-                    {
-                        isBusy = false;
-                    }
-                }
-            }));
-            subscription.Add(b.ToObservableOfObject().Subscribe(v =>
-            {
-                if (!isBusy)
-                {
-                    isBusy = true;
-                    try
-                    {
-                        a.EnsureValue(toA(b.Object), pushEagerlyTo.HasFlag(ChannelSelection.ChannelA));
+                            a.EnsureValue(x.Value, pushEagerlyTo.HasFlag(ChannelSelection.ChannelA), b.LatestAuthor);
                     }
                     finally
                     {
@@ -339,4 +512,6 @@ namespace VL.Lib.Reactive
             return subscription;
         }
     }
+
 }
+#nullable disable

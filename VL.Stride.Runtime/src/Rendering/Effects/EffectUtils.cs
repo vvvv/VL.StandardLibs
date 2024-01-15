@@ -18,8 +18,6 @@ using System.Reflection;
 using System.Diagnostics;
 using Stride.Core;
 using Stride.Shaders.Parser.Mixins;
-using VL.App;
-using System.Runtime.CompilerServices;
 
 namespace VL.Stride.Rendering
 {
@@ -68,7 +66,7 @@ namespace VL.Stride.Rendering
         //get shader source from data base, is there a more direct way?
         public static string GetShaderSourceCode(string effectName, IVirtualFileProvider fileProvider, ShaderSourceManager shaderSourceManager)
         {
-            if (!AppState.IsExported) //only try to load shader source from file when in VL editor
+            if (!AppHost.Global.IsExported) //only try to load shader source from file when in VL editor
             {
                 var path = GetPathOfSdslShader(effectName, fileProvider);
 
@@ -423,7 +421,7 @@ namespace VL.Stride.Rendering
                 switch (perDraw)
                 {
                     case PerDrawParameters.World:
-                        // Already handled. DON'T write it again or we introduce a feedback between render calls!
+                        parameters.Set(TransformationKeys.World, ref world);
                         break;
                     case PerDrawParameters.WorldInverse:
                         parameters.Set(TransformationKeys.WorldInverse, ref worldInverse);

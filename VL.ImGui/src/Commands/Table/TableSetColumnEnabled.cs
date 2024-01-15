@@ -13,7 +13,8 @@
 
         internal override void UpdateCore(Context context)
         {
-            ImGuiNET.ImGui.TableSetColumnEnabled(Index, IsVisible);
+            if (context.IsInBeginTables)
+                ImGuiNET.ImGui.TableSetColumnEnabled(Index, IsVisible);
         }
     }
 }

@@ -3,7 +3,7 @@
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Queries", IsStylable = false)]
-    internal partial class CalcTextSize : Widget
+    internal partial class CalcTextSize : Query
     {
 
         public Vector2 Value { get; private set; }

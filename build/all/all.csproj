@@ -9,11 +9,15 @@
     <NoWarn>MSB3270</NoWarn>
 
     <IsPackable>false</IsPackable>
+    
+    <!-- We want all dependencies in our output folder -->
+    <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
 
   <PropertyGroup>
-    <VVVVInstallPath>$(ProgramW6432)\vvvv\vvvv_gamma_2022.5.0-0618-gd9a3053447</VVVVInstallPath>
-    <ThisPackageRepository>$(MsBuildThisFileDirectory)..\..</ThisPackageRepository>
+    <!-- If you get crashes on startup (missing method, or type) it's most likely that the used vvvv version doesn't match -->
+    <VVVVInstallPath>$(ProgramW6432)\vvvv\vvvv_gamma_5.2</VVVVInstallPath>
+    <ThisPackageRepository>$([System.IO.Path]::GetFullPath('$(MsBuildThisFileDirectory)..\..'))</ThisPackageRepository>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,10 +29,15 @@
     <ProjectReference Include="..\..\VL.FuzzySearch\src\VL.FuzzySearch.csproj" />
     <ProjectReference Include="..\..\VL.ImGui.Skia\src\VL.ImGui.Skia.csproj" />
     <ProjectReference Include="..\..\VL.ImGui\src\VL.ImGui.csproj" />
+    <ProjectReference Include="..\..\VL.IO.Redis\src\VL.IO.Redis.csproj" />
+    <ProjectReference Include="..\..\VL.LogView\src\VL.LogView.csproj" />
+    <ProjectReference Include="..\..\VL.Serialization.FSPickler\src\VL.Serialization.FSPickler.csproj" />
+    <ProjectReference Include="..\..\VL.Serialization.MessagePack\src\VL.Serialization.MessagePack.csproj" />
+    <ProjectReference Include="..\..\VL.Serialization.Raw\src\VL.Serialization.Raw.csproj" />
     <ProjectReference Include="..\..\VL.Skia\src\VL.Skia.csproj" />
     <ProjectReference Include="..\..\VL.Stride.HDE\src\VL.Stride.HDE.csproj" />
     <ProjectReference Include="..\..\VL.Stride\src\VL.Stride.csproj" />
-    <ProjectReference Include="..\..\VL.Video.MediaFoundation\src\VL.Video.MediaFoundation.csproj" />
+    <ProjectReference Include="..\..\VL.Video\src\VL.Video.csproj" />
   </ItemGroup>
 
 </Project>

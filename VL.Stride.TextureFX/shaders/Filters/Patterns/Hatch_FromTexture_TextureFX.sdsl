@@ -1,0 +1,61 @@
+// source:
+// https://github.com/vvvv/vvvv-sdk/blob/develop/vvvv45/addonpack/lib/nodes/modules/TextureFX/Filter/HatchFromTexture/HatchFromTexture.fx
+
+[Category("Filter")]
+[Summary("")]
+shader Hatch_FromTexture_TextureFX : FilterBase
+{
+    [Default(0.5, 0.5, 0.5, 1)]
+    compose ComputeColor Color;
+
+    [Default(2.5)]
+    compose ComputeFloat Brightness;
+
+    [Default(0.25)]
+    compose ComputeFloat Scale;
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 uv = streams.TexCoord;
+        float2 R = ViewSize;
+        
+        float2 x = uv * R - 0.5;
+    
+        float4 col = Texture0.SampleLevel(LinearRepeatSampler, uv, 0) ;
+    
+        float  c = dot(col, 0.33);
+        c *= Brightness.Compute();
+    
+        float3 col2 = Texture1.SampleLevel(LinearRepeatSampler, x * (Scale.Compute()/2.0), 0).rgb;
+    
+        float g0 = 0;
+        float g1 = 0;
+        float f  = 0;
+    
+        if( c >= 0.666)
+        {
+            f =(c - 0.666) / 0.333;
+            g1 = 0;
+            g0 = col2.r;
+        }
+        else if( c >= 0.333)
+        {
+            f =(c - 0.333) / 0.333;
+            g1 = col2.r;
+            g0 = col2.g;
+        }
+        else{
+            f = c / 0.333;
+            g1= col2.g;
+            g0= col2.b;
+        }
+    
+        float g = g0 + f *(g1 - g0);
+    
+        g = 1 - g;
+  
+        col = float4( g, g, g, col.a ) * Color.Compute();
+    
+        return col;
+    }
+};

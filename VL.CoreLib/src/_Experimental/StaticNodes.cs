@@ -13,7 +13,7 @@ namespace VL.Lib.Experimental
     public class SingleInstanceHelper<T>
         where T: class
     {
-        static readonly ISingleInstanceHelper<T> Impl = ServiceRegistry.Global.GetService<IHotswapSpecificNodes>().CreateSingleInstanceHelper<T>();
+        static readonly ISingleInstanceHelper<T> Impl = AppHost.Global.Services.GetService<IHotswapSpecificNodes>().CreateSingleInstanceHelper<T>();
 
         public static T SingleInstance(bool forceNewInstance, Func<T> producer, SingleInstanceBehaviorOnStop onStop)
         {
@@ -99,7 +99,7 @@ namespace VL.Lib.Experimental
         static ConcurrentDictionary<TChannel, ChannelResolver> GetChannels()
             =>
             // let's fetch the one dictionary per app. It gets created once per session per dict type
-            ServiceRegistry.Current.GetOrAddService(() => new ConcurrentDictionary<TChannel, ChannelResolver>());
+            AppHost.Current.Services.GetOrAddService(_ => new ConcurrentDictionary<TChannel, ChannelResolver>());
 
         // all channels (per TChannel) within an app share this dictionary instance
         ConcurrentDictionary<TChannel, ChannelResolver> ChannelResolversPerChannel;
@@ -239,7 +239,7 @@ namespace VL.Lib.Experimental
 
         static StaticPatches()
         {
-            StaticField = (T)TypeUtils.New(typeof(T));
+            StaticField = (T)AppHost.Current.CreateInstance(typeof(T));
         }
 
         public static T Singleton

@@ -109,6 +109,11 @@ namespace VL.ImGui.Generator
         {
             var category = nodeAttrData.GetValueOrDefault("Category").Value as string ?? "ImGui";
             string nodeDecl = default;
+
+            var disposeCall = "";
+            if (typeSymbol.Interfaces.Any(interf => interf.Name == nameof(IDisposable)))
+                disposeCall = ", dispose: () => s.Dispose()";
+
             switch (mode)
             {
                 case Mode.RetainedMode:
@@ -117,10 +122,10 @@ namespace VL.ImGui.Generator
                         category = category.Replace("ImGui", "ReGui");
                         category += ".Internal";
                     }
-                    nodeDecl = "return c.Node(inputs, outputs);";
+                    nodeDecl = $"return c.Node(inputs, outputs{disposeCall});";
                     break;
                 case Mode.ImmediateMode:
-                    nodeDecl = "return c.Node(inputs, outputs, () => { s.Update(ctx); });";
+                    nodeDecl = $"return c.Node(inputs, outputs, () => {{ s.Update(ctx); }}{disposeCall});";
                     break;
                 default:
                     break;
@@ -169,6 +174,9 @@ namespace VL.ImGui.Generator
                     continue;
 
                 var pinAttrData = GetAttributeData(pinAttributeSymbol, property);
+                if (pinAttrData.TryGetValue("Ignore", out var ignore) && ignore.Value is bool bIgnore && bIgnore)
+                    continue;
+
                 if (pinAttrData.TryGetValue("Priority", out var prio))
                     properties.Add(((int)prio.Value) * 1000 + i, property);
                 else
@@ -190,9 +198,15 @@ namespace VL.ImGui.Generator
                 //        doInput = false;
                 //}
 
+                var defaultValue = $"_w.{property.Name}";
+
+                var pinAttrData = GetAttributeData(pinAttributeSymbol, property);
+                if (pinAttrData.TryGetValue("DefaultValue", out var constant) && constant.Value is string s)
+                    defaultValue = s;
+
                 if (doInput)
                 {
-                    inputDescriptions.Add($"_c.Input(\"{ToUserName(property.Name)}\", _w.{property.Name}, summary: @\"{propertySummary}\"),");
+                    inputDescriptions.Add($"_c.Input(\"{ToUserName(property.Name)}\", _w.{property.Name}, {defaultValue}, summary: @\"{propertySummary}\"),");
                     inputs.Add($"c.Input(v => s.{property.Name} = v, s.{property.Name}),");
                 }
                 else
@@ -243,26 +257,30 @@ namespace {typeSymbol.ContainingNamespace}
                 var _w = new {typeSymbol.Name}();
                 var _inputs = new IVLPinDescription[]
                 {{
-                    { string.Join($"{Environment.NewLine}{indent}", inputDescriptions)}
+                    { string.Join($"\n{indent}", inputDescriptions)}
                 }};
                 var _outputs = new[]
                 {{                    
-                    {string.Join($"{Environment.NewLine}{indent}", outputDescriptions)}
+                    {string.Join($"\n{indent}", outputDescriptions)}
                 }};
-                return _c.Node(_inputs, _outputs, c =>
-                {{
-                    var s = new {typeSymbol.Name}();
-                    {ctx}
-                    var inputs = new IVLPin[]
+                return _c.Node(
+                    _inputs, 
+                    _outputs, 
+                    c =>
                     {{
-                        {string.Join($"{Environment.NewLine}{indent2}", inputs)}
-                    }};
-                    var outputs = new IVLPin[]
-                    {{
-                        {string.Join($"{Environment.NewLine}{indent2}", outputs)}
-                    }};
-                    {nodeDecl}
-                }}, summary: @""{summary}"");
+                        var s = new {typeSymbol.Name}();
+                        {ctx}
+                        var inputs = new IVLPin[]
+                        {{
+                            {string.Join($"\n{indent2}", inputs)}
+                        }};
+                        var outputs = new IVLPin[]
+                        {{
+                            {string.Join($"\n{indent2}", outputs)}
+                        }};
+                        {nodeDecl}
+                    }}, 
+                    summary: @""{summary}"");
             }}, tags: ""{tags}"");
         }}
     }}
@@ -272,33 +290,28 @@ namespace {typeSymbol.ContainingNamespace}
 
         private static string GetDocEntry(ISymbol symbol, string tag = "summary", string name = null)
         {
-            var rawComment = new StringBuilder();
-            foreach (var s in symbol.DeclaringSyntaxReferences)
-            {
-                foreach (var t in s.GetSyntax().GetLeadingTrivia())
-                {
-                    if (t.IsKind(SyntaxKind.SingleLineCommentTrivia))
-                    {
-                        rawComment.AppendLine(t.ToString().TrimStart('/', ' '));
-                    }
-                }
-            }
+            var xml = symbol.GetDocumentationCommentXml();
 
-            if (rawComment.Length == 0)
+            if (xml is null || xml.Length == 0)
                 return null;
 
             try
             {
-                var x = XElement.Parse($"<X>{rawComment}</X>");
+                var x = XElement.Parse(xml);
                 if (name != null)
-                    return x.Elements(tag).FirstOrDefault(e => e.Attribute("name")?.Value == name)?.ToString();
+                    return Trim(x.Elements(tag).FirstOrDefault(e => e.Attribute("name")?.Value == name)?.ToString());
                 else
-                    return x.Element(tag)?.Value.ToString().Trim('\n').Replace("\"", "\"\"");
+                    return Trim(x.Element(tag)?.Value.ToString());
             }
             catch (Exception)
             {
                 return null;
             }
+        }
+
+        static string Trim(string s)
+        {
+            return s?.Trim('\n', '\r', ' ').Replace("\"", "\"\"");
         }
 
         static readonly Regex FCamelCasePattern = new Regex("[a-z][A-Z0-9]", RegexOptions.Compiled);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,7 +10,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using VL.Core;
-using VL.Lang.PublicAPI;
 
 namespace VL.Lib.Collections
 {
@@ -187,7 +187,7 @@ namespace VL.Lib.Collections
         }
 
         static DynamicEnumDefinitionBase<TDefinitionClass> DefinitionInstance => DynamicEnumDefinitionBase<TDefinitionClass>.Instance;
-        private readonly string FValue;
+        private string FValue;
 
         //IDynamicEnum interface implementation
         public string Value => FValue;
@@ -209,9 +209,9 @@ namespace VL.Lib.Collections
 
         public static TSubclass Create(string value)
         {
-            var obj = FormatterServices.GetUninitializedObject(typeof(TSubclass));
-            FormatterServices.PopulateObjectMembers(obj, MembersToInit, new object[] { value });
-            return (TSubclass)obj;
+            var obj = (TSubclass)RuntimeHelpers.GetUninitializedObject(typeof(TSubclass));
+            obj.FValue = value;
+            return obj;
         }
 
         /// <summary>
@@ -236,22 +236,6 @@ namespace VL.Lib.Collections
             }
 
             return result;
-        }
-
-        static MemberInfo[] FMembersToInit;
-        static MemberInfo[] MembersToInit
-        {
-            get
-            {
-                if(FMembersToInit == null)
-                {
-                    var subClassFieldInfo = FormatterServices.GetSerializableMembers(typeof(TSubclass))
-                        .OfType<FieldInfo>().FirstOrDefault(fi => fi.Name.Contains("FValue"));
-                    FMembersToInit = new MemberInfo[] { subClassFieldInfo };
-                }
-
-                return FMembersToInit;
-            }
         }
 
         static bool FCreateDefaultInfoInit;
@@ -334,17 +318,12 @@ namespace VL.Lib.Collections
        where TDefinitionSubclass : DynamicEnumDefinitionBase<TDefinitionSubclass>, new()
     {
         //singleton pattern
-        static readonly Lazy<TDefinitionSubclass> Singleton = new Lazy<TDefinitionSubclass>(() => new TDefinitionSubclass());
-        public static TDefinitionSubclass Instance
-        {
-            get
-            {
-                var singleton = Singleton.Value;
-                if (!singleton.FInitialized)
-                    singleton.InternalInitialize();
 
-                return singleton;
-            }
+        public static TDefinitionSubclass Instance { get; } = new TDefinitionSubclass();
+
+        public DynamicEnumDefinitionBase()
+        {
+            InternalInitialize();
         }
              
         //IDynamicEnumDefinition interface implementation
@@ -366,8 +345,6 @@ namespace VL.Lib.Collections
 
         IReadOnlyDictionary<string, object> FEntriesLookup;
 
-        //init setup
-        bool FInitialized;
         protected virtual void Initialize() { }
         private void InternalInitialize()
         {
@@ -381,13 +358,11 @@ namespace VL.Lib.Collections
 
             //make sure there is at least one subscription to make sure 
             //the side effect "SetEntries" gets called and inform the compiler about a change to add or remove errors
-            var root = ServiceRegistry.Global.GetService<CompositeDisposable>();
-            root.Add(OnChange.Subscribe(_ =>
-                AnyDynamicEnumDefinitionChanged.SendEnumDefinitionChanged(this.GetType())));
+            OnChange
+                .Subscribe(_ =>AnyDynamicEnumDefinitionChanged.SendEnumDefinitionChanged(this.GetType()))
+                .DisposeBy(AppHost.Global);
 
             SetNewEntries();
-
-            FInitialized = true;
         }
 
         public string EmptyEnumFallbackMessage
@@ -423,7 +398,7 @@ namespace VL.Lib.Collections
                 }
                 catch (Exception e)
                 {
-                    IDevSession.Current?.ReportException(e);
+                    AppHost.Global.DefaultLogger.LogError(e, "Exception while fetching new enum entries of {definition}.", typeof(TDefinitionSubclass));
                     return new Dictionary<string, object>();
                 }
             }

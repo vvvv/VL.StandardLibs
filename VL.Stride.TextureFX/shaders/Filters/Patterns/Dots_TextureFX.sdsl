@@ -1,0 +1,53 @@
+// source:
+// https://github.com/vvvv/vvvv-sdk/blob/develop/vvvv45/addonpack/lib/nodes/modules/TextureFX/Filter/Dots/Dots.fx
+
+[Category("Filter")]
+[Summary("")]
+shader Dots_TextureFX : FilterBase
+{
+    [Default(32, 32)]
+    compose ComputeFloat2 PixelSize;
+
+    bool Alpha = false;
+    bool Point = false;
+
+    [Default(0)]
+    compose ComputeFloat Smooth;
+
+    [Default(1, 1)]
+    compose ComputeFloat2 Scale;
+
+    float mx(float3 p)
+    {
+        return max(p.x, max(p.y, p.z));
+    }
+
+    float4 Filter(float4 tex0col)
+    {
+        float2 scale = Scale.Compute();
+        float2 uv = streams.TexCoord;
+        float2 pixelSize = PixelSize.Compute();
+        float smooth = Smooth.Compute();
+
+        float2 vp = uv * ViewSize - .25;
+        float2 sz = min( max(0.5/ViewSize, pixelSize), ViewSize);
+        float4 col = Texture0.SampleLevel(Sampler0, floor(vp/sz) * sz/ViewSize + 0.5/ViewSize, 0);
+        float glow = length((frac(vp/sz) - .5) / scale);
+        float grey = mx(col.rgb);
+
+        if(Point)
+        {
+            grey = 1;
+        }
+        
+        float circ = smoothstep(.48, .47 * saturate(1 - smooth) * min(1, 1 - fwidth(glow)*1.*saturate(pixelSize*.5)), glow/grey);
+           col.rgb = col.rgb/grey * circ;
+        
+        if(Alpha)
+        {
+            col.a *= circ;
+        }
+        
+        return col;
+    }
+};

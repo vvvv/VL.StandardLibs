@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="ElNAZaAK8PGON9DzXjEceW" LanguageVersion="2023.5.3-0280-g7a559dd2ee" Version="0.128">
+  <Patch Id="CSerPB3FF9ENTyt8o0lnEa">
+    <Canvas Id="IDAxqZTIoYJPVNRnA3v4tr" DefaultCategory="Serialization.Raw" CanvasType="FullCategory">
+      <!--
+
+    ************************ Deserialize ************************
+
+-->
+      <Node Name="Deserialize" Bounds="283,193,112,82" Id="KBxjHythvXrPqznd07Jpw4">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">true</p:HideCategory>
+        <Patch Id="PlYbYSCDKcMLfR0d2ZGMcM" IsGeneric="true">
+          <Node Bounds="295,225,66,19" AutoConnect="true" Id="Pd2BHnvYTBsQEwuXGX85WD">
+            <p:NodeReference LastCategoryFullName="VL.Serialization.Raw.RawSerialization" LastDependency="VL.Serialization.Raw.dll">
+              <Choice Kind="OperationNode" Name="Deserialize" />
+              <FullNameCategoryReference ID="VL.Serialization.Raw.RawSerialization" />
+            </p:NodeReference>
+            <Pin Id="UvoZpzBNwnOOOMbynJ1Jus" Name="Bytes" Kind="InputPin" />
+            <Pin Id="Tp1zc4SW6zVM7igKvVZuf8" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="DBS0HtEMewqPbNuBfnyIR3" Name="Bytes" Kind="InputPin" />
+          <Pin Id="GWgG0GkH9ZDPWAOhNsJ5Pw" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ Serialize ************************
+
+-->
+      <Node Name="Serialize" Bounds="282,343,113,82" Id="JsZoyPT3IU9OQgRhPGMBZQ">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" Name="Operation" />
+          <CategoryReference Kind="Category" Name="Primitive" />
+        </p:NodeReference>
+        <p:HideCategory p:Type="Boolean">true</p:HideCategory>
+        <Patch Id="V0XDkirgNdjNSUpGQPZhph" IsGeneric="true">
+          <Node Bounds="295,375,54,19" AutoConnect="true" Id="PcBEEHmTJNcN4V5OIIRUAk">
+            <p:NodeReference LastCategoryFullName="VL.Serialization.Raw.RawSerialization" LastDependency="VL.Serialization.Raw.dll">
+              <Choice Kind="OperationNode" Name="Serialize" />
+              <FullNameCategoryReference ID="VL.Serialization.Raw.RawSerialization" />
+            </p:NodeReference>
+            <Pin Id="FddNHe6efwBLmA9I1YOsog" Name="Input" Kind="InputPin" />
+            <Pin Id="FnESi2tGP8hLJA47M35Q66" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pin Id="RHu2x7eaCyuMCvbY7pUGPX" Name="Input" Kind="InputPin" />
+          <Pin Id="GRIVA43jYEcOQggRWumnyB" Name="Result" Kind="OutputPin" />
+        </Patch>
+      </Node>
+    </Canvas>
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="ShlAgQ8laaAM3F6xu1Cec3">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="SjTcVFxD9b2QIQ50ZzMEty">
+        <Canvas Id="J4cni8VohdoPZ2iq06XKNC" CanvasType="Group" />
+        <Patch Id="KYEi9c19xBXObKDuQ0v5eM" Name="Create" />
+        <Patch Id="KH7sg72BQxsNDUplh8qeNp" Name="Update" />
+        <ProcessDefinition Id="FU2mFYR0nEBMvpE85qIekB">
+          <Fragment Id="Jq9m0H7N499OmGI2DFHFHl" Patch="KYEi9c19xBXObKDuQ0v5eM" Enabled="true" />
+          <Fragment Id="BY2QYSJi7pwNuwH0P1jkBd" Patch="KH7sg72BQxsNDUplh8qeNp" Enabled="true" />
+        </ProcessDefinition>
+      </Patch>
+    </Node>
+  </Patch>
+  <PlatformDependency Id="LEFWQ0AyqsCPi0eDuy66Fr" Location="./lib/net8.0/VL.Serialization.Raw.dll" />
+</Document>

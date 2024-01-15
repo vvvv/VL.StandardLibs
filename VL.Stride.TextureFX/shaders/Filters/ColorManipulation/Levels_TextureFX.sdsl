@@ -1,0 +1,67 @@
+﻿[Category("Filter")]
+[Summary("")]
+shader Levels_TextureFX : FilterBase
+{
+    [EnumType("VL.Stride.TextureFX.LevelsClampType, VL.Stride.TextureFX")]
+    int Type;
+
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor fromBlack;
+    
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor fromWhite;
+    
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor toBlack;
+    
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor toWhite;
+
+    float Gamma = 1.0f;
+
+    float4 ClampNone(float4 col)
+    {
+        return col;
+    }
+
+    float4 ClampTop(float4 col)
+    {
+        return min(col,1);
+    }
+
+    float4 ClampBottom(float4 col)
+    {
+        return max(col,0);
+    }
+
+    float4 ClampBoth(float4 col)
+    {
+        return saturate(col);
+    }
+
+    float4 Filter(float4 tex0col)
+    {
+        float4 fb = fromBlack.Compute();
+        float4 fw = fromWhite.Compute();
+        float4 tb = toBlack.Compute();
+        float4 tw = toWhite.Compute();
+
+        float4 c = tex0col;
+        float4 fromDelta = fw - fb;
+        float4 cMin = c - fb;
+        c = cMin / fromDelta;
+        c = isnan(c) ? cMin : c;
+        c = sign(c) * pow(abs(c), Gamma);
+        
+        switch (Type)
+        {
+            case 0 : c = ClampNone(c); break;
+            case 1 : c = ClampTop(c); break;
+            case 2 : c = ClampBottom(c); break;
+            case 3 : c = ClampBoth(c); break;
+        }
+
+        c = c * (tw - tb) + tb;
+        return c;
+    }
+};

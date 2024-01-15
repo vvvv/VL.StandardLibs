@@ -1,5 +1,8 @@
 ﻿#nullable enable
+using Stride.Core;
+using Stride.Engine;
 using Stride.Graphics;
+using Stride.Rendering;
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -15,14 +18,16 @@ namespace VL.Stride.Video
         private readonly SerialDisposable latestSubscription = new SerialDisposable();
         private readonly SerialDisposable currentSubscription = new SerialDisposable();
 
+        private readonly IResourceHandle<RenderDrawContext> renderDrawContextHandle;
+
         private VideoStream? videoStream;
         private IResourceProvider<Texture>? current, latest;
 
-        private IResourceHandle<GraphicsDevice> graphicsDevice;
-
         public VideoStreamToTexture()
         {
-            graphicsDevice = ServiceRegistry.Current.GetService<IResourceProvider<GraphicsDevice>>().GetHandle();
+            renderDrawContextHandle = AppHost.Current.Services.GetGameProvider()
+                .Bind(g => RenderContext.GetShared(g.Services).GetThreadContext())
+                .GetHandle() ?? throw new ServiceNotFoundException(typeof(IResourceProvider<Game>));
         }
 
         public unsafe VideoStream? VideoStream 
@@ -37,7 +42,7 @@ namespace VL.Stride.Video
                     imageStreamSubscription.Disposable = value?.Frames
                         .Do(provider =>
                         {
-                            var textureProvider = provider.BindNew(f => VideoUtils.ToTexture(f, graphicsDevice.Resource)).ShareInParallel();
+                            var textureProvider = provider.ToTexture(renderDrawContextHandle.Resource).ShareInParallel();
                             var handle = textureProvider.GetHandle(); // Upload the texture
 
                             // Exchange provider
@@ -82,7 +87,7 @@ namespace VL.Stride.Video
             imageStreamSubscription.Dispose();
             latestSubscription.Dispose();
             currentSubscription.Dispose();
-            graphicsDevice.Dispose();
+            renderDrawContextHandle.Dispose();
         }
     }
 }

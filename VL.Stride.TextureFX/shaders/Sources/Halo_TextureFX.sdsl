@@ -1,0 +1,59 @@
+// source:
+// https://github.com/mrvux/dx11-vvvv-girlpower/blob/master/nodes/texture11/Source/Halo.tfx
+
+[TextureSource]
+[Category("Source")]
+[Summary("Returns a halo texture")]
+shader Halo_TextureFX : TextureFX
+{
+    float InnerRadius = 0.0f;
+    float OuterRadius = 0.5f;
+
+    [EnumType("VL.Stride.TextureFX.HaloType, VL.Stride.TextureFX")]
+    int Type = 0;
+
+    [Default(0, 0, 0, 0)]
+    compose ComputeColor BackgroundColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor HaloColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    
+    float Gamma = 0.5f;
+
+    float4 Linear(float f, float g)
+    {
+        f = pow(f, g);
+        return lerp(HaloColor.Compute(), BackgroundColor.Compute(), f);
+    }
+
+    float4 Smooth(float f, float g)
+    {
+        f = smoothstep(0,1,f);
+        f = pow(f, g);
+        return lerp(HaloColor.Compute(), BackgroundColor.Compute(), f);
+    }
+    
+    stage override float4 Shading()
+    {
+        float2 uv = streams.TexCoord;
+
+        float4 col = 0;
+        float2 targetSize = ViewSize;
+        float aspect = targetSize.x / targetSize.y;
+        uv = (uv-0.5) * float2(aspect, 1) + 0.5;
+
+        float g = Gamma/(1.00001-Gamma);
+
+        float thickness = OuterRadius - InnerRadius;
+        float halo = clamp(distance(float2(0, 0), uv-0.5)-InnerRadius, 0, thickness);
+        float f = halo/thickness;
+
+        switch(Type)
+        {
+            case 0 : col = Smooth(f, g); break;
+            case 1 : col = Linear(f, g); break;
+        }
+
+        return col;
+    }
+};

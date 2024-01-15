@@ -5,6 +5,7 @@ using EGLContext = System.IntPtr;
 using EGLConfig = System.IntPtr;
 using EGLSurface = System.IntPtr;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace VL.Skia.Egl
 {
@@ -69,21 +70,27 @@ namespace VL.Skia.Egl
 
         public EglDisplay Dislpay => display;
 
-        public EglSurface CreatePlatformWindowSurface(IntPtr nativeWindow)
+        public EglSurface CreatePlatformWindowSurface(IntPtr nativeWindow, bool directComposition = false)
         {
             if (nativeWindow == default)
                 throw new ArgumentNullException(nameof(nativeWindow));
 
-            int[] surfaceAttributes = new[]
-            {
-                NativeEgl.EGL_NONE
-            };
-
+            var surfaceAttributes = GetAttributes().ToArray();
             var surface = NativeEgl.eglCreatePlatformWindowSurface(display, config, nativeWindow, surfaceAttributes);
             if (surface == default)
                 throw new Exception("Failed to create EGL surface");
 
             return new EglSurface(display, surface);
+
+            IEnumerable<nint> GetAttributes()
+            {
+                if (directComposition)
+                {
+                    yield return NativeEgl.EGL_DIRECT_COMPOSITION_ANGLE;
+                    yield return NativeEgl.EGL_TRUE;
+                }
+                yield return NativeEgl.EGL_NONE;
+            }
         }
 
         public EglSurface CreateSurfaceFromClientBuffer(IntPtr buffer)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <OutputPath>..\lib</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
@@ -27,25 +27,22 @@
     <!-- A pure package dependency so on install all VL packages come in -->
     <PackageReference Include="Stride.TextureConverter" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\VL.Skia\src\VL.Skia.csproj" />
-  </ItemGroup>
   
   <Target Name="IncludeStridePackageContent" BeforeTargets="InferPackageContents" DependsOnTargets="_StridePrepareAssetsForPack">
     <Message Importance="high" Text="Called Stride package targets" />
   </Target>
 
   <ItemGroup>
-    <None Include="$(PkgStride_Assets)\contentFiles\any\net6.0-windows7.0\ffmpeg.exe">
+    <None Include="$(PkgStride_Assets)\contentFiles\any\net8.0-windows7.0\ffmpeg.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="$(PkgStride_Assets)\contentFiles\any\net6.0-windows7.0\msdfgen.exe">
+    <None Include="$(PkgStride_Assets)\contentFiles\any\net8.0-windows7.0\msdfgen.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\..\VL.Core.Skia\VL.Core.Skia.csproj" />
     <ProjectReference Include="..\..\VL.Stride.Runtime\src\VL.Stride.Runtime.csproj" />
   </ItemGroup>
 </Project>

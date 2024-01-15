@@ -21,7 +21,7 @@ namespace VL.Skia
         SkiaGLControl FControl;
         bool HasValidLayer;
         ILayer Layer;
-        ServiceRegistry FServiceRegistry;
+        AppHost FAppHost;
 
         public ILayer Input
         {
@@ -163,14 +163,14 @@ namespace VL.Skia
 
         public SkiaRenderer(Action<SkiaRenderer> layout)
         {
-            FServiceRegistry = ServiceRegistry.CurrentOrGlobal;
+            FAppHost = AppHost.Current;
 
             this.SuspendLayout();
 
             Icon = Properties.Resources.QuadIcon;
             StartPosition = FormStartPosition.Manual;
 
-            FControl = new SkiaGLControl();
+            FControl = new SkiaGLControl() { DirectCompositionEnabled = false /* Rendering works but GPU is still at 20%, so keep it disabled for now */ };
             FControl.Dock = DockStyle.Fill;
             FControl.OnRender += FControl_OnRender;
             Controls.Add(FControl);
@@ -244,14 +244,14 @@ namespace VL.Skia
             }
         }
 
-        private void FControl_OnRender(CallerInfo obj)
+        private void FControl_OnRender(CallerInfo callerInfo)
         {
-            using var _ = FServiceRegistry?.MakeCurrentIfNone();
+            using var _ = FAppHost?.MakeCurrentIfNone();
 
             try
             {
                 if (!FFirstRenderCall && Visible && HasValidLayer)
-                    Input?.Render(FControl.CallerInfo);
+                    Input?.Render(callerInfo);
                 FFirstRenderCall = false;
             }
             catch (Exception exception)
@@ -262,7 +262,7 @@ namespace VL.Skia
 
         private void OnNotification(INotification n)
         {
-            using var _ = FServiceRegistry?.MakeCurrentIfNone();
+            using var _ = FAppHost?.MakeCurrentIfNone();
 
             try
             {
