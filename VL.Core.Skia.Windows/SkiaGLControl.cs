@@ -65,7 +65,6 @@ namespace VL.Skia
             // Retrieve the render context. Doing so in the constructor can lead to crashes when running unit tests with headless machines.
             renderContext = RenderContext.ForCurrentThread();
 
-            eglSurface = EglContext?.CreatePlatformWindowSurface(Handle, DirectCompositionEnabled);
             lastSetVSync = default;
 
             base.OnHandleCreated(e);
@@ -85,12 +84,30 @@ namespace VL.Skia
         {
             base.OnPaint(e);
 
-            if (!Visible || eglSurface is null)
+            if (!Visible || EglContext is null || Handle == 0)
                 return;
 
             renderStopwatch.StartRender();
             try
             {
+                // Create offscreen surface to render into
+                if (surface is null || surfaceSize.X != Width || surfaceSize.Y != Height)
+                {
+                    EglContext.MakeCurrent(null);
+
+                    DestroySurface();
+
+                    surfaceSize = new Int2(Width, Height);
+
+                    eglSurface = EglContext.CreatePlatformWindowSurface(Handle, Width, Height);
+                    surface = CreateSkSurface(renderContext, surfaceSize.X, surfaceSize.Y);
+                    canvas = surface.Canvas;
+                    CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, canvas, renderContext.SkiaContext);
+                }
+
+                if (eglSurface is null)
+                    return;
+
                 // Ensure our GL context is current on current thread
                 EglContext.MakeCurrent(eglSurface);
 
@@ -99,18 +116,6 @@ namespace VL.Skia
                 {
                     lastSetVSync = VSync;
                     EglContext.SwapInterval(VSync ? 1 : 0);
-                }
-
-                start:
-                // Create offscreen surface to render into
-                var size = eglSurface.Size;
-                if (surface is null || size != surfaceSize)
-                {
-                    surfaceSize = size;
-                    surface?.Dispose();
-                    surface = CreateSkSurface(renderContext, size.X, size.Y);
-                    canvas = surface.Canvas;
-                    CallerInfo = CallerInfo.InRenderer(size.X, size.Y, canvas, renderContext.SkiaContext);
                 }
 
                 // Render
@@ -122,12 +127,6 @@ namespace VL.Skia
 
                 // Swap 
                 EglContext.SwapBuffers(eglSurface);
-
-                // EGL might have adjusted the surface size after the swap - if it did, render once more to avoid artifacts
-                if (size != eglSurface.Size)
-                {
-                    goto start;
-                }
             }
             finally
             {
