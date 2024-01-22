@@ -101,7 +101,7 @@ namespace VL.IO.Redis
                         : ConnectionMultiplexer.Connect(options);
 
                 if (!_disposed)
-                    _redisClient = new RedisClient(multiplexer, _logger);
+                    _redisClient = new RedisClient(_nodeContext.AppHost, multiplexer, _logger);
                 else
                     multiplexer.Dispose();
             }

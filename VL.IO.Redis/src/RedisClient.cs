@@ -37,13 +37,11 @@ namespace VL.IO.Redis
 
         private Task? _lastTransaction;
 
-        public RedisClient(ConnectionMultiplexer multiplexer, ILogger logger)
+        public RedisClient(AppHost appHost, ConnectionMultiplexer multiplexer, ILogger logger)
         {
+            _appHost = appHost;
             _multiplexer = multiplexer;
             _logger = logger;
-
-            // Capture the current app host - we'll need it later when serializing values
-            _appHost = AppHost.Current;
 
             // This opens a Pub/Sub connection internally
             var subscriber = multiplexer.GetSubscriber();
