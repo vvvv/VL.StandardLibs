@@ -3,6 +3,8 @@ using StackExchange.Redis;
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using VL.Core;
 using VL.Core.Import;
 using VL.Lib.Animation;
@@ -17,6 +19,9 @@ namespace VL.IO.Redis
 
         private readonly NodeContext _nodeContext;
         private readonly ILogger _logger;
+
+        private Task? _connectTask;
+        private bool _disposed;
 
         private string? _configuration;
         private RedisClient? _redisClient;
@@ -39,17 +44,26 @@ namespace VL.IO.Redis
 
         public void Dispose()
         {
+            _disposed = true;
+
             _redisClient?.Dispose();
             _redisClient = null;
         }
 
         [return: Pin(Name = "Output")]
-        public RedisClient? Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, int database = -1, SerializationFormat serializationFormat = SerializationFormat.MessagePack)
+        public RedisClient? Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, int database = -1, SerializationFormat serializationFormat = SerializationFormat.MessagePack, bool connectAsync = true)
         {
             if (configuration != _configuration)
             {
-                _configuration = configuration;
-                Reconnect(configuration, configure);
+                _redisClient?.Dispose();
+                _redisClient = null;
+
+                // Do not start a new connection attempt as long as we're still in another one
+                if (_connectTask is null || _connectTask.IsCompleted)
+                {
+                    _configuration = configuration;
+                    _connectTask = Reconnect(configuration, configure, connectAsync);
+                }
             }
 
             if (_redisClient != null)
@@ -65,11 +79,8 @@ namespace VL.IO.Redis
 
         public string ClientName => _redisClient?.ClientName ?? string.Empty;
 
-        private void Reconnect(string? configuration, Action<ConfigurationOptions>? configure)
+        private async Task Reconnect(string? configuration, Action<ConfigurationOptions>? configure, bool connectAsync)
         {
-            _redisClient?.Dispose();
-            _redisClient = null;
-
             var options = new ConfigurationOptions();
             if (configuration != null)
                 options = ConfigurationOptions.Parse(configuration);
@@ -83,8 +94,21 @@ namespace VL.IO.Redis
             // Needed to get the client list, see comment in RedisClient
             options.AllowAdmin = true;
 
-            var multiplexer = ConnectionMultiplexer.Connect(options);
-            _redisClient = new RedisClient(multiplexer, _logger);
+            try
+            {
+                var multiplexer = connectAsync
+                        ? await ConnectionMultiplexer.ConnectAsync(options)
+                        : ConnectionMultiplexer.Connect(options);
+
+                if (!_disposed)
+                    _redisClient = new RedisClient(multiplexer, _logger);
+                else
+                    multiplexer.Dispose();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Failed to connect");
+            }
         }
 
         private void BeginFrame(FrameTimeMessage message)

@@ -73,9 +73,9 @@ namespace VL.IO.Redis
         }
 
         [Fragment]
-        public void Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, int database = -1, SerializationFormat serializationFormat = SerializationFormat.MessagePack)
+        public void Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, int database = -1, SerializationFormat serializationFormat = SerializationFormat.MessagePack, bool connectAsync = true)
         {
-            var client = _redisClientManager.Update(configuration, configure, database, serializationFormat);
+            var client = _redisClientManager.Update(configuration, configure, database, serializationFormat, connectAsync);
             if (client != _redisClient)
             {
                 _redisClient = client;
