@@ -264,6 +264,16 @@ namespace VL.Lib.Reactive
         }
     }
 
+    public static class Channel
+    {
+        public static IChannel<T> Create<T>(T value)
+        {
+            var channel = ChannelHelpers.CreateChannelOfType<T>();
+            channel.Value = value;
+            return channel;
+        }
+    }
+
     public static class ChannelHelpers
     {
         public static void AddComponent(this IChannel channel, object component)

@@ -5,17 +5,17 @@ shader Levels_TextureFX : FilterBase
     [EnumType("VL.Stride.TextureFX.LevelsClampType, VL.Stride.TextureFX")]
     int Type;
 
-    [Color] 
-    float4 fromBlack = float4(0,0,0,1);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor fromBlack;
     
-    [Color] 
-    float4 fromWhite = float4(1,1,1,1);
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor fromWhite;
     
-    [Color] 
-    float4 toBlack = float4(0,0,0,1);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor toBlack;
     
-    [Color] 
-    float4 toWhite = float4(1,1,1,1);
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor toWhite;
 
     float Gamma = 1.0f;
 
@@ -41,9 +41,14 @@ shader Levels_TextureFX : FilterBase
 
     float4 Filter(float4 tex0col)
     {
+        float4 fb = fromBlack.Compute();
+        float4 fw = fromWhite.Compute();
+        float4 tb = toBlack.Compute();
+        float4 tw = toWhite.Compute();
+
         float4 c = tex0col;
-        float4 fromDelta = fromWhite - fromBlack;
-        float4 cMin = c - fromBlack;
+        float4 fromDelta = fw - fb;
+        float4 cMin = c - fb;
         c = cMin / fromDelta;
         c = isnan(c) ? cMin : c;
         c = sign(c) * pow(abs(c), Gamma);
@@ -56,7 +61,7 @@ shader Levels_TextureFX : FilterBase
             case 3 : c = ClampBoth(c); break;
         }
 
-        c = c * (toWhite - toBlack) + toBlack;
+        c = c * (tw - tb) + tb;
         return c;
     }
 };
