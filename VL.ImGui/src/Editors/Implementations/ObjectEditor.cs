@@ -107,14 +107,16 @@ namespace VL.ImGui.Editors
                             {
                                 try
                                 {
+                                    DrawTooltip(property);
                                     editor.Draw(context);
                                 }
                                 finally
                                 {
                                     ImGui.TreePop();
-                                    DrawTooltip(property); // not working?!
                                 }
                             }
+                            else
+                                DrawTooltip(property); 
                         }
                         else
                         {
