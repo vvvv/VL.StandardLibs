@@ -4,7 +4,9 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Threading;
+using VL.Lib.Reactive;
 
 namespace VL.Core.Logging
 {
@@ -13,23 +15,29 @@ namespace VL.Core.Logging
         private readonly ConcurrentQueue<LogMessage> _messages = new();
         private readonly int[] _counts = new int[(int)LogLevel.None];
 
+        private readonly IChannel<LogRecorderOptions> _optionsChannel;
         private readonly IDisposable? _onChangeToken;
 
         private int _totalCount;
-        private LogRecorderOptions _config;
+        private bool _overflow;
         private LogMessage? _lastMessage;
 
-        public LogRecorder(IOptionsMonitor<LogRecorderOptions> config)
+        internal LogRecorder(IOptionsMonitor<LogRecorderOptions> config)
         {
-            _config = config.CurrentValue;
-            _onChangeToken = config.OnChange(c => _config = c);
+            _optionsChannel = Channel.Create(config.CurrentValue);
+            _optionsChannel.Validator = x => x is not null ? x : default;
+            _onChangeToken = config.OnChange(c => _optionsChannel.EnsureValue(c));
         }
 
-        public LogRecorderOptions Options => _config;
+        private LogRecorderOptions CurrentOptions => _optionsChannel.Value!;
+
+        public IChannel<LogRecorderOptions> Options => _optionsChannel;
 
         public IReadOnlyCollection<LogMessage> Messages => _messages;
 
         public int TotalCount => _totalCount;
+
+        public bool Overflow => _overflow;
 
         public int GetCount(LogLevel level) => _counts[(int)level];
 
@@ -38,10 +46,11 @@ namespace VL.Core.Logging
             _messages.Clear();
             Array.Clear(_counts);
             _totalCount = 0;
+            _overflow = false;
             _lastMessage = null;
         }
 
-        internal bool IsEnabled(LogLevel level) => level >= _config.Threshold;
+        internal bool IsEnabled(LogLevel level) => level >= CurrentOptions.Threshold;
 
         internal void Record<TState>(
             LogSource source,
@@ -64,8 +73,11 @@ namespace VL.Core.Logging
                 var message = new LogMessage(logEntry, DateTime.Now);
                 _lastMessage = message;
 
-                while (_messages.Count >= _config.Capacity)
+                while (_messages.Count >= CurrentOptions.Capacity)
+                {
                     _messages.TryDequeue(out _);
+                    _overflow = true;
+                }
 
                 _messages.Enqueue(message);
             }

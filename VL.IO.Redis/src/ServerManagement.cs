@@ -1,4 +1,6 @@
-﻿using VL.Lib.Collections;
+﻿using VL.Core.Import;
+using VL.Core.Utils;
+using VL.Lib.Collections;
 
 namespace VL.IO.Redis
 {
@@ -30,27 +32,42 @@ namespace VL.IO.Redis
             return client;
         }
 
-        public static RedisClient? Scan(this RedisClient? client, string? pattern, bool apply, out Spread<string> keys)
+        [ProcessNode(Name = "Scan")]
+        public class ScanNode
         {
-            keys = Spread<string>.Empty;
+            private RedisClient? _client;
+            private string? _pattern;
+            private Spread<string> _keys = Spread<string>.Empty;
 
-            if (!apply)
+            [return: Pin(Name = "Client")]
+            public RedisClient? Update(RedisClient? client, string? pattern, bool force, out Spread<string> keys)
+            {
+                if (force || client != _client || pattern != _pattern)
+                {
+                    _client = client;
+                    _pattern = pattern;
+                    _keys = Scan(client, pattern);
+                }
+
+                keys = _keys;
+
                 return client;
+            }
 
-            if (client is null)
-                return client;
+            private Spread<string> Scan(RedisClient? client, string? pattern)
+            {
+                if (client is null)
+                    return Spread<string>.Empty;
 
-            var server = client.GetServer();
-            if (server is null)
-                return client;
+                var server = client.GetServer();
+                if (server is null)
+                    return Spread<string>.Empty;
 
-            var builder = new SpreadBuilder<string>();
-            foreach (var key in server.Keys(client.Database, pattern))
-                builder.Add(key.ToString());
-
-            keys = builder.ToSpread();
-
-            return client;
+                var builder = CollectionBuilders.GetBuilder(_keys, 0);
+                foreach (var key in server.Keys(client.Database, pattern))
+                    builder.Add(key.ToString());
+                return builder.Commit();
+            }
         }
     }
 }

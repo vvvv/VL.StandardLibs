@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using SkiaSharp;
 using Vector2 = Stride.Core.Mathematics.Vector2;
 using VL.Skia.Egl;
+using Stride.Core.Mathematics;
 
 namespace VL.Skia
 {
@@ -14,7 +15,7 @@ namespace VL.Skia
         private RenderContext renderContext;
         private EglSurface eglSurface;
         private SKSurface surface;
-        private SKSizeI surfaceSize;
+        private Int2 surfaceSize;
         private SKCanvas canvas;
         private bool? lastSetVSync;
 
@@ -80,21 +81,6 @@ namespace VL.Skia
             renderContext = null;
         }
 
-        protected override void OnResize(EventArgs e)
-        {
-            if (EglContext != null)
-            {
-                if (!DirectCompositionEnabled)
-                {
-                    eglSurface?.Dispose();
-                    eglSurface = EglContext.CreatePlatformWindowSurface(Handle, DirectCompositionEnabled);
-                }
-                lastSetVSync = default;
-            }
-
-            base.OnResize(e);
-        }
-
         protected override sealed void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -115,15 +101,16 @@ namespace VL.Skia
                     EglContext.SwapInterval(VSync ? 1 : 0);
                 }
 
+                start:
                 // Create offscreen surface to render into
-                var size = new SKSizeI(Width, Height);
+                var size = eglSurface.Size;
                 if (surface is null || size != surfaceSize)
                 {
                     surfaceSize = size;
                     surface?.Dispose();
-                    surface = CreateSkSurface(renderContext, size.Width, size.Height);
+                    surface = CreateSkSurface(renderContext, size.X, size.Y);
                     canvas = surface.Canvas;
-                    CallerInfo = CallerInfo.InRenderer(size.Width, size.Height, canvas, renderContext.SkiaContext);
+                    CallerInfo = CallerInfo.InRenderer(size.X, size.Y, canvas, renderContext.SkiaContext);
                 }
 
                 // Render
@@ -135,6 +122,12 @@ namespace VL.Skia
 
                 // Swap 
                 EglContext.SwapBuffers(eglSurface);
+
+                // EGL might have adjusted the surface size after the swap - if it did, render once more to avoid artifacts
+                if (size != eglSurface.Size)
+                {
+                    goto start;
+                }
             }
             finally
             {

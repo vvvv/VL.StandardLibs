@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Xml.Linq;
 
 namespace VL.Core
@@ -36,6 +37,11 @@ namespace VL.Core
         /// The current app host.
         /// </summary>
         public abstract AppHost AppHost { get; }
+
+        /// <summary>
+        /// The logger to use in case something goes wrong.
+        /// </summary>
+        public abstract ILogger Logger { get; }
 
         /// <summary>
         /// Serializes the given value and if a name is provided wraps the serialized content into an <see cref="XElement"/> or <see cref="XAttribute"/>. 

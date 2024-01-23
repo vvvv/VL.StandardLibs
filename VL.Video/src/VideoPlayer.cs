@@ -8,7 +8,9 @@ namespace VL.Video
 {
     public sealed partial class VideoPlayer : IVideoSource2
     {
+        private readonly object syncRoot = new();
         private VideoPlayerImpl? currentPlayer;
+        private int changedTicket;
 
         /// <summary>
         /// The URL of the media to play.
@@ -123,24 +125,32 @@ namespace VL.Video
 
         IVideoPlayer? IVideoSource2.Start(VideoPlaybackContext ctx)
         {
-            if (OperatingSystem.IsWindowsVersionAtLeast(8))
+            lock (syncRoot)
             {
-                var devicePtr = ctx.GraphicsDeviceType == GraphicsDeviceType.Direct3D11 ? ctx.GraphicsDevice : default;
-                var player = new MF.MFVideoPlayerImpl(this, devicePtr);
+                if (currentPlayer != null)
+                    return null;
 
-                // TODO: Reads the file frame by frame. Nice! We need to explore this more.
-                //var player = new MF.MFVideoPlayer2Impl(ctx.FrameClock, Url, devicePtr);
-
-                var previousPlayer = Interlocked.Exchange(ref currentPlayer, player);
-                player.DisposeAction = () =>
+                if (OperatingSystem.IsWindowsVersionAtLeast(8))
                 {
-                    Interlocked.CompareExchange(ref currentPlayer, previousPlayer, player);
-                };
+                    var devicePtr = ctx.GraphicsDeviceType == GraphicsDeviceType.Direct3D11 ? ctx.GraphicsDevice : default;
+                    return currentPlayer = new MF.MFVideoPlayerImpl(this, devicePtr)
+                    {
+                        DisposeAction = () =>
+                        {
+                            currentPlayer = null;
+                            // Tell another sink that it can try to subscribe again
+                            changedTicket++;
+                        }
+                    };
 
-                return player;
+                    // TODO: Reads the file frame by frame. Nice! We need to explore this more.
+                    //var player = new MF.MFVideoPlayer2Impl(ctx.FrameClock, Url, devicePtr);
+                }
+
+                throw new PlatformNotSupportedException();
             }
-
-            throw new PlatformNotSupportedException();
         }
+
+        int IVideoSource2.ChangedTicket => changedTicket;
     }
 }

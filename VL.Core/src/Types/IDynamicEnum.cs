@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -186,7 +187,7 @@ namespace VL.Lib.Collections
         }
 
         static DynamicEnumDefinitionBase<TDefinitionClass> DefinitionInstance => DynamicEnumDefinitionBase<TDefinitionClass>.Instance;
-        private readonly string FValue;
+        private string FValue;
 
         //IDynamicEnum interface implementation
         public string Value => FValue;
@@ -208,9 +209,9 @@ namespace VL.Lib.Collections
 
         public static TSubclass Create(string value)
         {
-            var obj = FormatterServices.GetUninitializedObject(typeof(TSubclass));
-            FormatterServices.PopulateObjectMembers(obj, MembersToInit, new object[] { value });
-            return (TSubclass)obj;
+            var obj = (TSubclass)RuntimeHelpers.GetUninitializedObject(typeof(TSubclass));
+            obj.FValue = value;
+            return obj;
         }
 
         /// <summary>
@@ -235,22 +236,6 @@ namespace VL.Lib.Collections
             }
 
             return result;
-        }
-
-        static MemberInfo[] FMembersToInit;
-        static MemberInfo[] MembersToInit
-        {
-            get
-            {
-                if(FMembersToInit == null)
-                {
-                    var subClassFieldInfo = FormatterServices.GetSerializableMembers(typeof(TSubclass))
-                        .OfType<FieldInfo>().FirstOrDefault(fi => fi.Name.Contains("FValue"));
-                    FMembersToInit = new MemberInfo[] { subClassFieldInfo };
-                }
-
-                return FMembersToInit;
-            }
         }
 
         static bool FCreateDefaultInfoInit;
@@ -413,7 +398,7 @@ namespace VL.Lib.Collections
                 }
                 catch (Exception e)
                 {
-                    Trace.TraceError(e.ToString());
+                    AppHost.Global.DefaultLogger.LogError(e, "Exception while fetching new enum entries of {definition}.", typeof(TDefinitionSubclass));
                     return new Dictionary<string, object>();
                 }
             }
