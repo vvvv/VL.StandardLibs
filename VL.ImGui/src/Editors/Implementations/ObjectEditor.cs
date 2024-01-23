@@ -25,8 +25,8 @@ namespace VL.ImGui.Editors
                 if (x == null || y == null || x.Equals(y))
                     return 0;
 
-                var xDisplay = GetDisplayAttribute(x);
-                var yDisplay = GetDisplayAttribute(y);
+                var xDisplay = x.GetAttributes<DisplayAttribute>().FirstOrDefault();
+                var yDisplay = y.GetAttributes<DisplayAttribute>().FirstOrDefault();
 
                 if (xDisplay == null && yDisplay == null)
                     return x!.NameForTextualCode.CompareTo(y!.NameForTextualCode);
@@ -35,7 +35,7 @@ namespace VL.ImGui.Editors
             }
         }
 
-        readonly SortedDictionary<IVLPropertyInfo, IObjectEditor?> editors = new(new PropertyOrderComparer());
+        readonly SortedDictionary<IVLPropertyInfo, (IObjectEditor?, string, IChannel)> editors = new(new PropertyOrderComparer());
         readonly CompositeDisposable subscriptions = new CompositeDisposable();
         readonly ObjectEditorContext parentContext;
         readonly IChannel<T> channel;
@@ -56,8 +56,6 @@ namespace VL.ImGui.Editors
         }
 
         public bool NeedsMoreThanOneLine => true;
-
-        
 
         public void Draw(Context? context)
         {
@@ -80,6 +78,9 @@ namespace VL.ImGui.Editors
                         {
                             // Setup channel
                             var propertyChannel = ChannelHelpers.CreateChannelOfType(property.Type);
+                            var attributes = property.GetAttributes<Attribute>().ToSpread();
+                            propertyChannel.Attributes().Value = attributes;
+                            
                             subscriptions.Add(
                                 channel.ChannelOfObject.Merge(
                                     propertyChannel.ChannelOfObject,
@@ -90,30 +91,34 @@ namespace VL.ImGui.Editors
                             // this channel is private. So it should be fine to spam it (ChannelSelection.Both).
                             // If we wouldn't spam, the changed properties in a deeply mutating object structure would not get updated.
 
-                            var attributes = property.GetAttributes<Attribute>().ToSpread();
-                            propertyChannel.Attributes().Value = attributes;
-                            var label = attributes.OfType<LabelAttribute>().FirstOrDefault()?.Label ?? property.OriginalName;
+                            var label =
+                                propertyChannel.GetAttribute<LabelAttribute>()?.Label ??
+                                propertyChannel.GetAttribute<DisplayAttribute>()?.Name ??
+                                property.OriginalName;
+
                             var contextForProperty = parentContext.CreateSubContext(label);
-                            editor = editors[property] = factory.CreateObjectEditor(propertyChannel, contextForProperty);
+                            editor = editors[property] = 
+                                (factory.CreateObjectEditor(propertyChannel, contextForProperty),
+                                label, channel);
                         }
                         else
                         {
-                            editor = editors[property] = null;
+                            editor = editors[property] = (null, null!, null!);
                         }
                     }
                 }
 
-                foreach (var (property, editor) in editors)
+                foreach (var (property, (editor, label, propertyChannel)) in editors)
                 { 
                     if (editor != null)
                     {
                         if (editor.NeedsMoreThanOneLine)
                         {
-                            if (ImGui.TreeNode(property.OriginalName))
+                            if (ImGui.TreeNode(label))
                             {
                                 try
                                 {
-                                    DrawTooltip(property);
+                                    DrawTooltip(propertyChannel);
                                     editor.Draw(context);
                                 }
                                 finally
@@ -122,12 +127,12 @@ namespace VL.ImGui.Editors
                                 }
                             }
                             else
-                                DrawTooltip(property); 
+                                DrawTooltip(propertyChannel); 
                         }
                         else
                         {
                             editor.Draw(context);
-                            DrawTooltip(property);
+                            DrawTooltip(propertyChannel);
                         }
                     }
                 }
@@ -143,29 +148,24 @@ namespace VL.ImGui.Editors
             }
         }
 
-        private static void DrawTooltip(IVLPropertyInfo property)
+        private static void DrawTooltip(IChannel channel)
         {
             if (ImGui.IsItemHovered())
             {
-                DisplayAttribute? displayAttribute = GetDisplayAttribute(property);
+                var displayAttribute = channel.GetAttribute<DisplayAttribute>();
                 if (displayAttribute != null)
                 {
-                    var tooltipText = displayAttribute.Description ?? displayAttribute.Name ?? displayAttribute.ShortName;
+                    var tooltipText = displayAttribute.Description;
                     if (tooltipText != null)
                         ImGui.SetItemTooltip(tooltipText);
                 }
             }
         }
 
-        private static DisplayAttribute? GetDisplayAttribute(IVLPropertyInfo property)
-        {
-            return property.GetAttributes<DisplayAttribute>().FirstOrDefault();
-        }
-
         static bool IsVisible(IVLPropertyInfo property)
         {
-            var browseable = property.GetAttributes<BrowsableAttribute>().FirstOrDefault();
-            return browseable is null || browseable.Browsable;
+            var browsable = property.GetAttributes<BrowsableAttribute>().FirstOrDefault();
+            return browsable is null || browsable.Browsable;
         }
     }
 
