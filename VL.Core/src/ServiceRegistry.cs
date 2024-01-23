@@ -113,11 +113,14 @@ namespace VL.Core
         record struct Registration(Lazy<object> LazyService);
     }
 
+    [Obsolete("Use Microsoft.Extensions.DependencyInjection", error: true)]
     public static class ServiceProviderExtensions
     {
-        public static T? GetService<T>(this IServiceProvider serviceProvider) where T : class => serviceProvider.GetService(typeof(T)) as T;
+        [Obsolete("Use Microsoft.Extensions.DependencyInjection", error: true)]
+        public static T? GetService<T>(IServiceProvider serviceProvider) where T : class => serviceProvider.GetService(typeof(T)) as T;
 
-        public static T GetRequiredService<T>(this IServiceProvider serviceProvider) where T : class => serviceProvider.GetService<T>() ?? throw new Exception($"The required service {typeof(T).FullName} was not found");
+        [Obsolete("Use Microsoft.Extensions.DependencyInjection", error: true)]
+        public static T GetRequiredService<T>(IServiceProvider serviceProvider) where T : class => GetService<T>(serviceProvider) ?? throw new Exception($"The required service {typeof(T).FullName} was not found");
     }
 }
 #nullable restore
