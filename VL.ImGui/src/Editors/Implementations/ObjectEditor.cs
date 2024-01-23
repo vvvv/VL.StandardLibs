@@ -22,16 +22,16 @@ namespace VL.ImGui.Editors
         {
             public int Compare(IVLPropertyInfo? x, IVLPropertyInfo? y)
             {
-                if (x == null || y == null)
+                if (x == null || y == null || x.Equals(y))
                     return 0;
 
-                var xDisplay = GetDisplayAttribute(x!);
-                var yDisplay = GetDisplayAttribute(y!);
+                var xDisplay = GetDisplayAttribute(x);
+                var yDisplay = GetDisplayAttribute(y);
 
-                if (xDisplay != null && yDisplay != null)
-                    return xDisplay.Order - yDisplay.Order;
+                if (xDisplay == null && yDisplay == null)
+                    return x!.NameForTextualCode.CompareTo(y!.NameForTextualCode);
 
-                return x!.NameForTextualCode.CompareTo(y!.NameForTextualCode);
+                return (xDisplay?.GetOrder() ?? 0) - (yDisplay?.GetOrder() ?? 0);
             }
         }
 
@@ -57,6 +57,8 @@ namespace VL.ImGui.Editors
 
         public bool NeedsMoreThanOneLine => true;
 
+        
+
         public void Draw(Context? context)
         {
             context = context.Validate();
@@ -70,6 +72,10 @@ namespace VL.ImGui.Editors
                 {
                     if (!editors.TryGetValue(property, out var editor))
                     {
+                        var old = editors.Keys.FirstOrDefault(p => p.OriginalName == property.OriginalName);
+                        if (old != default)
+                            editors.Remove(old);
+
                         if (IsVisible(property))
                         {
                             // Setup channel
