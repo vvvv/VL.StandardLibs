@@ -1,11 +1,16 @@
 ﻿using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
 using VL.Core;
 using VL.Core.EditorAttributes;
+using VL.ImGui.Widgets;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Collections;
 
 namespace VL.ImGui.Editors
 {
@@ -13,7 +18,24 @@ namespace VL.ImGui.Editors
 
     sealed class ObjectEditor<T> : IObjectEditor, IDisposable
     {
-        readonly Dictionary<IVLPropertyInfo, IObjectEditor?> editors = new Dictionary<IVLPropertyInfo, IObjectEditor?>();
+        class PropertyOrderComparer : IComparer<IVLPropertyInfo>
+        {
+            public int Compare(IVLPropertyInfo? x, IVLPropertyInfo? y)
+            {
+                if (x == null || y == null)
+                    return 0;
+
+                var xDisplay = GetDisplayAttribute(x!);
+                var yDisplay = GetDisplayAttribute(y!);
+
+                if (xDisplay != null && yDisplay != null)
+                    return xDisplay.Order - yDisplay.Order;
+
+                return x!.NameForTextualCode.CompareTo(y!.NameForTextualCode);
+            }
+        }
+
+        readonly SortedDictionary<IVLPropertyInfo, IObjectEditor?> editors = new(new PropertyOrderComparer());
         readonly CompositeDisposable subscriptions = new CompositeDisposable();
         readonly ObjectEditorContext parentContext;
         readonly IChannel<T> channel;
@@ -56,7 +78,7 @@ namespace VL.ImGui.Editors
                                 channel.ChannelOfObject.Merge(
                                     propertyChannel.ChannelOfObject,
                                     (object? v) => property.GetValue((IVLObject)channel.Value),
-                                    v => (T)property.WithValue((IVLObject)channel.Value, v), 
+                                    v => (T)property.WithValue((IVLObject)channel.Value, v),
                                     initialization: ChannelMergeInitialization.UseA,
                                     pushEagerlyTo: ChannelSelection.Both));
                             // this channel is private. So it should be fine to spam it (ChannelSelection.Both).
@@ -73,7 +95,10 @@ namespace VL.ImGui.Editors
                             editor = editors[property] = null;
                         }
                     }
+                }
 
+                foreach (var (property, editor) in editors)
+                { 
                     if (editor != null)
                     {
                         if (editor.NeedsMoreThanOneLine)
@@ -87,12 +112,14 @@ namespace VL.ImGui.Editors
                                 finally
                                 {
                                     ImGui.TreePop();
+                                    DrawTooltip(property); // not working?!
                                 }
                             }
                         }
                         else
                         {
                             editor.Draw(context);
+                            DrawTooltip(property);
                         }
                     }
                 }
@@ -106,6 +133,25 @@ namespace VL.ImGui.Editors
             {
                 ImGui.TextUnformatted("NULL");
             }
+        }
+
+        private static void DrawTooltip(IVLPropertyInfo property)
+        {
+            if (ImGui.IsItemHovered())
+            {
+                DisplayAttribute? displayAttribute = GetDisplayAttribute(property);
+                if (displayAttribute != null)
+                {
+                    var tooltipText = displayAttribute.Description ?? displayAttribute.Name ?? displayAttribute.ShortName;
+                    if (tooltipText != null)
+                        ImGui.SetItemTooltip(tooltipText);
+                }
+            }
+        }
+
+        private static DisplayAttribute? GetDisplayAttribute(IVLPropertyInfo property)
+        {
+            return property.GetAttributes<DisplayAttribute>().FirstOrDefault();
         }
 
         static bool IsVisible(IVLPropertyInfo property)
