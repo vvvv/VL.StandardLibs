@@ -99,7 +99,7 @@ namespace VL.ImGui.Editors
                             var contextForProperty = parentContext.CreateSubContext(label);
                             editor = editors[property] = 
                                 (factory.CreateObjectEditor(propertyChannel, contextForProperty),
-                                label, channel);
+                                label, propertyChannel);
                         }
                         else
                         {
