@@ -49,16 +49,16 @@ namespace VL.Lib.IO.Net
             out Spread<IPAddress> winsServersAddresses
             )
         {
-            anycastAddresses = iPInterfaceProperties.AnycastAddresses.ToSpread();
-            dhcpServerAddresses = iPInterfaceProperties.DhcpServerAddresses.ToSpread();
+            anycastAddresses = OperatingSystem.IsWindows() ? iPInterfaceProperties.AnycastAddresses.ToSpread() : Spread<IPAddressInformation>.Empty;
+            dhcpServerAddresses = !OperatingSystem.IsMacOS() ? iPInterfaceProperties.DhcpServerAddresses.ToSpread() : Spread<IPAddress>.Empty;
             dnsAddresses = iPInterfaceProperties.DnsAddresses.ToSpread();
             dnsSuffix = iPInterfaceProperties.DnsSuffix;
             gatewayAddresses = iPInterfaceProperties.GatewayAddresses.Select(g => g.Address).ToSpread();
-            isDnsEnabled = iPInterfaceProperties.IsDnsEnabled;
-            isDynamicDnsEnabled = iPInterfaceProperties.IsDynamicDnsEnabled;
+            isDnsEnabled = !OperatingSystem.IsMacOS() ? iPInterfaceProperties.IsDnsEnabled : false;
+            isDynamicDnsEnabled = OperatingSystem.IsWindows() ? iPInterfaceProperties.IsDynamicDnsEnabled : false;
             multicastAddresses = iPInterfaceProperties.MulticastAddresses.ToSpread();
             unicastAddresses = iPInterfaceProperties.UnicastAddresses.ToSpread();
-            winsServersAddresses = iPInterfaceProperties.WinsServersAddresses.ToSpread();
+            winsServersAddresses = !OperatingSystem.IsMacOS() ? iPInterfaceProperties.WinsServersAddresses.ToSpread() : Spread<IPAddress>.Empty;
         }
 
         public static void Split(this IPv4InterfaceProperties iPv4InterfaceProperties,
@@ -72,11 +72,11 @@ namespace VL.Lib.IO.Net
         {
             index = iPv4InterfaceProperties.Index;
             mtu = iPv4InterfaceProperties.Mtu;
-            usesWins = iPv4InterfaceProperties.UsesWins;
-            isDhcpEnabled = iPv4InterfaceProperties.IsDhcpEnabled;
-            isAutomaticPrivateAddressingActive = iPv4InterfaceProperties.IsAutomaticPrivateAddressingActive;
-            isAutomaticPrivateAddressingEnabled = iPv4InterfaceProperties.IsAutomaticPrivateAddressingEnabled;
-            isForwardingEnabled = iPv4InterfaceProperties.IsForwardingEnabled;
+            usesWins = OperatingSystem.IsWindows() || OperatingSystem.IsLinux() ? iPv4InterfaceProperties.UsesWins : false;
+            isDhcpEnabled = OperatingSystem.IsWindows() ? iPv4InterfaceProperties.IsDhcpEnabled : false;
+            isAutomaticPrivateAddressingActive = OperatingSystem.IsWindows() ? iPv4InterfaceProperties.IsAutomaticPrivateAddressingActive : false;
+            isAutomaticPrivateAddressingEnabled = OperatingSystem.IsWindows() ? iPv4InterfaceProperties.IsAutomaticPrivateAddressingEnabled : false;
+            isForwardingEnabled = OperatingSystem.IsWindows() || OperatingSystem.IsLinux() ? iPv4InterfaceProperties.IsForwardingEnabled : false;
         }
 
         public static void Split(this IPv6InterfaceProperties iPv6InterfaceProperties,
@@ -93,8 +93,8 @@ namespace VL.Lib.IO.Net
             out bool isTransient)
         {
             iPAddress = iPAddressInformation.Address;
-            isDnsEligible = iPAddressInformation.IsDnsEligible;
-            isTransient = iPAddressInformation.IsTransient;
+            isDnsEligible = OperatingSystem.IsWindows() ? iPAddressInformation.IsDnsEligible : false;
+            isTransient = OperatingSystem.IsWindows() ? iPAddressInformation.IsTransient : false;
         }
 
         public static void Split(this MulticastIPAddressInformation multicastIPAddressInformation,
@@ -110,14 +110,14 @@ namespace VL.Lib.IO.Net
             )
         {
             iPAddress = multicastIPAddressInformation.Address;
-            isDnsEligible = multicastIPAddressInformation.IsDnsEligible;
-            isTransient = multicastIPAddressInformation.IsTransient;
-            addressPreferredLifetime = multicastIPAddressInformation.AddressPreferredLifetime;
-            addressValidLifetime = multicastIPAddressInformation.AddressValidLifetime;
-            dhcpLeaseLifetime = multicastIPAddressInformation.DhcpLeaseLifetime;
-            duplicateAddressDetectionState = multicastIPAddressInformation.DuplicateAddressDetectionState;
-            prefixOrigin = multicastIPAddressInformation.PrefixOrigin;
-            suffixOrigin = multicastIPAddressInformation.SuffixOrigin;
+            isDnsEligible = OperatingSystem.IsWindows() ? multicastIPAddressInformation.IsDnsEligible : default;
+            isTransient = OperatingSystem.IsWindows() ? multicastIPAddressInformation.IsTransient : default;
+            addressPreferredLifetime = OperatingSystem.IsWindows() ? multicastIPAddressInformation.AddressPreferredLifetime : default;
+            addressValidLifetime = OperatingSystem.IsWindows() ? multicastIPAddressInformation.AddressValidLifetime : default;
+            dhcpLeaseLifetime = OperatingSystem.IsWindows() ? multicastIPAddressInformation.DhcpLeaseLifetime : default;
+            duplicateAddressDetectionState = OperatingSystem.IsWindows() ? multicastIPAddressInformation.DuplicateAddressDetectionState : default;
+            prefixOrigin = OperatingSystem.IsWindows() ? multicastIPAddressInformation.PrefixOrigin : default;
+            suffixOrigin = OperatingSystem.IsWindows() ? multicastIPAddressInformation.SuffixOrigin : default;
         }
 
         public static void Split(this UnicastIPAddressInformation unicastIPAddressInformation,
@@ -133,17 +133,17 @@ namespace VL.Lib.IO.Net
             out bool isDnsEligible,
             out bool isTransient)
         {
-            addressPreferredLifetime = unicastIPAddressInformation.AddressPreferredLifetime;
-            addressValidLifetime = unicastIPAddressInformation.AddressValidLifetime;
-            dhcpLeaseLifetime = unicastIPAddressInformation.DhcpLeaseLifetime;
-            duplicateAddressDetectionState = unicastIPAddressInformation.DuplicateAddressDetectionState;
-            prefixOrigin = unicastIPAddressInformation.PrefixOrigin;
-            suffixOrigin = unicastIPAddressInformation.SuffixOrigin;
-            iPv4Mask = unicastIPAddressInformation.IPv4Mask;
-            prefixLength = unicastIPAddressInformation.PrefixLength;
-            address = unicastIPAddressInformation.Address;
-            isDnsEligible = unicastIPAddressInformation.IsDnsEligible;
-            isTransient = unicastIPAddressInformation.IsTransient;
+            addressPreferredLifetime = OperatingSystem.IsWindows() ? unicastIPAddressInformation.AddressPreferredLifetime : default;
+            addressValidLifetime = OperatingSystem.IsWindows() ? unicastIPAddressInformation.AddressValidLifetime : default;
+            dhcpLeaseLifetime = OperatingSystem.IsWindows() ? unicastIPAddressInformation.DhcpLeaseLifetime : default;
+            duplicateAddressDetectionState = OperatingSystem.IsWindows() ? unicastIPAddressInformation.DuplicateAddressDetectionState : default;
+            prefixOrigin = OperatingSystem.IsWindows() ? unicastIPAddressInformation.PrefixOrigin : default;
+            suffixOrigin = OperatingSystem.IsWindows() ? unicastIPAddressInformation.SuffixOrigin : default;
+            iPv4Mask = OperatingSystem.IsWindows() ? unicastIPAddressInformation.IPv4Mask : default;
+            prefixLength = OperatingSystem.IsWindows() ? unicastIPAddressInformation.PrefixLength : default;
+            address = OperatingSystem.IsWindows() ? unicastIPAddressInformation.Address : default;
+            isDnsEligible = OperatingSystem.IsWindows() ? unicastIPAddressInformation.IsDnsEligible : default;
+            isTransient = OperatingSystem.IsWindows() ? unicastIPAddressInformation.IsTransient : default;
         }
 
         public static void Split(this IPInterfaceStatistics iPInterfaceStatistics,
@@ -164,10 +164,10 @@ namespace VL.Lib.IO.Net
             bytesSent = iPInterfaceStatistics.BytesSent;
             incomingPacketsDiscarded = iPInterfaceStatistics.IncomingPacketsDiscarded;
             incomingPacketsWithErrors = iPInterfaceStatistics.IncomingPacketsWithErrors;
-            incomingUnknownProtocolPackets = iPInterfaceStatistics.IncomingUnknownProtocolPackets;
+            incomingUnknownProtocolPackets = !OperatingSystem.IsLinux() ? iPInterfaceStatistics.IncomingUnknownProtocolPackets : default;
             nonUnicastPacketsReceived = iPInterfaceStatistics.NonUnicastPacketsReceived;
-            nonUnicastPacketsSent = iPInterfaceStatistics.NonUnicastPacketsSent;
-            outgoingPacketsDiscarded = iPInterfaceStatistics.OutgoingPacketsDiscarded;
+            nonUnicastPacketsSent = !OperatingSystem.IsLinux() ? iPInterfaceStatistics.NonUnicastPacketsSent : default;
+            outgoingPacketsDiscarded = !OperatingSystem.IsMacOS() ? iPInterfaceStatistics.OutgoingPacketsDiscarded : default;
             outgoingPacketsWithErrors = iPInterfaceStatistics.OutgoingPacketsWithErrors;
             outputQueueLength = iPInterfaceStatistics.OutputQueueLength;
             unicastPacketsReceived = iPInterfaceStatistics.UnicastPacketsReceived;
@@ -195,7 +195,7 @@ namespace VL.Lib.IO.Net
             incomingUnknownProtocolPackets = iPv4InterfaceStatistics.IncomingUnknownProtocolPackets;
             nonUnicastPacketsReceived = iPv4InterfaceStatistics.NonUnicastPacketsReceived;
             nonUnicastPacketsSent = iPv4InterfaceStatistics.NonUnicastPacketsSent;
-            outgoingPacketsDiscarded = iPv4InterfaceStatistics.OutgoingPacketsDiscarded;
+            outgoingPacketsDiscarded = !OperatingSystem.IsMacOS() ? iPv4InterfaceStatistics.OutgoingPacketsDiscarded : default;
             outgoingPacketsWithErrors = iPv4InterfaceStatistics.OutgoingPacketsWithErrors;
             outputQueueLength = iPv4InterfaceStatistics.OutputQueueLength;
             unicastPacketsReceived = iPv4InterfaceStatistics.UnicastPacketsReceived;
