@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="AeLw27X3UZTPbUKzkJqoag" LanguageVersion="2023.5.3-0368-g2897901e27" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="AeLw27X3UZTPbUKzkJqoag" LanguageVersion="2024.6.0-0040-gf644bdf23c" Version="0.128">
   <Patch Id="R1hgnY3rx8dQUrxE9sHqpq">
     <Canvas Id="IZD4vCZBBJGPV5bGjq6SQa" DefaultCategory="Reactive" CanvasType="FullCategory">
       <!--
@@ -3513,16 +3513,16 @@
               </Node>
               <!--
 
-    ************************ If2 ************************
+    ************************ If2 (Obsolete) ************************
 
 -->
-              <Node Name="If2" Bounds="635,1883,80,83" Id="R0e5wkzSzP7NMzuAkhJgLE">
+              <Node Name="If2 (Obsolete)" Bounds="649,1889,80,83" Id="R0e5wkzSzP7NMzuAkhJgLE">
                 <p:NodeReference>
                   <Choice Kind="OperationDefinition" Name="Operation" />
                   <FullNameCategoryReference ID="Primitive" />
                 </p:NodeReference>
                 <Patch Id="A0poLYlArOkNqxSXLAHzVk" IsGeneric="true" ManuallySortedPins="true">
-                  <Node Bounds="663,1918,25,19" AutoConnect="true" Id="E45rQW8J4VUMHjXDOo9qiO">
+                  <Node Bounds="677,1924,25,19" AutoConnect="true" Id="E45rQW8J4VUMHjXDOo9qiO">
                     <p:NodeReference LastCategoryFullName="System.Reactive.Linq.Observable" LastDependency="System.Reactive.dll">
                       <Choice Kind="OperationNode" Name="If" />
                       <FullNameCategoryReference ID="System.Reactive.Linq.Observable" />
@@ -6205,6 +6205,51 @@
                   <Pin Id="MLOysU9y7KtP19qC8qZKMS" Name="Result" Kind="OutputPin" />
                 </Patch>
               </Node>
+              <!--
+
+    ************************ If ************************
+
+-->
+              <Node Name="If" Bounds="536,1839,80,83" Id="HapwVEoPArUPVy3yiBZJ2l">
+                <p:NodeReference>
+                  <Choice Kind="OperationDefinition" Name="Operation" />
+                  <FullNameCategoryReference ID="Primitive" />
+                </p:NodeReference>
+                <Patch Id="UCkFMkm3TmaOflR5DvbJiQ" IsGeneric="true" ManuallySortedPins="true">
+                  <Node Bounds="564,1874,25,19" AutoConnect="true" Id="VgUEviH74BXP4t4RzmHMrk">
+                    <p:NodeReference LastCategoryFullName="System.Reactive.Linq.Observable" LastDependency="System.Reactive.dll">
+                      <Choice Kind="OperationNode" Name="If" />
+                      <FullNameCategoryReference ID="System.Reactive.Linq.Observable" />
+                      <PinReference Kind="InputPin" Name="Condition">
+                        <p:DataTypeReference p:Type="TypeReference">
+                          <Choice Kind="TypeFlag" Name="Func`1" />
+                          <p:TypeArguments>
+                            <TypeReference>
+                              <Choice Kind="TypeFlag" Name="Boolean" />
+                            </TypeReference>
+                          </p:TypeArguments>
+                        </p:DataTypeReference>
+                      </PinReference>
+                      <PinReference Kind="InputPin" Name="Then Source">
+                        <p:DataTypeReference p:Type="TypeReference">
+                          <Choice Kind="TypeFlag" Name="IObservable`1" />
+                        </p:DataTypeReference>
+                      </PinReference>
+                      <PinReference Kind="OutputPin" Name="return" ParameterModifier="return">
+                        <p:DataTypeReference p:Type="TypeReference">
+                          <Choice Kind="TypeFlag" Name="IObservable`1" />
+                        </p:DataTypeReference>
+                      </PinReference>
+                    </p:NodeReference>
+                    <Pin Id="R5Otax854a9NTsUYWnWR6E" Name="Condition" Kind="InputPin" />
+                    <Pin Id="KIrcifAB0L4Np58GvcNHU2" Name="Then Source" Kind="InputPin" />
+                    <Pin Id="BJmBHNkGpk3NgXQNXNXOBP" Name="Result" Kind="OutputPin" />
+                  </Node>
+                  <Pin Id="PZgWeGH5BDhOsI4Z5nf9mS" Name="Condition" Kind="InputPin" />
+                  <Pin Id="QujHY5uegB1NrO8SNmEa8w" Name="Then Source" Kind="InputPin" />
+                  <Pin Id="E6x17F1yRwILkZXoJyWiey" Name="Result" Kind="OutputPin" />
+                </Patch>
+              </Node>
             </Canvas>
             <ProcessDefinition Id="SNzx1VAm5nCNPA5zCAg6T3" IsHidden="true">
               <Fragment Id="Rp1JKoVdAL2MhIdN8imnkY" Patch="IajhwFsw0qsMPuIgnYdpIe" Enabled="true" />
@@ -6315,6 +6360,7 @@
               <Fragment Id="UkNJM35nUMbK91yePF2lFQ" Patch="NrnQ1fyh5tLMGykyVKZxTc" />
               <Fragment Id="KEP7caewzgeMLTVOpAqEzJ" Patch="S4Xg7b9MA3qNZYp38v9c2g" />
               <Fragment Id="MP13k2OcrkgP0Djjl79pyV" Patch="HfIeEnTOis6PjRJuAC3UMX" />
+              <Fragment Id="D4qoUwwHIqvLwzZj8qDgZB" Patch="HapwVEoPArUPVy3yiBZJ2l" />
             </ProcessDefinition>
           </Patch>
         </Node>
@@ -15325,7 +15371,7 @@
     ************************ ChannelHub ************************
 
 -->
-      <Node Name="ChannelHub" Bounds="797,908" Id="NE8oBeMEhwEQPhoCTWhaCO">
+      <Node Name="ChannelHub" Aspects="Advanced" Bounds="797,908" Id="NE8oBeMEhwEQPhoCTWhaCO">
         <p:NodeReference>
           <Choice Kind="ForwardDefinition" Name="Forward" />
           <CategoryReference Kind="Category" Name="Primitive" />
@@ -19308,7 +19354,7 @@
     ************************ ChannelAndPath ************************
 
 -->
-        <Node Name="ChannelAndPath" Bounds="392,401" Id="Miu0jlB8IYBM4aRJwqm2wz">
+        <Node Name="ChannelAndPath" Aspects="Advanced" Bounds="392,401" Id="Miu0jlB8IYBM4aRJwqm2wz">
           <p:NodeReference>
             <Choice Kind="RecordDefinition" Name="Record" />
             <CategoryReference Kind="Category" Name="Primitive" />
@@ -19341,6 +19387,8 @@
                   <Choice Kind="ApplicationStatefulRegion" Name="If" />
                 </p:NodeReference>
                 <Pin Id="N4ybvg3VGIwNmgsctWZnL0" Name="Condition" Kind="InputPin" />
+                <ControlPoint Id="Aog6637Kg0pM7jW6hXYSJu" Bounds="707,520" Alignment="Bottom" />
+                <ControlPoint Id="MXoBjlvPgHEMMK9uENsJLz" Bounds="707,326" Alignment="Top" />
                 <Patch Id="UOE5EQwFc7zQA48Ar7ArHU" ManuallySortedPins="true">
                   <Patch Id="Ixm4mxRmq3INrUL0Gt5kJ1" Name="Create" ManuallySortedPins="true" />
                   <Patch Id="GkPPyFThYioOWXGKZ9PU9g" Name="Then" ManuallySortedPins="true" />
@@ -19381,12 +19429,10 @@
                       <Choice Kind="OperationCallFlag" Name="TypeRegistry" />
                     </p:NodeReference>
                     <Pin Id="Elrr7Bs6EdaN9Cqn6pTWAC" Name="Input" Kind="StateInputPin" />
-                    <Pin Id="CpbUMdXBtoeM2C4x1N0wSR" Name="Output" Kind="OutputPin" IsHidden="true" />
+                    <Pin Id="CpbUMdXBtoeM2C4x1N0wSR" Name="Output" Kind="OutputPin" />
                     <Pin Id="Ft1zhL7YomjL5iOrypKkkV" Name="Type Registry" Kind="OutputPin" />
                   </Node>
                 </Patch>
-                <ControlPoint Id="Aog6637Kg0pM7jW6hXYSJu" Bounds="707,520" Alignment="Bottom" />
-                <ControlPoint Id="MXoBjlvPgHEMMK9uENsJLz" Bounds="707,326" Alignment="Top" />
               </Node>
               <Node Bounds="683,274,65,19" Id="LImq1NzkHarPPLxQBogpRM">
                 <p:NodeReference LastCategoryFullName="Primitive.Object" LastDependency="CoreLibBasics.vl">
@@ -19403,7 +19449,7 @@
                 </p:TypeAnnotation>
               </Pad>
             </Canvas>
-            <ProcessDefinition Id="CBVjYIbcmvCMIP0qaV816e" HasStateOut="true">
+            <ProcessDefinition Aspects="Advanced" Id="CBVjYIbcmvCMIP0qaV816e" HasStateOut="true">
               <Fragment Id="AUcvpY3R00wOgBP7islPOJ" Patch="PoP2QpnjAx1PVqGmYNZR70" Enabled="true" />
               <Fragment Id="JsM3wa1ms6kObyUopZDwb5" Patch="DadCEHcuuyJMypu7NGj1He" Enabled="true" />
               <Fragment Id="RnKbuSQPOPoMZDoc1Yo6p8" Patch="FYbsnCthAIVLeoxgniNELB" />
