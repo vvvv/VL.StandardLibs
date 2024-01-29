@@ -31,7 +31,7 @@ namespace VL.Core
         /// </summary>
         [Obsolete("Use IAppHost.IsCurrent()", error: true)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static bool IsCurrent() => AppHost.IsCurrent();
+        public static bool IsCurrent() => AppHost.IsAnyCurrent();
 
         private readonly ConcurrentDictionary<Type, Registration> registrations = new();
         private readonly IServiceProvider? parent;
