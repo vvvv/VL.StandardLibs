@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 
 namespace VL.Core
 {
@@ -51,7 +52,7 @@ namespace VL.Core
             if (service is null)
                 throw new ArgumentNullException(nameof(service));
 
-            registrations[typeof(T)] = new Registration(new Lazy<object>(() => service, isThreadSafe: false));
+            registrations[typeof(T)] = new Registration(new Lazy<object>(() => service, mode: LazyThreadSafetyMode.PublicationOnly));
             return this;
         }
 
