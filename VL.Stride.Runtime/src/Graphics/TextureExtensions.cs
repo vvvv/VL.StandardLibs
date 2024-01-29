@@ -5,10 +5,12 @@ using System.Runtime.CompilerServices;
 using VL.Lib.Basics.Imaging;
 using VL.Lib.Collections;
 using Stride.Graphics;
-using Buffer = Stride.Graphics.Buffer;
 using StridePixelFormat = Stride.Graphics.PixelFormat;
 using VLPixelFormat = VL.Lib.Basics.Imaging.PixelFormat;
 using Stride.Core;
+using System.Threading.Tasks;
+using VL.Stride.Engine;
+using VL.Core;
 
 namespace VL.Stride.Graphics
 {
@@ -139,6 +141,17 @@ namespace VL.Stride.Graphics
             {
                 SaveTexture(texture, commandList, resultFileStream, imageFileType);
             }
+        }
+
+        /// <summary>
+        /// Copies the texture to an equivalent staging texture. The resulting task completes once the copy operation is done.
+        /// </summary>
+        public static async Task<Texture> CopyToStagingAsync(this Texture texture)
+        {
+            using var game = AppHost.Current.Services.GetGameHandle();
+            var schedulerSystem = game.Resource.Services.GetService<SchedulerSystem>();
+            var stagingTexture = texture.ToStaging();
+            return await texture.CopyToStagingAsync(stagingTexture, schedulerSystem);
         }
 
         public static StridePixelFormat GetStridePixelFormat(ImageInfo info, bool isSRgb = true)

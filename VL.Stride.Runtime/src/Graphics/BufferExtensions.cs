@@ -11,6 +11,8 @@ using System.Reflection;
 using Stride.Core;
 using System.Diagnostics;
 using MapMode = Stride.Graphics.MapMode;
+using System.Threading.Tasks;
+using VL.Stride.Engine;
 
 namespace VL.Stride.Graphics
 {
@@ -487,6 +489,17 @@ namespace VL.Stride.Graphics
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Copies the buffer to an equivalent staging buffer. The resulting task completes once the copy operation is done.
+        /// </summary>
+        public static async Task<Buffer> CopyToStagingAsync(this Buffer buffer)
+        {
+            using var game = AppHost.Current.Services.GetGameHandle();
+            var schedulerSystem = game.Resource.Services.GetService<SchedulerSystem>();
+            var stagingBuffer = buffer.ToStaging();
+            return await buffer.CopyToStagingAsync(stagingBuffer, schedulerSystem);
         }
     }
 }
