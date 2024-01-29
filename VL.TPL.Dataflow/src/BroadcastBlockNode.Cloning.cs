@@ -1,4 +1,7 @@
-﻿namespace VL.TPL.Dataflow;
+﻿using Microsoft.Extensions.Logging;
+using VL.Core;
+
+namespace VL.TPL.Dataflow;
 
 /// <summary>
 /// Provides a buffer for storing at most one element at time, overwriting each message with the next as it arrives.
@@ -16,6 +19,11 @@ public class CloningBroadcastBlockNode<T> : BlockNode<BroadcastBlock<T>, Dataflo
 {
     private CreateHandler? _create;
     private UpdateHandler<T, T>? _update;
+
+    public CloningBroadcastBlockNode([Pin(Visibility = Model.PinVisibility.Hidden)] NodeContext nodeContext)
+    : base(nodeContext)
+    {
+    }
 
     [return: Pin(Name = "Output")]
     public BroadcastBlock<T> Update(
@@ -39,9 +47,17 @@ public class CloningBroadcastBlockNode<T> : BlockNode<BroadcastBlock<T>, Dataflo
         var block = new BroadcastBlock<T>(
             cloningFunction: x =>
             {
-                using var lease = manager.LeaseState(_create);
-                _update(lease.State, x, out lease.State, out var output);
-                return output;
+                try
+                {
+                    using var lease = manager.LeaseState(_create);
+                    _update(lease.State, x, out lease.State, out var output);
+                    return output;
+                }
+                catch (Exception e)
+                {
+                    RuntimeGraph.ReportException(e, AppHost);
+                    throw;
+                }
             },
             dataflowBlockOptions: options ?? new());
 

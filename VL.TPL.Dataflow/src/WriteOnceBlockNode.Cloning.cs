@@ -1,4 +1,7 @@
-﻿namespace VL.TPL.Dataflow;
+﻿using Microsoft.Extensions.Logging;
+using VL.Core;
+
+namespace VL.TPL.Dataflow;
 
 /// <summary>Provides a buffer for receiving and storing at most one element in a network of dataflow blocks.</summary>
 /// <typeparam name="T">Specifies the type of the data buffered by this dataflow block.</typeparam>
@@ -7,6 +10,11 @@ public class CloningWriteOnceBlockNode<T> : BlockNode<WriteOnceBlock<T>, Dataflo
 {
     private CreateHandler? _create;
     private UpdateHandler<T, T>? _update;
+
+    public CloningWriteOnceBlockNode([Pin(Visibility = Model.PinVisibility.Hidden)] NodeContext nodeContext)
+    : base(nodeContext)
+    {
+    }
 
     [return: Pin(Name = "Output")]
     public WriteOnceBlock<T> Update(
@@ -30,9 +38,17 @@ public class CloningWriteOnceBlockNode<T> : BlockNode<WriteOnceBlock<T>, Dataflo
         var block = new WriteOnceBlock<T>(
             cloningFunction: x =>
             {
-                using var lease = manager.LeaseState(_create);
-                _update(lease.State, x, out lease.State, out var output);
-                return output;
+                try
+                {
+                    using var lease = manager.LeaseState(_create);
+                    _update(lease.State, x, out lease.State, out var output);
+                    return output;
+                }
+                catch (Exception e)
+                {
+                    RuntimeGraph.ReportException(e, AppHost);
+                    throw;
+                }
             },
             dataflowBlockOptions: options ?? new());
 

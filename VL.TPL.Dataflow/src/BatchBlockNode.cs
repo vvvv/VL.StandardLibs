@@ -1,4 +1,6 @@
-﻿namespace VL.TPL.Dataflow;
+﻿using VL.Core;
+
+namespace VL.TPL.Dataflow;
 
 /// <summary>Provides a dataflow block that batches inputs into arrays.</summary>
 /// <typeparam name="T">Specifies the type of data put into batches.</typeparam>
@@ -6,6 +8,11 @@
 public class BatchBlockNode<T> : BlockNode<BatchBlock<T>, GroupingDataflowBlockOptions, T>
 {
     private int _batchSize;
+
+    public BatchBlockNode([Pin(Visibility = Model.PinVisibility.Hidden)] NodeContext nodeContext)
+    : base(nodeContext)
+    {
+    }
 
     [return: Pin(Name = "Output")]
     public BatchBlock<T> Update(ISourceBlock<T>? sourceBlock, GroupingDataflowBlockOptions? options, int batchSize = 1)

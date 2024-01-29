@@ -1,4 +1,6 @@
-﻿namespace VL.TPL.Dataflow;
+﻿using VL.Core;
+
+namespace VL.TPL.Dataflow;
 
 /// <summary>
 /// Provides a buffer for storing at most one element at time, overwriting each message with the next as it arrives.
@@ -14,6 +16,11 @@
 [ProcessNode(Name = "BroadcastBlock")]
 public class BroadcastBlockNode<T> : BlockNode<BroadcastBlock<T>, DataflowBlockOptions, T>
 {
+    public BroadcastBlockNode([Pin(Visibility = Model.PinVisibility.Hidden)] NodeContext nodeContext)
+    : base(nodeContext)
+    {
+    }
+
     protected override BroadcastBlock<T> CreateBlock(DataflowBlockOptions? options)
     {
         return new BroadcastBlock<T>(

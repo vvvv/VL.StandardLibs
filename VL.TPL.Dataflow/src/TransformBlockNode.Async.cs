@@ -1,4 +1,7 @@
-﻿namespace VL.TPL.Dataflow;
+﻿using Microsoft.Extensions.Logging;
+using VL.Core;
+
+namespace VL.TPL.Dataflow;
 
 /// <summary>Provides a dataflow block that invokes a provided <see cref="System.Func{TInput,TOutput}"/> delegate for every data element received.</summary>
 /// <typeparam name="TInput">Specifies the type of data received and operated on by this <see cref="TransformBlock{TInput,TOutput}"/>.</typeparam>
@@ -8,6 +11,11 @@ public class AsyncTransformBlockNode<TInput, TOutput> : BlockNode<TransformBlock
 {
     private CreateHandler? _create;
     private AsyncUpdateHandler<TInput, TOutput>? _update;
+
+    public AsyncTransformBlockNode([Pin(Visibility = Model.PinVisibility.Hidden)] NodeContext nodeContext)
+    : base(nodeContext)
+    {
+    }
 
     [return: Pin(Name = "Output")]
     public TransformBlock<TInput, TOutput> Update(
@@ -31,9 +39,17 @@ public class AsyncTransformBlockNode<TInput, TOutput> : BlockNode<TransformBlock
         var block = new TransformBlock<TInput, TOutput>(
             transform: async x =>
             {
-                using var lease = manager.LeaseState(_create);
-                _update(lease.State, x, out lease.State, out var output);
-                return await output;
+                try
+                {
+                    using var lease = manager.LeaseState(_create);
+                    _update(lease.State, x, out lease.State, out var output);
+                    return await output;
+                }
+                catch (Exception e)
+                {
+                    RuntimeGraph.ReportException(e, AppHost);
+                    throw;
+                }
             },
             dataflowBlockOptions: options ?? new());
         block.Completion.ContinueWith(_ => manager.Dispose());
