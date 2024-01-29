@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="TiJxb2oN2LtNWRy2MbJV6Q" LanguageVersion="2024.6.0-0048-g116ef9fe02" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="TiJxb2oN2LtNWRy2MbJV6Q" LanguageVersion="2024.6.0-0049-gea0b46f986" Version="0.128">
   <NugetDependency Id="LpDzfnL2ypqNzyyOieWuHI" Location="VL.CoreLib" Version="2021.4.11-1125-g2d2d476ad1" />
   <PlatformDependency Id="JJ0ZRRgadtbPuisZUaeinf" Location="Stride.Graphics.dll" />
   <NugetDependency Id="RUpxj8weM25L4I4AlKb6Yw" Location="VL.Core" Version="2021.4.11-1125-g2d2d476ad1" />
@@ -761,14 +761,14 @@
     ************************ Load ************************
 
 -->
-                  <Node Name="Load" Bounds="366,621,112,82" Id="Gem9IwlxMLePZjqG3FmKAc">
+                  <Node Name="Load" Bounds="366,621,129,82" Id="Gem9IwlxMLePZjqG3FmKAc">
                     <p:NodeReference>
                       <Choice Kind="OperationDefinition" Name="Operation" />
                       <FullNameCategoryReference ID="Primitive" />
                     </p:NodeReference>
                     <p:HideCategory p:Type="Boolean">false</p:HideCategory>
                     <Patch Id="TWjMJ9Um60WOaawhIdLTkK">
-                      <Node Bounds="378,653,85,19" AutoConnect="true" Id="VadOkgdBpHnLfXmN95y3mv">
+                      <Node Bounds="378,653,105,19" AutoConnect="true" Id="VadOkgdBpHnLfXmN95y3mv">
                         <p:NodeReference LastCategoryFullName="VL.Stride.Graphics.TextureExtensions" LastDependency="VL.Stride.Runtime.dll">
                           <Choice Kind="OperationNode" Name="Load" />
                           <FullNameCategoryReference ID="VL.Stride.Graphics.TextureExtensions" />
@@ -778,6 +778,7 @@
                         <Pin Id="UDp2j68gbGsL0wqHorgayd" Name="Texture Flags" Kind="InputPin" />
                         <Pin Id="UuTQsvFlR8wNkmvzy0CzhA" Name="Usage" Kind="InputPin" />
                         <Pin Id="KcWVgSpUfXOPBngiIWMQSl" Name="Load As SRGB" Kind="InputPin" />
+                        <Pin Id="SqO7BDYZP9xLEc12Hg4JaU" Name="Buffer Size" Kind="InputPin" />
                         <Pin Id="BLdKqaGzw3oLYdjsIHilAC" Name="Result" Kind="OutputPin" />
                       </Node>
                       <Pin Id="LT3jjnkMfbIMmgasN2OaKc" Name="Device" Kind="InputPin" />
@@ -786,6 +787,7 @@
                       <Pin Id="P6oMaESg7mAMFnjq6TXzQe" Name="Usage" Kind="InputPin" />
                       <Pin Id="MzndlnDPVqpOkWXgsRNPpd" Name="Load As SRGB" Kind="InputPin" />
                       <Pin Id="BaC0C6lSpnwQJ5oqfuQSAj" Name="Result" Kind="OutputPin" />
+                      <Pin Id="OI5rd2WmTwuQG7ZGnuavch" Name="Buffer Size" Kind="InputPin" />
                     </Patch>
                   </Node>
                   <!--
@@ -922,12 +924,37 @@
                       <Pin Id="GLmh6QtUHMMMODC5rTLhrp" Name="Result" Kind="OutputPin" />
                     </Patch>
                   </Node>
+                  <!--
+
+    ************************ GetDataAsync ************************
+
+-->
+                  <Node Name="GetDataAsync" Bounds="767,620,112,80" Id="L5hSkVg9RSxO9F7BmnwWZN">
+                    <p:NodeReference>
+                      <Choice Kind="OperationDefinition" Name="Operation" />
+                      <CategoryReference Kind="Category" Name="Primitive" />
+                    </p:NodeReference>
+                    <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+                    <Patch Id="Sv0DIdLsmnUQKXdf3olU2T" IsGeneric="true">
+                      <Node Bounds="779,649,83,26" AutoConnect="true" Id="PiSIdaa8WJALAYs3E40sXq">
+                        <p:NodeReference LastCategoryFullName="VL.Stride.Graphics.TextureExtensions" LastDependency="VL.Stride.Runtime.dll">
+                          <Choice Kind="OperationNode" Name="GetDataAsync" />
+                          <FullNameCategoryReference ID="VL.Stride.Graphics.TextureExtensions" />
+                        </p:NodeReference>
+                        <Pin Id="Qs5RiN3Xb4uNrisQsSF4Cy" Name="Input" Kind="StateInputPin" />
+                        <Pin Id="MroaOIzjyUUPflKvysuOYW" Name="Result" Kind="OutputPin" />
+                      </Node>
+                      <Pin Id="ObIZtI8j1EMMGQNvt4QbS8" Name="Input" Kind="InputPin" />
+                      <Pin Id="HD3AEVOAwqUPxm0Vu4kEtS" Name="Result" Kind="OutputPin" />
+                    </Patch>
+                  </Node>
                 </Canvas>
                 <ProcessDefinition Id="MruQ3kaOEPhLG3b4KwVzP3" IsHidden="true">
                   <Fragment Id="NN0HElDxBTkLB7IulcLUAO" Patch="IsGqAeb6r72MIcSa5INqyT" />
                   <Fragment Id="EJJ4p4KqsIWNvh9uDAJTxd" Patch="Gem9IwlxMLePZjqG3FmKAc" />
                   <Fragment Id="ClWiEespcAgPbXQoXb4lPw" Patch="OFjGPMJHg6cL27iGyheCDf" />
                   <Fragment Id="A9d63uzoXQjPVoylncRi3p" Patch="NagKq7t6unCL7aZmLAbCsw" />
+                  <Fragment Id="TimDAx4N6YTP4OdN82cs76" Patch="L5hSkVg9RSxO9F7BmnwWZN" />
                 </ProcessDefinition>
               </Patch>
             </Node>
@@ -5441,11 +5468,11 @@
                         <Pin Id="B193vB2GRsKNXvMf5dtl8y" Name="Scale" Kind="InputPin" />
                         <Pin Id="Nbg5bRGfPzpNua8Etc7NFZ" Name="Output" Kind="StateOutputPin" />
                       </Node>
-                      <Pin Id="SxkqslOHsStLjuGpqLpgLC" Name="Position" Kind="InputPin" />
                       <Pin Id="ALSnsB42164Ler5qE99GNK" Name="Name" Kind="InputPin" />
-                      <Pin Id="N0qdcsh636kOvqoFXdX0Tz" Name="Output" Kind="OutputPin" />
+                      <Pin Id="SxkqslOHsStLjuGpqLpgLC" Name="Position" Kind="InputPin" />
                       <Pin Id="D4J5XcANkSKNXQfSHRzQWl" Name="Rotation" Kind="InputPin" />
                       <Pin Id="MK8VyeKXVsoNBHovz9RLmy" Name="Scale" Kind="InputPin" />
+                      <Pin Id="N0qdcsh636kOvqoFXdX0Tz" Name="Output" Kind="OutputPin" />
                     </Patch>
                   </Node>
                   <!--

@@ -11,6 +11,8 @@ using Stride.Core;
 using System.Threading.Tasks;
 using VL.Stride.Engine;
 using VL.Core;
+using Stride.Rendering;
+using System.Buffers;
 
 namespace VL.Stride.Graphics
 {
@@ -23,7 +25,7 @@ namespace VL.Stride.Graphics
 
             var formatString = Enum.GetName(typeof(StridePixelFormat), format);
             var idx = formatString.IndexOf('_');
-            
+
             if (idx > 0)
             {
                 formatString = formatString.Remove(idx);
@@ -54,7 +56,7 @@ namespace VL.Stride.Graphics
         /// See the unmanaged documentation about Map/UnMap for usage and restrictions.
         /// </remarks>
         /// <returns>The GPU buffer.</returns>
-        public static unsafe Texture SetData<TData>(this Texture texture, CommandList commandList, Spread<TData> fromData, int arraySlice, int mipSlice, ResourceRegion? region) 
+        public static unsafe Texture SetData<TData>(this Texture texture, CommandList commandList, Spread<TData> fromData, int arraySlice, int mipSlice, ResourceRegion? region)
             where TData : unmanaged
         {
             var immutableArray = fromData._array;
@@ -82,7 +84,7 @@ namespace VL.Stride.Graphics
                 using (var handle = data.Pin())
                 {
                     texture.SetData(commandList, new DataPointer(handle.Pointer, data.SizeInBytes), arraySlice, mipSlice, region);
-                } 
+                }
             }
 
             return texture;
@@ -151,7 +153,28 @@ namespace VL.Stride.Graphics
             using var game = AppHost.Current.Services.GetGameHandle();
             var schedulerSystem = game.Resource.Services.GetService<SchedulerSystem>();
             var stagingTexture = texture.ToStaging();
-            return await texture.CopyToStagingAsync(stagingTexture, schedulerSystem);
+            await texture.CopyToStagingAsync(stagingTexture, schedulerSystem);
+            return stagingTexture;
+        }
+
+        /// <summary>
+        /// Retrieves the texture data asynchronously.
+        /// </summary>
+        public static async Task<IMemoryOwner<T>> GetDataAsync<T>(this Texture texture) where T : unmanaged
+        {
+            using var game = AppHost.Current.Services.GetGameHandle();
+            var commandList = game.Resource.GraphicsContext.CommandList;
+            using var staging = await texture.CopyToStagingAsync();
+            var memoryOwner = MemoryPool<T>.Shared.Rent(texture.CalculatePixelDataCount<T>());
+            GetData(staging, commandList, memoryOwner.Memory);
+            return memoryOwner;
+
+            static unsafe void GetData(Texture staging, CommandList commandList, Memory<T> memory)
+            {
+                using var pinned = memory.Pin();
+                var data = new DataPointer(pinned.Pointer, memory.Length);
+                staging.GetData(commandList, staging, data);
+            }
         }
 
         public static StridePixelFormat GetStridePixelFormat(ImageInfo info, bool isSRgb = true)

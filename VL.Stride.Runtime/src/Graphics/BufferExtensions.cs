@@ -499,7 +499,8 @@ namespace VL.Stride.Graphics
             using var game = AppHost.Current.Services.GetGameHandle();
             var schedulerSystem = game.Resource.Services.GetService<SchedulerSystem>();
             var stagingBuffer = buffer.ToStaging();
-            return await buffer.CopyToStagingAsync(stagingBuffer, schedulerSystem);
+            await buffer.CopyToStagingAsync(stagingBuffer, schedulerSystem);
+            return stagingBuffer;
         }
     }
 }

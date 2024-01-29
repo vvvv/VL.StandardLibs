@@ -8,7 +8,7 @@ namespace VL.Stride.Graphics
 {
     internal static class GraphicsResourceUtils
     {
-        public static async Task<T> CopyToStagingAsync<T>(this GraphicsResource resource, T stagingResource, SchedulerSystem schedulerSystem)
+        public static async Task CopyToStagingAsync<T>(this GraphicsResource resource, T stagingResource, SchedulerSystem schedulerSystem)
             where T : GraphicsResource
         {
             if (resource is null)
@@ -16,7 +16,7 @@ namespace VL.Stride.Graphics
             if (schedulerSystem is null)
                 throw new ArgumentNullException(nameof(schedulerSystem));
 
-            var tcs = new TaskCompletionSource<T>();
+            var tcs = new TaskCompletionSource();
 
             DelegateSceneRenderer resultAwaiter = null;
 
@@ -49,7 +49,7 @@ namespace VL.Stride.Graphics
                     else
                     {
                         commandList.UnmapSubresource(mappedResource);
-                        tcs.SetResult(stagingResource);
+                        tcs.SetResult();
                     }
                 }
                 catch (Exception e)
@@ -61,7 +61,7 @@ namespace VL.Stride.Graphics
 
             schedulerSystem.Schedule(copyRenderer);
 
-            return await tcs.Task;
+            await tcs.Task;
         }
     }
 }
