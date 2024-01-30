@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
 using System.Windows.Forms;
@@ -6,26 +8,28 @@ using SkiaSharp;
 using Vector2 = Stride.Core.Mathematics.Vector2;
 using VL.Skia.Egl;
 using Stride.Core.Mathematics;
+using System.Reactive.Linq;
 
 namespace VL.Skia
 {
     public partial class SkiaGLControl : UserControl, IProjectionSpace, IWorldSpace2d
     {
         private readonly RenderStopwatch renderStopwatch = new RenderStopwatch();
-        private RenderContext renderContext;
-        private EglSurface eglSurface;
-        private SKSurface surface;
+
+        private Mouse? mouse;
+        private Keyboard? keyboard;
+        private TouchDevice? touchDevice;
+
+        private RenderContext? renderContext;
+        private EglSurface? eglSurface;
+        private SKSurface? surface;
         private Int2 surfaceSize;
-        private SKCanvas canvas;
+        private SKCanvas? canvas;
         private bool? lastSetVSync;
 
         public CallerInfo CallerInfo { get; private set; } =  CallerInfo.Default;
 
-        internal EglContext EglContext => renderContext?.EglContext;
-
-        internal GRContext SkiaContext => renderContext?.SkiaContext;
-
-        public event Action<CallerInfo> OnRender;
+        public event Action<CallerInfo>? OnRender;
 
         /// <summary>
         /// The time to evaluate the layer input in μs.
@@ -43,6 +47,41 @@ namespace VL.Skia
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             DoubleBuffered = false;
             ResizeRedraw = true;
+        }
+
+        public Mouse Mouse => mouse ??= CreateMouse();
+
+        public Keyboard Keyboard => keyboard ??= CreateKeyboard();
+
+        public TouchDevice TouchDevice => touchDevice ??= new TouchDevice(TouchNotifications);
+
+        Mouse CreateMouse()
+        {
+            var mouseDowns = Observable.FromEventPattern<MouseEventArgs>(this, nameof(MouseDown))
+                .Select(p => p.EventArgs.ToMouseDownNotification(this, this));
+            var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(this, nameof(MouseMove))
+                .Select(p => p.EventArgs.ToMouseMoveNotification(this, this));
+            var mouseUps = Observable.FromEventPattern<MouseEventArgs>(this, nameof(MouseUp))
+                .Select(p => p.EventArgs.ToMouseUpNotification(this, this));
+            var mouseWheels = Observable.FromEventPattern<MouseEventArgs>(this, nameof(MouseWheel))
+                .Select(p => p.EventArgs.ToMouseWheelNotification(this, this));
+            return new Mouse(mouseDowns
+                .Merge<MouseNotification>(mouseMoves)
+                .Merge(mouseUps)
+                .Merge(mouseWheels));
+        }
+
+        Keyboard CreateKeyboard()
+        {
+            var keyDowns = Observable.FromEventPattern<KeyEventArgs>(this, nameof(KeyDown))
+                .Select(p => p.EventArgs.ToKeyDownNotification(this));
+            var keyUps = Observable.FromEventPattern<KeyEventArgs>(this, nameof(KeyUp))
+                .Select(p => p.EventArgs.ToKeyUpNotification(this));
+            var keyPresses = Observable.FromEventPattern<KeyPressEventArgs>(this, nameof(KeyPress))
+                .Select(p => p.EventArgs.ToKeyPressNotification(this));
+            return new Keyboard(keyDowns
+                .Merge<KeyNotification>(keyUps)
+                .Merge(keyPresses));
         }
 
         protected override CreateParams CreateParams
@@ -65,7 +104,7 @@ namespace VL.Skia
             // Retrieve the render context. Doing so in the constructor can lead to crashes when running unit tests with headless machines.
             renderContext = RenderContext.ForCurrentThread();
 
-            eglSurface = EglContext?.CreatePlatformWindowSurface(Handle, DirectCompositionEnabled);
+            eglSurface = renderContext?.EglContext.CreatePlatformWindowSurface(Handle, DirectCompositionEnabled);
             lastSetVSync = default;
 
             base.OnHandleCreated(e);
@@ -85,20 +124,21 @@ namespace VL.Skia
         {
             base.OnPaint(e);
 
-            if (!Visible || eglSurface is null)
+            if (!Visible || renderContext is null || eglSurface is null)
                 return;
 
             renderStopwatch.StartRender();
             try
             {
                 // Ensure our GL context is current on current thread
-                EglContext.MakeCurrent(eglSurface);
+                var eglContext = renderContext.EglContext;
+                eglContext.MakeCurrent(eglSurface);
 
                 // Set VSync
                 if (!lastSetVSync.HasValue || VSync != lastSetVSync.Value)
                 {
                     lastSetVSync = VSync;
-                    EglContext.SwapInterval(VSync ? 1 : 0);
+                    eglContext.SwapInterval(VSync ? 1 : 0);
                 }
 
                 start:
@@ -121,7 +161,7 @@ namespace VL.Skia
                 surface.Flush();
 
                 // Swap 
-                EglContext.SwapBuffers(eglSurface);
+                eglContext.SwapBuffers(eglSurface);
 
                 // EGL might have adjusted the surface size after the swap - if it did, render once more to avoid artifacts
                 if (size != eglSurface.Size)
