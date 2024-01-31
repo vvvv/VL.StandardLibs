@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 [assembly: ComVisible(false)]
 [assembly: InternalsVisibleTo("VL.AppServices")]
 [assembly: InternalsVisibleTo("VL.Lang")]
+[assembly: InternalsVisibleTo("VL.HDE")]
 [assembly: InternalsVisibleTo("VL.UI.Forms")]
 [assembly: InternalsVisibleTo("VL.TestLib")]
 [assembly: InternalsVisibleTo("VL.TestFramework")]

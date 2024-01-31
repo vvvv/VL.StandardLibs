@@ -58,9 +58,9 @@ namespace VL.IO.Redis
                     if (m != null)
                         UpdateBindingsFromModel(m);
 
-                    var solution = SessionNodes.CurrentSolution
+                    var solution = IDevSession.Current?.CurrentSolution
                         .SetPinValue(nodeContext.Path.Stack, "Model", m);
-                    solution.Confirm();
+                    solution?.Confirm();
                 });
         }
 
