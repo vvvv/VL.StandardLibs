@@ -499,13 +499,16 @@ namespace VL.Stride
 
         class CachedInputPin<T> : InputPin<T>, IVLPin
         {
+            private static bool ReferenceEquals(T instance1, T instance2) => object.ReferenceEquals(instance1, instance2);
+
             readonly Func<T, T, bool> equals;
             T lastValue;
 
             public CachedInputPin(Node node, TInstance instance, Func<TInstance, T> getter, Action<TInstance, T> setter, T initialValue, Func<T, T, bool> equals = default) 
                 : base(node, instance, getter, setter, initialValue)
             {
-                this.equals = equals ?? EqualityComparer<T>.Default.Equals;
+                // Stride object equality is buggy! For example of type  MaterialSpecularThinGlassModelFeature
+                this.equals = equals ?? (typeof(T).IsValueType ? EqualityComparer<T>.Default.Equals : ReferenceEquals);
                 lastValue = initialValue;
             }
 
