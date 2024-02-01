@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Reactive.Disposables;
 using VL.Core;
+using VL.Core.Commands;
 using VL.Core.Logging;
 using VL.Lib.IO;
 
@@ -16,6 +17,9 @@ namespace VL.Lang.PublicAPI
 
         public static void Paste(string modelSnippet, PointF location) 
             => Current?.Paste(modelSnippet, location);
+
+        public static ICommandList? DevCommands 
+            => Current?.Commands;
 
         public static void ReportException(Exception e)
             => Current?.ReportException(e);

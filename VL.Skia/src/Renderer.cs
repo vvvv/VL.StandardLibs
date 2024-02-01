@@ -15,6 +15,7 @@ using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
 using VL.Model;
 using VL.Lang.PublicAPI;
+using VL.Core.Commands;
 
 namespace VL.Skia
 {
@@ -264,7 +265,11 @@ namespace VL.Skia
 
             try
             {
-                if (Visible && HasValidLayer && Input != null)
+                if (CommandList != null && CommandList.TryExecute(n))
+                {
+                    n.Handled = true;
+                }
+                else if (Visible && HasValidLayer && Input != null)
                 {
                     n.Handled = Input.Notify(n, FControl.CallerInfo);
                 }
@@ -289,6 +294,8 @@ namespace VL.Skia
         public Keyboard Keyboard => FControl.Keyboard;
 
         public TouchDevice TouchDevice => FControl.TouchDevice;
+
+        public ICommandList? CommandList { get; set; }
 
         public bool VSync
         {
