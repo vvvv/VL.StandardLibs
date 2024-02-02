@@ -491,9 +491,7 @@ namespace VL.Lib.IO
             if (this == basePath)
                 return new Path("");
 
-            var baseRoot = basePath.Root[0];
-            var thisRoot = Root[0];
-            if (char.IsLetter(baseRoot) && char.IsLetter(thisRoot) && baseRoot != thisRoot)
+            if (NetPath.GetPathRoot(this) != NetPath.GetPathRoot(basePath))
                 return this;
 
             var fromPath = (string)basePath;
