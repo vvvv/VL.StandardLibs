@@ -104,7 +104,6 @@ namespace VL.Skia
             // Retrieve the render context. Doing so in the constructor can lead to crashes when running unit tests with headless machines.
             renderContext = RenderContext.ForCurrentThread();
 
-            eglSurface = renderContext?.EglContext.CreatePlatformWindowSurface(Handle, DirectCompositionEnabled);
             lastSetVSync = default;
 
             base.OnHandleCreated(e);
@@ -124,7 +123,7 @@ namespace VL.Skia
         {
             base.OnPaint(e);
 
-            if (!Visible || renderContext is null || eglSurface is null)
+            if (!Visible || renderContext is null || Handle == 0)
                 return;
 
             renderStopwatch.StartRender();
@@ -132,25 +131,37 @@ namespace VL.Skia
             {
                 // Ensure our GL context is current on current thread
                 var eglContext = renderContext.EglContext;
+
+                // Create offscreen surface to render into
+                if (eglSurface is null || surfaceSize.X != Width || surfaceSize.Y != Height)
+                {
+                    DestroySurface();
+
+                    surfaceSize = new Int2(Width, Height);
+
+                    eglSurface = eglContext.CreatePlatformWindowSurface(Handle, Width, Height);
+                }
+
+                if (eglSurface is null)
+                    return;
+
                 eglContext.MakeCurrent(eglSurface);
+
+                if (surface is null)
+                {
+                    surface = CreateSkSurface(renderContext, surfaceSize.X, surfaceSize.Y);
+                    canvas = surface?.Canvas;
+                    CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, canvas, renderContext.SkiaContext);
+                }
+
+                if (surface is null)
+                    return;
 
                 // Set VSync
                 if (!lastSetVSync.HasValue || VSync != lastSetVSync.Value)
                 {
                     lastSetVSync = VSync;
                     eglContext.SwapInterval(VSync ? 1 : 0);
-                }
-
-                start:
-                // Create offscreen surface to render into
-                var size = eglSurface.Size;
-                if (surface is null || size != surfaceSize)
-                {
-                    surfaceSize = size;
-                    surface?.Dispose();
-                    surface = CreateSkSurface(renderContext, size.X, size.Y);
-                    canvas = surface.Canvas;
-                    CallerInfo = CallerInfo.InRenderer(size.X, size.Y, canvas, renderContext.SkiaContext);
                 }
 
                 // Render
@@ -162,12 +173,6 @@ namespace VL.Skia
 
                 // Swap 
                 eglContext.SwapBuffers(eglSurface);
-
-                // EGL might have adjusted the surface size after the swap - if it did, render once more to avoid artifacts
-                if (size != eglSurface.Size)
-                {
-                    goto start;
-                }
             }
             finally
             {
@@ -202,11 +207,19 @@ namespace VL.Skia
 
         private void DestroySurface()
         {
+            var eglContext = renderContext?.EglContext;
+            if (eglContext is null)
+                return;
+
+            eglContext.MakeCurrent(eglSurface);
+
             surface?.Dispose();
             surface = null;
 
             eglSurface?.Dispose();
             eglSurface = default;
+
+            eglContext.MakeCurrent(null);
         }
 
         public void MapFromPixels(INotificationWithPosition notification, out Vector2 inNormalizedProjection, out Vector2 inProjection)
