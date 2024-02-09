@@ -59,6 +59,7 @@ namespace VL.ImGui
                     var dst = new Span<byte>(cfg.Name, 40);
                     s.Slice(0, Math.Min(s.Length, dst.Length)).CopyTo(dst);
 
+                    // TODO this caused a Memory leak ... old Font will not disposed?? 
                     var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, GetGlypthRange(atlas, font.GlyphRange));
                     anyFontLoaded = true;
                     _context.Fonts[font.Name] = f;
@@ -83,16 +84,11 @@ namespace VL.ImGui
                     atlas.GetTexDataAsRGBA32(out pixelData, out width, out height, out bytesPerPixel);
                 }
 
+                var newFontTexture = Texture.New2D(device, width, height, PixelFormat.R8G8B8A8_UNorm, TextureFlags.ShaderResource);
+                newFontTexture.SetData(commandList, new DataPointer(pixelData, (width * height) * bytesPerPixel));
                 fontTexture?.Dispose();
-                fontTexture = Texture.New2D(device, width, height, PixelFormat.R8G8B8A8_UNorm, TextureFlags.ShaderResource);
-                fontTexture.SetData(commandList, new DataPointer(pixelData, (width * height) * bytesPerPixel));
-
+                fontTexture = newFontTexture;
                 atlas.ClearTexData();
-
-                //var newFontTexture = Texture.New2D(device, width, height, PixelFormat.R8G8B8A8_UNorm, TextureFlags.ShaderResource);
-                //newFontTexture.SetData(commandList, new DataPointer(pixelData, (width * height) * bytesPerPixel));
-                //fontTexture?.Dispose();
-                //fontTexture = newFontTexture;
             }
 
             static IntPtr GetGlypthRange(ImFontAtlasPtr atlas, GlyphRange glyphRange)
