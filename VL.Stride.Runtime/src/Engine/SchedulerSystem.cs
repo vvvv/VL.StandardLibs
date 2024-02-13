@@ -17,11 +17,20 @@ namespace VL.Stride.Engine
     /// </summary>
     public class SchedulerSystem : GameSystemBase
     {
+        internal readonly ref struct CustomScheduler(SchedulerSystem schedulerSystem, Action<IGraphicsRendererBase> previous)
+        {
+            public void Dispose()
+            {
+                schedulerSystem.privateScheduler = previous;
+            }
+        }
+
         static readonly PropertyKey<bool> contentLoaded = new PropertyKey<bool>("ContentLoaded", typeof(SchedulerSystem));
 
         private List<GameSystemBase> front = new List<GameSystemBase>();
         private List<GameSystemBase> back = new List<GameSystemBase>();
-        readonly Stack<ConsecutiveRenderSystem> pool = new Stack<ConsecutiveRenderSystem>();
+        private readonly Stack<ConsecutiveRenderSystem> pool = new Stack<ConsecutiveRenderSystem>();
+        private Action<IGraphicsRendererBase> privateScheduler;
 
         public SchedulerSystem([NotNull] IServiceRegistry registry) : base(registry)
         {
@@ -44,6 +53,12 @@ namespace VL.Stride.Engine
         /// <param name="renderer">The layer to schedule.</param>
         public void Schedule(IGraphicsRendererBase renderer)
         {
+            if (privateScheduler != null)
+            {
+                privateScheduler.Invoke(renderer);
+                return;
+            }
+
             var current = front.LastOrDefault() as ConsecutiveRenderSystem;
             if (current is null)
             {
@@ -52,6 +67,15 @@ namespace VL.Stride.Engine
                 Schedule(current);
             }
             current.Renderers.Add(renderer);
+        }
+
+        /// <summary>
+        /// Allows to install a custom schedulerer. Used by regions like CustomPostFX during their draw call.
+        /// </summary>
+        internal CustomScheduler WithPrivateScheduler(Action<IGraphicsRendererBase> scheduler)
+        {
+            var previous = Interlocked.Exchange(ref privateScheduler, scheduler);
+            return new CustomScheduler(this, previous);
         }
 
         public override void Update(GameTime gameTime)
