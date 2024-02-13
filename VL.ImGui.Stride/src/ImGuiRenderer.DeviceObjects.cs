@@ -11,6 +11,8 @@ namespace VL.ImGui
             // set up a commandlist
             commandList = context.CommandList;
 
+
+
             var layout = new VertexDeclaration(
                 VertexElement.Position<Vector2>(),
                 VertexElement.TextureCoordinate<Vector2>(),
