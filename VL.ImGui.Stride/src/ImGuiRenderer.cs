@@ -62,6 +62,8 @@ namespace VL.ImGui
             context = AppHost.Current.Services.GetGraphicsContextHandle().Resource;
             input = AppHost.Current.Services.GetInputManagerHandle().Resource;
 
+            //device.ColorSpace = ColorSpace.Gamma;
+
             imShader = drawEffect;
 
             _context = new Context();
