@@ -161,9 +161,17 @@ namespace VL.Core
     }
 
     /// <summary>
+    /// Currently a IVLPropertyInfo or a channel
+    /// </summary>
+    public interface IHasAttributes
+    {
+        IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
+    }
+
+    /// <summary>
     /// Interface to interact with VL properties.
     /// </summary>
-    public interface IVLPropertyInfo
+    public interface IVLPropertyInfo : IHasAttributes
     {
         /// <summary>
         /// The type which declared this property.
@@ -221,7 +229,7 @@ namespace VL.Core
         /// <returns>The instance with the newly set value.</returns>
         IVLObject WithValue(IVLObject instance, object value);
 
-        IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
+        new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
     }
 
     public record struct ObjectGraphNode(string Path, object Value, Type Type);

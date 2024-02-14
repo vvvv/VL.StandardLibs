@@ -1,13 +1,80 @@
 ﻿using Stride.Core.Mathematics;
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
-using System.Threading.Tasks;
+using VL.Lib.Collections;
 
 namespace VL.Core.EditorAttributes
 {
     public static class AttributeHelpers
     {
+        public static Optional<string> GetLabel(this IHasAttributes propertyInfoOrChannel)
+        {
+            var labelAttribute = propertyInfoOrChannel.GetAttributes<LabelAttribute>().FirstOrDefault();
+            if (labelAttribute != null)
+                return labelAttribute.Label;
+
+            var displayAttribute = propertyInfoOrChannel.GetAttributes<Stride.Core.DisplayAttribute>().FirstOrDefault();
+            if (displayAttribute != null)
+                return displayAttribute.Name;
+
+            var displayAttribute2 = propertyInfoOrChannel.GetAttributes<System.ComponentModel.DataAnnotations.DisplayAttribute>().FirstOrDefault();
+            if (displayAttribute2 != null)
+                return displayAttribute2.Name;
+
+            return new Optional<string>();
+        }
+
+        public static Optional<string> GetDescription(this IHasAttributes propertyInfoOrChannel)
+        {
+            var displayAttribute = propertyInfoOrChannel.GetAttributes<System.ComponentModel.DataAnnotations.DisplayAttribute>().FirstOrDefault();
+            if (displayAttribute != null)
+                return displayAttribute.Description;
+
+            return new Optional<string>();
+        }
+
+        public static Optional<int> GetOrder(this IHasAttributes propertyInfoOrChannel)
+        {
+            var displayAttribute = propertyInfoOrChannel.GetAttributes<System.ComponentModel.DataAnnotations.DisplayAttribute>().FirstOrDefault();
+            if (displayAttribute != null)
+            {
+                var o = displayAttribute.GetOrder();
+                if (o != null)
+                    return new Optional<int>(o.Value);
+            }
+            return new Optional<int>();
+        }
+
+        public static Optional<WidgetType> GetWidgetType(this IHasAttributes propertyInfoOrChannel)
+        {
+            var attr = propertyInfoOrChannel.GetAttributes<WidgetTypeAttribute>().FirstOrDefault();
+            if (attr != null)
+                return attr.WidgetType;
+            return new Optional<WidgetType>();
+        }
+
+        public static bool GetIsExposed(this IHasAttributes propertyInfoOrChannel)
+        {
+            var attr = propertyInfoOrChannel.GetAttributes<ExposedAttribute>().FirstOrDefault();
+            if (attr != null)
+                return true;
+            return false;
+        }
+
+        public static Spread<string> GetTags(this IHasAttributes propertyInfoOrChannel)
+        {
+            var attr = propertyInfoOrChannel.GetAttributes<TagAttribute>();
+            return attr.Select(a => a.TagLabel).ToSpread();
+        }
+
+        public static ImmutableDictionary<string, string> GetCustomMetaData(this IHasAttributes propertyInfoOrChannel)
+        {
+            var attr = propertyInfoOrChannel.GetAttributes<CustomMetaDataAttribute>();
+            return attr.Distinct(a => a.Key).ToImmutableDictionary(a =>  a.Key, a => a.Value);
+        }
+
+
         /// <summary>
         /// Restrictions of the .Net attribute system force us to work with encoded values.
         /// Attributes in the VL.Core.EditorAttributes namespace work with string properties to store numeric values.
@@ -24,7 +91,7 @@ namespace VL.Core.EditorAttributes
             if (value is null)
                 return null;
 
-            if (value is int || 
+            if (value is int ||
                 value is float ||
                 value is double)
                 return value.ToString();
@@ -48,10 +115,10 @@ namespace VL.Core.EditorAttributes
 
             if (targetType == typeof(float))
                 return float.Parse(encodedValue);
-            
+
             if (targetType == typeof(double))
                 return double.Parse(encodedValue);
-            
+
             var values = encodedValue.Split(',')
                 .Select(DecodeValueFromAttribute<float>)
                 .ToArray();
@@ -77,5 +144,26 @@ namespace VL.Core.EditorAttributes
 
         public static T DecodeValueFromAttribute<T>(string encodedValue)
             => (T)DecodeValueFromAttribute(encodedValue, typeof(T));
+
+        public static bool HasTaggedValue(this IHasAttributes propertyInfoOrChannel, string key)
+            => propertyInfoOrChannel.GetAttributes<TaggedValueAttribute>().Any(a => a.Key == key);
+
+        public static Optional<T> GetTaggedValue<T>(this IHasAttributes propertyInfoOrChannel, string key)
+        {
+            var attr = propertyInfoOrChannel.GetAttributes<TaggedValueAttribute>().FirstOrDefault(a => a.Key == key);
+            return attr != null ? new Optional<T>(attr.GetValue<T>()) : new Optional<T>();
+        }
+
+        public static Optional<T> GetMin<T>(this IHasAttributes propertyInfoOrChannel) 
+            => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.MinKey);
+
+        public static Optional<T> GetMax<T>(this IHasAttributes propertyInfoOrChannel)
+            => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.MaxKey);
+
+        public static Optional<T> GetDefault<T>(this IHasAttributes propertyInfoOrChannel) 
+            => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.DefaultKey);
+
+        public static Optional<T> GetStepSize<T>(this IHasAttributes propertyInfoOrChannel) 
+            => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.StepSizeKey);
     }
 }

@@ -29,5 +29,6 @@ namespace VL.Core.EditorAttributes
         public static string MinKey = "Min";
         public static string MaxKey = "Max";
         public static string DefaultKey = "Default";
+        public static string StepSizeKey = "StepSize";
     }
 }

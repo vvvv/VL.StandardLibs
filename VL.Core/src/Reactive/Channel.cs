@@ -17,7 +17,7 @@ using VL.Lib.Collections;
 
 namespace VL.Lib.Reactive
 {
-    public interface IChannel
+    public interface IChannel : IHasAttributes
     {
         Type ClrTypeOfValues { get; }
         ImmutableList<object> Components { get; set; }
@@ -187,6 +187,8 @@ namespace VL.Lib.Reactive
             if (lockCount == 0 && revisionOnLockTaken != revision)
                 SetValueAndAuthor(this.Value, LatestAuthor);
         }
+
+        IEnumerable<TAttribute> IHasAttributes.GetAttributes<TAttribute>() => this.Attributes().Value!.OfType<TAttribute>();
     }
 
     internal class Channel<T> : C<T>, IChannel<object>

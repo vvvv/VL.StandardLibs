@@ -12,15 +12,13 @@ namespace VL.Core.EditorAttributes
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
     public sealed class CustomMetaDataAttribute : Attribute
     {
-        public CustomMetaDataAttribute(string key, object value)
+        public CustomMetaDataAttribute(string key, string value)
         {
             Key = key;
             Value = value;
         }
 
         public string Key { get; }
-        public object Value { get; }
-
-
+        public string Value { get; }
     }
 }
