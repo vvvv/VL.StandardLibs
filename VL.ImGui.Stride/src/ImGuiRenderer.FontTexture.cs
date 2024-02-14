@@ -21,7 +21,7 @@ namespace VL.ImGui
                     atlas.GetTexDataAsRGBA32(out pixelData, out width, out height, out bytesPerPixel);
                 }
 
-                var newFontTexture = Texture.New2D(device, width, height, PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlags.ShaderResource);
+                var newFontTexture = Texture.New2D(device, width, height, device.ColorSpace == ColorSpace.Linear ? PixelFormat.R8G8B8A8_UNorm_SRgb : PixelFormat.R8G8B8A8_UNorm, TextureFlags.ShaderResource);
                 newFontTexture.SetData(commandList, new DataPointer(pixelData, (width * height) * bytesPerPixel));
                 fontTexture?.Dispose();
                 fontTexture = newFontTexture;

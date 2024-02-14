@@ -14,6 +14,7 @@ using VL.Stride.Rendering;
 using VL.Stride.Input;
 
 using System.Reactive.Disposables;
+using VL.Lib.Basics.Resources;
 
 namespace VL.ImGui
 {
@@ -25,10 +26,15 @@ namespace VL.ImGui
         const int INITIAL_INDEX_BUFFER_SIZE = 128;
 
         // dependencies
-        GraphicsDevice device;
-        GraphicsContext context;
+        IResourceHandle<GraphicsDevice> deviceHandle;
+        IResourceHandle<GraphicsContext> contextHandle;
+        IResourceHandle<InputManager> inputHandle;
+
+        GraphicsDevice device => deviceHandle.Resource;
+        GraphicsContext context => contextHandle.Resource;
+        InputManager input => inputHandle.Resource;
         CommandList commandList;
-        InputManager input;
+        
 
         // ImGui
         private readonly ImGuiIOPtr _io;
@@ -58,21 +64,31 @@ namespace VL.ImGui
         private readonly SerialDisposable inputSubscription = new SerialDisposable();
         public unsafe ImGuiRenderer(CustomDrawEffect drawEffect)
         {
-            device = AppHost.Current.Services.GetDeviceHandle().Resource;
-            context = AppHost.Current.Services.GetGraphicsContextHandle().Resource;
-            input = AppHost.Current.Services.GetInputManagerHandle().Resource;
-
-            //device.ColorSpace = ColorSpace.Gamma;
+            deviceHandle = AppHost.Current.Services.GetDeviceHandle();
+            contextHandle = AppHost.Current.Services.GetGraphicsContextHandle();
+            inputHandle = AppHost.Current.Services.GetInputManagerHandle();
 
             imShader = drawEffect;
 
-            _context = new Context();
+            _context = new StrideContext();
             using (_context.MakeCurrent())
             {
                 _io = ImGui.GetIO();
                 _io.NativePtr->IniFilename = null;
 
                 CreateDeviceObjects();
+
+                //var s = ImGui.GetStyle();
+                //for (int i = 0; i < s.Colors.Count; i++)
+                //{
+                //    var color = Unsafe.As<System.Numerics.Vector4, Color4>(ref s.Colors[i]).ToLinear();
+
+                //    var r = (float)Math.Pow(s.Colors[i].X, 2.2);
+                //    var g = (float)Math.Pow(s.Colors[i].Y, 2.2);
+                //    var b = (float)Math.Pow(s.Colors[i].Z, 2.2);
+
+                //    s.Colors[i] = new System.Numerics.Vector4(r, g, b, s.Colors[i].W);
+                //}
 
                 var scaling = VL.UI.Core.DIPHelpers.DIPFactor();
                 UpdateScaling(fontScaling: scaling, uiScaling: scaling);
@@ -198,6 +214,10 @@ namespace VL.ImGui
             fontTexture.Dispose();
             imShader.Dispose();
             inputSubscription.Dispose();
+
+            deviceHandle.Dispose();
+            contextHandle.Dispose();
+            inputHandle.Dispose();
 
             base.Destroy();
         }
