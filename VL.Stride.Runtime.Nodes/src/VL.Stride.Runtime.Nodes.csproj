@@ -14,7 +14,35 @@
     <Authors>vvvv and open-source contributors</Authors>
     <Company>vvvv</Company>
   </PropertyGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\VL.Stride.Runtime\src\VL.Stride.Runtime.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="**\*.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>%(Filename).sdsl</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="**\*.sdsl">
+      <LastGenOutput>%(Filename).sdsl.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Rendering\PostFX\CustomColorTransform.sdfx.cs">
+      <DesignTime>True</DesignTime>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Rendering\PostFX\CustomColorTransform.sdfx">
+      <LastGenOutput>CustomColorTransform.sdfx.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  
 </Project>
