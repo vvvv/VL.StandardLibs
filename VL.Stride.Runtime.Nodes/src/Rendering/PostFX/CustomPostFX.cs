@@ -19,12 +19,11 @@ namespace VL.Stride.Rendering.PostFX;
 [ProcessNode]
 public sealed class CustomPostFX : ImageEffect, IPostProcessingEffects
 {
-    private readonly List<IGraphicsRendererBase> _renderers = new();
-
     private readonly ILogger _logger;
     private readonly IResourceHandle<Game> _gameHandle;
     private readonly SchedulerSystem _schedulerSystem;
 
+    private RenderDrawContext? _renderDrawContext;
     private object? _state;
     private CreateHandler? _createHandler;
     private DrawHandler? _drawHandler;
@@ -81,12 +80,13 @@ public sealed class CustomPostFX : ImageEffect, IPostProcessingEffects
 
         using (_schedulerSystem.WithPrivateScheduler(Schedule))
         {
-            _renderers.Clear();
+            _renderDrawContext = context;
 
             try
             {
                 var postFxContext = new PostFXDrawContext()
                 {
+                    DrawContext = context,
                     RenderTarget = output,
                     ColorBuffer = input,
                     DepthBuffer = GetInput(1),
@@ -102,18 +102,6 @@ public sealed class CustomPostFX : ImageEffect, IPostProcessingEffects
             {
                 // We want user nodes to turn pink
                 RuntimeGraph.ReportException(ex);
-            }
-
-            foreach (var renderer in _renderers)
-            {
-                try
-                {
-                    renderer.Draw(context);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Unexpected exception while rendering");
-                }
             }
         }
 
@@ -148,7 +136,8 @@ public sealed class CustomPostFX : ImageEffect, IPostProcessingEffects
 
     private void Schedule(IGraphicsRendererBase graphicsRenderer)
     {
-        _renderers.Add(graphicsRenderer);
+        // We're already in a draw call, so let's draw right away
+        graphicsRenderer.Draw(_renderDrawContext);
     }
 
     protected override void Destroy()

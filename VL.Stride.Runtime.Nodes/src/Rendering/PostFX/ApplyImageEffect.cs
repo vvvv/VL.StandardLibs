@@ -1,5 +1,6 @@
 ﻿using Stride.Engine;
 using Stride.Graphics;
+using Stride.Rendering;
 using Stride.Rendering.Images;
 using VL.Core;
 using VL.Lib.Basics.Resources;
@@ -50,9 +51,19 @@ public class ApplyImageEffect : IDisposable
         var output = GetOutputTexture(colorBuffer, textureOutput);
         effect.SetOutput(output);
 
-        _schedulerSystem.Schedule(effect);
+        // Fog and outline work differently than the rest. Let's fix it.
+        _schedulerSystem.Schedule(GetFixedEffect(effect));
 
         return output;
+
+        IGraphicsRendererBase GetFixedEffect(ImageEffect effect)
+        {
+            if (effect is Outline outline)
+                return new OutlineFix(outline);
+            if (effect is Fog fog)
+                return new FogFix(fog);
+            return effect;
+        }
     }
 
     private Texture GetOutputTexture(Texture input, Texture? output)
@@ -84,5 +95,33 @@ public class ApplyImageEffect : IDisposable
     {
         _outputTexture?.Dispose();
         _gameHandle.Dispose();
+    }
+
+    private sealed class OutlineFix(Outline effect) : IGraphicsRendererBase
+    {
+        public void Draw(RenderDrawContext context)
+        {
+            if (effect.InputCount < 2)
+                return;
+
+            var color = effect.GetInput(0);
+            var depth = effect.GetInput(1);
+            effect.SetColorDepthInput(color, depth, context.RenderContext.RenderView.NearClipPlane, context.RenderContext.RenderView.FarClipPlane);
+            effect.Draw(context);
+        }
+    }
+
+    private sealed class FogFix(Fog effect) : IGraphicsRendererBase
+    {
+        public void Draw(RenderDrawContext context)
+        {
+            if (effect.InputCount < 2)
+                return;
+
+            var color = effect.GetInput(0);
+            var depth = effect.GetInput(1);
+            effect.SetColorDepthInput(color, depth, context.RenderContext.RenderView.NearClipPlane, context.RenderContext.RenderView.FarClipPlane);
+            effect.Draw(context);
+        }
     }
 }
