@@ -132,11 +132,24 @@ namespace VL.Core
 #nullable enable
     public static class OptionalExtensions
     {
+        public static Optional<TValue> ToOptional<TValue>(this TValue? value)
+            where TValue : struct
+            => value.HasValue ? value.Value : new Optional<TValue>();
+
         public static TValue? ToNullable<TValue>(this Optional<TValue> value)
             where TValue : struct
             => value.HasValue ? value.Value : null;
+        
         public static TValue? ToNullable_ForReferenceType<TValue>(this Optional<TValue> value)
             where TValue : class
             => value.HasValue ? value.Value : null;
+
+        public static TValue ValueOrDefault<TValue>(this Optional<TValue> value, TValue @default = default)
+            where TValue : struct
+            => value.HasValue ? value.Value : @default; 
+        
+        public static TValue? ValueOrDefault_ForReferenceType<TValue>(this Optional<TValue> value, TValue? @default = null)
+            where TValue : class
+            => value.HasValue ? value.Value : @default;
     }
 }

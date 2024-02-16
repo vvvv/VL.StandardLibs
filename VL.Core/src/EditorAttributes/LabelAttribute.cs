@@ -2,7 +2,7 @@
 
 namespace VL.Core.EditorAttributes
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
     public sealed class LabelAttribute : Attribute
     {
         public LabelAttribute(string label)

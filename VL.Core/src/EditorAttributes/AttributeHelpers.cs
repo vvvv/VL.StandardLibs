@@ -27,6 +27,10 @@ namespace VL.Core.EditorAttributes
 
         public static Optional<string> GetDescription(this IHasAttributes propertyInfoOrChannel)
         {
+            var descriptionAttribute = propertyInfoOrChannel.GetAttributes<DescriptionAttribute>().FirstOrDefault();
+            if (descriptionAttribute != null)
+                return descriptionAttribute.Description;
+
             var displayAttribute = propertyInfoOrChannel.GetAttributes<System.ComponentModel.DataAnnotations.DisplayAttribute>().FirstOrDefault();
             if (displayAttribute != null)
                 return displayAttribute.Description;
@@ -36,6 +40,10 @@ namespace VL.Core.EditorAttributes
 
         public static Optional<int> GetOrder(this IHasAttributes propertyInfoOrChannel)
         {
+            var attr = propertyInfoOrChannel.GetAttributes<OrderAttribute>().FirstOrDefault();
+            if (attr != null)
+                return attr.Order;
+
             var displayAttribute = propertyInfoOrChannel.GetAttributes<System.ComponentModel.DataAnnotations.DisplayAttribute>().FirstOrDefault();
             if (displayAttribute != null)
             {

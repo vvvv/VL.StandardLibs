@@ -12,7 +12,7 @@ namespace VL.Core.EditorAttributes
     /// You may feed a single value for vectors and colors, which will then be used for all dimensions
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    internal class TaggedValueAttribute : Attribute
+    public class TaggedValueAttribute : Attribute
     {
         public TaggedValueAttribute(string key, object value)
         {
