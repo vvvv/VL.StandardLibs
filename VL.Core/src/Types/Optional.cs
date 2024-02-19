@@ -25,7 +25,7 @@ namespace VL.Core
     /// <typeparam name="T">The type of the value.</typeparam>
     [Serializable]
     [Monadic(typeof(OptionalMonadicFactory<>))]
-    public readonly struct Optional<T> : IEquatable<Optional<T>>, IComparable<Optional<T>>, IOptional
+    public readonly struct Optional<T> : IEquatable<Optional<T>>, IComparable<Optional<T>>, IOptional, IEquatable<IOptional>
     {
         public Optional(T value)
         {
@@ -84,6 +84,16 @@ namespace VL.Core
                 return -1;
 
             return Comparer<T>.Default.Compare(Value, other.Value);
+        }
+
+        public bool Equals(IOptional other)
+        {
+            if (other is Optional<T>)
+            {
+                var otherValue = (Optional<T>)other;
+                return Equals(otherValue);
+            }
+            return false;
         }
 
         public override string ToString()

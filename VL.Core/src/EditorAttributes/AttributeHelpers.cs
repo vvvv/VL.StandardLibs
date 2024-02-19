@@ -82,6 +82,17 @@ namespace VL.Core.EditorAttributes
             return attr.Distinct(a => a.Key).ToImmutableDictionary(a =>  a.Key, a => a.Value);
         }
 
+        public static bool IsOfSupportedType(Type type)
+        {
+            return
+                type == typeof(int) ||
+                type == typeof(float) ||
+                type == typeof(double) ||
+                type == typeof(Vector2) ||
+                type == typeof(Vector3) ||
+                type == typeof(Color4);
+        }
+
 
         /// <summary>
         /// Restrictions of the .Net attribute system force us to work with encoded values.
@@ -162,16 +173,26 @@ namespace VL.Core.EditorAttributes
             return attr != null ? new Optional<T>(attr.GetValue<T>()) : new Optional<T>();
         }
 
-        public static Optional<T> GetMin<T>(this IHasAttributes propertyInfoOrChannel) 
-            => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.MinKey);
+        public static Optional<T> GetMin<T>(this IHasAttributes propertyInfoOrChannel)
+        {
+            var attr = propertyInfoOrChannel.GetAttributes<MinAttribute>().FirstOrDefault();
+            if (attr != null)
+                return (T)DecodeValueFromAttribute(attr.EncodedValue, typeof(T));
+            return new Optional<T>();
+        }
 
         public static Optional<T> GetMax<T>(this IHasAttributes propertyInfoOrChannel)
-            => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.MaxKey);
+        {
+            var attr = propertyInfoOrChannel.GetAttributes<MaxAttribute>().FirstOrDefault();
+            if (attr != null)
+                return (T)DecodeValueFromAttribute(attr.EncodedValue, typeof(T));
+            return new Optional<T>();
+        }
 
-        public static Optional<T> GetDefault<T>(this IHasAttributes propertyInfoOrChannel) 
-            => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.DefaultKey);
+        //public static Optional<T> GetDefault<T>(this IHasAttributes propertyInfoOrChannel) 
+        //    => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.DefaultKey);
 
-        public static Optional<T> GetStepSize<T>(this IHasAttributes propertyInfoOrChannel) 
-            => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.StepSizeKey);
+        //public static Optional<T> GetStepSize<T>(this IHasAttributes propertyInfoOrChannel) 
+        //    => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.StepSizeKey);
     }
 }
