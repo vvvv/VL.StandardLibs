@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="LTMuueehnlcOu3uIJ8HPh5" LanguageVersion="2024.6.0-0112-g792041305d" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="LTMuueehnlcOu3uIJ8HPh5" LanguageVersion="2024.6.0-0134-gc38de2aca3" Version="0.128">
   <NugetDependency Id="VhB7WKzvhePMf39iI7QXfi" Location="VL.CoreLib" Version="2022.5.0-0242-g24c47d850a" />
   <Patch Id="BOyXNpSNoNrL6ruhCCKXUI">
     <Canvas Id="HsOyX1PVDwwNtqm2mCK746" CanvasType="FullCategory">
@@ -290,6 +290,54 @@
             <Link Id="S7XdIhLlPdfLAc3Wu43M09" Ids="DcHLCuO93yXL3cZANiKzXN,BYO0t5Nhgs7NrxAZD5wEmA" />
           </Patch>
         </Node>
+        <!--
+
+    ************************ RenderWidget ************************
+
+-->
+        <Node Name="RenderWidget" Bounds="470,488" Id="NVd5i0zxDImMtM9IwUEbUs">
+          <p:NodeReference>
+            <Choice Kind="ContainerDefinition" />
+          </p:NodeReference>
+          <Patch Id="DOqQRO5AFloLJbhev3DFiL">
+            <Canvas Id="FX1zUd9A5wOLqB0IsAkDLD" CanvasType="Group">
+              <Node Bounds="853,616,145,19" AutoConnect="true" Id="EKYvWVtp8nBOAFQl8K2T8o">
+                <p:NodeReference LastCategoryFullName="ImGui.Widgets" LastDependency="VL.ImGUI.Stride.Nodes">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <CategoryReference Kind="Category" Name="Widgets" NeedsToBeDirectParent="true">
+                    <p:OuterCategoryReference Kind="Category" Name="ImGui" NeedsToBeDirectParent="true" />
+                  </CategoryReference>
+                  <Choice Kind="ProcessAppFlag" Name="RenderWidget" />
+                </p:NodeReference>
+                <Pin Id="HrM8LtcEEatMuBUK9KkPOS" Name="Context" Kind="InputPin" />
+                <Pin Id="MWDW1TcSF2QN1FslMPKqJx" Name="Layer" Kind="InputPin" />
+                <Pin Id="HyZDvshUknYN9uu7s8HVt6" Name="Render View" Kind="InputPin" />
+                <Pin Id="CI8wDw82GqvMdVeHcEqTVh" Name="Aspect Ratio Correction Mode" Kind="InputPin" />
+                <Pin Id="HKQiDKSF7xLMgXwerGkdPG" Name="Clear Flags" Kind="InputPin" />
+                <Pin Id="Lm6C6RT6GSYQB7l1pxp3g5" Name="Color" Kind="InputPin" />
+                <Pin Id="C1O8MmkxQIcO0eVFvDA7VM" Name="Depth" Kind="InputPin" />
+                <Pin Id="RLI8MaAYHZXPwa4GDpflea" Name="Stencil" Kind="InputPin" />
+                <Pin Id="MGm1tcV31z9O85YAmzbuav" Name="Context" Kind="OutputPin" />
+              </Node>
+            </Canvas>
+            <ProcessDefinition Id="NfYOq0orCIqLjiqqJMiec2">
+              <Fragment Id="UXU53y8LEcOPNyKBJDEthf" Patch="GWR9wtorp4FOFcyHRZQeOl" Enabled="true" />
+              <Fragment Id="Gj1qfQQDglmMd2QWDOyX8x" Patch="PBNSYWxktm2L44is36RREH" Enabled="true" />
+            </ProcessDefinition>
+            <Patch Id="GWR9wtorp4FOFcyHRZQeOl" Name="Create" />
+            <Patch Id="PBNSYWxktm2L44is36RREH" Name="Update">
+              <Pin Id="HCChvYcpQRvNTwyWernjxM" Name="Context" Kind="InputPin" />
+              <Pin Id="I1UxiWfXtVHQVI8qjTyA8Q" Name="Layer" Kind="InputPin" />
+              <Pin Id="KYF8JAE1uoGQRDnwuHdnex" Name="Render View" Kind="InputPin" />
+              <Pin Id="CnPRm24xlaoNvPoZa9xICr" Name="Aspect Ratio Correction Mode" Kind="InputPin" />
+              <Pin Id="VjI5OeNDp8oOwe128qRwFl" Name="Clear Flags" Kind="InputPin" />
+              <Pin Id="MqxKpHyPI6TNC2txFWIqNi" Name="Color" Kind="InputPin" />
+              <Pin Id="Te22Br3n1N7LR0BXUHmkXp" Name="Depth" Kind="InputPin" />
+              <Pin Id="TvlKAzdqgClNXb6uNEnYNk" Name="Stencil" Kind="InputPin" />
+              <Pin Id="SSKru4NP7xpO6DnVt2QdU1" Name="Context" Kind="OutputPin" />
+            </Patch>
+          </Patch>
+        </Node>
       </Canvas>
     </Canvas>
     <!--
@@ -318,4 +366,5 @@
   <PlatformDependency Id="Vs4I8K2tdM0Psa9Ya4bvsE" Location="./lib/net8.0-windows/VL.ImGui.Stride.dll" />
   <PlatformDependency Id="EuRlbBnuQYUObvnnCVYy9o" Location="Stride.Core.dll" />
   <PlatformDependency Id="CeK0qYuCnecOpr0EZUC1JU" Location="Stride.Graphics.dll" />
+  <NodeFactoryDependency Id="Int7sfGxFTiPNxcdwyoIzs" Location="VL.ImGUI.Stride.Nodes" />
 </Document>

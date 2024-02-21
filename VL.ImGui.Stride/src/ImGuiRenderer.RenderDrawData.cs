@@ -5,11 +5,18 @@ using Stride.Core.Mathematics;
 using Buffer = Stride.Graphics.Buffer;
 using Stride.Rendering;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Reflection.Metadata;
+using FFmpeg.AutoGen;
+using Stride.Core.Extensions;
+using VL.Lib.Mathematics;
+using System.Diagnostics;
 
 namespace VL.ImGui
 {
-    partial class ImGuiRenderer
+    /*unsafe*/ partial class ImGuiRenderer
     {
+        
         void CheckBuffers(ImDrawDataPtr drawData)
         {
             uint totalVBOSize = (uint)(drawData.TotalVtxCount * Unsafe.SizeOf<ImDrawVert>());
@@ -44,7 +51,7 @@ namespace VL.ImGui
             }
         }
 
-        void RenderDrawLists(ImDrawDataPtr drawData)
+        void RenderDrawLists(RenderDrawContext context, ImDrawDataPtr drawData)
         {
             CheckBuffers(drawData); // potentially resize buffers first if needed
             UpdateBuffers(drawData); // updeet em now
@@ -66,32 +73,61 @@ namespace VL.ImGui
                 {
                     ImDrawCmdPtr cmd = cmdList.CmdBuffer[i];
 
-                    if (cmd.TextureId != IntPtr.Zero)
+                    if (cmd.UserCallback != IntPtr.Zero)
                     {
-                        // TODO CHECK THIS ... i think there are allways only one ??
-                        // imShader.Parameters.Set(ImGuiShaderKeys.tex, fontTexture);
+                        // Stride ContextVersion
+                        var layer = _context.GetLayer((int)cmd.UserCallback);
+
+                        //// Unsafe Version ... pass RenderLayer
+                        //var layer = *(RenderLayer*)cmd.UserCallback;
+
+                        // CallBack FunktionPointer Sample ... see RenderWidget
+                        //VL.ImGui.Widgets.RenderWidget.RenderDrawCallback cb = Marshal.GetDelegateForFunctionPointer<VL.ImGui.Widgets.RenderWidget.RenderDrawCallback>(cmd.UserCallback);
+                        //if (context != null)
+                        //{
+                        //    cb(&context, cmdList, cmd);
+                        //}
+
+                        if (layer?.Viewport != null)
+                        {
+                            var renderContext = context?.RenderContext;
+                            using (renderContext?.SaveRenderOutputAndRestore())
+                            using (renderContext?.SaveViewportAndRestore())
+                            {
+                                context?.CommandList.SetViewport((Viewport)layer.Viewport);
+                                layer.Layer?.Draw(context);
+                                context?.CommandList.SetViewport(renderContext.ViewportState.Viewport0);
+                            }
+                        }
                     }
                     else
                     {
-                        commandList.SetScissorRectangle(
-                            new Rectangle(
-                                (int)cmd.ClipRect.X,
-                                (int)cmd.ClipRect.Y,
-                                (int)(cmd.ClipRect.Z - cmd.ClipRect.X),
-                                (int)(cmd.ClipRect.W - cmd.ClipRect.Y)
-                            )
-                        );
+                        if (cmd.TextureId != IntPtr.Zero)
+                        {
+                            // TODO CHECK THIS ... i think there are allways only one ??
+                            // imShader.Parameters.Set(ImGuiShaderKeys.tex, fontTexture);
+                        }
+                        else
+                        {
+                            commandList.SetScissorRectangle(
+                                new Rectangle(
+                                    (int)cmd.ClipRect.X,
+                                    (int)cmd.ClipRect.Y,
+                                    (int)(cmd.ClipRect.Z - cmd.ClipRect.X),
+                                    (int)(cmd.ClipRect.W - cmd.ClipRect.Y)
+                                )
+                            );
 
-                        imShader.Parameters.Set(ImGuiShader_DrawFXKeys.tex, fontTexture);
-                        imShader.Parameters.Set(ImGuiShader_DrawFXKeys.proj, ref projMatrix);
-                        imShader.EffectInstance.Apply(context);
+                            imShader.Parameters.Set(ImGuiShader_DrawFXKeys.tex, fontTexture);
+                            imShader.Parameters.Set(ImGuiShader_DrawFXKeys.proj, ref projMatrix);
+                            imShader.EffectInstance.Apply(graphicsContext);
 
-                        commandList.DrawIndexed((int)cmd.ElemCount, idxOffset, vtxOffset);
+                            commandList.DrawIndexed((int)cmd.ElemCount, idxOffset, vtxOffset);
+                        }
+
+                        idxOffset += (int)cmd.ElemCount;
                     }
-
-                    idxOffset += (int)cmd.ElemCount;
                 }
-
                 vtxOffset += cmdList.VtxBuffer.Size;
             }
         }

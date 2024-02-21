@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using Stride.Graphics;
+using VL.Lib.Collections;
 
 namespace VL.ImGui
 {

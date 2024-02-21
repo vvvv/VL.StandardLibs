@@ -26,49 +26,51 @@ namespace VL.ImGui
         const int INITIAL_INDEX_BUFFER_SIZE = 128;
 
         // dependencies
-        IResourceHandle<GraphicsDevice> deviceHandle;
-        IResourceHandle<GraphicsContext> contextHandle;
-        IResourceHandle<InputManager> inputHandle;
+        private readonly IResourceHandle<GraphicsDevice> deviceHandle;
+        private readonly IResourceHandle<GraphicsContext> GraphicsContextHandle;
+        private readonly IResourceHandle<InputManager> inputHandle;
 
         GraphicsDevice device => deviceHandle.Resource;
-        GraphicsContext context => contextHandle.Resource;
+        GraphicsContext graphicsContext => GraphicsContextHandle.Resource;
         InputManager input => inputHandle.Resource;
+
+
         CommandList commandList;
         
 
         // ImGui
         private readonly ImGuiIOPtr _io;
-        private readonly Context _context;
+        private readonly StrideContext _context;
         private ImDrawDataPtr _drawDataPtr;
         private float _fontScaling;
         private float _uiScaling;
         private bool _readyToBeDrawn;
 
-        private Widget widget;
+        private Widget? widget;
         private WidgetLabel widgetLabel = new();
         private bool dockingEnabled;
-        private Spread<FontConfig> fonts = Spread.Create(FontConfig.Default);
+        private Spread<FontConfig?> fonts = Spread.Create(FontConfig.Default);
         private bool fullscreenWindow;
-        private IStyle style;
+        private IStyle? style;
 
         // Stride
         private PipelineState imPipeline;
         private VertexDeclaration imVertLayout;
         private VertexBufferBinding vertexBinding;
         private IndexBufferBinding indexBinding;
-        private CustomDrawEffect imShader;
-        private Texture fontTexture;
+        private readonly CustomDrawEffect imShader;
+        private Texture? fontTexture;
         private Matrix projMatrix;
 
-        private IInputSource lastInputSource;
+        private IInputSource? lastInputSource;
         private readonly SerialDisposable inputSubscription = new SerialDisposable();
         public unsafe ImGuiRenderer(CustomDrawEffect drawEffect)
         {
             deviceHandle = AppHost.Current.Services.GetDeviceHandle();
-            contextHandle = AppHost.Current.Services.GetGraphicsContextHandle();
+            GraphicsContextHandle = AppHost.Current.Services.GetGraphicsContextHandle();
             inputHandle = AppHost.Current.Services.GetInputManagerHandle();
-
             imShader = drawEffect;
+
 
             _context = new StrideContext();
             using (_context.MakeCurrent())
@@ -76,19 +78,59 @@ namespace VL.ImGui
                 _io = ImGui.GetIO();
                 _io.NativePtr->IniFilename = null;
 
-                CreateDeviceObjects();
+                #region DeviceObjects
+                // set up a commandlist
+                commandList = graphicsContext.CommandList;
 
-                //var s = ImGui.GetStyle();
-                //for (int i = 0; i < s.Colors.Count; i++)
-                //{
-                //    var color = Unsafe.As<System.Numerics.Vector4, Color4>(ref s.Colors[i]).ToLinear();
+                // set VertexLayout
+                var layout = new VertexDeclaration(
+                    VertexElement.Position<Vector2>(),
+                    VertexElement.TextureCoordinate<Vector2>(),
+                    VertexElement.Color(PixelFormat.R8G8B8A8_UNorm)
+                );
+                imVertLayout = layout;
 
-                //    var r = (float)Math.Pow(s.Colors[i].X, 2.2);
-                //    var g = (float)Math.Pow(s.Colors[i].Y, 2.2);
-                //    var b = (float)Math.Pow(s.Colors[i].Z, 2.2);
+                // pipeline desc
+                var pipeline = new PipelineStateDescription()
+                {
+                    BlendState = BlendStates.NonPremultiplied,
 
-                //    s.Colors[i] = new System.Numerics.Vector4(r, g, b, s.Colors[i].W);
-                //}
+                    RasterizerState = new RasterizerStateDescription()
+                    {
+                        CullMode = CullMode.None,
+                        DepthBias = 0,
+                        FillMode = FillMode.Solid,
+                        MultisampleAntiAliasLine = false,
+                        ScissorTestEnable = true,
+                        SlopeScaleDepthBias = 0,
+                    },
+
+                    PrimitiveType = PrimitiveType.TriangleList,
+                    InputElements = imVertLayout.CreateInputElements(),
+                    DepthStencilState = DepthStencilStates.Default,
+
+                    EffectBytecode = imShader.EffectInstance.Effect.Bytecode,
+                    RootSignature = imShader.EffectInstance.RootSignature,
+
+                    Output = new RenderOutputDescription(PixelFormat.R8G8B8A8_UNorm)
+                };
+
+
+                // finally set up the pipeline
+                var pipelineState = PipelineState.New(device, ref pipeline);
+                imPipeline = pipelineState;
+
+
+                // Setup Buffers
+                var is32Bits = false;
+                var indexBuffer = Buffer.Index.New(device, INITIAL_INDEX_BUFFER_SIZE * sizeof(ushort), GraphicsResourceUsage.Dynamic);
+                var indexBufferBinding = new IndexBufferBinding(indexBuffer, is32Bits, 0);
+                indexBinding = indexBufferBinding;
+
+                var vertexBuffer = Buffer.Vertex.New(device, INITIAL_VERTEX_BUFFER_SIZE * imVertLayout.CalculateSize(), GraphicsResourceUsage.Dynamic);
+                var vertexBufferBinding = new VertexBufferBinding(vertexBuffer, layout, 0);
+                vertexBinding = vertexBufferBinding;
+                #endregion DeviceObjects
 
                 var scaling = VL.UI.Core.DIPHelpers.DIPFactor();
                 UpdateScaling(fontScaling: scaling, uiScaling: scaling);
@@ -112,10 +154,8 @@ namespace VL.ImGui
         #endregion scaling
 
 
-
-
         // need to be called from VL
-        public void Update(Widget? widget, bool dockingEnabled, Spread<FontConfig> fonts, bool fullscreenWindow, IStyle style)
+        public void Update(Widget? widget, bool dockingEnabled, Spread<FontConfig?> fonts, bool fullscreenWindow, IStyle style)
         {
             this.widget = widget;
             this.dockingEnabled = dockingEnabled;
@@ -203,7 +243,7 @@ namespace VL.ImGui
             }
 
             imShader.SetParameters(context.RenderContext.RenderView, context);
-            RenderDrawLists(_drawDataPtr);
+            RenderDrawLists(context, _drawDataPtr);
         }
 
         protected override void Destroy()
@@ -211,12 +251,12 @@ namespace VL.ImGui
             imPipeline.Dispose();
             vertexBinding.Buffer.Dispose();
             indexBinding.Buffer.Dispose();
-            fontTexture.Dispose();
+            fontTexture?.Dispose();
             imShader.Dispose();
             inputSubscription.Dispose();
 
             deviceHandle.Dispose();
-            contextHandle.Dispose();
+            GraphicsContextHandle.Dispose();
             inputHandle.Dispose();
 
             base.Destroy();
