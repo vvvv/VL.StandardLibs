@@ -16,21 +16,24 @@ namespace VL.Lib.Video
     {
         public static int GetChangedTicket(this IVideoSource videoSource) => videoSource is IVideoSource2 v2 ? v2.ChangedTicket : 0;
 
-        public static IEnumerable<IResourceProvider<VideoFrame>?> GetPullBasedStream(this IVideoSource videoSource, VideoPlaybackContext ctx)
+        public static IEnumerable<IResourceProvider<VideoFrame>?> GetPullBasedStream(this IVideoSource videoSource, VideoPlaybackContext ctx, Action? beforeGrab = null)
         {
             if (videoSource is IVideoSource2 videoSource2)
-                return videoSource2.GetPullBasedStream(ctx);
+                return videoSource2.GetPullBasedStream(ctx, beforeGrab);
 
             return EnumerableEx.Create(ProduceFrames);
 
             IEnumerator<IResourceProvider<VideoFrame>?> ProduceFrames()
             {
                 while (true)
+                {
+                    beforeGrab?.Invoke();
                     yield return videoSource.GrabVideoFrame();
+                }
             }
         }
 
-        private static IEnumerable<IResourceProvider<VideoFrame>?> GetPullBasedStream(this IVideoSource2 videoSource, VideoPlaybackContext ctx)
+        private static IEnumerable<IResourceProvider<VideoFrame>?> GetPullBasedStream(this IVideoSource2 videoSource, VideoPlaybackContext ctx, Action? beforeGrab = null)
         {
             return EnumerableEx.Create(ProduceFrames);
 
@@ -41,7 +44,10 @@ namespace VL.Lib.Video
                     yield break;
 
                 while (true)
+                {
+                    beforeGrab?.Invoke();
                     yield return player.GrabVideoFrame();
+                }
             }
         }
 
