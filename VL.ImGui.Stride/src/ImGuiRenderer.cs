@@ -44,7 +44,6 @@ namespace VL.ImGui
         private ImDrawDataPtr _drawDataPtr;
         private float _fontScaling;
         private float _uiScaling;
-        private bool _readyToBeDrawn;
 
         private Widget? widget;
         private WidgetLabel widgetLabel = new();
@@ -239,7 +238,6 @@ namespace VL.ImGui
 
                 // Render the mesh
                 _drawDataPtr = ImGui.GetDrawData();
-                _readyToBeDrawn = true;
             }
 
             imShader.SetParameters(context.RenderContext.RenderView, context);

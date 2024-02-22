@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 namespace VL.ImGui
 {
-    /*unsafe*/ partial class ImGuiRenderer
+    partial class ImGuiRenderer
     {
         
         void CheckBuffers(ImDrawDataPtr drawData)
@@ -68,28 +68,38 @@ namespace VL.ImGui
 
                     if (cmd.UserCallback != IntPtr.Zero)
                     {
-                        // Stride ContextVersion
-                        var layer = _context.GetLayer((int)cmd.UserCallback);
-
-                        //// Unsafe Version ... pass RenderLayer
-                        //var layer = *(RenderLayer*)cmd.UserCallback;
-
-                        // CallBack FunktionPointer Sample ... see RenderWidget
-                        //VL.ImGui.Widgets.RenderWidget.RenderDrawCallback cb = Marshal.GetDelegateForFunctionPointer<VL.ImGui.Widgets.RenderWidget.RenderDrawCallback>(cmd.UserCallback);
-                        //if (context != null)
-                        //{
-                        //    cb(&context, cmdList, cmd);
-                        //}
-
-                        if (layer?.Viewport != null)
+                        RenderLayer? renderLayer = null;
+                        #pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
+                        unsafe
                         {
-                            var renderContext = context?.RenderContext;
-                            using (renderContext?.SaveRenderOutputAndRestore())
-                            using (renderContext?.SaveViewportAndRestore())
+                            try {
+                                // Stride ContextVersion
+                                //renderLayer = _context.GetLayer((int)cmd.UserCallback);
+
+                                renderLayer = *(RenderLayer*)cmd.UserCallback;
+                                
+                                // CallBack FunktionPointer Sample ... see RenderWidget
+                                //VL.ImGui.Widgets.RenderWidget.RenderDrawCallback cb = Marshal.GetDelegateForFunctionPointer<VL.ImGui.Widgets.RenderWidget.RenderDrawCallback>(cmd.UserCallback);
+                                //if (context != null)
+                                //{
+                                //    cb(&context, cmdList, cmd);
+                                //}
+                            }
+                            catch { }
+                        }
+                        #pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
+                        if (renderLayer != null)
+                        {
+                            if (renderLayer?.Viewport != null)
                             {
-                                context?.CommandList.SetViewport((Viewport)layer.Viewport);
-                                layer.Layer?.Draw(context);
-                                context?.CommandList.SetViewport(renderContext.ViewportState.Viewport0);
+                                var renderContext = context?.RenderContext;
+                                using (renderContext?.SaveRenderOutputAndRestore())
+                                using (renderContext?.SaveViewportAndRestore())
+                                {
+                                    context?.CommandList.SetViewport((Viewport)renderLayer.Viewport);
+                                    renderLayer.Layer?.Draw(context);
+                                    context?.CommandList.SetViewport(renderContext.ViewportState.Viewport0);
+                                }
                             }
                         }
                     }

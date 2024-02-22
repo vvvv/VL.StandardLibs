@@ -20,36 +20,6 @@ namespace VL.ImGui
     using ImGui = ImGuiNET.ImGui;
     internal sealed class StrideContext : Context
     {
-        private readonly List<RenderLayer> Layers = [];
-
-        public override void NewFrame()
-        {
-            Layers.Clear();
-            base.NewFrame();
-        }
-
-        
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="layer"></param>
-        /// <returns>id ... first layer is 1 not 0</returns>
-        internal int AddLayer(RenderLayer layer)
-        {
-            Layers.Add(layer);
-            return Layers.Count;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id">id ... first layer is 1 not 0</param>
-        /// <returns>RenderLayer</returns>
-        internal RenderLayer? GetLayer(int id)
-        {
-            return Layers.GetItemOrNull(id - 1);
-        }
 
     }
 

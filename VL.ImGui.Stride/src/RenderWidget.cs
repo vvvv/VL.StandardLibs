@@ -13,20 +13,9 @@ namespace VL.ImGui.Widgets
     using ImGui = ImGuiNET.ImGui;
 
     [GenerateNode(Category = "ImGui.Widgets.Internal", IsStylable = false)]
-    public /*unsafe*/ sealed partial class RenderWidget : PrimitiveWidget, IDisposable
+    public sealed partial class RenderWidget : Widget
     {
         private readonly RenderLayer renderLayer;
-
-        //public delegate void RenderDrawCallback(RenderDrawContext* context, ImDrawListPtr parentList, ImDrawCmdPtr drawCmd);
-
-        //// FunctionPointer
-        //delegate* <RenderDrawContext*, ImDrawListPtr, ImDrawCmdPtr, void> callback;
-
-        //// Function
-        //private static void DrawCore(RenderDrawContext* context, ImDrawListPtr parentList, ImDrawCmdPtr drawCmd)
-        //{
-        //}
-
 
         public RenderWidget()
         {
@@ -39,7 +28,7 @@ namespace VL.ImGui.Widgets
 
         public Vector2 Size { private get; set; } = new Vector2(1f, 1f);
 
-        protected override void Draw(Context context, in ImDrawListPtr drawList, in System.Numerics.Vector2 offset)
+        internal override void UpdateCore(Context context)
         {
             if (Layer is null)
                 return;
@@ -52,40 +41,34 @@ namespace VL.ImGui.Widgets
 
             if (context is StrideContext strideContext)
             {
-                var size     = Size.FromHectoToImGui();
-                var position = ImGui.GetCursorPos();
-
-                var sPos = ImGui.GetCursorScreenPos();
-
-                var si = ImGui.GetItemRectSize();
-
-                renderLayer.Viewport = new Viewport(sPos.X, sPos.Y, size.X, size.Y);
-
-                int id = strideContext.AddLayer(renderLayer);
-                drawList.AddCallback((IntPtr)id, IntPtr.Zero);
-
-                ImGui.SetCursorPosY(position.Y + size.Y);
-
-
+                if (ImGui.BeginChild("##RenderWidget", Size.FromHectoToImGui(), ImGuiChildFlags.None, ImGuiWindowFlags.ChildWindow))
+                {
+                    var pos = ImGui.GetWindowPos();
+                    var size = ImGui.GetWindowSize();
+                    renderLayer.Viewport = new Viewport(pos.X, pos.Y, size.X, size.Y);
+                    #pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
+                    unsafe
+                    {
+                        fixed (RenderLayer* ptr = &renderLayer)
+                        {
+                            var drawList = ImGui.GetWindowDrawList();
+                            drawList.AddCallback((IntPtr)ptr, IntPtr.Zero);
+                        }
+                    }
+                    #pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
+                }
+                ImGui.EndChild();
             }
-
-            ////Unsafe Version
-            //fixed (RenderLayer* ptr = &renderLayer)
-            //{
-            //    drawList.AddCallback((IntPtr)ptr, IntPtr.Zero);
-            //}
-
-            // Unsave CallBack Sample
-            //fixed (RenderLayer* ptr = &renderLayer)
-            //{
-            //    callback = &DrawCore;
-            //    drawList.AddCallback(callback, IntPtr.Zero);
-            //}
         }
 
-        public void Dispose()
-        {
+        //public delegate void RenderDrawCallback(RenderDrawContext* context, ImDrawListPtr parentList, ImDrawCmdPtr drawCmd);
 
-        }
+        //// FunctionPointer
+        //delegate* <RenderDrawContext*, ImDrawListPtr, ImDrawCmdPtr, void> callback;
+
+        //// Function
+        //private static void DrawCore(RenderDrawContext* context, ImDrawListPtr parentList, ImDrawCmdPtr drawCmd)
+        //{
+        //}
     }
 }
