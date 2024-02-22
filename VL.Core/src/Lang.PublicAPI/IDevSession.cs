@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using VL.Core;
+using VL.Core.Commands;
 using VL.Lib.IO;
 
 namespace VL.Lang.PublicAPI
@@ -34,6 +35,8 @@ namespace VL.Lang.PublicAPI
         public static IDevSession? Current => AppHost.CurrentOrGlobal.Services.GetService<IDevSession>();
 
         void Paste(string modelSnippet, PointF location);
+
+        ICommandList Commands { get; }
 
         void ReportException(Exception e);
 

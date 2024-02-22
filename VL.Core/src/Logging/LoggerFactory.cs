@@ -5,22 +5,17 @@ using System;
 namespace VL.Core.Logging
 {
     /// <summary>
-    /// Logged messages get recorded by the <see cref="Recorder"/>.
+    /// Logged messages get recorded by the <see cref="GlobalRecorder"/>.
     /// The recorder can be configured with the <see cref="LogRecorderOptions"/> during <see cref="IStartup.SetupConfiguration(AppHost, Microsoft.Extensions.Configuration.IConfigurationBuilder)"/>.
     /// </summary>
     public abstract class LoggerFactory : ILoggerFactory
     {
-        protected static LogRecorder? s_gobalRecorder;
-
         /// <summary>
-        /// Holds all the log messages from all apps.
+        /// Holds all the log messages from all apps. To configure use <see cref="IStartup.SetupConfiguration(AppHost, Microsoft.Extensions.Configuration.IConfigurationBuilder)"/> and <see cref="LogRecorderOptions"/>.
         /// </summary>
-        public static LogRecorder GlobalRecorder => s_gobalRecorder ?? throw new InvalidOperationException("LoggerFactory is not configured yet.");
+        public static LogRecorder GlobalRecorder => AppHost.Global.LoggerFactory.Recorder;
 
-        /// <summary>
-        /// Holds all the messages ever logged by loggers of this factory. To configure use <see cref="IStartup.SetupConfiguration(AppHost, Microsoft.Extensions.Configuration.IConfigurationBuilder)"/> and <see cref="LogRecorderOptions"/>.
-        /// </summary>
-        public abstract LogRecorder Recorder { get; }
+        protected abstract LogRecorder Recorder { get; }
 
         public abstract void AddProvider(ILoggerProvider provider);
 

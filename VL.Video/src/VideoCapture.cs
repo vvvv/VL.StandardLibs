@@ -11,6 +11,8 @@ namespace VL.Video
 {
     public sealed partial class VideoCapture : IVideoSource2
     {
+        private readonly object syncRoot = new();
+
         private string? deviceLink;
         private Int2 preferredSize;
         private float preferredFps;
@@ -86,24 +88,31 @@ namespace VL.Video
 
         IVideoPlayer? IVideoSource2.Start(VideoPlaybackContext ctx)
         {
-            var config = new VideoCaptureConfig(deviceLink, preferredSize, preferredFps, cameraControls, videoControls);
-            if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+            lock (syncRoot)
             {
-                var device = ctx.GraphicsDeviceType == GraphicsDeviceType.Direct3D11 ? ctx.GraphicsDevice : default;
-                var capture = MF.MFVideoCaptureImpl.Create(config, device);
-                if (capture is null)
+                if (currentCapture != null)
                     return null;
 
-                var previousCapture = Interlocked.Exchange(ref currentCapture, capture);
-                capture.VideoCapture = this;
-                capture.DisposeAction = () =>
+                var config = new VideoCaptureConfig(deviceLink, preferredSize, preferredFps, cameraControls, videoControls);
+                if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
                 {
-                    Interlocked.CompareExchange(ref currentCapture, previousCapture, capture);
-                };
-                return capture;
-            }
+                    var device = ctx.GraphicsDeviceType == GraphicsDeviceType.Direct3D11 ? ctx.GraphicsDevice : default;
+                    var capture = MF.MFVideoCaptureImpl.Create(config, device);
+                    if (capture is null)
+                        return null;
 
-            throw new PlatformNotSupportedException();
+                    capture.VideoCapture = this;
+                    capture.DisposeAction = () =>
+                    {
+                        currentCapture = null;
+                        // Let other sinks try to resubscribe
+                        changeTicket++;
+                    };
+                    return currentCapture = capture;
+                }
+
+                throw new PlatformNotSupportedException();
+            }
         }
     }
 }

@@ -36,12 +36,14 @@ namespace VL.Lib.Video
             if (videoSource != this.videoSource || videoSource?.GetChangedTicket() != changeTicket || preferPush != this.preferPush || preferGpu != this.preferGpu)
             {
                 this.videoSource = videoSource;
-                this.changeTicket = videoSource?.GetChangedTicket();
                 this.preferPush = preferPush;
                 this.preferGpu = preferGpu;
 
                 // Kill current stream
                 streamSubscription.Disposable = null;
+
+                // Fetch new ticket after the source has been disposed (it might have incremented it)
+                this.changeTicket = videoSource?.GetChangedTicket();
 
                 var ctx = GetVideoPlaybackContext(preferGpu);
                 if (preferPush)

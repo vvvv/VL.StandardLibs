@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <OutputPath>..\lib</OutputPath>
     <UseWindowsForms>true</UseWindowsForms>
     <!-- We pack native dll in our own NuGet package -->
@@ -18,10 +18,16 @@
     <PackageReference Include="SkiaSharp.Skottie" ExcludeAssets="build;buildTransitive" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\VL.Core.Commands\src\VL.Core.Commands.csproj" />
     <ProjectReference Include="..\..\VL.Core.Skia.Windows\VL.Core.Skia.Windows.csproj" />
     <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
     <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+  
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>

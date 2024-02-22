@@ -93,6 +93,30 @@ namespace VL.Skia.Egl
             }
         }
 
+        public EglSurface CreatePlatformWindowSurface(IntPtr nativeWindow, int width, int height)
+        {
+            if (nativeWindow == default)
+                throw new ArgumentNullException(nameof(nativeWindow));
+
+            var surfaceAttributes = GetAttributes().ToArray();
+            var surface = NativeEgl.eglCreatePlatformWindowSurface(display, config, nativeWindow, surfaceAttributes);
+            if (surface == default)
+                throw new Exception("Failed to create EGL surface");
+
+            return new EglSurface(display, surface);
+
+            IEnumerable<nint> GetAttributes()
+            {
+                yield return NativeEgl.EGL_FIXED_SIZE_ANGLE;
+                yield return NativeEgl.EGL_TRUE;
+                yield return NativeEgl.EGL_WIDTH;
+                yield return width;
+                yield return NativeEgl.EGL_HEIGHT;
+                yield return height;
+                yield return NativeEgl.EGL_NONE;
+            }
+        }
+
         public EglSurface CreateSurfaceFromClientBuffer(IntPtr buffer)
         {
             if (buffer == default)

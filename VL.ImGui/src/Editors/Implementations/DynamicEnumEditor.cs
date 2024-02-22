@@ -11,7 +11,7 @@ namespace VL.ImGui.Editors
     {
         readonly IChannel<T> channel;
         readonly string label;
-        string[] names;
+        string[] names = Array.Empty<string>();
 
         public DynamicEnumEditor(IChannel<T> channel, ObjectEditorContext editorContext)
         {
@@ -19,8 +19,8 @@ namespace VL.ImGui.Editors
             this.label = editorContext.LabelForImGUI;
         }
 
-        IDynamicEnum dynamicEnum;
-        IDynamicEnum DynamicEnum
+        IDynamicEnum? dynamicEnum;
+        IDynamicEnum? DynamicEnum
         {
             get => dynamicEnum;
             set
@@ -28,8 +28,7 @@ namespace VL.ImGui.Editors
                 if (dynamicEnum != value)
                 {
                     dynamicEnum = value;
-                    if (value != null)
-                        names = dynamicEnum.Definition.Entries.ToArray();
+                    names = value?.Definition.Entries.ToArray() ?? Array.Empty<string>();
                 }
             }
         }

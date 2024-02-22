@@ -14,7 +14,7 @@ namespace VL.ImGui.Widgets
     [GenerateNode(Name = "Separator (Text)", Category = "ImGui.Widgets")]
     internal partial class SeparatorText : Widget
     {
-        public string Label { private get; set; }
+        public string? Label { private get; set; }
 
         internal override void UpdateCore(Context context)
         {

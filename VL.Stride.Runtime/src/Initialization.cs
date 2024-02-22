@@ -43,7 +43,7 @@ namespace VL.Stride.Core
             else
             {
                 // Are we running as source package?
-                dataDir = Path.Combine(thisDirectory, "..", "..", "..", "VL.Stride", "lib", "net6.0-windows", "data");
+                dataDir = Path.Combine(thisDirectory, "..", "..", "..", "VL.Stride", "lib", "net8.0-windows", "data");
                 if (Directory.Exists(dataDir))
                     return dataDir;
             }

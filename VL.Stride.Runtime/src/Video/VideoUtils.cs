@@ -15,13 +15,13 @@ namespace VL.Stride.Video
     {
         public static IResourceProvider<Texture> ToTexture(this IResourceProvider<VideoFrame> videoFrameProvider, RenderDrawContext renderDrawContext)
         {
+            var device = renderDrawContext.GraphicsDevice;
             var handle = videoFrameProvider.GetHandle();
             var videoFrame = handle.Resource;
             if (videoFrame.TryGetTexture(out var videoTexture))
             {
                 // Tie the lifetime of the Stride texture to the texture object (which might be pooled)
                 // But hold on to the video frame to prevent the texture object from being used for another frame
-                var device = renderDrawContext.GraphicsDevice;
                 var texture = videoTexture.Get<Texture>() ?? videoTexture.Attach(AsTexture(videoTexture, device));
                 if (device.ColorSpace == ColorSpace.Gamma || texture.Format.IsSRgb() || !texture.Format.HasSRgbEquivalent())
                     return ResourceProvider.Return(texture, handle, handle => handle.Dispose());
@@ -32,7 +32,7 @@ namespace VL.Stride.Video
             }
             else
             {
-                var texture = CopyFromMemory(videoFrame, renderDrawContext);
+                var texture = CopyFromMemory(videoFrame, device);
                 // Since we made a copy, we can release the video frame (might put it back into a pool)
                 handle.Dispose();
                 return ResourceProvider.Return(
@@ -41,7 +41,7 @@ namespace VL.Stride.Video
             }
         }
 
-        private static unsafe Texture? CopyFromMemory(VideoFrame videoFrame, RenderDrawContext renderDrawContext)
+        private static unsafe Texture? CopyFromMemory(VideoFrame videoFrame, GraphicsDevice device)
         {
             if (!videoFrame.TryGetMemory(out var memory))
                 return null;
@@ -51,11 +51,11 @@ namespace VL.Stride.Video
                 var description = TextureDescription.New2D(
                     width: videoFrame.Width,
                     height: videoFrame.Height,
-                    format: ImageUtils.ToPixelFormat(videoFrame.PixelFormat),
+                    format: videoFrame.PixelFormat.ToTexturePixelFormat(device.ColorSpace),
                     usage: GraphicsResourceUsage.Immutable);
 
                 return Texture.New(
-                        renderDrawContext.GraphicsDevice,
+                        device,
                         description,
                         new DataBox(new IntPtr(data), videoFrame.RowLengthInBytes, videoFrame.LengthInBytes));
             }

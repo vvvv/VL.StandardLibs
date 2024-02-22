@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.ComponentModel;
 using System.Data;
 using Stride.Core.Mathematics;
@@ -13,17 +15,22 @@ using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
 using VL.Model;
 using VL.Lang.PublicAPI;
+using VL.Core.Commands;
+using System.Reactive.Disposables;
+using VL.Core.Utils;
 
 namespace VL.Skia
 {
     public partial class SkiaRenderer : Form, IDisposable
     {
-        SkiaGLControl FControl;
-        bool HasValidLayer;
-        ILayer Layer;
-        AppHost FAppHost;
+        private readonly AppHost FAppHost;
+        private readonly SkiaGLControl FControl;
+        private readonly SerialDisposable FDarkModeSubscription = new();
 
-        public ILayer Input
+        bool HasValidLayer;
+        ILayer? Layer;
+
+        public ILayer? Input
         {
             get { return Layer; }
             set
@@ -134,7 +141,7 @@ namespace VL.Skia
         private System.Drawing.Rectangle? ComputeFullScreenBounds()
         {
             var maxIntersection = -1;
-            Screen bestScreen = null;
+            Screen? bestScreen = null;
             foreach (Screen screen in Screen.AllScreens)
             {
                 var intersection = Bounds;
@@ -161,7 +168,7 @@ namespace VL.Skia
             
         }
 
-        public SkiaRenderer(Action<SkiaRenderer> layout)
+        public SkiaRenderer(Action<SkiaRenderer>? layout)
         {
             FAppHost = AppHost.Current;
 
@@ -177,8 +184,6 @@ namespace VL.Skia
 
             BoundsChanged = new BehaviorSubject<System.Drawing.Rectangle>(new System.Drawing.Rectangle());
             FBoundsStream = new BehaviorSubject<RectangleF>(new RectangleF());
-
-            TouchDevice = new TouchDevice(FControl.TouchNotifications);
             
             Observable.Merge(new IObservable<INotification>[] {
                 Mouse.Notifications,
@@ -200,7 +205,7 @@ namespace VL.Skia
 
         private static System.Drawing.Rectangle GetCenteredBoundsInPixel(int width = 600, int height = 400)
         {
-            var area = Screen.PrimaryScreen.WorkingArea;
+            var area = Screen.PrimaryScreen?.WorkingArea ?? System.Drawing.Rectangle.Empty;
             var centerX = (area.Right + area.Left) / 2;
             var centerY = (area.Top + area.Bottom) / 2;
             var center = new Point(centerX, centerY);
@@ -209,7 +214,7 @@ namespace VL.Skia
 
         private static System.Drawing.Rectangle GetCenteredBoundsInDIP(int widthInDIP = 600, int heightInDIP = 400) //obsolete
         {
-            var area = Screen.PrimaryScreen.WorkingArea;
+            var area = Screen.PrimaryScreen?.WorkingArea ?? System.Drawing.Rectangle.Empty;
             var centerX = (area.Right + area.Left) / 2;
             var centerY = (area.Top + area.Bottom) / 2;
             var centerInDIP = DIPHelpers.DIP(new System.Drawing.Point(centerX, centerY));
@@ -263,7 +268,11 @@ namespace VL.Skia
 
             try
             {
-                if (Visible && HasValidLayer && Input != null)
+                if (CommandList != null && CommandList.TryExecute(n))
+                {
+                    n.Handled = true;
+                }
+                else if (Visible && HasValidLayer && Input != null)
                 {
                     n.Handled = Input.Notify(n, FControl.CallerInfo);
                 }
@@ -272,6 +281,20 @@ namespace VL.Skia
             {
                 RuntimeGraph.ReportException(exception);
             }
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            FDarkModeSubscription.Disposable = DarkTitleBarClass.Install(Handle);
+
+            base.OnHandleCreated(e);
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            FDarkModeSubscription.Disposable = null;
+
+            base.OnHandleDestroyed(e);
         }
 
         public new void Update() 
@@ -283,52 +306,13 @@ namespace VL.Skia
             }
         }
 
-        private Mouse FMouse;
-        public Mouse Mouse
-        {
-            get
-            {
-                if (FMouse == null)
-                {
-                    var mouseDowns = Observable.FromEventPattern<MouseEventArgs>(this.FControl, "MouseDown")
-                        .Select(p => p.EventArgs.ToMouseDownNotification(this.FControl, FControl));
-                    var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(this.FControl, "MouseMove")
-                        .Select(p => p.EventArgs.ToMouseMoveNotification(this.FControl, FControl));
-                    var mouseUps = Observable.FromEventPattern<MouseEventArgs>(this.FControl, "MouseUp")
-                        .Select(p => p.EventArgs.ToMouseUpNotification(this.FControl, FControl));
-                    var mouseWheels = Observable.FromEventPattern<MouseEventArgs>(this.FControl, "MouseWheel")
-                        .Select(p => p.EventArgs.ToMouseWheelNotification(this.FControl, FControl));
-                    FMouse = new Mouse(mouseDowns
-                        .Merge<MouseNotification>(mouseMoves)
-                        .Merge(mouseUps)
-                        .Merge(mouseWheels));
-                }
-                return FMouse;
-            }
-        }
+        public Mouse Mouse => FControl.Mouse;
 
-        private Keyboard FKeyboard;
-        public Keyboard Keyboard
-        {
-            get
-            {
-                if (FKeyboard == null)
-                {
-                    var keyDowns = Observable.FromEventPattern<KeyEventArgs>(this.FControl, "KeyDown")
-                        .Select(p => p.EventArgs.ToKeyDownNotification(this.FControl));
-                    var keyUps = Observable.FromEventPattern<KeyEventArgs>(this.FControl, "KeyUp")
-                        .Select(p => p.EventArgs.ToKeyUpNotification(this.FControl));
-                    var keyPresses = Observable.FromEventPattern<KeyPressEventArgs>(this.FControl, "KeyPress")
-                        .Select(p => p.EventArgs.ToKeyPressNotification(this.FControl));
-                    FKeyboard = new Keyboard(keyDowns
-                        .Merge<KeyNotification>(keyUps)
-                        .Merge(keyPresses));
-                }
-                return FKeyboard;
-            }
-        }
+        public Keyboard Keyboard => FControl.Keyboard;
 
-        public TouchDevice TouchDevice { get; }
+        public TouchDevice TouchDevice => FControl.TouchDevice;
+
+        public ICommandList? CommandList { get; set; }
 
         public bool VSync
         {
