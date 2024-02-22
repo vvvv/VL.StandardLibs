@@ -12,8 +12,6 @@ namespace VL.ImGui.Widgets
 {
     using ImGui = ImGuiNET.ImGui;
 
-    
-
     [GenerateNode(Category = "ImGui.Widgets.Internal", IsStylable = false)]
     public /*unsafe*/ sealed partial class RenderWidget : PrimitiveWidget, IDisposable
     {

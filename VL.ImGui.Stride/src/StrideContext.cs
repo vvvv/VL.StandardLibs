@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.Distributions;
+﻿using ImGuiNET;
+using MathNet.Numerics.Distributions;
 using Stride.Core.Extensions;
 using Stride.Core.Mathematics;
 using Stride.Graphics;
@@ -16,15 +17,18 @@ using VL.Skia;
 
 namespace VL.ImGui
 {
+    using ImGui = ImGuiNET.ImGui;
     internal sealed class StrideContext : Context
     {
-        private readonly List<RenderLayer> Layers = new List<RenderLayer> { new RenderLayer() };
+        private readonly List<RenderLayer> Layers = [];
 
         public override void NewFrame()
         {
             Layers.Clear();
             base.NewFrame();
         }
+
+        
 
         /// <summary>
         /// 
@@ -33,10 +37,7 @@ namespace VL.ImGui
         /// <returns>id ... first layer is 1 not 0</returns>
         internal int AddLayer(RenderLayer layer)
         {
-            Vector2 size = (Vector2)layer.Viewport?.Size;
-
             Layers.Add(layer);
-            DrawListPtr.AddImage(new IntPtr(Layers.Count), default, Unsafe.As<Vector2, System.Numerics.Vector2>(ref size));
             return Layers.Count;
         }
 

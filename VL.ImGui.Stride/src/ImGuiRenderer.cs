@@ -123,11 +123,11 @@ namespace VL.ImGui
 
                 // Setup Buffers
                 var is32Bits = false;
-                var indexBuffer = Buffer.Index.New(device, INITIAL_INDEX_BUFFER_SIZE * sizeof(ushort), GraphicsResourceUsage.Dynamic);
+                var indexBuffer = Buffer.Index.New(device, INITIAL_INDEX_BUFFER_SIZE * sizeof(ushort), GraphicsResourceUsage.Default);
                 var indexBufferBinding = new IndexBufferBinding(indexBuffer, is32Bits, 0);
                 indexBinding = indexBufferBinding;
 
-                var vertexBuffer = Buffer.Vertex.New(device, INITIAL_VERTEX_BUFFER_SIZE * imVertLayout.CalculateSize(), GraphicsResourceUsage.Dynamic);
+                var vertexBuffer = Buffer.Vertex.New(device, INITIAL_VERTEX_BUFFER_SIZE * imVertLayout.CalculateSize(), GraphicsResourceUsage.Default);
                 var vertexBufferBinding = new VertexBufferBinding(vertexBuffer, layout, 0);
                 vertexBinding = vertexBufferBinding;
                 #endregion DeviceObjects
@@ -218,7 +218,7 @@ namespace VL.ImGui
                         ImGui.DockSpaceOverViewport();
                     }
 
-                    _context.SetDrawList(DrawList.Foreground);
+                    _context.SetDrawList(DrawList.AtCursor);
                     _context.Update(widget);
                 }
                 finally

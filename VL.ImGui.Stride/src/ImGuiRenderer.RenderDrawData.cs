@@ -56,13 +56,6 @@ namespace VL.ImGui
             CheckBuffers(drawData); // potentially resize buffers first if needed
             UpdateBuffers(drawData); // updeet em now
 
-            // set pipeline stuff
-            var is32Bits = false;
-            commandList.SetPipelineState(imPipeline);
-            commandList.SetVertexBuffer(0, vertexBinding.Buffer, 0, Unsafe.SizeOf<ImDrawVert>());
-            commandList.SetIndexBuffer(indexBinding.Buffer, 0, is32Bits);
-            imShader.Parameters.Set(ImGuiShader_DrawFXKeys.tex, fontTexture);
-
             int vtxOffset = 0;
             int idxOffset = 0;
             for (int n = 0; n < drawData.CmdListsCount; n++)
@@ -102,13 +95,29 @@ namespace VL.ImGui
                     }
                     else
                     {
+                        Texture? tex = null;
+
                         if (cmd.TextureId != IntPtr.Zero)
-                        {
-                            // TODO CHECK THIS ... i think there are allways only one ??
-                            // imShader.Parameters.Set(ImGuiShaderKeys.tex, fontTexture);
+                        {   
+                            #pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
+                            unsafe
+                            {
+                                try { tex = *(Texture*)cmd.TextureId; }
+                                catch { }                               
+                            }
+                            #pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
                         }
                         else
                         {
+                            tex = fontTexture;
+                        }
+                        if (tex != null)
+                        {
+                            var is32Bits = false;
+                            commandList.SetPipelineState(imPipeline);
+                            commandList.SetVertexBuffer(0, vertexBinding.Buffer, 0, Unsafe.SizeOf<ImDrawVert>());
+                            commandList.SetIndexBuffer(indexBinding.Buffer, 0, is32Bits);
+
                             commandList.SetScissorRectangle(
                                 new Rectangle(
                                     (int)cmd.ClipRect.X,
@@ -118,7 +127,7 @@ namespace VL.ImGui
                                 )
                             );
 
-                            imShader.Parameters.Set(ImGuiShader_DrawFXKeys.tex, fontTexture);
+                            imShader.Parameters.Set(ImGuiShader_DrawFXKeys.tex, tex);
                             imShader.Parameters.Set(ImGuiShader_DrawFXKeys.proj, ref projMatrix);
                             imShader.EffectInstance.Apply(graphicsContext);
 
