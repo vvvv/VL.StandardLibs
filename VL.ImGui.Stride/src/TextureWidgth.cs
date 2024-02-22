@@ -1,14 +1,5 @@
-﻿using ImGuiNET;
-using Stride.Core.Mathematics;
+﻿using Stride.Core.Mathematics;
 using Stride.Graphics;
-using Stride.Rendering;
-using Stride.Rendering.Compositing;
-using System.Runtime.CompilerServices;
-using VL.ImGui.Widgets.Primitives;
-using VL.Lib.Mathematics;
-using VL.Skia;
-using VL.Stride.Rendering;
-using Viewport = Stride.Graphics.Viewport;
 
 namespace VL.ImGui.Widgets
 {

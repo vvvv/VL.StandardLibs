@@ -5,12 +5,7 @@ using Stride.Core.Mathematics;
 using Buffer = Stride.Graphics.Buffer;
 using Stride.Rendering;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Reflection.Metadata;
-using FFmpeg.AutoGen;
-using Stride.Core.Extensions;
-using VL.Lib.Mathematics;
-using System.Diagnostics;
+
 
 namespace VL.ImGui
 {

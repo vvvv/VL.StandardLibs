@@ -3,7 +3,6 @@ using Stride.Input;
 using Stride.Graphics;
 using Stride.Rendering;
 using Stride.Core.Mathematics;
-using System.Runtime.CompilerServices;
 using Buffer = Stride.Graphics.Buffer;
 using RendererBase = Stride.Rendering.RendererBase;
 
