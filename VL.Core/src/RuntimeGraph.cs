@@ -69,7 +69,7 @@ namespace VL.Core
         /// <param name="capturedAppHost">The captured service registry.</param>
         public static bool ReportException(Exception exception, AppHost capturedAppHost)
         {
-            var appHost = AppHost.IsCurrent() ? AppHost.Current : capturedAppHost;
+            var appHost = AppHost.IsAnyCurrent() ? AppHost.Current : capturedAppHost;
             var runtime = appHost?.Services.GetService<IVLRuntime>();
             if (runtime != null)
             {

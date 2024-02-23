@@ -79,5 +79,19 @@ namespace VL.Stride.Engine
             // Then from scene
             child.Scene = null;
         }
+
+        /// <summary>
+        /// Enables or disables components of the specified type. The <paramref name="componentType"/> pin is only used to infer the type. The passed instance is ignored.
+        /// </summary>
+        /// <typeparam name="T">Type of the component</typeparam>
+        /// <param name="entity">The entity to apply this method.</param>
+        /// <param name="componentType">Used to infer the type of affected components.</param>
+        /// <param name="enabled">If set to <c>true</c>, all components of {T} will be enabled; otherwise they will be disabled</param>
+        /// <param name="applyOnChildren">Recursively apply this method to the children of this entity</param>
+        public static void Enable<T>(Entity entity, T componentType, bool enabled = true, bool applyOnChildren = false)
+            where T : ActivableEntityComponent
+        {
+            entity.Enable<T>(enabled, applyOnChildren);
+        }
     }
 }

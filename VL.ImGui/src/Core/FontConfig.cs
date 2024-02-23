@@ -22,7 +22,7 @@ namespace VL.ImGui
 
         static FontConfig()
         {
-            if (OperatingSystem.IsWindows())
+            if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
             {
                 using var defaultTypeFace = System.Drawing.SystemFonts.MessageBoxFont ?? System.Drawing.SystemFonts.DefaultFont;
                 Default = new FontConfig(new FontList(defaultTypeFace.FontFamily.Name));

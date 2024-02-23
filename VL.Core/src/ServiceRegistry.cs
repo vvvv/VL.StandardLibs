@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 
 namespace VL.Core
 {
@@ -31,7 +32,7 @@ namespace VL.Core
         /// </summary>
         [Obsolete("Use IAppHost.IsCurrent()", error: true)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static bool IsCurrent() => AppHost.IsCurrent();
+        public static bool IsCurrent() => AppHost.IsAnyCurrent();
 
         private readonly ConcurrentDictionary<Type, Registration> registrations = new();
         private readonly IServiceProvider? parent;
@@ -51,7 +52,7 @@ namespace VL.Core
             if (service is null)
                 throw new ArgumentNullException(nameof(service));
 
-            registrations[typeof(T)] = new Registration(new Lazy<object>(() => service, isThreadSafe: false));
+            registrations[typeof(T)] = new Registration(new Lazy<object>(() => service, mode: LazyThreadSafetyMode.PublicationOnly));
             return this;
         }
 
@@ -113,11 +114,14 @@ namespace VL.Core
         record struct Registration(Lazy<object> LazyService);
     }
 
+    [Obsolete("Use Microsoft.Extensions.DependencyInjection", error: true)]
     public static class ServiceProviderExtensions
     {
-        public static T? GetService<T>(this IServiceProvider serviceProvider) where T : class => serviceProvider.GetService(typeof(T)) as T;
+        [Obsolete("Use Microsoft.Extensions.DependencyInjection", error: true)]
+        public static T? GetService<T>(IServiceProvider serviceProvider) where T : class => serviceProvider.GetService(typeof(T)) as T;
 
-        public static T GetRequiredService<T>(this IServiceProvider serviceProvider) where T : class => serviceProvider.GetService<T>() ?? throw new Exception($"The required service {typeof(T).FullName} was not found");
+        [Obsolete("Use Microsoft.Extensions.DependencyInjection", error: true)]
+        public static T GetRequiredService<T>(IServiceProvider serviceProvider) where T : class => GetService<T>(serviceProvider) ?? throw new Exception($"The required service {typeof(T).FullName} was not found");
     }
 }
 #nullable restore

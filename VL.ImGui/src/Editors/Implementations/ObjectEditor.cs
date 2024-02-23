@@ -1,11 +1,16 @@
 ﻿using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
 using VL.Core;
 using VL.Core.EditorAttributes;
+using VL.ImGui.Widgets;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Collections;
 
 namespace VL.ImGui.Editors
 {
@@ -13,7 +18,24 @@ namespace VL.ImGui.Editors
 
     sealed class ObjectEditor<T> : IObjectEditor, IDisposable
     {
-        readonly Dictionary<IVLPropertyInfo, IObjectEditor?> editors = new Dictionary<IVLPropertyInfo, IObjectEditor?>();
+        class PropertyOrderComparer : IComparer<IVLPropertyInfo>
+        {
+            public int Compare(IVLPropertyInfo? x, IVLPropertyInfo? y)
+            {
+                if (x == null || y == null || x.Equals(y))
+                    return 0;
+
+                var xDisplay = x.GetAttributes<DisplayAttribute>().FirstOrDefault();
+                var yDisplay = y.GetAttributes<DisplayAttribute>().FirstOrDefault();
+
+                if (xDisplay == null && yDisplay == null)
+                    return x!.NameForTextualCode.CompareTo(y!.NameForTextualCode);
+
+                return (xDisplay?.GetOrder() ?? 0) - (yDisplay?.GetOrder() ?? 0);
+            }
+        }
+
+        readonly SortedDictionary<IVLPropertyInfo, (IObjectEditor?, string, IChannel)> editors = new(new PropertyOrderComparer());
         readonly CompositeDisposable subscriptions = new CompositeDisposable();
         readonly ObjectEditorContext parentContext;
         readonly IChannel<T> channel;
@@ -48,38 +70,55 @@ namespace VL.ImGui.Editors
                 {
                     if (!editors.TryGetValue(property, out var editor))
                     {
+                        var old = editors.Keys.FirstOrDefault(p => p.OriginalName == property.OriginalName);
+                        if (old != default)
+                            editors.Remove(old);
+
                         if (IsVisible(property))
                         {
                             // Setup channel
                             var propertyChannel = ChannelHelpers.CreateChannelOfType(property.Type);
+                            var attributes = property.GetAttributes<Attribute>().ToSpread();
+                            propertyChannel.Attributes().Value = attributes;
+                            
                             subscriptions.Add(
                                 channel.ChannelOfObject.Merge(
                                     propertyChannel.ChannelOfObject,
                                     (object? v) => property.GetValue((IVLObject)channel.Value),
-                                    v => (T)property.WithValue((IVLObject)channel.Value, v), 
+                                    v => (T)property.WithValue((IVLObject)channel.Value, v),
                                     initialization: ChannelMergeInitialization.UseA,
-                                    pushEagerlyTo: ChannelSelection.ChannelA));
+                                    pushEagerlyTo: ChannelSelection.Both));
+                            // this channel is private. So it should be fine to spam it (ChannelSelection.Both).
+                            // If we wouldn't spam, the changed properties in a deeply mutating object structure would not get updated.
 
-                            var attributes = property.GetAttributes<Attribute>().ToSpread();
-                            propertyChannel.Attributes().Value = attributes;
-                            var label = attributes.OfType<LabelAttribute>().FirstOrDefault()?.Label ?? property.OriginalName;
+                            var label =
+                                propertyChannel.GetAttribute<LabelAttribute>()?.Label ??
+                                propertyChannel.GetAttribute<DisplayAttribute>()?.Name ??
+                                property.OriginalName;
+
                             var contextForProperty = parentContext.CreateSubContext(label);
-                            editor = editors[property] = factory.CreateObjectEditor(propertyChannel, contextForProperty);
+                            editor = editors[property] = 
+                                (factory.CreateObjectEditor(propertyChannel, contextForProperty),
+                                label, propertyChannel);
                         }
                         else
                         {
-                            editor = editors[property] = null;
+                            editor = editors[property] = (null, null!, null!);
                         }
                     }
+                }
 
+                foreach (var (property, (editor, label, propertyChannel)) in editors)
+                { 
                     if (editor != null)
                     {
                         if (editor.NeedsMoreThanOneLine)
                         {
-                            if (ImGui.TreeNode(property.OriginalName))
+                            if (ImGui.TreeNode(label))
                             {
                                 try
                                 {
+                                    DrawTooltip(propertyChannel);
                                     editor.Draw(context);
                                 }
                                 finally
@@ -87,10 +126,13 @@ namespace VL.ImGui.Editors
                                     ImGui.TreePop();
                                 }
                             }
+                            else
+                                DrawTooltip(propertyChannel); 
                         }
                         else
                         {
                             editor.Draw(context);
+                            DrawTooltip(propertyChannel);
                         }
                     }
                 }
@@ -106,10 +148,24 @@ namespace VL.ImGui.Editors
             }
         }
 
+        private static void DrawTooltip(IChannel channel)
+        {
+            if (ImGui.IsItemHovered())
+            {
+                var displayAttribute = channel.GetAttribute<DisplayAttribute>();
+                if (displayAttribute != null)
+                {
+                    var tooltipText = displayAttribute.Description;
+                    if (tooltipText != null)
+                        ImGui.SetItemTooltip(tooltipText);
+                }
+            }
+        }
+
         static bool IsVisible(IVLPropertyInfo property)
         {
-            var browseable = property.GetAttributes<BrowsableAttribute>().FirstOrDefault();
-            return browseable is null || browseable.Browsable;
+            var browsable = property.GetAttributes<BrowsableAttribute>().FirstOrDefault();
+            return browsable is null || browsable.Browsable;
         }
     }
 

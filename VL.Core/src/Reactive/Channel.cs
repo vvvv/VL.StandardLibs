@@ -358,6 +358,14 @@ namespace VL.Lib.Reactive
             return false;
         }
 
+        public static TAttribute? GetAttribute<TAttribute>(this IChannel channel)
+            where TAttribute : Attribute
+        {
+            if (channel.TryGetAttribute(out TAttribute? result))
+                return result;
+            return default;
+        }
+
         public static IChannel<T> CreateChannelOfType<T>()
         {
             return new Channel<T>();

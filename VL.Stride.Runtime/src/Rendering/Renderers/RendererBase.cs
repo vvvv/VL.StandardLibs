@@ -1,11 +1,20 @@
-﻿using Stride.Rendering;
+﻿using Microsoft.Extensions.Logging;
+using Stride.Rendering;
 using System;
 using System.Diagnostics;
+using VL.Core;
 
 namespace VL.Stride.Rendering
 {
     public abstract class RendererBase : IGraphicsRendererBase
     {
+        private readonly ILogger _logger;
+
+        public RendererBase()
+        {
+            _logger = AppHost.Current.LoggerFactory.CreateLogger(GetType());
+        }
+
         public IGraphicsRendererBase Input { get; set; }
 
         public virtual bool AlwaysRender { get; }
@@ -20,7 +29,7 @@ namespace VL.Stride.Rendering
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine(e);
+                    _logger.LogError(e, "Unexpected exception while drawing");
                 }
             }
         }

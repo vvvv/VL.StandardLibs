@@ -58,21 +58,6 @@ namespace VL.Stride.Rendering
         public ViewportRenderInfo ViewportRenderInfo { get; set; }
     }
 
-    public static class PresenterExtensions
-    {
-        public static Texture GetLeftEyeBuffer(this GraphicsPresenter presenter)
-        {
-            var prop = typeof(GraphicsPresenter).GetProperty("LeftEyeBuffer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            return (Texture)prop.GetValue(presenter);
-        }
-
-        public static Texture GetLeftRightBuffer(this GraphicsPresenter presenter)
-        {
-            var prop = typeof(GraphicsPresenter).GetProperty("LeftRightBuffer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            return (Texture)prop.GetValue(presenter);
-        }
-    }
-
     /// <summary>
     /// Same as the Stride ForwardRenderer class, but with additional ViewportSettings that work similar to the VRSettings.
     /// Renders your game. It should use current <see cref="RenderContext.RenderView"/> and <see cref="CameraComponentRendererExtensions.GetCurrentCamera"/>.
@@ -80,6 +65,9 @@ namespace VL.Stride.Rendering
     [Display("VL Forward Renderer")]
     public partial class VLForwardRenderer : SceneRendererBase, ISharedRenderer
     {
+        private static readonly ProfilingKey CollectCoreKey = new ProfilingKey("VLForwardRenderer.CollectCore");
+        private static readonly ProfilingKey DrawCoreKey = new ProfilingKey("VLForwardRenderer.DrawCore");
+
         public VLForwardRenderer()
         {
 
@@ -183,6 +171,12 @@ namespace VL.Stride.Rendering
         /// </remarks>
         [DefaultValue(true)]
         public bool BindDepthAsResourceDuringTransparentRendering { get; set; } = true;
+
+        /// <summary>
+        /// If true, render target generated during <see cref="OpaqueRenderStage"/> will be available as a shader resource named OpaqueBase.OpaqueRenderTarget during <see cref="TransparentRenderStage"/>.
+        /// </summary>
+        [DefaultValue(false)]
+        public bool BindOpaqueAsResourceDuringTransparentRendering { get; set; }
 
         protected override void InitializeCore()
         {
@@ -353,6 +347,8 @@ namespace VL.Stride.Rendering
 
         protected override unsafe void CollectCore(RenderContext context)
         {
+            using var _ = Profiler.Begin(CollectCoreKey);
+
             var camera = context.GetCurrentCamera();
 
             if (context.RenderView == null)
@@ -665,7 +661,11 @@ namespace VL.Stride.Rendering
                         if (depthStencilSRV == null)
                             depthStencilSRV = ResolveDepthAsSRV(drawContext);
 
+                        var renderTargetSRV = ResolveRenderTargetAsSRV(drawContext);
+
                         renderSystem.Draw(drawContext, context.RenderView, TransparentRenderStage);
+
+                        Context.Allocator.ReleaseReference(renderTargetSRV);
                     }
                 }
 
@@ -786,6 +786,8 @@ namespace VL.Stride.Rendering
 
         protected override void DrawCore(RenderContext context, RenderDrawContext drawContext)
         {
+            using var _ = Profiler.Begin(DrawCoreKey);
+
             var viewport = drawContext.CommandList.Viewport;
 
             if (ViewportSettings?.ViewportRenderInfo != null)
@@ -838,10 +840,12 @@ namespace VL.Stride.Rendering
 
                             for (var i = 0; i < 2; i++)
                             {
+                                // WindowsMixedRealityGraphicsPresenter is the only presenter making use of left/right eye buffer.
+                                // Since Windows Mixed Reality is deprecated anyways we can safely ignore these lines.
+                                /*
                                 // For VR GraphicsPresenter such as WindowsMixedRealityGraphicsPresenter
                                 var graphicsPresenter = drawContext.GraphicsDevice.Presenter;
-                                var leftEyeBuffer = graphicsPresenter.GetLeftEyeBuffer();
-                                if (leftEyeBuffer != null)
+                                if (graphicsPresenter.LeftEyeBuffer != null)
                                 {
                                     isWindowsMixedReality = true;
 
@@ -850,13 +854,14 @@ namespace VL.Stride.Rendering
 
                                     if (i == 0)
                                     {
-                                        currentRenderTargets.Add(leftEyeBuffer);
+                                        currentRenderTargets.Add(graphicsPresenter.LeftEyeBuffer);
                                     }
                                     else
                                     {
-                                        currentRenderTargets.Add(graphicsPresenter.GetLeftRightBuffer());
+                                        currentRenderTargets.Add(graphicsPresenter.RightEyeBuffer);
                                     }
                                 }
+                                */
 
                                 drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, currentRenderTargets.Items);
 
@@ -901,11 +906,7 @@ namespace VL.Stride.Rendering
                     }
 
                     //draw mirror to backbuffer (if size is matching and full viewport)
-                    if (VRSettings.CopyMirror && VRSettings.VRDevice.MirrorTexture != null) //remove check for mirrortexture here, once OpenXR has one
-                    {
-                        CopyOrScaleTexture(drawContext, VRSettings.VRDevice.MirrorTexture, drawContext.CommandList.RenderTarget);
-                    }
-                    else if (hasPostEffects)
+                    if (VRSettings.CopyMirror)
                     {
                         CopyOrScaleTexture(drawContext, vrFullSurface, drawContext.CommandList.RenderTarget);
                     }
@@ -1032,6 +1033,41 @@ namespace VL.Stride.Rendering
             context.CommandList.SetRenderTargets(depthStencilROCached, context.CommandList.RenderTargetCount, context.CommandList.RenderTargets);
 
             return depthStencilSRV;
+        }
+
+        private Texture ResolveRenderTargetAsSRV(RenderDrawContext drawContext)
+        {
+            if (!BindOpaqueAsResourceDuringTransparentRendering)
+                return null;
+
+            // Create temporary texture and blit active render target to it
+            var renderTarget = drawContext.CommandList.RenderTargets[0];
+            var renderTargetTexture = Context.Allocator.GetTemporaryTexture2D(renderTarget.Description);
+
+            drawContext.CommandList.Copy(renderTarget, renderTargetTexture);
+
+            // Bind texture as srv in PerView.Opaque
+            var renderView = drawContext.RenderContext.RenderView;
+            foreach (var renderFeature in drawContext.RenderContext.RenderSystem.RenderFeatures)
+            {
+                if (!(renderFeature is RootEffectRenderFeature))
+                    continue;
+
+                var opaqueLogicalKey = ((RootEffectRenderFeature)renderFeature).CreateViewLogicalGroup("Opaque");
+                var viewFeature = renderView.Features[renderFeature.Index];
+
+                foreach (var viewLayout in viewFeature.Layouts)
+                {
+                    var opaqueLogicalRenderGroup = viewLayout.GetLogicalGroup(opaqueLogicalKey);
+                    if (opaqueLogicalRenderGroup.Hash == ObjectId.Empty)
+                        continue;
+
+                    var resourceGroup = viewLayout.Entries[renderView.Index].Resources;
+                    resourceGroup.DescriptorSet.SetShaderResourceView(opaqueLogicalRenderGroup.DescriptorSlotStart, renderTargetTexture);
+                }
+            }
+
+            return renderTargetTexture;
         }
 
         private void PrepareRenderTargets(RenderDrawContext drawContext, Texture outputRenderTarget, Texture outputDepthStencil)

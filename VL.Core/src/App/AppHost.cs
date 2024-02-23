@@ -9,6 +9,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using VL.Core.CompilerServices;
 using VL.Core.Logging;
 using LoggerFactory = VL.Core.Logging.LoggerFactory;
@@ -42,7 +43,7 @@ namespace VL.Core
         /// <summary>
         /// Whether or not a context is installed on the current thread.
         /// </summary>
-        internal static bool IsCurrent() => current != null;
+        internal static bool IsAnyCurrent() => current != null;
 
         internal static ILogger? CurrentDefaultLogger => current?.DefaultLogger;
 
@@ -79,6 +80,11 @@ namespace VL.Core
         {
             return new Frame(current ?? this);
         }
+
+        /// <summary>
+        /// Whether or not this app host is current on the current thread.
+        /// </summary>
+        public bool IsCurrent => current == this;
 
         public readonly struct Frame : IDisposable
         {
@@ -143,6 +149,11 @@ namespace VL.Core
         /// The synchronization context of the app. Allows to interact with its main thread.
         /// </summary>
         public abstract SynchronizationContext SynchronizationContext { get; }
+
+        /// <summary>
+        /// Runs posted tasks inside of the update loop of the app.
+        /// </summary>
+        public abstract TaskScheduler MainLoopTaskScheduler { get; }
 
         /// <summary>
         /// The VL factory of the app. This property exists only for compatibility reasons.

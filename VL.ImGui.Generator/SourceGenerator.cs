@@ -257,11 +257,11 @@ namespace {typeSymbol.ContainingNamespace}
                 var _w = new {typeSymbol.Name}();
                 var _inputs = new IVLPinDescription[]
                 {{
-                    { string.Join($"{Environment.NewLine}{indent}", inputDescriptions)}
+                    { string.Join($"\n{indent}", inputDescriptions)}
                 }};
                 var _outputs = new[]
                 {{                    
-                    {string.Join($"{Environment.NewLine}{indent}", outputDescriptions)}
+                    {string.Join($"\n{indent}", outputDescriptions)}
                 }};
                 return _c.Node(
                     _inputs, 
@@ -272,11 +272,11 @@ namespace {typeSymbol.ContainingNamespace}
                         {ctx}
                         var inputs = new IVLPin[]
                         {{
-                            {string.Join($"{Environment.NewLine}{indent2}", inputs)}
+                            {string.Join($"\n{indent2}", inputs)}
                         }};
                         var outputs = new IVLPin[]
                         {{
-                            {string.Join($"{Environment.NewLine}{indent2}", outputs)}
+                            {string.Join($"\n{indent2}", outputs)}
                         }};
                         {nodeDecl}
                     }}, 

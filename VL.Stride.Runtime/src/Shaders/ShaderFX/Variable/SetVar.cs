@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Stride.Core;
+using Stride.Core.Mathematics;
+using Stride.Graphics;
 using Stride.Rendering.Materials;
 using Stride.Shaders;
 using VL.Core;
+using VL.Lib.Basics.Resources;
 using static VL.Stride.Shaders.ShaderFX.ShaderFXUtils;
 
 
@@ -84,21 +88,39 @@ namespace VL.Stride.Shaders.ShaderFX
         }
     }
 
-    public sealed class GpuValueBuilder<T> : IMonadBuilder<T, SetVar<T>>
+    public sealed class GpuValueBuilder<T> : IMonadBuilder<T, SetVar<T>>, IDisposable
         where T : unmanaged
     {
         private readonly InputValue<T> inputValue;
         private readonly SetVar<T> gpuValue;
+        private readonly IResourceHandle<GraphicsDevice> graphicsDeviceHandle;
 
         public GpuValueBuilder()
         {
             inputValue = new InputValue<T>();
             gpuValue = DeclAndSetVar("Input", inputValue);
+            graphicsDeviceHandle = AppHost.Current.Services.GetDeviceHandle();
+        }
+
+        public void Dispose()
+        {
+            graphicsDeviceHandle.Dispose();
         }
 
         public SetVar<T> Return(T value)
         {
-            inputValue.Input = value;
+            if (typeof(T) == typeof(Color4))
+            {
+                // We do the same as what the ColorIn node does in its default settings
+                var device = graphicsDeviceHandle.Resource;
+                var color = Unsafe.As<T, Color4>(ref value);
+                var deviceColor = Color4.PremultiplyAlpha(color.ToColorSpace(device.ColorSpace));
+                inputValue.Input = Unsafe.As<Color4, T>(ref deviceColor);
+            }
+            else
+            {
+                inputValue.Input = value;
+            }
             return gpuValue;
         }
     }

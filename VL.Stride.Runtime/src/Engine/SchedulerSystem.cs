@@ -7,6 +7,7 @@ using Stride.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using VL.Core;
 
 namespace VL.Stride.Engine
@@ -16,10 +17,20 @@ namespace VL.Stride.Engine
     /// </summary>
     public class SchedulerSystem : GameSystemBase
     {
+        internal readonly ref struct CustomScheduler(SchedulerSystem schedulerSystem, Action<IGraphicsRendererBase> previous)
+        {
+            public void Dispose()
+            {
+                schedulerSystem.privateScheduler = previous;
+            }
+        }
+
         static readonly PropertyKey<bool> contentLoaded = new PropertyKey<bool>("ContentLoaded", typeof(SchedulerSystem));
 
-        readonly List<GameSystemBase> queue = new List<GameSystemBase>();
-        readonly Stack<ConsecutiveRenderSystem> pool = new Stack<ConsecutiveRenderSystem>();
+        private List<GameSystemBase> front = new List<GameSystemBase>();
+        private List<GameSystemBase> back = new List<GameSystemBase>();
+        private readonly Stack<ConsecutiveRenderSystem> pool = new Stack<ConsecutiveRenderSystem>();
+        private Action<IGraphicsRendererBase> privateScheduler;
 
         public SchedulerSystem([NotNull] IServiceRegistry registry) : base(registry)
         {
@@ -33,7 +44,7 @@ namespace VL.Stride.Engine
         /// <param name="gameSystem">The game system to schedule.</param>
         public void Schedule(GameSystemBase gameSystem)
         {
-            queue.Add(gameSystem);
+            front.Add(gameSystem);
         }
 
         /// <summary>
@@ -42,7 +53,13 @@ namespace VL.Stride.Engine
         /// <param name="renderer">The layer to schedule.</param>
         public void Schedule(IGraphicsRendererBase renderer)
         {
-            var current = queue.LastOrDefault() as ConsecutiveRenderSystem;
+            if (privateScheduler != null)
+            {
+                privateScheduler.Invoke(renderer);
+                return;
+            }
+
+            var current = front.LastOrDefault() as ConsecutiveRenderSystem;
             if (current is null)
             {
                 // Fetch from pool or create new
@@ -52,9 +69,18 @@ namespace VL.Stride.Engine
             current.Renderers.Add(renderer);
         }
 
+        /// <summary>
+        /// Allows to install a custom schedulerer. Used by regions like CustomPostFX during their draw call.
+        /// </summary>
+        internal CustomScheduler WithPrivateScheduler(Action<IGraphicsRendererBase> scheduler)
+        {
+            var previous = Interlocked.Exchange(ref privateScheduler, scheduler);
+            return new CustomScheduler(this, previous);
+        }
+
         public override void Update(GameTime gameTime)
         {
-            foreach (var system in queue)
+            foreach (var system in front)
             {
                 if (!system.Tags.Get(contentLoaded) && system is IContentable c)
                 {
@@ -76,6 +102,8 @@ namespace VL.Stride.Engine
             // Recycle temporary resources (for example textures allocated by render features through GetTemporaryTexture)
             renderContext.Allocator.Recycle(r => r.AccessCountSinceLastRecycle == 0);
 
+            var queue = front;
+            Utilities.Swap(ref front, ref back);
             try
             {
                 foreach (var system in queue)
@@ -103,6 +131,9 @@ namespace VL.Stride.Engine
 
         sealed class ConsecutiveRenderSystem : GameSystemBase
         {
+            private List<IGraphicsRendererBase> front = new();
+            private List<IGraphicsRendererBase> back = new();
+
             private RenderView renderView;
             private RenderContext renderContext;
             private RenderDrawContext renderDrawContext;
@@ -113,7 +144,7 @@ namespace VL.Stride.Engine
                 Visible = true;
             }
 
-            public readonly List<IGraphicsRendererBase> Renderers = new List<IGraphicsRendererBase>();
+            public List<IGraphicsRendererBase> Renderers => front;
 
             protected override void LoadContent()
             {
@@ -132,13 +163,15 @@ namespace VL.Stride.Engine
 
             public override void Draw(GameTime gameTime)
             {
+                var renderers = front;
+                Utilities.Swap(ref front, ref back);
                 try
                 {
                     using (renderContext.PushRenderViewAndRestore(renderView))
                     using (renderDrawContext.PushRenderTargetsAndRestore())
                     {
                         // Report the exceptions but continue drawing the next renderer. Otherwise one failing renderer can cause the whole app to fail.
-                        foreach (var renderer in Renderers)
+                        foreach (var renderer in renderers)
                         {
                             try
                             {
@@ -153,7 +186,7 @@ namespace VL.Stride.Engine
                 }
                 finally
                 {
-                    Renderers.Clear();
+                    renderers.Clear();
                     renderDrawContext.ResourceGroupAllocator.Flush();
                     renderDrawContext.QueryManager.Flush();
                 }
