@@ -51,6 +51,8 @@ namespace VL.ImGui
         ImDrawDataPtr _drawDataPtr;
         bool _readyToBeDrawn;
         WidgetLabel widgetLabel = new();
+        GCHandle layerHandle;
+        GCHandle textureHandle;
 
         public unsafe ToSkiaLayer()
         {
@@ -250,76 +252,55 @@ namespace VL.ImGui
                         canvas.Save();
                         try
                         {
-                            canvas.ClipRect(clipRect); 
-                            
-                            // TODO: Find min/max index for each draw, so we know how many vertices (sigh)
+                            canvas.ClipRect(clipRect);
+
+                            // get ILayer passed via Callback instead of spooky low Texture ID
                             if (drawCmd.UserCallback != IntPtr.Zero)
                             {
-                                var handle = GCHandle.FromIntPtr(drawCmd.UserCallback);
-                                try
+                                layerHandle = GCHandle.FromIntPtr(drawCmd.UserCallback);
+                                
+                                if (layerHandle.Target is ILayer layer)
                                 {
-                                    if (handle.Target is DrawCallback callback)
-                                        callback(drawList, drawCmd);
-                                }
-                                finally
-                                {
-                                    handle.Free();
-                                }
-                            }
-                            else
-                            {
-                                var idIndex = drawCmd.TextureId.ToInt64();
-                                if (0 <= idIndex && idIndex < _context.Layers.Count)
-                                {
-                                    // Small image IDs are actually indices into a list of callbacks. We directly
-                                    // examing the vertex data to deduce the image rectangle, then reconfigure the
-                                    // canvas to be clipped and translated so that the callback code gets to use
-                                    // Skia to render a widget in the middle of an ImGui panel.
-                                    var rectIndex = drawList.IdxBuffer[indexOffset];
-                                    var tl = pos[rectIndex];
-                                    var br = pos[rectIndex + 2];
-                                    var imageClipRect = new SKRect(tl.X, tl.Y, br.X, br.Y);
-
-                                        canvas.SetMatrix(caller.Transformation);
+                                    canvas.SetMatrix(caller.Transformation);
                                     try
                                     {
-                                        _context.Layers[(int)idIndex].Render(caller);
+                                        layer.Render(caller);
                                     }
                                     finally
                                     {
-                                            canvas.SetMatrix(us.Transformation);
-                                    }
-                                }
-                                else if (drawCmd.ElemCount > 0)
-                                {
-                                    var handle = GCHandle.FromIntPtr(drawCmd.TextureId);
-                                    var paint = handle.Target as SKPaint ?? _fontPaint.Target;
-                                    if (paint is null)
-                                        continue;
-
-                                    // Managed approach - we need to allocate arrays for each call
-                                    //var indices = new ushort[drawCmd.ElemCount];
-                                    //for (int k = 0; k < indices.Length; k++)
-                                    //    indices[k] = drawList.IdxBuffer[indexOffset + k];
-
-                                    //canvas.DrawVertices(SKVertexMode.Triangles, pos, uv, color, SKBlendMode.Modulate, indices, paint);
-
-                                    // Native approach - allocation free
-                                    unsafe
-                                    {
-                                        var indexPtr = (ushort*)drawList.IdxBuffer.Data.ToPointer() + drawCmd.IdxOffset;
-                                        fixed (SKPoint* pPos = pos)
-                                        fixed (SKPoint* pTex = uv)
-                                        fixed (SKColor* pColor = color)
-                                        {
-                                            var vertices = sk_vertices_make_copy(SKVertexMode.Triangles, size, pPos, pTex, (uint*)pColor, (int)drawCmd.ElemCount, indexPtr);
-                                            sk_canvas_draw_vertices(canvas.Handle, vertices, SKBlendMode.Modulate, paint.Handle);
-                                            sk_vertices_unref(vertices);
-                                            
-                                        }
+                                        canvas.SetMatrix(us.Transformation);
                                     }
                                 }
                             }
+                            else if (drawCmd.ElemCount > 0)
+                            {
+                                textureHandle = GCHandle.FromIntPtr(drawCmd.TextureId);
+                                var paint = textureHandle.Target as SKPaint ?? _fontPaint.Target;
+                                if (paint is null)
+                                    continue;
+
+                                // Managed approach - we need to allocate arrays for each call
+                                //var indices = new ushort[drawCmd.ElemCount];
+                                //for (int k = 0; k < indices.Length; k++)
+                                //    indices[k] = drawList.IdxBuffer[indexOffset + k];
+
+                                //canvas.DrawVertices(SKVertexMode.Triangles, pos, uv, color, SKBlendMode.Modulate, indices, paint);
+
+                                // Native approach - allocation free
+                                unsafe
+                                {
+                                    var indexPtr = (ushort*)drawList.IdxBuffer.Data.ToPointer() + drawCmd.IdxOffset;
+                                    fixed (SKPoint* pPos = pos)
+                                    fixed (SKPoint* pTex = uv)
+                                    fixed (SKColor* pColor = color)
+                                    {
+                                        var vertices = sk_vertices_make_copy(SKVertexMode.Triangles, size, pPos, pTex, (uint*)pColor, (int)drawCmd.ElemCount, indexPtr);
+                                        sk_canvas_draw_vertices(canvas.Handle, vertices, SKBlendMode.Modulate, paint.Handle);
+                                        sk_vertices_unref(vertices);
+                                            
+                                    }
+                                }
+                            } 
                         }
                         finally
                         {
@@ -387,6 +368,9 @@ namespace VL.ImGui
 
         public void Dispose()
         {
+            layerHandle.Free();
+            textureHandle.Free();
+
             _renderContext.Dispose();
 
             _context.Dispose();

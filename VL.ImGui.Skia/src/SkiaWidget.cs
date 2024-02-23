@@ -1,8 +1,11 @@
 ﻿using ImGuiNET;
 using SkiaSharp;
 using Stride.Core.Mathematics;
+using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
 using VL.ImGui.Widgets.Primitives;
 using VL.Lib.IO.Notifications;
+using VL.Lib.Mathematics;
 using VL.Skia;
 
 namespace VL.ImGui.Widgets
@@ -12,6 +15,7 @@ namespace VL.ImGui.Widgets
     [GenerateNode(Category = "ImGui.Widgets.Internal", IsStylable = false)]
     public sealed partial class SkiaWidget : PrimitiveWidget, IDisposable, ILayer
     {
+        private GCHandle layerhandle;
         private bool _disposed;
         private bool _itemHasFocus;
         private bool _windowHasFocus;
@@ -28,7 +32,8 @@ namespace VL.ImGui.Widgets
         protected override void Draw(Context context, in ImDrawListPtr drawList, in System.Numerics.Vector2 offset)
         {
             if (Layer is null)
-                return;
+            return;
+
 
             if (context is SkiaContext skiaContext)
             {
@@ -38,7 +43,13 @@ namespace VL.ImGui.Widgets
                 _itemHasFocus = ImGui.IsItemFocused();
                 _windowHasFocus = ImGui.IsWindowFocused();
                 ImGui.SetCursorPos(position);
-                skiaContext.AddLayer(new Vector2(_.X, _.Y), this);
+
+                // Use Callback instead of Texture to pass Layer
+                layerhandle = GCHandle.Alloc(Layer);
+                drawList.AddCallback(GCHandle.ToIntPtr(layerhandle), IntPtr.Zero);
+
+                // for Notification
+                skiaContext.AddLayer(this);
             }
         }
 
@@ -70,6 +81,7 @@ namespace VL.ImGui.Widgets
 
         public void Dispose()
         {
+            layerhandle.Free();
             _disposed = true;
         }
     }
