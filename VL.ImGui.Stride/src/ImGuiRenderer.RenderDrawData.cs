@@ -5,6 +5,10 @@ using Buffer = Stride.Graphics.Buffer;
 using Stride.Rendering;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using VL.Skia;
+using Stride.Core;
+using Stride.Input;
+using VL.Stride.Input;
 
 namespace VL.ImGui
 {
@@ -67,6 +71,7 @@ namespace VL.ImGui
                             if (renderLayer?.Viewport != null)
                             {
                                 var renderContext = context?.RenderContext;
+                                using (renderContext.PushTagAndRestore(InputExtensions.WindowInputSource, lastInputSource))
                                 using (renderContext?.SaveRenderOutputAndRestore())
                                 using (renderContext?.SaveViewportAndRestore())
                                 {
@@ -75,7 +80,16 @@ namespace VL.ImGui
                                     context?.CommandList.SetViewport(renderContext.ViewportState.Viewport0);
                                 }
                             }
-                        }    
+                        }
+                        else if (renderLayerHandle.Target is ILayer layer)
+                        {
+                            var renderContext = context?.RenderContext;
+                            using (renderContext.PushTagAndRestore(InputExtensions.WindowInputSource, lastInputSource))
+                            {
+                                skiaRenderer.Layer = layer;
+                                ((IGraphicsRendererBase)skiaRenderer).Draw(context);
+                            }
+                        }
                     }
                     else
                     {

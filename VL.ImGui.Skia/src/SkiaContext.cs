@@ -6,7 +6,7 @@ using VL.Skia;
 
 namespace VL.ImGui
 {
-    internal sealed class SkiaContext : Context
+    public class SkiaContext : Context
     {
         public readonly List<ILayer> Layers = new List<ILayer>();
 

@@ -3,7 +3,7 @@ using Stride.Rendering;
 
 namespace VL.ImGui
 {
-    internal sealed class StrideContext : Context
+    internal sealed class StrideContext : SkiaContext
     {
 
     }

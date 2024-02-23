@@ -15,10 +15,12 @@ using VL.Stride.Input;
 using System.Reactive.Disposables;
 using VL.Lib.Basics.Resources;
 using System.Runtime.InteropServices;
+using VL.Skia;
 
 namespace VL.ImGui
 {
     using ImGui = ImGuiNET.ImGui;
+    using SkiaRenderer = VL.Stride.SkiaRenderer;
 
     public partial class ImGuiRenderer : RendererBase, IDisposable
     {
@@ -66,8 +68,16 @@ namespace VL.ImGui
 
         private IInputSource? lastInputSource;
         private readonly SerialDisposable inputSubscription = new SerialDisposable();
+
+        //Skia 
+        private readonly SkiaRenderer skiaRenderer;
+
+
         public unsafe ImGuiRenderer(CustomDrawEffect drawEffect)
         {
+            skiaRenderer = new SkiaRenderer();
+            skiaRenderer.Space = VL.Skia.CommonSpace.DIPTopLeft;
+
             deviceHandle = AppHost.Current.Services.GetDeviceHandle();
             GraphicsContextHandle = AppHost.Current.Services.GetGraphicsContextHandle();
             inputHandle = AppHost.Current.Services.GetInputManagerHandle();
@@ -249,6 +259,8 @@ namespace VL.ImGui
 
         protected override void Destroy()
         {
+            skiaRenderer.Dispose();
+
             imPipeline.Dispose();
             vertexBinding.Buffer.Dispose();
             indexBinding.Buffer.Dispose();
