@@ -182,10 +182,9 @@ namespace VL.Core.Reactive
         string? Description { get; }
 
         BindingType BindingType { get; }
+
+        bool GotCreatedViaNode => Module == null;
     }
-
-
-
 
 
 

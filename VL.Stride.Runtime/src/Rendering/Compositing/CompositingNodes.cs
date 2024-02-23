@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using VL.Core;
-using VL.Stride.Rendering.Images;
 
 namespace VL.Stride.Rendering.Compositing
 {
@@ -322,7 +321,6 @@ namespace VL.Stride.Rendering.Compositing
                 return nodeFactory.NewNode<PostProcessingEffects>(name: "PostFXCore (Internal)", category: renderingCategory, copyOnWrite: false, 
                     init: effects =>
                     {
-                        ReplaceAO(effects); // set our own implementation, TODO: remove this once we use a stride version that has the ortho case included
                         // Can't use effects.DisableAll() - disables private effects used by AA
                         effects.Fog.Enabled = false;
                         effects.Outline.Enabled = false;
@@ -502,12 +500,6 @@ namespace VL.Stride.Rendering.Compositing
                     }, defaultValue: null /* null is used to disable */)
                     .AddCachedListInput(nameof(PostProcessingEffects.ColorTransforms), x => x.ColorTransforms.Transforms)
                     .AddCachedInput(nameof(PostProcessingEffects.Antialiasing), x => x.Antialiasing, (x, v) => x.Antialiasing = v);
-
-                void ReplaceAO(PostProcessingEffects effects)
-                {
-                    var ao = typeof(PostProcessingEffects).GetProperty(nameof(PostProcessingEffects.AmbientOcclusion), BindingFlags.Public | BindingFlags.Instance);
-                    ao.SetValue(effects, new AmbientOcclusionWithOrtho());
-                }
             }
         }
 

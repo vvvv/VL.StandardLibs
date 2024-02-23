@@ -1,5 +1,6 @@
 ﻿using Stride.Core.Collections;
 using Stride.Engine;
+using Stride.Rendering.Materials;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -508,7 +509,7 @@ namespace VL.Stride
                 : base(node, instance, getter, setter, initialValue)
             {
                 // Stride object equality is buggy! For example of type  MaterialSpecularThinGlassModelFeature
-                this.equals = equals ?? (typeof(T).IsValueType ? EqualityComparer<T>.Default.Equals : ReferenceEquals);
+                this.equals = equals ?? (typeof(T).IsAssignableTo(typeof(IMaterialShaderGenerator)) ? ReferenceEquals : EqualityComparer<T>.Default.Equals);
                 lastValue = initialValue;
             }
 

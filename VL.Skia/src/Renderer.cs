@@ -16,6 +16,8 @@ using VL.Lib.IO.Notifications;
 using VL.Model;
 using VL.Lang.PublicAPI;
 using VL.Core.Commands;
+using System.Reactive.Disposables;
+using VL.Core.Utils;
 
 namespace VL.Skia
 {
@@ -23,6 +25,7 @@ namespace VL.Skia
     {
         private readonly AppHost FAppHost;
         private readonly SkiaGLControl FControl;
+        private readonly SerialDisposable FDarkModeSubscription = new();
 
         bool HasValidLayer;
         ILayer? Layer;
@@ -278,6 +281,20 @@ namespace VL.Skia
             {
                 RuntimeGraph.ReportException(exception);
             }
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            FDarkModeSubscription.Disposable = DarkTitleBarClass.Install(Handle);
+
+            base.OnHandleCreated(e);
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            FDarkModeSubscription.Disposable = null;
+
+            base.OnHandleDestroyed(e);
         }
 
         public new void Update() 
