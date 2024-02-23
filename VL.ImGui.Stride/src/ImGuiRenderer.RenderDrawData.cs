@@ -9,6 +9,7 @@ using VL.Skia;
 using Stride.Core;
 using Stride.Input;
 using VL.Stride.Input;
+using VL.Core;
 
 namespace VL.ImGui
 {
@@ -68,17 +69,26 @@ namespace VL.ImGui
                         renderLayerHandle = GCHandle.FromIntPtr(cmd.UserCallback);
                         if (renderLayerHandle.Target is RenderLayer renderLayer)
                         {
-                            if (renderLayer?.Viewport != null)
+                            if (renderLayer?.Viewport != null && context != null)
                             {
-                                var renderContext = context?.RenderContext;
+                                var renderContext = context.RenderContext;
+                                
                                 using (renderContext.PushTagAndRestore(InputExtensions.WindowInputSource, lastInputSource))
-                                using (renderContext?.SaveRenderOutputAndRestore())
-                                using (renderContext?.SaveViewportAndRestore())
+                                using (renderContext.SaveRenderOutputAndRestore())
+                                using (renderContext.SaveViewportAndRestore())
                                 {
                                     context?.CommandList.SetViewport((Viewport)renderLayer.Viewport);
+                                    var layer = renderLayer.Layer;
+                                    if (layer != null && layer is ImGuiRenderer renderer)
+                                    {
+                                        renderer.Viewport = new Optional<Viewport>((Viewport)renderLayer.Viewport);
+                                        // TODO  Transform Notification
+                                    }
                                     renderLayer.Layer?.Draw(context);
                                     context?.CommandList.SetViewport(renderContext.ViewportState.Viewport0);
                                 }
+                                
+                                
                             }
                         }
                         else if (renderLayerHandle.Target is ILayer layer)
@@ -86,6 +96,7 @@ namespace VL.ImGui
                             var renderContext = context?.RenderContext;
                             using (renderContext.PushTagAndRestore(InputExtensions.WindowInputSource, lastInputSource))
                             {
+                                // TODO set DisplaySize Transform Notification
                                 skiaRenderer.Layer = layer;
                                 ((IGraphicsRendererBase)skiaRenderer).Draw(context);
                             }

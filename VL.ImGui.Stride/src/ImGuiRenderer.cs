@@ -41,6 +41,7 @@ namespace VL.ImGui
         
 
         // ImGui
+        internal Optional<Viewport> Viewport;
         private readonly ImGuiIOPtr _io;
         private readonly StrideContext _context;
         private ImDrawDataPtr _drawDataPtr;
@@ -56,6 +57,7 @@ namespace VL.ImGui
 
         private GCHandle renderLayerHandle;
         private GCHandle textureHandle;
+
 
         // Stride
         private PipelineState imPipeline;
@@ -192,8 +194,8 @@ namespace VL.ImGui
                 _io.DisplaySize = new System.Numerics.Vector2(renderTarget.Width, renderTarget.Height);
                 _io.DisplayFramebufferScale = new System.Numerics.Vector2(1.0f, 1.0f);
                 _io.DeltaTime = (float)context.RenderContext.Time.TimePerFrame.TotalSeconds;
-
-                projMatrix = Matrix.OrthoRH(renderTarget.Width, -renderTarget.Height, -1, 1);
+                
+                projMatrix = Viewport.HasValue ? Matrix.OrthoRH(Viewport.Value.Width, -Viewport.Value.Height, -1, 1) : Matrix.OrthoRH(renderTarget.Width, -renderTarget.Height, -1, 1);
 
                 var inputSource = context.RenderContext.GetWindowInputSource();
                 if (inputSource != lastInputSource)

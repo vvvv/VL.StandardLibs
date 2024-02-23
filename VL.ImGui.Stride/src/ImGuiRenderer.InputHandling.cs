@@ -1,5 +1,7 @@
-﻿using Stride.Input;
+﻿using SharpFont.Cache;
+using Stride.Input;
 using Stride.Rendering;
+using System;
 using System.Reactive.Disposables;
 using VL.Stride;
 
@@ -21,7 +23,8 @@ namespace VL.ImGui
                 {
                     using (_context.MakeCurrent())
                     {
-                        _io.HandleNotification(notification);
+                        System.Numerics.Vector2 position = new System.Numerics.Vector2(Viewport.HasValue ? Viewport.Value.X : 0, Viewport.HasValue ? Viewport.Value.Y : 0);
+                        _io.HandleNotification(notification, position);
                     }
                 });
         }
