@@ -1,17 +1,15 @@
 ﻿using ImGuiNET;
-
 using Stride.Graphics;
 using Stride.Core.Mathematics;
 using Buffer = Stride.Graphics.Buffer;
 using Stride.Rendering;
 using System.Runtime.CompilerServices;
-
+using System.Runtime.InteropServices;
 
 namespace VL.ImGui
 {
     partial class ImGuiRenderer
     {
-        
         void CheckBuffers(ImDrawDataPtr drawData)
         {
             uint totalVBOSize = (uint)(drawData.TotalVtxCount * Unsafe.SizeOf<ImDrawVert>());
@@ -63,27 +61,8 @@ namespace VL.ImGui
 
                     if (cmd.UserCallback != IntPtr.Zero)
                     {
-                        RenderLayer? renderLayer = null;
-                        #pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
-                        unsafe
-                        {
-                            try {
-                                // Stride ContextVersion
-                                //renderLayer = _context.GetLayer((int)cmd.UserCallback);
-
-                                renderLayer = *(RenderLayer*)cmd.UserCallback;
-                                
-                                // CallBack FunktionPointer Sample ... see RenderWidget
-                                //VL.ImGui.Widgets.RenderWidget.RenderDrawCallback cb = Marshal.GetDelegateForFunctionPointer<VL.ImGui.Widgets.RenderWidget.RenderDrawCallback>(cmd.UserCallback);
-                                //if (context != null)
-                                //{
-                                //    cb(&context, cmdList, cmd);
-                                //}
-                            }
-                            catch { }
-                        }
-                        #pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
-                        if (renderLayer != null)
+                        renderLayerHandle = GCHandle.FromIntPtr(cmd.UserCallback);
+                        if (renderLayerHandle.Target is RenderLayer renderLayer)
                         {
                             if (renderLayer?.Viewport != null)
                             {
@@ -96,21 +75,19 @@ namespace VL.ImGui
                                     context?.CommandList.SetViewport(renderContext.ViewportState.Viewport0);
                                 }
                             }
-                        }
+                        }    
                     }
                     else
                     {
                         Texture? tex = null;
 
                         if (cmd.TextureId != IntPtr.Zero)
-                        {   
-                            #pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
-                            unsafe
+                        {
+                            textureHandle = GCHandle.FromIntPtr(cmd.TextureId);
+                            if (textureHandle.Target is Texture texture)
                             {
-                                try { tex = *(Texture*)cmd.TextureId; }
-                                catch { }                               
+                                tex = texture;
                             }
-                            #pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
                         }
                         else
                         {

@@ -14,6 +14,7 @@ using VL.Stride.Input;
 
 using System.Reactive.Disposables;
 using VL.Lib.Basics.Resources;
+using System.Runtime.InteropServices;
 
 namespace VL.ImGui
 {
@@ -50,6 +51,9 @@ namespace VL.ImGui
         private Spread<FontConfig?> fonts = Spread.Create(FontConfig.Default);
         private bool fullscreenWindow;
         private IStyle? style;
+
+        private GCHandle renderLayerHandle;
+        private GCHandle textureHandle;
 
         // Stride
         private PipelineState imPipeline;
@@ -255,6 +259,9 @@ namespace VL.ImGui
             deviceHandle.Dispose();
             GraphicsContextHandle.Dispose();
             inputHandle.Dispose();
+
+            renderLayerHandle.Free();
+            textureHandle.Free();
 
             base.Destroy();
         }

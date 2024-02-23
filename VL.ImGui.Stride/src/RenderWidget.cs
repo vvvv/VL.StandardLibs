@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using Stride.Core.Mathematics;
 using Stride.Rendering;
+using System.Runtime.InteropServices;
 using Viewport = Stride.Graphics.Viewport;
 
 namespace VL.ImGui.Widgets
@@ -8,13 +9,14 @@ namespace VL.ImGui.Widgets
     using ImGui = ImGuiNET.ImGui;
 
     [GenerateNode(Category = "ImGui.Widgets.Internal", IsStylable = false)]
-    public sealed partial class RenderWidget : Widget
+    public sealed partial class RenderWidget : Widget, IDisposable
     {
         private readonly RenderLayer renderLayer;
-
+        private readonly GCHandle renderLayerHandle;
         public RenderWidget()
         {
             renderLayer = new RenderLayer();
+            renderLayerHandle = GCHandle.Alloc(renderLayer);
         }
 
         public IGraphicsRendererBase? Layer { private get; set ; }
@@ -41,29 +43,16 @@ namespace VL.ImGui.Widgets
                     var pos = ImGui.GetWindowPos();
                     var size = ImGui.GetWindowSize();
                     renderLayer.Viewport = new Viewport(pos.X, pos.Y, size.X, size.Y);
-                    #pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
-                    unsafe
-                    {
-                        fixed (RenderLayer* ptr = &renderLayer)
-                        {
-                            var drawList = ImGui.GetWindowDrawList();
-                            drawList.AddCallback((IntPtr)ptr, IntPtr.Zero);
-                        }
-                    }
-                    #pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
+                    var drawList = ImGui.GetWindowDrawList();
+                    drawList.AddCallback(GCHandle.ToIntPtr(renderLayerHandle), IntPtr.Zero);
                 }
                 ImGui.EndChild();
             }
         }
 
-        //public delegate void RenderDrawCallback(RenderDrawContext* context, ImDrawListPtr parentList, ImDrawCmdPtr drawCmd);
-
-        //// FunctionPointer
-        //delegate* <RenderDrawContext*, ImDrawListPtr, ImDrawCmdPtr, void> callback;
-
-        //// Function
-        //private static void DrawCore(RenderDrawContext* context, ImDrawListPtr parentList, ImDrawCmdPtr drawCmd)
-        //{
-        //}
+        public void Dispose()
+        {
+            renderLayerHandle.Free();
+        }
     }
 }
