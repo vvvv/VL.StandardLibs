@@ -342,7 +342,7 @@ namespace VL.ImGui
         {
             using (_context.MakeCurrent())
             {
-                _io.HandleNotification(notification, System.Numerics.Vector2.Zero);
+                _io.HandleNotification(notification);
 
                 foreach (var layer in _context.Layers)
                 {

@@ -56,6 +56,7 @@ namespace VL.ImGui
 
             int vtxOffset = 0;
             int idxOffset = 0;
+
             for (int n = 0; n < drawData.CmdListsCount; n++)
             {
                 ImDrawListPtr cmdList = drawData.CmdLists[n];
@@ -67,39 +68,41 @@ namespace VL.ImGui
                     if (cmd.UserCallback != IntPtr.Zero)
                     {
                         renderLayerHandle = GCHandle.FromIntPtr(cmd.UserCallback);
+
+                        // Callback is IGraphicsRenderBase
                         if (renderLayerHandle.Target is RenderLayer renderLayer)
                         {
-                            if (renderLayer?.Viewport != null && context != null)
+                            if (renderLayer.Viewport != null && context != null)
                             {
                                 var renderContext = context.RenderContext;
                                 
-                                using (renderContext.PushTagAndRestore(InputExtensions.WindowInputSource, lastInputSource))
                                 using (renderContext.SaveRenderOutputAndRestore())
                                 using (renderContext.SaveViewportAndRestore())
                                 {
-                                    context?.CommandList.SetViewport((Viewport)renderLayer.Viewport);
                                     var layer = renderLayer.Layer;
-                                    if (layer != null && layer is ImGuiRenderer renderer)
+                                    if (layer != null)
                                     {
-                                        renderer.Viewport = new Optional<Viewport>((Viewport)renderLayer.Viewport);
-                                        // TODO  Transform Notification
+                                        if (layer is ImGuiRenderer renderer)
+                                        {
+                                            renderer.ErrorImGuiInsideImGui();
+                                        }
+                                        else
+                                        {
+                                            context?.CommandList.SetViewport((Viewport)renderLayer.Viewport);
+                                            renderLayer.Layer?.Draw(context);
+                                            context?.CommandList.SetViewport(renderContext.ViewportState.Viewport0);
+                                        }
+
                                     }
-                                    renderLayer.Layer?.Draw(context);
-                                    context?.CommandList.SetViewport(renderContext.ViewportState.Viewport0);
                                 }
-                                
-                                
                             }
                         }
+                        // Callback is ILayer
                         else if (renderLayerHandle.Target is ILayer layer)
                         {
-                            var renderContext = context?.RenderContext;
-                            using (renderContext.PushTagAndRestore(InputExtensions.WindowInputSource, lastInputSource))
-                            {
-                                // TODO set DisplaySize Transform Notification
-                                skiaRenderer.Layer = layer;
-                                ((IGraphicsRendererBase)skiaRenderer).Draw(context);
-                            }
+                            var renderContext = context?.RenderContext;                       
+                            skiaRenderer.Layer = layer;
+                            ((IGraphicsRendererBase)skiaRenderer).Draw(context);
                         }
                     }
                     else

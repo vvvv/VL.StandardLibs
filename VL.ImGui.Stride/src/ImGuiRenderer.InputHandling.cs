@@ -23,8 +23,7 @@ namespace VL.ImGui
                 {
                     using (_context.MakeCurrent())
                     {
-                        System.Numerics.Vector2 position = new System.Numerics.Vector2(Viewport.HasValue ? Viewport.Value.X : 0, Viewport.HasValue ? Viewport.Value.Y : 0);
-                        _io.HandleNotification(notification, position);
+                        _io.HandleNotification(notification);
                     }
                 });
         }

@@ -38,7 +38,7 @@ namespace VL.ImGui
             //style.ScaleAllSizes(scale);
         }
 
-        public static void HandleNotification(this ImGuiIOPtr _io ,INotification notification, Vector2 position)
+        public static void HandleNotification(this ImGuiIOPtr _io ,INotification notification)
         {
             if (notification is KeyNotification keyNotification)
             {
@@ -74,7 +74,7 @@ namespace VL.ImGui
 
                 // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
                 var pos = mouseNotification.Position;
-                _io.AddMousePosEvent(pos.X - position.X, pos.Y - position.Y);
+                _io.AddMousePosEvent(pos.X, pos.Y);
 
                 switch (mouseNotification.Kind)
                 {

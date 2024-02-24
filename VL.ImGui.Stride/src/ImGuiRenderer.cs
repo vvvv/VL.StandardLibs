@@ -15,7 +15,7 @@ using VL.Stride.Input;
 using System.Reactive.Disposables;
 using VL.Lib.Basics.Resources;
 using System.Runtime.InteropServices;
-using VL.Skia;
+
 
 namespace VL.ImGui
 {
@@ -41,7 +41,6 @@ namespace VL.ImGui
         
 
         // ImGui
-        internal Optional<Viewport> Viewport;
         private readonly ImGuiIOPtr _io;
         private readonly StrideContext _context;
         private ImDrawDataPtr _drawDataPtr;
@@ -74,9 +73,14 @@ namespace VL.ImGui
         //Skia 
         private readonly SkiaRenderer skiaRenderer;
 
+        //VL 
+        NodeContext nodeContext;
 
-        public unsafe ImGuiRenderer(CustomDrawEffect drawEffect)
+
+        public unsafe ImGuiRenderer(CustomDrawEffect drawEffect, NodeContext nodeContext)
         {
+            this.nodeContext = nodeContext;
+
             skiaRenderer = new SkiaRenderer();
             skiaRenderer.Space = VL.Skia.CommonSpace.DIPTopLeft;
 
@@ -195,7 +199,7 @@ namespace VL.ImGui
                 _io.DisplayFramebufferScale = new System.Numerics.Vector2(1.0f, 1.0f);
                 _io.DeltaTime = (float)context.RenderContext.Time.TimePerFrame.TotalSeconds;
                 
-                projMatrix = Viewport.HasValue ? Matrix.OrthoRH(Viewport.Value.Width, -Viewport.Value.Height, -1, 1) : Matrix.OrthoRH(renderTarget.Width, -renderTarget.Height, -1, 1);
+                projMatrix = Matrix.OrthoRH(renderTarget.Width, -renderTarget.Height, -1, 1);
 
                 var inputSource = context.RenderContext.GetWindowInputSource();
                 if (inputSource != lastInputSource)
@@ -259,8 +263,25 @@ namespace VL.ImGui
             RenderDrawLists(context, _drawDataPtr);
         }
 
+        private readonly CompositeDisposable errorImGuiInsideImGui = new CompositeDisposable();
+        internal void ErrorImGuiInsideImGui()
+        {
+            if (IVLRuntime.Current != null)
+            {
+                if (errorImGuiInsideImGui.Count == 0)
+                {
+                    foreach (var id in nodeContext.Path.Stack.SkipLast(1))
+                    {
+                        errorImGuiInsideImGui.Add(IVLRuntime.Current.AddPersistentMessage(new Lang.Message(id, Lang.MessageSeverity.Error, "Don't use ImGui[Renderer] inside ImGui[Renderer]")));
+                    }
+                } 
+            }   
+        }
+
         protected override void Destroy()
         {
+            errorImGuiInsideImGui.Dispose(); ;
+
             skiaRenderer.Dispose();
 
             imPipeline.Dispose();
