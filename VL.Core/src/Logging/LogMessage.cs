@@ -43,7 +43,8 @@ namespace VL.Core.Logging
         {
             get
             {
-                var newLineIndex = Message.IndexOf(Environment.NewLine);
+                // Tests for both Unix (\n) and Non-unix (\r\n)
+                var newLineIndex = Message.IndexOf('\n');
                 if (newLineIndex > 0)
                     return Message.Substring(0, newLineIndex);
 
