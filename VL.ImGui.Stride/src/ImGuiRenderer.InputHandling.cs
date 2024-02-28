@@ -4,6 +4,7 @@ using Stride.Rendering;
 using System;
 using System.Reactive.Disposables;
 using VL.Stride;
+using VL.Skia;
 
 namespace VL.ImGui
 {
@@ -24,6 +25,14 @@ namespace VL.ImGui
                     using (_context.MakeCurrent())
                     {
                         _io.HandleNotification(notification);
+
+                        foreach (var layer in _context.Layers)
+                        {
+                            foreach(var caller in callerInfos.Values)
+                            {
+                                layer.Notify(notification, caller);
+                            }
+                        }
                     }
                 });
         }

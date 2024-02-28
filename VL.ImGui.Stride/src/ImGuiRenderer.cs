@@ -15,14 +15,20 @@ using VL.Stride.Input;
 using System.Reactive.Disposables;
 using VL.Lib.Basics.Resources;
 using System.Runtime.InteropServices;
+using VL.Skia;
+using VL.Lib.IO.Notifications;
+using SkiaSharp;
+using System.Reflection.Metadata.Ecma335;
+using System.Collections.Concurrent;
+using Stride.Core.Diagnostics;
 
 
 namespace VL.ImGui
 {
     using ImGui = ImGuiNET.ImGui;
     using SkiaRenderer = VL.Stride.SkiaRenderer;
-
-    public partial class ImGuiRenderer : RendererBase, IDisposable
+    using CallerInfo = VL.Skia.CallerInfo;
+    public partial class ImGuiRenderer : RendererBase, IDisposable, ILayer
     {
         const int INITIAL_VERTEX_BUFFER_SIZE = 128;
         const int INITIAL_INDEX_BUFFER_SIZE = 128;
@@ -36,6 +42,7 @@ namespace VL.ImGui
         GraphicsContext graphicsContext => GraphicsContextHandle.Resource;
         InputManager input => inputHandle.Resource;
 
+        public RectangleF? Bounds => throw new NotImplementedException();
 
         CommandList commandList;
         
@@ -72,6 +79,7 @@ namespace VL.ImGui
 
         //Skia 
         private readonly SkiaRenderer skiaRenderer;
+        private readonly WithWindowInputSource skiaInput;
 
         //VL 
         NodeContext nodeContext;
@@ -83,6 +91,9 @@ namespace VL.ImGui
 
             skiaRenderer = new SkiaRenderer();
             skiaRenderer.Space = VL.Skia.CommonSpace.DIPTopLeft;
+
+            skiaInput = new WithWindowInputSource();
+            skiaInput.Input = skiaRenderer;
 
             deviceHandle = AppHost.Current.Services.GetDeviceHandle();
             GraphicsContextHandle = AppHost.Current.Services.GetGraphicsContextHandle();
@@ -259,7 +270,9 @@ namespace VL.ImGui
                 _drawDataPtr = ImGui.GetDrawData();
             }
 
-            imShader.SetParameters(context.RenderContext.RenderView, context);
+            skiaRenderer.Layer = this;
+            skiaRenderer.Draw(context);
+
             RenderDrawLists(context, _drawDataPtr);
         }
 
@@ -299,6 +312,36 @@ namespace VL.ImGui
             textureHandle.Free();
 
             base.Destroy();
+        }
+
+        ConcurrentDictionary<SKRectI, CallerInfo> callerInfos = new ConcurrentDictionary<SKRectI, CallerInfo>();
+        //HashSet<CallerInfo> callerInfos2 = new HashSet<CallerInfo>(new CallerInfoComparer());
+
+        public void Render(CallerInfo caller)
+        {
+            //callerInfos2.Add(caller);
+            callerInfos.AddOrUpdate(caller.Canvas.DeviceClipBounds, caller, (gr, c) => caller);
+        }
+
+
+
+        public bool Notify(INotification notification, CallerInfo caller)
+        {
+            return false;
+        }
+    }
+    public class CallerInfoComparer : IEqualityComparer<CallerInfo>
+    {
+        public bool Equals(CallerInfo one, CallerInfo two)
+        {
+            // Adjust according to requirements.
+            return one.Canvas.DeviceClipBounds.Equals(two.Canvas.DeviceClipBounds);
+        }
+
+        public int GetHashCode(CallerInfo item)
+        {
+            return item.GetHashCode();
+
         }
     }
 }

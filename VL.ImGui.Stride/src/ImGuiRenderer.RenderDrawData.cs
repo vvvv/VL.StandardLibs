@@ -100,9 +100,11 @@ namespace VL.ImGui
                         // Callback is ILayer
                         else if (renderLayerHandle.Target is ILayer layer)
                         {
-                            var renderContext = context?.RenderContext;                       
+                            skiaInput.InputSource = context?.RenderContext.GetWindowInputSource();
                             skiaRenderer.Layer = layer;
-                            ((IGraphicsRendererBase)skiaRenderer).Draw(context);
+
+                            skiaInput.Draw(context);
+                            //skiaRenderer.Draw(context);
                         }
                     }
                     else
@@ -137,6 +139,7 @@ namespace VL.ImGui
                                 )
                             );
 
+                            imShader.SetParameters(context.RenderContext.RenderView, context);
                             imShader.Parameters.Set(ImGuiShader_DrawFXKeys.tex, tex);
                             imShader.Parameters.Set(ImGuiShader_DrawFXKeys.proj, ref projMatrix);
                             imShader.EffectInstance.Apply(graphicsContext);
