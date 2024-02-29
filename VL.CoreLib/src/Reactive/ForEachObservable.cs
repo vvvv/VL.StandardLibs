@@ -25,8 +25,7 @@ namespace VL.Lib.Reactive
     public class ForEach<TState, TIn, TOut> : ObservableInputBase<TIn>, ISwappableGenericType, IFeedState
        where TState : class
     {
-        //[HotSwap] //this resulted in alive subscriptions after hot swap in midi OutputDevice that could not be removed
-        Subject<TOut> FSubject = new Subject<TOut>();
+        ReplaySubject<TOut> FSubject = CreateSubject();
         bool FShouldReset;
         Func<TState> FCreator;
         Func<TState, TIn, Tuple<TState, TOut>> FUpdater;
@@ -74,7 +73,7 @@ namespace VL.Lib.Reactive
         {
             FSubject.OnCompleted();
             FSubject.Dispose();
-            FSubject = new Subject<TOut>();
+            FSubject = CreateSubject();
             base.OnCompleted();
         }
 
@@ -100,6 +99,8 @@ namespace VL.Lib.Reactive
         {
             FState = (TState)newState;
         }
+
+        private static ReplaySubject<TOut> CreateSubject() => new ReplaySubject<TOut>(bufferSize: 1);
     }
 
     /// <summary>
@@ -112,8 +113,7 @@ namespace VL.Lib.Reactive
     public class ForEachKeep<TState, TIn, TOut> : ObservableInputBase<TIn>, ISwappableGenericType, IFeedState
        where TState : class
     {
-        //[HotSwap] //this resulted in alive subscriptions after hot swap in midi OutputDevice that could not be removed
-        Subject<TOut> FSubject = new Subject<TOut>();
+        ReplaySubject<TOut> FSubject = CreateSubject();
         bool FShouldReset;
         Func<TState> FCreator;
         Func<TState, TIn, Tuple<TState, TOut, bool>> FUpdater;
@@ -161,7 +161,7 @@ namespace VL.Lib.Reactive
         {
             FSubject.OnCompleted();
             FSubject.Dispose();
-            FSubject = new Subject<TOut>();
+            FSubject = CreateSubject();
             base.OnCompleted();
         }
 
@@ -187,5 +187,7 @@ namespace VL.Lib.Reactive
         {
             FState = (TState)newState;
         }
+
+        private static ReplaySubject<TOut> CreateSubject() => new ReplaySubject<TOut>(bufferSize: 1);
     }
 }

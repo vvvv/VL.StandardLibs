@@ -18,7 +18,7 @@ namespace VL.Lib.Reactive
         where TState : class
     {
         const int Timeout = 1000;
-        readonly Subject<TOut> FSubject = new Subject<TOut>();
+        readonly ReplaySubject<TOut> FSubject = new ReplaySubject<TOut>(bufferSize: 1);
         TState FState;
         bool FShouldRun = true;
         Func<TState> FCreate;

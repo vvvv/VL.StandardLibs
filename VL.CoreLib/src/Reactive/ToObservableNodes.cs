@@ -4,55 +4,34 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading;
 using VL.Core;
-using VL.Lib.Collections;
 
 namespace VL.Lib.Reactive
 {
     public abstract class ToObservableBase<TObservable, TMessage> : IDisposable
     {
-        readonly Subject<TObservable> FSubject;
+        readonly ReplaySubject<TObservable> FSubject = new ReplaySubject<TObservable>(bufferSize: 1);
         readonly IObservable<TObservable> FOutput;
-        int FUpdateCount;
-        bool FHasPendingMessage;
-        TMessage FPendingMessage;
 
         public ToObservableBase()
         {
-            FSubject = new Subject<TObservable>();
             FOutput = Observable.Create<TObservable>(observer =>
             {
                 var subscription = FSubject.Subscribe(observer);
-                // If update has been called only once so far send the pending message
-                if (FUpdateCount == 1 && FHasPendingMessage)
-                {
-                    OnNext(observer, FPendingMessage);
-                }
                 return subscription;
             });
         }
 
         public virtual IObservable<TObservable> Update(TMessage message, bool send)
         {
-            var updateCount = Interlocked.Increment(ref FUpdateCount);
-
             if (send && !FSubject.IsDisposed)
             {
-                // If we're in the first update just store the message and send on subscription in same frame
-                if (updateCount > 1)
-                    OnNext(FSubject, message);
-                else
-                {
-                    FPendingMessage = Store(message);
-                    FHasPendingMessage = true;
-                }
+                OnNext(FSubject, message);
             }
 
             return FOutput;
         }
 
-        protected abstract TMessage Store(TMessage message);
         protected abstract void OnNext(IObserver<TObservable> subject, TMessage message);
 
         public void Dispose()
@@ -75,11 +54,6 @@ namespace VL.Lib.Reactive
         protected override void OnNext(IObserver<T> subject, T message)
         {
             subject.OnNext(message);
-        }
-
-        protected override T Store(T message)
-        {
-            return message;
         }
     }
 
@@ -235,11 +209,6 @@ namespace VL.Lib.Reactive
         {
             foreach (var m in message)
                 subject.OnNext(m);
-        }
-
-        protected override IEnumerable<T> Store(IEnumerable<T> message)
-        {
-            return message.ToSpread();
         }
     }
 }
