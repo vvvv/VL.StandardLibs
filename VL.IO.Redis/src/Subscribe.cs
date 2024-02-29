@@ -40,10 +40,10 @@ namespace VL.IO.Redis
             RedisClient? client,
             string? redisChannel,
             RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto,
-            SerializationFormat? serializationFormat = default,
+            Optional<SerializationFormat> serializationFormat = default,
             bool processMessagesConcurrently = false)
         {
-            var config = new Config(client, redisChannel, pattern, serializationFormat, processMessagesConcurrently);
+            var config = new Config(client, redisChannel, pattern, serializationFormat.ToNullable(), processMessagesConcurrently);
             if (config != _config)
             {
                 _config = config;

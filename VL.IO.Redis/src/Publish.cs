@@ -38,9 +38,9 @@ namespace VL.IO.Redis
             string? redisChannel, 
             IObservable<T>? input, 
             RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto, 
-            SerializationFormat? serializationFormat = default)
+            Optional<SerializationFormat> serializationFormat = default)
         {
-            var config = (client, redisChannel, input, pattern, serializationFormat);
+            var config = (client, redisChannel, input, pattern, format: serializationFormat.ToNullable());
             if (config == _config)
                 return;
 
@@ -56,7 +56,7 @@ namespace VL.IO.Redis
                 {
                     var subscriber = client.GetSubscriber();
                     var channel = new RedisChannel(redisChannel, pattern);
-                    var value = client.Serialize(v, serializationFormat);
+                    var value = client.Serialize(v, config.format);
                     subscriber.Publish(channel, value, CommandFlags.FireAndForget);
                 }
                 catch (Exception e)
