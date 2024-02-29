@@ -13,7 +13,7 @@ namespace VL.IO.Redis
     /// Subcribe to receive value changes on a specified Redis Channel
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    [ProcessNode(Name = "Subscribe")]
+    [ProcessNode]
     public class Subscribe<T> : IDisposable
     {
         private readonly SerialDisposable _subscription = new();

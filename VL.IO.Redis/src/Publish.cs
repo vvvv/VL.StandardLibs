@@ -13,8 +13,7 @@ namespace VL.IO.Redis
     /// Publish a message on a specified Redis Channel. The Message will not saved in the database!
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    // TODO: Fix node name - has stupid `1 inside!
-    [ProcessNode(Name = "Publish")]
+    [ProcessNode]
     public class Publish<T> : IDisposable
     {
         private readonly SerialDisposable _subscription = new();
