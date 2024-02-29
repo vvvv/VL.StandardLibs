@@ -9,6 +9,10 @@ using VL.Model;
 
 namespace VL.IO.Redis
 {
+    /// <summary>
+    /// Publish a message on a specified Redis Channel. The Message will not saved in the database!
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     // TODO: Fix node name - has stupid `1 inside!
     [ProcessNode(Name = "Publish")]
     public class Publish<T> : IDisposable

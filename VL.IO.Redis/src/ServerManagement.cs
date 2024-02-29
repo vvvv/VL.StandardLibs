@@ -6,6 +6,14 @@ namespace VL.IO.Redis
 {
     public static class ServerManagement
     {
+        /// <summary>
+        /// Deletes a key from the database
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="key"></param>
+        /// <param name="apply"></param>
+        /// <param name="success"></param>
+        /// <returns></returns>
         public static RedisClient? DeleteKey(this RedisClient? client, string? key, bool apply, out bool success)
         {
             success = false;
@@ -18,6 +26,12 @@ namespace VL.IO.Redis
             return client;
         }
 
+        /// <summary>
+        /// Removes all keys from the database
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="apply"></param>
+        /// <returns></returns>
         public static RedisClient? FlushDB(this RedisClient? client, bool apply)
         {
             if (!apply || client is null)
@@ -31,7 +45,9 @@ namespace VL.IO.Redis
 
             return client;
         }
-
+        /// <summary>
+        /// Returns keys available in the database
+        /// </summary>
         [ProcessNode(Name = "Scan")]
         public class ScanNode
         {

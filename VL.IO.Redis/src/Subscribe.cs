@@ -9,6 +9,10 @@ using VL.Model;
 
 namespace VL.IO.Redis
 {
+    /// <summary>
+    /// Subcribe to receive value changes on a specified Redis Channel
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [ProcessNode(Name = "Subscribe")]
     public class Subscribe<T> : IDisposable
     {

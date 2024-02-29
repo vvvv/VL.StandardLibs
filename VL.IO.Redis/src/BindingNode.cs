@@ -9,6 +9,9 @@ using Microsoft.Extensions.Logging;
 
 namespace VL.IO.Redis
 {
+    /// <summary>
+    /// Binds a Channel to a key in a Redis database
+    /// </summary>
     [ProcessNode(Name = "Binding")]
     public class BindingNode : IDisposable
     {
@@ -28,10 +31,10 @@ namespace VL.IO.Redis
 
         public void Update(
             RedisClient? client, 
-            IChannel? channel, 
             string? key,
-            Initialization initialization = Initialization.Redis,
+            IChannel? channel, 
             RedisBindingType bindingType = RedisBindingType.SendAndReceive,
+            Initialization initialization = Initialization.Redis,
             CollisionHandling collisionHandling = default,
             Optional<SerializationFormat> serializationFormat = default,
             Optional<TimeSpan> expiry = default)
