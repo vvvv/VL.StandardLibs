@@ -24,6 +24,9 @@ using VL.Serialization.Raw;
 namespace VL.IO.Redis
 {
     // TODO: We want to hide the operations of this class
+    /// <summary>
+    /// Sets up a connection to a database on a Redis server
+    /// </summary>
     public class RedisClient : IDisposable
     {
         private readonly TransactionBuilder _transactionBuilder = new();

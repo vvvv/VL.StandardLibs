@@ -2,10 +2,12 @@
 // This class should be kept internal
 
 using System;
+using System.Reactive.Disposables;
 using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Games;
 using Stride.Graphics;
+using VL.Core.Utils;
 
 namespace VL.Stride.Games
 {
@@ -14,6 +16,7 @@ namespace VL.Stride.Games
     /// </summary>
     public class GameWindowRenderer : GameSystemBase
     {
+        private readonly SerialDisposable FDarkModeSubscription = new();
         private GraphicsPresenter savedPresenter;
         private bool beginDrawOk;
 
@@ -27,6 +30,7 @@ namespace VL.Stride.Games
         {
             GameContext = gameContext;
             WindowManager = new GameWindowRendererManager();
+            FDarkModeSubscription.DisposeBy(this);
         }
 
         /// <summary>
@@ -64,7 +68,9 @@ namespace VL.Stride.Games
             Window.SetSize(new Int2(WindowManager.PreferredBackBufferWidth, WindowManager.PreferredBackBufferHeight));
 
             Window.Visible = true;
-            
+
+            FDarkModeSubscription.Disposable = DarkTitleBarClass.Install(Window.NativeWindow.Handle);
+
 
             base.Initialize();
         }

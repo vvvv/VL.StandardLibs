@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("VL.AppServices")]
 [assembly: InternalsVisibleTo("VL.Lang")]
 [assembly: InternalsVisibleTo("VL.HDE")]
+[assembly: InternalsVisibleTo("VL.UI.Core")]
 [assembly: InternalsVisibleTo("VL.UI.Forms")]
 [assembly: InternalsVisibleTo("VL.TestLib")]
 [assembly: InternalsVisibleTo("VL.TestFramework")]
