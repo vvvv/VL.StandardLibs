@@ -12,6 +12,9 @@ using VL.Model;
 
 namespace VL.IO.Redis
 {
+    /// <summary>
+    /// Sets up a connection to a database on a Redis server
+    /// </summary>
     [ProcessNode(Name = "RedisClient")]
     public sealed class RedisClientManager : IDisposable
     {
