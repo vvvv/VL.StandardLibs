@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="KPihB9f6ruzPjwBk4enmNm" LanguageVersion="2024.6.0-0211-ga7213b5ca3" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="KPihB9f6ruzPjwBk4enmNm" LanguageVersion="2024.6.0-0216-g3e1d2d2ab3" Version="0.128">
   <NugetDependency Id="E0Ruoyyr69YLEosglyzAuA" Location="VL.CoreLib" Version="2023.5.3-0164-g883a868a2e" />
   <Patch Id="D0qe4WFgAj3QN2GSaSZhvs">
     <Canvas Id="ELDkzj4gv8iMFmeQhbqUrW" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -79,10 +79,9 @@
             <Pin Id="Vjlc3YxCvHZPC2ww4h0DCl" Name="Client" Kind="InputPin" />
             <Pin Id="BcQ23q1qCoON8lER1l63aZ" Name="Redis Channel" Kind="InputPin" />
             <Pin Id="H2rbIzD1S7LNIDlUBlO6ys" Name="Input" Kind="InputPin" />
-            <Pin Id="QBFpWzeMvi3N6NNukiA5wh" Name="Pattern" Kind="InputPin" />
             <Pin Id="FJCWw8DVwjFPeln9MuzVzq" Name="Serialization Format" Kind="InputPin" />
           </Node>
-          <Node Bounds="123,423,85,19" Id="De10HL4CoDhNGoky4xMkKF">
+          <Node Bounds="123,423,60,19" Id="De10HL4CoDhNGoky4xMkKF">
             <p:NodeReference LastCategoryFullName="V.IO.Redis" LastDependency="VL.IO.Redis.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="IO" />
@@ -92,12 +91,10 @@
             <Pin Id="OvkjleNBA7yO9lzeuA5CcV" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="OiI3Pn88hvdMdQwjQ1hpvS" Name="Client" Kind="InputPin" />
             <Pin Id="HiEjQfmeC2bNIjirHmCF1K" Name="Redis Channel" Kind="InputPin" />
-            <Pin Id="A7xAkn9p2oZQdpSrRq4prm" Name="Pattern" Kind="InputPin" />
             <Pin Id="KAZ8KxVLdSZPepUTkYesrc" Name="Serialization Format" Kind="InputPin" />
-            <Pin Id="LO8LLHsfdwHL4FxfgB8SYM" Name="Process Messages Concurrently" Kind="InputPin" />
             <Pin Id="RyAMr1VbkIuLCKmpHGKuDu" Name="Output" Kind="OutputPin" />
           </Node>
-          <Overlay Id="DKxwrIzhicVPZL2PXBE3sS" Name="The Nodeset" Bounds="98,197,573,282">
+          <Overlay Id="DKxwrIzhicVPZL2PXBE3sS" Name="The Nodeset" Bounds="98,197,573,344">
             <p:ColorIndex p:Type="Int32">0</p:ColorIndex>
           </Overlay>
           <Pad Id="F2Q4iaQWDr8LZTAxQCQ5wG" Bounds="289,256,345,19" ShowValueBox="true" isIOBox="true" Value="&lt; Sets up a connection to a database on a Redis server">
@@ -127,7 +124,27 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="GtyB5oKnbbtP5FDbNMhZJH" Bounds="289,428,337,38" ShowValueBox="true" isIOBox="true" Value="&lt; Subcribe to receive value changes on a specified Redis Channel">
+          <Pad Id="GtyB5oKnbbtP5FDbNMhZJH" Bounds="289,428,337,38" ShowValueBox="true" isIOBox="true" Value="&lt; Subscribe to receive value changes on a specified Redis Channel">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="124,473,60,19" Id="V4sWDilLKXSL7F3gpWkSYN">
+            <p:NodeReference LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Subscribe (Pattern)" />
+            </p:NodeReference>
+            <Pin Id="Tq4yfyRRZ5MMH6tRuuPUUO" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="SDT0Ir0pRWeQMCQD5ca7ei" Name="Client" Kind="InputPin" />
+            <Pin Id="EnaqpXwdJPJL2sWAHnnwH2" Name="Pattern" Kind="InputPin" />
+            <Pin Id="P4MCGcTL93oMbhF7dwYfB0" Name="Serialization Format" Kind="InputPin" />
+            <Pin Id="GUfShCtPXvyLurghuTBH9y" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="DCgyheoK3bxO421wA1p6f7" Bounds="289,484,306,42" ShowValueBox="true" isIOBox="true" Value="&lt; Subscribe using a glob-style pattern to receive value changes from a range of Redis channels">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>

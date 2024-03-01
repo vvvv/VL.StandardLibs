@@ -10,7 +10,7 @@ using VL.Model;
 namespace VL.IO.Redis
 {
     /// <summary>
-    /// Subcribe to receive value changes from a range of Redis channels
+    /// Subscribe using a glob-style pattern to receive value changes from a range of Redis channels
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [ProcessNode(Name = "Subscribe (Pattern)")]
