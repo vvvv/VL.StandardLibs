@@ -32,36 +32,43 @@ namespace VL.IO.Redis
             _subscription.Dispose();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="channel">Name of the Redis channel</param>
+        /// <param name="input"></param>
+        /// <param name="serializationFormat"></param>
         public void Update(
             RedisClient? client, 
-            string? redisChannel, 
+            string? channel, 
             IObservable<T>? input, 
             Optional<SerializationFormat> serializationFormat = default)
         {
-            var config = (client, redisChannel, input, format: serializationFormat.ToNullable());
+            var config = (client, channel, input, format: serializationFormat.ToNullable());
             if (config == _config)
                 return;
 
             _config = config;
             _subscription.Disposable = null;
 
-            if (client is null || redisChannel is null || input is null)
+            if (client is null || channel is null || input is null)
                 return;
 
-            _subscription.Disposable = input.Subscribe(v =>
+            _subscription.Disposable = input.Subscribe((Action<T>)(v =>
             {
                 try
                 {
                     var subscriber = client.GetSubscriber();
-                    var channel = new RedisChannel(redisChannel, RedisChannel.PatternMode.Literal);
-                    var value = client.Serialize(v, config.format);
-                    subscriber.Publish(channel, value, CommandFlags.FireAndForget);
+                    var redisChannel = new RedisChannel((string)channel, RedisChannel.PatternMode.Literal);
+                    var value = client.Serialize<T>(v, config.format);
+                    subscriber.Publish(redisChannel, value, CommandFlags.FireAndForget);
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Exception while publishing.");
                 }
-            });
+            }));
         }
     }
 }

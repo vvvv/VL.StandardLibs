@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="Oqv0uJWVR9lLRT3kXu3FqT" LanguageVersion="2024.6.0-0211-ga7213b5ca3" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="Oqv0uJWVR9lLRT3kXu3FqT" LanguageVersion="2024.6.0-0222-g10ed79c05f" Version="0.128">
   <NugetDependency Id="E0Ruoyyr69YLEosglyzAuA" Location="VL.CoreLib" Version="2023.5.3-0164-g883a868a2e" />
   <Patch Id="D0qe4WFgAj3QN2GSaSZhvs">
     <Canvas Id="ELDkzj4gv8iMFmeQhbqUrW" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -44,8 +44,8 @@
             <Pin Id="L8XHdx2pKeiLF4iO7JT0XX" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="LUVSS6mbeEWLRKyAPDGNWW" Name="Client" Kind="InputPin" />
             <Pin Id="QEL5a08Hj4dNqDWut7DPhr" Name="Key" Kind="InputPin" />
-            <Pin Id="TTBYGFCVnyzO2HS6AmkopV" Name="Channel" Kind="InputPin" />
-            <Pin Id="A1cbfcG0LTEOg0q9MPe3OJ" Name="Binding Type" Kind="InputPin" />
+            <Pin Id="DD2S2AuEuJfMjiDmTRAAfn" Name="Input" Kind="InputPin" />
+            <Pin Id="GUuKnXydrSrLHS4gefntEp" Name="Binding Direction" Kind="InputPin" />
             <Pin Id="ArGI57M5yXcNI30gQc31W3" Name="Initialization" Kind="InputPin" />
             <Pin Id="Vnb5e9zqAMbQaEF4DYs4oX" Name="Collision Handling" Kind="InputPin" />
             <Pin Id="GC8Fkv74bBRNahXoHRAJVw" Name="Serialization Format" Kind="InputPin" />
@@ -94,11 +94,6 @@
               <Choice Kind="TypeFlag" Name="Initialization" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="TSHKMEYEJJONRfCNm2b2St" Comment="Binding Type" Bounds="154,590,102,15" ShowValueBox="true" isIOBox="true" Value="SendAndReceive">
-            <p:TypeAnnotation LastCategoryFullName="V.IO.Redis" LastDependency="VL.IO.Redis.vl">
-              <Choice Kind="TypeFlag" Name="RedisBindingType" />
-            </p:TypeAnnotation>
-          </Pad>
           <Pad Id="QFTCUOGoF48Pg533yhJaWi" Comment="Collision Handling" Bounds="194,634,74,15" ShowValueBox="true" isIOBox="true" Value="RedisWins">
             <p:TypeAnnotation LastCategoryFullName="V.IO.Redis" LastDependency="VL.IO.Redis.vl">
               <Choice Kind="TypeFlag" Name="CollisionHandling" />
@@ -115,7 +110,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="SgEq73m6VvlNhyHMJtHJBz" Bounds="428,328,449,503" ShowValueBox="true" isIOBox="true" Value="Key: The key under which the value is stored in the database&#xD;&#xA;&#xD;&#xA;Binding Type: &#xD;&#xA;- None: Neither read from nor write to the database&#xD;&#xA;- Send: Write only, never read from the database&#xD;&#xA;- Receive: Read only, never write to the database&#xD;&#xA;- SendAndReceive: Read and write&#xD;&#xA;- AlwaysReceive: Read the value every frame disregarding caching&#xD;&#xA;&#xD;&#xA;Initialization: The behavior in the first frame after the server connects. &#xD;&#xA;- None: Neither read from nor write to the database&#xD;&#xA;- Local: Write the local value to the database (if binding type allows)&#xD;&#xA;- Redis: The channel gets the value stored in the database (if binding type allows)&#xD;&#xA;&#xD;&#xA;Collision Handling:&#xD;&#xA;Only relevant for BindingType &quot;SendAndReceive&quot;: What happens if a change is detected locally and in the database at the same time:&#xD;&#xA;- LocalWins: The channels value is written to the database&#xD;&#xA;- RedisWins: The channel is overwritten with the value of the database&#xD;&#xA;&#xD;&#xA;Serialization Format: Allows to override the default format specified on the RedisClient node&#xD;&#xA;&#xD;&#xA;Expiry: Allows to set a time that specifies how long a key is valid. If a key that is read has already expired, nothing is returned">
+          <Pad Id="SgEq73m6VvlNhyHMJtHJBz" Bounds="428,328,449,503" ShowValueBox="true" isIOBox="true" Value="Key: The key under which the value is stored in the database&#xD;&#xA;&#xD;&#xA;Binding Direction: &#xD;&#xA;- In: Read only, never write to the database&#xD;&#xA;- Out: Write only, never read from the database&#xD;&#xA;- InOut: Read and write&#xD;&#xA;&#xD;&#xA;Initialization: The behavior in the first frame after the server connects. &#xD;&#xA;- None: Neither read from nor write to the database&#xD;&#xA;- Local: Write the local value to the database (if binding type allows)&#xD;&#xA;- Redis: The channel gets the value stored in the database (if binding type allows)&#xD;&#xA;&#xD;&#xA;Collision Handling:&#xD;&#xA;Only relevant for BindingType &quot;SendAndReceive&quot;: What happens if a change is detected locally and in the database at the same time:&#xD;&#xA;- LocalWins: The channels value is written to the database&#xD;&#xA;- RedisWins: The channel is overwritten with the value of the database&#xD;&#xA;&#xD;&#xA;Serialization Format: Allows to override the default format specified on the RedisClient node&#xD;&#xA;&#xD;&#xA;Expiry: Allows to set a time that specifies how long a key is valid. If a key that is read has already expired, nothing is returned">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -133,6 +128,11 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
+          <Pad Id="EY2cY9D5E7hN2GoF3hb0sJ" Comment="Binding Direction" Bounds="154,586,49,15" ShowValueBox="true" isIOBox="true" Value="InOut">
+            <p:TypeAnnotation LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="TypeFlag" Name="BindingDirection" />
+            </p:TypeAnnotation>
+          </Pad>
         </Canvas>
         <Patch Id="E9FmPDA2rgkMCqf2w5riEi" Name="Create" />
         <Patch Id="IlztFaGX1NgMWyi3F4mm0s" Name="Update" />
@@ -144,12 +144,12 @@
         <Link Id="AtIkSVdECPUM578rjDlsqk" Ids="VZVPN6vUTI8QSzPcDQfsC2,VkxYPW0izmRP3ewatTufIQ" />
         <Link Id="T8OdLdlr0krMackgxrTTmU" Ids="UweVMGCxlBkQYJhi5wiS4c,QEL5a08Hj4dNqDWut7DPhr" />
         <Link Id="RPtvMlaedVpLklz8FoSRj5" Ids="QzLGGaDPJdpPJwFRdsWG1H,ArGI57M5yXcNI30gQc31W3" />
-        <Link Id="Pwa46hGdtTdOCvqPRJ8GZl" Ids="TSHKMEYEJJONRfCNm2b2St,A1cbfcG0LTEOg0q9MPe3OJ" />
         <Link Id="B1w0v6dBAUiPSnBOwOrZkJ" Ids="QFTCUOGoF48Pg533yhJaWi,Vnb5e9zqAMbQaEF4DYs4oX" />
-        <Link Id="NGchMeUvzYoPyvhVRwpv2E" Ids="ND7i5xFqefyNSbkhvbvMXy,TTBYGFCVnyzO2HS6AmkopV" />
         <Link Id="VW2nMLqbUZBNIlM99aWFwd" Ids="VOuNBmnbslDMt3KOWp8JXD,C3erQgpvXJoPLKwWQSuRJR" />
         <Link Id="HFUyaiJEw1IPe9Q57b5iOU" Ids="SdOkvM5Qp7JMZMY1EkYRc0,LUVSS6mbeEWLRKyAPDGNWW" />
         <Link Id="K6GRJjwmxaOPO7zVY7GaY3" Ids="VkxYPW0izmRP3ewatTufIQ,BaBLl8MgbUKPyKOrlcPWsm" />
+        <Link Id="Lr3u0LEtG0ZOekYVyY2Zas" Ids="ND7i5xFqefyNSbkhvbvMXy,DD2S2AuEuJfMjiDmTRAAfn" />
+        <Link Id="Nxf75NczezpNRa7lsyHbAU" Ids="EY2cY9D5E7hN2GoF3hb0sJ,GUuKnXydrSrLHS4gefntEp" />
       </Patch>
     </Node>
   </Patch>
