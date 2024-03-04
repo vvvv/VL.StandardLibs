@@ -52,23 +52,23 @@ namespace VL.IO.Redis
             _config = config;
             _subscription.Disposable = null;
 
-            if (client is null || channel is null || input is null)
+            if (client is null || string.IsNullOrEmpty(channel) || input is null)
                 return;
 
-            _subscription.Disposable = input.Subscribe((Action<T>)(v =>
+            _subscription.Disposable = input.Subscribe(v =>
             {
                 try
                 {
                     var subscriber = client.GetSubscriber();
-                    var redisChannel = new RedisChannel((string)channel, RedisChannel.PatternMode.Literal);
-                    var value = client.Serialize<T>(v, config.format);
+                    var redisChannel = new RedisChannel(channel, RedisChannel.PatternMode.Literal);
+                    var value = client.Serialize(v, config.format);
                     subscriber.Publish(redisChannel, value, CommandFlags.FireAndForget);
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Exception while publishing.");
                 }
-            }));
+            });
         }
     }
 }
