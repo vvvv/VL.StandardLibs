@@ -10,22 +10,22 @@ using VL.Model;
 namespace VL.IO.Redis
 {
     /// <summary>
-    /// Subscribe to receive value changes on a specified Redis Channel
+    /// Subscribe using a glob-style pattern to receive value changes from a range of Redis channels
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    [ProcessNode]
-    public class Subscribe<T> : IDisposable
+    [ProcessNode(Name = "Subscribe (Pattern)")]
+    public class SubscribePattern<T> : IDisposable
     {
         private readonly SerialDisposable _subscription = new();
-        private readonly Subject<T?> _subject = new();
+        private readonly Subject<ChannelMessage<T?>> _subject = new();
         private readonly ILogger _logger;
 
-        record struct Config(RedisClient? Client, string? Channel, SerializationFormat? Format, bool ProcessMessagesConcurrently);
+        record struct Config(RedisClient? Client, string? Pattern, SerializationFormat? Format, bool ProcessMessagesConcurrently);
 
         private Config _config;
 
         // TODO: For unit testing it would be nice to take the logger directly!
-        public Subscribe([Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext)
+        public SubscribePattern([Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext)
         {
             _logger = nodeContext.GetLogger();
         }
@@ -36,12 +36,12 @@ namespace VL.IO.Redis
         }
 
         [return: Pin(Name = "Output")]
-        public IObservable<T?> Update(
+        public IObservable<ChannelMessage<T?>> Update(
             RedisClient? client,
-            string? redisChannel,
+            string? pattern = null,
             Optional<SerializationFormat> serializationFormat = default)
         {
-            var config = new Config(client, redisChannel, serializationFormat.ToNullable(), ProcessMessagesConcurrently: false);
+            var config = new Config(client, pattern, serializationFormat.ToNullable(), ProcessMessagesConcurrently: false);
             if (config != _config)
             {
                 _config = config;
@@ -56,11 +56,11 @@ namespace VL.IO.Redis
             _subscription.Disposable = null;
 
             var client = config.Client;
-            if (client is null || config.Channel is null)
+            if (client is null || config.Pattern is null)
                 return;
 
             var subscriber = client.GetSubscriber();
-            var channel = new RedisChannel(config.Channel, RedisChannel.PatternMode.Literal);
+            var channel = new RedisChannel(config.Pattern, RedisChannel.PatternMode.Pattern);
 
             if (config.ProcessMessagesConcurrently)
             {
@@ -69,7 +69,7 @@ namespace VL.IO.Redis
                     try
                     {
                         var value = client.Deserialize<T>(redisValue, config.Format);
-                        _subject.OnNext(value);
+                        _subject.OnNext(new (redisChannel.ToString(), value));
                     }
                     catch (Exception e)
                     {
@@ -87,7 +87,7 @@ namespace VL.IO.Redis
                     {
                         var redisValue = channelMessage.Message;
                         var value = client.Deserialize<T>(redisValue, config.Format);
-                        _subject.OnNext(value);
+                        _subject.OnNext(new ChannelMessage<T?>(channelMessage.Channel.ToString(), value));
                     }
                     catch (Exception e)
                     {

@@ -13,14 +13,13 @@ namespace VL.IO.Redis
     /// Publish a message on a specified Redis Channel. The Message will not saved in the database!
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    // TODO: Fix node name - has stupid `1 inside!
-    [ProcessNode(Name = "Publish")]
+    [ProcessNode]
     public class Publish<T> : IDisposable
     {
         private readonly SerialDisposable _subscription = new();
         private readonly ILogger _logger;
 
-        private (RedisClient? client, string? redisChannel, IObservable<T>? value, RedisChannel.PatternMode pattern, SerializationFormat? format) _config;
+        private (RedisClient? client, string? redisChannel, IObservable<T>? value, SerializationFormat? format) _config;
 
         // TODO: For unit testing it would be nice to take the logger directly!
         public Publish([Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext)
@@ -37,10 +36,9 @@ namespace VL.IO.Redis
             RedisClient? client, 
             string? redisChannel, 
             IObservable<T>? input, 
-            RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto, 
-            SerializationFormat? serializationFormat = default)
+            Optional<SerializationFormat> serializationFormat = default)
         {
-            var config = (client, redisChannel, input, pattern, serializationFormat);
+            var config = (client, redisChannel, input, format: serializationFormat.ToNullable());
             if (config == _config)
                 return;
 
@@ -55,8 +53,8 @@ namespace VL.IO.Redis
                 try
                 {
                     var subscriber = client.GetSubscriber();
-                    var channel = new RedisChannel(redisChannel, pattern);
-                    var value = client.Serialize(v, serializationFormat);
+                    var channel = new RedisChannel(redisChannel, RedisChannel.PatternMode.Literal);
+                    var value = client.Serialize(v, config.format);
                     subscriber.Publish(channel, value, CommandFlags.FireAndForget);
                 }
                 catch (Exception e)
