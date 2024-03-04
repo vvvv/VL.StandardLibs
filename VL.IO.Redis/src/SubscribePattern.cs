@@ -56,7 +56,7 @@ namespace VL.IO.Redis
             _subscription.Disposable = null;
 
             var client = config.Client;
-            if (client is null || config.Pattern is null)
+            if (client is null || string.IsNullOrEmpty(config.Pattern))
                 return;
 
             var subscriber = client.GetSubscriber();
