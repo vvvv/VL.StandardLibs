@@ -1,7 +1,6 @@
 ﻿using ImGuiNET;
 using Stride.Core.Mathematics;
 using Stride.Rendering;
-using System.Runtime.InteropServices;
 using Viewport = Stride.Graphics.Viewport;
 
 namespace VL.ImGui.Widgets

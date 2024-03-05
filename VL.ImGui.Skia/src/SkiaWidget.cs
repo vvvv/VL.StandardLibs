@@ -1,11 +1,8 @@
 ﻿using ImGuiNET;
 using SkiaSharp;
 using Stride.Core.Mathematics;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices;
 using VL.ImGui.Widgets.Primitives;
 using VL.Lib.IO.Notifications;
-using VL.Lib.Mathematics;
 using VL.Skia;
 
 namespace VL.ImGui.Widgets

@@ -15,19 +15,12 @@ using VL.Stride.Input;
 using System.Reactive.Disposables;
 using VL.Lib.Basics.Resources;
 using System.Runtime.InteropServices;
-using VL.Skia;
-using VL.Lib.IO.Notifications;
-using SkiaSharp;
-using System.Reflection.Metadata.Ecma335;
-using System.Collections.Concurrent;
-using Stride.Core.Diagnostics;
 
 
 namespace VL.ImGui
 {
     using ImGui = ImGuiNET.ImGui;
-    using SkiaRenderer = VL.Stride.SkiaRenderer;
-    using CallerInfo = VL.Skia.CallerInfo;
+
     public partial class ImGuiRenderer : RendererBase, IDisposable
     {
         const int INITIAL_VERTEX_BUFFER_SIZE = 128;

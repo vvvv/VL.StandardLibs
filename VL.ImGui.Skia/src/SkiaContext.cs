@@ -1,10 +1,5 @@
-﻿using ImGuiNET;
-using Stride.Core.Mathematics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using VL.ImGui.Widgets;
-using VL.Lib.IO.Notifications;
-using VL.Skia;
+﻿using VL.ImGui.Widgets;
+
 
 namespace VL.ImGui
 {

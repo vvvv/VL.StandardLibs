@@ -1,5 +1,4 @@
-﻿using BulletSharp.SoftBody;
-using Stride.Graphics;
+﻿using Stride.Graphics;
 using Stride.Rendering;
 using VL.ImGui.Widgets;
 using VL.Skia;
@@ -96,7 +95,4 @@ namespace VL.ImGui
         public RenderView? RenderView { get; set; }
         public Viewport? Viewport { get; set; }
     }
-
-
-
 }

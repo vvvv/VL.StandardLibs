@@ -1,10 +1,7 @@
-﻿using SharpFont.Cache;
-using Stride.Input;
+﻿using Stride.Input;
 using Stride.Rendering;
-using System;
 using System.Reactive.Disposables;
 using VL.Stride;
-using VL.Skia;
 
 namespace VL.ImGui
 {

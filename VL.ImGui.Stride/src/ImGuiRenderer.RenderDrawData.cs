@@ -5,11 +5,7 @@ using Buffer = Stride.Graphics.Buffer;
 using Stride.Rendering;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using VL.Skia;
-using Stride.Core;
-using Stride.Input;
-using VL.Stride.Input;
-using VL.Core;
+
 
 namespace VL.ImGui
 {
@@ -129,7 +125,7 @@ namespace VL.ImGui
                                 )
                             );
 
-                            imShader.SetParameters(context.RenderContext.RenderView, context);
+                            imShader.SetParameters(context?.RenderContext.RenderView, context);
                             imShader.Parameters.Set(ImGuiShader_DrawFXKeys.tex, tex);
                             imShader.Parameters.Set(ImGuiShader_DrawFXKeys.proj, ref projMatrix);
                             imShader.EffectInstance.Apply(graphicsContext);
