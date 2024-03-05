@@ -37,6 +37,22 @@ namespace VL.Lang
         private bool? flowToParent;
         public readonly object Symbol;
 
+        /// <summary>
+        /// A short version of the original `What` containing only the first line.
+        /// </summary>
+        public string ShortWhat
+        {
+            get
+            {
+                // Tests for both Unix (\n) and Non-unix (\r\n)
+                var newLineIndex = What.IndexOf('\n');
+                if (newLineIndex > 0)
+                    return What.Substring(0, newLineIndex);
+
+                return What;
+            }
+        }
+
         public Message(MessageSeverity severity, string what, string why = "", string how = "", string ignore = "", object symbol = null)
             : this(default(UniqueId), severity, what, why, how, ignore, symbol: symbol)
         {

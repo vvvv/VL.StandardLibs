@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="Nf3ER40qFc0PwGmHgFyJGI" LanguageVersion="2023.5.3-0355-gdc7daf4c37" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="Nf3ER40qFc0PwGmHgFyJGI" LanguageVersion="2024.6.0-0231-ge94dd30f3b" Version="0.128">
   <NugetDependency Id="N9ZPvHbW3U3NncSwIDfo92" Location="VL.CoreLib" Version="2023.5.3-0192-g8dd4ea9c96" />
   <Patch Id="BMlmTbc2lRoQakfUDc3p6f">
     <Canvas Id="R80ior2dUosLPHZvHn4qXv" DefaultCategory="IO.Redis" CanvasType="FullCategory">
@@ -360,7 +360,7 @@
                 </Node>
                 <Pad Id="Krn6nAgHOKjOuEr5yaUbiC" Comment="Binding Type" Bounds="734,519" isIOBox="true">
                   <p:TypeAnnotation LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
-                    <Choice Kind="TypeFlag" Name="RedisBindingType" />
+                    <Choice Kind="TypeFlag" Name="BindingDirection" />
                   </p:TypeAnnotation>
                   <p:ValueBoxSettings>
                     <p:showvalue p:Type="Boolean">false</p:showvalue>
@@ -478,7 +478,7 @@
                 </Node>
                 <Pad Id="KFImhbTgff4LdjAf1K5qPr" Comment="" Bounds="1016,936">
                   <p:TypeAnnotation LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
-                    <Choice Kind="TypeFlag" Name="RedisBindingType" />
+                    <Choice Kind="TypeFlag" Name="BindingDirection" />
                   </p:TypeAnnotation>
                 </Pad>
                 <Pad Id="CZpGM8N53HuPLcQ3YvgwED" Comment="" Bounds="949,1014">
@@ -524,6 +524,8 @@
               <ControlPoint Id="C1x4z9yOA3fNfwiUwX8qCo" Bounds="191,148" Name="Init" Alignment="Top" />
               <ControlPoint Id="EQTEdQcwaN2LGJpXkg1Ivx" Bounds="281,268" Name="Collision" Alignment="Bottom" />
               <ControlPoint Id="LfuKPbpAqbePMkH1qIfwzH" Bounds="228,148" Name="Collision" Alignment="Top" />
+              <ControlPoint Id="NoBGOIsNAOEL5o8d8KUaHH" Bounds="357,268" Alignment="Bottom" />
+              <ControlPoint Id="NeGgcPbJNraQLPRCucjXNy" Bounds="357,148" Alignment="Top" />
               <Patch Id="V1oHrLgao4DOCEngt4ccco" ManuallySortedPins="true">
                 <Patch Id="BonsgRzHRp8NSi7QpM5uoi" Name="Create" ManuallySortedPins="true" />
                 <Patch Id="S29ewkqIcMUNqg77nevpY1" Name="Then" ManuallySortedPins="true" />
@@ -549,12 +551,10 @@
                     <Choice Kind="OperationCallFlag" Name="Model" />
                   </p:NodeReference>
                   <Pin Id="DeW4azwo3OgNXXMkUzDwei" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="SElKm4zIo6xLohx1Q05eVu" Name="Output" Kind="OutputPin" IsHidden="true" />
+                  <Pin Id="SElKm4zIo6xLohx1Q05eVu" Name="Output" Kind="OutputPin" />
                   <Pin Id="FyQVMwEbes9M5ocGy2N5O6" Name="Model" Kind="OutputPin" />
                 </Node>
               </Patch>
-              <ControlPoint Id="NoBGOIsNAOEL5o8d8KUaHH" Bounds="357,268" Alignment="Bottom" />
-              <ControlPoint Id="NeGgcPbJNraQLPRCucjXNy" Bounds="357,148" Alignment="Top" />
             </Node>
             <Node Bounds="-6,84,65,19" Id="Om9tty9YXSAOkkdi0SjawL">
               <p:NodeReference LastCategoryFullName="Primitive.Object" LastDependency="VL.CoreLib.vl">
@@ -567,9 +567,9 @@
             </Node>
             <ControlPoint Id="KuY1pecZjHXOJtHlZ5peJp" Bounds="8,38" />
             <Pad Id="BlUYsm2V73LLRf5ftohlw1" SlotId="EJXtJEaR8Y3MoHkrJJTyW6" Bounds="-34,94" />
-            <Pad Id="Chn5GhVREGaQSU0jwmlAUs" Comment="Binding Type" Bounds="123,27,102,15" ShowValueBox="true" isIOBox="true" Value="SendAndReceive">
+            <Pad Id="Chn5GhVREGaQSU0jwmlAUs" Comment="Binding Type" Bounds="123,27,102,15" ShowValueBox="true" isIOBox="true" Value="In">
               <p:TypeAnnotation LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
-                <Choice Kind="TypeFlag" Name="RedisBindingType" />
+                <Choice Kind="TypeFlag" Name="BindingDirection" />
               </p:TypeAnnotation>
             </Pad>
             <Pad Id="KpNiR1hf0b5MKl9rBioebH" SlotId="MfyDxnxpNWRLL8n2QcZBTz" Bounds="131,320" Value="None" />
