@@ -44,14 +44,15 @@ namespace VL.ImGui.Widgets
                 if  (renderLayer.Layer != Layer)
                     renderLayer.Layer = Layer;
 
-            
-                if (ImGui.BeginChild("##RenderWidget", Size.FromHectoToImGui(), ImGuiChildFlags.None, ImGuiWindowFlags.ChildWindow))
+                var id = strideContext.AddRenderer(renderLayer);
+
+                if (ImGui.BeginChild("##RenderWidget__" + id.ToString() , Size.FromHectoToImGui(), ImGuiChildFlags.None, ImGuiWindowFlags.ChildWindow))
                 {
                     var pos = ImGui.GetWindowPos();
                     var size = ImGui.GetWindowSize();
                     renderLayer.Viewport = new Viewport(pos.X, pos.Y, size.X, size.Y);
                     var drawList = ImGui.GetWindowDrawList();
-                    drawList.AddCallback(strideContext.AddRenderer(renderLayer), IntPtr.Zero);
+                    drawList.AddCallback(id, IntPtr.Zero);
                 }
                 ImGui.EndChild();
             }
