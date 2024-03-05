@@ -1,5 +1,8 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace VL.Core
 {
@@ -59,7 +62,7 @@ namespace VL.Core
             return false;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is Optional<T> optional)
                 return Equals(optional);
@@ -108,7 +111,7 @@ namespace VL.Core
 
         public static bool operator >=(Optional<T> left, Optional<T> right) => left.CompareTo(right) >= 0;
         
-        object IOptional.Object => Value;
+        object IOptional.Object => Value!;
     }
 
 
@@ -119,6 +122,20 @@ namespace VL.Core
         public IMonadBuilder<T, Optional<T>> GetMonadBuilder(bool isConstant)
         {
             return Builder.Instance;
+        }
+
+        public IMonadicValueEditor<T, Optional<T>> GetEditor(Optional<T> optional) => new Editor();
+
+        sealed class Editor : IMonadicValueEditor<T, Optional<T>>
+        {
+            public bool HasValue(Optional<T> optional) => optional.HasValue;
+
+            public T GetValue(Optional<T> optional) => optional.Value;
+
+            public Optional<T> SetValue(Optional<T> optional, T value)
+            {
+                return new Optional<T>(value);
+            }
         }
 
         sealed class Builder : IMonadBuilder<T, Optional<T>>

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using VL.Lib.IO;
 
@@ -81,6 +82,43 @@ namespace VL.Core
         /// <param name="nodeContext">The node context - its path will have the id of the sink appended to it.</param>
         /// <returns>The monad builder</returns>
         IMonadBuilder<TValue, TMonad> GetMonadBuilder(bool isConstant, NodeContext nodeContext) => GetMonadBuilder(isConstant);
+
+        IMonadicValueEditor<TValue, TMonad>? GetEditor(TMonad monad)
+        {
+            if (monad is null)
+                return null;
+
+            if (monad is IMonadicValueEditor<TValue, TMonad> editor)
+                return editor;
+
+            var valueProperty = monad.GetType().GetProperty("Value");
+            if (valueProperty != null &&
+                valueProperty.GetMethod != null && valueProperty.GetMethod.IsPublic &&
+                valueProperty.SetMethod != null && valueProperty.SetMethod.IsPublic)
+                return new DynamicEditor(valueProperty);
+
+            return null;
+        }
+
+        sealed class DynamicEditor : IMonadicValueEditor<TValue, TMonad>
+        {
+            private readonly PropertyInfo valueProperty;
+
+            public DynamicEditor(PropertyInfo valueProperty)
+            {
+                this.valueProperty = valueProperty;
+            }
+
+            public bool HasValue(TMonad monad) => monad is not null;
+
+            public TValue GetValue(TMonad monad) => (TValue)valueProperty.GetValue(monad)!;
+
+            public TMonad SetValue(TMonad monad, TValue value)
+            {
+                valueProperty.SetValue(monad, value);
+                return monad!;
+            }
+        }
     }
 
     /// <summary>
@@ -96,5 +134,12 @@ namespace VL.Core
         /// Called when the system has no value yet. This is usually true for unconnected input pins.
         /// </summary>
         TMonad? Default() => default;
+    }
+
+    public interface IMonadicValueEditor<TValue, TMonad>
+    {
+        bool HasValue([NotNullWhen(true)] TMonad? monad);
+        TValue GetValue(TMonad monad);
+        TMonad SetValue(TMonad monad, TValue value);
     }
 }
