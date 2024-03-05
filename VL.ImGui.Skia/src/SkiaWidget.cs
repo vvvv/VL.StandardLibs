@@ -15,10 +15,10 @@ namespace VL.ImGui.Widgets
     [GenerateNode(Category = "ImGui.Widgets.Internal", IsStylable = false)]
     public sealed partial class SkiaWidget : PrimitiveWidget, IDisposable, ILayer
     {
-        private GCHandle layerhandle;
         private bool _disposed;
         private bool _itemHasFocus;
         private bool _windowHasFocus;
+        private IContextWithSkia? _skiaContext;
 
         public ILayer? Layer { private get; set; }
 
@@ -31,36 +31,38 @@ namespace VL.ImGui.Widgets
 
         protected override void Draw(Context context, in ImDrawListPtr drawList, in System.Numerics.Vector2 offset)
         {
-            if (Layer is null)
-            return;
-
-
-            if (context is SkiaContext skiaContext)
+            if (context is IContextWithSkia skiaContext)
             {
-                var _ = Size.FromHectoToImGui();
-                var position = ImGui.GetCursorPos();
-                ImGui.InvisibleButton($"{GetHashCode()}", _, ImGuiButtonFlags.None);
+                this._skiaContext = skiaContext;
+
+                if (Layer is null)
+                {
+                    skiaContext.RemoveLayer(this);
+                    return;
+                }
+
+                var pos = ImGui.GetCursorPos();
+                var size = Size.FromHectoToImGui();
+                ImGui.InvisibleButton($"{GetHashCode()}", size, ImGuiButtonFlags.None);
                 _itemHasFocus = ImGui.IsItemFocused();
                 _windowHasFocus = ImGui.IsWindowFocused();
-                ImGui.SetCursorPos(position);
+                ImGui.SetCursorPos(pos);
 
-                // Use Callback instead of Texture to pass Layer
-                layerhandle = GCHandle.Alloc(Layer);
-                drawList.AddCallback(GCHandle.ToIntPtr(layerhandle), IntPtr.Zero);
-
-                // for Notification
-                skiaContext.AddLayer(this);
+                // Use Callback instead of Texture to pass Layer ID ... first Layer has ID 1
+                drawList.AddCallback(skiaContext.AddLayer(this, pos, size), IntPtr.Zero);
             }
         }
 
         [Pin(Ignore = true)]
         public RectangleF? Bounds => !_disposed ? Layer?.Bounds : default;
 
+        SKMatrix? trans;
+
         public void Render(CallerInfo caller)
         {
             if (_disposed || Layer is null)
                 return;
-
+            trans = caller.Transformation;
             Layer.Render(caller);
         }
 
@@ -76,12 +78,16 @@ namespace VL.ImGui.Widgets
             if (EventFilter == EventFilter.WindowHasFocus && !_windowHasFocus)
                 return false;
 
-            return Layer.Notify(notification, caller);
+
+            if (trans != null)
+                return Layer.Notify(notification, caller.WithTransformation((SKMatrix)trans));
+            else
+                return Layer.Notify(notification, caller); ;
         }
 
         public void Dispose()
         {
-            layerhandle.Free();
+            _skiaContext?.RemoveLayer(this);
             _disposed = true;
         }
     }

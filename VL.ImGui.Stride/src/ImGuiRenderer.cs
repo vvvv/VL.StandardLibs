@@ -28,7 +28,7 @@ namespace VL.ImGui
     using ImGui = ImGuiNET.ImGui;
     using SkiaRenderer = VL.Stride.SkiaRenderer;
     using CallerInfo = VL.Skia.CallerInfo;
-    public partial class ImGuiRenderer : RendererBase, IDisposable, ILayer
+    public partial class ImGuiRenderer : RendererBase, IDisposable
     {
         const int INITIAL_VERTEX_BUFFER_SIZE = 128;
         const int INITIAL_INDEX_BUFFER_SIZE = 128;
@@ -61,7 +61,6 @@ namespace VL.ImGui
         private bool fullscreenWindow;
         private IStyle? style;
 
-        private GCHandle renderLayerHandle;
         private GCHandle textureHandle;
 
 
@@ -77,10 +76,6 @@ namespace VL.ImGui
         private IInputSource? lastInputSource;
         private readonly SerialDisposable inputSubscription = new SerialDisposable();
 
-        //Skia 
-        private readonly SkiaRenderer skiaRenderer;
-        private readonly WithWindowInputSource skiaInput;
-
         //VL 
         NodeContext nodeContext;
 
@@ -88,12 +83,6 @@ namespace VL.ImGui
         public unsafe ImGuiRenderer(CustomDrawEffect drawEffect, NodeContext nodeContext)
         {
             this.nodeContext = nodeContext;
-
-            skiaRenderer = new SkiaRenderer();
-            skiaRenderer.Space = VL.Skia.CommonSpace.DIPTopLeft;
-
-            skiaInput = new WithWindowInputSource();
-            skiaInput.Input = skiaRenderer;
 
             deviceHandle = AppHost.Current.Services.GetDeviceHandle();
             GraphicsContextHandle = AppHost.Current.Services.GetGraphicsContextHandle();
@@ -270,9 +259,6 @@ namespace VL.ImGui
                 _drawDataPtr = ImGui.GetDrawData();
             }
 
-            skiaRenderer.Layer = this;
-            skiaRenderer.Draw(context);
-
             RenderDrawLists(context, _drawDataPtr);
         }
 
@@ -295,8 +281,6 @@ namespace VL.ImGui
         {
             errorImGuiInsideImGui.Dispose(); ;
 
-            skiaRenderer.Dispose();
-
             imPipeline.Dispose();
             vertexBinding.Buffer.Dispose();
             indexBinding.Buffer.Dispose();
@@ -308,40 +292,9 @@ namespace VL.ImGui
             GraphicsContextHandle.Dispose();
             inputHandle.Dispose();
 
-            renderLayerHandle.Free();
             textureHandle.Free();
 
             base.Destroy();
-        }
-
-        ConcurrentDictionary<SKRectI, CallerInfo> callerInfos = new ConcurrentDictionary<SKRectI, CallerInfo>();
-        //HashSet<CallerInfo> callerInfos2 = new HashSet<CallerInfo>(new CallerInfoComparer());
-
-        public void Render(CallerInfo caller)
-        {
-            //callerInfos2.Add(caller);
-            callerInfos.AddOrUpdate(caller.Canvas.DeviceClipBounds, caller, (gr, c) => caller);
-        }
-
-
-
-        public bool Notify(INotification notification, CallerInfo caller)
-        {
-            return false;
-        }
-    }
-    public class CallerInfoComparer : IEqualityComparer<CallerInfo>
-    {
-        public bool Equals(CallerInfo one, CallerInfo two)
-        {
-            // Adjust according to requirements.
-            return one.Canvas.DeviceClipBounds.Equals(two.Canvas.DeviceClipBounds);
-        }
-
-        public int GetHashCode(CallerInfo item)
-        {
-            return item.GetHashCode();
-
         }
     }
 }

@@ -1,24 +1,53 @@
 ﻿using ImGuiNET;
 using Stride.Core.Mathematics;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using VL.ImGui.Widgets;
 using VL.Lib.IO.Notifications;
 using VL.Skia;
 
 namespace VL.ImGui
 {
-    public class SkiaContext : Context
+    public interface IContextWithSkia
     {
-        public readonly List<ILayer> Layers = new List<ILayer>();
+        public IntPtr AddLayer(SkiaWidget layer, System.Numerics.Vector2 pos, System.Numerics.Vector2 size);
 
-        public override void NewFrame()
+        public void RemoveLayer(SkiaWidget layer);
+    }
+
+    public sealed class SkiaContext : Context, IContextWithSkia
+    {
+        public readonly List<SkiaWidget> Layers = new List<SkiaWidget>();
+
+        public IntPtr AddLayer(SkiaWidget layer, System.Numerics.Vector2 pos, System.Numerics.Vector2 size)
         {
-            Layers.Clear();
-            base.NewFrame();
+            if (Layers.Contains(layer))
+            {
+                return Layers.IndexOf(layer) + 1;
+            }
+            else
+            {
+                Layers.Add(layer);
+                return Layers.Count;
+            }
         }
 
-        internal void AddLayer(ILayer layer)
+        public void RemoveLayer(SkiaWidget layer)
         {
-            Layers.Add(layer);
+            if (Layers.Contains(layer))
+            {
+                Layers.Remove(layer);
+            }
         }
+
+        public SkiaWidget? GetLayer(IntPtr index) 
+        {
+            if (Layers.Count >= index)
+                return Layers.ElementAt((int)index - 1);
+            else
+                return null;
+        }
+
+        
     }
 }

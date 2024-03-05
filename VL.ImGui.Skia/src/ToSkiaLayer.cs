@@ -51,7 +51,6 @@ namespace VL.ImGui
         ImDrawDataPtr _drawDataPtr;
         bool _readyToBeDrawn;
         WidgetLabel widgetLabel = new();
-        GCHandle layerHandle;
         GCHandle textureHandle;
 
         public unsafe ToSkiaLayer()
@@ -257,9 +256,9 @@ namespace VL.ImGui
                             // get ILayer passed via Callback instead of spooky low Texture ID
                             if (drawCmd.UserCallback != IntPtr.Zero)
                             {
-                                layerHandle = GCHandle.FromIntPtr(drawCmd.UserCallback);
+                                ILayer? layer = _context.GetLayer(drawCmd.UserCallback);
                                 
-                                if (layerHandle.Target is ILayer layer)
+                                if (layer != null)
                                 {
                                     canvas.SetMatrix(caller.Transformation);
                                     try
@@ -368,7 +367,6 @@ namespace VL.ImGui
 
         public void Dispose()
         {
-            layerHandle.Free();
             textureHandle.Free();
 
             _renderContext.Dispose();

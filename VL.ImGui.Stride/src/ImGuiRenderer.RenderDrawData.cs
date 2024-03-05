@@ -67,10 +67,9 @@ namespace VL.ImGui
 
                     if (cmd.UserCallback != IntPtr.Zero)
                     {
-                        renderLayerHandle = GCHandle.FromIntPtr(cmd.UserCallback);
+                        RenderLayer? renderLayer = _context.GetRenderer(cmd.UserCallback);
 
-                        // Callback is IGraphicsRenderBase
-                        if (renderLayerHandle.Target is RenderLayer renderLayer)
+                        if (renderLayer != null)
                         {
                             if (renderLayer.Viewport != null && context != null)
                             {
@@ -96,15 +95,6 @@ namespace VL.ImGui
                                     }
                                 }
                             }
-                        }
-                        // Callback is ILayer
-                        else if (renderLayerHandle.Target is ILayer layer)
-                        {
-                            skiaInput.InputSource = context?.RenderContext.GetWindowInputSource();
-                            skiaRenderer.Layer = layer;
-
-                            skiaInput.Draw(context);
-                            //skiaRenderer.Draw(context);
                         }
                     }
                     else

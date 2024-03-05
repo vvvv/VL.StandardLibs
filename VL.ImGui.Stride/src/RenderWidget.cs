@@ -12,11 +12,12 @@ namespace VL.ImGui.Widgets
     public sealed partial class RenderWidget : Widget, IDisposable
     {
         private readonly RenderLayer renderLayer;
-        private readonly GCHandle renderLayerHandle;
+        private IContextWithRenderer? strideContext;
+
+
         public RenderWidget()
         {
             renderLayer = new RenderLayer();
-            renderLayerHandle = GCHandle.Alloc(renderLayer);
         }
 
         public IGraphicsRendererBase? Layer { private get; set ; }
@@ -27,24 +28,31 @@ namespace VL.ImGui.Widgets
 
         internal override void UpdateCore(Context context)
         {
-            if (Layer is null)
-                return;
-
-            if (renderLayer.RenderView != RenderView)
-                renderLayer.RenderView = RenderView;
-
-            if  (renderLayer.Layer != Layer)
-                renderLayer.Layer = Layer;
-
             if (context is StrideContext strideContext)
             {
+                this.strideContext = strideContext;
+
+                if (Layer is null)
+                {
+                    strideContext.RemoveRenderer(renderLayer);
+                    return;
+                }
+                
+
+                if (renderLayer.RenderView != RenderView)
+                    renderLayer.RenderView = RenderView;
+
+                if  (renderLayer.Layer != Layer)
+                    renderLayer.Layer = Layer;
+
+            
                 if (ImGui.BeginChild("##RenderWidget", Size.FromHectoToImGui(), ImGuiChildFlags.None, ImGuiWindowFlags.ChildWindow))
                 {
                     var pos = ImGui.GetWindowPos();
                     var size = ImGui.GetWindowSize();
                     renderLayer.Viewport = new Viewport(pos.X, pos.Y, size.X, size.Y);
                     var drawList = ImGui.GetWindowDrawList();
-                    drawList.AddCallback(GCHandle.ToIntPtr(renderLayerHandle), IntPtr.Zero);
+                    drawList.AddCallback(strideContext.AddRenderer(renderLayer), IntPtr.Zero);
                 }
                 ImGui.EndChild();
             }
@@ -52,7 +60,7 @@ namespace VL.ImGui.Widgets
 
         public void Dispose()
         {
-            renderLayerHandle.Free();
+            strideContext?.RemoveRenderer(renderLayer);
         }
     }
 }
