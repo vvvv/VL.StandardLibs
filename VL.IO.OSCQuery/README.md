@@ -10,7 +10,7 @@ For use with vvvv, the visual live-programming environment for .NET: http://visu
 ## Contributing
 - Report issues on [the vvvv forum](https://discourse.vvvv.org/c/vvvv-gamma/28)
 - For custom development requests, please [get in touch](mailto:devvvvs@vvvv.org)
-- When making a pull-request, please make sure to read the general [guidlines on contributing to vvvv libraries](https://thegraybook.vvvv.org/reference/extending/contributing.html)
+- When making a pull-request, please make sure to read the general [guidelines on contributing to vvvv libraries](https://thegraybook.vvvv.org/reference/extending/contributing.html)
 
 ## Credits
 Based on [VRChat.OSCQuery](https://www.nuget.org/packages/VRChat.OSCQuery).

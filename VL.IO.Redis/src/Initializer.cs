@@ -43,7 +43,7 @@ namespace _VL_.IO.Redis
                 return new BindingModel(
                     context.Deserialize<string>(content, nameof(BindingModel.Key)),
                     context.Deserialize<Initialization>(content, nameof(BindingModel.Initialization)),
-                    context.Deserialize<RedisBindingType>(content, nameof(BindingModel.BindingType)),
+                    context.Deserialize<BindingDirection>(content, nameof(BindingModel.BindingType)),
                     context.Deserialize<CollisionHandling>(content, nameof(BindingModel.CollisionHandling)),
                     context.Deserialize<SerializationFormat>(content, nameof(BindingModel.SerializationFormat)));
             }

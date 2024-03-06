@@ -35,13 +35,20 @@ namespace VL.IO.Redis
             _subscription.Dispose();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="channel">Name of the Redis channel</param>
+        /// <param name="serializationFormat"></param>
+        /// <returns></returns>
         [return: Pin(Name = "Output")]
         public IObservable<T?> Update(
             RedisClient? client,
-            string? redisChannel,
+            string? channel,
             Optional<SerializationFormat> serializationFormat = default)
         {
-            var config = new Config(client, redisChannel, serializationFormat.ToNullable(), ProcessMessagesConcurrently: false);
+            var config = new Config(client, channel, serializationFormat.ToNullable(), ProcessMessagesConcurrently: false);
             if (config != _config)
             {
                 _config = config;
@@ -56,7 +63,7 @@ namespace VL.IO.Redis
             _subscription.Disposable = null;
 
             var client = config.Client;
-            if (client is null || config.Channel is null)
+            if (client is null || string.IsNullOrEmpty(config.Channel))
                 return;
 
             var subscriber = client.GetSubscriber();

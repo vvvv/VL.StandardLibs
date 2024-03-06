@@ -19,8 +19,8 @@ namespace VL.IO.Redis
         private readonly NodeContext _nodeContext;
         private readonly ILogger _logger;
 
-        private (RedisClient? client, IChannel? channel, string? key, Initialization initialization, 
-            RedisBindingType bindingType, CollisionHandling collisionHandling, Optional<SerializationFormat> serializationFormat,
+        private (RedisClient? client, IChannel? input, string? key, Initialization initialization, 
+            BindingDirection bindingType, CollisionHandling collisionHandling, Optional<SerializationFormat> serializationFormat,
             Optional<TimeSpan> expiry) _config;
 
         public BindingNode([Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext)
@@ -32,27 +32,27 @@ namespace VL.IO.Redis
         public void Update(
             RedisClient? client, 
             string? key,
-            IChannel? channel, 
-            RedisBindingType bindingType = RedisBindingType.SendAndReceive,
+            IChannel? input, 
+            BindingDirection bindingDirection = BindingDirection.InOut,
             Initialization initialization = Initialization.Redis,
             CollisionHandling collisionHandling = default,
             Optional<SerializationFormat> serializationFormat = default,
             Optional<TimeSpan> expiry = default)
         {
-            var config = (client, channel, key, initialization, bindingType, collisionHandling, serializationFormat, expiry);
+            var config = (client, input, key, initialization, bindingDirection, collisionHandling, serializationFormat, expiry);
             if (config == _config)
                 return;
 
             _config = config;
             _current.Disposable = null;
 
-            if (client is null || channel is null || string.IsNullOrWhiteSpace(key))
+            if (client is null || input is null || string.IsNullOrWhiteSpace(key))
                 return;
 
-            var model = new BindingModel(key, initialization, bindingType, collisionHandling, serializationFormat.ToNullable(), expiry.ToNullable());
+            var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat.ToNullable(), expiry.ToNullable());
             try
             {
-                _current.Disposable = client.AddBinding(model, channel, logger: _logger);
+                _current.Disposable = client.AddBinding(model, input, logger: _logger);
             }
             catch (Exception e)
             {
