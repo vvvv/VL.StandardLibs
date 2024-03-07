@@ -3,14 +3,14 @@
 
 namespace VL.ImGui
 {
-    public interface IContextWithSkia
+    internal interface IContextWithSkia
     {
         public IntPtr AddLayer(SkiaWidget layer, System.Numerics.Vector2 pos, System.Numerics.Vector2 size);
 
         public void RemoveLayer(SkiaWidget layer);
     }
 
-    public sealed class SkiaContext : Context, IContextWithSkia
+    internal sealed class SkiaContext : Context, IContextWithSkia
     {
         public readonly List<SkiaWidget> Layers = new List<SkiaWidget>();
 

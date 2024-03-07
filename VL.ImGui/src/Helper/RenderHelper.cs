@@ -233,7 +233,7 @@ namespace VL.ImGui
             }
         }
 
-        public static ImFontAtlasPtr BuildImFontAtlas(this ImFontAtlasPtr atlas, float scaling, Context _context, Spread<FontConfig> fonts)
+        public static ImFontAtlasPtr BuildImFontAtlas(this ImFontAtlasPtr atlas, float scaling, Context _context, Spread<FontConfig?>? fonts)
         {
             atlas.Clear();
             _context.Fonts.Clear();
@@ -241,7 +241,7 @@ namespace VL.ImGui
             var anyFontLoaded = false;
             var fontsfolder = Environment.GetFolderPath(Environment.SpecialFolder.Fonts);
 
-            if (fonts == null || (fonts.IsEmpty && FontConfig.Default != null))
+            if (fonts is null || fonts.IsEmpty)
                 fonts = Spread.Create(FontConfig.Default);
 
             foreach (var font in fonts)

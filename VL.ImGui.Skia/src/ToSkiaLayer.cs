@@ -45,7 +45,7 @@ namespace VL.ImGui
         private readonly Handle<SKPaint> _fontPaint;
         float _fontScaling;
         float _uiScaling;
-        Spread<FontConfig> _fonts = Spread<FontConfig>.Empty;
+        Spread<FontConfig?> _fonts = Spread<FontConfig?>.Empty;
 
         CallerInfo? _lastCallerInfo;
         ImDrawDataPtr _drawDataPtr;
@@ -69,7 +69,7 @@ namespace VL.ImGui
             }
         }
 
-        public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig> fonts, IStyle? Style)
+        public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig?> fonts, IStyle? Style)
         {
             if (_lastCallerInfo is null)
                 return this;
@@ -169,7 +169,7 @@ namespace VL.ImGui
                 Render(caller, _drawDataPtr);
         }
 
-        void BuildImFontAtlas(ImFontAtlasPtr atlas, Handle<SKPaint> paintHandle, float scaling, Spread<FontConfig> fonts)
+        void BuildImFontAtlas(ImFontAtlasPtr atlas, Handle<SKPaint> paintHandle, float scaling, Spread<FontConfig?>? fonts)
         {
             atlas.BuildImFontAtlas(scaling, _context, fonts);
 
