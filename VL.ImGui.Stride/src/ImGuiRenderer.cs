@@ -37,9 +37,6 @@ namespace VL.ImGui
 
         public RectangleF? Bounds => throw new NotImplementedException();
 
-        CommandList commandList;
-        
-
         // ImGui
         private readonly ImGuiIOPtr _io;
         private readonly StrideContext _context;
@@ -61,7 +58,6 @@ namespace VL.ImGui
         private IndexBufferBinding indexBinding;
         private readonly CustomDrawEffect imShader;
         private Texture? fontTexture;
-        private Matrix projMatrix;
 
         private IInputSource? lastInputSource;
         private readonly SerialDisposable inputSubscription = new SerialDisposable();
@@ -87,8 +83,6 @@ namespace VL.ImGui
                 _io.NativePtr->IniFilename = null;
 
                 #region DeviceObjects
-                // set up a commandlist
-                commandList = graphicsContext.CommandList;
 
                 // set VertexLayout
                 var layout = new VertexDeclaration(
@@ -151,7 +145,7 @@ namespace VL.ImGui
             if (fontScaling != _fontScaling)
             {
                 _fontScaling = fontScaling;
-                BuildImFontAtlas(_io.Fonts, fontScaling);
+                BuildImFontAtlas(device, _io.Fonts, fontScaling);
             }
             if (uiScaling != _uiScaling)
             {
@@ -171,7 +165,7 @@ namespace VL.ImGui
             if (!fonts.IsEmpty && !this.fonts.SequenceEqual(fonts))
             {
                 this.fonts = fonts;
-                BuildImFontAtlas(_io.Fonts, _fontScaling);
+                BuildImFontAtlas(device, _io.Fonts, _fontScaling);
             }
 
             this.fullscreenWindow = fullscreenWindow;
@@ -188,8 +182,6 @@ namespace VL.ImGui
                 _io.DisplaySize = new System.Numerics.Vector2(renderTarget.Width, renderTarget.Height);
                 _io.DisplayFramebufferScale = new System.Numerics.Vector2(1.0f, 1.0f);
                 _io.DeltaTime = (float)context.RenderContext.Time.TimePerFrame.TotalSeconds;
-                
-                projMatrix = Matrix.OrthoRH(renderTarget.Width, -renderTarget.Height, -1, 1);
 
                 var inputSource = context.RenderContext.GetWindowInputSource();
                 if (inputSource != lastInputSource)

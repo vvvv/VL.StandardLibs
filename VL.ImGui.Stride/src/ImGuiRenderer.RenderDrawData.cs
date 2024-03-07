@@ -11,7 +11,7 @@ namespace VL.ImGui
 {
     partial class ImGuiRenderer
     {
-        void CheckBuffers(ImDrawDataPtr drawData)
+        void CheckBuffers(GraphicsDevice device, ImDrawDataPtr drawData)
         {
             uint totalVBOSize = (uint)(drawData.TotalVtxCount * Unsafe.SizeOf<ImDrawVert>());
             if (totalVBOSize > vertexBinding.Buffer.SizeInBytes)
@@ -29,7 +29,7 @@ namespace VL.ImGui
             }
         }
 
-        void UpdateBuffers(ImDrawDataPtr drawData)
+        void UpdateBuffers(CommandList commandList, ImDrawDataPtr drawData)
         {
             // copy de dators
             int vtxOffsetBytes = 0;
@@ -47,8 +47,12 @@ namespace VL.ImGui
 
         void RenderDrawLists(RenderDrawContext context, ImDrawDataPtr drawData)
         {
-            CheckBuffers(drawData); // potentially resize buffers first if needed
-            UpdateBuffers(drawData); // updeet em now
+            var commandList = context.CommandList;
+            var renderTarget = commandList.RenderTarget;
+            var projMatrix = Matrix.OrthoRH(renderTarget.Width, -renderTarget.Height, -1, 1);
+
+            CheckBuffers(context.GraphicsDevice, drawData); // potentially resize buffers first if needed
+            UpdateBuffers(commandList, drawData); // updeet em now
 
             int vtxOffset = 0;
             int idxOffset = 0;
@@ -126,7 +130,7 @@ namespace VL.ImGui
                             );
 
                             imShader.SetParameters(context?.RenderContext.RenderView, context);
-                            imShader.Parameters.Set(ImGuiShader_Internal_DrawFXKeys.tex, tex);
+                            imShader.Parameters.Set(TexturingKeys.Texture0, tex);
                             imShader.Parameters.Set(ImGuiShader_Internal_DrawFXKeys.proj, ref projMatrix);
                             imShader.EffectInstance.Apply(graphicsContext);
 

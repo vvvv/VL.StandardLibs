@@ -1,12 +1,11 @@
 ﻿using ImGuiNET;
 using Stride.Graphics;
-using VL.Lib.Collections;
 
 namespace VL.ImGui
 {
     partial class ImGuiRenderer
     {
-        void BuildImFontAtlas(ImFontAtlasPtr atlas, float scaling)
+        void BuildImFontAtlas(GraphicsDevice device, ImFontAtlasPtr atlas, float scaling)
         {
             atlas.BuildImFontAtlas(scaling, _context, fonts);
 
@@ -22,9 +21,18 @@ namespace VL.ImGui
                     atlas.GetTexDataAsRGBA32(out pixelData, out width, out height, out bytesPerPixel);
                 }
 
-                var newFontTexture = Texture.New2D(device, width, height, device.ColorSpace == ColorSpace.Linear ? PixelFormat.R8G8B8A8_UNorm_SRgb : PixelFormat.R8G8B8A8_UNorm, TextureFlags.ShaderResource);
-                newFontTexture.SetData(commandList, new DataPointer(pixelData, (width * height) * bytesPerPixel));
                 fontTexture?.Dispose();
+
+                var newFontTexture = Texture.New2D(
+                    device: device,
+                    width: width,
+                    height: height,
+                    mipCount: 1,
+                    format: device.ColorSpace == ColorSpace.Linear ? PixelFormat.R8G8B8A8_UNorm_SRgb : PixelFormat.R8G8B8A8_UNorm,
+                    textureData: [new DataBox(new IntPtr(pixelData), rowPitch: width * bytesPerPixel, slicePitch: width * height * bytesPerPixel)],
+                    textureFlags: TextureFlags.ShaderResource,
+                    usage: GraphicsResourceUsage.Immutable);
+
                 fontTexture = newFontTexture;
                 atlas.ClearTexData();
             }
