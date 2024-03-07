@@ -17,6 +17,7 @@ namespace VL.ImGui
     internal sealed class StrideContext : Context, IContextWithSkia, IContextWithRenderer
     {
         public readonly List<RenderLayer> Renderers = new List<RenderLayer>();
+        private readonly List<SkiaRenderer> managedSkiaRenderers = new();
 
         public IntPtr AddLayer(SkiaWidget layer, System.Numerics.Vector2 pos, System.Numerics.Vector2 size)
         {
@@ -28,8 +29,13 @@ namespace VL.ImGui
             }
             else
             {
-                var skiaRenderer = new SkiaRenderer();
-                skiaRenderer.Space = CommonSpace.DIPTopLeft;
+                var skiaRenderer = new SkiaRenderer()
+                {
+                    Space = CommonSpace.DIPTopLeft
+                };
+
+                // We take ownership
+                managedSkiaRenderers.Add(skiaRenderer);
 
                 InViewportUpstream viewportLayer = new InViewportUpstream();
                 SetSpaceUpstream2 withinCommonSpaceLayer = new SetSpaceUpstream2();
@@ -53,7 +59,7 @@ namespace VL.ImGui
             var renderer = Renderers.Where(r => r.Layer is SkiaRenderer skia && skia.Layer == layer).FirstOrDefault();
             if (renderer != null)
             {
-                Renderers.Remove(renderer);
+                RemoveRenderer(renderer);
             }
         }
 
@@ -72,9 +78,16 @@ namespace VL.ImGui
 
         public void RemoveRenderer(RenderLayer renderer)
         {
-            if (Renderers.Contains(renderer))
+            if (Renderers.Remove(renderer))
+                OnRemoved(renderer);
+        }
+
+        private void OnRemoved(RenderLayer renderLayer)
+        {
+            if (renderLayer.Layer is SkiaRenderer skiaRenderer)
             {
-                Renderers.Remove(renderer);
+                if (managedSkiaRenderers.Remove(skiaRenderer))
+                    skiaRenderer.Dispose();
             }
         }
 
@@ -86,7 +99,15 @@ namespace VL.ImGui
                 return null;
         }
 
+        public override void Dispose()
+        {
+            foreach (var r in Renderers)
+                OnRemoved(r);
 
+            Renderers.Clear();
+
+            base.Dispose();
+        }
     }
 
     internal sealed class RenderLayer

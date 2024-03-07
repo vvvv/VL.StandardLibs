@@ -54,9 +54,6 @@ namespace VL.ImGui
         private bool fullscreenWindow;
         private IStyle? style;
 
-        private GCHandle textureHandle;
-
-
         // Stride
         private PipelineState imPipeline;
         private VertexDeclaration imVertLayout;
@@ -284,8 +281,6 @@ namespace VL.ImGui
             deviceHandle.Dispose();
             GraphicsContextHandle.Dispose();
             inputHandle.Dispose();
-
-            textureHandle.Free();
 
             base.Destroy();
         }

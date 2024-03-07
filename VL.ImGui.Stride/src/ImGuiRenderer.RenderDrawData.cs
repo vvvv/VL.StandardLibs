@@ -99,7 +99,7 @@ namespace VL.ImGui
 
                         if (cmd.TextureId != IntPtr.Zero)
                         {
-                            textureHandle = GCHandle.FromIntPtr(cmd.TextureId);
+                            var textureHandle = GCHandle.FromIntPtr(cmd.TextureId);
                             if (textureHandle.Target is Texture texture)
                             {
                                 tex = texture;

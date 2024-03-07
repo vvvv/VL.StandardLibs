@@ -22,13 +22,17 @@ namespace VL.ImGui.Widgets
 
             if (context is StrideContext strideContext)
             {
+                if (textureHandle.IsAllocated)
+                    textureHandle.Free();
+
                 textureHandle = GCHandle.Alloc(Texture);
                 ImGui.Image(GCHandle.ToIntPtr(textureHandle), Size.FromHectoToImGui());
             }
         }
         public void Dispose()
         {
-            textureHandle.Free();
+            if (textureHandle.IsAllocated)
+                textureHandle.Free();
         }
     }
 }

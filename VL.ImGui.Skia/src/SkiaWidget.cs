@@ -46,7 +46,8 @@ namespace VL.ImGui.Widgets
                 ImGui.SetCursorPos(pos);
 
                 // Use Callback instead of Texture to pass Layer ID ... first Layer has ID 1
-                drawList.AddCallback(skiaContext.AddLayer(this, pos, size), IntPtr.Zero);
+                var id = skiaContext.AddLayer(this, pos, size);
+                drawList.AddCallback(id, IntPtr.Zero);
             }
         }
 

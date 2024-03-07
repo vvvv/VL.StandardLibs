@@ -51,7 +51,6 @@ namespace VL.ImGui
         ImDrawDataPtr _drawDataPtr;
         bool _readyToBeDrawn;
         WidgetLabel widgetLabel = new();
-        GCHandle textureHandle;
 
         public unsafe ToSkiaLayer()
         {
@@ -273,7 +272,7 @@ namespace VL.ImGui
                             }
                             else if (drawCmd.ElemCount > 0)
                             {
-                                textureHandle = GCHandle.FromIntPtr(drawCmd.TextureId);
+                                var textureHandle = GCHandle.FromIntPtr(drawCmd.TextureId);
                                 var paint = textureHandle.Target as SKPaint ?? _fontPaint.Target;
                                 if (paint is null)
                                     continue;
@@ -367,8 +366,6 @@ namespace VL.ImGui
 
         public void Dispose()
         {
-            textureHandle.Free();
-
             _renderContext.Dispose();
 
             _context.Dispose();
