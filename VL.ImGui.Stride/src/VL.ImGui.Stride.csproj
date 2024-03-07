@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-	<Nullable>enable</Nullable>
+	  <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputPath>..\lib</OutputPath>
     <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
@@ -42,6 +42,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Setting AutoGen metadata is a hack to avoid getting picked up by asset compiler -->
+    <None Include="..\shaders\*.sdsl" Link="shaders\%(RecursiveDir)%(Filename)%(Extension)" Pack="true" AutoGen="false" PackagePath="shaders\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="..\shaders\ImGuiShader_Internal_DrawFX.sdsl.cs" Link="shaders\ImGuiShader_Internal_DrawFX.sdsl.cs">
       <DesignTime>True</DesignTime>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -51,7 +56,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\shaders\ImGuiShader_Internal_DrawFX.sdsl" Link="shaders\ImGuiShader_Internal_DrawFX.sdsl">
+    <None Update="..\shaders\ImGuiShader_Internal_DrawFX.sdsl">
       <Generator>StrideShaderKeyGenerator</Generator>
       <LastGenOutput>ImGuiShader_Internal_DrawFX.sdsl.cs</LastGenOutput>
     </None>
