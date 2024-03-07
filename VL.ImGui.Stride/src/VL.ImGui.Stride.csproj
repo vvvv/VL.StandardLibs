@@ -42,23 +42,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Setting AutoGen metadata is a hack to avoid getting picked up by asset compiler -->
-    <None Include="..\shaders\*.sdsl" Link="shaders\%(RecursiveDir)%(Filename)%(Extension)" Pack="true" AutoGen="false" PackagePath="shaders\%(RecursiveDir)%(Filename)%(Extension)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="..\shaders\ImGuiShader_Internal_DrawFX.sdsl.cs" Link="shaders\ImGuiShader_Internal_DrawFX.sdsl.cs">
+    <Compile Update="Effects\ImGuiEffect.sdfx.cs">
       <DesignTime>True</DesignTime>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
-      <DependentUpon>ImGuiShader_Internal_DrawFX.sdsl</DependentUpon>
+    </Compile>
+    <Compile Update="Effects\ImGuiEffectShader.sdsl.cs">
+      <DesignTime>True</DesignTime>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ImGuiEffectShader.sdsl</DependentUpon>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="..\shaders\ImGuiShader_Internal_DrawFX.sdsl">
-      <Generator>StrideShaderKeyGenerator</Generator>
-      <LastGenOutput>ImGuiShader_Internal_DrawFX.sdsl.cs</LastGenOutput>
+    <None Update="Effects\ImGuiEffect.sdfx">
+      <LastGenOutput>ImGuiEffect.sdfx.cs</LastGenOutput>
+    </None>
+    <None Update="Effects\ImGuiEffectShader.sdsl">
+      <LastGenOutput>ImGuiEffectShader.sdsl.cs</LastGenOutput>
     </None>
   </ItemGroup>
 

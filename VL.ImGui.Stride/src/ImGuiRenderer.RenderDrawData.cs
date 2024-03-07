@@ -5,6 +5,7 @@ using Buffer = Stride.Graphics.Buffer;
 using Stride.Rendering;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using VL.ImGui.Stride.Effects;
 
 
 namespace VL.ImGui
@@ -129,10 +130,10 @@ namespace VL.ImGui
                                 )
                             );
 
-                            imShader.SetParameters(context?.RenderContext.RenderView, context);
+                            //imShader.SetParameters(context?.RenderContext.RenderView, context);
                             imShader.Parameters.Set(TexturingKeys.Texture0, tex);
-                            imShader.Parameters.Set(ImGuiShader_Internal_DrawFXKeys.proj, ref projMatrix);
-                            imShader.EffectInstance.Apply(graphicsContext);
+                            imShader.Parameters.Set(ImGuiEffectShaderKeys.proj, ref projMatrix);
+                            imShader.Apply(graphicsContext);
 
                             commandList.DrawIndexed((int)cmd.ElemCount, idxOffset, vtxOffset);
                         }

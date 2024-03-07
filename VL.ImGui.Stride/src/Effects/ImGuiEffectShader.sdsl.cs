@@ -14,9 +14,9 @@ using Stride.Shaders;
 using Stride.Core.Mathematics;
 using Buffer = Stride.Graphics.Buffer;
 
-namespace Stride.Rendering
+namespace VL.ImGui.Stride.Effects
 {
-    public static partial class ImGuiShader_Internal_DrawFXKeys
+    internal static partial class ImGuiEffectShaderKeys
     {
         public static readonly ValueParameterKey<Matrix> proj = ParameterKeys.NewValue<Matrix>();
     }

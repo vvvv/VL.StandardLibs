@@ -9,12 +9,12 @@ using RendererBase = Stride.Rendering.RendererBase;
 using VL.Core;
 using VL.Lib.Collections;
 using VL.Stride;
-using VL.Stride.Rendering;
 using VL.Stride.Input;
 
 using System.Reactive.Disposables;
 using VL.Lib.Basics.Resources;
-using System.Runtime.InteropServices;
+using VL.ImGui.Stride.Effects;
+using Stride.Shaders.Compiler;
 
 
 namespace VL.ImGui
@@ -56,7 +56,7 @@ namespace VL.ImGui
         private VertexDeclaration imVertLayout;
         private VertexBufferBinding vertexBinding;
         private IndexBufferBinding indexBinding;
-        private readonly CustomDrawEffect imShader;
+        private readonly EffectInstance imShader;
         private Texture? fontTexture;
 
         private IInputSource? lastInputSource;
@@ -66,14 +66,21 @@ namespace VL.ImGui
         NodeContext nodeContext;
 
 
-        public unsafe ImGuiRenderer(CustomDrawEffect drawEffect, NodeContext nodeContext)
+        public unsafe ImGuiRenderer(NodeContext nodeContext)
         {
             this.nodeContext = nodeContext;
 
             deviceHandle = AppHost.Current.Services.GetDeviceHandle();
             GraphicsContextHandle = AppHost.Current.Services.GetGraphicsContextHandle();
             inputHandle = AppHost.Current.Services.GetInputManagerHandle();
-            imShader = drawEffect;
+
+            using var gameHandle = nodeContext.AppHost.Services.GetGameHandle();
+            var effectSystem = gameHandle.Resource.EffectSystem;
+
+            var compilerParameters = new CompilerParameters();
+            compilerParameters.Set(ImGuiEffectShaderKeys.ColorIsSRgb, device.ColorSpace == ColorSpace.Linear);
+            imShader = new EffectInstance(effectSystem.LoadEffect("ImGuiEffect", compilerParameters).WaitForResult());
+            imShader.UpdateEffect(device);
 
 
             _context = new StrideContext();
@@ -111,8 +118,8 @@ namespace VL.ImGui
                     InputElements = imVertLayout.CreateInputElements(),
                     DepthStencilState = DepthStencilStates.Default,
 
-                    EffectBytecode = imShader.EffectInstance.Effect.Bytecode,
-                    RootSignature = imShader.EffectInstance.RootSignature,
+                    EffectBytecode = imShader.Effect.Bytecode,
+                    RootSignature = imShader.RootSignature,
 
                     Output = new RenderOutputDescription(PixelFormat.R8G8B8A8_UNorm)
                 };
