@@ -16,7 +16,7 @@ using Buffer = Stride.Graphics.Buffer;
 
 namespace Stride.Rendering
 {
-    public static partial class ImGuiShader_DrawFXKeys
+    public static partial class ImGuiShader_Internal_DrawFXKeys
     {
         public static readonly ValueParameterKey<Matrix> proj = ParameterKeys.NewValue<Matrix>();
         public static readonly ObjectParameterKey<Texture> tex = ParameterKeys.NewObject<Texture>();

@@ -126,8 +126,8 @@ namespace VL.ImGui
                             );
 
                             imShader.SetParameters(context?.RenderContext.RenderView, context);
-                            imShader.Parameters.Set(ImGuiShader_DrawFXKeys.tex, tex);
-                            imShader.Parameters.Set(ImGuiShader_DrawFXKeys.proj, ref projMatrix);
+                            imShader.Parameters.Set(ImGuiShader_Internal_DrawFXKeys.tex, tex);
+                            imShader.Parameters.Set(ImGuiShader_Internal_DrawFXKeys.proj, ref projMatrix);
                             imShader.EffectInstance.Apply(graphicsContext);
 
                             commandList.DrawIndexed((int)cmd.ElemCount, idxOffset, vtxOffset);

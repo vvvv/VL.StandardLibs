@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="DMlELkd2l3HOz5sTmp1n1q" LanguageVersion="2024.6.0-0221-g9d6ea9f287" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="DMlELkd2l3HOz5sTmp1n1q" LanguageVersion="2024.6.0-0244-ga4b76baedd" Version="0.128">
   <NugetDependency Id="DbAdJ31HBy1PbDLahtug34" Location="VL.CoreLib" Version="2024.6.0-0103-gc194a3c679" />
   <Patch Id="FFx3LXlAdM5Oyj8gkLZSnq">
     <Canvas Id="Fmkh8w0VAdpL9F32IhWkuM" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -16,9 +16,11 @@
       <Patch Id="Kj4zN2pSDZyMsGy3nPVs5J">
         <Canvas Id="Q7ujoIcbfq9MrofKtsaq2f" CanvasType="Group">
           <Node Bounds="625,553,666,647" Id="I0szXnUCoAdMn7eNInDnrQ">
-            <p:NodeReference LastCategoryFullName="Renderer" LastDependency="VL.ImGui.Stride.vl">
+            <p:NodeReference LastCategoryFullName="Stride.Rendering" LastDependency="VL.ImGui.Stride.vl">
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
-              <CategoryReference Kind="Category" Name="Renderer" NeedsToBeDirectParent="true" />
+              <CategoryReference Kind="Category" Name="Rendering" NeedsToBeDirectParent="true">
+                <p:OuterCategoryReference Kind="Category" Name="Stride" NeedsToBeDirectParent="true" />
+              </CategoryReference>
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
             <Pin Id="EQxdb8e2of8LG2tTjTrpzm" Name="Node Context" Kind="InputPin" IsHidden="true" />
@@ -241,44 +243,13 @@
               </Pad>
             </Patch>
           </Node>
-          <Node Bounds="1309,222,61,19" Id="Ti79uuJ4tnNLYgH2qSzOXe">
-            <p:NodeReference LastCategoryFullName="2D.Rectangle" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="OperationCallFlag" Name="Rectangle (Join)" />
-            </p:NodeReference>
-            <Pin Id="BdtVtAlmL61Pw51BYFRUoR" Name="Position" Kind="InputPin" />
-            <Pin Id="LdSogXovLD2Phb4NyQef8v" Name="Size" Kind="InputPin" />
-            <Pin Id="QFKDwbu7U1BLrkJ2FfXYsC" Name="Anchor" Kind="InputPin" />
-            <Pin Id="Dd1Jbj3Hi4dNTBCWFVYfDD" Name="Output" Kind="StateOutputPin" />
-          </Node>
-          <Pad Id="IljgXSfNDRQQbBoa3wBsyI" Comment="Position" Bounds="1301,155,35,28" ShowValueBox="true" isIOBox="true" Value="0.31, 0.31">
-            <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="Vector2" />
-            </p:TypeAnnotation>
-          </Pad>
-          <Node Bounds="1311,270,53,19" Id="DshkBebPRuvL9iHFp7yYfi">
-            <p:NodeReference LastCategoryFullName="Reactive" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="Channel" />
-            </p:NodeReference>
-            <Pin Id="T8BWQ0xXXldN7WICaZ84tr" Name="Node Context" Kind="InputPin" IsHidden="true" />
-            <Pin Id="Fj2bX7z0WvhLI0GsaghLjz" Name="Initial Value" Kind="InputPin" IsHidden="true" />
-            <Pin Id="C919BH7KKghLCyqutVhw8T" Name="Value" Kind="InputPin" />
-            <Pin Id="DJs54js8nG8Oe22KCPjDYS" Name="Output" Kind="OutputPin" />
-            <Pin Id="UNUMpfJa86zMpmvcEvdkmT" Name="Value" Kind="OutputPin" />
-          </Node>
-          <Pad Id="NKjzsEdxLcELefWosr7Hv1" Comment="Size" Bounds="1399,164,35,28" ShowValueBox="true" isIOBox="true" Value="2, 2">
-            <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="Vector2" />
-            </p:TypeAnnotation>
-          </Pad>
-          <Node Bounds="656,1417,165,19" Id="QwZ5D2QoHtCOl7IVQdVNEc">
+          <Node Bounds="625,1242,165,19" Id="QwZ5D2QoHtCOl7IVQdVNEc">
             <p:NodeReference LastCategoryFullName="Stride" LastDependency="VL.Stride.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="RenderWindow" />
             </p:NodeReference>
             <Pin Id="Fl12B3HMT4BPmcuo7PpHeT" Name="Node Context" Kind="InputPin" IsHidden="true" />
-            <Pin Id="GhcCDIzQMCtOhsERZ5pcNu" Name="Bounds" Kind="InputPin" DefaultValue="2534, 629, 902, 785" IsHidden="true" />
+            <Pin Id="GhcCDIzQMCtOhsERZ5pcNu" Name="Bounds" Kind="InputPin" DefaultValue="1037, 248, 902, 785" IsHidden="true" />
             <Pin Id="VJX4VJyxB4BPhud7pl1ssH" Name="Bound to Document" Kind="InputPin" IsHidden="true" />
             <Pin Id="A6zCvb6EUdSPUa09mG9gQh" Name="Dialog If Document Changed" Kind="InputPin" IsHidden="true" />
             <Pin Id="CHYtnUtpED7OBsWI2Ci5ED" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
@@ -309,7 +280,7 @@
     ************************ TorusScene ************************
 
 -->
-          <Node Name="TorusScene" Bounds="1486,425" Id="Jtzuh5dfvS5PsM0hlvLzua">
+          <Node Name="TorusScene" Bounds="624,499" Id="Jtzuh5dfvS5PsM0hlvLzua">
             <p:NodeReference>
               <Choice Kind="ContainerDefinition" Name="Process" />
               <FullNameCategoryReference ID="Primitive" />
@@ -875,9 +846,6 @@
           <Fragment Id="O035j0dl0lWPibSeDtY5I3" Patch="Czk5T1LcpdvLurxJieheJc" Enabled="true" />
           <Fragment Id="K46DZViYSjCP9HxlX7lLN5" Patch="UZdQmu2M14lLUWci2j8OTi" Enabled="true" />
         </ProcessDefinition>
-        <Link Id="FfWScs4N9LLMy4PGdAWtaN" Ids="IljgXSfNDRQQbBoa3wBsyI,BdtVtAlmL61Pw51BYFRUoR" />
-        <Link Id="PYxsryqdpeuLaqBu996F45" Ids="Dd1Jbj3Hi4dNTBCWFVYfDD,C919BH7KKghLCyqutVhw8T" />
-        <Link Id="OWDpYhm4CyoMlp54VAU0qz" Ids="NKjzsEdxLcELefWosr7Hv1,LdSogXovLD2Phb4NyQef8v" />
         <Link Id="N8pAGahBh7xMkWFgvELeN5" Ids="HN1anayuozcNQ1zdTUewh2,Rv429OM6NbTLz4lrx5Ug3M" />
         <Link Id="OAaa9WR6WmBOCiNbOfZiUr" Ids="UG9VnIj3XNGOzHDCscJAOz,Mu9aYkL4ruCQQKsqkX8r2b" />
         <Link Id="Mf8pgHAOsKAO5UahxoZ1YR" Ids="Mu9aYkL4ruCQQKsqkX8r2b,CYnExgXbP2hOgFhPQhayQI" />
@@ -920,7 +888,5 @@
   </Patch>
   <NugetDependency Id="NWH7IPrOo49POOIZhNhwy5" Location="VL.ImGui.Stride" Version="0.0.0" />
   <NugetDependency Id="BnObwZKZzRoNy0SYZBP9Tz" Location="VL.ImGui" Version="0.0.0" />
-  <NugetDependency Id="AC6z9UuSuc2L9xVtXwf4Bk" Location="VL.ImGui.Skia" Version="0.0.0.0" />
   <NugetDependency Id="SaRgs6gsniQM46GkIFgEyN" Location="VL.Stride" Version="0.0.0" />
-  <NugetDependency Id="QvI6YoBdf8hPduM0rrWFra" Location="VL.Skia" Version="0.0.0" />
 </Document>
