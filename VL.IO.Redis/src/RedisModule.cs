@@ -14,7 +14,7 @@ using VL.Lib.Collections;
 using VL.Lib.Reactive;
 using VL.IO.Redis.Internal;
 
-namespace VL.IO.Redis
+namespace VL.IO.Redis.Experimental
 {
     [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
     public sealed class RedisModule : IModule, IDisposable
