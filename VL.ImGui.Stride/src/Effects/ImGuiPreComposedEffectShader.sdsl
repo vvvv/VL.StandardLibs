@@ -1,24 +1,44 @@
 ﻿namespace VL.ImGui.Stride.Effects
 {
-    internal shader ImGuiEffectShader<bool TSRgb> : ShaderBase, PositionStream2, ColorBase, Texturing
+    internal shader ImGuiPreComposedEffectShader<bool TSRgb> : ShaderBase, PositionStream2, ColorBase, Texturing
     {
         matrix proj;
+        stage Texture2D PreComposedTexture;
+
+        stream float2 backDropTexCoord; 
 
         override stage void VSMain() 
         {
             streams.ShadingPosition = mul(proj, float4(streams.Position2, 0.0, 1.0f)) + float4(-1.0f, 1.0f, 0.0f, 0.0f);
+            streams.backDropTexCoord = streams.ShadingPosition / 2 + 0.5;
+            streams.backDropTexCoord.y = 1- streams.backDropTexCoord.y;
 
             if (TSRgb)
             {
                 streams.Color = ColorUtility.SRgbToLinear(streams.Color);                
-                float additionalAdjust = pow(streams.Color.a, 1.2);
-                streams.Color.rgb *= additionalAdjust;
+                //float additionalAdjust = pow(streams.Color.a, 1.2); 
+                //streams.Color.rgb *= additionalAdjust;
             }
         }
 
         override stage void PSMain() 
         {
-            streams.ColorTarget = streams.Color * Texture0.Sample(LinearSampler, streams.TexCoord);
+            float4 imguiCol = streams.Color * Texture0.Sample(LinearSampler, streams.TexCoord);
+            float3 imguiCol3 = imguiCol.rgb;
+            float a = imguiCol.a; 
+
+            float4 backdropCol = PreComposedTexture.Sample(LinearSampler, streams.backDropTexCoord);
+            float3 backdropCol3 = backdropCol.rgb;
+            
+            imguiCol3 = pow(imguiCol3, 1/2.2);
+            backdropCol3 = pow(backdropCol3, 1/2.2);
+            
+            float3 blended = lerp(backdropCol3, imguiCol3, a);
+
+            blended = pow(blended, 2.2);
+
+            streams.ColorTarget = float4(blended.rgb, 1); 
+            //streams.ColorTarget = float4(streams.backDropTexCoord, 0, 1);
         }
 
         // Converts an srgb color to linear space. Alpha is treated the same. 
