@@ -109,7 +109,7 @@ namespace VL.Core
                 this.valueProperty = valueProperty;
             }
 
-            public bool HasValue(TMonad monad) => monad is not null;
+            public bool HasValue(TMonad? monad) => monad is not null;
 
             public TValue GetValue(TMonad monad) => (TValue)valueProperty.GetValue(monad)!;
 

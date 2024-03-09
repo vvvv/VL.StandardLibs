@@ -9,20 +9,13 @@ namespace VL.Core
     {
         public static bool IsMonadicType(this Type type)
         {
-            return type.GetCustomAttributeSafe<MonadicAttribute>() != null || Nullable.GetUnderlyingType(type) != null;
+            return type.GetCustomAttributeSafe<MonadicAttribute>() != null;
         }
 
         public static Type? GetMonadicFactoryType(this Type monadicType, Type valueType)
         {
             var attribute = monadicType.GetCustomAttributeSafe<MonadicAttribute>();
             var factoryType = attribute?.Factory;
-
-            if (factoryType is null)
-            {
-                if (monadicType.IsGenericType && monadicType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                    factoryType = typeof(NullableMonadicFactory<>);
-            }
-
             return factoryType?.MakeGenericType(valueType);
         }
 
