@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Stride.Core;
 using Stride.Core.Mathematics;
@@ -85,6 +86,33 @@ namespace VL.Stride.Shaders.ShaderFX
         public IMonadBuilder<T, SetVar<T>> GetMonadBuilder(bool isConstant)
         {
             return new GpuValueBuilder<T>();
+        }
+
+        public IMonadicValueEditor<T, SetVar<T>> GetEditor() => new Editor();
+
+        sealed class Editor : IMonadicValueEditor<T, SetVar<T>>
+        {
+            public SetVar<T> Create(T value)
+            {
+                var inputValue = new InputValue<T>() { Input = value };
+                return DeclAndSetVar(inputValue);
+            }
+
+            public T GetValue(SetVar<T> monad)
+            {
+                if (monad.Value is InputValue<T> inputValue)
+                    return inputValue.Input;
+                return default;
+            }
+
+            public bool HasValue([NotNullWhen(true)] SetVar<T> monad) => monad?.Value is InputValue<T>;
+
+            public SetVar<T> SetValue(SetVar<T> monad, T value)
+            {
+                if (monad.Value is InputValue<T> inputValue)
+                    inputValue.Input = value;
+                return monad;
+            }
         }
     }
 

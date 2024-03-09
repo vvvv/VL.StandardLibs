@@ -83,40 +83,34 @@ namespace VL.Core
         /// <returns>The monad builder</returns>
         IMonadBuilder<TValue, TMonad> GetMonadBuilder(bool isConstant, NodeContext nodeContext) => GetMonadBuilder(isConstant);
 
-        IMonadicValueEditor<TValue, TMonad>? GetEditor(TMonad monad)
+        IMonadicValueEditor<TValue, TMonad> GetEditor() => new DynamicEditor(this);
+
+        sealed class DynamicEditor(IMonadicFactory<TValue, TMonad> factory) : IMonadicValueEditor<TValue, TMonad>
         {
-            if (monad is null)
-                return null;
-
-            if (monad is IMonadicValueEditor<TValue, TMonad> editor)
-                return editor;
-
-            var valueProperty = monad.GetType().GetProperty("Value");
-            if (valueProperty != null &&
-                valueProperty.GetMethod != null && valueProperty.GetMethod.IsPublic &&
-                valueProperty.SetMethod != null && valueProperty.SetMethod.IsPublic)
-                return new DynamicEditor(valueProperty);
-
-            return null;
-        }
-
-        sealed class DynamicEditor : IMonadicValueEditor<TValue, TMonad>
-        {
-            private readonly PropertyInfo valueProperty;
-
-            public DynamicEditor(PropertyInfo valueProperty)
+            public TMonad Create(TValue value)
             {
-                this.valueProperty = valueProperty;
+                var builder = factory.GetMonadBuilder(false);
+                return builder.Return(value);
             }
 
             public bool HasValue(TMonad? monad) => monad is not null;
 
-            public TValue GetValue(TMonad monad) => (TValue)valueProperty.GetValue(monad)!;
+            public TValue GetValue(TMonad monad) => GetValueProperty(monad)?.GetValue(monad) is TValue v ? v : default!;
 
             public TMonad SetValue(TMonad monad, TValue value)
             {
-                valueProperty.SetValue(monad, value);
+                GetValueProperty(monad)?.SetValue(monad, value);
                 return monad!;
+            }
+
+            private PropertyInfo? GetValueProperty(TMonad monad)
+            {
+                var valueProperty = monad?.GetType().GetProperty("Value");
+                if (valueProperty != null &&
+                    valueProperty.GetMethod != null && valueProperty.GetMethod.IsPublic &&
+                    valueProperty.SetMethod != null && valueProperty.SetMethod.IsPublic)
+                    return valueProperty;
+                return null;
             }
         }
     }
@@ -138,6 +132,7 @@ namespace VL.Core
 
     public interface IMonadicValueEditor<TValue, TMonad>
     {
+        TMonad Create(TValue value);
         bool HasValue([NotNullWhen(true)] TMonad? monad);
         TValue GetValue(TMonad monad);
         TMonad SetValue(TMonad monad, TValue value);

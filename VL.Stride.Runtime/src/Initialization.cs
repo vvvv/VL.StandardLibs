@@ -22,7 +22,7 @@ using VL.Stride.Rendering;
 using VL.Stride.Rendering.Compositing;
 using VL.Stride.Rendering.Lights;
 using VL.Stride.Rendering.Materials;
-
+using VL.Stride.Shaders.ShaderFX;
 using ServiceRegistry = global::Stride.Core.ServiceRegistry;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Core.Initialization))]
@@ -66,6 +66,33 @@ namespace VL.Stride.Core
             services.RegisterProvider(game => ResourceProvider.Return(game.Input));
 
             RegisterNodeFactories(appHost);
+
+            appHost.Factory.RegisterSerializer<SetVar<float>, SetVarSerializer<float>>();
+        }
+
+        class SetVarSerializer<T> : ISerializer<SetVar<T>>
+            where T : unmanaged
+        {
+            public object Serialize(SerializationContext context, SetVar<T> value)
+            {
+                if (value is null)
+                    return null;
+
+                var inputValue = value.Value as InputValue<T>;
+                if (inputValue != null)
+                    return context.Serialize(null, inputValue.Input);
+                return null;
+            }
+
+            public SetVar<T> Deserialize(SerializationContext context, object content, Type type)
+            {
+                if (content is null)
+                    return null;
+
+                var value = context.Deserialize<T>(content, null);
+                var inputValue = new InputValue<T>() { Input = value };
+                return ShaderFXUtils.DeclAndSetVar<T>("Input", inputValue);
+            }
         }
 
         void RegisterNodeFactories(AppHost appHost)

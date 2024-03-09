@@ -26,11 +26,8 @@ namespace VL.ImGui.Editors.Implementations
 
         private static MonadicEditor<TMonad, TValue>? Create_Generic<TMonad, TValue>(IChannel<TMonad> channel, ObjectEditorContext context)
         {
-            var factory = typeof(TMonad).GetMonadicFactory<TValue, TMonad>();
-            var monadicValueEditor = factory!.GetEditor(channel.Value!);
-            if (monadicValueEditor is null)
-                return null;
-
+            var factory = typeof(TMonad).GetMonadicFactory<TValue, TMonad>()!;
+            var monadicValueEditor = factory.GetEditor();
             return new MonadicEditor<TMonad, TValue>(channel, context, factory.GetMonadBuilder(false), monadicValueEditor);
         }
     }
