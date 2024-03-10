@@ -8,12 +8,12 @@
         {
             streams.ShadingPosition = mul(proj, float4(streams.Position2, 0.0, 1.0f)) + float4(-1.0f, 1.0f, 0.0f, 0.0f);
 
-            if (TSRgb)
-            {
-                streams.Color = ColorUtility.SRgbToLinear(streams.Color);                
-                float additionalAdjust = pow(streams.Color.a, 1.2);
-                streams.Color.rgb *= additionalAdjust;
-            }
+            //if (TSRgb)
+            //{
+            //    streams.Color = ColorUtility.SRgbToLinear(streams.Color);                
+                //float additionalAdjust = pow(streams.Color.a, 1.2);
+                //streams.Color.rgb *= additionalAdjust;
+            //}
         }
 
         override stage void PSMain() 
