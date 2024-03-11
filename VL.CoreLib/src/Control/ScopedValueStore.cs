@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stride.Core.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -79,6 +80,9 @@ namespace VL.Lib.Control
 
         public static T LookupByName<T>(NodeContext nodeContext, string key, bool warn = true)
         {
+            if (key.IsNullOrEmpty())
+                return LookupAnon<T>(nodeContext, warn);
+
             if (WarnIfStackIsNull(nodeContext))
                 return default;
             foreach (var dataLayer in stack)
@@ -104,13 +108,36 @@ namespace VL.Lib.Control
             }
         }
 
-        public void ActivateScope(IReadOnlyList<object> inputValues)
+        public void ActivateScope(NodeContext nodeContext, IReadOnlyList<object> inputValues)
         {
             if (inputs.Count != inputValues.Count)
                 throw new ArgumentException("ScopedValueStore issue");
 
             if (stack == null)
                 stack = new();
+
+            try
+            {
+                var anonIssues = inputValues
+                     .Where((input, index) => inputs[index].Name.IsNullOrEmpty())
+                     .GroupBy(i => i.GetType())
+                     .Where(x => x.Count() > 1);
+                if (anonIssues.Any())
+                {
+                    Warn(nodeContext, $"More than one anonymous sender of the same type. Types: {string.Join(", ", anonIssues.Select(x => x.Key.Name))}");
+                }
+                var nameIssues = inputs
+                    .Where((input, index) => !inputs[index].Name.IsNullOrEmpty())
+                    .GroupBy(input => input.Name)
+                    .Where(x => x.Count() > 1);
+                if (nameIssues.Any())
+                {
+                    Warn(nodeContext, $"More than one named sender with the same name. Names: {string.Join(", ", nameIssues.Select(x => x.Key))}");
+                }
+            }
+            catch (Exception)
+            { 
+            }
 
             for (int i = 0; i < inputs.Count; i++)
             {
