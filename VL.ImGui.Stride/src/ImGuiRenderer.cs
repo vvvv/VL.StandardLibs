@@ -64,11 +64,12 @@ namespace VL.ImGui
 
         //VL 
         NodeContext nodeContext;
+        bool twoPasses = false;
 
-
-        public unsafe ImGuiRenderer(NodeContext nodeContext)
+        public unsafe ImGuiRenderer(NodeContext nodeContext, Optional<bool> sRGB = default, bool twoPasses = false)
         {
             this.nodeContext = nodeContext;
+            this.twoPasses = twoPasses;
 
             deviceHandle = AppHost.Current.Services.GetDeviceHandle();
             GraphicsContextHandle = AppHost.Current.Services.GetGraphicsContextHandle();
@@ -78,10 +79,9 @@ namespace VL.ImGui
             var effectSystem = gameHandle.Resource.EffectSystem;
 
             var compilerParameters = new CompilerParameters();
-            compilerParameters.Set(ImGuiEffectShaderKeys.ColorIsSRgb, device.ColorSpace == ColorSpace.Linear);
+            compilerParameters.Set(ImGuiEffectShaderKeys.ColorIsSRgb, sRGB.HasValue ? sRGB.Value : device.ColorSpace == ColorSpace.Linear);
             imShader = new EffectInstance(effectSystem.LoadEffect("ImGuiEffect", compilerParameters).WaitForResult());
             imShader.UpdateEffect(device);
-
 
             _context = new StrideContext();
             using (_context.MakeCurrent())
@@ -102,7 +102,20 @@ namespace VL.ImGui
                 // pipeline desc
                 var pipeline = new PipelineStateDescription()
                 {
-                    BlendState = BlendStates.NonPremultiplied,
+                    BlendState = new BlendStateDescription()
+                    {
+                        RenderTarget0 = new BlendStateRenderTargetDescription()
+                        {
+                            ColorBlendFunction = BlendFunction.Add,
+                            ColorSourceBlend = Blend.SourceAlpha,
+                            ColorDestinationBlend = Blend.InverseSourceAlpha,
+                            BlendEnable = true,
+                            AlphaBlendFunction = BlendFunction.Max,
+                            AlphaDestinationBlend = Blend.One,
+                            AlphaSourceBlend = Blend.Zero,
+                            ColorWriteChannels = ColorWriteChannels.All,
+                        }
+                    },
 
                     RasterizerState = new RasterizerStateDescription()
                     {
@@ -116,7 +129,12 @@ namespace VL.ImGui
 
                     PrimitiveType = PrimitiveType.TriangleList,
                     InputElements = imVertLayout.CreateInputElements(),
-                    DepthStencilState = DepthStencilStates.Default,
+                    DepthStencilState = new DepthStencilStateDescription
+                    {
+                        DepthBufferEnable = true,
+                        DepthBufferFunction = CompareFunction.Always,
+                        DepthBufferWriteEnable = true,
+                    },
 
                     EffectBytecode = imShader.Effect.Bytecode,
                     RootSignature = imShader.RootSignature,
@@ -179,8 +197,39 @@ namespace VL.ImGui
             this.style = style;
         }
 
+        public IGraphicsRendererBase SecondPass()
+        {
+            return new secondPass(this);
+        }
+
+        class secondPass : IGraphicsRendererBase
+        {
+            private ImGuiRenderer imGuiRenderer;
+
+            public secondPass(ImGuiRenderer imGuiRenderer)
+            {
+                this.imGuiRenderer = imGuiRenderer;
+            }
+
+            public void Draw(RenderDrawContext context)
+            {
+                imGuiRenderer.pass = 1;
+                try
+                {
+                    imGuiRenderer.Draw(context);
+                }
+                finally
+                {
+                    imGuiRenderer.pass = default;
+                }
+            }
+        }
+
         protected override void DrawCore(RenderDrawContext context)
         {
+            if (twoPasses && pass == default)
+                pass = 0;
+
             var commandList = context.CommandList;
             var renderTarget = commandList.RenderTarget;
 

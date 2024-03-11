@@ -46,6 +46,8 @@ namespace VL.ImGui
             }
         }
 
+        int? pass = default;
+
         void RenderDrawLists(RenderDrawContext context, ImDrawDataPtr drawData)
         {
             var commandList = context.CommandList;
@@ -68,6 +70,9 @@ namespace VL.ImGui
 
                     if (cmd.UserCallback != IntPtr.Zero)
                     {
+                        if (pass == 0)
+                            continue;
+
                         RenderLayer? renderLayer = _context.GetRenderer(cmd.UserCallback);
 
                         if (renderLayer != null)
@@ -100,6 +105,9 @@ namespace VL.ImGui
                     }
                     else
                     {
+                        if (pass == 1)
+                            continue;
+
                         Texture? tex = null;
 
                         if (cmd.TextureId != IntPtr.Zero)

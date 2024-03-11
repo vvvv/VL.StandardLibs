@@ -6,6 +6,7 @@ using Stride.Rendering;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using VL.ImGui.Stride.Effects;
+using Stride.Core.Shaders.Ast.Hlsl;
 
 
 namespace VL.ImGui
