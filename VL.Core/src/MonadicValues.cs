@@ -7,32 +7,24 @@ using VL.Lib.IO;
 namespace VL.Core
 {
     /// <summary>
-    /// Marks a type as monadic - it can wrap any basic type. The value wrapping is done through an intermediate as specified by the given factory.
+    /// Allows to specify a type filter 
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
-    public class MonadicAttribute : Attribute
+    public class MonadicTypeFilterAttribute : Attribute
     {
-        public Type Factory { get; }
-
         /// <summary>
-        /// An optional type filter. The type must have a default constructor and implement <see cref="IMonadicTypeFilter"/>.
+        /// The type must have a default constructor and implement <see cref="IMonadicTypeFilter"/>.
         /// </summary>
-        public Type? TypeFilter { get; }
+        public Type TypeFilter { get; }
 
-        public MonadicAttribute(Type factory)
+        public MonadicTypeFilterAttribute(Type typeFilter)
         {
-            Factory = factory;
-        }
-
-        public MonadicAttribute(Type factory, Type typeFilter)
-        {
-            Factory = factory;
             TypeFilter = typeFilter;
         }
     }
 
     /// <summary>
-    /// Allows to define what types the factory accepts.
+    /// Allows to define what types shall be accepted by a <see cref="IMonadicValue{TValue}"/>.
     /// </summary>
     public interface IMonadicTypeFilter
     {
@@ -61,82 +53,22 @@ namespace VL.Core
         public bool IsPrimitive => IsUnmanaged || IsString || IsPath;
     }
 
-    /// <summary>
-    /// Implementations must have a default constructor as well as a static readonly field called "Default".
-    /// </summary>
-    /// <typeparam name="TValue">The type of the value</typeparam>
-    /// <typeparam name="TMonad">The type of the monadic value</typeparam>
-    public interface IMonadicFactory<TValue, TMonad>
+    public interface IMonadicValue
     {
-        /// <summary>
-        /// Creates a monad builder.
-        /// </summary>
-        /// <param name="isConstant">Whether or not the value is constant.</param>
-        /// <returns>The monad builder</returns>
-        IMonadBuilder<TValue, TMonad> GetMonadBuilder(bool isConstant);
-
-        /// <summary>
-        /// Creates a monad builder.
-        /// </summary>
-        /// <param name="isConstant">Whether or not the value is constant.</param>
-        /// <param name="nodeContext">The node context - its path will have the id of the sink appended to it.</param>
-        /// <returns>The monad builder</returns>
-        IMonadBuilder<TValue, TMonad> GetMonadBuilder(bool isConstant, NodeContext nodeContext) => GetMonadBuilder(isConstant);
-
-        IMonadicValueEditor<TValue, TMonad> GetEditor() => new DynamicEditor(this);
-
-        sealed class DynamicEditor(IMonadicFactory<TValue, TMonad> factory) : IMonadicValueEditor<TValue, TMonad>
-        {
-            public TMonad Create(TValue value)
-            {
-                var builder = factory.GetMonadBuilder(false);
-                return builder.Return(value);
-            }
-
-            public bool HasValue(TMonad? monad) => monad is not null;
-
-            public TValue GetValue(TMonad monad) => GetValueProperty(monad)?.GetValue(monad) is TValue v ? v : default!;
-
-            public TMonad SetValue(TMonad monad, TValue value)
-            {
-                GetValueProperty(monad)?.SetValue(monad, value);
-                return monad!;
-            }
-
-            private PropertyInfo? GetValueProperty(TMonad monad)
-            {
-                var valueProperty = monad?.GetType().GetProperty("Value");
-                if (valueProperty != null &&
-                    valueProperty.GetMethod != null && valueProperty.GetMethod.IsPublic &&
-                    valueProperty.SetMethod != null && valueProperty.SetMethod.IsPublic)
-                    return valueProperty;
-                return null;
-            }
-        }
+        static abstract IMonadicValue Create(NodeContext nodeContext);
     }
 
-    /// <summary>
-    /// Builds the monadic value <typeparamref name="TMonad"/> out of <typeparamref name="TValue"/>.
-    /// </summary>
-    /// <typeparam name="TValue">The type of the value</typeparam>
-    /// <typeparam name="TMonad">The type of the monadic value</typeparam>
-    public interface IMonadBuilder<TValue, TMonad>
+    public interface IMonadicValue<TValue> : IMonadicValue
     {
-        TMonad Return(TValue value);
-
-        /// <summary>
-        /// Called when the system has no value yet. This is usually true for unconnected input pins.
-        /// </summary>
-        TMonad? Default() => default;
+        bool HasValue { get; }
+        TValue? Value { get; set; }
     }
 
     public interface IMonadicValueEditor<TValue, TMonad>
     {
         TMonad Create(TValue value);
-
-        TMonad? Default() => default;
         bool HasValue([NotNullWhen(true)] TMonad? monad);
-        TValue GetValue(TMonad monad);
-        TMonad SetValue(TMonad monad, TValue value);
+        TValue? GetValue(TMonad monad);
+        TMonad SetValue(TMonad monad, TValue? value);
     }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Channels;
 using VL.Core;
 using VL.Lib.Collections;
 
@@ -27,15 +28,15 @@ namespace VL.Lib.Reactive
         IDisposable BeginChange();
     }
 
-    [Monadic(typeof(Monadic.ChannelFactory<>))]
-    public interface IChannel<T> : IChannel, ISubject<T?>
+    public interface IChannel<T> : IChannel, ISubject<T?>, IMonadicValue<T>
     {
+        static IMonadicValue IMonadicValue.Create(NodeContext nodeContext) => ChannelHelpers.CreateChannelOfType<T>();
         public T? Value { get; set; }
         void SetValueAndAuthor(T? value, string? author);
         Func<T?, Optional<T?>>? Validator { set; }
     }
 
-    internal abstract class C<T> : IChannel<T>
+    internal abstract class C<T> : IChannel<T>, IMonadicValue<T>
     {
         protected readonly Subject<T?> subject = new();
         protected int lockCount = 0;
@@ -104,6 +105,8 @@ namespace VL.Lib.Reactive
         }
 
         IChannel<object> IChannel.ChannelOfObject => channelOfObject;
+
+        public virtual bool HasValue => true;
 
         public Type ClrTypeOfValues => typeof(T);
 
@@ -184,10 +187,34 @@ namespace VL.Lib.Reactive
             if (lockCount == 0 && revisionOnLockTaken != revision)
                 SetValueAndAuthor(this.Value, LatestAuthor);
         }
+
+        T? IMonadicValue<T>.Value
+        {
+            get => Value;
+            set => SetValueIfChanged(value);
+        }
+
+        protected void SetValueIfChanged(T? value)
+        {
+            if (!EqualityComparer<T>.Default.Equals(value, lastValue))
+            {
+                lastValue = value;
+                Value = value;
+            }
+        }
+        T? lastValue;
     }
 
     internal class Channel<T> : C<T>, IChannel<object>
     {
+        static IMonadicValue IMonadicValue.Create(NodeContext nodeContext) => ChannelHelpers.CreateChannelOfType<T>();
+
+        object? IMonadicValue<object>.Value 
+        { 
+            get => Value; 
+            set => SetValueIfChanged((T?)value); 
+        }
+
         protected override IChannel<object> channelOfObject => this;
 
         object? IChannel<object>.Value { get => Value; set { Value = (T?)value; } }
@@ -259,6 +286,8 @@ namespace VL.Lib.Reactive
             Value = AppHost.CurrentOrGlobal.GetDefaultValue<T>();
             Enabled = false;
         }
+
+        public override bool HasValue => false;
     }
 
     public static class Channel

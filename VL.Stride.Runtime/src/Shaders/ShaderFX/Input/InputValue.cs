@@ -5,15 +5,21 @@ using static VL.Stride.Shaders.ShaderFX.ShaderFXUtils;
 
 namespace VL.Stride.Shaders.ShaderFX
 {
-    public class InputValue<T> : ComputeValue<T>
+    internal interface IInputValue<T>
+    {
+        T Input { get; set; }
+    }
+
+    public class InputValue<T> : ComputeValue<T>, IInputValue<T>
         where T : struct
     {
-        private readonly ValueParameterUpdater<T> updater = new ValueParameterUpdater<T>();
+        private readonly ValueParameterUpdater<T> updater;
 
-        public InputValue(ValueParameterKey<T> key = null, string constantBufferName = null)
+        public InputValue(ValueParameterKey<T> key = null, string constantBufferName = null, bool convertToDeviceColorSpace = false)
         {
             Key = key;
             ConstantBufferName = constantBufferName;
+            updater = new ValueParameterUpdater<T>(convertToDeviceColorSpace: convertToDeviceColorSpace);
         }
 
         /// <summary>
