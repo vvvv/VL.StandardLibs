@@ -78,7 +78,7 @@ namespace VL.ImGui
             var effectSystem = gameHandle.Resource.EffectSystem;
 
             var compilerParameters = new CompilerParameters();
-            compilerParameters.Set(ImGuiEffectShaderKeys.ColorIsSRgb, device.ColorSpace == ColorSpace.Linear);
+            compilerParameters.Set(ImGuiEffectKeys.ColorIsSRgb, device.ColorSpace == ColorSpace.Linear);
             imShader = new EffectInstance(effectSystem.LoadEffect("ImGuiEffect", compilerParameters).WaitForResult());
             imShader.UpdateEffect(device);
 

@@ -2,7 +2,7 @@
 
 namespace VL.ImGui.Stride.Effects
 {
-    internal partial class ImGuiEffectShaderKeys
+    internal partial class ImGuiEffectKeys
     {
         public static readonly PermutationParameterKey<bool> ColorIsSRgb = ParameterKeys.NewPermutation(false);
     }

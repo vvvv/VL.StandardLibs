@@ -22,7 +22,7 @@ namespace VL.ImGui.Stride.Effects
         {
             public void Generate(ShaderMixinSource mixin, ShaderMixinContext context)
             {
-                context.Mixin(mixin, "ImGuiEffectShader", context.GetParam(ImGuiEffectShaderKeys.ColorIsSRgb));
+                context.Mixin(mixin, "ImGuiEffectShader", context.GetParam(ImGuiEffectKeys.ColorIsSRgb));
             }
 
             [ModuleInitializer]
