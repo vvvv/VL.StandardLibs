@@ -2,6 +2,7 @@
 using MathNet.Numerics.Distributions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
@@ -67,7 +68,10 @@ namespace VL.ImGui.Editors.Implementations
                     else
                         return default;
                 },
-                toA: v => monadicValueEditor.SetValue(channel.Value!, v!),
+                toA: v =>
+                {
+                    return monadicValueEditor.SetValue(channel.Value!, v!);
+                },
                 initialization: ChannelMergeInitialization.UseA,
                 pushEagerlyTo: ChannelSelection.ChannelA);
         }
@@ -86,19 +90,6 @@ namespace VL.ImGui.Editors.Implementations
             BeginGroup();
             try
             {
-                if (hasValue)
-                {
-                    innerEditor.Draw(context);
-                }
-                else
-                {
-                    LabelText(textLabel, "Not set");
-                }
-
-                //EndDisabled();
-
-                SameLine();
-
                 if (Checkbox(checkboxLabel, ref hasValue))
                 {
                     if (hasValue)
@@ -109,6 +100,17 @@ namespace VL.ImGui.Editors.Implementations
                     {
                         channel.Value = AppHost.Current.GetDefaultValue<TMonad>();
                     }
+                }
+
+                SameLine();
+
+                if (hasValue)
+                {
+                    innerEditor.Draw(context);
+                }
+                else
+                {
+                    LabelText(textLabel, "Not set");
                 }
             }
             finally

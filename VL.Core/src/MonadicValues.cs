@@ -133,6 +133,8 @@ namespace VL.Core
     public interface IMonadicValueEditor<TValue, TMonad>
     {
         TMonad Create(TValue value);
+
+        TMonad? Default() => default;
         bool HasValue([NotNullWhen(true)] TMonad? monad);
         TValue GetValue(TMonad monad);
         TMonad SetValue(TMonad monad, TValue value);
