@@ -83,31 +83,37 @@ namespace VL.ImGui.Editors.Implementations
         {
             var hasValue = monadicValueEditor.HasValue(channel.Value);
 
-            //BeginDisabled(disabled: !hasValue);
-
-            if (hasValue)
-            {
-                innerEditor.Draw(context);
-            }
-            else
-            {
-                LabelText(textLabel, "Not set");
-            }
-
-            //EndDisabled();
-
-            SameLine();
-
-            if (Checkbox(checkboxLabel, ref hasValue))
+            BeginGroup();
+            try
             {
                 if (hasValue)
                 {
-                    channel.Value = monadicValueEditor.Create(AppHost.Current.GetDefaultValue<TValue>()!);
+                    innerEditor.Draw(context);
                 }
                 else
                 {
-                    channel.Value = AppHost.Current.GetDefaultValue<TMonad>();
+                    LabelText(textLabel, "Not set");
                 }
+
+                //EndDisabled();
+
+                SameLine();
+
+                if (Checkbox(checkboxLabel, ref hasValue))
+                {
+                    if (hasValue)
+                    {
+                        channel.Value = monadicValueEditor.Create(AppHost.Current.GetDefaultValue<TValue>()!);
+                    }
+                    else
+                    {
+                        channel.Value = AppHost.Current.GetDefaultValue<TMonad>();
+                    }
+                }
+            }
+            finally
+            {
+                EndGroup();
             }
         }
     }
