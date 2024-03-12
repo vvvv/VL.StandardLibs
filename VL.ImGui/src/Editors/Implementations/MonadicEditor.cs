@@ -28,7 +28,7 @@ namespace VL.ImGui.Editors.Implementations
         {
             var factory = typeof(TMonad).GetMonadicFactory<TValue, TMonad>()!;
             var monadicValueEditor = factory.GetEditor();
-            return new MonadicEditor<TMonad, TValue>(channel, context, factory.GetMonadBuilder(false), monadicValueEditor);
+            return new MonadicEditor<TMonad, TValue>(channel, context, monadicValueEditor);
         }
     }
 
@@ -38,17 +38,18 @@ namespace VL.ImGui.Editors.Implementations
 
         private readonly IChannel<TMonad> channel;
         private readonly IChannel<TValue> innerChannel;
-        private readonly IMonadBuilder<TValue, TMonad> monadBuilder;
         private readonly IMonadicValueEditor<TValue, TMonad> monadicValueEditor;
         private readonly IObjectEditor innerEditor;
         private readonly IDisposable connection;
 
-        public MonadicEditor(IChannel<TMonad> channel, ObjectEditorContext context, IMonadBuilder<TValue, TMonad> monadBuilder, IMonadicValueEditor<TValue, TMonad> monadicValueEditor)
+        public MonadicEditor(IChannel<TMonad> channel, ObjectEditorContext context, IMonadicValueEditor<TValue, TMonad> monadicValueEditor)
         {
             this.channel = channel;
             this.monadicValueEditor = monadicValueEditor;
-            this.monadBuilder = monadBuilder;
-            this.innerChannel = Channel.Create(monadicValueEditor.GetValue(channel.Value!));
+
+            this.innerChannel = ChannelHelpers.CreateChannelOfType<TValue>();
+            if (monadicValueEditor.HasValue(channel.Value))
+                this.innerChannel.Value = monadicValueEditor.GetValue(channel.Value);
             this.innerEditor = context.Factory.CreateObjectEditor(innerChannel, context)!;
             this.connection = ConnectChannels();
 
@@ -101,11 +102,11 @@ namespace VL.ImGui.Editors.Implementations
             {
                 if (hasValue)
                 {
-                    channel.Value = monadBuilder.Return(AppHost.Current.GetDefaultValue<TValue>()!);
+                    channel.Value = monadicValueEditor.Create(AppHost.Current.GetDefaultValue<TValue>()!);
                 }
                 else
                 {
-                    channel.Value = monadBuilder.Default();
+                    channel.Value = AppHost.Current.GetDefaultValue<TMonad>();
                 }
             }
         }
