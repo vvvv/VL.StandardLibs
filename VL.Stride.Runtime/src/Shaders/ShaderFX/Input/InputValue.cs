@@ -68,5 +68,7 @@ namespace VL.Stride.Shaders.ShaderFX
         {
             return (ValueParameterKey<T>)context.GetParameterKey(Key ?? GenericValueKeys<T>.GenericValueParameter);
         }
+
+        public override string ToString() => Input.ToString();
     }
 }

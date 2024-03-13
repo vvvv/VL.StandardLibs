@@ -273,6 +273,8 @@ namespace VL.Lib.Reactive
         }
 
         public static implicit operator T?(Channel<T> c) => c.Value;
+
+        public override string ToString() => Value?.ToString() ?? "NULL";
     }
 
     interface IDummyChannel { }
@@ -288,6 +290,8 @@ namespace VL.Lib.Reactive
         }
 
         public override bool HasValue => false;
+
+        public override string ToString() => "No Value";
     }
 
     public static class Channel

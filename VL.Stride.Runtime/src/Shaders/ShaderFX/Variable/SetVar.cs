@@ -84,6 +84,9 @@ namespace VL.Stride.Shaders.ShaderFX
 
         public override string ToString()
         {
+            if (Value is IInputValue<T> inputValue) 
+                return inputValue.ToString();
+
             if (Declaration is DeclConstant<T> constant)
                 return string.Format("Constant {0}", constant.VarName);
             else if (Declaration is DeclSemantic<T> semantic)

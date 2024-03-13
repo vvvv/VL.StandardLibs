@@ -36,6 +36,7 @@ namespace VL.ImGui.Editors.Implementations
     {
         private readonly string textLabel, checkboxLabel;
 
+        private readonly ObjectEditorContext editorContext;
         private readonly IChannel<TMonad> channel;
         private readonly IChannel<TValue> innerChannel;
         private readonly IMonadicValueEditor<TValue, TMonad> monadicValueEditor;
@@ -44,6 +45,7 @@ namespace VL.ImGui.Editors.Implementations
 
         public MonadicEditor(IChannel<TMonad> channel, ObjectEditorContext context, IMonadicValueEditor<TValue, TMonad> monadicValueEditor)
         {
+            this.editorContext = context;
             this.channel = channel;
             this.monadicValueEditor = monadicValueEditor;
 
@@ -89,6 +91,9 @@ namespace VL.ImGui.Editors.Implementations
             BeginGroup();
             try
             {
+                if (editorContext.ViewOnly)
+                    BeginDisabled();
+
                 if (Checkbox(checkboxLabel, ref hasValue))
                 {
                     if (hasValue)
@@ -100,6 +105,9 @@ namespace VL.ImGui.Editors.Implementations
                         channel.Value = AppHost.Current.GetDefaultValue<TMonad>();
                     }
                 }
+
+                if (editorContext.ViewOnly)
+                    EndDisabled();
 
                 SameLine();
 
