@@ -291,7 +291,7 @@ namespace VL.Lib.Reactive
 
         public override bool HasValue => false;
 
-        public override string ToString() => "No Value";
+        public override string ToString() => "I am a DUMMY";
     }
 
     public static class Channel
