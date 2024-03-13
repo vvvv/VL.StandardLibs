@@ -8,6 +8,7 @@ namespace VL.Core
     {
         object SerializeBoxed(SerializationContext context, object value);
         object DeserializeBoxed(SerializationContext context, object content, Type type);
+        bool IsDefaultImplementationBoxed(object value);
     }
 
     /// <summary>
@@ -33,8 +34,11 @@ namespace VL.Core
         /// <returns>The deserialized value.</returns>
         T Deserialize(SerializationContext context, object content, Type type);
 
+        bool IsDefaultImplementation(T value) => false;
+
         object IBoxedSerializer.SerializeBoxed(SerializationContext context, object value) => Serialize(context, (T)value);
         object IBoxedSerializer.DeserializeBoxed(SerializationContext context, object content, Type type) => Deserialize(context, content, type);
+        bool IBoxedSerializer.IsDefaultImplementationBoxed(object value) => IsDefaultImplementation((T)value);
     }
 
     /// <summary>
