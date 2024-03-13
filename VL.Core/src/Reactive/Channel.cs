@@ -31,7 +31,7 @@ namespace VL.Lib.Reactive
     public interface IChannel<T> : IChannel, ISubject<T?>, IMonadicValue<T>
     {
         static IMonadicValue IMonadicValue.Create(NodeContext nodeContext) => ChannelHelpers.CreateChannelOfType<T>();
-        public T? Value { get; set; }
+        new T? Value { get; set; }
         void SetValueAndAuthor(T? value, string? author);
         Func<T?, Optional<T?>>? Validator { set; }
     }

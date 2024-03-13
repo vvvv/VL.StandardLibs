@@ -103,6 +103,8 @@ namespace VL.ImGui.Editors.Implementations
 
                 SameLine();
 
+                SetNextItemWidth(-1f);
+
                 if (hasValue)
                 {
                     innerEditor.Draw(context);
