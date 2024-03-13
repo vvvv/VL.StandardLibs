@@ -90,7 +90,7 @@ namespace VL.Stride.Core
                     return null;
 
                 var value = context.Deserialize<T>(content, null);
-                var inputValue = new InputValue<T>() { Input = value };
+                var inputValue = new InputValue<T>(convertToDeviceColorSpace: true) { Input = value };
                 return ShaderFXUtils.DeclAndSetVar<T>("Input", inputValue);
             }
         }

@@ -102,7 +102,7 @@ namespace VL.Stride.Shaders.ShaderFX
         private static SetVar<TValue> Create_Generic<TValue>(TValue witness)
             where TValue : unmanaged
         {
-            var inputValue = new InputValue<TValue>();
+            var inputValue = new InputValue<TValue>(convertToDeviceColorSpace: true);
             return DeclAndSetVar("Input", inputValue);
         }
     }

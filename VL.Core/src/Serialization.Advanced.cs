@@ -4,11 +4,17 @@ using System.Xml.Linq;
 
 namespace VL.Core
 {
+    public interface IBoxedSerializer
+    {
+        object SerializeBoxed(SerializationContext context, object value);
+        object DeserializeBoxed(SerializationContext context, object content, Type type);
+    }
+
     /// <summary>
     /// The serializer interface.
     /// </summary>
     /// <typeparam name="T">The type of the value to serialize.</typeparam>
-    public interface ISerializer<T>
+    public interface ISerializer<T> : IBoxedSerializer
     {
         /// <summary>
         /// Serializes the given value to a string, object[] or XElement.
@@ -26,6 +32,9 @@ namespace VL.Core
         /// <param name="type">The type of the deserialized value.</param>
         /// <returns>The deserialized value.</returns>
         T Deserialize(SerializationContext context, object content, Type type);
+
+        object IBoxedSerializer.SerializeBoxed(SerializationContext context, object value) => Serialize(context, (T)value);
+        object IBoxedSerializer.DeserializeBoxed(SerializationContext context, object content, Type type) => Deserialize(context, content, type);
     }
 
     /// <summary>

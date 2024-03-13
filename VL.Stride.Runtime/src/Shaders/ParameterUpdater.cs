@@ -114,10 +114,12 @@ namespace VL.Stride.Shaders.ShaderFX
                 // We do the same as what the ColorIn node does in its default settings
                 var color = Unsafe.As<T, Color4>(ref value);
                 var deviceColor = Color4.PremultiplyAlpha(color.ToColorSpace(colorSpace));
-                value = Unsafe.As<Color4, T>(ref deviceColor);
+                parameters.Set(key, ref Unsafe.As<Color4, T>(ref deviceColor));
             }
-
-            parameters.Set(key, ref value);
+            else
+            {
+                parameters.Set(key, ref value);
+            }
         }
     }
 
