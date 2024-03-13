@@ -27,8 +27,13 @@ namespace VL.ImGui.Editors.Implementations
 
         private static MonadicEditor<TMonad, TValue>? Create_Generic<TMonad, TValue>(IChannel<TMonad> channel, ObjectEditorContext context)
         {
+            var innerChannel = ChannelHelpers.CreateChannelOfType<TValue>();
+            var innerEditor = context.Factory.CreateObjectEditor(innerChannel, context);
+            if (innerEditor is null)
+                return null;
+
             var monadicValueEditor = MonadicUtils.GetMonadicEditor<TValue, TMonad>()!;
-            return new MonadicEditor<TMonad, TValue>(channel, context, monadicValueEditor);
+            return new MonadicEditor<TMonad, TValue>(channel, context, monadicValueEditor, innerChannel, innerEditor);
         }
     }
 
@@ -43,16 +48,16 @@ namespace VL.ImGui.Editors.Implementations
         private readonly IObjectEditor innerEditor;
         private readonly IDisposable connection;
 
-        public MonadicEditor(IChannel<TMonad> channel, ObjectEditorContext context, IMonadicValueEditor<TValue, TMonad> monadicValueEditor)
+        public MonadicEditor(IChannel<TMonad> channel, ObjectEditorContext context, IMonadicValueEditor<TValue, TMonad> monadicValueEditor, IChannel<TValue> innerChannel, IObjectEditor innerEditor)
         {
             this.editorContext = context;
             this.channel = channel;
             this.monadicValueEditor = monadicValueEditor;
 
-            this.innerChannel = ChannelHelpers.CreateChannelOfType<TValue>();
+            this.innerChannel = innerChannel;
             if (monadicValueEditor.HasValue(channel.Value))
                 this.innerChannel.Value = monadicValueEditor.GetValue(channel.Value);
-            this.innerEditor = context.Factory.CreateObjectEditor(innerChannel, context)!;
+            this.innerEditor = innerEditor;
             this.connection = ConnectChannels();
 
             textLabel = $"##checkBox_{GetHashCode()}";
@@ -65,7 +70,7 @@ namespace VL.ImGui.Editors.Implementations
                 toB: m =>
                 {
                     if (monadicValueEditor.HasValue(m))
-                        return new Optional<TValue>(monadicValueEditor.GetValue(m));
+                        return new Optional<TValue>(monadicValueEditor.GetValue(m)!);
                     else
                         return default;
                 },
