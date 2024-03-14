@@ -14,7 +14,7 @@
         internal override void UpdateCore(Context context)
         {
             var capturedState = context.CapturedItemState;
-            if (capturedState.HasValue)
+            if (capturedState.HasValue && Flags == default)
                 Value = capturedState.Value.IsHovered;
             else
                 Value = ImGuiNET.ImGui.IsItemHovered(Flags);
