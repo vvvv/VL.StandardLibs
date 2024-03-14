@@ -194,7 +194,7 @@ namespace VL.ImGui
                 if (inputSource != lastInputSource)
                 {
                     lastInputSource = inputSource;
-                    inputSubscription.Disposable = SubscribeToInputSource(inputSource, context);
+                    inputSubscription.Disposable = SubscribeToInputSource(inputSource, context, new Int2(renderTarget.Width, renderTarget.Height));
                 }
 
                 // Enable Docking

@@ -1,4 +1,5 @@
-﻿using Stride.Input;
+﻿using Stride.Core.Mathematics;
+using Stride.Input;
 using Stride.Rendering;
 using System.Reactive.Disposables;
 using VL.Stride;
@@ -7,12 +8,15 @@ namespace VL.ImGui
 {
     partial class ImGuiRenderer
     {
-        IDisposable SubscribeToInputSource(IInputSource inputSource, RenderDrawContext context)
+        IDisposable SubscribeToInputSource(IInputSource inputSource, RenderDrawContext context, Int2 RendertargetSize)
         {
+            var inputManager = context.RenderContext.Services.GetService<InputManager>();
+            _context.WithInputSource(inputManager, inputSource, RendertargetSize);
+
             if (inputSource is null)
                 return Disposable.Empty;
 
-            var inputManager = context.RenderContext.Services.GetService<InputManager>();
+            
             if (inputManager is null)
                 return Disposable.Empty;
 

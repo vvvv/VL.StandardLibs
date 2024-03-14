@@ -1,4 +1,6 @@
-﻿using Stride.Graphics;
+﻿using Stride.Core.Mathematics;
+using Stride.Graphics;
+using Stride.Input;
 using Stride.Rendering;
 using VL.ImGui.Widgets;
 using VL.Skia;
@@ -16,8 +18,10 @@ namespace VL.ImGui
 
     internal sealed class StrideContext : Context, IContextWithSkia, IContextWithRenderer
     {
-        public readonly List<RenderLayer> Renderers = new List<RenderLayer>();
+        private readonly List<RenderLayer> Renderers = new List<RenderLayer>();
         private readonly List<SkiaRenderer> managedSkiaRenderers = new();
+        private InputManager? inputManager;
+        private Int2 rendertargetSize;
 
         public IntPtr AddLayer(SkiaWidget layer, System.Numerics.Vector2 pos, System.Numerics.Vector2 size)
         {
@@ -99,6 +103,16 @@ namespace VL.ImGui
                 return null;
         }
 
+        public void WithInputSource(InputManager? inputManager, IInputSource? inputSource, Int2 rendertargetSize)
+        {
+            this.rendertargetSize = rendertargetSize;
+            this.inputManager = inputManager;
+            foreach (var renderer in Renderers)
+            {
+                renderer.InputSource = inputSource;
+            }
+        }
+
         public override void Dispose()
         {
             foreach (var r in Renderers)
@@ -115,5 +129,6 @@ namespace VL.ImGui
         public IGraphicsRendererBase? Layer { get; set; }
         public RenderView? RenderView { get; set; }
         public Viewport? Viewport { get; set; }
+        public IInputSource? InputSource { get; set; }
     }
 }

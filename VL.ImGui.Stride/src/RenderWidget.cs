@@ -1,6 +1,8 @@
 ﻿using ImGuiNET;
 using Stride.Core.Mathematics;
+using Stride.Input;
 using Stride.Rendering;
+using System.Reactive.Disposables;
 using Viewport = Stride.Graphics.Viewport;
 
 namespace VL.ImGui.Widgets
@@ -12,6 +14,9 @@ namespace VL.ImGui.Widgets
     {
         private readonly RenderLayer renderLayer;
         private IContextWithRenderer? strideContext;
+        private readonly SerialDisposable inputSubscription = new SerialDisposable();
+        private bool _itemHasFocus;
+        private bool _windowHasFocus;
 
 
         public RenderWidget()
@@ -24,6 +29,27 @@ namespace VL.ImGui.Widgets
         public RenderView? RenderView { private get; set; } = new RenderView();
 
         public Vector2 Size { private get; set; } = new Vector2(1f, 1f);
+
+        /// <summary>
+        /// Controls in which state events are allowed to pass through.
+        /// </summary>
+        public EventFilter EventFilter { private get; set; } = EventFilter.ItemHasFocus;
+
+        // TODO Mapp InputSource
+        public IInputSource? InputSource { 
+            get   
+            {
+                if (EventFilter == EventFilter.BlockAll)
+                    return null;
+                if (EventFilter == EventFilter.ItemHasFocus && !_itemHasFocus)
+                    return null;
+                if (EventFilter == EventFilter.WindowHasFocus && !_windowHasFocus)
+                    return null;
+
+                // TODO USE InputSourceSimulated 
+                return renderLayer.InputSource; 
+            }  
+        }
 
         internal override void UpdateCore(Context context)
         {
@@ -45,11 +71,17 @@ namespace VL.ImGui.Widgets
                     renderLayer.Layer = Layer;
 
                 var id = strideContext.AddRenderer(renderLayer);
+  
 
-                if (ImGui.BeginChild("##RenderWidget__" + id.ToString() , Size.FromHectoToImGui(), ImGuiChildFlags.None, ImGuiWindowFlags.ChildWindow))
+                if (ImGui.BeginChild("##RenderWidget__" + id.ToString(), Size.FromHectoToImGui(), ImGuiChildFlags.None, ImGuiWindowFlags.ChildWindow))
                 {
                     var pos = ImGui.GetWindowPos();
                     var size = ImGui.GetWindowSize();
+
+                    ImGui.InvisibleButton($"{GetHashCode()}", size, ImGuiButtonFlags.None);
+                    _itemHasFocus = ImGui.IsItemFocused();
+                    _windowHasFocus = ImGui.IsWindowFocused();
+
                     renderLayer.Viewport = new Viewport(pos.X, pos.Y, size.X, size.Y);
                     var drawList = ImGui.GetWindowDrawList();
                     drawList.AddCallback(id, IntPtr.Zero);
