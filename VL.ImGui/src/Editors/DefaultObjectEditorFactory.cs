@@ -38,7 +38,7 @@ namespace VL.ImGui.Editors
             if (staticType.IsAssignableTo(typeof(IDynamicEnum)))
             {
                 var editorType = typeof(DynamicEnumEditor<>).MakeGenericType(staticType);
-                return (IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context });
+                return ((IObjectEditor?)Activator.CreateInstance(editorType, new object[] { channel, context }))?.ToViewOnly(context);
             }
 
             if (staticType.IsArray)
