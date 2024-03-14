@@ -22,13 +22,13 @@ namespace VL.IO.Redis.Internal
         private readonly ILogger? _logger;
         private readonly IChannel<T> _channel;
         private readonly BindingModel _bindingModel;
-        private readonly RedisModule? _module;
+        private readonly Experimental.RedisModule? _module;
 
         private bool _initialized;
         private bool _weHaveNewData;
         private bool _othersHaveNewData;
 
-        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel, RedisModule? module, ILogger? logger)
+        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel, Experimental.RedisModule? module, ILogger? logger)
         {
             _client = client;
             _logger = logger;

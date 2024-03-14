@@ -104,7 +104,7 @@ namespace VL.IO.Redis
 
         internal ISubscriber GetSubscriber() => _multiplexer.GetSubscriber();
 
-        internal IDisposable AddBinding(BindingModel model, IChannel channel, RedisModule? module = null, ILogger? logger = null)
+        internal IDisposable AddBinding(BindingModel model, IChannel channel, Experimental.RedisModule? module = null, ILogger? logger = null)
         {
             if (_bindings.ContainsKey(model.Key))
                 throw new InvalidOperationException($"The Redis key \"{model.Key}\" is already bound to a different channel.");
