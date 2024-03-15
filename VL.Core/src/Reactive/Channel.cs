@@ -31,6 +31,7 @@ namespace VL.Lib.Reactive
     public interface IChannel<T> : IChannel, ISubject<T?>, IMonadicValue<T>
     {
         static IMonadicValue IMonadicValue.Create(NodeContext nodeContext) => ChannelHelpers.CreateChannelOfType<T>();
+        static bool IMonadicValue.DefaultIsNullOrNoValue => false;
         new T? Value { get; set; }
         void SetValueAndAuthor(T? value, string? author);
         Func<T?, Optional<T?>>? Validator { set; }
@@ -106,7 +107,7 @@ namespace VL.Lib.Reactive
 
         IChannel<object> IChannel.ChannelOfObject => channelOfObject;
 
-        public virtual bool HasValue => true;
+        bool IMonadicValue<T>.HasValue => true;
 
         public Type ClrTypeOfValues => typeof(T);
 
@@ -209,11 +210,15 @@ namespace VL.Lib.Reactive
     {
         static IMonadicValue IMonadicValue.Create(NodeContext nodeContext) => ChannelHelpers.CreateChannelOfType<T>();
 
+        static bool IMonadicValue.DefaultIsNullOrNoValue => false;
+
         object? IMonadicValue<object>.Value 
         { 
             get => Value; 
             set => SetValueIfChanged((T?)value); 
         }
+
+        bool IMonadicValue<object>.HasValue => true;
 
         protected override IChannel<object> channelOfObject => this;
 
@@ -288,10 +293,6 @@ namespace VL.Lib.Reactive
             Value = AppHost.CurrentOrGlobal.GetDefaultValue<T>();
             Enabled = false;
         }
-
-        public override bool HasValue => false;
-
-        public override string ToString() => "I am a DUMMY";
     }
 
     public static class Channel

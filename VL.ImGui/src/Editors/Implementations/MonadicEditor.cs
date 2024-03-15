@@ -96,25 +96,28 @@ namespace VL.ImGui.Editors.Implementations
             BeginGroup();
             try
             {
-                if (editorContext.ViewOnly)
-                    BeginDisabled();
-
-                if (Checkbox(checkboxLabel, ref hasValue))
+                if (monadicValueEditor.DefaultIsNullOrNoValue)
                 {
-                    if (hasValue)
+                    if (editorContext.ViewOnly)
+                        BeginDisabled();
+
+                    if (Checkbox(checkboxLabel, ref hasValue))
                     {
-                        channel.Value = monadicValueEditor.Create(AppHost.Current.GetDefaultValue<TValue>()!);
+                        if (hasValue)
+                        {
+                            channel.Value = monadicValueEditor.Create(AppHost.Current.GetDefaultValue<TValue>()!);
+                        }
+                        else
+                        {
+                            channel.Value = AppHost.Current.GetDefaultValue<TMonad>();
+                        }
                     }
-                    else
-                    {
-                        channel.Value = AppHost.Current.GetDefaultValue<TMonad>();
-                    }
+
+                    if (editorContext.ViewOnly)
+                        EndDisabled();
+
+                    SameLine();
                 }
-
-                if (editorContext.ViewOnly)
-                    EndDisabled();
-
-                SameLine();
 
                 SetNextItemWidth(-1f);
 

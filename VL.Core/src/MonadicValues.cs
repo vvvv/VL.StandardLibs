@@ -56,6 +56,7 @@ namespace VL.Core
     public interface IMonadicValue
     {
         static abstract IMonadicValue Create(NodeContext nodeContext);
+        static virtual bool DefaultIsNullOrNoValue => true;
     }
 
     public interface IMonadicValue<TValue> : IMonadicValue
@@ -70,5 +71,6 @@ namespace VL.Core
         bool HasValue([NotNullWhen(true)] TMonad? monad);
         TValue? GetValue(TMonad monad);
         TMonad SetValue(TMonad monad, TValue? value);
+        bool DefaultIsNullOrNoValue => true;
     }
 }

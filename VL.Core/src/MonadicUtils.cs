@@ -85,6 +85,8 @@ namespace VL.Core
                 monad.Value = value;
                 return monad;
             }
+
+            public bool DefaultIsNullOrNoValue => TMonad.DefaultIsNullOrNoValue;
         }
     }
 }
