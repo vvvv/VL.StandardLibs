@@ -61,8 +61,8 @@ namespace VL.Core
 
     public interface IMonadicValue<TValue> : IMonadicValue
     {
-        bool HasValue => true;
-        bool AcceptsValue => true;
+        bool HasValue { get; }
+        bool AcceptsValue { get; }
         TValue? Value { get; set; }
     }
 
