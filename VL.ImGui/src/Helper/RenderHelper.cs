@@ -94,6 +94,7 @@ namespace VL.ImGui
                         break;
                     case MouseNotificationKind.DeviceLost:
                         _io.ClearInputKeys();
+                        _io.AddFocusEvent(false);
                         break;
                     default:
                         break;
@@ -103,6 +104,12 @@ namespace VL.ImGui
             {
                 // ImGui has no touch - we rely on the mouse emulation of the event system
             }
+            else if (notification is LostFocusNotification)
+            {
+                _io.ClearInputKeys();
+                _io.AddFocusEvent(false);
+            }
+
 
             static ImGuiKey ToImGuiKey(VL.Lib.IO.Keys key)
             {
