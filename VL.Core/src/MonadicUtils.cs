@@ -28,7 +28,7 @@ namespace VL.Core
             return type.IsMonadicType() || type.IsOptional() || type.IsNullable();
         }
 
-        public static IMonadicValueEditor<TValue, TMonad>? GetMonadicEditor<TValue, TMonad>()
+        internal static IMonadicValueEditor<TValue, TMonad>? GetMonadicEditor<TValue, TMonad>()
         {
             if (typeof(TMonad).IsAssignableTo(typeof(IMonadicValue)))
                 return Activator.CreateInstance(typeof(MonadicValueEditor<,>).MakeGenericType(typeof(TValue), typeof(TMonad))) as IMonadicValueEditor<TValue, TMonad>;
@@ -42,10 +42,10 @@ namespace VL.Core
             return null;
         }
 
-        public static TMonad Create<TMonad, TValue>(NodeContext nodeContext) 
+        public static TMonad Create<TMonad, TValue>(NodeContext nodeContext, TValue? value) 
             where TMonad : IMonadicValue<TValue>
         {
-            return (TMonad)TMonad.Create(nodeContext);
+            return (TMonad)TMonad.Create(nodeContext, value);
         }
 
         private sealed class OptionalEditor<T> : IMonadicValueEditor<T, Optional<T>>
@@ -73,9 +73,7 @@ namespace VL.Core
         {
             public TMonad Create(TValue? value)
             {
-                var monad = MonadicUtils.Create<TMonad, TValue>(NodeContext.CurrentRoot);
-                monad.Value = value;
-                return monad;
+                return MonadicUtils.Create<TMonad, TValue>(NodeContext.CurrentRoot, value);
             }
 
             public TValue? GetValue(TMonad monad) => monad.Value;

@@ -96,18 +96,21 @@ namespace VL.Stride.Shaders.ShaderFX
             return string.Format("Assign {0} ", Declaration.VarName);
         }
 
-        static IMonadicValue IMonadicValue.Create(NodeContext nodeContext)
+        static IMonadicValue<T> IMonadicValue<T>.Create(NodeContext nodeContext, T value)
         {
             if (!typeof(T).IsValueType)
                 throw new InvalidOperationException($"{typeof(T)} must be a value type");
 
-            return Create_Generic((dynamic)default(T));
+            return Create_Generic((dynamic)value);
         }
 
-        private static SetVar<TValue> Create_Generic<TValue>(TValue witness)
+        private static SetVar<TValue> Create_Generic<TValue>(TValue value)
             where TValue : unmanaged
         {
-            var inputValue = new InputValue<TValue>(convertToDeviceColorSpace: true);
+            var inputValue = new InputValue<TValue>(convertToDeviceColorSpace: true)
+            {
+                Input = value
+            };
             return DeclAndSetVar("Input", inputValue);
         }
     }

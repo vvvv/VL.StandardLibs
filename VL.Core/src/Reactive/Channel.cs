@@ -30,8 +30,8 @@ namespace VL.Lib.Reactive
 
     public interface IChannel<T> : IChannel, ISubject<T?>, IMonadicValue<T>
     {
-        static IMonadicValue IMonadicValue.Create(NodeContext nodeContext) => ChannelHelpers.CreateChannelOfType<T>();
-        static bool IMonadicValue.DefaultIsNullOrNoValue => false;
+        static IMonadicValue<T> IMonadicValue<T>.Create(NodeContext nodeContext, T? value) => Channel.Create(value!);
+        static bool IMonadicValue<T>.DefaultIsNullOrNoValue => false;
         new T? Value { get; set; }
         void SetValueAndAuthor(T? value, string? author);
         Func<T?, Optional<T?>>? Validator { set; }
@@ -210,10 +210,6 @@ namespace VL.Lib.Reactive
 
     internal class Channel<T> : C<T>, IChannel<object>
     {
-        static IMonadicValue IMonadicValue.Create(NodeContext nodeContext) => ChannelHelpers.CreateChannelOfType<T>();
-
-        static bool IMonadicValue.DefaultIsNullOrNoValue => false;
-
         object? IMonadicValue<object>.Value 
         { 
             get => Value; 

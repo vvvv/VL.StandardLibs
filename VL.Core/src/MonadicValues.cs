@@ -1,13 +1,12 @@
 ﻿#nullable enable
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using VL.Lib.IO;
 
 namespace VL.Core
 {
     /// <summary>
-    /// Allows to specify a type filter 
+    /// Allows to specify a type filter for a <see cref="IMonadicValue{TValue}"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
     public class MonadicTypeFilterAttribute : Attribute
@@ -24,7 +23,7 @@ namespace VL.Core
     }
 
     /// <summary>
-    /// Allows to define what types shall be accepted by a <see cref="IMonadicValue{TValue}"/>.
+    /// Defines what types shall be accepted by a <see cref="IMonadicValue{TValue}"/>.
     /// </summary>
     public interface IMonadicTypeFilter
     {
@@ -53,20 +52,48 @@ namespace VL.Core
         public bool IsPrimitive => IsUnmanaged || IsString || IsPath;
     }
 
+    /// <summary>
+    /// Non-generic marker interface. Do not implement directly.
+    /// </summary>
     public interface IMonadicValue
     {
-        static abstract IMonadicValue Create(NodeContext nodeContext);
-        static virtual bool DefaultIsNullOrNoValue => true;
     }
 
+    /// <summary>
+    /// Tells VL that connections from <typeparamref name="TValue"/> to the type implementing this interface are allowed.
+    /// </summary>
     public interface IMonadicValue<TValue> : IMonadicValue
     {
+        /// <summary>
+        /// Creates a new instance.
+        /// </summary>
+        static abstract IMonadicValue<TValue> Create(NodeContext nodeContext, TValue? value);
+
+        /// <summary>
+        /// Whether or not to treat NULL / NoValue as a regular value in a user interface.
+        /// </summary>
+        static virtual bool DefaultIsNullOrNoValue => true;
+
+        /// <summary>
+        /// Whether or not a value is available.
+        /// </summary>
         bool HasValue { get; }
+
+        /// <summary>
+        /// Whether or not a value can be assigned to this instance.
+        /// </summary>
         bool AcceptsValue { get; }
+
+        /// <summary>
+        /// The stored value.
+        /// </summary>
         TValue? Value { get; set; }
     }
 
-    public interface IMonadicValueEditor<TValue, TMonad>
+    /// <summary>
+    /// Utility interface to share common editor implementations for <see cref="Nullable{T}"/>, <see cref="Optional{T}"/> and <see cref="IMonadicValue{TValue}"/>.
+    /// </summary>
+    internal interface IMonadicValueEditor<TValue, TMonad>
     {
         TMonad Create(TValue? value);
         bool HasValue([NotNullWhen(true)] TMonad? monad);
