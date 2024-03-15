@@ -107,7 +107,9 @@ namespace VL.Lib.Reactive
 
         IChannel<object> IChannel.ChannelOfObject => channelOfObject;
 
-        bool IMonadicValue<T>.HasValue => true;
+        public bool HasValue => true;
+
+        public virtual bool AcceptsValue => true;
 
         public Type ClrTypeOfValues => typeof(T);
 
@@ -197,13 +199,13 @@ namespace VL.Lib.Reactive
 
         protected void SetValueIfChanged(T? value)
         {
-            if (!EqualityComparer<T>.Default.Equals(value, lastValue))
+            if (lastValue.HasNoValue || !EqualityComparer<T>.Default.Equals(value, lastValue.Value))
             {
                 lastValue = value;
                 Value = value;
             }
         }
-        T? lastValue;
+        Optional<T?> lastValue;
     }
 
     internal class Channel<T> : C<T>, IChannel<object>
@@ -217,8 +219,6 @@ namespace VL.Lib.Reactive
             get => Value; 
             set => SetValueIfChanged((T?)value); 
         }
-
-        bool IMonadicValue<object>.HasValue => true;
 
         protected override IChannel<object> channelOfObject => this;
 
@@ -293,6 +293,8 @@ namespace VL.Lib.Reactive
             Value = AppHost.CurrentOrGlobal.GetDefaultValue<T>();
             Enabled = false;
         }
+
+        public override bool AcceptsValue => false;
     }
 
     public static class Channel

@@ -45,8 +45,6 @@ namespace VL.Stride.Shaders.ShaderFX
 
         public bool EvaluateChildren { get; }
 
-        bool IMonadicValue<T>.HasValue => true;
-
 #nullable enable
         T? IMonadicValue<T>.Value 
         {

@@ -61,13 +61,14 @@ namespace VL.Core
 
     public interface IMonadicValue<TValue> : IMonadicValue
     {
-        bool HasValue { get; }
+        bool HasValue => true;
+        bool AcceptsValue => true;
         TValue? Value { get; set; }
     }
 
     public interface IMonadicValueEditor<TValue, TMonad>
     {
-        TMonad Create(TValue value);
+        TMonad Create(TValue? value);
         bool HasValue([NotNullWhen(true)] TMonad? monad);
         TValue? GetValue(TMonad monad);
         TMonad SetValue(TMonad monad, TValue? value);

@@ -50,7 +50,7 @@ namespace VL.Core
 
         private sealed class OptionalEditor<T> : IMonadicValueEditor<T, Optional<T>>
         {
-            public Optional<T> Create(T value) => value;
+            public Optional<T> Create(T? value) => new Optional<T>(value!);
 
             public T? GetValue(Optional<T> optional) => optional.Value;
 
@@ -71,7 +71,7 @@ namespace VL.Core
         private sealed class MonadicValueEditor<TValue, TMonad> : IMonadicValueEditor<TValue, TMonad>
             where TMonad : IMonadicValue<TValue>
         {
-            public TMonad Create(TValue value)
+            public TMonad Create(TValue? value)
             {
                 var monad = MonadicUtils.Create<TMonad, TValue>(NodeContext.CurrentRoot);
                 monad.Value = value;
@@ -82,8 +82,15 @@ namespace VL.Core
             public bool HasValue([NotNullWhen(true)] TMonad? monad) => monad is not null && monad.HasValue;
             public TMonad SetValue(TMonad monad, TValue? value)
             {
-                monad.Value = value;
-                return monad;
+                if (monad.AcceptsValue)
+                {
+                    monad.Value = value;
+                    return monad;
+                }
+                else
+                {
+                    return Create(value);
+                }
             }
 
             public bool DefaultIsNullOrNoValue => TMonad.DefaultIsNullOrNoValue;
