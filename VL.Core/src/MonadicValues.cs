@@ -56,7 +56,21 @@ namespace VL.Core
     /// Non-generic marker interface. Do not implement directly.
     /// </summary>
     public interface IMonadicValue
-    {
+    {        
+        /// <summary>
+        /// Whether or not a value is available.
+        /// </summary>
+        bool HasValue { get; }
+
+        /// <summary>
+        /// Whether or not a value can be assigned to this instance.
+        /// </summary>
+        bool AcceptsValue { get; }
+
+        /// <summary>
+        /// The stored value as object.
+        /// </summary>
+        object? BoxedValue { get; }
     }
 
     /// <summary>
@@ -75,16 +89,6 @@ namespace VL.Core
         static virtual bool HasCustomDefault => false;
 
         /// <summary>
-        /// Whether or not a value is available.
-        /// </summary>
-        bool HasValue { get; }
-
-        /// <summary>
-        /// Whether or not a value can be assigned to this instance.
-        /// </summary>
-        bool AcceptsValue { get; }
-
-        /// <summary>
         /// The stored value.
         /// </summary>
         TValue? Value { get; }
@@ -93,6 +97,8 @@ namespace VL.Core
         /// Sets a new value and potentially returns a new instance.
         /// </summary>
         IMonadicValue<TValue> SetValue(TValue? value);
+
+        object? IMonadicValue.BoxedValue => Value;
     }
 
     /// <summary>

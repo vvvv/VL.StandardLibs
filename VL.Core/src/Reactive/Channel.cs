@@ -213,6 +213,8 @@ namespace VL.Lib.Reactive
     {
         object? IMonadicValue<object>.Value => Value;
 
+        object? IMonadicValue.BoxedValue => Value;
+
         IMonadicValue<object> IMonadicValue<object>.SetValue(object? value)
         {
             SetValueIfChanged((T?)value);

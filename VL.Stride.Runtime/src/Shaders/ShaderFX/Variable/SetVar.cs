@@ -58,9 +58,9 @@ namespace VL.Stride.Shaders.ShaderFX
             return this;
         }
 
-        bool IMonadicValue<T>.HasValue => Value is IInputValue<T>;
+        bool IMonadicValue.HasValue => Value is IInputValue<T>;
 
-        bool IMonadicValue<T>.AcceptsValue => Value is IInputValue<T>;
+        bool IMonadicValue.AcceptsValue => Value is IInputValue<T>;
 #nullable restore
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
