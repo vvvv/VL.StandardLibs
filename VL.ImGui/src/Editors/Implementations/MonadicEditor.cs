@@ -20,6 +20,10 @@ namespace VL.ImGui.Editors.Implementations
 
         public static IObjectEditor? Create(IChannel channel, ObjectEditorContext context)
         {
+            // In case a viewer is requested let the real viewers take over
+            if (context.ViewOnly)
+                return null;
+
             var monadicType = channel.ClrTypeOfValues;
             var valueType = monadicType.GenericTypeArguments[0];
             return s_genericCreateMethod.MakeGenericMethod(monadicType, valueType).Invoke(null, parameters: [channel, context]) as IObjectEditor;
