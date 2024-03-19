@@ -68,7 +68,7 @@ namespace VL.ImGui
 
                     if (cmd.UserCallback != IntPtr.Zero)
                     {
-                        RenderLayer? renderLayer = _context.GetRenderer(cmd.UserCallback);
+                        RenderLayerWithInputSource? renderLayer = _context.GetRenderer(cmd.UserCallback);
 
                         if (renderLayer != null)
                         {

@@ -2,7 +2,6 @@
 using Stride.Core.Mathematics;
 using Stride.Input;
 using Stride.Rendering;
-using System.Reactive.Disposables;
 using Viewport = Stride.Graphics.Viewport;
 
 namespace VL.ImGui.Widgets
@@ -12,17 +11,8 @@ namespace VL.ImGui.Widgets
     [GenerateNode(Category = "ImGui.Widgets.Internal", IsStylable = false)]
     public sealed partial class RenderWidget : Widget, IDisposable
     {
-        private readonly RenderLayer renderLayer;
+        private RenderLayerWithInputSource? renderLayer;
         private IContextWithRenderer? strideContext;
-        private readonly SerialDisposable inputSubscription = new SerialDisposable();
-        private bool _itemHasFocus;
-        private bool _windowHasFocus;
-
-
-        public RenderWidget()
-        {
-            renderLayer = new RenderLayer();
-        }
 
         public IGraphicsRendererBase? Layer { private get; set ; }
 
@@ -30,26 +20,7 @@ namespace VL.ImGui.Widgets
 
         public Vector2 Size { private get; set; } = new Vector2(1f, 1f);
 
-        /// <summary>
-        /// Controls in which state events are allowed to pass through.
-        /// </summary>
-        public EventFilter EventFilter { private get; set; } = EventFilter.ItemHasFocus;
-
-        // TODO Mapp InputSource
-        public IInputSource? InputSource { 
-            get   
-            {
-                if (EventFilter == EventFilter.BlockAll)
-                    return null;
-                if (EventFilter == EventFilter.ItemHasFocus && !_itemHasFocus)
-                    return null;
-                if (EventFilter == EventFilter.WindowHasFocus && !_windowHasFocus)
-                    return null;
-
-                // TODO USE InputSourceSimulated 
-                return renderLayer.InputSource; 
-            }  
-        }
+        public IInputSource? InputSource => renderLayer?.MappedInputSource; 
 
         internal override void UpdateCore(Context context)
         {
@@ -57,9 +28,12 @@ namespace VL.ImGui.Widgets
             {
                 this.strideContext = strideContext;
 
+                if (renderLayer == null)
+                    renderLayer = new RenderLayerWithInputSource(strideContext.inputManager);
+
                 if (Layer is null)
                 {
-                    strideContext.RemoveRenderer(renderLayer);
+                    this.strideContext.RemoveRenderer(renderLayer);
                     return;
                 }
                 
@@ -70,8 +44,7 @@ namespace VL.ImGui.Widgets
                 if  (renderLayer.Layer != Layer)
                     renderLayer.Layer = Layer;
 
-                var id = strideContext.AddRenderer(renderLayer);
-  
+                var id = this.strideContext.AddRenderer(renderLayer);
 
                 if (ImGui.BeginChild("##RenderWidget__" + id.ToString(), Size.FromHectoToImGui(), ImGuiChildFlags.None, ImGuiWindowFlags.ChildWindow))
                 {
@@ -79,10 +52,10 @@ namespace VL.ImGui.Widgets
                     var size = ImGui.GetWindowSize();
 
                     ImGui.InvisibleButton($"{GetHashCode()}", size, ImGuiButtonFlags.None);
-                    _itemHasFocus = ImGui.IsItemFocused();
-                    _windowHasFocus = ImGui.IsWindowFocused();
 
+                    renderLayer.HasFocus = ImGui.IsWindowFocused();
                     renderLayer.Viewport = new Viewport(pos.X, pos.Y, size.X, size.Y);
+
                     var drawList = ImGui.GetWindowDrawList();
                     drawList.AddCallback(id, IntPtr.Zero);
                 }
@@ -92,7 +65,10 @@ namespace VL.ImGui.Widgets
 
         public void Dispose()
         {
-            strideContext?.RemoveRenderer(renderLayer);
+            if (renderLayer != null) 
+            {
+                this.strideContext?.RemoveRenderer(renderLayer);
+            }
         }
     }
 }

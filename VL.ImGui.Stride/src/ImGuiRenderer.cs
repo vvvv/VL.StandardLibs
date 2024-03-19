@@ -33,7 +33,7 @@ namespace VL.ImGui
 
         GraphicsDevice device => deviceHandle.Resource;
         GraphicsContext graphicsContext => GraphicsContextHandle.Resource;
-        InputManager input => inputHandle.Resource;
+        InputManager inputManager => inputHandle.Resource;
 
         public RectangleF? Bounds => throw new NotImplementedException();
 
@@ -83,7 +83,7 @@ namespace VL.ImGui
             imShader.UpdateEffect(device);
 
 
-            _context = new StrideContext();
+            _context = new StrideContext(inputManager);
             using (_context.MakeCurrent())
             {
                 _io = ImGui.GetIO();
@@ -194,7 +194,10 @@ namespace VL.ImGui
                 if (inputSource != lastInputSource)
                 {
                     lastInputSource = inputSource;
-                    inputSubscription.Disposable = SubscribeToInputSource(inputSource, context, new Int2(renderTarget.Width, renderTarget.Height));
+                    inputSubscription.Disposable = SubscribeToInputSource(inputSource, context);
+
+                    // Push inputSource to all RenderLayerWithInputSource
+                    _context.WithInputSource(inputSource);
                 }
 
                 // Enable Docking

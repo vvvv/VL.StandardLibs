@@ -1,26 +1,42 @@
-﻿using Stride.Core.Mathematics;
+﻿using SkiaSharp;
+using Stride.Core.Mathematics;
 using Stride.Graphics;
 using Stride.Input;
 using Stride.Rendering;
+using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Windows.Input;
+using VL.Core;
 using VL.ImGui.Widgets;
+using VL.Lib.Basics.Resources;
+using VL.Lib.IO.Notifications;
 using VL.Skia;
+using VL.Stride;
+using VL.Stride.Input;
+using InputManager = Stride.Input.InputManager;
 
 namespace VL.ImGui
 {
     using SkiaRenderer = VL.Stride.SkiaRenderer;
-
+    
     internal interface IContextWithRenderer
     {
-        public IntPtr AddRenderer(RenderLayer renderer);
+        public IntPtr AddRenderer(RenderLayerWithInputSource renderer);
 
-        public void RemoveRenderer(RenderLayer renderer);
+        public void RemoveRenderer(RenderLayerWithInputSource renderer);
     }
 
     internal sealed class StrideContext : Context, IContextWithSkia, IContextWithRenderer
     {
-        private readonly List<RenderLayer> Renderers = new List<RenderLayer>();
+        public StrideContext(InputManager inputManager) : base()
+        {
+            this.inputManager = inputManager;
+        }
+
+        private readonly List<RenderLayerWithInputSource> Renderers = new List<RenderLayerWithInputSource>();
         private readonly List<SkiaRenderer> managedSkiaRenderers = new();
-        private InputManager? inputManager;
+        internal InputManager inputManager;
         private Int2 rendertargetSize;
 
         public IntPtr AddLayer(SkiaWidget layer, System.Numerics.Vector2 pos, System.Numerics.Vector2 size)
@@ -41,17 +57,11 @@ namespace VL.ImGui
                 // We take ownership
                 managedSkiaRenderers.Add(skiaRenderer);
 
-                InViewportUpstream viewportLayer = new InViewportUpstream();
-                SetSpaceUpstream2 withinCommonSpaceLayer = new SetSpaceUpstream2();
-
-
                 skiaRenderer.Layer = layer;
 
-                var viewPort = new Viewport(pos.X, pos.Y, size.X, size.Y);
-
-                RenderLayer renderLayer = new RenderLayer();
+                RenderLayerWithInputSource renderLayer = new RenderLayerWithInputSource(this.inputManager);
                 renderLayer.Layer = skiaRenderer;
-                renderLayer.Viewport = viewPort;
+                renderLayer.Viewport = new Viewport(pos.X, pos.Y, size.X, size.Y);
 
                 Renderers.Add(renderLayer);
                 return Renderers.Count;
@@ -67,7 +77,7 @@ namespace VL.ImGui
             }
         }
 
-        public IntPtr AddRenderer(RenderLayer renderer)
+        public IntPtr AddRenderer(RenderLayerWithInputSource renderer)
         {
             if (Renderers.Contains(renderer))
             {
@@ -80,22 +90,23 @@ namespace VL.ImGui
             }
         }
 
-        public void RemoveRenderer(RenderLayer renderer)
+        public void RemoveRenderer(RenderLayerWithInputSource renderer)
         {
             if (Renderers.Remove(renderer))
                 OnRemoved(renderer);
         }
 
-        private void OnRemoved(RenderLayer renderLayer)
+        private void OnRemoved(RenderLayerWithInputSource renderLayer)
         {
             if (renderLayer.Layer is SkiaRenderer skiaRenderer)
             {
                 if (managedSkiaRenderers.Remove(skiaRenderer))
                     skiaRenderer.Dispose();
             }
+            renderLayer.Dispose();
         }
 
-        public RenderLayer? GetRenderer(IntPtr index)
+        public RenderLayerWithInputSource? GetRenderer(IntPtr index)
         {
             if (Renderers.Count >= index)
                 return Renderers.ElementAt((int)index - 1);
@@ -103,13 +114,11 @@ namespace VL.ImGui
                 return null;
         }
 
-        public void WithInputSource(InputManager? inputManager, IInputSource? inputSource, Int2 rendertargetSize)
+        public void WithInputSource(IInputSource? inputSource)
         {
-            this.rendertargetSize = rendertargetSize;
-            this.inputManager = inputManager;
             foreach (var renderer in Renderers)
             {
-                renderer.InputSource = inputSource;
+                renderer.ParentInputSource = inputSource;
             }
         }
 
@@ -122,13 +131,5 @@ namespace VL.ImGui
 
             base.Dispose();
         }
-    }
-
-    internal sealed class RenderLayer
-    {
-        public IGraphicsRendererBase? Layer { get; set; }
-        public RenderView? RenderView { get; set; }
-        public Viewport? Viewport { get; set; }
-        public IInputSource? InputSource { get; set; }
     }
 }
