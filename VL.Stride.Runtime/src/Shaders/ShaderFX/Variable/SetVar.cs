@@ -58,7 +58,7 @@ namespace VL.Stride.Shaders.ShaderFX
             return this;
         }
 
-        bool IMonadicValue.HasValue => Value is IInputValue<T>;
+        bool IMonadicValue.HasValue => Value is IInputValue<T> i && i.HasValue;
 
         bool IMonadicValue.AcceptsValue => Value is IInputValue<T>;
 #nullable restore
@@ -111,7 +111,8 @@ namespace VL.Stride.Shaders.ShaderFX
         {
             var inputValue = new InputValue<TValue>(convertToDeviceColorSpace: true)
             {
-                Input = value
+                Input = value,
+                HasValue = true
             };
             return DeclAndSetVar("Input", inputValue);
         }

@@ -8,6 +8,7 @@ namespace VL.Stride.Shaders.ShaderFX
     internal interface IInputValue<T>
     {
         T Input { get; set; }
+        bool HasValue { get; }
     }
 
     public class InputValue<T> : ComputeValue<T>, IInputValue<T>
@@ -33,6 +34,8 @@ namespace VL.Stride.Shaders.ShaderFX
 
         public ValueParameterKey<T> Key { get; }
         public string ConstantBufferName { get; private set; }
+
+        public bool HasValue { get; set; }
 
         public override ShaderSource GenerateShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)
         {
