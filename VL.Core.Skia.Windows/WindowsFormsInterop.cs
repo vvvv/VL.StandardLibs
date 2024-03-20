@@ -24,6 +24,16 @@ namespace System.Windows.Forms
             return new MouseWheelNotification(args.Location.ToVector2(), relativeTo.ClientSize.ToVector2(), args.Delta, Control.ModifierKeys.ToOurs(), sender);
         }
 
+        public static MouseLostNotification ToMouseLostNotification(this EventArgs args, Control relativeTo, object sender = null)
+        {
+            return new MouseLostNotification(new Stride.Core.Mathematics.Vector2(-100000, -100000), relativeTo.ClientSize.ToVector2(), Control.ModifierKeys.ToOurs(), sender);
+        }
+
+        public static LostFocusNotification ToLostFocusNotification(this EventArgs args, Control relativeTo, object sender = null)
+        {
+            return new LostFocusNotification(sender, Control.ModifierKeys.ToOurs());
+        }
+
         public static KeyDownNotification ToKeyDownNotification(this KeyEventArgs eventArgs, object sender = null)
         {
             return new KeyDownNotification(eventArgs.KeyCode.ToOurs(), Control.ModifierKeys.ToOurs(), sender);

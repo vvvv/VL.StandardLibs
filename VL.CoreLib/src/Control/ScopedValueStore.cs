@@ -108,7 +108,7 @@ namespace VL.Lib.Control
             }
         }
 
-        public void ActivateScope(NodeContext nodeContext, IReadOnlyList<object> inputValues)
+        public IDisposable ActivateScope(NodeContext nodeContext, IReadOnlyList<object> inputValues)
         {
             if (inputs.Count != inputValues.Count)
                 throw new ArgumentException("ScopedValueStore issue");
@@ -154,9 +154,11 @@ namespace VL.Lib.Control
                 }
             }
             stack.Push(dataLayer);
+
+            return Disposable.Create(DeactivateScope);
         }
 
-        public void DeactivateScope()
+        void DeactivateScope()
         {
             stack.Pop();
         }
