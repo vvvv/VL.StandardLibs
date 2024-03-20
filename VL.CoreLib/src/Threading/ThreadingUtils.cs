@@ -63,6 +63,12 @@ namespace VL.Lib.Threading
             }
         }
 
+        public static MonitorLock Enter(object key)
+        {
+            Monitor.Enter(key);
+            return new MonitorLock(key);
+        }
+
         private static TimeSpan Normalize(TimeSpan timeSpan) => timeSpan.Ticks < 0 ? TimeSpan.FromMilliseconds(-1d) : timeSpan;
     }
 }
