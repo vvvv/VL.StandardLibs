@@ -271,6 +271,10 @@ namespace VL.Skia
 
         private void OnNotification(INotification n)
         {
+            // Don't propagate notifications while we are disposing (lost focus event for example)
+            if (Disposing)
+                return;
+
             using var _ = FAppHost?.MakeCurrentIfNone();
 
             try
