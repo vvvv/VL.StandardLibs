@@ -1,9 +1,12 @@
-﻿using Stride.Rendering;
+﻿using Stride.Core.Mathematics;
+using Stride.Graphics;
+using Stride.Rendering;
 using Stride.Rendering.Materials;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reactive.Disposables;
+using System.Runtime.CompilerServices;
 
 namespace VL.Stride.Shaders.ShaderFX
 {
@@ -21,7 +24,7 @@ namespace VL.Stride.Shaders.ShaderFX
         private readonly ParameterCollection parameters;
 
         // In case we end up in a shader graph multiple parameter collections could pop up (one for every effect) we need to keep track of
-        private Dictionary<(ParameterCollection, TKey), RefCountDisposable> trackedCollections;
+        private Dictionary<(ParameterCollection, ColorSpace, TKey), RefCountDisposable> trackedCollections;
 
         private TValue value;
         private TKey key;
@@ -43,13 +46,13 @@ namespace VL.Stride.Shaders.ShaderFX
 
                     if (parameters != null)
                     {
-                        Upload(parameters, key, ref value);
+                        Upload(parameters, key, colorSpace: default, ref value);
                     }
 
                     if (trackedCollections != null)
                     {
-                        foreach (var (parameters, key) in trackedCollections.Keys)
-                            Upload(parameters, key, ref value);
+                        foreach (var (parameters, colorSpace, key) in trackedCollections.Keys)
+                            Upload(parameters, key, colorSpace, ref value);
                     }
                 }
             }
@@ -61,7 +64,7 @@ namespace VL.Stride.Shaders.ShaderFX
                 return ImmutableArray<ParameterCollection>.Empty;
 
             var result = ImmutableArray.CreateBuilder<ParameterCollection>(trackedCollections.Count);
-            foreach (var (parameters, _) in trackedCollections.Keys)
+            foreach (var (parameters, _, _) in trackedCollections.Keys)
                 result.Add(parameters);
             return result.ToImmutable();
         }
@@ -74,37 +77,49 @@ namespace VL.Stride.Shaders.ShaderFX
         public void Track(ShaderGeneratorContext context, TKey key)
         {
             if (context.TryGetSubscriptions(out var s))
-                s.Add(Subscribe(context.Parameters, key));
+                s.Add(Subscribe(context.Parameters, context.ColorSpace, key));
         }
 
-        public IDisposable Subscribe(ParameterCollection parameters, TKey key)
+        public IDisposable Subscribe(ParameterCollection parameters, ColorSpace colorSpace, TKey key)
         {
-            var x = (parameters, key);
+            var x = (parameters, colorSpace, key);
 
-            var trackedCollections = this.trackedCollections ??= new Dictionary<(ParameterCollection, TKey), RefCountDisposable>();
+            var trackedCollections = this.trackedCollections ??= new();
             if (trackedCollections.TryGetValue(x, out var disposable))
                 return disposable.GetDisposable();
 
             disposable = new RefCountDisposable(Disposable.Create(() => trackedCollections.Remove(x)));
             trackedCollections.Add(x, disposable);
-            Upload(parameters, key, ref value);
+            Upload(parameters, key, colorSpace, ref value);
             return disposable;
         }
 
-        protected abstract void Upload(ParameterCollection parameters, TKey key, ref TValue value);
+        protected abstract void Upload(ParameterCollection parameters, TKey key, ColorSpace colorSpace, ref TValue value);
     }
 
     public sealed class ValueParameterUpdater<T> : ParameterUpdater<T, ValueParameterKey<T>>
         where T : struct
     {
-        public ValueParameterUpdater(ParameterCollection parameters = null, ValueParameterKey<T> key = null) : base(parameters, key)
-        {
+        private bool convertToDeviceColorSpace;
 
+        public ValueParameterUpdater(ParameterCollection parameters = null, ValueParameterKey<T> key = null, bool convertToDeviceColorSpace = false) : base(parameters, key)
+        {
+            this.convertToDeviceColorSpace = convertToDeviceColorSpace;
         }
 
-        protected override void Upload(ParameterCollection parameters, ValueParameterKey<T> key, ref T value)
+        protected override void Upload(ParameterCollection parameters, ValueParameterKey<T> key, ColorSpace colorSpace, ref T value)
         {
-            parameters.Set(key, ref value);
+            if (convertToDeviceColorSpace && typeof(T) == typeof(Color4))
+            {
+                // We do the same as what the ColorIn node does in its default settings
+                var color = Unsafe.As<T, Color4>(ref value);
+                var deviceColor = Color4.PremultiplyAlpha(color.ToColorSpace(colorSpace));
+                parameters.Set(key, ref Unsafe.As<Color4, T>(ref deviceColor));
+            }
+            else
+            {
+                parameters.Set(key, ref value);
+            }
         }
     }
 
@@ -116,7 +131,7 @@ namespace VL.Stride.Shaders.ShaderFX
 
         }
 
-        protected override void Upload(ParameterCollection parameters, ValueParameterKey<T> key, ref T[] value)
+        protected override void Upload(ParameterCollection parameters, ValueParameterKey<T> key, ColorSpace colorSpace, ref T[] value)
         {
             if (value.Length > 0)
                 parameters.Set(key, value);
@@ -131,7 +146,7 @@ namespace VL.Stride.Shaders.ShaderFX
 
         }
 
-        protected override void Upload(ParameterCollection parameters, ObjectParameterKey<T> key, ref T value)
+        protected override void Upload(ParameterCollection parameters, ObjectParameterKey<T> key, ColorSpace colorSpace, ref T value)
         {
             parameters.Set(key, value);
         }
@@ -144,7 +159,7 @@ namespace VL.Stride.Shaders.ShaderFX
 
         }
 
-        protected override void Upload(ParameterCollection parameters, PermutationParameterKey<T> key, ref T value)
+        protected override void Upload(ParameterCollection parameters, PermutationParameterKey<T> key, ColorSpace colorSpace, ref T value)
         {
             parameters.Set(key, value);
         }

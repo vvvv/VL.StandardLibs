@@ -42,7 +42,7 @@ namespace VL.Core.Tests
             appHost.Dispose();
         }
 
-        class MyGenericSerializer<TFoo, TBar> : ISerializer<Tuple<TBar>>
+        class MyGenericSerializer<TBar> : ISerializer<Tuple<TBar>>
         {
             public object Serialize(SerializationContext context, Tuple<TBar> value)
             {
@@ -93,7 +93,7 @@ namespace VL.Core.Tests
         [Test]
         public void GenericSerializerTest()
         {
-            factory.RegisterSerializer<Tuple<object>, MyGenericSerializer<int, object>>();
+            factory.RegisterSerializer<Tuple<object>, MyGenericSerializer<object>>();
             var t = new Tuple<float>(0.3f);
             var content = context.Serialize(t);
             var deserializedT = context.Deserialize<Tuple<float>>(content);
@@ -103,7 +103,7 @@ namespace VL.Core.Tests
         [Test]
         public void GenericObjectSerializerTest()
         {
-            factory.RegisterSerializer<Tuple<object>, MyGenericSerializer<int, object>>();
+            factory.RegisterSerializer<Tuple<object>, MyGenericSerializer<object>>();
             var t = new Tuple<object>(0.3f);
             var content = context.Serialize(t);
             var deserializedT = context.Deserialize<Tuple<object>>(content);
@@ -114,7 +114,7 @@ namespace VL.Core.Tests
         public void GenericObjectSerializerWithRegisteredTypesTest()
         {
             typeRegistry.RegisterType(typeof(float), "Foo");
-            factory.RegisterSerializer<Tuple<object>, MyGenericSerializer<int, object>>();
+            factory.RegisterSerializer<Tuple<object>, MyGenericSerializer<object>>();
             var t = new Tuple<object>(0.3f);
             var content = context.Serialize(t);
             Assert.IsTrue(content.ToString().Contains("Foo"));
