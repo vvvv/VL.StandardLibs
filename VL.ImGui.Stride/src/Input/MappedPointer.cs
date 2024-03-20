@@ -1,8 +1,8 @@
-﻿using Stride.Core.Mathematics;
-
-namespace Stride.Input
+﻿namespace Stride.Input
 {
     using Stride.Core.Collections;
+    using Stride.Core.Mathematics;
+
     public class MappedPointer : IPointerDevice, IMappedDevice
     {
         private readonly IPointerDevice pointer;
@@ -16,15 +16,15 @@ namespace Stride.Input
 
         public Guid SourceDeviceId => pointer.Id;
 
-        public Vector2 SurfaceSize => pointer.SurfaceSize;
+        public Vector2 SurfaceSize => source.Viewport.Size;
 
-        public float SurfaceAspectRatio => pointer.SurfaceAspectRatio;
+        public float SurfaceAspectRatio => source.Viewport.Size.Y / source.Viewport.Size.X;
 
-        public IReadOnlySet<PointerPoint> PressedPointers => pointer.PressedPointers;
+        public IReadOnlySet<PointerPoint> PressedPointers => pointer.PressedPointers.transform(pointer, source, this);
 
-        public IReadOnlySet<PointerPoint> ReleasedPointers => pointer.ReleasedPointers;
+        public IReadOnlySet<PointerPoint> ReleasedPointers => pointer.ReleasedPointers.transform(pointer, source, this);
 
-        public IReadOnlySet<PointerPoint> DownPointers => pointer.DownPointers;
+        public IReadOnlySet<PointerPoint> DownPointers => pointer.DownPointers.transform(pointer, source, this);
 
         public string Name => "Mapped Pointer";
 
@@ -34,7 +34,20 @@ namespace Stride.Input
 
         public IInputSource Source => source;
 
-        public event EventHandler<SurfaceSizeChangedEventArgs>? SurfaceSizeChanged;
+        public event EventHandler<SurfaceSizeChangedEventArgs> SurfaceSizeChanged
+        {
+            add
+            {
+                pointer.SurfaceSizeChanged += value;
+            }
+
+            remove
+            {
+                pointer.SurfaceSizeChanged -= value;
+            }
+        }
+
+        //public event EventHandler<SurfaceSizeChangedEventArgs>? SurfaceSizeChanged;
 
         public void Update(List<InputEvent> inputEvents)
         {

@@ -1,28 +1,50 @@
-﻿using Stride.Core.Mathematics;
-
-namespace Stride.Input
+﻿namespace Stride.Input
 {
+    using Stride.Graphics;
     using Stride.Core.Collections;
     using NotifyCollectionChangedAction = System.Collections.Specialized.NotifyCollectionChangedAction;
 
     public class MappedInputSource : IInputSource
     {
         private readonly InputManager inputManager;
-        private readonly IInputSource inputSource;
+        private readonly IWithViewport withViewport;
 
-        public MappedInputSource(InputManager inputManager, IInputSource inputSource)
+        public Viewport Viewport => withViewport.Viewport;
+
+        public MappedInputSource(IWithViewport withViewport, InputManager inputManager)
         {
+            this.withViewport = withViewport;
+
             this.inputManager = inputManager;
-            this.inputSource = inputSource;
-            this.inputSource.Devices.CollectionChanged += Devices_CollectionChanged;
             if (!this.inputManager.Sources.Contains(this))
                 this.inputManager.Sources.Add(this);
         }
 
-        #region MappedDeviceHandeling
-        private void Devices_CollectionChanged(object? sender, TrackingCollectionChangedEventArgs e)
+        public void Connect(IInputSource? inputSource) 
         {
-            switch(e.Action)
+            Devices.Clear();
+            if (inputSource != null) 
+            {
+                foreach (var kv in inputSource.Devices)
+                {
+                    AddMappedDevice(kv.Value);
+                }
+                inputSource.Devices.CollectionChanged += InputDevicesChangend;
+            }
+        }
+
+        public void Disconnect(IInputSource? inputSource) 
+        {
+            if (inputSource != null)
+            {
+                inputSource.Devices.CollectionChanged += InputDevicesChangend;
+            } 
+            Devices.Clear();
+        }
+
+        private void InputDevicesChangend(object? sender, TrackingCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
                     AddMappedDevice((IInputDevice)e.Item);
@@ -38,6 +60,8 @@ namespace Stride.Input
                     break;
             }
         }
+
+        #region MappedDeviceHandeling
         private void AddMappedDevice(IInputDevice input)
         {
             if (input is IMouseDevice mouse)
@@ -85,26 +109,19 @@ namespace Stride.Input
         #region IInputSource
         public TrackingDictionary<Guid, IInputDevice> Devices { get; } = new TrackingDictionary<Guid, IInputDevice>();
 
-        public void Initialize(InputManager inputManager)
-        {
-            foreach(var kv in inputSource.Devices) 
-            {
-                AddMappedDevice(kv.Value);
-            }
-        }
+        public void Initialize(InputManager inputManager) { }
         public void Pause() {}
         public void Resume() {}
         public void Scan() {}
         public void Update() {}
+        #endregion IInputSource
+
         public void Dispose()
         {
             if (inputManager.Sources.Contains(this))
             {
                 inputManager.Sources.Remove(this);
             }
-            this.inputSource.Devices.CollectionChanged -= Devices_CollectionChanged;
         }
-
-        #endregion IInputSource
     }
 }

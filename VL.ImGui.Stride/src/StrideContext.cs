@@ -1,19 +1,9 @@
-﻿using SkiaSharp;
-using Stride.Core.Mathematics;
-using Stride.Graphics;
+﻿using Stride.Graphics;
 using Stride.Input;
-using Stride.Rendering;
-using System.Linq;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Windows.Input;
-using VL.Core;
 using VL.ImGui.Widgets;
 using VL.Lib.Basics.Resources;
-using VL.Lib.IO.Notifications;
 using VL.Skia;
-using VL.Stride;
-using VL.Stride.Input;
 using InputManager = Stride.Input.InputManager;
 
 namespace VL.ImGui
@@ -22,9 +12,9 @@ namespace VL.ImGui
     
     internal interface IContextWithRenderer
     {
-        public IntPtr AddRenderer(RenderLayerWithInputSource renderer);
+        public IntPtr AddRenderer(RenderLayerWithViewPort renderer);
 
-        public void RemoveRenderer(RenderLayerWithInputSource renderer);
+        public void RemoveRenderer(RenderLayerWithViewPort renderer);
     }
 
     internal sealed class StrideContext : Context, IContextWithSkia, IContextWithRenderer
@@ -34,10 +24,9 @@ namespace VL.ImGui
             this.inputManager = inputManager;
         }
 
-        private readonly List<RenderLayerWithInputSource> Renderers = new List<RenderLayerWithInputSource>();
+        private readonly List<RenderLayerWithViewPort> Renderers = new List<RenderLayerWithViewPort>();
         private readonly List<SkiaRenderer> managedSkiaRenderers = new();
         internal InputManager inputManager;
-        private Int2 rendertargetSize;
 
         public IntPtr AddLayer(SkiaWidget layer, System.Numerics.Vector2 pos, System.Numerics.Vector2 size)
         {
@@ -59,7 +48,7 @@ namespace VL.ImGui
 
                 skiaRenderer.Layer = layer;
 
-                RenderLayerWithInputSource renderLayer = new RenderLayerWithInputSource(this.inputManager);
+                RenderLayerWithViewPort renderLayer = new RenderLayerWithViewPort(this.inputManager);
                 renderLayer.Layer = skiaRenderer;
                 renderLayer.Viewport = new Viewport(pos.X, pos.Y, size.X, size.Y);
 
@@ -77,7 +66,7 @@ namespace VL.ImGui
             }
         }
 
-        public IntPtr AddRenderer(RenderLayerWithInputSource renderer)
+        public IntPtr AddRenderer(RenderLayerWithViewPort renderer)
         {
             if (Renderers.Contains(renderer))
             {
@@ -90,13 +79,13 @@ namespace VL.ImGui
             }
         }
 
-        public void RemoveRenderer(RenderLayerWithInputSource renderer)
+        public void RemoveRenderer(RenderLayerWithViewPort renderer)
         {
             if (Renderers.Remove(renderer))
                 OnRemoved(renderer);
         }
 
-        private void OnRemoved(RenderLayerWithInputSource renderLayer)
+        private void OnRemoved(RenderLayerWithViewPort renderLayer)
         {
             if (renderLayer.Layer is SkiaRenderer skiaRenderer)
             {
@@ -106,7 +95,7 @@ namespace VL.ImGui
             renderLayer.Dispose();
         }
 
-        public RenderLayerWithInputSource? GetRenderer(IntPtr index)
+        public RenderLayerWithViewPort? GetRenderer(IntPtr index)
         {
             if (Renderers.Count >= index)
                 return Renderers.ElementAt((int)index - 1);

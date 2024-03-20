@@ -11,7 +11,7 @@ namespace VL.ImGui.Widgets
     [GenerateNode(Category = "ImGui.Widgets.Internal", IsStylable = false)]
     public sealed partial class RenderWidget : Widget, IDisposable
     {
-        private RenderLayerWithInputSource? renderLayer;
+        private RenderLayerWithViewPort? renderLayer;
         private IContextWithRenderer? strideContext;
 
         public IGraphicsRendererBase? Layer { private get; set ; }
@@ -29,7 +29,9 @@ namespace VL.ImGui.Widgets
                 this.strideContext = strideContext;
 
                 if (renderLayer == null)
-                    renderLayer = new RenderLayerWithInputSource(strideContext.inputManager);
+                    renderLayer = new RenderLayerWithViewPort(strideContext.inputManager);
+
+                //renderLayer.HasFocus = false;
 
                 if (Layer is null)
                 {

@@ -1,8 +1,8 @@
-﻿using Stride.Core.Mathematics;
-
-namespace Stride.Input
+﻿namespace Stride.Input
 {
     using Stride.Core.Collections;
+    using Stride.Core.Mathematics;
+
     public class MappedMouse : IMouseDevice, IMappedDevice
     {
         private readonly IMouseDevice mouse;
@@ -16,9 +16,9 @@ namespace Stride.Input
 
         public Guid SourceDeviceId => mouse.Id;
 
-        public Vector2 Position => mouse.Position;
-
-        public Vector2 Delta => mouse.Delta;
+        public Vector2 Position => mouse.Position.transformPos(mouse, source);
+        
+        public Vector2 Delta => mouse.Delta.transformDelta(mouse, source);
 
         public IReadOnlySet<MouseButton> PressedButtons => mouse.PressedButtons;
 
@@ -28,15 +28,15 @@ namespace Stride.Input
 
         public bool IsPositionLocked => mouse.IsPositionLocked;
 
-        public Vector2 SurfaceSize => mouse.SurfaceSize;
+        public Vector2 SurfaceSize => source.Viewport.Size;
 
-        public float SurfaceAspectRatio => mouse.SurfaceAspectRatio;
+        public float SurfaceAspectRatio => source.Viewport.Size.Y / source.Viewport.Size.X;
 
-        public IReadOnlySet<PointerPoint> PressedPointers => mouse.PressedPointers;
+        public IReadOnlySet<PointerPoint> PressedPointers => mouse.PressedPointers.transform(mouse, source, this);
 
-        public IReadOnlySet<PointerPoint> ReleasedPointers => mouse.ReleasedPointers;
+        public IReadOnlySet<PointerPoint> ReleasedPointers => mouse.ReleasedPointers.transform(mouse, source, this);
 
-        public IReadOnlySet<PointerPoint> DownPointers => mouse.DownPointers;
+        public IReadOnlySet<PointerPoint> DownPointers => mouse.DownPointers.transform(mouse, source, this);
 
         public string Name => "Mapped Mouse";
 
@@ -48,7 +48,18 @@ namespace Stride.Input
 
         int IInputDevice.Priority { get; set; }
 
-        public event EventHandler<SurfaceSizeChangedEventArgs>? SurfaceSizeChanged;
+        public event EventHandler<SurfaceSizeChangedEventArgs> SurfaceSizeChanged
+        {
+            add
+            {
+                mouse.SurfaceSizeChanged += value;
+            }
+
+            remove
+            {
+                mouse.SurfaceSizeChanged -= value;
+            }
+        }
 
         public void LockPosition(bool forceCenter = false)
         {
