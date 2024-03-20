@@ -31,7 +31,7 @@ namespace VL.ImGui.Widgets
                 if (renderLayer == null)
                     renderLayer = new RenderLayerWithViewPort();
 
-                //renderLayer.HasFocus = false;
+                renderLayer.HasFocus = false;
 
                 if (Layer is null)
                 {

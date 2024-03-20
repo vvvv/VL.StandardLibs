@@ -38,14 +38,8 @@ namespace VL.ImGui
         }
 
         // Mapped Inputsource
-        public IInputSource? MappedInputSource// => HasFocus && mappedInputSource.Devices.Count > 0 ? mappedInputSource : null;
-        {
-            get
-            {
-                return HasFocus && mappedInputSource.Devices.Count > 0 ? mappedInputSource : null;
-            }
-        }
-
+        public IInputSource? MappedInputSource => HasFocus && mappedInputSource.Devices.Count > 0 ? mappedInputSource : null;
+        
         public RenderLayerWithViewPort()
         {
             this.mappedInputSource = new MappedInputSource(this);

@@ -196,9 +196,11 @@ namespace VL.ImGui
                     lastInputSource = inputSource;
                     inputSubscription.Disposable = SubscribeToInputSource(inputSource, context);
 
-                    // Push inputSource to all RenderLayerWithInputSource
-                    _context.WithInputSource(inputSource);
+                    
                 }
+                
+                // Push inputSource to all RenderLayerWithInputSource
+                _context.WithInputSource(inputSource);
 
                 // Enable Docking
                 if (dockingEnabled)

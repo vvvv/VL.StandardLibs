@@ -19,16 +19,13 @@
         {
             this.withViewport = withViewport;
             inputHandle = AppHost.Current.Services.GetInputManagerHandle();
-
-            
-            if (!inputManager.Sources.Contains(this))
-                inputManager.Sources.Add(this);
+            inputManager.Sources.Add(this);
         }
 
         public void Connect(IInputSource? inputSource) 
         {
             Devices.Clear();
-            if (inputSource != null) 
+            if (inputSource != null)
             {
                 foreach (var kv in inputSource.Devices)
                 {
@@ -43,7 +40,7 @@
             if (inputSource != null)
             {
                 inputSource.Devices.CollectionChanged -= InputDevicesChangend;
-            } 
+            }
             Devices.Clear();
         }
 
@@ -123,10 +120,8 @@
 
         public void Dispose()
         {
-            if (inputManager.Sources.Contains(this))
-            {
-                inputManager.Sources.Remove(this);
-            }
+            // TODO ... this will lead into 'Access violation'
+            //inputManager.Sources.Remove(this);
             inputHandle.Dispose();
         }
     }
