@@ -48,7 +48,7 @@ namespace VL.ImGui
 
                 skiaRenderer.Layer = layer;
 
-                RenderLayerWithViewPort renderLayer = new RenderLayerWithViewPort(this.inputManager);
+                RenderLayerWithViewPort renderLayer = new RenderLayerWithViewPort();
                 renderLayer.Layer = skiaRenderer;
                 renderLayer.Viewport = new Viewport(pos.X, pos.Y, size.X, size.Y);
 

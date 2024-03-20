@@ -29,7 +29,7 @@ namespace VL.ImGui.Widgets
                 this.strideContext = strideContext;
 
                 if (renderLayer == null)
-                    renderLayer = new RenderLayerWithViewPort(strideContext.inputManager);
+                    renderLayer = new RenderLayerWithViewPort();
 
                 //renderLayer.HasFocus = false;
 

@@ -46,9 +46,9 @@ namespace VL.ImGui
             }
         }
 
-        public RenderLayerWithViewPort(InputManager inputManager)
+        public RenderLayerWithViewPort()
         {
-            this.mappedInputSource = new MappedInputSource(this,inputManager);
+            this.mappedInputSource = new MappedInputSource(this);
         }
 
         public void Dispose()

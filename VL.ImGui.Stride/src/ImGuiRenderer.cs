@@ -280,6 +280,7 @@ namespace VL.ImGui
             imShader.Dispose();
             inputSubscription.Dispose();
 
+            _context.Dispose();
             deviceHandle.Dispose();
             GraphicsContextHandle.Dispose();
             inputHandle.Dispose();

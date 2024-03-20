@@ -3,21 +3,26 @@
     using Stride.Graphics;
     using Stride.Core.Collections;
     using NotifyCollectionChangedAction = System.Collections.Specialized.NotifyCollectionChangedAction;
+    using VL.Lib.Basics.Resources;
+    using VL.Core;
+    using VL.Stride;
 
     public class MappedInputSource : IInputSource
     {
-        private readonly InputManager inputManager;
+        private readonly IResourceHandle<InputManager> inputHandle;
         private readonly IWithViewport withViewport;
+        InputManager inputManager => inputHandle.Resource;
 
         public Viewport Viewport => withViewport.Viewport;
 
-        public MappedInputSource(IWithViewport withViewport, InputManager inputManager)
+        public MappedInputSource(IWithViewport withViewport)
         {
             this.withViewport = withViewport;
+            inputHandle = AppHost.Current.Services.GetInputManagerHandle();
 
-            this.inputManager = inputManager;
-            if (!this.inputManager.Sources.Contains(this))
-                this.inputManager.Sources.Add(this);
+            
+            if (!inputManager.Sources.Contains(this))
+                inputManager.Sources.Add(this);
         }
 
         public void Connect(IInputSource? inputSource) 
@@ -37,7 +42,7 @@
         {
             if (inputSource != null)
             {
-                inputSource.Devices.CollectionChanged += InputDevicesChangend;
+                inputSource.Devices.CollectionChanged -= InputDevicesChangend;
             } 
             Devices.Clear();
         }
@@ -122,6 +127,7 @@
             {
                 inputManager.Sources.Remove(this);
             }
+            inputHandle.Dispose();
         }
     }
 }
