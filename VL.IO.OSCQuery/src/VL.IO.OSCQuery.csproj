@@ -5,15 +5,20 @@
     <OutputPath>..\lib</OutputPath>
 	<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeReferencedAssembliesInPackage</TargetsForTfmSpecificBuildOutput>
     <VLPackageBasePath>..\</VLPackageBasePath>
-      <Description>OSCQuery support for VL</Description>
-      <PackageTags>VL, OSC</PackageTags>
+    <Description>OSCQuery support for vvvv</Description>
+    <PackageTags>VL, OSC</PackageTags>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MeaMod.DNS" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="WatsonWebsocket" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\readme.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <Target Name="IncludeReferencedAssembliesInPackage" DependsOnTargets="ResolveReferences">

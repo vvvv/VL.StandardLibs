@@ -1,7 +1,4 @@
-﻿using Stride.Core;
-using System;
-using System.Collections;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -17,7 +14,7 @@ using VL.Lib.Collections;
 
 namespace VL.Lib.Reactive
 {
-    public interface IChannel
+    public interface IChannel : IHasAttributes, IDisposable
     {
         Type ClrTypeOfValues { get; }
         ImmutableList<object> Components { get; set; }
@@ -31,7 +28,7 @@ namespace VL.Lib.Reactive
     }
 
     [Monadic(typeof(Monadic.ChannelFactory<>))]
-    public interface IChannel<T> : IChannel, ISubject<T?>, IDisposable
+    public interface IChannel<T> : IChannel, ISubject<T?>
     {
         public T? Value { get; set; }
         void SetValueAndAuthor(T? value, string? author);
@@ -187,6 +184,8 @@ namespace VL.Lib.Reactive
             if (lockCount == 0 && revisionOnLockTaken != revision)
                 SetValueAndAuthor(this.Value, LatestAuthor);
         }
+
+        IEnumerable<TAttribute> IHasAttributes.GetAttributes<TAttribute>() => this.Attributes().Value!.OfType<TAttribute>();
     }
 
     internal class Channel<T> : C<T>, IChannel<object>

@@ -37,7 +37,7 @@ namespace VL.Lib.Experimental
                 else
                 {
                     IVLRuntime.Current?.AddMessage(nodeContext.Path.Stack.Peek(), boxedValue != null
-                        ? $"Sent object is null. Can't convert to {typeof(TValue)}."
+                        ? $"Can't convert a value of type {boxedValue.GetType()} to {typeof(TValue)}."
                         : $"Sent object is of type {boxedValue?.GetType()}. Can't convert to {typeof(TValue)}.");
                     value = fallbackValue;
                 }

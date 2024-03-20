@@ -18,6 +18,7 @@ using VL.Lang.PublicAPI;
 using VL.Core.Commands;
 using System.Reactive.Disposables;
 using VL.Core.Utils;
+using System.Reactive;
 
 namespace VL.Skia
 {
@@ -184,12 +185,18 @@ namespace VL.Skia
 
             BoundsChanged = new BehaviorSubject<System.Drawing.Rectangle>(new System.Drawing.Rectangle());
             FBoundsStream = new BehaviorSubject<RectangleF>(new RectangleF());
-            
+            var lostfocus = Observable.Never<EventPattern<EventArgs>>()
+                .Merge(Observable.FromEventPattern<EventArgs>(FControl, nameof(MouseLeave))) // leave with mouse
+                .Merge(Observable.FromEventPattern<EventArgs>(FControl, nameof(LostFocus))) // alt-tab away from window
+                //.Merge(Observable.FromEventPattern<EventArgs>(this, nameof(Leave)))
+                //.Merge(Observable.FromEventPattern<EventArgs>(this, nameof(DragLeave)))
+                .Select(p => p.EventArgs.ToLostFocusNotification(this, this));
             Observable.Merge(new IObservable<INotification>[] {
                 Mouse.Notifications,
                 Keyboard.Notifications,
                 TouchDevice.Notifications,
-                BoundsStream.Select(r => new NotificationWithClientArea(r.Size.ToVector2(), ModifierKeys.ToOurs(), this))
+                BoundsStream.Select(r => new NotificationWithClientArea(r.Size.ToVector2(), ModifierKeys.ToOurs(), this)),
+                lostfocus
                 })
             .Subscribe(OnNotification);
 

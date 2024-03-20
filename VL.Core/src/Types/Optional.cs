@@ -25,7 +25,7 @@ namespace VL.Core
     /// <typeparam name="T">The type of the value.</typeparam>
     [Serializable]
     [Monadic(typeof(OptionalMonadicFactory<>))]
-    public readonly struct Optional<T> : IEquatable<Optional<T>>, IComparable<Optional<T>>, IOptional
+    public readonly struct Optional<T> : IEquatable<Optional<T>>, IComparable<Optional<T>>, IOptional, IEquatable<IOptional>
     {
         public Optional(T value)
         {
@@ -86,6 +86,16 @@ namespace VL.Core
             return Comparer<T>.Default.Compare(Value, other.Value);
         }
 
+        public bool Equals(IOptional other)
+        {
+            if (other is Optional<T>)
+            {
+                var otherValue = (Optional<T>)other;
+                return Equals(otherValue);
+            }
+            return false;
+        }
+
         public override string ToString()
         {
             if (HasValue)
@@ -132,11 +142,24 @@ namespace VL.Core
 #nullable enable
     public static class OptionalExtensions
     {
+        public static Optional<TValue> ToOptional<TValue>(this TValue? value)
+            where TValue : struct
+            => value.HasValue ? value.Value : new Optional<TValue>();
+
         public static TValue? ToNullable<TValue>(this Optional<TValue> value)
             where TValue : struct
             => value.HasValue ? value.Value : null;
+        
         public static TValue? ToNullable_ForReferenceType<TValue>(this Optional<TValue> value)
             where TValue : class
             => value.HasValue ? value.Value : null;
+
+        public static TValue ValueOrDefault<TValue>(this Optional<TValue> value, TValue @default = default)
+            where TValue : struct
+            => value.HasValue ? value.Value : @default; 
+        
+        public static TValue? ValueOrDefault_ForReferenceType<TValue>(this Optional<TValue> value, TValue? @default = null)
+            where TValue : class
+            => value.HasValue ? value.Value : @default;
     }
 }
