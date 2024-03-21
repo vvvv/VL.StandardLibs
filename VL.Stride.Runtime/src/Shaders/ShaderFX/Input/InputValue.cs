@@ -5,15 +5,22 @@ using static VL.Stride.Shaders.ShaderFX.ShaderFXUtils;
 
 namespace VL.Stride.Shaders.ShaderFX
 {
-    public class InputValue<T> : ComputeValue<T>
+    internal interface IInputValue<T>
+    {
+        T Input { get; set; }
+        bool HasValue { get; }
+    }
+
+    public class InputValue<T> : ComputeValue<T>, IInputValue<T>
         where T : struct
     {
-        private readonly ValueParameterUpdater<T> updater = new ValueParameterUpdater<T>();
+        private readonly ValueParameterUpdater<T> updater;
 
-        public InputValue(ValueParameterKey<T> key = null, string constantBufferName = null)
+        public InputValue(ValueParameterKey<T> key = null, string constantBufferName = null, bool convertToDeviceColorSpace = false)
         {
             Key = key;
             ConstantBufferName = constantBufferName;
+            updater = new ValueParameterUpdater<T>(convertToDeviceColorSpace: convertToDeviceColorSpace);
         }
 
         /// <summary>
@@ -27,6 +34,8 @@ namespace VL.Stride.Shaders.ShaderFX
 
         public ValueParameterKey<T> Key { get; }
         public string ConstantBufferName { get; private set; }
+
+        public bool HasValue { get; set; }
 
         public override ShaderSource GenerateShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)
         {
@@ -62,5 +71,7 @@ namespace VL.Stride.Shaders.ShaderFX
         {
             return (ValueParameterKey<T>)context.GetParameterKey(Key ?? GenericValueKeys<T>.GenericValueParameter);
         }
+
+        public override string ToString() => Input.ToString();
     }
 }

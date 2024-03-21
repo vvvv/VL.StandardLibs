@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Stride.Core;
 using Stride.Core.Mathematics;
@@ -18,8 +19,8 @@ namespace VL.Stride.Shaders.ShaderFX
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <seealso cref="IComputeVoid" />
-    [Monadic(typeof(GpuMonadicFactory<>))]
-    public class SetVar<T> : VarBase<T>, IComputeVoid
+    [MonadicTypeFilter(typeof(GpuMonadicTypeFilter))]
+    public class SetVar<T> : VarBase<T>, IComputeVoid, IMonadicValue<T>
     {
         public SetVar(IComputeValue<T> value, DeclVar<T> declaration, bool evaluateChildren = true)
             : base(declaration)
@@ -43,6 +44,24 @@ namespace VL.Stride.Shaders.ShaderFX
         public IComputeValue<T> Value { get; }
 
         public bool EvaluateChildren { get; }
+
+#nullable enable
+        T? IMonadicValue<T>.Value 
+        {
+            get => Value is IInputValue<T> inputValue ? inputValue.Input : default;
+        }
+
+        IMonadicValue<T> IMonadicValue<T>.SetValue(T? value)
+        {
+            if (Value is IInputValue<T> inputValue)
+                inputValue.Input = value!;
+            return this;
+        }
+
+        bool IMonadicValue.HasValue => Value is IInputValue<T> i && i.HasValue;
+
+        bool IMonadicValue.AcceptsValue => Value is IInputValue<T>;
+#nullable restore
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
         {
@@ -69,59 +88,41 @@ namespace VL.Stride.Shaders.ShaderFX
 
         public override string ToString()
         {
+            if (Value is IInputValue<T> inputValue) 
+                return inputValue.ToString();
+
             if (Declaration is DeclConstant<T> constant)
                 return string.Format("Constant {0}", constant.VarName);
             else if (Declaration is DeclSemantic<T> semantic)
                 return string.Format("Get Semantic {0}", semantic.SemanticName);
             return string.Format("Assign {0} ", Declaration.VarName);
         }
+
+        static IMonadicValue<T> IMonadicValue<T>.Create(NodeContext nodeContext, T value)
+        {
+            if (!typeof(T).IsValueType)
+                throw new InvalidOperationException($"{typeof(T)} must be a value type");
+
+            return Create_Generic((dynamic)value);
+        }
+
+        private static SetVar<TValue> Create_Generic<TValue>(TValue value)
+            where TValue : unmanaged
+        {
+            var inputValue = new InputValue<TValue>(convertToDeviceColorSpace: true)
+            {
+                Input = value,
+                HasValue = true
+            };
+            return DeclAndSetVar("Input", inputValue);
+        }
     }
 
-    public sealed class GpuMonadicFactory<T> : IMonadicFactory<T, SetVar<T>>
-        where T : unmanaged
+    sealed class GpuMonadicTypeFilter : IMonadicTypeFilter
     {
-        public static readonly GpuMonadicFactory<T> Default = new GpuMonadicFactory<T>();
-
-        public IMonadBuilder<T, SetVar<T>> GetMonadBuilder(bool isConstant)
+        public bool Accepts(TypeDescriptor typeDescriptor)
         {
-            return new GpuValueBuilder<T>();
-        }
-    }
-
-    public sealed class GpuValueBuilder<T> : IMonadBuilder<T, SetVar<T>>, IDisposable
-        where T : unmanaged
-    {
-        private readonly InputValue<T> inputValue;
-        private readonly SetVar<T> gpuValue;
-        private readonly IResourceHandle<GraphicsDevice> graphicsDeviceHandle;
-
-        public GpuValueBuilder()
-        {
-            inputValue = new InputValue<T>();
-            gpuValue = DeclAndSetVar("Input", inputValue);
-            graphicsDeviceHandle = AppHost.Current.Services.GetDeviceHandle();
-        }
-
-        public void Dispose()
-        {
-            graphicsDeviceHandle.Dispose();
-        }
-
-        public SetVar<T> Return(T value)
-        {
-            if (typeof(T) == typeof(Color4))
-            {
-                // We do the same as what the ColorIn node does in its default settings
-                var device = graphicsDeviceHandle.Resource;
-                var color = Unsafe.As<T, Color4>(ref value);
-                var deviceColor = Color4.PremultiplyAlpha(color.ToColorSpace(device.ColorSpace));
-                inputValue.Input = Unsafe.As<Color4, T>(ref deviceColor);
-            }
-            else
-            {
-                inputValue.Input = value;
-            }
-            return gpuValue;
+            return typeDescriptor.IsValueType;
         }
     }
 }

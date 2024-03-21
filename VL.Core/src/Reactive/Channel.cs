@@ -27,15 +27,16 @@ namespace VL.Lib.Reactive
         IDisposable BeginChange();
     }
 
-    [Monadic(typeof(Monadic.ChannelFactory<>))]
-    public interface IChannel<T> : IChannel, ISubject<T?>
+    public interface IChannel<T> : IChannel, ISubject<T?>, IMonadicValue<T>
     {
-        public T? Value { get; set; }
+        static IMonadicValue<T> IMonadicValue<T>.Create(NodeContext nodeContext, T? value) => Channel.Create(value!);
+        static bool IMonadicValue<T>.HasCustomDefault => true; // We use DummyChannel as default
+        new T? Value { get; set; }
         void SetValueAndAuthor(T? value, string? author);
         Func<T?, Optional<T?>>? Validator { set; }
     }
 
-    internal abstract class C<T> : IChannel<T>
+    internal abstract class C<T> : IChannel<T>, IMonadicValue<T>
     {
         protected readonly Subject<T?> subject = new();
         protected int lockCount = 0;
@@ -104,6 +105,10 @@ namespace VL.Lib.Reactive
         }
 
         IChannel<object> IChannel.ChannelOfObject => channelOfObject;
+
+        public bool HasValue => true;
+
+        public virtual bool AcceptsValue => true;
 
         public Type ClrTypeOfValues => typeof(T);
 
@@ -186,10 +191,38 @@ namespace VL.Lib.Reactive
         }
 
         IEnumerable<TAttribute> IHasAttributes.GetAttributes<TAttribute>() => this.Attributes().Value!.OfType<TAttribute>();
+
+        T? IMonadicValue<T>.Value => Value;
+
+        IMonadicValue<T> IMonadicValue<T>.SetValue(T? value)
+        {
+            SetValueIfChanged(value);
+            return this;
+        }
+
+        protected void SetValueIfChanged(T? value)
+        {
+            if (lastValue.HasNoValue || !EqualityComparer<T>.Default.Equals(value, lastValue.Value))
+            {
+                lastValue = value;
+                Value = value;
+            }
+        }
+        Optional<T?> lastValue;
     }
 
     internal class Channel<T> : C<T>, IChannel<object>
     {
+        object? IMonadicValue<object>.Value => Value;
+
+        object? IMonadicValue.BoxedValue => Value;
+
+        IMonadicValue<object> IMonadicValue<object>.SetValue(object? value)
+        {
+            SetValueIfChanged((T?)value);
+            return this;
+        }
+
         protected override IChannel<object> channelOfObject => this;
 
         object? IChannel<object>.Value { get => Value; set { Value = (T?)value; } }
@@ -248,6 +281,8 @@ namespace VL.Lib.Reactive
         }
 
         public static implicit operator T?(Channel<T> c) => c.Value;
+
+        public override string ToString() => $"{Value}";
     }
 
     interface IDummyChannel { }
@@ -261,6 +296,8 @@ namespace VL.Lib.Reactive
             Value = AppHost.CurrentOrGlobal.GetDefaultValue<T>();
             Enabled = false;
         }
+
+        public override bool AcceptsValue => false;
     }
 
     public static class Channel
