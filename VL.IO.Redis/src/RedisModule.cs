@@ -16,6 +16,9 @@ using VL.IO.Redis.Internal;
 
 namespace VL.IO.Redis.Experimental
 {
+    // Patch calls AddBinding and later RemoveBinding.
+    // Both methods will subsequently push a new model.
+    // Internally we only need to keep the model in sync with what bindings we have at runtime.
     [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
     public sealed class RedisModule : IModule, IDisposable
     {
@@ -51,12 +54,10 @@ namespace VL.IO.Redis.Experimental
             _channelHub.RegisterModule(this);
 
             _modelSubscription = _modelStream
-                .Throttle(TimeSpan.FromSeconds(0.2))
                 .ObserveOn(appHost.SynchronizationContext)
                 .Subscribe(m =>
                 {
-                    if (m != null)
-                        UpdateBindingsFromModel(m);
+                    UpdateBindingsFromModel(m ?? ImmutableDictionary<string, BindingModel>.Empty);
 
                     var solution = IDevSession.Current?.CurrentSolution
                         .SetPinValue(nodeContext.Path.Stack, "Model", m);
@@ -96,12 +97,21 @@ namespace VL.IO.Redis.Experimental
         // Called from patched ModuleView
         public void AddBinding(string channelPath, IChannel channel, BindingModel bindingModel)
         {
-            if (_redisClient is null)
-                return;
-
             // Save in our pin - this will trigger a sync
-            var model = _modelStream.Value!.SetItem(channelPath, bindingModel);
-            _modelStream.Value = model;
+            var model = _modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty;
+            _modelStream.Value = model.SetItem(channelPath, bindingModel);
+        }
+
+        // Called from patched ModuleView
+        public void RemoveBinding(IRedisBinding binding)
+        {
+            var model = _modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty;
+            if (binding.ChannelName != null)
+            {
+                var updatedModel = model.Remove(binding.ChannelName);
+                if (updatedModel != model)
+                    _modelStream.Value = updatedModel;
+            }
         }
 
         private void UpdateBindingsFromModel(ImmutableDictionary<string, BindingModel> model)
@@ -113,49 +123,57 @@ namespace VL.IO.Redis.Experimental
             }
 
             // Cleanup
-            var obsoleteKeys = new List<string>();
-            foreach (var entry in _redisClient._bindings)
+            var obsoleteBindings = new List<IRedisBinding>();
+            foreach (var binding in _redisClient.Bindings)
             {
-                var binding = entry.Value.binding;
                 if (binding.Module != this)
                     continue;
 
-                if (model.TryGetValue(entry.Key, out var bindingModel))
+                var key = binding.Model.Key;
+                if (model.TryGetValue(key, out var bindingModel))
                 {
                     // Did the model change?
                     if (binding.Model != bindingModel)
-                        obsoleteKeys.Add(entry.Key);
+                        obsoleteBindings.Add(binding);
                 }
                 else
                 {
                     // Deleted
-                    obsoleteKeys.Add(entry.Key);
+                    obsoleteBindings.Add(binding);
                 }
             }
 
-            foreach (var key in obsoleteKeys)
-            {
-                var (_, binding) = _redisClient._bindings[key];
+            foreach (var binding in obsoleteBindings)
                 binding.Dispose();
-            }
 
             // Add new
-            foreach (var (key, bindingModel) in model)
+            foreach (var (channelName, bindingModel) in model)
             {
-                var channel = _channelHub.TryGetChannel(key);
+                var channel = _channelHub.TryGetChannel(channelName);
                 if (channel is null)
                 {
-                    _logger.LogWarning("Couldn't find global channel with name \"{channelName}\"", key);
+                    _logger.LogWarning("Couldn't find global channel with name \"{channelName}\"", channelName);
                     continue;
                 }
-                if (!_redisClient._bindings.ContainsKey(key))
-                    _redisClient.AddBinding(bindingModel, channel, this);
-            }
-        }
 
-        internal void RemoveBinding(IRedisBinding binding)
-        {
-            _modelStream.Value = _modelStream.Value!.Remove(binding.Model.Key);
+                if (_redisClient.TryGetBinding(bindingModel.Key, out var existingBinding))
+                {
+                    if (existingBinding.Module is null || existingBinding.Module != this)
+                    {
+                        _logger.LogError("Failed to add Redis binding for \"{channelName}\" because it is already bound", channelName);
+                    }
+                    continue;
+                }
+
+                try
+                {
+                    _redisClient.AddBinding(bindingModel, channel, this, channelName: channelName);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Failed to add Redis binding for \"{channelName}\"", channelName);
+                }
+            }
         }
 
         string IModule.Name => "Redis";
