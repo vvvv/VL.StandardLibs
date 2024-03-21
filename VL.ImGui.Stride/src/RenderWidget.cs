@@ -2,6 +2,7 @@
 using Stride.Core.Mathematics;
 using Stride.Input;
 using Stride.Rendering;
+using VL.Core;
 using Viewport = Stride.Graphics.Viewport;
 
 namespace VL.ImGui.Widgets
@@ -13,6 +14,8 @@ namespace VL.ImGui.Widgets
     {
         private RenderLayerWithViewPort? renderLayer;
         private IContextWithRenderer? strideContext;
+
+        public NodeContext? nodeContext { private get; set; }
 
         public IGraphicsRendererBase? Layer { private get; set ; }
 
@@ -38,18 +41,17 @@ namespace VL.ImGui.Widgets
                     this.strideContext.RemoveRenderer(renderLayer);
                     return;
                 }
-                
-
-                if (renderLayer.RenderView != RenderView)
-                    renderLayer.RenderView = RenderView;
-
-                if  (renderLayer.Layer != Layer)
-                    renderLayer.Layer = Layer;
-
-                var id = this.strideContext.AddRenderer(renderLayer);
-
-                if (ImGui.BeginChild("##RenderWidget__" + id.ToString(), Size.FromHectoToImGui(), ImGuiChildFlags.None, ImGuiWindowFlags.ChildWindow))
+               
+                if (ImGui.BeginChild("##RenderWidget__" + nodeContext?.Path.Stack.Peek().ToString() , Size.FromHectoToImGui(), ImGuiChildFlags.None, ImGuiWindowFlags.ChildWindow))
                 {
+                    if (renderLayer.RenderView != RenderView)
+                        renderLayer.RenderView = RenderView;
+
+                    if (renderLayer.Layer != Layer)
+                        renderLayer.Layer = Layer;
+
+                    var id = this.strideContext.AddRenderer(renderLayer);
+
                     var pos = ImGui.GetWindowPos();
                     var size = ImGui.GetWindowSize();
 

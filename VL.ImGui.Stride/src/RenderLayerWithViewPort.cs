@@ -21,14 +21,14 @@ namespace VL.ImGui
             get { return inputSource; }
             set
             {
-                if (value == null)
+                if (inputSource != value)
                 {
-                    mappedInputSource.Disconnect(inputSource);
-                    inputSource = null;
-                }
-                else
-                {
-                    if (inputSource != value) 
+                    if (value == null)
+                    {
+                        mappedInputSource.Disconnect(inputSource);
+                        inputSource = null;
+                    }
+                    else
                     {
                         inputSource = value;
                         mappedInputSource.Connect(inputSource);

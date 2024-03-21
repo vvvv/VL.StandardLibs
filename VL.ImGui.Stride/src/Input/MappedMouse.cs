@@ -3,12 +3,12 @@
     using Stride.Core.Collections;
     using Stride.Core.Mathematics;
 
-    public class MappedMouse : IMouseDevice, IMappedDevice
+    public class MappedMouse : PointerBase, IMouseDevice, IMappedDevice
     {
         private readonly IMouseDevice mouse;
         private readonly MappedInputSource source;
 
-        public MappedMouse(IMouseDevice mouse, MappedInputSource source)
+        public MappedMouse(IMouseDevice mouse, MappedInputSource source) : base() 
         {
             this.mouse = mouse;
             this.source = source;
@@ -32,11 +32,9 @@
 
         public float SurfaceAspectRatio => source.Viewport.Size.Y / source.Viewport.Size.X;
 
-        public IReadOnlySet<PointerPoint> PressedPointers => mouse.PressedPointers.transform(mouse, source, this);
-
-        public IReadOnlySet<PointerPoint> ReleasedPointers => mouse.ReleasedPointers.transform(mouse, source, this);
-
-        public IReadOnlySet<PointerPoint> DownPointers => mouse.DownPointers.transform(mouse, source, this);
+        public IReadOnlySet<PointerPoint> PressedPointers => base.GetPressedPointers(mouse, source, this);      
+        public IReadOnlySet<PointerPoint> ReleasedPointers => base.GetReleasedPointers(mouse, source, this);
+        public IReadOnlySet<PointerPoint> DownPointers => base.GetDownPointers(mouse, source, this);
 
         public string Name => "Mapped Mouse";
 
