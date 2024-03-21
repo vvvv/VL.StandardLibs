@@ -31,6 +31,7 @@ namespace VL.Lib.Reactive
     {
         static IMonadicValue<T> IMonadicValue<T>.Create(NodeContext nodeContext, T? value) => Channel.Create(value!);
         static bool IMonadicValue<T>.HasCustomDefault => true; // We use DummyChannel as default
+        static IMonadicValue<T> IMonadicValue<T>.Default => DummyChannel<T>.Instance;
         new T? Value { get; set; }
         void SetValueAndAuthor(T? value, string? author);
         Func<T?, Optional<T?>>? Validator { set; }
