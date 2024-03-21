@@ -81,7 +81,7 @@ namespace VL.IO.Redis.Experimental
             {
                 _redisClient = client;
                 if (client != null)
-                    UpdateBindingsFromModel(_modelStream.Value!);
+                    UpdateBindingsFromModel(_modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty);
             }
         }
 
