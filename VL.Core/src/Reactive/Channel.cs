@@ -50,7 +50,7 @@ namespace VL.Lib.Reactive
 
         public bool IsBusy => stack > 0;
 
-        T? value = default;
+        protected T? value = default;
         public T? Value
         {
             get
@@ -289,9 +289,14 @@ namespace VL.Lib.Reactive
     {
         public static readonly IChannel<T> Instance = new DummyChannel<T>();
 
-        private DummyChannel()
+        public DummyChannel() 
+            : this(default(T)) // We do not want the VL default, T could be the whole user application stored in an unmanaged static reference -> disaster
         {
-            Value = AppHost.CurrentOrGlobal.GetDefaultValue<T>();
+        }
+
+        public DummyChannel(T? value)
+        {
+            this.value = value;
             Enabled = false;
         }
 
@@ -414,6 +419,8 @@ namespace VL.Lib.Reactive
         }
 
         public static IChannel<T> Dummy<T>() => DummyChannel<T>.Instance;
+
+        public static readonly IChannel<object> DummyNonGeneric = new DummyChannel<object>("ceci n'est pas une pipe");
 
         public static bool IsValid([NotNullWhen(true)] this IChannel? c)
             => c is not null && c is not IDummyChannel;
