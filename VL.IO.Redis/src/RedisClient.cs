@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -28,7 +29,7 @@ namespace VL.IO.Redis
     {
         private readonly TransactionBuilder _transactionBuilder = new();
         private readonly ILogger _logger;
-        internal readonly Dictionary<string, (BindingModel model, IRedisBinding binding)> _bindings = new();
+        private readonly Dictionary<string, IRedisBinding> _bindings = new();
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly Subject<Unit> _networkSync = new Subject<Unit>();
         private readonly AppHost _appHost;
@@ -96,6 +97,8 @@ namespace VL.IO.Redis
 
         internal ConnectionMultiplexer Multiplexer => _multiplexer;
 
+        internal IEnumerable<IRedisBinding> Bindings => _bindings.Values;
+
         internal IDisposable Subscribe(IParticipant participant)
         {
             _participants = _participants.Add(participant);
@@ -104,20 +107,23 @@ namespace VL.IO.Redis
 
         internal ISubscriber GetSubscriber() => _multiplexer.GetSubscriber();
 
-        internal IDisposable AddBinding(BindingModel model, IChannel channel, Experimental.RedisModule? module = null, ILogger? logger = null)
+        internal bool TryGetBinding(string key, [NotNullWhen(true)] out IRedisBinding? binding) => _bindings.TryGetValue(key, out binding);
+
+        internal IRedisBinding AddBinding(BindingModel model, IChannel channel, Experimental.RedisModule? module = null, ILogger? logger = null, string? channelName = null)
         {
             if (_bindings.ContainsKey(model.Key))
                 throw new InvalidOperationException($"The Redis key \"{model.Key}\" is already bound to a different channel.");
 
             var binding = (IRedisBinding)Activator.CreateInstance(
                 type: typeof(Binding<>).MakeGenericType(channel.ClrTypeOfValues),
-                args: new object?[] { this, channel, model, module, logger })!;
-            _bindings[model.Key] = (model, binding);
-            return Disposable.Create(() =>
-            {
-                _bindings.Remove(model.Key);
-                binding.Dispose();
-            });
+                args: [this, channel, model, module, logger, channelName])!;
+            _bindings[model.Key] = binding;
+            return binding;
+        }
+
+        internal void RemoveBinding(string key)
+        {
+            _bindings.Remove(key);
         }
 
         internal RedisValue Serialize<T>(T? value, SerializationFormat? preferredFormat)

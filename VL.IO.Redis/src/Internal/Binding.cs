@@ -23,18 +23,20 @@ namespace VL.IO.Redis.Internal
         private readonly IChannel<T> _channel;
         private readonly BindingModel _bindingModel;
         private readonly Experimental.RedisModule? _module;
+        private readonly string? _channelName;
 
         private bool _initialized;
         private bool _weHaveNewData;
         private bool _othersHaveNewData;
 
-        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel, Experimental.RedisModule? module, ILogger? logger)
+        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel, Experimental.RedisModule? module, ILogger? logger, string? channelName = null)
         {
             _client = client;
             _logger = logger;
             _channel = channel;
             _bindingModel = bindingModel;
             _module = module;
+            _channelName = channelName;
 
             _initialized = bindingModel.Initialization == Initialization.None;
             _authorId = GetHashCode().ToString();
@@ -56,10 +58,10 @@ namespace VL.IO.Redis.Internal
             _channel.RemoveComponent(this);
             _clientSubscription.Dispose();
             _channelSubscription.Dispose();
-
-            if (_module != null)
-                _module.RemoveBinding(this);
+            _client.RemoveBinding(_bindingModel.Key);
         }
+
+        public string? ChannelName => _channelName;
 
         public BindingModel Model => _bindingModel;
 

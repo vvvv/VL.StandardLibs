@@ -28,14 +28,16 @@ namespace _VL_.IO.Redis
 
             public object Serialize(SerializationContext context, BindingModel value)
             {
-                return new object[]
+                var properties = new List<object>()
                 {
                     context.Serialize(nameof(BindingModel.Key), value.Key),
                     context.Serialize(nameof(BindingModel.Initialization), value.Initialization),
                     context.Serialize(nameof(BindingModel.BindingType), value.BindingType),
-                    context.Serialize(nameof(BindingModel.CollisionHandling), value.CollisionHandling),
-                    context.Serialize(nameof(BindingModel.SerializationFormat), value.SerializationFormat)
+                    context.Serialize(nameof(BindingModel.CollisionHandling), value.CollisionHandling)
                 };
+                if (value.SerializationFormat.HasValue)
+                    properties.Add(context.Serialize(nameof(BindingModel.SerializationFormat), value.SerializationFormat));
+                return properties.ToArray();
             }
 
             public BindingModel Deserialize(SerializationContext context, object content, Type type)
@@ -45,7 +47,7 @@ namespace _VL_.IO.Redis
                     context.Deserialize<Initialization>(content, nameof(BindingModel.Initialization)),
                     context.Deserialize<BindingDirection>(content, nameof(BindingModel.BindingType)),
                     context.Deserialize<CollisionHandling>(content, nameof(BindingModel.CollisionHandling)),
-                    context.Deserialize<SerializationFormat>(content, nameof(BindingModel.SerializationFormat)));
+                    context.Deserialize<SerializationFormat?>(content, nameof(BindingModel.SerializationFormat)));
             }
         }
     }
