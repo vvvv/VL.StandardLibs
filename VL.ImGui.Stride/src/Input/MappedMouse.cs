@@ -3,18 +3,15 @@
     using Stride.Core.Collections;
     using Stride.Core.Mathematics;
 
-    public class MappedMouse : PointerBase, IMouseDevice, IMappedDevice
+    public class MappedMouse : MappedPointerBase, IMouseDevice, IMappedDevice
     {
         private readonly IMouseDevice mouse;
-        private readonly MappedInputSource source;
 
-        public MappedMouse(IMouseDevice mouse, MappedInputSource source) : base() 
+
+        public MappedMouse(IMouseDevice mouse, MappedInputSource source) : base(mouse, source) 
         {
             this.mouse = mouse;
-            this.source = source;
         }
-
-        public Guid SourceDeviceId => mouse.Id;
 
         public Vector2 Position => mouse.Position.transformPos(mouse, source);
         
@@ -28,36 +25,9 @@
 
         public bool IsPositionLocked => mouse.IsPositionLocked;
 
-        public Vector2 SurfaceSize => source.Viewport.Size;
-
-        public float SurfaceAspectRatio => source.Viewport.Size.Y / source.Viewport.Size.X;
-
-        public IReadOnlySet<PointerPoint> PressedPointers => base.GetPressedPointers(mouse, source, this);      
-        public IReadOnlySet<PointerPoint> ReleasedPointers => base.GetReleasedPointers(mouse, source, this);
-        public IReadOnlySet<PointerPoint> DownPointers => base.GetDownPointers(mouse, source, this);
-
-        public string Name => "Mapped Mouse";
-
-        public Guid Id => Guid.NewGuid();
-
-        public int Priority => mouse.Priority + 1;
-
-        public IInputSource Source => source;
+        public override string Name => "Mapped Mouse";
 
         int IInputDevice.Priority { get; set; }
-
-        public event EventHandler<SurfaceSizeChangedEventArgs> SurfaceSizeChanged
-        {
-            add
-            {
-                mouse.SurfaceSizeChanged += value;
-            }
-
-            remove
-            {
-                mouse.SurfaceSizeChanged -= value;
-            }
-        }
 
         public void LockPosition(bool forceCenter = false)
         {
@@ -72,10 +42,6 @@
         public void UnlockPosition()
         {
             mouse.UnlockPosition();
-        }
-
-        public void Update(List<InputEvent> inputEvents)
-        {
         }
     }
 }
