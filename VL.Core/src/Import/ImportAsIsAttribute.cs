@@ -16,6 +16,11 @@ namespace VL.Core.Import
         /// </summary>
         public string? Namespace { get; set; }
 
+        /// <summary>
+        /// Defines the category where types are placed in VL.
+        /// </summary>
+        public string? Category { get; set; }
+
         public bool IsMatch(string? ns)
         {
             if (Namespace is null)
@@ -36,12 +41,22 @@ namespace VL.Core.Import
                 return ns;
 
             if (ns is null)
-                return null;
+                return Category;
 
+            string cat;
             if (ns.Length > Namespace.Length)
-                return ns.Substring(Namespace.Length + 1);
+                cat = ns.Substring(Namespace.Length + 1);
             else
-                return Namespace;
+                cat = Namespace;
+
+            if (Category is null)
+                return cat;
+
+            if (string.IsNullOrEmpty(cat))
+                return Category;
+
+            return $"{Category}.{cat}";
+
         }
     }
 }
