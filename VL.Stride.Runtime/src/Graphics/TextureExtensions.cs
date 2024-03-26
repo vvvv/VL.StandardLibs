@@ -104,44 +104,25 @@ namespace VL.Stride.Graphics
             return Texture.New(device, image, textureFlags, usage);
         }
 
-        // TODO: Can be deleted once backported (Stride commit 92512973841694bcfe96bcee23bf3b94ef75b4d4)
-        public static void SaveTexture(this Texture texture, CommandList commandList, Stream stream, ImageFileType imageFileType = ImageFileType.Png)
-        {
-            if (!IsSupportedFormat(imageFileType, texture.Format))
-                throw new ArgumentException($"The pixel format {texture.Format} is not supported. Supported formats are R8G8B8A8, B8G8R8A8, B8G8R8X8 and R8 and A8.");
-
-            // The original method crashes the application if provided with a wrong pixel format
-            texture.Save(commandList, stream, imageFileType);
-
-            static bool IsSupportedFormat(ImageFileType imageFileType, StridePixelFormat format)
-            {
-                switch (imageFileType)
-                {
-                    case ImageFileType.Stride:
-                    case ImageFileType.Dds:
-                        return true;
-                }
-
-                switch (format)
-                {
-                    case StridePixelFormat.B8G8R8A8_UNorm:
-                    case StridePixelFormat.B8G8R8A8_UNorm_SRgb:
-                    case StridePixelFormat.R8G8B8A8_UNorm:
-                    case StridePixelFormat.R8G8B8A8_UNorm_SRgb:
-                    case StridePixelFormat.R8_UNorm:
-                    case StridePixelFormat.A8_UNorm:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        }
-
         public static void SaveTexture(this Texture texture, CommandList commandList, string filename, ImageFileType imageFileType = ImageFileType.Png)
         {
             using (var resultFileStream = File.OpenWrite(filename))
             {
-                SaveTexture(texture, commandList, resultFileStream, imageFileType);
+                texture.Save(commandList, resultFileStream, imageFileType);
+            }
+        }
+
+        public static void SaveStagingTexture(this Texture stagingTexture, CommandList commandList, string filename, ImageFileType imageFileType = ImageFileType.Png)
+        {
+            if (stagingTexture is null)
+                throw new ArgumentNullException(nameof(stagingTexture));
+
+            if (!stagingTexture.Usage.HasFlag(GraphicsResourceUsage.Staging))
+                throw new ArgumentException("The texture is not a staging texture", nameof(stagingTexture));
+
+            using (var resultFileStream = File.OpenWrite(filename))
+            {
+                stagingTexture.Save(commandList, resultFileStream, stagingTexture, imageFileType);
             }
         }
 

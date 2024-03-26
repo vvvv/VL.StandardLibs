@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="TiJxb2oN2LtNWRy2MbJV6Q" LanguageVersion="2024.6.0-0171-gac855f71b1" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="TiJxb2oN2LtNWRy2MbJV6Q" LanguageVersion="2024.6.0-0313-g70edef4106" Version="0.128">
   <NugetDependency Id="LpDzfnL2ypqNzyyOieWuHI" Location="VL.CoreLib" Version="2021.4.11-1125-g2d2d476ad1" />
   <PlatformDependency Id="JJ0ZRRgadtbPuisZUaeinf" Location="Stride.Graphics.dll" />
   <NugetDependency Id="RUpxj8weM25L4I4AlKb6Yw" Location="VL.Core" Version="2021.4.11-1125-g2d2d476ad1" />
@@ -786,7 +786,6 @@
                       <Pin Id="P6oMaESg7mAMFnjq6TXzQe" Name="Usage" Kind="InputPin" />
                       <Pin Id="MzndlnDPVqpOkWXgsRNPpd" Name="Load As SRGB" Kind="InputPin" />
                       <Pin Id="BaC0C6lSpnwQJ5oqfuQSAj" Name="Result" Kind="OutputPin" />
-                      <Pin Id="OI5rd2WmTwuQG7ZGnuavch" Name="Buffer Size" Kind="InputPin" />
                     </Patch>
                   </Node>
                   <!--
@@ -947,6 +946,34 @@
                       <Pin Id="HD3AEVOAwqUPxm0Vu4kEtS" Name="Result" Kind="OutputPin" />
                     </Patch>
                   </Node>
+                  <!--
+
+    ************************ SaveStagingTexture ************************
+
+-->
+                  <Node Name="SaveStagingTexture" Bounds="566,756,130,80" Id="UCop4JqqiZEPP38jA3bQym">
+                    <p:NodeReference>
+                      <Choice Kind="OperationDefinition" Name="Operation" />
+                      <CategoryReference Kind="Category" Name="Primitive" />
+                    </p:NodeReference>
+                    <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+                    <Patch Id="DUBJOllyNcpNVIdng9ztDB">
+                      <Node Bounds="578,785,106,26" AutoConnect="true" Id="QMpaSGtsmOdPkDe7LIEbtb">
+                        <p:NodeReference LastCategoryFullName="VL.Stride.Graphics.TextureExtensions" LastDependency="VL.Stride.Runtime.dll">
+                          <Choice Kind="OperationNode" Name="SaveStagingTexture" />
+                          <FullNameCategoryReference ID="VL.Stride.Graphics.TextureExtensions" />
+                        </p:NodeReference>
+                        <Pin Id="PUt7HbXZOrhL8Nuv4O32tl" Name="Input" Kind="StateInputPin" />
+                        <Pin Id="G3557Rs6Ht0NKZ5oyIuzGW" Name="Command List" Kind="InputPin" />
+                        <Pin Id="MGu23Uf7SCrNKjmlsigEx2" Name="Filename" Kind="InputPin" />
+                        <Pin Id="BiHhdWZN2iOLfTH3SbplnF" Name="Image File Type" Kind="InputPin" />
+                      </Node>
+                      <Pin Id="H5cIz0Y5VcsNEQc1PJqk9y" Name="Input" Kind="InputPin" />
+                      <Pin Id="Me5DbSHv97KOIRyO0GpujJ" Name="Command List" Kind="InputPin" />
+                      <Pin Id="UGHmcyme52jLZI21DczRMP" Name="Filename" Kind="InputPin" />
+                      <Pin Id="Vo5scYi7VoAOgTxKg5FfOK" Name="Image File Type" Kind="InputPin" />
+                    </Patch>
+                  </Node>
                 </Canvas>
                 <ProcessDefinition Id="MruQ3kaOEPhLG3b4KwVzP3" IsHidden="true">
                   <Fragment Id="NN0HElDxBTkLB7IulcLUAO" Patch="IsGqAeb6r72MIcSa5INqyT" />
@@ -954,6 +981,7 @@
                   <Fragment Id="ClWiEespcAgPbXQoXb4lPw" Patch="OFjGPMJHg6cL27iGyheCDf" />
                   <Fragment Id="A9d63uzoXQjPVoylncRi3p" Patch="NagKq7t6unCL7aZmLAbCsw" />
                   <Fragment Id="TimDAx4N6YTP4OdN82cs76" Patch="L5hSkVg9RSxO9F7BmnwWZN" />
+                  <Fragment Id="L49Rfqx5U8iLFuDmjCA8cJ" Patch="UCop4JqqiZEPP38jA3bQym" />
                 </ProcessDefinition>
               </Patch>
             </Node>
@@ -6017,11 +6045,10 @@
                         <Pin Id="B96aRukRBhNPy2RwPqyN5J" Name="Enabled" Kind="InputPin" />
                         <Pin Id="AOj79AHznAYN0FYLM1Xb8m" Name="Apply On Children" Kind="InputPin" />
                       </Node>
-                      <Pin Id="MuhagURjR4CP1ulHFNsmW0" Name="Input" Kind="InputPin" />
-                      <Pin Id="DLtGZKPtZu6NN0bu4Uv0u7" Name="Enabled" Kind="InputPin" />
-                      <Pin Id="KjNnDFJBTHbO5oz35qyUoF" Name="Apply On Children" Kind="InputPin" />
                       <Pin Id="QpLCjjTuR9kPFIEJ5XX5W8" Name="Entity" Kind="InputPin" />
                       <Pin Id="CC9wKZG9nwvPgdb4H40vNC" Name="Component Type" Kind="InputPin" />
+                      <Pin Id="DLtGZKPtZu6NN0bu4Uv0u7" Name="Enabled" Kind="InputPin" />
+                      <Pin Id="KjNnDFJBTHbO5oz35qyUoF" Name="Apply On Children" Kind="InputPin" />
                     </Patch>
                   </Node>
                   <!--
