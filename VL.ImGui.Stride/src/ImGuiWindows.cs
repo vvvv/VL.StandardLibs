@@ -1,18 +1,13 @@
 ﻿using ImGuiNET;
-
 using System.Runtime.InteropServices;
-using Stride.Core.Mathematics;
+
 using VL.Core;
-using Stride.Engine;
-using VL.Lib.Basics.Resources;
-using VL.Stride.Engine;
-using VL.Stride.Games;
-using VL.Stride;
+
 using Stride.Games;
 using Stride.Rendering;
 using Stride.Input;
 using Stride.Graphics;
-
+using Stride.Core.Mathematics;
 
 namespace VL.ImGui.Stride
 {
@@ -217,8 +212,6 @@ namespace VL.ImGui.Stride
 
         public void Dispose()
         {
-            
-
             mainViewportWindow.Dispose();
         }
     }

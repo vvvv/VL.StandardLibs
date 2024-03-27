@@ -1,28 +1,23 @@
-﻿
-
-using Stride.Core.Mathematics;
+﻿using ImGuiNET;
 using System.Runtime.InteropServices;
 
 using Stride.Games;
 using Stride.Graphics;
+using Stride.Input;
+using Stride.Rendering;
+using Stride.Core.Mathematics;
+using Stride.Engine;
 
 using VL.Core;
 using VL.Stride;
 using VL.Stride.Games;
-using ImGuiNET;
-using Stride.Input;
-using Stride.Rendering;
 using VL.Stride.Rendering;
-using Stride.Engine;
-using VL.Lib.Collections;
 using VL.Stride.Engine;
-using Stride.Rendering.Compositing;
 using VL.Lib.Basics.Resources;
 
 namespace VL.ImGui.Stride
 {
     using GameWindowRenderer = VL.Stride.Games.GameWindowRenderer;
-
 
     internal class ImGuiWindow : IDisposable
     {
@@ -75,10 +70,6 @@ namespace VL.ImGui.Stride
         {
             get { return _gameWindowRenderer.Window.IsMinimized; }
         }
-
-        public IInputSource InputSource { get { return _inputSource; } }
-        public GameWindow GameWindow { get { return _gameWindowRenderer.Window; } }
-        public GraphicsPresenter Presenter { get { return _gameWindowRenderer.Presenter; } }
 
         public ImGuiWindow(NodeContext nodeContext, ImGuiViewportPtr vp)
         {
@@ -151,8 +142,6 @@ namespace VL.ImGui.Stride
             }
         }
 
-
-
         public void Dispose()
         {
             try
@@ -190,8 +179,7 @@ namespace VL.ImGui.Stride
             {
                 if (Input != null)
                 {
-                    var bdraw = _gameWindowRenderer.BeginDraw();
-                    if (bdraw)
+                    if (_gameWindowRenderer.BeginDraw())
                     {
                         _withRenderTargetAndViewPort.RenderTarget = _gameWindowRenderer.Presenter.BackBuffer;
                         _withRenderTargetAndViewPort.DepthBuffer = _gameWindowRenderer.Presenter.DepthStencilBuffer;
