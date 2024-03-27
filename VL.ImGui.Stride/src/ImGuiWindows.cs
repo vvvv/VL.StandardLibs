@@ -10,13 +10,16 @@ using VL.Stride.Games;
 using VL.Stride;
 using Stride.Games;
 using Stride.Rendering;
+using Stride.Input;
+using Stride.Graphics;
 
 
 namespace VL.ImGui.Stride
 {
     using ImGui = ImGuiNET.ImGui;
     using Vector2 = System.Numerics.Vector2;
-
+    public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
+    public delegate void ImGuiWindowsDrawHandler(object stateInput, IGraphicsRendererBase value, IInputSource inputSource, GameWindow gameWindow, GraphicsPresenter presenter, out object stateOutput, out IGraphicsRendererBase result);
     public partial class ImGuiWindows : IDisposable
     {
         //VL 
@@ -81,14 +84,13 @@ namespace VL.ImGui.Stride
             ImGuiNative.ImGuiPlatformIO_Set_Platform_GetWindowSize(platformIO.NativePtr, Marshal.GetFunctionPointerForDelegate(_getWindowSize));
         }
 
-        public void Update(IGraphicsRendererBase IRenderer)
+        public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, IGraphicsRendererBase input)
         {
-            mainViewportWindow.Update(IRenderer);
+            mainViewportWindow.Update(create, draw, input);
         }
 
-
         #region Platformfunctions
-        
+
         private void CreateWindow(ImGuiViewportPtr vp)
         {
             ImGuiWindow window = new ImGuiWindow(nodeContext, vp);
@@ -215,6 +217,8 @@ namespace VL.ImGui.Stride
 
         public void Dispose()
         {
+            
+
             mainViewportWindow.Dispose();
         }
     }
