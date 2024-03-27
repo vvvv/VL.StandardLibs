@@ -88,6 +88,8 @@ namespace VL.Core
         /// </summary>
         static virtual bool HasCustomDefault => false;
 
+        static virtual IMonadicValue<TValue>? Default => default;
+
         /// <summary>
         /// The stored value.
         /// </summary>

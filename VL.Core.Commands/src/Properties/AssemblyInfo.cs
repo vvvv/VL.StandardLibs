@@ -9,5 +9,5 @@ global using VL.Lib.IO.Notifications;
 global using VL.Model;
 using System.Runtime.CompilerServices;
 
-[assembly: ImportAsIs(Namespace = "VL.Core")]
+[assembly: ImportAsIs(Namespace = "VL.Core", Category = "System")]
 [assembly: InternalsVisibleTo("VL.UI.Forms")]

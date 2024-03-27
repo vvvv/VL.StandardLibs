@@ -3,7 +3,7 @@
 namespace VL.IO.Redis
 {
     /// <summary>
-    /// A description of a Redis binding. The <see cref="RedisModule"/> holds one of these per global channel.
+    /// A description of a Redis binding. The <see cref="RedisClientManager"/> holds one of these per global channel.
     /// </summary>
     /// <param name="Key">The Redis key.</param>
     /// <param name="Initialization">What to do on startup.</param>

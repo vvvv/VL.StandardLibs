@@ -39,7 +39,7 @@ namespace VL.Lib.Control
         {
             if (stack == null || stack.IsEmpty())
             {
-                Warn(nodeContext, $"Node is meant to be used in a ScopedValues region.");
+                Warn(nodeContext, $"Node is meant to be used in a Send (Local) region.");
                 return true;
             }
             return false;
