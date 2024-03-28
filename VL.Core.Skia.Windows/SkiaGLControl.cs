@@ -140,6 +140,7 @@ namespace VL.Skia
                     surfaceSize = new Int2(Width, Height);
 
                     eglSurface = eglContext.CreatePlatformWindowSurface(Handle, Width, Height);
+                    lastSetVSync = default;
                 }
 
                 if (eglSurface is null)
