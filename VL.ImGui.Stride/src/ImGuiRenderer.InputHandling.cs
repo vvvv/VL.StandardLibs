@@ -22,7 +22,7 @@ namespace VL.ImGui
                 {
                     using (_context.MakeCurrent())
                     {
-                        _io.HandleNotification(notification);
+                        _context.IO.HandleNotification(notification);
                     }
                 });
         }

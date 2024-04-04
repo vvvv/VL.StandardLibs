@@ -10,7 +10,7 @@ using VL.ImGui.Stride.Effects;
 
 namespace VL.ImGui
 {
-    partial class ImGuiRenderer
+    partial class StrideDeviceContext
     {
         void CheckBuffers(GraphicsDevice device, ImDrawDataPtr drawData)
         {
@@ -46,7 +46,7 @@ namespace VL.ImGui
             }
         }
 
-        void RenderDrawLists(RenderDrawContext context, ImDrawDataPtr drawData)
+        public void RenderDrawLists(RenderDrawContext context, ImDrawDataPtr drawData)
         {
             var commandList = context.CommandList;
             var renderTarget = commandList.RenderTarget;
@@ -68,14 +68,14 @@ namespace VL.ImGui
 
                     if (cmd.UserCallback != IntPtr.Zero)
                     {
-                        RenderLayerWithViewPort? renderLayer = _context.GetRenderer(cmd.UserCallback);
+                        RenderLayerWithViewPort? renderLayer = this.GetRenderer(cmd.UserCallback);
 
                         if (renderLayer != null)
                         {
                             if (renderLayer.Viewport.Size.LengthSquared() > 0 && context != null)
                             {
                                 var renderContext = context.RenderContext;
-                                
+
                                 using (renderContext.SaveRenderOutputAndRestore())
                                 using (renderContext.SaveViewportAndRestore())
                                 {

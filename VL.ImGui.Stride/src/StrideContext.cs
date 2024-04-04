@@ -16,7 +16,7 @@ namespace VL.ImGui
         public void RemoveRenderer(RenderLayerWithViewPort renderer);
     }
 
-    internal sealed class StrideContext : Context, IContextWithSkia, IContextWithRenderer
+    internal class StrideContext : Context, IContextWithSkia, IContextWithRenderer
     {
         public StrideContext() : base()
         {
