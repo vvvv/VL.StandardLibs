@@ -83,7 +83,7 @@ namespace VL.ImGui
             imShader.UpdateEffect(device);
 
 
-            _context = new StrideContext(inputManager);
+            _context = new StrideContext();
             using (_context.MakeCurrent())
             {
                 _io = ImGui.GetIO();
@@ -195,8 +195,6 @@ namespace VL.ImGui
                 {
                     lastInputSource = inputSource;
                     inputSubscription.Disposable = SubscribeToInputSource(inputSource, context);
-
-                    
                 }
                 
                 // Push inputSource to all RenderLayerWithInputSource

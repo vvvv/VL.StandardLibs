@@ -4,7 +4,6 @@ using System.Reactive.Linq;
 using VL.ImGui.Widgets;
 using VL.Lib.Basics.Resources;
 using VL.Skia;
-using InputManager = Stride.Input.InputManager;
 
 namespace VL.ImGui
 {
@@ -19,14 +18,12 @@ namespace VL.ImGui
 
     internal sealed class StrideContext : Context, IContextWithSkia, IContextWithRenderer
     {
-        public StrideContext(InputManager inputManager) : base()
+        public StrideContext() : base()
         {
-            this.inputManager = inputManager;
         }
 
         private readonly List<RenderLayerWithViewPort> Renderers = new List<RenderLayerWithViewPort>();
         private readonly List<SkiaRenderer> managedSkiaRenderers = new();
-        internal InputManager inputManager;
 
         public IntPtr AddLayer(SkiaWidget layer, System.Numerics.Vector2 pos, System.Numerics.Vector2 size)
         {
