@@ -23,7 +23,7 @@ namespace VL.ImGui
 
     public partial class ImGuiRenderer : RendererBase, IDisposable
     {
-        private readonly StrideDeviceContext _context;
+        private readonly StrideDeviceContext _strideDeviceContext;
 
         private ImDrawDataPtr _drawData;
 
@@ -41,7 +41,7 @@ namespace VL.ImGui
 
         public unsafe ImGuiRenderer(NodeContext nodeContext)
         {
-            _context = new StrideDeviceContext(nodeContext);
+            _strideDeviceContext = new StrideDeviceContext(nodeContext);
         }
         
 
@@ -51,7 +51,7 @@ namespace VL.ImGui
             this.widget = widget;
             this.dockingEnabled = dockingEnabled;
 
-            _context.SetFonts(fonts);
+            _strideDeviceContext.SetFonts(fonts);
 
             this.fullscreenWindow = fullscreenWindow;
             this.style = style;
@@ -62,11 +62,11 @@ namespace VL.ImGui
             var commandList = context.CommandList;
             var renderTarget = commandList.RenderTarget;
 
-            using (_context.MakeCurrent())
+            using (_strideDeviceContext.MakeCurrent())
             {
-                _context.IO.DisplaySize = new System.Numerics.Vector2(renderTarget.Width, renderTarget.Height);
-                _context.IO.DisplayFramebufferScale = new System.Numerics.Vector2(1.0f, 1.0f);
-                _context.IO.DeltaTime = (float)context.RenderContext.Time.TimePerFrame.TotalSeconds;
+                _strideDeviceContext.IO.DisplaySize = new System.Numerics.Vector2(renderTarget.Width, renderTarget.Height);
+                _strideDeviceContext.IO.DisplayFramebufferScale = new System.Numerics.Vector2(1.0f, 1.0f);
+                _strideDeviceContext.IO.DeltaTime = (float)context.RenderContext.Time.TimePerFrame.TotalSeconds;
 
                 var inputSource = context.RenderContext.GetWindowInputSource();
                 if (inputSource != lastInputSource)
@@ -76,17 +76,17 @@ namespace VL.ImGui
                 }
                 
                 // Push inputSource to all RenderLayerWithInputSource
-                _context.WithInputSource(inputSource);
+                _strideDeviceContext.WithInputSource(inputSource);
 
                 // Enable Docking
                 if (dockingEnabled)
-                    _context.IO.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+                    _strideDeviceContext.IO.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
 
-                _context.NewFrame();
+                _strideDeviceContext.NewFrame();
 
                 try
                 {
-                    using var _ = _context.ApplyStyle(style);
+                    using var _ = _strideDeviceContext.ApplyStyle(style);
 
                     if (fullscreenWindow)
                     {
@@ -106,8 +106,8 @@ namespace VL.ImGui
                         ImGui.DockSpaceOverViewport();
                     }
 
-                    _context.SetDrawList(DrawList.AtCursor);
-                    _context.Update(widget);
+                    _strideDeviceContext.SetDrawList(DrawList.AtCursor);
+                    _strideDeviceContext.Update(widget);
                 }
                 finally
                 {
@@ -128,7 +128,7 @@ namespace VL.ImGui
                 _drawData = ImGui.GetDrawData();
                 
             }
-            _context.RenderDrawLists(context, _drawData);
+            _strideDeviceContext.RenderDrawLists(context, _drawData);
 
         }
 
@@ -139,7 +139,7 @@ namespace VL.ImGui
             {
                 if (errorImGuiInsideImGui.Count == 0)
                 {
-                    foreach (var id in _context.path)
+                    foreach (var id in _strideDeviceContext.path)
                     {
                         errorImGuiInsideImGui.Add(IVLRuntime.Current.AddPersistentMessage(new Lang.Message(id, Lang.MessageSeverity.Error, "Don't use ImGui[Renderer] inside ImGui[Renderer]")));
                     }
@@ -151,7 +151,7 @@ namespace VL.ImGui
         {
             errorImGuiInsideImGui.Dispose(); ;
             inputSubscription.Dispose();
-            _context.Dispose();
+            _strideDeviceContext.Dispose();
 
             base.Destroy();
         }

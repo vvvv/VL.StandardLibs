@@ -20,9 +20,9 @@ namespace VL.ImGui
             return inputManager.GetNotifications(inputSource, sender: this)
                 .Subscribe(notification =>
                 {
-                    using (_context.MakeCurrent())
+                    using (_strideDeviceContext.MakeCurrent())
                     {
-                        _context.IO.HandleNotification(notification);
+                        _strideDeviceContext.IO.HandleNotification(notification);
                     }
                 });
         }
