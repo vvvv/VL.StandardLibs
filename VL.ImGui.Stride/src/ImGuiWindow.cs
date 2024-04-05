@@ -14,6 +14,7 @@ using VL.Stride.Games;
 using VL.Stride.Rendering;
 using VL.Stride.Engine;
 using VL.Lib.Basics.Resources;
+using VL.Lib.Collections;
 
 namespace VL.ImGui.Stride
 {
@@ -31,6 +32,7 @@ namespace VL.ImGui.Stride
         private readonly GameWindowRenderer _gameWindowRenderer;
         private readonly IInputSource _inputSource;
         private readonly WindowRenderer _windowRenderer;
+        private readonly ImGuiRenderer _renderer;
 
         private object? _state;
         private ImGuiWindowsCreateHandler? _createHandler;
@@ -121,12 +123,13 @@ namespace VL.ImGui.Stride
             }
 
             _windowRenderer = new WindowRenderer(_gameWindowRenderer);
-            
+
+            _renderer = new ImGuiRenderer(nodeContext);
 
             vp.PlatformUserData = (IntPtr)_gcHandle;
         }
 
-        public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, IGraphicsRendererBase input)
+        public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, Widget? widget, bool dockingEnabled, Spread<FontConfig?> fonts, bool fullscreenWindow, IStyle style)
         {
             _createHandler = create;
             _drawHandler = draw;
@@ -136,7 +139,8 @@ namespace VL.ImGui.Stride
 
             if (_state != null && _drawHandler != null)
             {
-                _drawHandler(_state, input, _inputSource, _gameWindowRenderer.Window, _gameWindowRenderer.Presenter, out _state, out var output);
+                _renderer.Update(widget, dockingEnabled, fonts, fullscreenWindow, style);
+                _drawHandler(_state, _renderer, _inputSource, _gameWindowRenderer.Window, _gameWindowRenderer.Presenter, out _state, out var output);
                 _windowRenderer.Input = output;
                 _schedulerSystem.Schedule(_windowRenderer);
             }

@@ -8,6 +8,7 @@ using Stride.Rendering;
 using Stride.Input;
 using Stride.Graphics;
 using Stride.Core.Mathematics;
+using VL.Lib.Collections;
 
 namespace VL.ImGui.Stride
 {
@@ -36,7 +37,6 @@ namespace VL.ImGui.Stride
         public unsafe ImGuiWindows(NodeContext nodeContext)
         {
             this.nodeContext = nodeContext;
-
             
 
             IntPtr context = ImGui.CreateContext();
@@ -79,9 +79,9 @@ namespace VL.ImGui.Stride
             ImGuiNative.ImGuiPlatformIO_Set_Platform_GetWindowSize(platformIO.NativePtr, Marshal.GetFunctionPointerForDelegate(_getWindowSize));
         }
 
-        public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, IGraphicsRendererBase input)
+        public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, Widget? widget, bool dockingEnabled, Spread<FontConfig?> fonts, bool fullscreenWindow, IStyle style)
         {
-            mainViewportWindow.Update(create, draw, input);
+            mainViewportWindow.Update(create, draw, widget, dockingEnabled, fonts, fullscreenWindow, style);
         }
 
         #region Platformfunctions

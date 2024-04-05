@@ -38,6 +38,10 @@ namespace VL.ImGui
         private IInputSource? lastInputSource;
         private readonly SerialDisposable inputSubscription = new SerialDisposable();
 
+        internal unsafe ImGuiRenderer(StrideDeviceContext strideDeviceContext)
+        {
+            _strideDeviceContext = strideDeviceContext;
+        }
 
         public unsafe ImGuiRenderer(NodeContext nodeContext)
         {
