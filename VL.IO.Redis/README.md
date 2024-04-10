@@ -5,6 +5,7 @@ For use with vvvv, the visual live-programming environment for .NET: http://visu
 
 ## Getting started
 - Ships with vvvv
+- Requires access to a Redis server (see below)
 - Usage examples and more information are included in the pack and can be found via the [Help Browser](https://thegraybook.vvvv.org/reference/hde/findinghelp.html)
 
 ## Useful links
