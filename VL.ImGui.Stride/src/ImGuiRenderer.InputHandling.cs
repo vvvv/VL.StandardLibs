@@ -21,7 +21,7 @@ namespace VL.ImGui
                 {
                     using (_context.MakeCurrent())
                     {
-                        _io.HandleNotification(notification);
+                        _io.HandleNotification(notification, useWorldSpace: false);
                     }
                 });
         }
