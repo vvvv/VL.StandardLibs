@@ -129,7 +129,7 @@ namespace VL.ImGui.Stride
             vp.PlatformUserData = (IntPtr)_gcHandle;
         }
 
-        public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, Widget? widget, bool dockingEnabled, Spread<FontConfig?> fonts, bool fullscreenWindow, IStyle style)
+        public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, ImDrawDataPtr drawData, Spread<FontConfig?> fonts, IStyle style)
         {
             _createHandler = create;
             _drawHandler = draw;
@@ -139,7 +139,8 @@ namespace VL.ImGui.Stride
 
             if (_state != null && _drawHandler != null)
             {
-                _renderer.Update(widget, dockingEnabled, fonts, fullscreenWindow, style);
+                _renderer.Update(fonts, style);
+                _renderer.SetDrawData(drawData);
                 _drawHandler(_state, _renderer, _inputSource, _gameWindowRenderer.Window, _gameWindowRenderer.Presenter, out _state, out var output);
                 _windowRenderer.Input = output;
                 _schedulerSystem.Schedule(_windowRenderer);

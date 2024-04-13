@@ -55,7 +55,6 @@ namespace VL.ImGui.Stride
 
             using (_strideDeviceContext.MakeCurrent()) 
             {
-                _strideDeviceContext.IO.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
                 _strideDeviceContext.IO.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
 
                 ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
@@ -103,20 +102,75 @@ namespace VL.ImGui.Stride
             }
         }
 
-        public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, Widget? widget, bool dockingEnabled, Spread<FontConfig?> fonts, bool fullscreenWindow, IStyle style)
+        public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, Widget? widget, bool dockingEnabled, Spread<FontConfig?> fonts, IStyle style)
         {
-
-
-            var pos = StrideApp.MousePosition;
-            _strideDeviceContext.IO.MousePos = new Vector2(pos.X, pos.Y);
-
             SetPerFrameImGuiData();
             UpdateMonitors();
-            mainViewportWindow.Update(create, draw, widget, dockingEnabled, fonts, fullscreenWindow, style);
+
+
+            using (_strideDeviceContext.MakeCurrent())
+            {
+                // Enable Docking
+                if (dockingEnabled)
+                    _strideDeviceContext.IO.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+
+                _strideDeviceContext.NewFrame();
+
+                try
+                {
+                    using var _ = _strideDeviceContext.ApplyStyle(style);
+
+                    // Enable Docking
+                    if (dockingEnabled)
+                    {
+                        ImGui.DockSpaceOverViewport();
+                    }
+
+                    _strideDeviceContext.SetDrawList(DrawList.AtCursor);
+                    _strideDeviceContext.Update(widget);
+                }
+                finally
+                {
+                    if (dockingEnabled)
+                    {
+                        ImGui.End();
+                    }
+
+                    // Render (builds mesh with texture coordinates)
+                    ImGui.Render();
+                    
+                    mainViewportWindow.Update(create, draw, ImGui.GetDrawData(), fonts, style);
+
+                    // Update and Render additional Platform Windows
+                    if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
+                    {
+                        ImGui.UpdatePlatformWindows();
+                        ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
+
+                        for (int i = 1; i < platformIO.Viewports.Size; i++)
+                        {
+                            ImGuiViewportPtr vp = platformIO.Viewports[i];
+                            if (vp.PlatformUserData != IntPtr.Zero)
+                            {
+                                var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
+
+                                if (target != null)
+                                {
+                                    ImGuiWindow window = (ImGuiWindow)target;
+                                    window.Update(create, draw, vp.DrawData, fonts, style);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void SetPerFrameImGuiData()
         {
+            var pos = StrideApp.MousePosition;
+            _strideDeviceContext.IO.MousePos = new Vector2(pos.X, pos.Y);
+
             _strideDeviceContext.IO.DisplaySize = new Vector2(mainViewportWindow.Size.X, mainViewportWindow.Size.Y);
             _strideDeviceContext.IO.DisplayFramebufferScale = new Vector2(1.0f, 1.0f);
             

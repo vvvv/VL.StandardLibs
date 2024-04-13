@@ -73,10 +73,13 @@ namespace VL.ImGui
                     };
                 }
 
-                // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
-                var pos = mouseNotification.Position;
-                //_io.AddMousePosEvent(pos.X, pos.Y);
-
+                // need to be set every Frame and in Screen coordinates 
+                if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) == 0)
+                {
+                    // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
+                    var pos = mouseNotification.Position;
+                    _io.AddMousePosEvent(pos.X, pos.Y);
+                }
                 
                 switch (mouseNotification.Kind)
                 {

@@ -48,17 +48,24 @@ namespace VL.ImGui
             _strideDeviceContext = new StrideDeviceContext(nodeContext);
         }
         
+        internal void SetDrawData(ImDrawDataPtr _drawData)
+        {
+            this._drawData = _drawData;
+        }
+
+        internal void Update( Spread<FontConfig?> fonts, IStyle style)
+        {
+            _strideDeviceContext.SetFonts(fonts);
+            this.style = style;
+        }
 
         // need to be called from VL
         public void Update(Widget? widget, bool dockingEnabled, Spread<FontConfig?> fonts, bool fullscreenWindow, IStyle style)
         {
             this.widget = widget;
             this.dockingEnabled = dockingEnabled;
-
-            _strideDeviceContext.SetFonts(fonts);
-
             this.fullscreenWindow = fullscreenWindow;
-            this.style = style;
+            Update(fonts, style);
         }
 
         protected override void DrawCore(RenderDrawContext context)
@@ -68,8 +75,6 @@ namespace VL.ImGui
 
             using (_strideDeviceContext.MakeCurrent())
             {
-                _strideDeviceContext.IO.DisplaySize = new System.Numerics.Vector2(renderTarget.Width, renderTarget.Height);
-                _strideDeviceContext.IO.DisplayFramebufferScale = new System.Numerics.Vector2(1.0f, 1.0f);
                 _strideDeviceContext.IO.DeltaTime = (float)context.RenderContext.Time.TimePerFrame.TotalSeconds;
 
                 var inputSource = context.RenderContext.GetWindowInputSource();
@@ -82,55 +87,60 @@ namespace VL.ImGui
                 // Push inputSource to all RenderLayerWithInputSource
                 _strideDeviceContext.WithInputSource(inputSource);
 
-                // Enable Docking
-                if (dockingEnabled)
-                    _strideDeviceContext.IO.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
-
-                _strideDeviceContext.NewFrame();
-
-                try
+                if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) == 0)
                 {
-                    using var _ = _strideDeviceContext.ApplyStyle(style);
-
-                    if (fullscreenWindow)
-                    {
-                        var viewPort = ImGui.GetMainViewport();
-                        ImGui.SetNextWindowPos(viewPort.WorkPos);
-                        ImGui.SetNextWindowSize(viewPort.WorkSize);
-                        ImGui.Begin(widgetLabel.Update(null),
-                            ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
-                            ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
-                            ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |
-                            ImGuiWindowFlags.NoBackground);
-                    }
+                    _strideDeviceContext.IO.DisplaySize = new System.Numerics.Vector2(renderTarget.Width, renderTarget.Height);
+                    _strideDeviceContext.IO.DisplayFramebufferScale = new System.Numerics.Vector2(1.0f, 1.0f);
 
                     // Enable Docking
                     if (dockingEnabled)
+                        _strideDeviceContext.IO.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+
+                    _strideDeviceContext.NewFrame();
+
+                    try
                     {
-                        ImGui.DockSpaceOverViewport();
+                        using var _ = _strideDeviceContext.ApplyStyle(style);
+
+                        if (fullscreenWindow)
+                        {
+                            var viewPort = ImGui.GetMainViewport();
+                            ImGui.SetNextWindowPos(viewPort.WorkPos);
+                            ImGui.SetNextWindowSize(viewPort.WorkSize);
+                            ImGui.Begin(widgetLabel.Update(null),
+                                ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
+                                ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
+                                ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |
+                                ImGuiWindowFlags.NoBackground);
+                        }
+
+                        // Enable Docking
+                        if (dockingEnabled)
+                        {
+                            ImGui.DockSpaceOverViewport();
+                        }
+
+                        _strideDeviceContext.SetDrawList(DrawList.AtCursor);
+                        _strideDeviceContext.Update(widget);
+                    }
+                    finally
+                    {
+                        if (dockingEnabled)
+                        {
+                            ImGui.End();
+                        }
+
+                        if (fullscreenWindow)
+                        {
+                            ImGui.End();
+                        }
+
+                        // Render (builds mesh with texture coordinates)
+                        ImGui.Render();
                     }
 
-                    _strideDeviceContext.SetDrawList(DrawList.AtCursor);
-                    _strideDeviceContext.Update(widget);
+                    SetDrawData(ImGui.GetDrawData());              
                 }
-                finally
-                {
-                    if (dockingEnabled)
-                    {
-                        ImGui.End();
-                    }
-
-                    if (fullscreenWindow)
-                    {
-                        ImGui.End();
-                    }
-
-                    // Render (builds mesh with texture coordinates)
-                    ImGui.Render();
-                }
-
-                _drawData = ImGui.GetDrawData();
-                
             }
             _strideDeviceContext.RenderDrawLists(context, _drawData);
 
