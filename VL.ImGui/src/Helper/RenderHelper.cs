@@ -6,6 +6,7 @@ using VL.Core;
 using VL.Lib.Collections;
 using VL.Lib.IO.Notifications;
 
+
 namespace VL.ImGui
 {
     using MouseButtons = VL.Lib.IO.MouseButtons;
@@ -74,8 +75,9 @@ namespace VL.ImGui
 
                 // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
                 var pos = mouseNotification.Position;
-                _io.AddMousePosEvent(pos.X, pos.Y);
+                //_io.AddMousePosEvent(pos.X, pos.Y);
 
+                
                 switch (mouseNotification.Kind)
                 {
                     case MouseNotificationKind.MouseDown:

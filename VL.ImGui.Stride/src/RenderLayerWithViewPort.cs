@@ -1,6 +1,8 @@
 ﻿using Stride.Input;
 using Stride.Rendering;
 using Stride.Graphics;
+using Stride.Core.Mathematics;
+using Stride.Core.Yaml.Tokens;
 
 namespace VL.ImGui
 {
@@ -8,12 +10,22 @@ namespace VL.ImGui
     {
         private readonly MappedInputSource mappedInputSource;
         private IInputSource? inputSource;
+        private Viewport viewport = new Viewport();
 
         // Will set from RenderWidget
         public bool HasFocus { get; internal set; }
         public IGraphicsRendererBase? Layer { get; internal set; }
         public RenderView? RenderView { get; internal set; }
-        public Viewport Viewport { get; set; } = new Viewport();
+        public Viewport Viewport {
+            get { return new Viewport(viewport.X - Offset.X, viewport.Y - Offset.Y, viewport.Width, viewport.Height); }
+            set {  viewport = value; }
+        }
+
+        public Vector2 Offset
+        {
+            private get;
+            set;
+        }
 
         // Will Set from ImGuiRenderer
         public IInputSource? ParentInputSource

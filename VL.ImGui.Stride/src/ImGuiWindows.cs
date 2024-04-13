@@ -7,13 +7,22 @@ using Stride.Games;
 using Stride.Rendering;
 using Stride.Input;
 using Stride.Graphics;
+
 using Stride.Core.Mathematics;
 using VL.Lib.Collections;
+using System.Runtime.CompilerServices;
+using VL.Lib.Basics.Resources;
+using VL.Stride;
+
+using StrideVector2 = Stride.Core.Mathematics.Vector2;
+using StrideApp = Stride.Graphics.SDL.Application;
 
 namespace VL.ImGui.Stride
 {
     using ImGui = ImGuiNET.ImGui;
     using Vector2 = System.Numerics.Vector2;
+    
+    
     public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
     public delegate void ImGuiWindowsDrawHandler(object stateInput, IGraphicsRendererBase value, IInputSource inputSource, GameWindow gameWindow, GraphicsPresenter presenter, out object stateOutput, out IGraphicsRendererBase result);
     public partial class ImGuiWindows : IDisposable
@@ -21,6 +30,9 @@ namespace VL.ImGui.Stride
         //VL 
         private readonly NodeContext nodeContext;
         private readonly ImGuiWindow mainViewportWindow;
+        private readonly StrideDeviceContext _strideDeviceContext;
+
+        private readonly IResourceHandle<GraphicsDevice> deviceHandle;
 
         private readonly Platform_CreateWindow _createWindow;
         private readonly Platform_DestroyWindow _destroyWindow;
@@ -37,58 +49,108 @@ namespace VL.ImGui.Stride
         public unsafe ImGuiWindows(NodeContext nodeContext)
         {
             this.nodeContext = nodeContext;
+            _strideDeviceContext = new StrideDeviceContext(nodeContext);
+
+            deviceHandle = AppHost.Current.Services.GetDeviceHandle();
+
+            using (_strideDeviceContext.MakeCurrent()) 
+            {
+                _strideDeviceContext.IO.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+                _strideDeviceContext.IO.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+
+                ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
+                ImGuiViewportPtr mainViewport = platformIO.Viewports[0];
+
+                mainViewportWindow = new ImGuiWindow(this.nodeContext, _strideDeviceContext, mainViewport);
+                mainViewport.PlatformHandle = mainViewportWindow.Handle;
             
 
-            IntPtr context = ImGui.CreateContext();
-            ImGui.SetCurrentContext(context);
-            ImGuiIOPtr io = ImGui.GetIO();
+                _createWindow = CreateWindow;
+                _destroyWindow = DestroyWindow;
+                _getWindowPos = GetWindowPos;
+                _showWindow = ShowWindow;
+                _setWindowPos = SetWindowPos;
+                _setWindowSize = SetWindowSize;
+                _getWindowSize = GetWindowSize;
+                _setWindowFocus = SetWindowFocus;
+                _getWindowFocus = GetWindowFocus;
+                _getWindowMinimized = GetWindowMinimized;
+                _setWindowTitle = SetWindowTitle;
 
-            io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
-            io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+                platformIO.Platform_CreateWindow = Marshal.GetFunctionPointerForDelegate(_createWindow);
+                platformIO.Platform_DestroyWindow = Marshal.GetFunctionPointerForDelegate(_destroyWindow);
+                platformIO.Platform_ShowWindow = Marshal.GetFunctionPointerForDelegate(_showWindow);
+                platformIO.Platform_SetWindowPos = Marshal.GetFunctionPointerForDelegate(_setWindowPos);
+                platformIO.Platform_SetWindowSize = Marshal.GetFunctionPointerForDelegate(_setWindowSize);
+                platformIO.Platform_SetWindowFocus = Marshal.GetFunctionPointerForDelegate(_setWindowFocus);
+                platformIO.Platform_GetWindowFocus = Marshal.GetFunctionPointerForDelegate(_getWindowFocus);
+                platformIO.Platform_GetWindowMinimized = Marshal.GetFunctionPointerForDelegate(_getWindowMinimized);
+                platformIO.Platform_SetWindowTitle = Marshal.GetFunctionPointerForDelegate(_setWindowTitle);
 
-            ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
-            ImGuiViewportPtr mainViewport = platformIO.Viewports[0];
+                ImGuiNative.ImGuiPlatformIO_Set_Platform_GetWindowPos(platformIO.NativePtr, Marshal.GetFunctionPointerForDelegate(_getWindowPos));
+                ImGuiNative.ImGuiPlatformIO_Set_Platform_GetWindowSize(platformIO.NativePtr, Marshal.GetFunctionPointerForDelegate(_getWindowSize));
 
-            mainViewportWindow = new ImGuiWindow(this.nodeContext, mainViewport);
-            mainViewport.PlatformHandle = mainViewportWindow.Handle;
-            
+                unsafe
+                {
+                    _strideDeviceContext.IO.NativePtr->BackendPlatformName = (byte*)new FixedAsciiString("VL.ImGui.Stride Backend").DataPtr;
+                }
 
-            _createWindow = CreateWindow;
-            _destroyWindow = DestroyWindow;
-            _getWindowPos = GetWindowPos;
-            _showWindow = ShowWindow;
-            _setWindowPos = SetWindowPos;
-            _setWindowSize = SetWindowSize;
-            _getWindowSize = GetWindowSize;
-            _setWindowFocus = SetWindowFocus;
-            _getWindowFocus = GetWindowFocus;
-            _getWindowMinimized = GetWindowMinimized;
-            _setWindowTitle = SetWindowTitle;
-
-            platformIO.Platform_CreateWindow = Marshal.GetFunctionPointerForDelegate(_createWindow);
-            platformIO.Platform_DestroyWindow = Marshal.GetFunctionPointerForDelegate(_destroyWindow);
-            platformIO.Platform_ShowWindow = Marshal.GetFunctionPointerForDelegate(_showWindow);
-            platformIO.Platform_SetWindowPos = Marshal.GetFunctionPointerForDelegate(_setWindowPos);
-            platformIO.Platform_SetWindowSize = Marshal.GetFunctionPointerForDelegate(_setWindowSize);
-            platformIO.Platform_SetWindowFocus = Marshal.GetFunctionPointerForDelegate(_setWindowFocus);
-            platformIO.Platform_GetWindowFocus = Marshal.GetFunctionPointerForDelegate(_getWindowFocus);
-            platformIO.Platform_GetWindowMinimized = Marshal.GetFunctionPointerForDelegate(_getWindowMinimized);
-            platformIO.Platform_SetWindowTitle = Marshal.GetFunctionPointerForDelegate(_setWindowTitle);
-
-            ImGuiNative.ImGuiPlatformIO_Set_Platform_GetWindowPos(platformIO.NativePtr, Marshal.GetFunctionPointerForDelegate(_getWindowPos));
-            ImGuiNative.ImGuiPlatformIO_Set_Platform_GetWindowSize(platformIO.NativePtr, Marshal.GetFunctionPointerForDelegate(_getWindowSize));
+                _strideDeviceContext.IO.BackendFlags |= ImGuiBackendFlags.HasMouseCursors;
+                _strideDeviceContext.IO.BackendFlags |= ImGuiBackendFlags.HasSetMousePos;
+                _strideDeviceContext.IO.BackendFlags |= ImGuiBackendFlags.PlatformHasViewports;
+                _strideDeviceContext.IO.BackendFlags |= ImGuiBackendFlags.RendererHasViewports;
+                _strideDeviceContext.IO.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
+            }
         }
 
         public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, Widget? widget, bool dockingEnabled, Spread<FontConfig?> fonts, bool fullscreenWindow, IStyle style)
         {
+
+
+            var pos = StrideApp.MousePosition;
+            _strideDeviceContext.IO.MousePos = new Vector2(pos.X, pos.Y);
+
+            SetPerFrameImGuiData();
+            UpdateMonitors();
             mainViewportWindow.Update(create, draw, widget, dockingEnabled, fonts, fullscreenWindow, style);
+        }
+
+        private void SetPerFrameImGuiData()
+        {
+            _strideDeviceContext.IO.DisplaySize = new Vector2(mainViewportWindow.Size.X, mainViewportWindow.Size.Y);
+            _strideDeviceContext.IO.DisplayFramebufferScale = new Vector2(1.0f, 1.0f);
+            
+            
+            ImGui.GetPlatformIO().Viewports[0].Pos = new Vector2(mainViewportWindow.Position.X, mainViewportWindow.Position.Y);    
+            ImGui.GetPlatformIO().Viewports[0].Size = new Vector2(mainViewportWindow.Size.X, mainViewportWindow.Size.Y);
+        }
+
+        private unsafe void UpdateMonitors()
+        {
+            var outputs = deviceHandle.Resource.Adapter.Outputs;
+
+            ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
+            Marshal.FreeHGlobal(platformIO.NativePtr->Monitors.Data);
+            int numMonitors = outputs.Length;
+            IntPtr data = Marshal.AllocHGlobal(Unsafe.SizeOf<ImGuiPlatformMonitor>() * numMonitors);
+            platformIO.NativePtr->Monitors = new ImVector(numMonitors, numMonitors, data);
+            for (int i = 0; i < numMonitors; i++)
+            {
+                Rectangle r = outputs[i].DesktopBounds;
+                ImGuiPlatformMonitorPtr monitor = platformIO.Monitors[i];
+                monitor.DpiScale = 1f;
+                monitor.MainPos = new Vector2(r.X, r.Y);
+                monitor.MainSize = new Vector2(r.Width, r.Height);
+                monitor.WorkPos = new Vector2(r.X, r.Y);
+                monitor.WorkSize = new Vector2(r.Width, r.Height);
+            }
         }
 
         #region Platformfunctions
 
         private void CreateWindow(ImGuiViewportPtr vp)
         {
-            ImGuiWindow window = new ImGuiWindow(nodeContext, vp);
+            ImGuiWindow window = new ImGuiWindow(nodeContext, _strideDeviceContext, vp);
         }
 
         private void DestroyWindow(ImGuiViewportPtr vp)
@@ -212,6 +274,7 @@ namespace VL.ImGui.Stride
 
         public void Dispose()
         {
+            deviceHandle.Dispose();
             mainViewportWindow.Dispose();
         }
     }

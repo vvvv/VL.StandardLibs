@@ -73,7 +73,7 @@ namespace VL.ImGui.Stride
             get { return _gameWindowRenderer.Window.IsMinimized; }
         }
 
-        public ImGuiWindow(NodeContext nodeContext, ImGuiViewportPtr vp)
+        public ImGuiWindow(NodeContext nodeContext, StrideDeviceContext strideDeviceContext, ImGuiViewportPtr vp)
         {
             _gcHandle = GCHandle.Alloc(this);
             _gameHandle = nodeContext.AppHost.Services.GetGameHandle();
@@ -124,7 +124,7 @@ namespace VL.ImGui.Stride
 
             _windowRenderer = new WindowRenderer(_gameWindowRenderer);
 
-            _renderer = new ImGuiRenderer(nodeContext);
+            _renderer = new ImGuiRenderer(strideDeviceContext);
 
             vp.PlatformUserData = (IntPtr)_gcHandle;
         }

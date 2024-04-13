@@ -12,6 +12,13 @@ namespace VL.ImGui
 {
     partial class StrideDeviceContext
     {
+        private Vector2 offset = Vector2.Zero;
+
+        public void SetOffset(Vector2 offset)
+        {
+            this.offset = offset;
+        }
+
         void CheckBuffers(GraphicsDevice device, ImDrawDataPtr drawData)
         {
             uint totalVBOSize = (uint)(drawData.TotalVtxCount * Unsafe.SizeOf<ImDrawVert>());
@@ -48,9 +55,9 @@ namespace VL.ImGui
 
         public void RenderDrawLists(RenderDrawContext context, ImDrawDataPtr drawData)
         {
-            var commandList = context.CommandList;
-            var renderTarget = commandList.RenderTarget;
-            var projMatrix = Matrix.OrthoRH(renderTarget.Width, -renderTarget.Height, -1, 1);
+            var commandList = context.CommandList;      
+            var projMatrix = Matrix.OrthoLH(drawData.DisplaySize.X, -drawData.DisplaySize.Y, -1, 1);
+            Vector2 off = new Vector2(drawData.DisplayPos.X, drawData.DisplayPos.Y);
 
             CheckBuffers(context.GraphicsDevice, drawData); // potentially resize buffers first if needed
             UpdateBuffers(commandList, drawData); // updeet em now
@@ -88,6 +95,7 @@ namespace VL.ImGui
                                         }
                                         else
                                         {
+                                            renderLayer.Offset = off;
                                             context?.CommandList.SetViewport((Viewport)renderLayer.Viewport);
                                             renderLayer.Layer?.Draw(context);
                                             context?.CommandList.SetViewport(renderContext.ViewportState.Viewport0);
@@ -123,8 +131,8 @@ namespace VL.ImGui
 
                             commandList.SetScissorRectangle(
                                 new Rectangle(
-                                    (int)cmd.ClipRect.X,
-                                    (int)cmd.ClipRect.Y,
+                                    (int)cmd.ClipRect.X - (int)drawData.DisplayPos.X,
+                                    (int)cmd.ClipRect.Y - (int)drawData.DisplayPos.Y,
                                     (int)(cmd.ClipRect.Z - cmd.ClipRect.X),
                                     (int)(cmd.ClipRect.W - cmd.ClipRect.Y)
                                 )
@@ -133,6 +141,8 @@ namespace VL.ImGui
                             //imShader.SetParameters(context?.RenderContext.RenderView, context);
                             imShader.Parameters.Set(TexturingKeys.Texture0, tex);
                             imShader.Parameters.Set(ImGuiEffectShaderKeys.proj, ref projMatrix);
+                            imShader.Parameters.Set(ImGuiEffectShaderKeys.offset, ref off);
+                            
                             imShader.Apply(graphicsContext);
 
                             commandList.DrawIndexed((int)cmd.ElemCount, idxOffset, vtxOffset);

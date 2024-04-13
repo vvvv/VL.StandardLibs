@@ -3,10 +3,11 @@
     internal shader ImGuiEffectShader<bool TSRgb> : ShaderBase, PositionStream2, ColorBase, Texturing
     {
         matrix proj;
+        float2 offset;
 
         override stage void VSMain() 
         {
-            streams.ShadingPosition = mul(proj, float4(streams.Position2, 0.0, 1.0f)) + float4(-1.0f, 1.0f, 0.0f, 0.0f);
+            streams.ShadingPosition = mul(proj, float4(streams.Position2 - offset, 0.0, 1.0f)) + float4( -1.0f, 1.0f, 0.0f, 0.0f);
 
             if (TSRgb)
             {
