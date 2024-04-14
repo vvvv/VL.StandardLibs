@@ -22,6 +22,7 @@ namespace VL.ImGui.Stride
 
     internal class ImGuiWindow : IDisposable
     {
+        private readonly ImGuiViewportPtr _vp;
         private readonly IResourceHandle<Game> _gameHandle;
         private readonly IResourceHandle<InputManager> _inputManagerHandle;
         Game _game => _gameHandle.Resource;
@@ -75,10 +76,22 @@ namespace VL.ImGui.Stride
 
         public ImGuiWindow(NodeContext nodeContext, StrideDeviceContext strideDeviceContext, ImGuiViewportPtr vp)
         {
+            _vp = vp;
+
+            Int2 position = new Int2(100, 100);
+            Int2 size = new Int2(640, 480);
+
+            if ((_vp.Flags & ImGuiViewportFlags.NoDecoration) != 0)
+            {
+                position = new Int2((int)_vp.Pos.X, (int)_vp.Pos.Y);
+                size = new Int2((int)_vp.Size.X, (int)_vp.Size.Y);
+            }
+
+
             _gcHandle = GCHandle.Alloc(this);
             _gameHandle = nodeContext.AppHost.Services.GetGameHandle();
             
-            var gameContext = GameContextFactory.NewGameContextSDL(640, 480, true);
+            var gameContext = GameContextFactory.NewGameContextSDL(size.X, size.Y, true);
 
             _inputManagerHandle = AppHost.Current.Services.GetInputManagerHandle();
             _inputSource = InputSourceFactory.NewWindowInputSource(gameContext);
@@ -90,8 +103,8 @@ namespace VL.ImGui.Stride
 
             var manager = _gameWindowRenderer.WindowManager;
             {
-                manager.PreferredBackBufferWidth = 640;
-                manager.PreferredBackBufferHeight = 480;
+                manager.PreferredBackBufferWidth = size.X; 
+                manager.PreferredBackBufferHeight = size.Y;
                 manager.PreferredBackBufferFormat = PixelFormat.R16G16B16A16_Float;
                 manager.PreferredDepthStencilFormat = PixelFormat.D24_UNorm_S8_UInt;
                 manager.ShaderProfile = GraphicsProfile.Level_11_0;
@@ -114,12 +127,17 @@ namespace VL.ImGui.Stride
 
             var window = _gameWindowRenderer.Window;
             {
-                window.Position = new Int2(100, 100);
+
+                window.IsBorderLess = (_vp.Flags & ImGuiViewportFlags.NoDecoration) != 0;
+                window.Position = position;
                 window.FullscreenIsBorderlessWindow = true;
                 window.PreferredFullscreenSize = new Int2(-1, -1); // adapt desktop Size
-                window.AllowUserResizing = true;
+                window.AllowUserResizing = (_vp.Flags & ImGuiViewportFlags.NoDecoration) == 0; ;
                 window.IsMouseVisible = true;
                 window.BringToFront();
+
+                window.ClientSizeChanged += (o, i) => _vp.PlatformRequestResize = true;
+                window.Closing += (o, i) => _vp.PlatformRequestClose = true;
             }
 
             _windowRenderer = new WindowRenderer(_gameWindowRenderer);

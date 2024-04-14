@@ -32,6 +32,7 @@ namespace VL.ImGui.Stride
         private readonly ImGuiWindow mainViewportWindow;
         private readonly StrideDeviceContext _strideDeviceContext;
 
+
         private readonly IResourceHandle<GraphicsDevice> deviceHandle;
 
         private readonly Platform_CreateWindow _createWindow;
@@ -110,54 +111,79 @@ namespace VL.ImGui.Stride
 
             using (_strideDeviceContext.MakeCurrent())
             {
-                // Enable Docking
-                if (dockingEnabled)
-                    _strideDeviceContext.IO.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
-
-                _strideDeviceContext.NewFrame();
-
-                try
+                // should be allways
+                if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
                 {
-                    using var _ = _strideDeviceContext.ApplyStyle(style);
-
                     // Enable Docking
                     if (dockingEnabled)
-                    {
-                        ImGui.DockSpaceOverViewport();
-                    }
+                        _strideDeviceContext.IO.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+                    else
+                        _strideDeviceContext.IO.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
-                    _strideDeviceContext.SetDrawList(DrawList.AtCursor);
-                    _strideDeviceContext.Update(widget);
-                }
-                finally
-                {
-                    if (dockingEnabled)
+                    _strideDeviceContext.NewFrame();
+
+                    try
+                    {
+                        using var _ = _strideDeviceContext.ApplyStyle(style);
+
+                        // Enable Docking
+                        if (dockingEnabled)
+                        {
+                            ImGui.DockSpaceOverViewport();
+
+                            var viewPort = ImGui.GetMainViewport();
+                            ImGui.SetNextWindowPos(viewPort.WorkPos);
+                            ImGui.SetNextWindowSize(viewPort.WorkSize);
+                            ImGui.Begin("DockingRoot", ImGuiWindowFlags.ChildWindow);
+                            
+                        }
+                        else 
+                        {
+                            var viewPort = ImGui.GetMainViewport();
+                            ImGui.SetNextWindowPos(viewPort.WorkPos);
+                            ImGui.SetNextWindowSize(viewPort.WorkSize);
+                            ImGui.Begin("FullscreenRoot",
+                                ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
+                                ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
+                                ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |
+                                ImGuiWindowFlags.NoBackground );
+                        }
+
+                        _strideDeviceContext.SetDrawList(DrawList.AtCursor);
+                        _strideDeviceContext.Update(widget);
+                    }
+                    finally
                     {
                         ImGui.End();
-                    }
-
-                    // Render (builds mesh with texture coordinates)
-                    ImGui.Render();
-                    
-                    mainViewportWindow.Update(create, draw, ImGui.GetDrawData(), fonts, style);
-
-                    // Update and Render additional Platform Windows
-                    if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
-                    {
-                        ImGui.UpdatePlatformWindows();
-                        ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
-
-                        for (int i = 1; i < platformIO.Viewports.Size; i++)
+                        if (dockingEnabled)
                         {
-                            ImGuiViewportPtr vp = platformIO.Viewports[i];
-                            if (vp.PlatformUserData != IntPtr.Zero)
-                            {
-                                var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
+                            ImGui.End();
+                        }
+                        
 
-                                if (target != null)
+                        // Render (builds mesh with texture coordinates)
+                        ImGui.Render();
+
+                        mainViewportWindow.Update(create, draw, ImGui.GetDrawData(), fonts, style);
+
+                        // Update and Render additional Platform Windows
+                        if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
+                        {
+                            ImGui.UpdatePlatformWindows();
+                            ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
+
+                            for (int i = 1; i < platformIO.Viewports.Size; i++)
+                            {
+                                ImGuiViewportPtr vp = platformIO.Viewports[i];
+                                if (vp.PlatformUserData != IntPtr.Zero)
                                 {
-                                    ImGuiWindow window = (ImGuiWindow)target;
-                                    window.Update(create, draw, vp.DrawData, fonts, style);
+                                    var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
+
+                                    if (target != null)
+                                    {
+                                        ImGuiWindow window = (ImGuiWindow)target;
+                                        window.Update(create, draw, vp.DrawData, fonts, style);
+                                    }
                                 }
                             }
                         }
