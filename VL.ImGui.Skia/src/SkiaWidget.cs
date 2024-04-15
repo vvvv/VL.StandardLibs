@@ -47,6 +47,11 @@ namespace VL.ImGui.Widgets
 
                 // Use Callback instead of Texture to pass Layer ID ... first Layer has ID 1
                 var id = skiaContext.AddLayer(this, pos, size);
+
+                // Why is this no longer necessary?
+                //if (context.DrawList == DrawList.AtCursor)
+                //    ImGui.Image(0, size);
+
                 drawList.AddCallback(id, IntPtr.Zero);
             }
         }
@@ -54,13 +59,14 @@ namespace VL.ImGui.Widgets
         [Pin(Ignore = true)]
         public RectangleF? Bounds => !_disposed ? Layer?.Bounds : default;
 
-        SKMatrix? trans;
+        // What is this for?
+        //SKMatrix? trans;
 
         public void Render(CallerInfo caller)
         {
             if (_disposed || Layer is null)
                 return;
-            trans = caller.Transformation;
+            //trans = caller.Transformation;
             Layer.Render(caller);
         }
 
@@ -77,9 +83,9 @@ namespace VL.ImGui.Widgets
                 return false;
 
 
-            if (trans != null)
-                return Layer.Notify(notification, caller.WithTransformation((SKMatrix)trans));
-            else
+            //if (trans != null)
+            //    return Layer.Notify(notification, caller.WithTransformation((SKMatrix)trans));
+            //else
                 return Layer.Notify(notification, caller); ;
         }
 

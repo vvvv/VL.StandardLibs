@@ -25,13 +25,13 @@ namespace VL.ImGui.Editors
                 if (x == null || y == null || x.Equals(y))
                     return 0;
 
-                var xDisplay = x.GetAttributes<DisplayAttribute>().FirstOrDefault();
-                var yDisplay = y.GetAttributes<DisplayAttribute>().FirstOrDefault();
+                var xO = x.GetOrder();
+                var yO = y.GetOrder();
 
-                if (xDisplay == null && yDisplay == null)
+                if (xO.HasNoValue && yO.HasNoValue)
                     return x!.NameForTextualCode.CompareTo(y!.NameForTextualCode);
 
-                return (xDisplay?.GetOrder() ?? 0) - (yDisplay?.GetOrder() ?? 0);
+                return xO.ValueOrDefault() - yO.ValueOrDefault();
             }
         }
 
@@ -92,9 +92,7 @@ namespace VL.ImGui.Editors
                             // If we wouldn't spam, the changed properties in a deeply mutating object structure would not get updated.
 
                             var label =
-                                propertyChannel.GetAttribute<LabelAttribute>()?.Label ??
-                                propertyChannel.GetAttribute<DisplayAttribute>()?.Name ??
-                                property.OriginalName;
+                                propertyChannel.GetLabel().ValueOrDefault_ForReferenceType(property.OriginalName)!;
 
                             var contextForProperty = parentContext.CreateSubContext(label);
                             editor = editors[property] = 
@@ -152,10 +150,10 @@ namespace VL.ImGui.Editors
         {
             if (ImGui.IsItemHovered())
             {
-                var displayAttribute = channel.GetAttribute<DisplayAttribute>();
-                if (displayAttribute != null)
+                var d = channel.GetDescription();
+                if (d.HasValue)
                 {
-                    var tooltipText = displayAttribute.Description;
+                    var tooltipText = d.Value;
                     if (tooltipText != null)
                         ImGui.SetItemTooltip(tooltipText);
                 }

@@ -14,7 +14,7 @@ using VL.Lib.Collections;
 
 namespace VL.Lib.Reactive
 {
-    public interface IChannel : IDisposable
+    public interface IChannel : IHasAttributes, IDisposable
     {
         Type ClrTypeOfValues { get; }
         ImmutableList<object> Components { get; set; }
@@ -190,6 +190,8 @@ namespace VL.Lib.Reactive
             if (lockCount == 0 && revisionOnLockTaken != revision)
                 SetValueAndAuthor(this.Value, LatestAuthor);
         }
+
+        IEnumerable<TAttribute> IHasAttributes.GetAttributes<TAttribute>() => this.Attributes().Value!.OfType<TAttribute>();
 
         T? IMonadicValue<T>.Value => Value;
 

@@ -1,5 +1,4 @@
-﻿using Stride.Core.Mathematics;
-using Stride.Input;
+﻿using Stride.Input;
 using Stride.Rendering;
 using System.Reactive.Disposables;
 using VL.Stride;
@@ -20,9 +19,9 @@ namespace VL.ImGui
             return inputManager.GetNotifications(inputSource, sender: this)
                 .Subscribe(notification =>
                 {
-                    using (_strideDeviceContext.MakeCurrent())
+                    using (_context.MakeCurrent())
                     {
-                        _strideDeviceContext.IO.HandleNotification(notification);
+                        _io.HandleNotification(notification, useWorldSpace: false);
                     }
                 });
         }

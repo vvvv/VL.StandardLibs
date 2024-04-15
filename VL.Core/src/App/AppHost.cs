@@ -184,6 +184,11 @@ namespace VL.Core
         public abstract IObservable<Unit> OnExit { get; }
 
         /// <summary>
+        /// Whether or not the host is disposed.
+        /// </summary>
+        public abstract bool IsDisposed { get; }
+
+        /// <summary>
         /// Ties the lifetime of the component to the one of the host.
         /// </summary>
         public abstract void TakeOwnership(IDisposable component);

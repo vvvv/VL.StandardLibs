@@ -38,12 +38,10 @@ namespace VL.ImGui.Widgets
             
             try
             {
-                ImGui.PushClipRect(ImGui.GetWindowPos(), ImGui.GetWindowPos() + ImGui.GetWindowSize(), false);
                 if (ContentIsVisible)
                 {
                     context.Update(Content);
                 }
-                ImGui.PopClipRect();
             }
             finally
             {

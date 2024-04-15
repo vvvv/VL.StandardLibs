@@ -6,7 +6,6 @@ using VL.Core;
 using VL.Lib.Collections;
 using VL.Lib.IO.Notifications;
 
-
 namespace VL.ImGui
 {
     using MouseButtons = VL.Lib.IO.MouseButtons;
@@ -39,7 +38,7 @@ namespace VL.ImGui
             //style.ScaleAllSizes(scale);
         }
 
-        public static void HandleNotification(this ImGuiIOPtr _io ,INotification notification)
+        public static void HandleNotification(this ImGuiIOPtr _io, INotification notification, bool useWorldSpace /* HACK - breaks LayerWidget*/)
         {
             if (notification is KeyNotification keyNotification)
             {
@@ -73,14 +72,10 @@ namespace VL.ImGui
                     };
                 }
 
-                // need to be set every Frame and in Screen coordinates 
-                if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) == 0)
-                {
-                    // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
-                    var pos = mouseNotification.Position;
-                    _io.AddMousePosEvent(pos.X, pos.Y);
-                }
-                
+                // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
+                var pos = useWorldSpace ? mouseNotification.PositionInWorldSpace.FromHectoToImGui() : mouseNotification.Position.ToImGui();
+                _io.AddMousePosEvent(pos.X, pos.Y);
+
                 switch (mouseNotification.Kind)
                 {
                     case MouseNotificationKind.MouseDown:
