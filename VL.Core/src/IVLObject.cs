@@ -161,9 +161,17 @@ namespace VL.Core
     }
 
     /// <summary>
+    /// Currently a IVLPropertyInfo or a channel
+    /// </summary>
+    public interface IHasAttributes
+    {
+        IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
+    }
+
+    /// <summary>
     /// Interface to interact with VL properties.
     /// </summary>
-    public interface IVLPropertyInfo
+    public interface IVLPropertyInfo : IHasAttributes
     {
         /// <summary>
         /// The type which declared this property.
@@ -221,10 +229,14 @@ namespace VL.Core
         /// <returns>The instance with the newly set value.</returns>
         IVLObject WithValue(IVLObject instance, object value);
 
-        IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
+        new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
     }
 
-    public record struct ObjectGraphNode(string Path, object Value, Type Type);
+    public record struct ObjectGraphNode(
+        string Path, 
+        object Value, 
+        Type Type,         
+        object? AccessedViaKey);
 
     public static class VLFactoryExtensions
     {
@@ -513,7 +525,7 @@ namespace VL.Core
         public interface ICrawlObjectGraphFilter
         {
             public void Reset() { }
-            bool Include(string path, string localID, object value, int depth) => true;
+            bool Include(string path, string localID, object value, int depth, object accessedViaKey) => true;
             public bool IndexingCountsAsHop => false;
             public bool CrawlVLObjects => true;
             public bool CrawlAllProperties => false;
@@ -557,7 +569,7 @@ namespace VL.Core
             filter.Reset();
             var collection = new SpreadBuilder<ObjectGraphNode>();
             if (includeRoot)
-                collection.Add(new ObjectGraphNode(rootPath, instance, type));
+                collection.Add(new ObjectGraphNode(rootPath, instance, type, AccessedViaKey: null));
             CollectChildPaths(instance, rootPath, filter, collection, -1, type);
             return collection.ToSpread();
         }
@@ -621,10 +633,10 @@ namespace VL.Core
                 var value = property.GetValue(instance);
                 var localID = property.OriginalName;
                 var path = string.IsNullOrWhiteSpace(pathOfParent) ? localID : $"{pathOfParent}.{localID}";
-                if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth))
+                if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, property))
                 {
                     var childtype = property.Type.ClrType; // let's use the type of the property, not the type of the object. Embracing super types.
-                    collection.Add(new ObjectGraphNode(path, value, childtype));
+                    collection.Add(new ObjectGraphNode(path, value, childtype, AccessedViaKey: property));
                     CollectChildPaths(value, path, filter, collection, depth, childtype);
                 }
             }
@@ -638,10 +650,10 @@ namespace VL.Core
                 var value = spread.GetItem(i);
                 var localID = $"[{i}]";
                 var path = $"{pathOfParent}{localID}";
-                if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth))
+                if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, i))
                 {
                     var childtype = spread.ElementType; // let's use the element type of the spread, not the type of the object. Embracing super types.
-                    collection.Add(new ObjectGraphNode(path, value, childtype));
+                    collection.Add(new ObjectGraphNode(path, value, childtype, AccessedViaKey: i));
                     CollectChildPaths(value, path, filter, collection, depth, childtype);
                 }
             }
@@ -658,10 +670,10 @@ namespace VL.Core
                 var value = entry.Value;
                 var localID = $"[\"{entry.Key}\"]";
                 var path = $"{pathOfParent}{localID}";
-                if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth))
+                if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, entry.Key))
                 {
                     var childtype = valueType; // let's use the type of the value collection, not the type of the object. Embracing super types.
-                    collection.Add(new ObjectGraphNode(path, value, childtype));
+                    collection.Add(new ObjectGraphNode(path, value, childtype, AccessedViaKey: entry.Key));
                     CollectChildPaths(value, path, filter, collection, depth, childtype);
                 }
             }

@@ -10,7 +10,7 @@ namespace VL.Core
     /// <summary>
     /// Interface to interact with VL types.
     /// </summary>
-    public interface IVLTypeInfo
+    public interface IVLTypeInfo : IHasAttributes
     {
         /// <summary>
         /// The name of the type.
