@@ -92,7 +92,6 @@ namespace VL.ImGui.Windows
                 {
                     CollapsedFlange.Value = ImGui.IsWindowCollapsed();
 
-                    ImGui.PushClipRect(ImGui.GetWindowPos(), ImGui.GetWindowPos() + ImGui.GetWindowSize(), false);
                     if (ContentIsVisible)
                     {
                         context.Update(Content);
@@ -101,7 +100,6 @@ namespace VL.ImGui.Windows
                         var size = ImGui.GetWindowSize().ToVLHecto();
                         BoundsFlange.Value = new RectangleF(pos.X, pos.Y, size.X, size.Y);
                     }
-                    ImGui.PopClipRect();
                 }
                 finally
                 {
