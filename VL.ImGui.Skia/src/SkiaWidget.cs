@@ -52,6 +52,9 @@ namespace VL.ImGui.Widgets
                 //if (context.DrawList == DrawList.AtCursor)
                 //    ImGui.Image(0, size);
 
+                // because we use Callback instead of Image  
+
+
                 drawList.AddCallback(id, IntPtr.Zero);
             }
         }
@@ -60,13 +63,14 @@ namespace VL.ImGui.Widgets
         public RectangleF? Bounds => !_disposed ? Layer?.Bounds : default;
 
         // What is this for?
-        //SKMatrix? trans;
+        // it is somehow necessary for the Stride/Skia inputHandleing to work ... is a strange workaround
+        SKMatrix? trans;
 
         public void Render(CallerInfo caller)
         {
             if (_disposed || Layer is null)
                 return;
-            //trans = caller.Transformation;
+            trans = caller.Transformation;
             Layer.Render(caller);
         }
 
@@ -83,9 +87,9 @@ namespace VL.ImGui.Widgets
                 return false;
 
 
-            //if (trans != null)
-            //    return Layer.Notify(notification, caller.WithTransformation((SKMatrix)trans));
-            //else
+            if (trans != null)
+                return Layer.Notify(notification, caller.WithTransformation((SKMatrix)trans));
+            else
                 return Layer.Notify(notification, caller); ;
         }
 

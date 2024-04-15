@@ -72,9 +72,13 @@ namespace VL.ImGui
                     };
                 }
 
-                // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
-                var pos = useWorldSpace ? mouseNotification.PositionInWorldSpace.FromHectoToImGui() : mouseNotification.Position.ToImGui();
-                _io.AddMousePosEvent(pos.X, pos.Y);
+                var flag = ImGui.GetIO().ConfigFlags;
+                if ((flag & ImGuiConfigFlags.ViewportsEnable) == 0)
+                {
+                    // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
+                    var pos = useWorldSpace ? mouseNotification.PositionInWorldSpace.FromHectoToImGui() : mouseNotification.Position.ToImGui();
+                    _io.AddMousePosEvent(pos.X, pos.Y);
+                }
 
                 switch (mouseNotification.Kind)
                 {

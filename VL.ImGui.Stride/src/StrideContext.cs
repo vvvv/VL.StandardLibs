@@ -1,14 +1,38 @@
-﻿using Stride.Graphics;
+﻿using SkiaSharp;
+using Stride.Core.Mathematics;
+using Stride.Graphics;
 using Stride.Input;
 using System.Reactive.Linq;
 using VL.ImGui.Widgets;
 using VL.Lib.Basics.Resources;
+using VL.Lib.IO.Notifications;
 using VL.Skia;
 
 namespace VL.ImGui
 {
     using SkiaRenderer = VL.Stride.SkiaRenderer;
-    
+
+    internal class SkiaRendererWithOffset : SkiaRenderer
+    {
+        public ILayer beforeTransformLayer { get; private set; }
+        readonly TransformUpstream transformUpstream;
+
+        public SkiaRendererWithOffset(ILayer layer) : base()
+        {
+            beforeTransformLayer = layer;
+            transformUpstream = new TransformUpstream();
+            Layer = layer;
+        }
+
+        public void SetOffset(Vector2 off)
+        {
+            var x = off.X * ImGuiConversion.FromImGuiScaling;
+            var y = off.Y * ImGuiConversion.FromImGuiScaling;
+            transformUpstream.Update(beforeTransformLayer, SKMatrix.CreateTranslation(-x,-y), out ILayer outLayer);
+            Layer = outLayer;
+        }
+    }
+
     internal interface IContextWithRenderer
     {
         public IntPtr AddRenderer(RenderLayerWithViewPort renderer);
@@ -23,11 +47,11 @@ namespace VL.ImGui
         }
 
         private readonly List<RenderLayerWithViewPort> Renderers = new List<RenderLayerWithViewPort>();
-        private readonly List<SkiaRenderer> managedSkiaRenderers = new();
+        private readonly List<SkiaRendererWithOffset> managedSkiaRenderers = new();
 
         public IntPtr AddLayer(SkiaWidget layer, System.Numerics.Vector2 pos, System.Numerics.Vector2 size)
         {
-            var renderer = Renderers.Where(r => r.Layer is SkiaRenderer skia && skia.Layer == layer).FirstOrDefault();
+            var renderer = Renderers.Where(r => r.Layer is SkiaRendererWithOffset skia && skia.beforeTransformLayer == layer).FirstOrDefault();
 
             if (renderer != null)
             {
@@ -35,15 +59,13 @@ namespace VL.ImGui
             }
             else
             {
-                var skiaRenderer = new SkiaRenderer()
+                var skiaRenderer = new SkiaRendererWithOffset(layer)
                 {
-                    Space = CommonSpace.DIPTopLeft
+                    Space = CommonSpace.DIPTopLeft,
                 };
 
                 // We take ownership
                 managedSkiaRenderers.Add(skiaRenderer);
-
-                skiaRenderer.Layer = layer;
 
                 RenderLayerWithViewPort renderLayer = new RenderLayerWithViewPort();
                 renderLayer.Layer = skiaRenderer;
@@ -56,7 +78,7 @@ namespace VL.ImGui
 
         public void RemoveLayer(SkiaWidget layer)
         {
-            var renderer = Renderers.Where(r => r.Layer is SkiaRenderer skia && skia.Layer == layer).FirstOrDefault();
+            var renderer = Renderers.Where(r => r.Layer is SkiaRendererWithOffset skia && skia.beforeTransformLayer == layer).FirstOrDefault();
             if (renderer != null)
             {
                 RemoveRenderer(renderer);
@@ -84,7 +106,7 @@ namespace VL.ImGui
 
         private void OnRemoved(RenderLayerWithViewPort renderLayer)
         {
-            if (renderLayer.Layer is SkiaRenderer skiaRenderer)
+            if (renderLayer.Layer is SkiaRendererWithOffset skiaRenderer)
             {
                 if (managedSkiaRenderers.Remove(skiaRenderer))
                     skiaRenderer.Dispose();
