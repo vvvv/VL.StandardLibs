@@ -17,6 +17,7 @@ using VL.Stride;
 using StrideVector2 = Stride.Core.Mathematics.Vector2;
 using StrideApp = Stride.Graphics.SDL.Application;
 using VL.Stride.Games;
+using Silk.NET.SDL;
 
 namespace VL.ImGui.Stride
 {
@@ -211,8 +212,15 @@ namespace VL.ImGui.Stride
 
         private void SetPerFrameImGuiData()
         {
-            var pos = StrideApp.MousePosition;
-            _strideDeviceContext.IO.MousePos = new Vector2(pos.X, pos.Y);
+            unsafe
+            { 
+                int x, y;
+                uint buttons = global::Stride.Graphics.SDL.Window.SDL.GetGlobalMouseState(&x, &y);
+                _strideDeviceContext.IO.MouseDown[0] = (buttons & 0b0001) != 0;
+                _strideDeviceContext.IO.MouseDown[1] = (buttons & 0b0010) != 0;
+                _strideDeviceContext.IO.MouseDown[2] = (buttons & 0b0100) != 0;
+                _strideDeviceContext.IO.MousePos = new Vector2(x, y);
+            }
 
             _strideDeviceContext.IO.DisplaySize = new Vector2(mainViewportWindow.Size.X, mainViewportWindow.Size.Y);
             _strideDeviceContext.IO.DisplayFramebufferScale = new Vector2(1.0f, 1.0f);
