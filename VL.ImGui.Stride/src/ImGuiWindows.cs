@@ -70,7 +70,17 @@ namespace VL.ImGui.Stride
 
                 mainViewportWindow = new ImGuiWindow(this.nodeContext, _strideDeviceContext, mainViewport);
                 mainViewport.PlatformHandle = mainViewportWindow.Handle;
-            
+
+
+                mainViewportWindow.Closing += (o, i) =>
+                {
+                    // Closing all other Windows
+                    ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
+                    for (int index = 1; index < platformIO.Viewports.Size; index++)
+                    {
+                        DestroyWindow(platformIO.Viewports[index]);
+                    }
+                };
 
                 _createWindow = CreateWindow;
                 _destroyWindow = DestroyWindow;
@@ -363,6 +373,7 @@ namespace VL.ImGui.Stride
         {
             deviceHandle.Dispose();
             mainViewportWindow.Dispose();
+            _strideDeviceContext.Dispose();
         }
     }
 }
