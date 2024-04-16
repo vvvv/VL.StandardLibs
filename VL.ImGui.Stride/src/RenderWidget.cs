@@ -19,8 +19,6 @@ namespace VL.ImGui.Widgets
 
         public IGraphicsRendererBase? Layer { private get; set ; }
 
-        public RenderView? RenderView { private get; set; } = new RenderView();
-
         public Vector2 Size { private get; set; } = new Vector2(1f, 1f);
 
         public IInputSource? InputSource => renderLayer?.MappedInputSource; 
@@ -44,9 +42,6 @@ namespace VL.ImGui.Widgets
                
                 if (ImGui.BeginChild("##RenderWidget__" + nodeContext?.Path.Stack.Peek().ToString() , Size.FromHectoToImGui(), ImGuiChildFlags.None, ImGuiWindowFlags.ChildWindow))
                 {
-                    if (renderLayer.RenderView != RenderView)
-                        renderLayer.RenderView = RenderView;
-
                     if (renderLayer.Layer != Layer)
                         renderLayer.Layer = Layer;
 

@@ -16,6 +16,7 @@ using VL.Stride;
 
 using StrideVector2 = Stride.Core.Mathematics.Vector2;
 using StrideApp = Stride.Graphics.SDL.Application;
+using VL.Stride.Games;
 
 namespace VL.ImGui.Stride
 {
@@ -46,6 +47,12 @@ namespace VL.ImGui.Stride
         private readonly Platform_GetWindowFocus _getWindowFocus;
         private readonly Platform_GetWindowMinimized _getWindowMinimized;
         private readonly Platform_SetWindowTitle _setWindowTitle;
+
+        public event EventHandler<EventArgs> Closing
+        {
+            add { mainViewportWindow.Closing += value; }
+            remove { mainViewportWindow.Closing -= value; }
+        }
 
         public unsafe ImGuiWindows(NodeContext nodeContext)
         {

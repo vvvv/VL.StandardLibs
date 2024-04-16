@@ -6,14 +6,10 @@ using Stride.Rendering;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using VL.ImGui.Stride.Effects;
-using VL.Skia;
-using SkiaSharp;
 
 
 namespace VL.ImGui
 {
-    using SkiaRenderer = VL.Stride.SkiaRenderer;
-
     partial class StrideDeviceContext
     {
         private Vector2 offset = Vector2.Zero;
@@ -99,9 +95,9 @@ namespace VL.ImGui
                                         }
                                         else
                                         {
-                                            if (layer is SkiaRendererWithOffset skiaoff)
+                                            if (layer is SkiaRendererWithOffset skiaWithOffset)
                                             {
-                                                skiaoff.SetOffset(off);
+                                                skiaWithOffset.SetOffset(off);
                                             }
                                            
                                             renderLayer.Offset = off;

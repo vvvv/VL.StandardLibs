@@ -41,6 +41,12 @@ namespace VL.ImGui.Stride
 
         public IntPtr Handle => _gameWindowRenderer.Window.NativeWindow.Handle;
 
+        public event EventHandler<EventArgs> Closing
+        {
+            add { _gameWindowRenderer.Window.Closing += value; }
+            remove { _gameWindowRenderer.Window.Closing -= value; }
+        }
+
         public Int2 Position
         {
             get { return _gameWindowRenderer.Window.Position; }
