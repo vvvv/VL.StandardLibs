@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <!-- We pack native dll in our own NuGet package -->
+    <ShouldIncludeNativeSkiaSharp>False</ShouldIncludeNativeSkiaSharp>
+    <UseWindowsForms>true</UseWindowsForms>
+    <VLPackageBasePath>..\</VLPackageBasePath>
+    <PackageId>$(AssemblyName)</PackageId>
+    <Description>A cross-platform UI framework</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>2d, ui</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Headless" />
+    <PackageReference Include="Avalonia.Skia" />
+    <PackageReference Include="Avalonia.Win32" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.Core.Skia\VL.Core.Skia.csproj" />
+    <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
+    <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
+  </ItemGroup>
+</Project>
