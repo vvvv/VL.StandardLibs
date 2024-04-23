@@ -117,10 +117,10 @@ namespace VL.Serialization.MessagePack.Formatters
                 writer.WriteNil();
                 return;
             }
-            var properties = typeInfo.Properties;
+            var properties = typeInfo.Properties.Where(p => p.ShouldBeSerialized);
 
             // Write all Propertys as Dict 
-            writer.WriteMapHeader(properties.Count);
+            writer.WriteMapHeader(properties.Count());
             foreach (var prop in properties)
             {
                 writer.Write(prop.NameForTextualCode);
@@ -156,7 +156,7 @@ namespace VL.Serialization.MessagePack.Formatters
                     string? key = reader.ReadString();
                     if (key != null)
                     {
-                        var type = typeInfo.Properties.Where(prop => prop.NameForTextualCode == key).FirstOrDefault()?.Type.ClrType;
+                        var type = typeInfo.Properties.Where(prop => prop.ShouldBeSerialized && prop.NameForTextualCode == key).FirstOrDefault()?.Type.ClrType;
 
                         if (type != null)
                         {
