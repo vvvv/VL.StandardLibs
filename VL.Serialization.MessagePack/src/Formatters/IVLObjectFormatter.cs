@@ -9,6 +9,8 @@ using System.Text.RegularExpressions;
 using System.Linq.Expressions;
 using System.Reflection;
 using VL.Core.Utils;
+using System.Collections.Immutable;
+using VL.Serialization.MessagePack.Resolvers;
 
 namespace VL.Serialization.MessagePack.Formatters
 {
@@ -20,13 +22,10 @@ namespace VL.Serialization.MessagePack.Formatters
         private static readonly ThreadsafeTypeKeyHashTable<SerializeMethod> Serializers = new();
         private static readonly ThreadsafeTypeKeyHashTable<DeserializeMethod> Deserializers = new();
 
-        //private readonly ConcurrentDictionary<string,Type> propertyTyps = new ConcurrentDictionary<string,Type>();
-
         private readonly AppHost appHost;
         private readonly IVLFactory factory;
         private readonly IVLTypeInfo typeInfo;
-
-        private readonly Regex removeCategories = new Regex(@"\s\[.+?\]", RegexOptions.Compiled);
+        private readonly Dictionary<string, (IVLPropertyInfo p, SerializeMethod s, DeserializeMethod d, object f)> properties;
 
         public IVLObjectFormatter(AppHost appHost)
         {
@@ -34,77 +33,80 @@ namespace VL.Serialization.MessagePack.Formatters
             this.factory = appHost.Factory;
             this.typeInfo = factory.GetTypeInfo(typeof(T));
 
+            var properties = new Dictionary<string, (IVLPropertyInfo p, SerializeMethod s, DeserializeMethod d, object f)>();
+            foreach (var p in typeInfo.Properties)
+            {
+                if (!p.ShouldBeSerialized)
+                    continue;
+
+                var type = p.Type.ClrType;
+                var f = VLResolver.Options.Resolver.GetFormatterDynamic(type);
+                if (f is null)
+                    continue;
+
+                var s = GetOrAddSerializer(type);
+                var d = GetOrAddDeserializer(type);
+                properties.Add(p.NameForTextualCode, (p, s, d, f));
+            }
+            this.properties = properties;
         }
 
-        private SerializeMethod? TryAddSerializers(Type type)
+        private static SerializeMethod GetOrAddSerializer(Type type)
         {
-            if (!Serializers.TryGetValue(type, out SerializeMethod? serializeMethod))
+            if (!Serializers.TryGetValue(type, out var serializeMethod))
             {
-                // double check locking...
-                lock (Serializers)
-                {
-                    if (!Serializers.TryGetValue(type, out serializeMethod))
-                    {
-                        TypeInfo ti = type.GetTypeInfo();
+                TypeInfo ti = type.GetTypeInfo();
 
-                        Type formatterType = typeof(IMessagePackFormatter<>).MakeGenericType(type);
-                        ParameterExpression param0 = Expression.Parameter(typeof(object), "formatter");
-                        ParameterExpression param1 = Expression.Parameter(typeof(MessagePackWriter).MakeByRefType(), "writer");
-                        ParameterExpression param2 = Expression.Parameter(typeof(object), "value");
-                        ParameterExpression param3 = Expression.Parameter(typeof(MessagePackSerializerOptions), "options");
+                Type formatterType = typeof(IMessagePackFormatter<>).MakeGenericType(type);
+                ParameterExpression param0 = Expression.Parameter(typeof(object), "formatter");
+                ParameterExpression param1 = Expression.Parameter(typeof(MessagePackWriter).MakeByRefType(), "writer");
+                ParameterExpression param2 = Expression.Parameter(typeof(object), "value");
+                ParameterExpression param3 = Expression.Parameter(typeof(MessagePackSerializerOptions), "options");
 
-                        MethodInfo serializeMethodInfo = formatterType.GetRuntimeMethod("Serialize", new[] { typeof(MessagePackWriter).MakeByRefType(), type, typeof(MessagePackSerializerOptions) })!;
+                MethodInfo serializeMethodInfo = formatterType.GetRuntimeMethod("Serialize", new[] { typeof(MessagePackWriter).MakeByRefType(), type, typeof(MessagePackSerializerOptions) })!;
 
-                        MethodCallExpression body = Expression.Call(
-                            Expression.Convert(param0, formatterType),
-                            serializeMethodInfo,
-                            param1,
-                            ti.IsValueType ? Expression.Unbox(param2, type) : Expression.Convert(param2, type),
-                            param3);
+                MethodCallExpression body = Expression.Call(
+                    Expression.Convert(param0, formatterType),
+                    serializeMethodInfo,
+                    param1,
+                    ti.IsValueType ? Expression.Unbox(param2, type) : Expression.Convert(param2, type),
+                    param3);
 
-                        serializeMethod = Expression.Lambda<SerializeMethod>(body, param0, param1, param2, param3).Compile();
+                serializeMethod = Expression.Lambda<SerializeMethod>(body, param0, param1, param2, param3).Compile();
 
-                        Serializers.TryAdd(type, serializeMethod);
-                    }
-                }
+                Serializers.TryAdd(type, serializeMethod);
             }
             return serializeMethod;
         }
 
-        private DeserializeMethod? TryAddDeserializers(Type type)
+        private static DeserializeMethod GetOrAddDeserializer(Type type)
         {
-            if (!Deserializers.TryGetValue(type, out DeserializeMethod? deserializeMethod))
+            if (!Deserializers.TryGetValue(type, out var deserializeMethod))
             {
-                lock (Deserializers)
+                TypeInfo ti = type.GetTypeInfo();
+
+                Type formatterType = typeof(IMessagePackFormatter<>).MakeGenericType(type);
+                ParameterExpression param0 = Expression.Parameter(typeof(object), "formatter");
+                ParameterExpression param1 = Expression.Parameter(typeof(MessagePackReader).MakeByRefType(), "reader");
+                ParameterExpression param2 = Expression.Parameter(typeof(MessagePackSerializerOptions), "options");
+
+                MethodInfo deserializeMethodInfo = formatterType.GetRuntimeMethod("Deserialize", new[] { typeof(MessagePackReader).MakeByRefType(), typeof(MessagePackSerializerOptions) })!;
+
+                MethodCallExpression deserialize = Expression.Call(
+                    Expression.Convert(param0, formatterType),
+                    deserializeMethodInfo,
+                    param1,
+                    param2);
+
+                Expression body = deserialize;
+                if (ti.IsValueType)
                 {
-                    if (!Deserializers.TryGetValue(type, out deserializeMethod))
-                    {
-                        TypeInfo ti = type.GetTypeInfo();
-
-                        Type formatterType = typeof(IMessagePackFormatter<>).MakeGenericType(type);
-                        ParameterExpression param0 = Expression.Parameter(typeof(object), "formatter");
-                        ParameterExpression param1 = Expression.Parameter(typeof(MessagePackReader).MakeByRefType(), "reader");
-                        ParameterExpression param2 = Expression.Parameter(typeof(MessagePackSerializerOptions), "options");
-
-                        MethodInfo deserializeMethodInfo = formatterType.GetRuntimeMethod("Deserialize", new[] { typeof(MessagePackReader).MakeByRefType(), typeof(MessagePackSerializerOptions) })!;
-
-                        MethodCallExpression deserialize = Expression.Call(
-                            Expression.Convert(param0, formatterType),
-                            deserializeMethodInfo,
-                            param1,
-                            param2);
-
-                        Expression body = deserialize;
-                        if (ti.IsValueType)
-                        {
-                            body = Expression.Convert(deserialize, typeof(object));
-                        }
-
-                        deserializeMethod = Expression.Lambda<DeserializeMethod>(body, param0, param1, param2).Compile();
-
-                        Deserializers.TryAdd(type, deserializeMethod);
-                    }
+                    body = Expression.Convert(deserialize, typeof(object));
                 }
+
+                deserializeMethod = Expression.Lambda<DeserializeMethod>(body, param0, param1, param2).Compile();
+
+                Deserializers.TryAdd(type, deserializeMethod);
             }
             return deserializeMethod;
         }
@@ -112,23 +114,19 @@ namespace VL.Serialization.MessagePack.Formatters
         public void Serialize(
           ref MessagePackWriter writer, T value, MessagePackSerializerOptions options)
         {
-            if (value is null)
+            var obj = value as IVLObject;
+            if (obj is null)
             {
                 writer.WriteNil();
                 return;
             }
-            var properties = typeInfo.Properties.Where(p => p.ShouldBeSerialized);
 
-            // Write all Propertys as Dict 
-            writer.WriteMapHeader(properties.Count());
-            foreach (var prop in properties)
+            // Write all properties as dict
+            writer.WriteMapHeader(properties.Count);
+            foreach (var (key, x) in properties)
             {
-                writer.Write(prop.NameForTextualCode);
-                var formatter = options.Resolver.GetFormatterDynamic(prop.Type.ClrType);
-                SerializeMethod ? serializeMethod = TryAddSerializers(prop.Type.ClrType);
-                if (serializeMethod != null && formatter != null)
-                    serializeMethod(formatter, ref writer, prop.GetValue((IVLObject)value), options);
-
+                writer.Write(key);
+                x.s(x.f, ref writer, x.p.GetValue(obj), options);
             }
         }
 
@@ -136,47 +134,29 @@ namespace VL.Serialization.MessagePack.Formatters
           ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
             if (reader.TryReadNil())
-            {
-                return default(T)!;
-            }
-
-            var instance = appHost.CreateInstance(typeInfo) as IVLObject;
-            if (instance is null)
                 return default!;
 
-            int propCount = reader.ReadMapHeader();
-
-            var builder = Pooled.GetDictionaryBuilder<string, object>();
-
+            var propCount = reader.ReadMapHeader();
             options.Security.DepthStep(ref reader);
-            try
-            {
-                for (int i = 0; i < propCount; i++)
-                {
-                    string? key = reader.ReadString();
-                    if (key != null)
-                    {
-                        var type = typeInfo.Properties.Where(prop => prop.ShouldBeSerialized && prop.NameForTextualCode == key).FirstOrDefault()?.Type.ClrType;
 
-                        if (type != null)
-                        {
-                            var formatter = options.Resolver.GetFormatterDynamic(type);
-                            DeserializeMethod? deserializeMethod = TryAddDeserializers(type);
-                            if (deserializeMethod != null && formatter != null)
-                            {
-                                var obj = deserializeMethod(formatter, ref reader, options);
-                                builder.Value.Add(key, obj);
-                            }     
-                        }
-                    }
+            using var values = Pooled.GetDictionary<string, object>();
+            for (int i = 0; i < propCount; i++)
+            {
+                var key = reader.ReadString();
+                if (key is null)
+                    continue;
+
+                if (properties.TryGetValue(key, out var x))
+                {
+                    var obj = x.d(x.f, ref reader, options);
+                    values.Value.Add(key, obj);
                 }
             }
-            finally
-            {
-                reader.Depth--;
-            }
 
-            return (T)instance.With(builder.ToImmutableAndFree());
+            reader.Depth--;
+
+            var instance = appHost.CreateInstance(typeInfo) as IVLObject;
+            return (T)instance?.With(values.Value)!;
         }
     }
 }
