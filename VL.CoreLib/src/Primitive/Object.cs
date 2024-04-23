@@ -126,10 +126,7 @@ namespace VL.Lib.Primitive.Object
         /// <returns></returns>
         public static bool Eq(this object input, object input2)
         {
-            // Watch out for null
-            if (input == null)
-                return input2 == null;
-            return input.Equals(input2);
+            return Equals(input, input2);
         }
 
         /// <summary>
