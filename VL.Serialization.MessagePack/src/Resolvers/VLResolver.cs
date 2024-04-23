@@ -34,6 +34,7 @@ namespace VL.Serialization.MessagePack.Resolvers
         private static readonly IFormatterResolver[] Resolvers = new IFormatterResolver[]
         {
             StrideResolver.Instance,
+            SkiaResolver.Instance,
             StandardResolver.Instance,
             TypelessObjectResolver.Instance, 
         };
