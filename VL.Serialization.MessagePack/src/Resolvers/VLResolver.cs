@@ -31,13 +31,16 @@ namespace VL.Serialization.MessagePack.Resolvers
         private static readonly Lazy<MessagePackSerializerOptions> lazyOptions = new Lazy<MessagePackSerializerOptions>(() => new MessagePackSerializerOptions(lazyFormatter.Value));
 
         // configure your custom resolvers.
-        private static readonly IFormatterResolver[] Resolvers = new IFormatterResolver[]
-        {
-            StrideResolver.Instance,
-            SkiaResolver.Instance,
-            StandardResolver.Instance,
-            TypelessObjectResolver.Instance, 
-        };
+        private static readonly IFormatterResolver[] Resolvers =
+        [
+            CompositeResolver.Create(
+                [TypelessFormatter.Instance],
+                [
+                    StrideResolver.Instance, 
+                    SkiaResolver.Instance, 
+                    StandardResolver.Instance
+                ])
+        ];
 
         private readonly ResolverCache resolverCache = new ResolverCache(Resolvers);
 
@@ -54,11 +57,11 @@ namespace VL.Serialization.MessagePack.Resolvers
 
             protected override IMessagePackFormatter<T>? GetFormatterCore<T>()
             {
-                if(typeof(IVLObject).IsAssignableFrom(typeof(T)))
+                if(!typeof(T).IsInterface && typeof(IVLObject).IsAssignableFrom(typeof(T)))
                 {
                     return new IVLObjectFormatter<T>(AppHost.Current);
                 }
-                else if (typeof(ISpread).IsAssignableFrom(typeof(T)))
+                else if (!typeof(T).IsInterface && typeof(ISpread).IsAssignableFrom(typeof(T)))
                 {
 
                     var genericTypeArgument = typeof(T).GetGenericArguments()[0];
@@ -74,7 +77,27 @@ namespace VL.Serialization.MessagePack.Resolvers
                     }
                 }
 
+                if (typeof(T).IsAbstract)
+                {
+                    return new AbstractTypeFormatter<T>();
+                }
+
                 return null;
+            }
+        }
+
+        private class AbstractTypeFormatter<T> : IMessagePackFormatter<T>
+        {
+            private readonly IMessagePackFormatter<object?> typelessFormatter = TypelessFormatter.Instance;
+
+            public void Serialize(ref MessagePackWriter writer, T value, MessagePackSerializerOptions options)
+            {
+                typelessFormatter.Serialize(ref writer, value, options);
+            }
+
+            public T Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
+            {
+                return (T)typelessFormatter.Deserialize(ref reader, options)!;
             }
         }
     }
