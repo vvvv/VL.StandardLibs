@@ -165,7 +165,7 @@ namespace VL.Lib.Collections
         /// <typeparam name="T"></typeparam>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static bool None<T>(this IEnumerable<T> input)
+        public static bool None<T>(IEnumerable<T> input)
         {
             return !input.Any();
         }
@@ -177,7 +177,7 @@ namespace VL.Lib.Collections
         /// <param name="input"></param>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public static bool None<T>(this IEnumerable<T> input, Func<T, bool> predicate)
+        public static bool None<T>(IEnumerable<T> input, Func<T, bool> predicate)
         {
             return !input.Any(predicate);
         }
