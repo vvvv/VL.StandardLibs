@@ -50,6 +50,16 @@ namespace VL.Serialization.MessagePack.Tests
             Assert.IsInstanceOf<MyClass4>(result.NestedProperty);
         }
 
+        [Test]
+        public void UniqueIdRoundTrip()
+        {
+            var id = new UniqueId("A", "B", 1);
+            var s = MessagePackSerializer.Serialize(id);
+            var copy = MessagePackSerializer.Deserialize<UniqueId>(s);
+            Assert.AreEqual(id, copy);
+            Assert.AreEqual(id.VolatileId, copy.VolatileId);
+        }
+
         [MessagePackObject]
         public class MyClass
         {

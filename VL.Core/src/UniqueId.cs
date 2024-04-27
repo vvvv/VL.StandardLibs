@@ -1,5 +1,5 @@
-﻿using System;
-using System.ComponentModel;
+﻿using MessagePack;
+using System;
 
 namespace VL.Core
 {
@@ -7,17 +7,15 @@ namespace VL.Core
     /// A unique and persistent identifier for a patch element. 
     /// It consists of the persistent/serialized id of the element as well as the persistent/serialized id of the document where the element resides in.
     /// </summary>
+    [MessagePackObject]
     public readonly struct UniqueId : IEquatable<UniqueId>
     {
-        readonly string documentId;
-        readonly string elementId;
-        readonly uint volatileId;
 
         public UniqueId(string documentId, string elementId, uint volatileId = 0)
         {
-            this.documentId = documentId ?? throw new ArgumentNullException(nameof(documentId));
-            this.elementId = elementId ?? throw new ArgumentNullException(nameof(elementId));
-            this.volatileId = volatileId;
+            DocumentId = documentId ?? throw new ArgumentNullException(nameof(documentId));
+            ElementId = elementId ?? throw new ArgumentNullException(nameof(elementId));
+            VolatileId = volatileId;
         }
 
         public static bool TryParse(string value, out UniqueId result)
@@ -36,20 +34,24 @@ namespace VL.Core
             }
         }
 
-        public string DocumentId => documentId;
+        [Key(0)]
+        public string DocumentId { get; }
 
-        public string ElementId => elementId;
+        [Key(1)]
+        public string ElementId { get; }
 
         /// <summary>
         /// Only valid while the session is running. Used by some obsolete APIs.
         /// </summary>
-        internal uint VolatileId => volatileId;
+        [Key(2)]
+        public uint VolatileId { get; }
 
-        public bool IsDefault => documentId is null;
+        [IgnoreMember]
+        public bool IsDefault => DocumentId is null;
 
         public bool Equals(UniqueId other)
         {
-            return documentId == other.documentId && elementId == other.elementId;
+            return DocumentId == other.DocumentId && ElementId == other.ElementId;
         }
 
         public override int GetHashCode()
@@ -57,7 +59,7 @@ namespace VL.Core
             if (IsDefault)
                 return 0;
 
-            return documentId.GetHashCode() ^ elementId.GetHashCode();
+            return DocumentId.GetHashCode() ^ ElementId.GetHashCode();
         }
 
         public override bool Equals(object obj)
@@ -67,7 +69,7 @@ namespace VL.Core
 
         public override string ToString()
         {
-            return $"{documentId} {elementId}";
+            return $"{DocumentId} {ElementId}";
         }
 
         public static bool operator ==(UniqueId left, UniqueId right) => left.Equals(right);

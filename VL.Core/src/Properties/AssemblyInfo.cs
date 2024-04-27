@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
 [assembly: ComVisible(false)]
 [assembly: InternalsVisibleTo("VL.AppServices")]
+[assembly: InternalsVisibleTo("VL.RuntimeServices")]
 [assembly: InternalsVisibleTo("VL.Lang")]
 [assembly: InternalsVisibleTo("VL.HDE")]
 [assembly: InternalsVisibleTo("VL.UI.Core")]
