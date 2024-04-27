@@ -20,6 +20,12 @@ namespace VL.Skia.Egl
 		private const string libGLESv2 = "libGLESv2";
 		private const string d3dcompiler_47 = "d3dcompiler_47";
 
+		static NativeEgl()
+		{
+			// Ensure libGLESv2 gets loaded
+			NativeLibrary.Load(libGLESv2, typeof(NativeEgl).Assembly, default);
+		}
+
 		// Out-of-band handle values
 		public static readonly EGLNativeDisplayType EGL_DEFAULT_DISPLAY = IntPtr.Zero;
 		public static readonly IntPtr EGL_NO_CONFIG = IntPtr.Zero;
