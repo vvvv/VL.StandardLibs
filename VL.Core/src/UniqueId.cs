@@ -18,6 +18,14 @@ namespace VL.Core
             VolatileId = volatileId;
         }
 
+        public static UniqueId Parse(string value)
+        {
+            if (TryParse(value, out var result))
+                return result;
+            else
+                throw new ArgumentException();
+        }
+
         public static bool TryParse(string value, out UniqueId result)
         {
             var i = value.IndexOf(' ');
