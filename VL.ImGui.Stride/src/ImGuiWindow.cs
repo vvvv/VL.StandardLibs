@@ -43,8 +43,8 @@ namespace VL.ImGui.Stride
 
         public event EventHandler<EventArgs> Closing
         {
-            add { _gameWindowRenderer.Window.Closing += value; }
-            remove { _gameWindowRenderer.Window.Closing -= value; }
+            add {    if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Closing += value; }
+            remove { if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Closing -= value; }
         }
 
         public Int2 Position
