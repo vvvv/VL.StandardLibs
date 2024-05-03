@@ -96,14 +96,6 @@ namespace VL.ImGui
                 return null;
         }
 
-        public void WithInputSource(IInputSource? inputSource)
-        {
-            foreach (var renderer in Renderers)
-            {
-                renderer.ParentInputSource = inputSource;
-            }
-        }
-
         public override void Dispose()
         {
             foreach (var r in Renderers)

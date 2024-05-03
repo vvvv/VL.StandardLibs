@@ -84,9 +84,6 @@ namespace VL.ImGui
                     inputSubscription.Disposable = SubscribeToInputSource(inputSource, context);
                 }
                 
-                // Push inputSource to all RenderLayerWithInputSource
-                _strideDeviceContext.WithInputSource(inputSource);
-
                 if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) == 0)
                 {
                     _strideDeviceContext.IO.DisplaySize = new System.Numerics.Vector2(renderTarget.Width, renderTarget.Height);

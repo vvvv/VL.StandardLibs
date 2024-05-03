@@ -53,6 +53,7 @@
                 <Pin Id="NNeAOF541TnNEGJcGYHx2i" Name="Node Context" Kind="InputPin" IsHidden="true" />
                 <Pin Id="TZ4KwV6huv2LrmWov1cDI2" Name="Context" Kind="InputPin" />
                 <Pin Id="QmnwPVvoZtvObLmUZVzcVS" Name="Context" Kind="OutputPin" />
+                <Pin Id="ANl3Pbm6BkZL3KFbZrHcYt" Name="Position in World" Kind="OutputPin" />
               </Node>
               <Pad Id="LkqFyutksCoOhdBe7WA7KC" Comment="Size" Bounds="322,485,35,28" ShowValueBox="true" isIOBox="true" Value="1.92, 0">
                 <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
@@ -69,7 +70,7 @@
                 <Pin Id="KxDSXSEx36qOUt5vbhzDKK" Name="Context" Kind="OutputPin" />
               </Node>
               <Patch Id="JSxZLhnwNMZMLZbpp747qo" Name="Create" ManuallySortedPins="true" />
-              <Patch Id="TRtjTPyacZSQUFtrhX7FKw" Name="Update" ParticipatingElements="VCqko7kRWGlOVrLhz3YEfH,LXLZjniiA9PPrGeJKHttoj,HAthFcFlbGBPSVRWqRSTNd,O75by4NqmdsO1O6tAJEBgF,B11KXgGATw7M3AOLWaha1k,Qvm2F6Bj4OGPROtvczh4Oz,OHKDkKaIfVONQJLu1xq3qc,G1x2WEKfiInOpNhcnvRtzT,BJRJK21ke7SO2rGt57fZBA" ManuallySortedPins="true" />
+              <Patch Id="TRtjTPyacZSQUFtrhX7FKw" Name="Update" ParticipatingElements="VCqko7kRWGlOVrLhz3YEfH,LXLZjniiA9PPrGeJKHttoj,HAthFcFlbGBPSVRWqRSTNd,O75by4NqmdsO1O6tAJEBgF,B11KXgGATw7M3AOLWaha1k,Qvm2F6Bj4OGPROtvczh4Oz,OHKDkKaIfVONQJLu1xq3qc,G1x2WEKfiInOpNhcnvRtzT,BJRJK21ke7SO2rGt57fZBA,PO8lcIdnpCULpfufWXP3dn" ManuallySortedPins="true" />
               <Patch Id="P3dXvy6z9qZOerFXsmE2SR" Name="Dispose" />
               <Node Bounds="164,572,80,19" Id="I4C2GCZdE7HNpPFrDZOG0i">
                 <p:NodeReference LastCategoryFullName="Main" LastDependency="HowTo ImGui Windows.vl">
@@ -93,6 +94,7 @@
                 <Pin Id="Nfe5ASmTC6tMPn1gYzaWhV" Name="Position in Projection" Kind="OutputPin" />
               </Node>
               <Pad Id="TTbxw4j0isPNf3MrHZQxiz" Comment="Position in Projection" Bounds="337,790,35,28" ShowValueBox="true" isIOBox="true" />
+              <Pad Id="VMB0RfzTvGmPrHO0lJRClL" Comment="Position in World" Bounds="337,711,35,28" ShowValueBox="true" isIOBox="true" />
             </Patch>
             <Pin Id="EQxdb8e2of8LG2tTjTrpzm" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="Ict3iWMMwxLL217RRkyQp4" Name="Bound to Document" Kind="InputPin" DefaultValue="True" IsHidden="true" />
@@ -1101,11 +1103,13 @@
                     <Choice Kind="TypeFlag" Name="String" />
                   </p:TypeAnnotation>
                 </Pad>
+                <ControlPoint Id="IUDp75nfPB6NJqJii8yGXu" Bounds="728,1101" />
               </Canvas>
               <Patch Id="JCQDjLNeTiDMCwyojlPhUH" Name="Create" />
               <Patch Id="KbC3SoODY2JMjIIl5MgeRh" Name="Update">
                 <Pin Id="P6XWmAmPrdoPoUB3r84Fgw" Name="Context" Kind="InputPin" />
                 <Pin Id="BMcg1D4FAETMC1Ectl8DWB" Name="Context" Kind="OutputPin" />
+                <Pin Id="DHpRIr0TcQoMA5zlGimVU0" Name="Position in World" Kind="OutputPin" />
               </Patch>
               <ProcessDefinition Id="NEBQHWoBbSDPDsNQMFZUFd">
                 <Fragment Id="RVkIjjJxHPnPhZyv63LwdF" Patch="JCQDjLNeTiDMCwyojlPhUH" Enabled="true" />
@@ -1157,6 +1161,8 @@
               <Link Id="Tler8I63GPhQdrZpMkFaHa" Ids="SHC1L77DU3mNla5kKIY8id,GQgpmzq3lAnMXW1QStXbOC" />
               <Link Id="T6MU8ztqNk7MeYSxrgzeqx" Ids="GQgpmzq3lAnMXW1QStXbOC,BMcg1D4FAETMC1Ectl8DWB" IsHidden="true" />
               <Link Id="TDq6z3v3WYHNaL0j1xdbey" Ids="BdlZ7qHhRv5QWfQGSb9jjE,RFFE4kRTRAEPIYMX9A74Uw" />
+              <Link Id="OIGApaLMT4dL0Rw6nGS2kv" Ids="I0aikqABotFMfPHsEtK25W,IUDp75nfPB6NJqJii8yGXu" />
+              <Link Id="T2PrIyCMJuGOAOFDo8EKi2" Ids="IUDp75nfPB6NJqJii8yGXu,DHpRIr0TcQoMA5zlGimVU0" IsHidden="true" />
             </Patch>
           </Node>
           <!--
@@ -2230,6 +2236,7 @@
         <Link Id="OHKDkKaIfVONQJLu1xq3qc" Ids="MvdpXhx3O8WMiMBZJUULTg,RABrMcAZXXdP3iAXWHzgae" />
         <Link Id="G1x2WEKfiInOpNhcnvRtzT" Ids="QmnwPVvoZtvObLmUZVzcVS,S6O3eLGEwCoO8FUFiPVNta" />
         <Link Id="BJRJK21ke7SO2rGt57fZBA" Ids="Nfe5ASmTC6tMPn1gYzaWhV,TTbxw4j0isPNf3MrHZQxiz" />
+        <Link Id="PO8lcIdnpCULpfufWXP3dn" Ids="ANl3Pbm6BkZL3KFbZrHcYt,VMB0RfzTvGmPrHO0lJRClL" />
       </Patch>
     </Node>
   </Patch>

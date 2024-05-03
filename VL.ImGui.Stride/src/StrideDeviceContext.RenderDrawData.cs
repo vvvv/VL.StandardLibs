@@ -6,7 +6,7 @@ using Stride.Rendering;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using VL.ImGui.Stride.Effects;
-
+using VL.Stride.Input;
 
 namespace VL.ImGui
 {
@@ -55,6 +55,8 @@ namespace VL.ImGui
 
         public void RenderDrawLists(RenderDrawContext context, ImDrawDataPtr drawData)
         {
+
+            var inputSource = context.RenderContext.GetWindowInputSource();
             var commandList = context.CommandList;      
             var projMatrix = Matrix.OrthoLH(drawData.DisplaySize.X, -drawData.DisplaySize.Y, -1, 1);
             Vector2 off = new Vector2(drawData.DisplayPos.X, drawData.DisplayPos.Y);
@@ -79,6 +81,8 @@ namespace VL.ImGui
 
                         if (renderLayer != null)
                         {
+                            renderLayer.ParentInputSource = inputSource;
+
                             if (renderLayer.Viewport.Size.LengthSquared() > 0 && context != null)
                             {
                                 var renderContext = context.RenderContext;
