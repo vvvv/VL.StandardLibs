@@ -1,5 +1,4 @@
 ﻿#nullable enable
-using MessagePack;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,16 +12,13 @@ using System.Threading.Tasks;
 
 namespace VL.Core
 {
-    [MessagePackObject]
     public struct NodePath : IEquatable<NodePath>
     {
         private readonly NodeContext? _nodeContext;
         private readonly ImmutableStack<UniqueId>? _stack;
 
-        [Key(0)]
         public ImmutableStack<UniqueId> Stack => _stack ?? _nodeContext?.Stack ?? ImmutableStack<UniqueId>.Empty;
 
-        [SerializationConstructor]
         public NodePath(ImmutableStack<UniqueId> stack)
         {
             _nodeContext = null;
@@ -37,14 +33,12 @@ namespace VL.Core
 
         [Obsolete("Please use Stack")]
         [Browsable(false)]
-        [IgnoreMember]
         // Patches like VL.OpenCV reference this property directly. So keep it for now until those patches are fixed.
         public ImmutableStack<uint> ObsoleteStack
         {
             get => ImmutableStack.CreateRange(Stack.Reverse().Select(x => x.VolatileId));
         }
 
-        [IgnoreMember]
         public bool IsDefault => _nodeContext is null && _stack is null;
 
         public bool Equals(NodePath other) => other == this;

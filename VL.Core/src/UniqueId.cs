@@ -1,4 +1,4 @@
-﻿using MessagePack;
+﻿using Orleans;
 using System;
 
 namespace VL.Core
@@ -7,7 +7,7 @@ namespace VL.Core
     /// A unique and persistent identifier for a patch element. 
     /// It consists of the persistent/serialized id of the element as well as the persistent/serialized id of the document where the element resides in.
     /// </summary>
-    [MessagePackObject]
+    [GenerateSerializer, Immutable]
     public readonly struct UniqueId : IEquatable<UniqueId>
     {
 
@@ -42,19 +42,15 @@ namespace VL.Core
             }
         }
 
-        [Key(0)]
-        public string DocumentId { get; }
+        [Id(0)] public string DocumentId { get; }
 
-        [Key(1)]
-        public string ElementId { get; }
+        [Id(1)] public string ElementId { get; }
 
         /// <summary>
         /// Only valid while the session is running. Used by some obsolete APIs.
         /// </summary>
-        [Key(2)]
-        public uint VolatileId { get; }
+        [Id(2)] public uint VolatileId { get; }
 
-        [IgnoreMember]
         public bool IsDefault => DocumentId is null;
 
         public bool Equals(UniqueId other)
