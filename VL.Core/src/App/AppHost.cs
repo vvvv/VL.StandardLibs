@@ -47,21 +47,10 @@ namespace VL.Core
 
         internal static ILogger? CurrentDefaultLogger => current?.DefaultLogger;
 
-        private static AppHost? global;
+        protected internal static AppHost? global;
 
         [ThreadStatic]
         private static AppHost? current;
-
-        public AppHost()
-        {
-            MakeGlobalIfNone().DisposeBy(this);
-
-            IDisposable MakeGlobalIfNone()
-            {
-                var original = Interlocked.CompareExchange(ref global, this, null);
-                return Disposable.Create(() => Interlocked.CompareExchange(ref global, original, this));
-            }
-        }
 
         /// <summary>
         /// Make the app host current on the current thread.

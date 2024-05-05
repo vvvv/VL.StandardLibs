@@ -45,7 +45,7 @@ namespace VL.Core
         private readonly UniqueId? _definitionId;
         private ImmutableStack<UniqueId>? _stack;
 
-        private NodeContext(AppHost appHost, NodeContext? parent, UniqueId localId, bool isImmutable = false, UniqueId? definitionId = null)
+        internal NodeContext(AppHost appHost, NodeContext? parent, UniqueId localId, bool isImmutable = false, UniqueId? definitionId = null)
         {
             _appHost = appHost ?? throw new ArgumentNullException(nameof(appHost));
             _parent = parent;
