@@ -79,7 +79,7 @@ namespace VL.Skia
                 try
                 {
                     return SKTypeface.FromFamilyName(
-                        context.Deserialize<string>(content, nameof(SKTypeface.FromFamilyName)),
+                        context.Deserialize<string>(content, nameof(SKTypeface.FamilyName)),
                         context.Deserialize<int>(content, nameof(SKTypeface.FontWeight)),
                         context.Deserialize<int>(content, nameof(SKTypeface.FontWidth)),
                         context.Deserialize<SKFontStyleSlant>(content, nameof(SKTypeface.FontSlant)));
