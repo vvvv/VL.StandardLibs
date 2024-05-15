@@ -815,6 +815,22 @@ namespace VL.Core
                 return false;
             }
 
+            if (instance is IList list)
+            {
+                var match = FValueIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    {
+                        var rest = match.Groups[2].Value;
+                        var o = list[index];
+                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                    }
+                }
+                value = default;
+                return false;
+            }
+
             {
                 var match = FPropertyRegex.Match(path);
                 if (match.Success)
@@ -929,6 +945,27 @@ namespace VL.Core
                         }
                     }
                 }
+                else if (value is ISpread list)
+                {
+                    var count = list.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        if (list.GetItem(i) is IVLObject obj)
+                        {
+                            if (obj.TryReplaceDescendant(descendant, out var newObj))
+                            {
+                                if (newObj != obj)
+                                {
+                                    var updatedChildren = list.SetItem(i, newObj);
+                                    updatedInstance = property.WithValue(instance, updatedChildren) as TInstance;
+                                }
+                                else
+                                    updatedInstance = instance;
+                                return true;
+                            }
+                        }
+                    }
+                }
             }
             updatedInstance = instance;
             return false;
@@ -994,6 +1031,23 @@ namespace VL.Core
                         var o = dict[key];
                         o = o.WithValueByPath(rest, value);
                         return SetItem(dict, key, o) as TInstance;
+                    }
+                }
+                return instance;
+            }
+
+            if (instance is IList list)
+            {
+                var match = FValueIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    {
+                        var rest = match.Groups[2].Value;
+                        var o = list[index];
+                        o = o.WithValueByPath(rest, value);
+                        list[index] = o;
+                        return list as TInstance;
                     }
                 }
                 return instance;
