@@ -22,20 +22,22 @@ namespace VL.Lib.Reactive
         private readonly NodeContext nodeContext;
         private readonly SerializationService serialization;
         private readonly string filePath;
+        private readonly string rootElementName;
         private readonly List<FileBinding> bindings = new();
 
-        public FileBindingProvider(NodeContext nodeContext, string filePath)
+        public FileBindingProvider(NodeContext nodeContext, string filePath, string rootElementName = "configuration")
         {
             this.nodeContext = nodeContext;
             this.serialization = nodeContext.AppHost.SerializationService;
             this.filePath = filePath;
+            this.rootElementName = rootElementName;
         }
 
         public void Dispose()
         {
-            foreach (var binding in bindings)
-                binding.Dispose();
-            bindings.Clear();
+            // Each binding removes itself from the list, that's why we go by index from back to front
+            for (int i = bindings.Count - 1; i >= 0; i--)
+                bindings[i].Dispose();
         }
 
         public IBinding CreateBinding(IChannel channel, string key) => new FileBinding(this, channel, key);
@@ -65,7 +67,9 @@ namespace VL.Lib.Reactive
         {
             var document = File.Exists(filePath) ? XDocument.Load(filePath) : new XDocument();
             if (document.Root is null)
-                document.Add(new XElement("configuration"));
+                document.Add(new XElement(rootElementName));
+            else
+                document.Root.Name = rootElementName;
             return document;
         }
 
@@ -78,10 +82,23 @@ namespace VL.Lib.Reactive
 
         private void SaveToTree(XElement root, IChannel channel, string key)
         {
-            if (TrySerialize(channel.Object, channel.ClrTypeOfValues, out var result) && result != null)
+            if (TrySerialize(channel.Object, channel.ClrTypeOfValues, out var result))
             {
-                var element = GetOrCreateElementForPath(root, key);
-                element.Value = result;
+                var dst = GetOrCreateElementForPath(root, key);
+                if (result is XElement src)
+                {
+                    // Move all nodes and attributes over
+                    dst.RemoveAll();
+
+                    foreach (var attr in src.Attributes())
+                        dst.Add(attr);
+                    foreach (var node in src.Nodes())
+                        dst.Add(node);
+                }
+                else if (result is string s)
+                {
+                    dst.Value = s;
+                }
             }
         }
 
@@ -115,7 +132,7 @@ namespace VL.Lib.Reactive
         {
             var element = FindElement(container, path);
             if (element is not null)
-                return TryDeserialize(element.Value, type, out value);
+                return TryDeserialize(element, type, out value);
 
             value = null;
             return false;
@@ -136,20 +153,13 @@ namespace VL.Lib.Reactive
             }
         }
 
-        private bool TrySerialize(object? value, Type type, out string? result)
+        private bool TrySerialize(object? value, Type type, out object? result)
         {
-            var content = serialization.Serialize(nodeContext, value, type, includeDefaults: false, forceElement: false, pathsAreRelativeToDocument: false, out var errors);
-            if (content is string s)
-            {
-                result = s;
-                return true;
-            }
-
-            result = null;
-            return false;
+            result = serialization.Serialize(nodeContext, value, type, includeDefaults: false, forceElement: false, pathsAreRelativeToDocument: false, out var errors);
+            return errors.Count == 0;
         }
 
-        private bool TryDeserialize(string? content, Type type, out object? result)
+        private bool TryDeserialize(object? content, Type type, out object? result)
         {
             result = serialization.Deserialize(nodeContext, content, type, pathsAreRelativeToDocument: false, out var errors);
             return errors.Count == 0;
@@ -176,6 +186,8 @@ namespace VL.Lib.Reactive
             }
 
             public IModule? Module => null;
+
+            string IBinding.ShortLabel => "File";
 
             public string Description => Path.GetFileName(provider.filePath);
 
