@@ -40,7 +40,7 @@ namespace VL.Lib.Reactive
                 bindings[i].Dispose();
         }
 
-        public IBinding CreateBinding(IChannel channel, string key) => new FileBinding(this, channel, key);
+        public IBinding CreateBinding(IChannel channel, string key, BindingType bindingType = BindingType.SendAndReceive) => new FileBinding(this, channel, key, bindingType);
 
         public void Load()
         {
@@ -50,7 +50,7 @@ namespace VL.Lib.Reactive
 
             foreach (var binding in bindings)
             {
-                if (TryLoad(document.Root, binding.key, binding.channel.ClrTypeOfValues, out var value))
+                if (binding.bindingType.HasFlag(BindingType.Receive) && TryLoad(document.Root, binding.key, binding.channel.ClrTypeOfValues, out var value))
                     binding.channel.SetObjectAndAuthor(value, Author);
             }
         }
@@ -59,7 +59,10 @@ namespace VL.Lib.Reactive
         {
             var document = LoadOrCreateDocument();
             foreach (var binding in bindings)
-                SaveToTree(document.Root!, binding.channel, binding.key);
+            {
+                if (binding.bindingType.HasFlag(BindingType.Send))
+                    SaveToTree(document.Root!, binding.channel, binding.key);
+            }
             document.Save(filePath);
         }
 
@@ -168,18 +171,22 @@ namespace VL.Lib.Reactive
         private sealed class FileBinding : IBinding
         {
             private readonly FileBindingProvider provider;
-            private IDisposable? subscription;
+            private readonly IDisposable? subscription;
+            private bool isDisposed;
 
             public readonly IChannel channel;
             public readonly string key;
+            public readonly BindingType bindingType;
 
-            public FileBinding(FileBindingProvider provider, IChannel channel, string key)
+            public FileBinding(FileBindingProvider provider, IChannel channel, string key, BindingType bindingType)
             {
                 this.provider = provider;
                 this.channel = channel;
                 this.key = key;
+                this.bindingType = bindingType;
 
-                subscription = channel.ChannelOfObject.Subscribe(OnChannelChanged);
+                if (bindingType.HasFlag(BindingType.Send))
+                    subscription = channel.ChannelOfObject.Subscribe(OnChannelChanged);
 
                 provider.bindings.Add(this);
                 channel.AddComponent(this);
@@ -191,17 +198,18 @@ namespace VL.Lib.Reactive
 
             public string Description => Path.GetFileName(provider.filePath);
 
-            public BindingType BindingType => BindingType.SendAndReceive;
+            public BindingType BindingType => bindingType;
 
             public void Dispose()
             {
-                var subscription = Interlocked.Exchange(ref this.subscription, null);
-                if (subscription is null)
+                if (isDisposed)
                     return;
+
+                isDisposed = true;
 
                 channel.RemoveComponent(this);
                 provider.bindings.Remove(this);
-                subscription.Dispose();
+                subscription?.Dispose();
             }
 
             private void OnChannelChanged(object? value)
