@@ -1,4 +1,5 @@
 ﻿using Stride.Core.Extensions;
+using System.Reactive.Disposables;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
 
@@ -6,12 +7,14 @@ namespace VL.ImGui.Editors
 {
     using ImGui = ImGuiNET.ImGui;
 
-    sealed class DynamicEnumEditor<T> : IObjectEditor
+    sealed class DynamicEnumEditor<T> : IObjectEditor, IDisposable
         where T: IDynamicEnum
     {
         readonly IChannel<T> channel;
         readonly string label;
         string[] names = Array.Empty<string>();
+
+        SerialDisposable OnChangeSubscription = new SerialDisposable();
 
         public DynamicEnumEditor(IChannel<T> channel, ObjectEditorContext editorContext)
         {
@@ -29,6 +32,8 @@ namespace VL.ImGui.Editors
                 {
                     dynamicEnum = value;
                     names = value?.Definition.Entries.ToArray() ?? Array.Empty<string>();
+                    OnChangeSubscription.Disposable = dynamicEnum?.Definition?.OnChange
+                        .Subscribe(x => names = x.ToArray());
                 }
             }
         }
@@ -42,6 +47,11 @@ namespace VL.ImGui.Editors
                 if (ImGui.Combo(label, ref currentItem, names, names.Length))
                     channel.Value = (T)DynamicEnum.CreateValue(names[currentItem]);
             }
+        }
+
+        public void Dispose()
+        {
+            OnChangeSubscription?.Dispose();
         }
     }
 }
