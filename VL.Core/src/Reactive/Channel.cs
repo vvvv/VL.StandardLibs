@@ -27,6 +27,7 @@ namespace VL.Lib.Reactive
         IDisposable BeginChange();
     }
 
+    [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
     public interface IChannel<T> : IChannel, ISubject<T?>, IMonadicValue<T>
     {
         static IMonadicValue<T> IMonadicValue<T>.Create(NodeContext nodeContext, T? value) => Channel.Create(value!);
@@ -562,6 +563,17 @@ namespace VL.Lib.Reactive
             }));
 
             return subscription;
+        }
+    }
+
+    sealed class ChannelMonadicTypeFilter : IMonadicTypeFilter
+    {
+        public bool Accepts(TypeDescriptor typeDescriptor)
+        {
+            if (typeDescriptor.ClrType == null)
+                return true; // let's not restrict generic patches with explicit type arguments. Auto-lifting shall work with the idea that the type might be ok.
+
+            return !typeDescriptor.ClrType.IsAssignableTo(typeof(IChannel)); // T shall not be a channel itself - at least not when auto lifting. explicit usage ok.
         }
     }
 
