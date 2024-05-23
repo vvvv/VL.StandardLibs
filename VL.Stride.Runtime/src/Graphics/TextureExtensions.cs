@@ -146,15 +146,27 @@ namespace VL.Stride.Graphics
             using var game = AppHost.Current.Services.GetGameHandle();
             var commandList = game.Resource.GraphicsContext.CommandList;
             using var staging = await texture.CopyToStagingAsync();
-            var memoryOwner = MemoryPool<T>.Shared.Rent(texture.CalculatePixelDataCount<T>());
-            GetData(staging, commandList, memoryOwner.Memory);
-            return memoryOwner;
+            var pixelDataCount = texture.CalculatePixelDataCount<T>();
+            var memoryOwner = MemoryPool<T>.Shared.Rent(pixelDataCount);
+            var memory = memoryOwner.Memory.Slice(0, pixelDataCount);
+            GetData(staging, commandList, memory);
+            return new SlicedOwner<T>(memoryOwner,memory);
 
             static unsafe void GetData(Texture staging, CommandList commandList, Memory<T> memory)
             {
                 using var pinned = memory.Pin();
                 var data = new DataPointer(pinned.Pointer, memory.Length);
                 staging.GetData(commandList, staging, data);
+            }
+        }
+
+        private sealed class SlicedOwner<T>(IMemoryOwner<T> upstream, Memory<T> memory) : IMemoryOwner<T>
+        {
+            public Memory<T> Memory => memory;
+
+            public void Dispose()
+            {
+                upstream.Dispose();
             }
         }
 
