@@ -38,7 +38,7 @@ namespace VL.ImGui
             //style.ScaleAllSizes(scale);
         }
 
-        public static void HandleNotification(this ImGuiIOPtr _io, INotification notification, bool useWorldSpace /* HACK - breaks LayerWidget*/)
+        public static void HandleNotification(this ImGuiIOPtr _io, INotification notification)
         {
             if (notification is KeyNotification keyNotification)
             {
@@ -76,7 +76,7 @@ namespace VL.ImGui
                 var flag = ImGui.GetIO().ConfigFlags;
                 if ((flag & ImGuiConfigFlags.ViewportsEnable) == 0)
                 {
-                    var pos = useWorldSpace ? mouseNotification.PositionInWorldSpace.FromHectoToImGui() : mouseNotification.Position.ToImGui();
+                    var pos = mouseNotification.PositionInWorldSpace.FromHectoToImGui();
                     _io.AddMousePosEvent(pos.X, pos.Y);
                 }
 
