@@ -77,6 +77,7 @@ namespace VL.ImGui
             {
                 _strideDeviceContext.IO.DeltaTime = (float)context.RenderContext.Time.TimePerFrame.TotalSeconds;
 
+                // Handle the inputSource for ImGui
                 var inputSource = context.RenderContext.GetWindowInputSource();
                 if (inputSource != lastInputSource)
                 {
