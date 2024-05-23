@@ -62,15 +62,10 @@ namespace VL.ImGui.Widgets
         [Pin(Ignore = true)]
         public RectangleF? Bounds => !_disposed ? Layer?.Bounds : default;
 
-        // What is this for?
-        // it is somehow necessary for the Stride/Skia inputHandleing to work ... is a strange workaround
-        SKMatrix? trans;
-
         public void Render(CallerInfo caller)
         {
             if (_disposed || Layer is null)
                 return;
-            trans = caller.Transformation;
             Layer.Render(caller);
         }
 
@@ -86,11 +81,7 @@ namespace VL.ImGui.Widgets
             if (EventFilter == EventFilter.WindowHasFocus && !_windowHasFocus)
                 return false;
 
-
-            if (trans != null)
-                return Layer.Notify(notification, caller.WithTransformation((SKMatrix)trans));
-            else
-                return Layer.Notify(notification, caller); ;
+            return Layer.Notify(notification, caller); ;
         }
 
         public void Dispose()
