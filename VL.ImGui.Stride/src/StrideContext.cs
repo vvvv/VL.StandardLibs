@@ -37,10 +37,6 @@ namespace VL.ImGui
                 // We take ownership
                 managedSkiaRenderers.Add(skiaRenderer);
 
-                InViewportUpstream viewportLayer = new InViewportUpstream();
-                SetSpaceUpstream2 withinCommonSpaceLayer = new SetSpaceUpstream2();
-
-
                 skiaRenderer.Layer = layer;
 
                 var viewPort = new Viewport(pos.X, pos.Y, size.X, size.Y);

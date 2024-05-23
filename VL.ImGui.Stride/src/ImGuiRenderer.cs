@@ -60,6 +60,7 @@ namespace VL.ImGui
         private Texture? fontTexture;
 
         private IInputSource? lastInputSource;
+        private System.Numerics.Vector2 lastDisplaySize;
         private readonly SerialDisposable inputSubscription = new SerialDisposable();
 
         //VL 
@@ -191,9 +192,10 @@ namespace VL.ImGui
                 _io.DeltaTime = (float)context.RenderContext.Time.TimePerFrame.TotalSeconds;
 
                 var inputSource = context.RenderContext.GetWindowInputSource();
-                if (inputSource != lastInputSource)
+                if (inputSource != lastInputSource || _io.DisplaySize != lastDisplaySize)
                 {
                     lastInputSource = inputSource;
+                    lastDisplaySize = _io.DisplaySize;
                     inputSubscription.Disposable = SubscribeToInputSource(inputSource, context);
                 }
 
