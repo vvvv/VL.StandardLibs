@@ -11,5 +11,10 @@ namespace VL.Core.EditorAttributes
         }
 
         public string Description { get; }
+
+        public override string ToString()
+        {
+            return $"Description: {Description}";
+        }
     }
 }

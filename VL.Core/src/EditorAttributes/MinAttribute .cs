@@ -18,5 +18,10 @@ namespace VL.Core.EditorAttributes
         public string EncodedValue { get; }
 
         public T GetValue<T>() => AttributeHelpers.DecodeValueFromAttribute<T>(EncodedValue);
+
+        public override string ToString()
+        {
+            return $"Min: {EncodedValue}";
+        }
     }
 }

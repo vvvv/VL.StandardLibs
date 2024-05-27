@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,6 +16,11 @@ namespace VL.Core.EditorAttributes
     {
         public ExposedAttribute()
         {
+        }
+
+        public override string ToString()
+        {
+            return $"Exposed";
         }
     }
 }

@@ -27,5 +27,10 @@ namespace VL.Core.EditorAttributes
         public T GetValue<T>() => AttributeHelpers.DecodeValueFromAttribute<T>(EncodedValue);
 
         //public static string DefaultKey = "Default";
+
+        public override string ToString()
+        {
+            return $"{Key}: {EncodedValue}";
+        }
     }
 }

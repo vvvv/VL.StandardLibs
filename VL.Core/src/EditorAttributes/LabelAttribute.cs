@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing.Imaging;
 
 namespace VL.Core.EditorAttributes
 {
@@ -11,5 +12,10 @@ namespace VL.Core.EditorAttributes
         }
 
         public string Label { get; }
+
+        public override string ToString()
+        {
+            return $"Label: {Label}";
+        }
     }
 }

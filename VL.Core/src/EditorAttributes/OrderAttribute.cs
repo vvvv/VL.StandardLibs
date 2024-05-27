@@ -11,5 +11,10 @@ namespace VL.Core.EditorAttributes
         }
 
         public int Order { get; }
+
+        public override string ToString()
+        {
+            return $"Order: {Order}";
+        }
     }
 }

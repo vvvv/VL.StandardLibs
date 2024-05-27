@@ -11,5 +11,10 @@ namespace VL.Core.EditorAttributes
         }
 
         public WidgetType WidgetType { get; }
+
+        public override string ToString()
+        {
+            return $"WidgetType: {WidgetType}";
+        }
     }
 }
