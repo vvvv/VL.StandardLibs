@@ -20,6 +20,21 @@ namespace VL.Stride.Rendering
 {
     static partial class EffectShaderNodes
     {
+        const string sdslFileFilter = "*.sdsl";
+        const string drawFXSuffix = "_DrawFX";
+        const string computeFXSuffix = "_ComputeFX";
+        const string textureFXSuffix = "_TextureFX";
+        const string shaderFXSuffix = "_ShaderFX";
+
+        static string GetSuffix(string effectName)
+        {
+            if (effectName.EndsWith(drawFXSuffix)) return drawFXSuffix;
+            if (effectName.EndsWith(computeFXSuffix)) return computeFXSuffix;
+            if (effectName.EndsWith(textureFXSuffix)) return textureFXSuffix;
+            if (effectName.EndsWith(shaderFXSuffix))  return shaderFXSuffix;
+            return null;
+        }
+
         public static NodeBuilding.FactoryImpl Init(ServiceRegistry serviceRegistry, IVLNodeDescriptionFactory factory)
         {
             ShaderMetadata.RegisterAdditionalShaderAttributes();
@@ -90,12 +105,6 @@ namespace VL.Stride.Rendering
             // Effect system deals with its internal cache on update, so make sure its called.
             effectSystem.Update(default);
 
-            const string sdslFileFilter = "*.sdsl";
-            const string drawFXSuffix = "_DrawFX";
-            const string computeFXSuffix = "_ComputeFX";
-            const string textureFXSuffix = "_TextureFX";
-            const string shaderFXSuffix = "_ShaderFX";
-
             // Traverse either the "shaders" folder in the database or in the given path (if present)
             IVirtualFileProvider fileProvider = default;
             var dbFileProvider = effectSystem.FileProvider; //should include current path
@@ -111,13 +120,17 @@ namespace VL.Stride.Rendering
             foreach (var file in fileProvider.ListFiles(EffectCompilerBase.DefaultSourceShaderFolder, sdslFileFilter, VirtualSearchOption.AllDirectories))
             {
                 var effectName = Path.GetFileNameWithoutExtension(file);
-                if (effectName.EndsWith(drawFXSuffix))
+                var suffix = GetSuffix(effectName);
+                if (suffix is null)
+                    continue;
+
+                var name = GetNodeName(effectName, suffix);
+                var shaderNodeName = new NameAndVersion($"{name.NamePart}Shader", name.VersionPart);
+                var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, dbFileProvider, sourceManager);
+
+                if (suffix == drawFXSuffix)
                 {
                     // Shader only for now
-                    var name = GetNodeName(effectName, drawFXSuffix);
-                    var shaderNodeName = new NameAndVersion($"{name.NamePart}Shader", name.VersionPart);
-                    var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, dbFileProvider, sourceManager);
-
                     yield return factory.NewDrawEffectShaderNode(
                         shaderNodeName, 
                         effectName, 
@@ -127,12 +140,8 @@ namespace VL.Stride.Rendering
                         graphicsDevice);
                     //DrawFX node
                 }
-                else if (effectName.EndsWith(textureFXSuffix))
+                else if (suffix == textureFXSuffix)
                 {
-                    var name = GetNodeName(effectName, textureFXSuffix);
-                    var shaderNodeName = new NameAndVersion($"{name.NamePart}Shader", name.VersionPart);
-                    var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, dbFileProvider, sourceManager);
-
                     var shaderNodeDescription = factory.NewImageEffectShaderNode(
                         shaderNodeName, 
                         effectName, 
@@ -145,13 +154,9 @@ namespace VL.Stride.Rendering
 
                     yield return factory.NewTextureFXNode(shaderNodeDescription, name, shaderMetadata);
                 }
-                else if (effectName.EndsWith(computeFXSuffix))
+                else if (suffix == computeFXSuffix)
                 {
                     // Shader only for now
-                    var name = GetNodeName(effectName, computeFXSuffix);
-                    var shaderNodeName = new NameAndVersion($"{name.NamePart}Shader", name.VersionPart);
-                    var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, dbFileProvider, sourceManager);
-
                     yield return factory.NewComputeEffectShaderNode(
                         shaderNodeName, 
                         effectName, 
@@ -161,15 +166,11 @@ namespace VL.Stride.Rendering
                         graphicsDevice);
                     //ComputeFX node
                 }
-                else if (effectName.EndsWith(shaderFXSuffix))
+                else if (suffix == shaderFXSuffix)
                 {
                     // Shader only
-                    var name = GetNodeName(effectName, shaderFXSuffix);
-                    var shaderNodeName = new NameAndVersion($"{name.NamePart}", name.VersionPart);
-                    var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, dbFileProvider, sourceManager);
-
                     yield return factory.NewShaderFXNode( 
-                        shaderNodeName, 
+                        name, 
                         effectName, 
                         shaderMetadata, 
                         TrackChanges(effectName, shaderMetadata), 
