@@ -1,5 +1,6 @@
 ﻿using Stride.Core;
 using Stride.Core.Mathematics;
+using Stride.Engine;
 using Stride.Graphics;
 using Stride.Rendering;
 using Stride.Rendering.ComputeEffect;
@@ -66,6 +67,14 @@ namespace VL.Stride.Rendering
                         newNode: nodeBuildContext =>
                         {
                             var gameHandle = AppHost.Current.Services.GetGameHandle();
+                            var game = gameHandle.Resource;
+
+                            // Needed by preprocessor (#include "x.hlsl")
+                            game.EffectSystem.GetShaderSourceManager().RegisterFilePath(shaderMetadata);
+
+                            // Ensure we operate on the proper device
+                            var graphicsDevice = game.GraphicsDevice;
+
                             var renderContext = RenderContext.GetShared(gameHandle.Resource.Services);
                             var mixinParams = BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var shaderMixinSource);
                             var effect = new VLComputeEffectShader(renderContext, shaderName, mixinParams);

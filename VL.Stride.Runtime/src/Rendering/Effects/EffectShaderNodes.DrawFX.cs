@@ -98,9 +98,11 @@ namespace VL.Stride.Rendering
                 {
                     var gameHandle = AppHost.Current.Services.GetGameHandle();
                     var game = gameHandle.Resource;
+                    // Ensure we operate on the proper device
+                    var graphicsDevice = game.GraphicsDevice;
 
-                    // create new effect instance with "better device"
-                    graphicsDevice = game.GraphicsDevice;
+                    // Needed by preprocessor (#include "x.hlsl")
+                    game.EffectSystem.GetShaderSourceManager().RegisterFilePath(shaderMetadata);
 
                     (effectInstance, _, _) = 
                         CreateEffectInstance("DrawFXEffect", shaderName, shaderMetadata, serviceRegistry, graphicsDevice, effectBytecode: effectBytecode);

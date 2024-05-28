@@ -14,6 +14,7 @@ using VL.Model;
 using VL.Stride.Graphics;
 using VL.Stride.Engine;
 using ServiceRegistry = VL.Core.ServiceRegistry;
+using Stride.Engine;
 
 namespace VL.Stride.Rendering
 {
@@ -136,6 +137,12 @@ namespace VL.Stride.Rendering
                         newNode: nodeBuildContext =>
                         {
                             var gameHandle = AppHost.Current.Services.GetGameHandle();
+                            var game = gameHandle.Resource;
+                            var graphicsDevice = game.GraphicsDevice;
+
+                            // Needed by preprocessor (#include "x.hlsl")
+                            game.EffectSystem.GetShaderSourceManager().RegisterFilePath(shaderMetadata);
+
                             var effect = new TextureFXEffect("TextureFXEffect", logger: nodeBuildContext.NodeContext.GetLogger()) { Name = shaderName };
 
                             BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var textureFXEffectMixin, effect.Parameters);

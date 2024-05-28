@@ -67,7 +67,7 @@ namespace VL.Stride.Rendering
                                     Directory.CreateDirectory(assetsFolder);
                                     foreach (var f in Directory.EnumerateFiles(shadersPath, "*", SearchOption.AllDirectories))
                                     {
-                                        if (string.Equals(Path.GetExtension(f), ".sdsl", StringComparison.OrdinalIgnoreCase) || string.Equals(Path.GetExtension(f), ".sdfx", StringComparison.OrdinalIgnoreCase))
+                                        if (IsShaderFile(f))
                                         {
                                             var fileName = Path.GetFileName(f);
                                             var shaderExportedKey = (typeof(EffectShaderNodes), fileName);
@@ -89,6 +89,13 @@ namespace VL.Stride.Rendering
                 // Just watch for changes
                 return NodeBuilding.NewFactoryImpl(invalidated: invalidated);
             });
+
+            static bool IsShaderFile(string fileName)
+            {
+                return fileName.EndsWith(".sdsl", StringComparison.OrdinalIgnoreCase)
+                    || fileName.EndsWith(".sdfx", StringComparison.OrdinalIgnoreCase)
+                    || fileName.EndsWith(".hlsl", StringComparison.OrdinalIgnoreCase);
+            }
         }
 
         static IEnumerable<IVLNodeDescription> GetNodeDescriptions(ServiceRegistry serviceRegistry, IVLNodeDescriptionFactory factory, string path = default, string shadersPath = default)
@@ -108,7 +115,7 @@ namespace VL.Stride.Rendering
             // Traverse either the "shaders" folder in the database or in the given path (if present)
             IVirtualFileProvider fileProvider = default;
             var dbFileProvider = effectSystem.FileProvider; //should include current path
-            var sourceManager = dbFileProvider.GetShaderSourceManager();
+            var sourceManager = effectSystem.GetShaderSourceManager();
             if (path != null)
                 fileProvider = effectSystem.GetFileProviderForSpecificPath(path);
             else
@@ -126,7 +133,7 @@ namespace VL.Stride.Rendering
 
                 var name = GetNodeName(effectName, suffix);
                 var shaderNodeName = new NameAndVersion($"{name.NamePart}Shader", name.VersionPart);
-                var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, dbFileProvider, sourceManager);
+                var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, file, dbFileProvider, sourceManager);
 
                 if (suffix == drawFXSuffix)
                 {

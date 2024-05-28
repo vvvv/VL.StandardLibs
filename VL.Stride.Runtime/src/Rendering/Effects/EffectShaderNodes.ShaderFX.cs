@@ -83,6 +83,12 @@ namespace VL.Stride.Rendering
                             var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var game = gameHandle.Resource;
 
+                            // Needed by preprocessor (#include "x.hlsl")
+                            game.EffectSystem.GetShaderSourceManager().RegisterFilePath(shaderMetadata);
+
+                            // Ensure we operate on the proper device
+                            var graphicsDevice = game.GraphicsDevice;
+
                             var tempParameters = new ParameterCollection(); // only needed for pin construction - parameter updater will later take care of multiple sinks
                             var nodeState = new ShaderFXNodeState(shaderName);
 
