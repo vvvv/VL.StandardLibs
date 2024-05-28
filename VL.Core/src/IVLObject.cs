@@ -212,7 +212,7 @@ namespace VL.Core
         /// <summary>
         /// Whether or not this property should be serialized.
         /// </summary>
-        internal bool ShouldBeSerialized { get; }
+        bool ShouldBeSerialized { get; }
 
         /// <summary>
         /// Gets the property value of the given instance.

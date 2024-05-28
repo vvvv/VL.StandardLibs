@@ -23,7 +23,7 @@ namespace VL.Stride
             return inputManager.GetNotifications(inputSource, sender: this)
                 .Subscribe(n =>
                 {
-                    Layer?.Notify(n, callerInfo);
+                    viewportLayer.Notify(n, callerInfo);
                 });
         }
     }
