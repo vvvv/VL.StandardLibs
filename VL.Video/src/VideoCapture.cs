@@ -18,6 +18,7 @@ namespace VL.Video
         private float preferredFps;
         private int changeTicket;
         private VideoCaptureImpl? currentCapture;
+        private bool enabled;
 
         public VideoCaptureDeviceEnumEntry? Device
         {
@@ -78,7 +79,18 @@ namespace VL.Video
         }
         readonly BehaviorSubject<VideoControls> videoControls = new BehaviorSubject<VideoControls>(VideoControls.Default);
 
-        public bool Enabled { get; set; }
+        public bool Enabled
+        {
+            get => enabled;
+            set
+            {
+                if (value != enabled)
+                {
+                    enabled = value;
+                    changeTicket++;
+                }
+            }
+        }
 
         public float ActualFPS => currentCapture?.ActualFPS ?? default;
 
@@ -90,7 +102,7 @@ namespace VL.Video
         {
             lock (syncRoot)
             {
-                if (currentCapture != null)
+                if (currentCapture != null && !enabled)
                     return null;
 
                 var config = new VideoCaptureConfig(deviceLink, preferredSize, preferredFps, cameraControls, videoControls);
