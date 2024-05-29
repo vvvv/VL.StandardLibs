@@ -57,6 +57,11 @@ namespace VL.Core
         public abstract ILogger Logger { get; }
 
         /// <summary>
+        /// Whether or not the current deserialization is stemming from a system call.
+        /// </summary>
+        internal abstract bool IsSystem { get; }
+
+        /// <summary>
         /// Serializes the given value and if a name is provided wraps the serialized content into an <see cref="XElement"/> or <see cref="XAttribute"/>. 
         /// </summary>
         /// <typeparam name="T">
