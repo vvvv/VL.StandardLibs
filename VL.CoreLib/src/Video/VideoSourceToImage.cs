@@ -49,6 +49,7 @@ namespace VL.Lib.Video
                 if (preferPush)
                 {
                     streamSubscription.Disposable = videoSource?.GetPushBasedStream(ctx)
+                        .Finally(() => imageSubscription.Disposable = null)
                         .Subscribe(v => OnPush(v, mipmapped));
                 }
                 else
@@ -56,6 +57,7 @@ namespace VL.Lib.Video
                     // We run single threaded, we can therefor safe resources by releasing the image before grabbing a new one
                     streamSubscription.Disposable = videoSource?.GetPullBasedStream(ctx, beforeGrab: () => imageSubscription.Disposable = null)
                         .Do(v => OnPull(v, mipmapped))
+                        .Finally(() => imageSubscription.Disposable = null)
                         .GetEnumerator();
                 }
             }
