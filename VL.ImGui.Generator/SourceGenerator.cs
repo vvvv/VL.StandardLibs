@@ -118,10 +118,10 @@ namespace VL.ImGui.Generator
                         category = category.Replace("ImGui", "ReGui");
                         category += ".Internal";
                     }
-                    nodeDecl = $"return c.Node(inputs, outputs, dispose: () => ((IDisposable)s).Dispose());";
+                    nodeDecl = $"return c.Node(inputs, outputs, dispose: () => (s as IDisposable)?.Dispose());";
                     break;
                 case Mode.ImmediateMode:
-                    nodeDecl = $"return c.Node(inputs, outputs, () => {{ s.Update(ctx); }}, dispose: () => ((IDisposable)s).Dispose());";
+                    nodeDecl = $"return c.Node(inputs, outputs, () => {{ s.Update(ctx); }}, dispose: () => (s as IDisposable)?.Dispose());";
                     break;
                 default:
                     break;
