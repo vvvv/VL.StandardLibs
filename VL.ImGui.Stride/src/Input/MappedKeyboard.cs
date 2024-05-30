@@ -5,13 +5,26 @@ namespace Stride.Input
     using Stride.Core.Collections;
     public class MappedKeyboard : IKeyboardDevice, IMappedDevice
     {
-        private readonly IKeyboardDevice keyboard;
+        private IKeyboardDevice keyboard;
         private readonly MappedInputSource source;
 
         public MappedKeyboard(IKeyboardDevice keyboard, MappedInputSource source)
         {
             this.keyboard = keyboard;
             this.source = source;
+        }
+
+        public bool SetSourceDevice(IInputDevice device)
+        {
+            if (device is IKeyboardDevice keyboard)
+            {
+                this.keyboard = keyboard;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public Guid SourceDeviceId => keyboard.Id;

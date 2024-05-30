@@ -5,12 +5,24 @@
 
     public class MappedMouse : MappedPointerBase, IMouseDevice, IMappedDevice
     {
-        private readonly IMouseDevice mouse;
-
+        private  IMouseDevice mouse;
 
         public MappedMouse(IMouseDevice mouse, MappedInputSource source) : base(mouse, source) 
         {
             this.mouse = mouse;
+        }
+
+        public bool SetSourceDevice(IInputDevice device)
+        {
+            if (device is IMouseDevice mouse)
+            {
+                this.mouse = mouse;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public Vector2 Position => mouse.Position.transformPos(mouse, source);

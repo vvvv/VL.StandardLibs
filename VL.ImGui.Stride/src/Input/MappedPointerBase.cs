@@ -5,7 +5,7 @@
 
     public abstract class MappedPointerBase : IPointerDevice, IMappedDevice
     {
-        internal readonly IPointerDevice pointer;
+        internal IPointerDevice pointer;
         internal readonly MappedInputSource source;
 
         private readonly HashSet<PointerPoint> pressedPointers;
@@ -28,6 +28,19 @@
             _pressedPointers = new ReadOnlySet<PointerPoint>(pressedPointers);
             _releasedPointers = new ReadOnlySet<PointerPoint>(releasedPointers);
             _downPointers = new ReadOnlySet<PointerPoint>(downPointers);
+        }
+
+        public bool SetSourceDevice(IInputDevice device)
+        {
+            if (device is IPointerDevice pointer)
+            {
+                this.pointer = pointer;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void transformAndFillSet(IReadOnlySet<PointerPoint> pointers, HashSet<PointerPoint> pointerset)
