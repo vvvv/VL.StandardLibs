@@ -110,10 +110,6 @@ namespace VL.ImGui.Generator
             var category = nodeAttrData.GetValueOrDefault("Category").Value as string ?? "ImGui";
             string nodeDecl = default;
 
-            var disposeCall = "";
-            if (typeSymbol.Interfaces.Any(interf => interf.Name == nameof(IDisposable)))
-                disposeCall = ", dispose: () => s.Dispose()";
-
             switch (mode)
             {
                 case Mode.RetainedMode:
@@ -122,10 +118,10 @@ namespace VL.ImGui.Generator
                         category = category.Replace("ImGui", "ReGui");
                         category += ".Internal";
                     }
-                    nodeDecl = $"return c.Node(inputs, outputs{disposeCall});";
+                    nodeDecl = $"return c.Node(inputs, outputs, dispose: () => (s as IDisposable)?.Dispose());";
                     break;
                 case Mode.ImmediateMode:
-                    nodeDecl = $"return c.Node(inputs, outputs, () => {{ s.Update(ctx); }}{disposeCall});";
+                    nodeDecl = $"return c.Node(inputs, outputs, () => {{ s.Update(ctx); }}, dispose: () => (s as IDisposable)?.Dispose());";
                     break;
                 default:
                     break;

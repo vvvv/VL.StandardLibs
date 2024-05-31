@@ -13,6 +13,7 @@ using Stride.Core.Mathematics;
 using Stride.Rendering.Materials;
 using System.ComponentModel;
 using Stride.Shaders.Parser.Mixins;
+using Stride.Engine;
 
 namespace VL.Stride.Rendering
 {
@@ -43,6 +44,8 @@ namespace VL.Stride.Rendering
         public bool DontConvertToSRgbOnOnWrite { get; private set; }
 
         public string FilePath { get; init; }
+
+        public string Url { get; init; }
 
         public void GetPixelFormats(out PixelFormat outputFormat, out PixelFormat renderFormat)
         {
@@ -345,13 +348,17 @@ namespace VL.Stride.Rendering
             StrideAttributes.AvailableAttributes.Add(AssetName);
         }
 
-        public static ShaderMetadata CreateMetadata(string effectName, IVirtualFileProvider fileProvider, ShaderSourceManager shaderSourceManager)
+        public static ShaderMetadata CreateMetadata(string effectName, string url, IVirtualFileProvider fileProvider, ShaderSourceManager shaderSourceManager)
         {
             //create metadata with default values
             var shaderMetadata = new ShaderMetadata()
             {
+                Url = url,
                 FilePath = EffectUtils.GetPathOfSdslShader(effectName, fileProvider)
             };
+
+            // Needed by preprocessor (#include "x.hlsl")
+            shaderSourceManager.RegisterFilePath(shaderMetadata);
 
             //try to populate metdata with information form the shader
             if (fileProvider.TryParseEffect(effectName, shaderSourceManager, out var result))

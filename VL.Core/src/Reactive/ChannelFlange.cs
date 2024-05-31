@@ -1,12 +1,18 @@
 ﻿#nullable enable
+using System;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 
 namespace VL.Lib.Reactive
 {
-    public class ChannelFlange<T> where T: struct
+    public class ChannelFlange<T> : IDisposable
+        where T: struct
     {
+        private readonly SerialDisposable subscription = new();
+
         T value;
+        T lastRetrievedValue;
         IChannel<T>? channel;
 
         public ChannelFlange(T initialValue)
@@ -16,27 +22,28 @@ namespace VL.Lib.Reactive
 
         public T Update(IChannel<T>? channel)
         {
-            this.channel = channel;
-            if (channel.IsValid())
-                value = channel.Value;
+            if (channel != this.channel)
+            {
+                this.channel = channel;
+
+                if (channel.IsValid())
+                    value = channel.Value;
+
+                subscription.Disposable = channel?.Subscribe(v => value = v);
+            }
             return value;
         }
 
         public T Update(IChannel<T>? channel, out bool hasChanged)
         {
-            this.channel = channel;
-            hasChanged = CopyFromUpstream();
-            return value;
+            Update(channel);
+            hasChanged = !EqualityComparer<T>.Default.Equals(lastRetrievedValue, value);
+            return lastRetrievedValue = value;
         }
 
-        bool CopyFromUpstream()
+        public void Dispose()
         {
-            if (channel.IsValid() && !EqualityComparer<T>.Default.Equals(channel.Value, value))
-            {
-                value = channel.Value;
-                return true;
-            }
-            return false;
+            subscription.Dispose();
         }
 
         public T Value
@@ -47,7 +54,8 @@ namespace VL.Lib.Reactive
                 if (!EqualityComparer<T>.Default.Equals(value, this.value))
                 {
                     this.value = value;
-                    if (channel.IsValid())
+                    // Do not write into system generated channels
+                    if (channel is not null && !channel.IsSystemGenerated())
                         channel.Value = value;
                 }
             }

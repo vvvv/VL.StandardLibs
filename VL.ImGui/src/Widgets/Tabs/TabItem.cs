@@ -42,6 +42,13 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiTabItemFlags Flags { private get; set; }
 
+        protected override void Dispose(bool disposing)
+        {
+            VisibleFlange.Dispose();
+            ActiveFlange.Dispose();
+            base.Dispose(disposing);
+        }
+
         internal override void UpdateCore(Context context)
         {
             var visible = VisibleFlange.Update(Visible);

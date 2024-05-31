@@ -18,6 +18,7 @@ using System.Reflection;
 using System.Diagnostics;
 using Stride.Core;
 using Stride.Shaders.Parser.Mixins;
+using System.Runtime.CompilerServices;
 
 namespace VL.Stride.Rendering
 {
@@ -87,7 +88,12 @@ namespace VL.Stride.Rendering
             return shaderSourceManager?.LoadShaderSource(effectName).Source;
         }
 
-        public static ShaderSourceManager GetShaderSourceManager(this IVirtualFileProvider fileProvider)
+        internal static ShaderSourceManager GetShaderSourceManager(this EffectSystem effectSystem)
+        {
+            return effectSystem.Compiler.GetShaderSourceManager() ?? effectSystem.FileProvider.GetShaderSourceManager();
+        }
+
+        private static ShaderSourceManager GetShaderSourceManager(this IVirtualFileProvider fileProvider)
         {
             var effectCompiler = new EffectCompiler(fileProvider)
             {
@@ -95,6 +101,20 @@ namespace VL.Stride.Rendering
             };
 
             return effectCompiler.GetMixinParser().SourceManager;
+        }
+
+        private static ShaderSourceManager GetShaderSourceManager(this IEffectCompiler effectCompiler)
+        {
+            if (effectCompiler is EffectCompiler ec)
+                return ec.GetMixinParser().SourceManager;
+            if (effectCompiler is EffectCompilerChain compilerChain)
+                return compilerChain.GetCompiler().GetShaderSourceManager();
+            return null;
+        }
+
+        internal static void RegisterFilePath(this ShaderSourceManager shaderSourceManager, ShaderMetadata shaderMetadata)
+        {
+            shaderSourceManager.UrlToFilePath[shaderMetadata.Url] = shaderMetadata.FilePath;
         }
 
         static readonly Dictionary<string, string> LocalShaderFilePaths = GetShaders();
@@ -219,7 +239,7 @@ namespace VL.Stride.Rendering
 
                     // get source code
                     var code = GetShaderSourceCode(shaderName, fileProvider, shaderSourceManager);
-                    var inputFileName = shaderName + ".sdsl";
+                    var inputFileName = GetPathOfSdslShader(shaderName, fileProvider) ?? shaderName + ".sdsl";
 
                     var parsingResult = StrideShaderParser.TryPreProcessAndParse(code, inputFileName, macros);
 
@@ -352,10 +372,20 @@ namespace VL.Stride.Rendering
             }
         }
 
-        public static ShaderMixinParser GetMixinParser(this EffectCompiler effectCompiler)
+        public static ShaderMixinParser GetMixinParser(this EffectCompiler compiler)
         {
-            var getMixinParser = typeof(EffectCompiler).GetMethod("GetMixinParser", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (ShaderMixinParser)getMixinParser.Invoke(effectCompiler, new object[0]);
+            return GetMixinParser(compiler);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(GetMixinParser))]
+            extern static ShaderMixinParser GetMixinParser(EffectCompiler compiler);
+        }
+
+        private static EffectCompilerBase GetCompiler(this EffectCompilerChain compilerChain)
+        {
+            return GetCompiler(compilerChain);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "compiler")]
+            extern static ref EffectCompilerBase GetCompiler(EffectCompilerChain compilerChain);
         }
     }
 
