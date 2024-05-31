@@ -762,8 +762,13 @@ namespace VL.Core
         {
             if (path == "")
             {
-                value = (T)instance; 
-                return value is T;
+                if (instance is T v)
+                {
+                    value = v;
+                    return true;
+                }
+                value = defaultValue;
+                return false;
             }
 
             if (instance is IVLObject vlObj)
@@ -778,7 +783,7 @@ namespace VL.Core
                         return o.TryGetValueByPath(rest, defaultValue, out value);
                     }
                 }
-                value = default;
+                value = defaultValue;
                 return false;
             }
 
@@ -794,7 +799,7 @@ namespace VL.Core
                         return o.TryGetValueByPath(rest, defaultValue, out value);
                     }
                 }
-                value = default;
+                value = defaultValue;
                 return false;
             }
 
@@ -811,7 +816,7 @@ namespace VL.Core
                         return o.TryGetValueByPath(rest, defaultValue, out value);
                     }
                 }
-                value = default;
+                value = defaultValue;
                 return false;
             }
 
@@ -829,7 +834,7 @@ namespace VL.Core
                         return o.TryGetValueByPath(rest, defaultValue, out value);
                     }
                 }
-                value = default;
+                value = defaultValue;
                 return false;
             }
         }
