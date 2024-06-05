@@ -60,6 +60,16 @@ namespace VL.Serialization.MessagePack.Tests
             Assert.AreEqual(comPort, result);
         }
 
+        [Test]
+        public void DynamicEnumJsonSerializationIsJustAString()
+        {
+            var comPort = new ComPort("Foo");
+            var content = MessagePackSerialization.SerializeJson(comPort);
+            Assert.AreEqual("\"Foo\"", content);
+            var result = MessagePackSerialization.DeserializeJson<ComPort>(content);
+            Assert.AreEqual(comPort, result);
+        }
+
         [MessagePackObject]
         public class MyClass
         {
