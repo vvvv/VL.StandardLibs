@@ -38,7 +38,8 @@ namespace VL.Serialization.MessagePack.Resolvers
                 [
                     StrideResolver.Instance, 
                     SkiaResolver.Instance, 
-                    StandardResolver.Instance
+                    StandardResolver.Instance,
+                    TypelessObjectResolver.Instance
                 ])
         ];
 
