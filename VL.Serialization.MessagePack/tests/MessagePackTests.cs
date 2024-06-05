@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using VL.Core;
 using VL.Core.CompilerServices;
+using VL.Lib.IO.Ports;
 using VL.TestFramework;
 
 namespace VL.Serialization.MessagePack.Tests
@@ -48,6 +49,25 @@ namespace VL.Serialization.MessagePack.Tests
             var content = MessagePackSerialization.Serialize<object>(myClass);
             var result = (MyClass5)MessagePackSerialization.Deserialize<object>((IEnumerable<byte>)content);
             Assert.IsInstanceOf<MyClass4>(result.NestedProperty);
+        }
+
+        [Test]
+        public void DynamicEnumSerialization()
+        {
+            var comPort = new ComPort("Foo");
+            var content = MessagePackSerialization.Serialize(comPort);
+            var result = MessagePackSerialization.Deserialize<ComPort>((IEnumerable<byte>)content);
+            Assert.AreEqual(comPort, result);
+        }
+
+        [Test]
+        public void DynamicEnumJsonSerializationIsJustAString()
+        {
+            var comPort = new ComPort("Foo");
+            var content = MessagePackSerialization.SerializeJson(comPort);
+            Assert.AreEqual("\"Foo\"", content);
+            var result = MessagePackSerialization.DeserializeJson<ComPort>(content);
+            Assert.AreEqual(comPort, result);
         }
 
         [MessagePackObject]
