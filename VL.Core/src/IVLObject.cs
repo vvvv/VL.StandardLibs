@@ -1016,7 +1016,12 @@ namespace VL.Core
                     {
                         var o = property.GetValue(instance);
                         o = o.WithValueByPath(rest, value);
-                        property?.SetValue(instance, o);
+                        if (property.SetMethod != null)
+                        {
+                            if (type.TryGetCloneMethodOfRecord(out var cloneMethod))
+                                instance = (TInstance)cloneMethod.Invoke(instance, null);
+                            property.SetValue(instance, o);
+                        }
                     }
                 }
                 return instance;
