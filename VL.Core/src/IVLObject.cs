@@ -755,7 +755,7 @@ namespace VL.Core
         /// </summary>
         /// <typeparam name="T">The expected type of the value.</typeparam>
         /// <param name="instance">The root instance to start the lookup from.</param>
-        /// <param name="path">A dot separated string of property names. Spreaded properties can be indexed using [N] for example "MySpread[0]" retrieves the first value in MySpread.</param>
+        /// <param name="path">A dot separated string of property names. List items (of Spreads, Arrays and Lists) can be indexed using [N] for example "MySpread[0]" retrieves the first value in MySpread.</param>
         /// <param name="defaultValue">The default value to use in case the lookup failed.</param>
         /// <param name="value">The returned value.</param>
         /// <param name="pathExists">The path exists.</param>
@@ -819,6 +819,26 @@ namespace VL.Core
                     {
                         var o = dict[key];
                         return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
+                    }
+                }
+                value = defaultValue;
+                return false;
+            }
+
+            if (instance is IList list)
+            {
+                var match = FValueIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    {
+                        if (0 <= index && index < list.Count)
+                        {
+                            var rest = match.Groups[2].Value;
+                            var o = list[index];
+                            return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
+                        }
+                        
                     }
                 }
                 value = defaultValue;
@@ -950,7 +970,7 @@ namespace VL.Core
         /// <typeparam name="TInstance">The type of the instance.</typeparam>
         /// <typeparam name="TValue">The expected type of the value.</typeparam>
         /// <param name="instance">The root instance to start the lookup from.</param>
-        /// <param name="path">A dot separated string of property names. Spreaded properties can be indexed using [N] for example "MySpread[0]" sets the first value in MySpread.</param>
+        /// <param name="path">A dot separated string of property names. List items (of Spreads, Arrays and Lists) can be indexed using [N] for example "MySpread[0]" sets the first value in MySpread.</param>
         /// <param name="value">The value to set.</param>
         /// <param name="pathExists">The path exists.</param>
         /// <returns>The new root instance (if it is a record) with the updated spine.</returns>
@@ -1015,6 +1035,25 @@ namespace VL.Core
                 return instance;
             }
 
+            if (instance is IList list)
+            {
+                var match = FValueIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    {
+                        if (0 <= index && index < list.Count)
+                        {
+                            var rest = match.Groups[2].Value;
+                            var o = list[index];
+                            o = o.WithValueByPath(rest, value, out pathExists);
+                            return SetItem(list, index, o) as TInstance;
+                        }
+                    }
+                }
+                return instance;
+            }
+
             {
                 var match = FPropertyRegex.Match(path);
                 if (match.Success)
@@ -1055,6 +1094,21 @@ namespace VL.Core
                 dict[key] = value;
                 return dict;
             }
+        }
+
+        static IList SetItem(IList list, int index, object value)
+        {
+            var listType = list.GetType();
+            var toListBuilderMethod = listType.GetMethod(nameof(ImmutableList<object>.ToBuilder));
+            if (toListBuilderMethod != null)
+            {
+                var builder = toListBuilderMethod.Invoke(list, null) as IList;
+                builder[index] = value;
+                var toImmutableMethod = builder.GetType().GetMethod(nameof(ImmutableList<object>.Builder.ToImmutable));
+                return toImmutableMethod.Invoke(builder, null) as IList;
+            }
+            list[index] = value;
+            return list;
         }
     }
 
