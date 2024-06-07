@@ -9,7 +9,7 @@ namespace VL.Core
     {
         public static bool ImplementsMonadicValue(this Type type)
         {
-            return type.IsGenericType && type.IsAssignableTo(typeof(IMonadicValue));
+            return type.IsGenericType && type.GenericTypeArguments.Length == 1 && type.IsAssignableTo(typeof(IMonadicValue));
         }
 
         public static bool IsOptional(this Type type)
@@ -29,7 +29,7 @@ namespace VL.Core
 
         internal static IMonadicValueEditor<TValue, TMonad>? GetMonadicEditor<TValue, TMonad>()
         {
-            if (typeof(TMonad).IsAssignableTo(typeof(IMonadicValue)))
+            if (typeof(TMonad).ImplementsMonadicValue())
                 return Activator.CreateInstance(typeof(MonadicValueEditor<,>).MakeGenericType(typeof(TValue), typeof(TMonad))) as IMonadicValueEditor<TValue, TMonad>;
 
             if (typeof(TMonad).IsOptional())
