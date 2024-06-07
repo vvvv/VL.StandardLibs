@@ -80,7 +80,7 @@ namespace VL.Core
                 string name,
                 string category,
                 bool fragmented,
-                IObservable<object> invalidated,
+                IObservable<object>? invalidated,
                 Func<NodeDescriptionBuildContext, NodeImplementation> init,
                 string? tags = default)
             {

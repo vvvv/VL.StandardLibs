@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -66,7 +67,7 @@ namespace VL.Core
             });
         }
 
-        public static FactoryImpl NewFactoryImpl(ImmutableArray<IVLNodeDescription> nodes = default, IObservable<object> invalidated = default, Func<string, Func<IVLNodeDescriptionFactory, FactoryImpl>> forPath = default, Action<ExportContext> export = default)
+        public static FactoryImpl NewFactoryImpl(ImmutableArray<IVLNodeDescription> nodes = default, IObservable<object>? invalidated = default, Func<string, Func<IVLNodeDescriptionFactory, FactoryImpl>>? forPath = default, Action<ExportContext>? export = default)
         {
             return new FactoryImpl(nodes.IsDefault ? Enumerable.Empty<IVLNodeDescription>() : nodes, invalidated, forPath, export);
         }
@@ -94,9 +95,9 @@ namespace VL.Core
             string name,
             string category,
             bool fragmented,
-            IObservable<object> invalidated,
+            IObservable<object>? invalidated,
             Func<NodeDescriptionBuildContext, NodeImplementation> init,
-            string tags)
+            string? tags)
         {
             return new NodeDescription(factory, name, category, fragmented, invalidated, init, tags);
         }

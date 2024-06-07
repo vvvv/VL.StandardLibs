@@ -688,10 +688,11 @@ namespace VL.Core
         /// <param name="defaultValue">The default value to use in case retrieval failed.</param>
         /// <param name="value">The returned values.</param>
         /// <returns>True if the retrieval succeeded.</returns>
-        public static bool TryGetValue<T>(this IVLObject instance, string name, T defaultValue, out T value)
+        public static bool TryGetValue<T>(this IVLObject instance, string name, T defaultValue, out T value, out bool pathExists)
         {
             var property = instance.Type.GetProperty(name);
-            if (property != null)
+            pathExists = property != null;
+            if (pathExists)
             {
                 var v = property.GetValue(instance);
                 if (v is T)
@@ -757,11 +758,15 @@ namespace VL.Core
         /// <param name="path">A dot separated string of property names. Spreaded properties can be indexed using [N] for example "MySpread[0]" retrieves the first value in MySpread.</param>
         /// <param name="defaultValue">The default value to use in case the lookup failed.</param>
         /// <param name="value">The returned value.</param>
-        /// <returns>True if the lookup succeeded.</returns>
-        public static bool TryGetValueByPath<T>(this object instance, string path, T defaultValue, out T value)
+        /// <param name="pathExists">The path exists.</param>
+        /// <returns>True if the lookup succeeded: Correct path and found data of the requested type.</returns>
+        public static bool TryGetValueByPath<T>(this object instance, string path, T defaultValue, out T value, out bool pathExists)
         {
+            pathExists = false;
+
             if (path == "")
             {
+                pathExists = true;
                 if (instance is T v)
                 {
                     value = v;
@@ -778,9 +783,9 @@ namespace VL.Core
                 {
                     var property = match.Groups[1].Value;
                     var rest = match.Groups[2].Value;
-                    if (vlObj.TryGetValue(property, default(object), out var o))
+                    if (vlObj.TryGetValue(property, default(object), out var o, out pathExists))
                     {
-                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
                     }
                 }
                 value = defaultValue;
@@ -796,7 +801,7 @@ namespace VL.Core
                     {
                         var rest = match.Groups[2].Value;
                         var o = spread.GetItem(index);
-                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
                     }
                 }
                 value = defaultValue;
@@ -813,7 +818,7 @@ namespace VL.Core
                     if (dict.Contains(key))
                     {
                         var o = dict[key];
-                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
                     }
                 }
                 value = defaultValue;
@@ -829,7 +834,7 @@ namespace VL.Core
                     {
                         var rest = match.Groups[2].Value;
                         var o = list[index];
-                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
                     }
                 }
                 value = default;
@@ -847,7 +852,7 @@ namespace VL.Core
                     if (property != null)
                     {
                         var o = property.GetValue(instance);
-                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
                     }
                 }
                 value = defaultValue;
@@ -984,13 +989,19 @@ namespace VL.Core
         /// <param name="instance">The root instance to start the lookup from.</param>
         /// <param name="path">A dot separated string of property names. Spreaded properties can be indexed using [N] for example "MySpread[0]" sets the first value in MySpread.</param>
         /// <param name="value">The value to set.</param>
+        /// <param name="pathExists">The path exists.</param>
         /// <returns>The new root instance (if it is a record) with the updated spine.</returns>
 
-        public static TInstance WithValueByPath<TInstance, TValue>(this TInstance instance, string path, TValue value)
+        public static TInstance WithValueByPath<TInstance, TValue>(this TInstance instance, string path, TValue value, out bool pathExists)
             where TInstance : class
         {
+            pathExists = false;
+
             if (path == "")
+            {
+                pathExists = true;
                 return value as TInstance;
+            }
 
             if (instance is IVLObject vlObj)
             {
@@ -999,9 +1010,9 @@ namespace VL.Core
                 {
                     var property = match.Groups[1].Value;
                     var rest = match.Groups[2].Value;
-                    if (vlObj.TryGetValue(property, default(object), out var o))
+                    if (vlObj.TryGetValue(property, default(object), out var o, out pathExists))
                     {
-                        o = o.WithValueByPath(rest, value);
+                        o = o.WithValueByPath(rest, value, out pathExists);
                         return vlObj.WithValue(property, o) as TInstance;
                     }
                 }
@@ -1017,7 +1028,7 @@ namespace VL.Core
                     {
                         var rest = match.Groups[2].Value;
                         var o = spread.GetItem(index);
-                        o = o.WithValueByPath(rest, value);
+                        o = o.WithValueByPath(rest, value, out pathExists);
                         return spread.SetItem(index, o) as TInstance;
                     }
                 }
@@ -1034,7 +1045,7 @@ namespace VL.Core
                     if (dict.Contains(key))
                     {
                         var o = dict[key];
-                        o = o.WithValueByPath(rest, value);
+                        o = o.WithValueByPath(rest, value, out pathExists);
                         return SetItem(dict, key, o) as TInstance;
                     }
                 }
@@ -1050,7 +1061,7 @@ namespace VL.Core
                     {
                         var rest = match.Groups[2].Value;
                         var o = list[index];
-                        o = o.WithValueByPath(rest, value);
+                        o = o.WithValueByPath(rest, value, out pathExists);
                         list[index] = o;
                         return list as TInstance;
                     }
@@ -1069,8 +1080,13 @@ namespace VL.Core
                     if (property != null)
                     {
                         var o = property.GetValue(instance);
-                        o = o.WithValueByPath(rest, value);
-                        property?.SetValue(instance, o);
+                        o = o.WithValueByPath(rest, value, out pathExists);
+                        if (property.SetMethod != null)
+                        {
+                            if (type.TryGetCloneMethodOfRecord(out var cloneMethod))
+                                instance = (TInstance)cloneMethod.Invoke(instance, null);
+                            property.SetValue(instance, o);
+                        }
                     }
                 }
                 return instance;
