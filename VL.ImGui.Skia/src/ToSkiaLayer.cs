@@ -43,6 +43,8 @@ namespace VL.ImGui
         private readonly SkiaContext _context;
         private readonly RenderContext _renderContext;
         private readonly Handle<SKPaint> _fontPaint;
+
+        private bool _disposed;
         float _fontScaling;
         float _uiScaling;
         Spread<FontConfig?> _fonts = Spread<FontConfig?>.Empty;
@@ -366,8 +368,11 @@ namespace VL.ImGui
 
         public void Dispose()
         {
-            _renderContext.Dispose();
+            if (_disposed)
+                return;
 
+            _disposed = true;
+            _renderContext.Dispose();
             _context.Dispose();
         }
     }
