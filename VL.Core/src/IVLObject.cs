@@ -957,28 +957,7 @@ namespace VL.Core
                             }
                         }
                     }
-                }
-                else if (value is ISpread list)
-                {
-                    var count = list.Count;
-                    for (int i = 0; i < count; i++)
-                    {
-                        if (list.GetItem(i) is IVLObject obj)
-                        {
-                            if (obj.TryReplaceDescendant(descendant, out var newObj))
-                            {
-                                if (newObj != obj)
-                                {
-                                    var updatedChildren = list.SetItem(i, newObj);
-                                    updatedInstance = property.WithValue(instance, updatedChildren) as TInstance;
-                                }
-                                else
-                                    updatedInstance = instance;
-                                return true;
-                            }
-                        }
-                    }
-                }
+                }   
             }
             updatedInstance = instance;
             return false;
