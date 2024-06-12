@@ -1,4 +1,5 @@
-﻿using Stride.Core.IO;
+﻿#nullable enable
+using Stride.Core.IO;
 using Stride.Core.Serialization.Contents;
 using Stride.Graphics;
 using Stride.Rendering;
@@ -26,7 +27,7 @@ namespace VL.Stride.Rendering
         const string textureFXSuffix = "_TextureFX";
         const string shaderFXSuffix = "_ShaderFX";
 
-        static string GetSuffix(string effectName)
+        static string? GetSuffix(string effectName)
         {
             if (effectName.EndsWith(drawFXSuffix)) return drawFXSuffix;
             if (effectName.EndsWith(computeFXSuffix)) return computeFXSuffix;
@@ -98,7 +99,7 @@ namespace VL.Stride.Rendering
             }
         }
 
-        static IEnumerable<IVLNodeDescription> GetNodeDescriptions(ServiceRegistry serviceRegistry, IVLNodeDescriptionFactory factory, string path = default, string shadersPath = default)
+        static IEnumerable<IVLNodeDescription> GetNodeDescriptions(ServiceRegistry serviceRegistry, IVLNodeDescriptionFactory factory, string? path = default, string? shadersPath = default)
         {
             var graphicsDeviceService = serviceRegistry.GetService<IGraphicsDeviceService>();
             var graphicsDevice = graphicsDeviceService.GraphicsDevice;
@@ -113,7 +114,7 @@ namespace VL.Stride.Rendering
             effectSystem.Update(default);
 
             // Traverse either the "shaders" folder in the database or in the given path (if present)
-            IVirtualFileProvider fileProvider = default;
+            IVirtualFileProvider? fileProvider = default;
             var dbFileProvider = effectSystem.FileProvider; //should include current path
             var sourceManager = effectSystem.GetShaderSourceManager();
             if (path != null)
@@ -187,7 +188,7 @@ namespace VL.Stride.Rendering
             }
 
             // build an observable to track the file changes, also the files of the base shaders
-            IObservable<object> TrackChanges(string shaderName, ShaderMetadata shaderMetadata)
+            IObservable<object>? TrackChanges(string shaderName, ShaderMetadata shaderMetadata)
             {
                 if (shaderMetadata?.FilePath is null)
                     return null;
@@ -205,9 +206,12 @@ namespace VL.Stride.Rendering
 
                 // Setup our own watcher as Stride doesn't track shaders with errors
                 var shadersPath = Path.GetDirectoryName(shaderMetadata.FilePath);
+                if (shadersPath is null)
+                    return null;
+
                 return NodeBuilding.WatchDir(shadersPath)
-                    .Select(e => Path.GetFileNameWithoutExtension(e.Name))
-                    .Where(n => watchNames.Contains(n))
+                    .Select(e => Path.GetFileNameWithoutExtension(e.Name)!)
+                    .Where(n => n != null && watchNames.Contains(n))
                     .Do(n =>
                     {
                         ((EffectCompilerBase)effectSystem.Compiler).ResetCache(new HashSet<string>() { n });
@@ -219,12 +223,12 @@ namespace VL.Stride.Rendering
             }
         }
 
-        private static ParameterPinDescription CreatePinDescription(in ParameterKeyInfo keyInfo, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string name = null, bool? isOptionalOverride = default)
+        private static ParameterPinDescription CreatePinDescription(in ParameterKeyInfo keyInfo, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string? name = null, bool? isOptionalOverride = default)
         {
             return CreatePinDescription(keyInfo.Key, keyInfo.Count, usedNames, shaderMetadata, name, isOptionalOverride);
         }
 
-        private static ParameterPinDescription CreatePinDescription(ParameterKey key, int count, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string name = null, bool? isOptionalOverride = default)
+        private static ParameterPinDescription CreatePinDescription(ParameterKey key, int count, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string? name = null, bool? isOptionalOverride = default)
         {
             var typeInPatch = shaderMetadata.GetPinType(key, out var runtimeDefaultValue, out var compilationDefaultValue);
             shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);
