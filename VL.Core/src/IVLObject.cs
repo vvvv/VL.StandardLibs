@@ -755,7 +755,7 @@ namespace VL.Core
         /// </summary>
         /// <typeparam name="T">The expected type of the value.</typeparam>
         /// <param name="instance">The root instance to start the lookup from.</param>
-        /// <param name="path">A dot separated string of property names. Spreaded properties can be indexed using [N] for example "MySpread[0]" retrieves the first value in MySpread.</param>
+        /// <param name="path">A dot separated string of property names. List items (of Spreads, Arrays and Lists) can be indexed using [N] for example "MySpread[0]" retrieves the first value in MySpread.</param>
         /// <param name="defaultValue">The default value to use in case the lookup failed.</param>
         /// <param name="value">The returned value.</param>
         /// <param name="pathExists">The path exists.</param>
@@ -832,12 +832,15 @@ namespace VL.Core
                 {
                     if (int.TryParse(match.Groups[1].Value, out var index))
                     {
-                        var rest = match.Groups[2].Value;
-                        var o = list[index];
-                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
+                        if (0 <= index && index < list.Count)
+                        {
+                            var rest = match.Groups[2].Value;
+                            var o = list[index];
+                            return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
+                        }
                     }
                 }
-                value = default;
+                value = defaultValue;
                 return false;
             }
 
@@ -954,28 +957,7 @@ namespace VL.Core
                             }
                         }
                     }
-                }
-                else if (value is ISpread list)
-                {
-                    var count = list.Count;
-                    for (int i = 0; i < count; i++)
-                    {
-                        if (list.GetItem(i) is IVLObject obj)
-                        {
-                            if (obj.TryReplaceDescendant(descendant, out var newObj))
-                            {
-                                if (newObj != obj)
-                                {
-                                    var updatedChildren = list.SetItem(i, newObj);
-                                    updatedInstance = property.WithValue(instance, updatedChildren) as TInstance;
-                                }
-                                else
-                                    updatedInstance = instance;
-                                return true;
-                            }
-                        }
-                    }
-                }
+                }   
             }
             updatedInstance = instance;
             return false;
@@ -987,7 +969,7 @@ namespace VL.Core
         /// <typeparam name="TInstance">The type of the instance.</typeparam>
         /// <typeparam name="TValue">The expected type of the value.</typeparam>
         /// <param name="instance">The root instance to start the lookup from.</param>
-        /// <param name="path">A dot separated string of property names. Spreaded properties can be indexed using [N] for example "MySpread[0]" sets the first value in MySpread.</param>
+        /// <param name="path">A dot separated string of property names. List items (of Spreads, Arrays and Lists) can be indexed using [N] for example "MySpread[0]" sets the first value in MySpread.</param>
         /// <param name="value">The value to set.</param>
         /// <param name="pathExists">The path exists.</param>
         /// <returns>The new root instance (if it is a record) with the updated spine.</returns>
@@ -1059,11 +1041,13 @@ namespace VL.Core
                 {
                     if (int.TryParse(match.Groups[1].Value, out var index))
                     {
-                        var rest = match.Groups[2].Value;
-                        var o = list[index];
-                        o = o.WithValueByPath(rest, value, out pathExists);
-                        list[index] = o;
-                        return list as TInstance;
+                        if (0 <= index && index < list.Count)
+                        {
+                            var rest = match.Groups[2].Value;
+                            var o = list[index];
+                            o = o.WithValueByPath(rest, value, out pathExists);
+                            return SetItem(list, index, o) as TInstance;
+                        }
                     }
                 }
                 return instance;
@@ -1109,6 +1093,21 @@ namespace VL.Core
                 dict[key] = value;
                 return dict;
             }
+        }
+
+        static IList SetItem(IList list, int index, object value)
+        {
+            var listType = list.GetType();
+            var toListBuilderMethod = listType.GetMethod(nameof(ImmutableList<object>.ToBuilder));
+            if (toListBuilderMethod != null)
+            {
+                var builder = toListBuilderMethod.Invoke(list, null) as IList;
+                builder[index] = value;
+                var toImmutableMethod = builder.GetType().GetMethod(nameof(ImmutableList<object>.Builder.ToImmutable));
+                return toImmutableMethod.Invoke(builder, null) as IList;
+            }
+            list[index] = value;
+            return list;
         }
     }
 
