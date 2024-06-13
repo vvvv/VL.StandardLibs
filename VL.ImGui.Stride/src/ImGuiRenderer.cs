@@ -212,19 +212,21 @@ namespace VL.ImGui
                     if (fullscreenWindow)
                     {
                         var viewPort = ImGui.GetMainViewport();
-                        ImGui.SetNextWindowPos(viewPort.WorkPos);
-                        ImGui.SetNextWindowSize(viewPort.WorkSize);
-                        ImGui.Begin(widgetLabel.Update(null),
-                            ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
-                            ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
-                            ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |
-                            ImGuiWindowFlags.NoBackground);
-                    }
+                        if (dockingEnabled)
+                        {
+                            ImGui.DockSpaceOverViewport(viewPort, ImGuiDockNodeFlags.PassthruCentralNode);
+                        }
+                        else
+                        {
+                            ImGui.SetNextWindowPos(viewPort.WorkPos);
+                            ImGui.SetNextWindowSize(viewPort.WorkSize);
 
-                    // Enable Docking
-                    if (dockingEnabled)
-                    {
-                        ImGui.DockSpaceOverViewport();
+                            ImGui.Begin(widgetLabel.Update(null),
+                                ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
+                                ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
+                                ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |
+                                ImGuiWindowFlags.NoBackground);
+                        }
                     }
 
                     _context.SetDrawList(DrawList.AtCursor);
@@ -232,12 +234,7 @@ namespace VL.ImGui
                 }
                 finally
                 {
-                    if (dockingEnabled)
-                    {
-                        ImGui.End();
-                    }
-
-                    if (fullscreenWindow)
+                    if (fullscreenWindow && !dockingEnabled)
                     {
                         ImGui.End();
                     }
