@@ -229,7 +229,7 @@ namespace VL.ImGui
                         }
                     }
 
-                    _context.SetDrawList(DrawList.AtCursor);
+                    _context.SetDrawList(DrawList.Foreground);
                     _context.Update(widget);
                 }
                 finally
