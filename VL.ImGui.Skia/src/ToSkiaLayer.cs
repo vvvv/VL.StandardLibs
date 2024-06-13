@@ -91,6 +91,8 @@ namespace VL.ImGui
                 // Enable Docking
                 if (dockingEnabled)
                     _io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+                else
+                    _io.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
                 _context.NewFrame();
                 try
