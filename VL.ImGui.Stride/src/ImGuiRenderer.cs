@@ -200,6 +200,8 @@ namespace VL.ImGui
                 // Enable Docking
                 if (dockingEnabled)
                     _io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+                else
+                    _io.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
                 _context.NewFrame();
 
@@ -210,32 +212,29 @@ namespace VL.ImGui
                     if (fullscreenWindow)
                     {
                         var viewPort = ImGui.GetMainViewport();
-                        ImGui.SetNextWindowPos(viewPort.WorkPos);
-                        ImGui.SetNextWindowSize(viewPort.WorkSize);
-                        ImGui.Begin(widgetLabel.Update(null),
-                            ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
-                            ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
-                            ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |
-                            ImGuiWindowFlags.NoBackground);
+                        if (dockingEnabled)
+                        {
+                            ImGui.DockSpaceOverViewport(viewPort, ImGuiDockNodeFlags.PassthruCentralNode);
+                        }
+                        else
+                        {
+                            ImGui.SetNextWindowPos(viewPort.WorkPos);
+                            ImGui.SetNextWindowSize(viewPort.WorkSize);
+
+                            ImGui.Begin(widgetLabel.Update(null),
+                                ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
+                                ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
+                                ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |
+                                ImGuiWindowFlags.NoBackground);
+                        }
                     }
 
-                    // Enable Docking
-                    if (dockingEnabled)
-                    {
-                        ImGui.DockSpaceOverViewport();
-                    }
-
-                    _context.SetDrawList(DrawList.AtCursor);
+                    _context.SetDrawList(DrawList.Foreground);
                     _context.Update(widget);
                 }
                 finally
                 {
-                    if (dockingEnabled)
-                    {
-                        ImGui.End();
-                    }
-
-                    if (fullscreenWindow)
+                    if (fullscreenWindow && !dockingEnabled)
                     {
                         ImGui.End();
                     }

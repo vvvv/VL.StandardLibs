@@ -91,6 +91,8 @@ namespace VL.ImGui
                 // Enable Docking
                 if (dockingEnabled)
                     _io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+                else
+                    _io.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
                 _context.NewFrame();
                 try
@@ -100,19 +102,21 @@ namespace VL.ImGui
                     if (DefaultWindow)
                     {
                         var viewPort = ImGui.GetMainViewport();
-                        ImGui.SetNextWindowPos(viewPort.WorkPos);
-                        ImGui.SetNextWindowSize(viewPort.WorkSize);
-                        ImGui.Begin(widgetLabel.Update(null),
-                            ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
-                            ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
-                            ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |
-                            ImGuiWindowFlags.NoBackground);
-                    }
+                        if (dockingEnabled)
+                        {
+                            ImGui.DockSpaceOverViewport(viewPort, ImGuiDockNodeFlags.PassthruCentralNode);
+                        }
+                        else
+                        {
+                            ImGui.SetNextWindowPos(viewPort.WorkPos);
+                            ImGui.SetNextWindowSize(viewPort.WorkSize);
 
-                    // Enable Docking
-                    if (dockingEnabled)
-                    {
-                        ImGui.DockSpaceOverViewport();
+                            ImGui.Begin(widgetLabel.Update(null),
+                                ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
+                                ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
+                                ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration |
+                                ImGuiWindowFlags.NoBackground);
+                        }
                     }
 
                     _context.SetDrawList(DrawList.Foreground);
@@ -121,12 +125,7 @@ namespace VL.ImGui
                 }
                 finally
                 {
-                    if (dockingEnabled)
-                    {
-                        ImGui.End();
-                    }
-
-                    if (DefaultWindow)
+                    if (DefaultWindow && !dockingEnabled)
                     {
                         ImGui.End();
                     }

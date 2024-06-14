@@ -51,6 +51,7 @@ namespace VL.Lib.Reactive
             get => value;
             set
             {
+                lastRetrievedValue = value;
                 if (!EqualityComparer<T>.Default.Equals(value, this.value))
                 {
                     this.value = value;
