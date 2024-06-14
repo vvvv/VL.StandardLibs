@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="AeLw27X3UZTPbUKzkJqoag" LanguageVersion="2024.6.6-GCB-0002-gaa37974aee" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="AeLw27X3UZTPbUKzkJqoag" LanguageVersion="2024.6.6-0006-g45e4593ced" Version="0.128">
   <Patch Id="R1hgnY3rx8dQUrxE9sHqpq">
     <Canvas Id="IZD4vCZBBJGPV5bGjq6SQa" DefaultCategory="Reactive" CanvasType="FullCategory">
       <!--
@@ -15075,6 +15075,107 @@
                 <Pin Id="Q4fYr6o9vGFLYdefoFHB8g" Name="Output" Kind="OutputPin" />
               </Patch>
             </Node>
+            <!--
+
+    ************************ OneSnapshotPerFrame ************************
+
+-->
+            <Node Name="OneSnapshotPerFrame" Bounds="739,359" Id="S6UjEP5BgCoNLpP61U0GUV">
+              <p:NodeReference>
+                <Choice Kind="ContainerDefinition" />
+              </p:NodeReference>
+              <Patch Id="Utq64bcXEKjM9ZQpufq1nu" IsGeneric="true">
+                <Canvas Id="NXI64gy8KcROd2bbRlzxg7" CanvasType="Group">
+                  <ControlPoint Id="JTKCr02j5T7QbH4dvj5BWy" Bounds="363,324" />
+                  <Node Bounds="361,500,88,26" Id="LdmwfxhXWtMNnJPgsYq2yK">
+                    <p:NodeReference LastCategoryFullName="Reactive.Channel (Ungeneric)" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <CategoryReference Kind="MutableInterfaceType" Name="Channel (Ungeneric)" NeedsToBeDirectParent="true" />
+                      <Choice Kind="OperationCallFlag" Name="BeginChange" />
+                    </p:NodeReference>
+                    <Pin Id="NgTVo8B2MTaNtkApGPOG3A" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="SrhGmMCPJOfQPhIk2keuXP" Name="Output" Kind="StateOutputPin" />
+                    <Pin Id="TaMqI7IJMZ2N9OXzB9FPT3" Name="Result" Kind="OutputPin" />
+                  </Node>
+                  <Node Bounds="594,676,67,26" Id="TRS0evVN99KLkhv2cA08II">
+                    <p:NodeReference LastCategoryFullName="Primitive.IDisposable" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <CategoryReference Kind="MutableInterfaceType" Name="IDisposable" NeedsToBeDirectParent="true" />
+                      <Choice Kind="OperationCallFlag" Name="TryDispose (Instance)" />
+                    </p:NodeReference>
+                    <Pin Id="SxZdhLvy8GkMF6I17nPdUU" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="MnHajnK5vT3PG7xO1tjPWj" Name="Success" Kind="OutputPin" />
+                  </Node>
+                  <Pad Id="NEzX5lZr651N3rPhnK5qO5" SlotId="TTlZ7F0fQEiOkas4jhdvXy" Bounds="596,606" />
+                  <Pad Id="JFF3YgT20i6P6jf88JsEcn" SlotId="TTlZ7F0fQEiOkas4jhdvXy" Bounds="538,324" />
+                  <Node Bounds="351,371,264,86" Id="DFZLHZZb7CBPufXe3VEkHA">
+                    <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+                      <CategoryReference Kind="Category" Name="Control" />
+                      <Choice Kind="ProcessAppFlag" Name="Do" />
+                    </p:NodeReference>
+                    <Patch Id="JvEW6tHBoihOCvjOL89cq9" ManuallySortedPins="true">
+                      <Patch Id="A5JEdo9xOOdNvhw9Etxz0w" Name="Create" ManuallySortedPins="true" />
+                      <Patch Id="LrdrnpkOXg3NjG4HGuTvyJ" Name="Update" ParticipatingElements="OA0Lnx1tfHWNnUaBznmKa4,GSCiLK3UF9fPRtImHjmUB7" ManuallySortedPins="true" />
+                      <Patch Id="EKFiVCx6v7AOkQphgLdsAi" Name="Dispose" ManuallySortedPins="true" />
+                      <Node Bounds="536,394,67,26" Id="OA0Lnx1tfHWNnUaBznmKa4">
+                        <p:NodeReference LastCategoryFullName="Primitive.IDisposable" LastDependency="VL.CoreLib.vl">
+                          <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                          <CategoryReference Kind="MutableInterfaceType" Name="IDisposable" NeedsToBeDirectParent="true" />
+                          <Choice Kind="OperationCallFlag" Name="TryDispose (Instance)" />
+                        </p:NodeReference>
+                        <Pin Id="Hps2Bw0wo0JNJLGjXXiZOz" Name="Input" Kind="StateInputPin" />
+                        <Pin Id="Eh0asq7pnGLQFPAPqygujZ" Name="Success" Kind="OutputPin" />
+                      </Node>
+                    </Patch>
+                    <Pin Id="KR5ScltTG0AOvvxi5A2Hac" Name="Node Context" Kind="InputPin" IsHidden="true" />
+                    <ControlPoint Id="JNVjRvQR4QpP4n0P5Sk47y" Bounds="363,377" Alignment="Top" />
+                    <ControlPoint Id="QEz9aMlk0oUMfp9f2bWm8b" Bounds="363,451" Alignment="Bottom" />
+                  </Node>
+                  <Pad Id="CANVKYdCAKaPLbI7S1TuUq" SlotId="TTlZ7F0fQEiOkas4jhdvXy" Bounds="446,573" />
+                  <Pad Id="BvO9MXK8sd3M8sXP80WZxx" Bounds="616,388,173,66" ShowValueBox="true" isIOBox="true" Value="first finish the latest change and block. this should lead to a push">
+                    <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="TypeFlag" Name="String" />
+                    </p:TypeAnnotation>
+                    <p:ValueBoxSettings>
+                      <p:fontsize p:Type="Int32">9</p:fontsize>
+                      <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+                    </p:ValueBoxSettings>
+                  </Pad>
+                  <Pad Id="Mt11ExMOPq2MskKAhBgkOL" Bounds="465,513,132,19" ShowValueBox="true" isIOBox="true" Value="then start a new one">
+                    <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                      <Choice Kind="TypeFlag" Name="String" />
+                    </p:TypeAnnotation>
+                    <p:ValueBoxSettings>
+                      <p:fontsize p:Type="Int32">9</p:fontsize>
+                      <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+                    </p:ValueBoxSettings>
+                  </Pad>
+                  <ControlPoint Id="F3gAmyTPmoOL8dfVwho8tc" Bounds="248,558" />
+                  <ControlPoint Id="UkOT4rhbth6LXMkEbADjAO" Bounds="247,395" />
+                </Canvas>
+                <Patch Id="Smy6G77XDp8QRnFKbFSF6B" Name="Create" />
+                <Patch Id="SdlQ9CVNgUKPZzCNscekW9" Name="Update" ParticipatingElements="GSCiLK3UF9fPRtImHjmUB7">
+                  <Pin Id="FhFEh1ozIwCPTNi2rClHWu" Name="Channel" Kind="InputPin" />
+                  <Pin Id="KM6vcmLi2ZENQNi2gwkwC0" Name="Channel" Kind="OutputPin" />
+                </Patch>
+                <ProcessDefinition Id="UsFjdvEPVy0NZ1R9eZGath">
+                  <Fragment Id="PZAP7fN4vx8Lo79AzDewv8" Patch="Smy6G77XDp8QRnFKbFSF6B" Enabled="true" />
+                  <Fragment Id="CMvcMT3hDyYLii3pDBccZJ" Patch="SdlQ9CVNgUKPZzCNscekW9" Enabled="true" />
+                </ProcessDefinition>
+                <Link Id="OfzE76laGyVQJsN0rYrSo7" Ids="FhFEh1ozIwCPTNi2rClHWu,JTKCr02j5T7QbH4dvj5BWy" IsHidden="true" />
+                <Patch Id="LYvuM7vnZvqNEGVDGSE9H4" Name="Dispose" ParticipatingElements="TRS0evVN99KLkhv2cA08II" />
+                <Slot Id="TTlZ7F0fQEiOkas4jhdvXy" Name="blocker" />
+                <Link Id="O2z1VpHt7sMPGg78fAaSvB" Ids="NEzX5lZr651N3rPhnK5qO5,SxZdhLvy8GkMF6I17nPdUU" />
+                <Link Id="GSCiLK3UF9fPRtImHjmUB7" Ids="JFF3YgT20i6P6jf88JsEcn,Hps2Bw0wo0JNJLGjXXiZOz" />
+                <Link Id="JKuO0pKjTroLVYbibwxYaK" Ids="JTKCr02j5T7QbH4dvj5BWy,JNVjRvQR4QpP4n0P5Sk47y" />
+                <Link Id="TpWS2KNasiaMKOsSeoLybY" Ids="JNVjRvQR4QpP4n0P5Sk47y,QEz9aMlk0oUMfp9f2bWm8b" />
+                <Link Id="EHOZmKnLJuiM4CyyJ8166q" Ids="QEz9aMlk0oUMfp9f2bWm8b,NgTVo8B2MTaNtkApGPOG3A" />
+                <Link Id="JMCUEmvwJWgQXLoDjKEVnN" Ids="TaMqI7IJMZ2N9OXzB9FPT3,CANVKYdCAKaPLbI7S1TuUq" />
+                <Link Id="CLErFYAdi5XQYiYoFVtRAE" Ids="F3gAmyTPmoOL8dfVwho8tc,KM6vcmLi2ZENQNi2gwkwC0" IsHidden="true" />
+                <Link Id="CksvAwvnV4mQCkUqnwPx71" Ids="JTKCr02j5T7QbH4dvj5BWy,UkOT4rhbth6LXMkEbADjAO,F3gAmyTPmoOL8dfVwho8tc" />
+              </Patch>
+            </Node>
           </Canvas>
           <ProcessDefinition Aspects="Internal" Id="DDI610ttPP6MJxkRL8qYWB" HasStateOut="true" IsHidden="true">
             <Fragment Id="JuoWSPTUSHaNkrULdpa2kk" Patch="NpOcHBviaabNuqGMYJjiin" Enabled="true" />
@@ -21615,4 +21716,5 @@
   <DocumentDependency Id="OP4xyOe6wdrMofL94yRnYm" Location="./VL.CoreLib.Experimental.vl" />
   <DocumentDependency Id="KesBRzDH12HLBSOxEaPdkw" Location="./System.Serialization.vl" />
   <DocumentDependency Id="PFvEAQqExYyQAtgAVxIRXb" Location="./VL.Logging.vl" />
+  <NugetDependency Id="Kq0FXv1lJjgNqfwfVEc9Q0" Location="VL.CoreLib" Version="2024.6.6-0006-g45e4593ced" />
 </Document>
