@@ -4,8 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace VL.Lib.Reactive
 {
-    // Keep it internal as long as it's not used
-    internal abstract class ReactiveObject : INotifyPropertyChanged, INotifyPropertyChanging
+    public abstract class ReactiveObject : INotifyPropertyChanged, INotifyPropertyChanging
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
