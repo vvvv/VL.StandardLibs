@@ -13,7 +13,8 @@ namespace VL.ImGui.Editors
         private readonly List<(IObjectEditor? editor, IDisposable ownership)> editors = new List<(IObjectEditor?, IDisposable)>();
         private readonly IChannel<TList> channel;
         private readonly ObjectEditorContext editorContext;
-        private readonly string label;
+        private readonly string treeNodeLabel;
+        private readonly string listBoxLabel;
         private IDisposable mainSpreadSync;
         private bool collapsed = true;
 
@@ -22,7 +23,8 @@ namespace VL.ImGui.Editors
             this.channel = channel;
             this.mainSpreadSync = channel.Subscribe(RemoveSuperfluousEntries);
             this.editorContext = editorContext;
-            this.label = $"##{GetHashCode()}";
+            this.treeNodeLabel = $"##{GetHashCode()}";
+            this.listBoxLabel = $"##{GetHashCode()}_2";
         }
 
         public void Dispose()
@@ -48,13 +50,13 @@ namespace VL.ImGui.Editors
 
             ImGui.SetNextItemOpen(!collapsed);
 
-            if (ImGui.TreeNodeEx($"[{count}]{label}", ImGuiNET.ImGuiTreeNodeFlags.CollapsingHeader))
+            if (ImGui.TreeNodeEx($"[{count}]{treeNodeLabel}", ImGuiNET.ImGuiTreeNodeFlags.CollapsingHeader))
             {
                 collapsed = false;
 
                 //ImGui.Indent(-ImGui.GetStyle().IndentSpacing);
 
-                if (ImGui.BeginListBox(label))
+                if (ImGui.BeginListBox(listBoxLabel))
                 {
                     for (int i = 0; i < list.Count; i++)
                     {
@@ -94,7 +96,9 @@ namespace VL.ImGui.Editors
 
                     ImGui.EndListBox();
                 }
-                ImGui.TreePop();
+
+                // Dont't call Pop when using CollapsingHeader!
+                //ImGui.TreePop();
             }
             else
             {
