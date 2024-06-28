@@ -55,6 +55,12 @@ namespace VL.Skia
         /// </summary>
         public float RenderTime => FControl.RenderTime;
 
+        [Obsolete]
+        public void SetSize(System.Drawing.Rectangle boundsInDIP) //obsolete
+        {
+            SetBounds(new RectangleF(boundsInDIP.X, boundsInDIP.Y, boundsInDIP.Width, boundsInDIP.Height), inDIP: true);
+        }
+
         public void SetBounds(RectangleF bounds, bool inDIP = true, bool setClientSize = false)
         {
             if (bounds.IsEmpty)
