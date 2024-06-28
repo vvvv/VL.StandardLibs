@@ -55,36 +55,26 @@ namespace VL.Skia
         /// </summary>
         public float RenderTime => FControl.RenderTime;
 
-        public void SetSize(System.Drawing.Rectangle boundsInDIP) //obsolete
+        public void SetBounds(RectangleF bounds, bool inDIP = true, bool setClientSize = false)
         {
-            var boundsinPix = DIPHelpers.DIPToPixel(boundsInDIP);
-            var visible = Screen.AllScreens.Any(s => s.Bounds.IntersectsWith(boundsinPix));
+            if (bounds.IsEmpty)
+                return;
 
-            if (!visible)
-            {
-                boundsInDIP = GetCenteredBoundsInDIP(boundsInDIP.Width, boundsInDIP.Height);
-                boundsinPix = DIPHelpers.DIPToPixel(boundsInDIP);
-            }
-
-            if (boundsinPix != Bounds)
-                Bounds = boundsinPix;
+            var b = Conversions.ToRectangle(ref bounds);
+            SetBounds(inDIP ? DIPHelpers.DIPToPixel(b) : b, setClientSize);
         }
 
-        public void SetBounds(RectangleF bounds, bool inDIP, bool setClientSize)
+        private void SetBounds(System.Drawing.Rectangle bounds, bool setClientSize)
         {
-            if (inDIP)
-                bounds = DIPHelpers.DIPToPixel(bounds);
-
-            var boundsinPix = Conversions.ToRectangle(ref bounds);
-            var visible = Screen.AllScreens.Any(s => s.Bounds.IntersectsWith(boundsinPix));
+            var visible = Screen.AllScreens.Any(s => s.Bounds.IntersectsWith(bounds));
 
             if (!visible)
-                boundsinPix = GetCenteredBoundsInPixel(boundsinPix.Width, boundsinPix.Height);
+                bounds = GetCenteredBoundsInPixel(bounds.Width, bounds.Height);
 
             if (setClientSize)
             {
-                var location = boundsinPix.Location;
-                var size = boundsinPix.Size;
+                var location = bounds.Location;
+                var size = bounds.Size;
                 if (Location != location)
                     Location = location;
                 if (ClientSize != size)
@@ -92,8 +82,8 @@ namespace VL.Skia
             }
             else
             {
-                if (boundsinPix != Bounds)
-                    Bounds = boundsinPix;
+                if (bounds != Bounds)
+                    Bounds = bounds;
             }
         }
 
@@ -217,15 +207,6 @@ namespace VL.Skia
             var centerY = (area.Top + area.Bottom) / 2;
             var center = new Point(centerX, centerY);
             return new System.Drawing.Rectangle(center.X - width / 2, center.Y - height / 2, width, height);
-        }
-
-        private static System.Drawing.Rectangle GetCenteredBoundsInDIP(int widthInDIP = 600, int heightInDIP = 400) //obsolete
-        {
-            var area = Screen.PrimaryScreen?.WorkingArea ?? System.Drawing.Rectangle.Empty;
-            var centerX = (area.Right + area.Left) / 2;
-            var centerY = (area.Top + area.Bottom) / 2;
-            var centerInDIP = DIPHelpers.DIP(new System.Drawing.Point(centerX, centerY));
-            return new System.Drawing.Rectangle(centerInDIP.X - widthInDIP / 2, centerInDIP.Y - heightInDIP / 2, widthInDIP, heightInDIP);
         }
 
         bool FFirstRenderCall = true;
