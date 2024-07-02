@@ -108,8 +108,7 @@ namespace VL.Stride.Core
         {
             lock (serviceCache)
             {
-                var strideServices = GetGlobalStrideServices();
-                appHost.NodeFactoryRegistry.RegisterNodeFactory(appHost.NodeFactoryCache.GetOrAdd(name, f => init(strideServices, f)));
+                appHost.NodeFactoryRegistry.RegisterNodeFactory(appHost.NodeFactoryCache.GetOrAdd(name, f => init(GetGlobalStrideServices(), f)));
             }
         }
 
