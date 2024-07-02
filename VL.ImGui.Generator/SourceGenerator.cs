@@ -136,6 +136,9 @@ namespace VL.ImGui.Generator
             var button = false;
             if (nodeAttrData.GetValueOrDefault("Button").Value is bool b)
                 button = b;
+            var skipLabelProperty = false;
+            if (nodeAttrData.GetValueOrDefault("SkipLabelProperty").Value is bool b1)
+                skipLabelProperty = b1;
 
             var root = declarationSyntax.SyntaxTree.GetCompilationUnitRoot();
             var declaredUsings = root.Usings;
@@ -158,7 +161,15 @@ namespace VL.ImGui.Generator
                 types.Add(ct);
                 ct = ct.BaseType;
             }
-            var properties_ = ((IEnumerable<ITypeSymbol>)types).Reverse().SelectMany(t => t.GetMembers().OfType<IPropertySymbol>());
+            var properties_ = ((IEnumerable<ITypeSymbol>)types).Reverse().SelectMany(t => t.GetMembers().OfType<IPropertySymbol>())
+                .Where(p => !SkipProperty(p));
+
+            bool SkipProperty(IPropertySymbol property)
+            {
+                if (skipLabelProperty)
+                    return property.Name == "Label";
+                return false;
+            }
 
             SortedList<int, IPropertySymbol> properties = new SortedList<int, IPropertySymbol>();
             int i = 0;
