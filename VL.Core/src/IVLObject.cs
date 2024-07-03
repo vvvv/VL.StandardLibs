@@ -97,6 +97,8 @@ namespace VL.Core
         // With this approach the user needs to hold on to the message as well as the runtime host.
         [Obsolete("Use AddPersistentMessage")]
         void TogglePersistentUserRuntimeMessage(Message message, bool on);
+
+        internal bool TryGetLocation(Exception exception, out UniqueId id);
     }
 #nullable restore
 
