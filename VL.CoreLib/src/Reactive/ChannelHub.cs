@@ -98,6 +98,7 @@ namespace VL.Core.Reactive
             var c = Channels.GetOrAdd(key, _ => 
             { 
                 var c = ChannelHelpers.CreateChannelOfType(typeOfValues); 
+                ((IInternalChannel)c).SetPath(key);
                 revision++; 
                 return c; 
             });
