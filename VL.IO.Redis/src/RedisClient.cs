@@ -173,7 +173,7 @@ namespace VL.IO.Redis
                 p.Invalidate(key);
         }
 
-        internal void BeginFrame(FrameTimeMessage _)
+        internal void WriteIntoGlobalChannels(SubFrameMessage _)
         {
             // Make room for the next transaction
             if (_lastTransaction != null)
@@ -194,7 +194,7 @@ namespace VL.IO.Redis
             _networkSync.OnNext(default);
         }
 
-        internal void EndFrame(FrameFinishedMessage _) 
+        internal void SendData(SubFrameMessage _) 
         {
             // Do not build a new transaction while another one is still in progress
             if (_lastTransaction != null)
