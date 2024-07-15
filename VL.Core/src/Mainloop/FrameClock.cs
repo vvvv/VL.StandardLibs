@@ -14,8 +14,10 @@ namespace VL.Lib.Animation
 
         Time FFrameTime;
         ulong FCurrentFrame = 0;
+        TimeSpan FLastInterval;
         Subject<FrameTimeMessage> FrameStarting;
         Subject<FrameFinishedMessage> FrameFinished;
+        Subject<SubFrameMessage> OnSubFrameEvent;
         bool FInitialized;
         private double desiredTimeDifference = 1.0 / 60.0; //60fps
         private double timeIncrement = 1.0 / 60.0; //60fps
@@ -28,6 +30,7 @@ namespace VL.Lib.Animation
         {
             FrameStarting = new Subject<FrameTimeMessage>();
             FrameFinished = new Subject<FrameFinishedMessage>();
+            OnSubFrameEvent = new();
         }
 
         public Time Time => FFrameTime;
@@ -48,7 +51,14 @@ namespace VL.Lib.Animation
             FWatch.Restart();
 
             FCurrentFrame++;
-            FrameStarting.OnNext(new FrameTimeMessage(FFrameTime, FCurrentFrame, mainLoopTimer?.GetIntervalOrIncrement() ?? TimeSpan.Zero));
+            FLastInterval = mainLoopTimer?.GetIntervalOrIncrement() ?? TimeSpan.Zero;
+            FrameStarting.OnNext(new FrameTimeMessage(FFrameTime, FCurrentFrame, FLastInterval));
+
+            OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.SubChannelsGetLocked));
+            OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.ModulesWriteGlobalChannels));
+            OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.PlayingTransitions));
+            OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.TrackingGlobalChannels));
+            OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.SubChannelsMutateParentChannels));
         }
 
         /// <summary>
@@ -56,6 +66,8 @@ namespace VL.Lib.Animation
         /// </summary>
         public void NotifyFrameFinished()
         {
+            OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.ModulesSendingData)); 
+
             UpdateTime = FWatch.Elapsed;
             FrameFinished.OnNext(new FrameFinishedMessage(FFrameTime, UpdateTime, FCurrentFrame, mainLoopTimer?.GetIntervalOrIncrement() ?? TimeSpan.Zero));
         }
@@ -163,5 +175,6 @@ namespace VL.Lib.Animation
 
         public IObservable<FrameTimeMessage> GetTicks() => FrameStarting;
         public IObservable<FrameFinishedMessage> GetFrameFinished() => FrameFinished;
+        public IObservable<SubFrameMessage> GetSubFrameEvents() => OnSubFrameEvent;
     }
 }

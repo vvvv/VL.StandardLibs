@@ -25,6 +25,7 @@ namespace VL.Lib.Reactive
         string? LatestAuthor { get; }
         void SetObjectAndAuthor(object? @object, string? author);
         IDisposable BeginChange();
+        string? Path { get; }
     }
 
     [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
@@ -156,6 +157,8 @@ namespace VL.Lib.Reactive
 
         public string? LatestAuthor { get; set; }
 
+        public string? Path { get; protected set; }
+
         bool disposing = false;
         void IDisposable.Dispose()
         {
@@ -213,7 +216,7 @@ namespace VL.Lib.Reactive
         Optional<T?> lastValue;
     }
 
-    internal class Channel<T> : C<T>, IChannel<object>
+    internal class Channel<T> : C<T>, IChannel<object>, IInternalChannel
     {
         object? IMonadicValue<object>.Value => Value;
 
@@ -285,6 +288,16 @@ namespace VL.Lib.Reactive
         public static implicit operator T?(Channel<T> c) => c.Value;
 
         public override string ToString() => $"{Value}";
+
+        void IInternalChannel.SetPath(string path)
+        {
+            Path = path;
+        }
+    }
+
+    internal interface IInternalChannel
+    {
+        void SetPath(string path);
     }
 
     interface IDummyChannel { }

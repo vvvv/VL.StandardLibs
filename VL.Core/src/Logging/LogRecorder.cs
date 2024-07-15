@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Reactive.Disposables;
 using System.Threading;
 using VL.Lib.Reactive;
@@ -62,7 +63,7 @@ namespace VL.Core.Logging
             Exception? exception,
             Func<TState, Exception?, string> formatter)
         {
-            var logEntry = new LogEntry(source, category, nodePath, logLevel, eventId, formatter(state, exception), exception?.ToString());
+            var logEntry = new LogEntry(source, category, nodePath, logLevel, eventId, formatter(state, exception), exception);
 
             if (_lastMessage?.LogEntry == logEntry)
             {

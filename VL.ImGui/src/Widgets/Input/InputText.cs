@@ -5,11 +5,8 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (String)", Category = "ImGui.Widgets", Tags = "edit, textfield")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputText : ChannelWidget<string>, IHasLabel, IHasInputTextFlags
+    internal partial class InputText : ChannelWidget<string>, IHasInputTextFlags
     {
-
-        public string? Label { get; set; }
-
         public int MaxLength { get; set; } = 100;
 
         public ImGuiInputTextFlags Flags { get; set; }
@@ -19,7 +16,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = Update() ?? string.Empty;
-            if (ImGuiNET.ImGui.InputText(widgetLabel.Update(Label), ref value, (uint)MaxLength, Flags))
+            if (ImGuiNET.ImGui.InputText(widgetLabel.Update(label.Value), ref value, (uint)MaxLength, Flags))
                 SetValueIfChanged(lastframeValue, value, Flags);
             lastframeValue = value;
         }

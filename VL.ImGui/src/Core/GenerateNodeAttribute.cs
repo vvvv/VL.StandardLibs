@@ -21,6 +21,8 @@ namespace VL.ImGui
         public bool GenerateImmediate = true;
 
         public bool IsStylable = true;
+
+        public bool SkipLabelProperty = false;
     }
 
     public class PinAttribute : Attribute

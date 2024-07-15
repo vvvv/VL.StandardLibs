@@ -1,6 +1,6 @@
 ﻿namespace VL.ImGui.Widgets
 {
-    [GenerateNode(Category = "ImGui.Widgets")]
+    [GenerateNode(Category = "ImGui.Widgets", SkipLabelProperty = true)]
     internal partial class RadioButtons : ChannelWidget<int>
     {
         public IEnumerable<string> Labels { get; set; } = new List<string>();

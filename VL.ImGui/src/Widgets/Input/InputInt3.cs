@@ -6,11 +6,8 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (Int3)", Category = "ImGui.Widgets", Tags = "number, updown")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputInt3 : ChannelWidget<Int3>, IHasLabel, IHasInputTextFlags
+    internal partial class InputInt3 : ChannelWidget<Int3>, IHasInputTextFlags
     {
-
-        public string? Label { get; set; }
-
         public int Step { private get; set; } = 1;
 
         public int StepFast { private get; set; } = 100;
@@ -22,7 +19,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = Update();
-            if (ImGuiUtils.InputInt3(widgetLabel.Update(Label), ref value, Flags))
+            if (ImGuiUtils.InputInt3(widgetLabel.Update(label.Value), ref value, Flags))
                 SetValueIfChanged(lastframeValue, value, Flags);
             lastframeValue = value;
         }

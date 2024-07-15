@@ -1,17 +1,39 @@
 ﻿using ImGuiNET;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using VL.Core;
+using VL.Lib.Collections;
 using VL.Lib.Reactive;
 
 namespace VL.ImGui.Widgets
 {
-    internal abstract class ChannelWidget<T> : Widget
+    internal abstract class ChannelWidget<T> : Widget, IHasLabel
     {
+        protected readonly LabelSelector label;
+        private readonly SerialDisposable attributesSubscription = new();
+        private readonly List<ValueSelector> valueSelectors = new();
+        private IChannel<T>? channel;
         private T? value;
+
+        public ChannelWidget()
+        {
+            AddValueSelector(label = new());
+        }
 
         public IChannel<T>? Channel
         {
-            protected get;
-            set;
+            protected get => channel;
+            set
+            {
+                if (value != channel)
+                {
+                    channel = value;
+                    attributesSubscription.Disposable = channel?.Attributes().StartWith([channel?.Attributes().Value]).Subscribe(a => UpdateDefaultsFromAttributes(a ?? Spread<Attribute>.Empty));
+                }
+            }
         }
+
+        public Optional<string> Label { get => default /* Only accessed by generated code*/; set => label.SetPinValue(value!); }
 
         public bool Bang 
         { 
@@ -51,5 +73,15 @@ namespace VL.ImGui.Widgets
             else if (!EqualityComparer<T>.Default.Equals(oldValue, newValue))
                 Value = newValue;
         }
+
+        protected void AddValueSelector(ValueSelector valueSelector) => valueSelectors.Add(valueSelector);
+
+        private void UpdateDefaultsFromAttributes(Spread<Attribute> attributes)
+        {
+            foreach (var valueSelector in valueSelectors)
+                valueSelector.Update(attributes);
+        }
+
+        string? IHasLabel.Label { get => label.Value; set => label.SetPinValue(value); }
     }
 }
