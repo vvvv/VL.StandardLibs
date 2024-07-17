@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StackExchange.Redis;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,6 +38,10 @@ namespace _VL_.IO.Redis
                 };
                 if (value.SerializationFormat.HasValue)
                     properties.Add(context.Serialize(nameof(BindingModel.SerializationFormat), value.SerializationFormat));
+                if (value.Expiry.HasValue)
+                    properties.Add(context.Serialize(nameof(BindingModel.Expiry), value.Expiry));
+                if (value.When != default)
+                    properties.Add(context.Serialize(nameof(BindingModel.When), value.When));
                 return properties.ToArray();
             }
 
@@ -47,7 +52,9 @@ namespace _VL_.IO.Redis
                     context.Deserialize<Initialization>(content, nameof(BindingModel.Initialization)),
                     context.Deserialize<BindingDirection>(content, nameof(BindingModel.BindingType)),
                     context.Deserialize<CollisionHandling>(content, nameof(BindingModel.CollisionHandling)),
-                    context.Deserialize<SerializationFormat?>(content, nameof(BindingModel.SerializationFormat)));
+                    context.Deserialize<SerializationFormat?>(content, nameof(BindingModel.SerializationFormat)),
+                    context.Deserialize<TimeSpan?>(content, nameof(BindingModel.Expiry)),
+                    context.Deserialize<When>(content, nameof(BindingModel.When)));
             }
         }
     }
