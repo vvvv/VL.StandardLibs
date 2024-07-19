@@ -7,7 +7,9 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using VL.Core;
+using VL.Core.EditorAttributes;
 using VL.Lib.Collections;
 
 #nullable enable
@@ -17,7 +19,7 @@ namespace VL.Lib.Reactive
     public interface IChannel : IHasAttributes, IDisposable
     {
         Type ClrTypeOfValues { get; }
-        ImmutableList<object> Components { get; set; }
+        ImmutableArray<object> Components { get; set; }
         IChannel<object> ChannelOfObject { get; }
         bool Enabled { get; set; }
         bool IsBusy { get; }
@@ -25,6 +27,7 @@ namespace VL.Lib.Reactive
         string? LatestAuthor { get; }
         void SetObjectAndAuthor(object? @object, string? author);
         IDisposable BeginChange();
+        internal int Revision { get; }
     }
 
     [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
@@ -45,7 +48,10 @@ namespace VL.Lib.Reactive
         protected int revision = 0;
         protected int revisionOnLockTaken = 0;
 
-        public ImmutableList<object> Components { get; set; } = ImmutableList<object>.Empty;
+        private IChannel<Spread<Attribute>>? attributesChannel;
+        private TagsCache? tagsCache;
+
+        public ImmutableArray<object> Components { get; set; } = ImmutableArray<object>.Empty;
 
         const int maxStack = 1;
         int stack;
@@ -100,6 +106,8 @@ namespace VL.Lib.Reactive
         }
 
         object? IChannel.Object { get => Value; set => Value = (T?)value; }
+
+        int IChannel.Revision => revision;
 
         void IChannel.SetObjectAndAuthor(object? @object, string? author)
         {
@@ -168,7 +176,7 @@ namespace VL.Lib.Reactive
                 Enabled = false;
                 foreach (var c in Components)
                     (c as IDisposable)?.Dispose();
-                Components = ImmutableList<object>.Empty;
+                Components = ImmutableArray<object>.Empty;
                 subject.Dispose();
             }
             finally
@@ -192,7 +200,11 @@ namespace VL.Lib.Reactive
                 SetValueAndAuthor(this.Value, LatestAuthor);
         }
 
-        IEnumerable<TAttribute> IHasAttributes.GetAttributes<TAttribute>() => this.Attributes().Value!.OfType<TAttribute>();
+        Spread<Attribute> IHasAttributes.Attributes => GetAttributesChannel().Value ?? Spread<Attribute>.Empty;
+
+        Spread<string> IHasAttributes.Tags => (tagsCache ??= new(GetAttributesChannel())).Tags;
+
+        IChannel<Spread<Attribute>> GetAttributesChannel() => attributesChannel ??= this.Attributes();
 
         T? IMonadicValue<T>.Value => Value;
 
@@ -211,6 +223,33 @@ namespace VL.Lib.Reactive
             }
         }
         Optional<T?> lastValue;
+
+        sealed class TagsCache
+        {
+            private IChannel<Spread<Attribute>> attributes;
+            private Spread<string>? tags;
+            private int revision;
+
+            public TagsCache(IChannel<Spread<Attribute>> attributes)
+            {
+                this.attributes = attributes;
+            }
+
+            public Spread<string> Tags
+            {
+                get
+                {
+                    var r = revision;
+                    if (Interlocked.Exchange(ref revision, attributes.Revision) != r)
+                        tags = null;
+
+                    if (tags is null)
+                        tags = attributes.Value?.OfType<TagAttribute>().Select(t => t.TagLabel).ToSpread() ?? Spread<string>.Empty;
+
+                    return tags;
+                }
+            }
+        }
     }
 
     internal class Channel<T> : C<T>, IChannel<object>
@@ -338,7 +377,12 @@ namespace VL.Lib.Reactive
         }
 
         public static TComponent? TryGetComponent<TComponent>(this IChannel channel) where TComponent : class
-            => channel.Components.OfType<TComponent>().FirstOrDefault();
+        {
+            foreach (var c in channel.Components)
+                if (c is TComponent t)
+                    return t;
+            return default;
+        }
 
         public static TComponent EnsureSingleComponentOfType<TComponent>(this IChannel channel, Func<TComponent> producer, bool renew) where TComponent : class
         {
@@ -381,12 +425,9 @@ namespace VL.Lib.Reactive
         }
 
         public static IChannel<Spread<Attribute>> Attributes(this IChannel channel)
-            => channel.EnsureSingleComponentOfType(() =>
-                {
-                    var c = CreateChannelOfType<Spread<Attribute>>();
-                    c.Value = Spread<Attribute>.Empty;
-                    return c;
-                }, false);
+        {
+            return channel.TryGetComponent<IChannel<Spread<Attribute>>>() ?? channel.EnsureSingleComponentOfType(() => Channel.Create(Spread<Attribute>.Empty), false);
+        }
 
         public static bool TryGetAttribute<T>(this IChannel channel, [NotNullWhen(true)] out T? attribute) where T : Attribute
         {
