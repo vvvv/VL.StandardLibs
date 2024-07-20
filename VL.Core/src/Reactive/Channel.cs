@@ -287,7 +287,7 @@ namespace VL.Lib.Reactive
 
         public static implicit operator T?(Channel<T> c) => c.Value;
 
-        public override string ToString() => $"{Value}";
+        public override string ToString() => Path != null ? $"{Path} = {Value}" : $"{Value}";
 
         void IInternalChannel.SetPath(string path)
         {
