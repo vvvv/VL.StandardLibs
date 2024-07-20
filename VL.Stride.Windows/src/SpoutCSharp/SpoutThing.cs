@@ -98,7 +98,7 @@ namespace VL.Stride.Spout
         {
             MaxSenders = MaxSendersDefault; 
 
-            RegistryKey subkey = Registry.CurrentUser.OpenSubKey("Software\\Leading Edge\\Spout");
+            RegistryKey subkey = Registry.CurrentUser?.OpenSubKey("Software\\Leading Edge\\Spout");
             if (subkey != null)
             {
                 int m = (int)subkey.GetValue("MaxSenders"); // Get the value

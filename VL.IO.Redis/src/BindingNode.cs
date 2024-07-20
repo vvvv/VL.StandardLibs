@@ -6,6 +6,7 @@ using VL.Model;
 using VL.Lib.Reactive;
 using VL.IO.Redis.Internal;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 namespace VL.IO.Redis
 {
@@ -21,7 +22,7 @@ namespace VL.IO.Redis
 
         private (RedisClient? client, IChannel? input, string? key, Initialization initialization, 
             BindingDirection bindingType, CollisionHandling collisionHandling, Optional<SerializationFormat> serializationFormat,
-            Optional<TimeSpan> expiry) _config;
+            Optional<TimeSpan> expiry, When when) _config;
 
         public BindingNode([Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext)
         {
@@ -29,6 +30,15 @@ namespace VL.IO.Redis
             _logger = nodeContext.GetLogger();
         }
 
+        /// <param name="client">The Redis client.</param>
+        /// <param name="key">The Redis key.</param>
+        /// <param name="input">The channel to bind to.</param>
+        /// <param name="bindingDirection">Defines the direction of the binding.</param>
+        /// <param name="initialization">What to do on startup.</param>
+        /// <param name="collisionHandling">Defines the behavior when both Redis and vvvv have a value.</param>
+        /// <param name="serializationFormat">The serialization format to use for this binding. If not specified the one from the <paramref name="client"/> is used.</param>
+        /// <param name="expiry">Allows to make this key expire (and vanish) from the Redis database. The channel will persist and will pick up values as soon as the key in the Db exists again.</param>
+        /// <param name="when">Which condition to set the value under (defaults to always).</param>
         public void Update(
             RedisClient? client, 
             string? key,
@@ -37,9 +47,10 @@ namespace VL.IO.Redis
             Initialization initialization = Initialization.Redis,
             CollisionHandling collisionHandling = default,
             Optional<SerializationFormat> serializationFormat = default,
-            Optional<TimeSpan> expiry = default)
+            Optional<TimeSpan> expiry = default,
+            When when = When.Always)
         {
-            var config = (client, input, key, initialization, bindingDirection, collisionHandling, serializationFormat, expiry);
+            var config = (client, input, key, initialization, bindingDirection, collisionHandling, serializationFormat, expiry, when);
             if (config == _config)
                 return;
 
@@ -49,7 +60,7 @@ namespace VL.IO.Redis
             if (client is null || input is null || string.IsNullOrWhiteSpace(key))
                 return;
 
-            var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat.ToNullable(), expiry.ToNullable());
+            var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat.ToNullable(), expiry.ToNullable(), when);
             try
             {
                 _current.Disposable = client.AddBinding(model, input, logger: _logger);
