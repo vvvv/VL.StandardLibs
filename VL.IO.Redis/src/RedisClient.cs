@@ -67,11 +67,13 @@ namespace VL.IO.Redis
             // Hopefully the situation should improve once https://github.com/StackExchange/StackExchange.Redis/tree/server-cache-invalidation is merged back.
             foreach (var s in _multiplexer.GetServers())
             {
+                if (!s.IsConnected)
+                    continue;
+
                 var pubSubClient = s.ClientList().FirstOrDefault(c => c.Name == _multiplexer.ClientName && c.ClientType == ClientType.PubSub);
                 if (pubSubClient != null)
                 {
                     s.Execute("CLIENT", new object[] { "TRACKING", "ON", "REDIRECT", pubSubClient.Id.ToString(), "BCAST", "NOLOOP" });
-                    break;
                 }
             }
         }
