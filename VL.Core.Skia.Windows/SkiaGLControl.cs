@@ -84,6 +84,11 @@ namespace VL.Skia
                 .Merge(keyPresses));
         }
 
+        protected override bool ProcessKeyPreview(ref Message m)
+        {
+            return false;
+        }
+
         protected override CreateParams CreateParams
         {
             get
