@@ -21,6 +21,14 @@
   <ItemGroup>
     <None Include="ext\win-x64\*.dll">
       <!-- For vvvv the file goes directly to the output - only way for native library lookup to find it (without having to write custom code) -->
+      <!--<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>-->
+      <Pack>true</Pack>
+      <!-- As a package we can make use of nuget's asset system, it will make the proper entry in the *.deps.json file for the native library lookup to work -->
+      <PackagePath>runtimes\win-x64\native\%(Filename)%(Extension)</PackagePath>
+      <TargetPath>%(Filename)%(Extension)</TargetPath>
+    </None>
+    <None Include="ext\win-arm64\*.dll">
+      <!-- For vvvv the file goes directly to the output - only way for native library lookup to find it (without having to write custom code) -->
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
       <!-- As a package we can make use of nuget's asset system, it will make the proper entry in the *.deps.json file for the native library lookup to work -->
