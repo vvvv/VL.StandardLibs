@@ -1,16 +1,25 @@
-﻿namespace VL.ImGui.Widgets
+﻿using VL.Core;
+
+namespace VL.ImGui.Widgets
 {
-    internal abstract class DragWidget<T, TComponent> : ChannelWidget<T>, IHasLabel
+    internal abstract class DragWidget<T, TComponent> : ChannelWidget<T>
         where T : unmanaged
         where TComponent : unmanaged
     {
-        public string? Label { get; set; }
+        protected readonly MinValueSelector<TComponent> min;
+        protected readonly MaxValueSelector<TComponent> max;
+
+        public DragWidget()
+        {
+            AddValueSelector(this.min = new(default));
+            AddValueSelector(this.max = new(default));
+        }
 
         public float Speed { protected get; set; } = typeof(TComponent) == typeof(float) || typeof(TComponent) == typeof(double) ? 0.01f : 1f;
 
-        public TComponent Min { protected get; set; }
+        public Optional<TComponent> Min { protected get => default; set => min.SetPinValue(value); }
 
-        public TComponent Max { protected get; set; }
+        public Optional<TComponent> Max { protected get => default; set => max.SetPinValue(value); }
 
         /// <summary>
         /// Adjust format string to decorate the value with a prefix, a suffix, or adapt the editing and display precision e.g. "%.3f" -> 1.234; "%5.2f secs" -> 01.23 secs; "Biscuit: % .0f" -> Biscuit: 1; etc.
@@ -26,12 +35,12 @@
             var value = Update();
             if (NotifyWhileTyping)
             {
-                if (Drag(widgetLabel.Update(Label), ref value, Speed, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+                if (Drag(widgetLabel.Update(label.Value), ref value, Speed, min.Value, max.Value, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
                     Value = value;
             }
             else
             {
-                if (Drag(widgetLabel.Update(Label), ref value, Speed, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+                if (Drag(widgetLabel.Update(label.Value), ref value, Speed, min.Value, max.Value, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
                 {
                     if (ImGuiNET.ImGui.IsMouseDragging(ImGuiNET.ImGuiMouseButton.Left))
                     {

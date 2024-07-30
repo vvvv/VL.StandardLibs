@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using VL.Core.CompilerServices;
+using VL.Core.EditorAttributes;
 using VL.Core.Logging;
 using VL.Lang;
 using VL.Lib.Collections;
@@ -97,6 +98,8 @@ namespace VL.Core
         // With this approach the user needs to hold on to the message as well as the runtime host.
         [Obsolete("Use AddPersistentMessage")]
         void TogglePersistentUserRuntimeMessage(Message message, bool on);
+
+        internal bool TryGetLocation(Exception exception, out UniqueId id);
     }
 #nullable restore
 
@@ -165,7 +168,9 @@ namespace VL.Core
     /// </summary>
     public interface IHasAttributes
     {
-        IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
+        Spread<Attribute> Attributes { get; }
+        internal Spread<string> Tags => Attributes.OfType<TagAttribute>().Select(t => t.TagLabel).ToSpread();
+        IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
 
     /// <summary>
@@ -229,7 +234,7 @@ namespace VL.Core
         /// <returns>The instance with the newly set value.</returns>
         IVLObject WithValue(IVLObject instance, object value);
 
-        new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
+        new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
 
     public record struct ObjectGraphNode(
@@ -1126,7 +1131,7 @@ namespace VL.Core
             public object DefaultValue => null;
             public object GetValue(IVLObject instance) => null;
             public IVLObject WithValue(IVLObject instance, object value) => instance;
-            public IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Enumerable.Empty<TAttribute>();
+            public Spread<Attribute> Attributes => Spread<Attribute>.Empty;
         }
 
         public static IVLPropertyInfo Default = new DefaultImpl();

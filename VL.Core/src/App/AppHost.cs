@@ -118,7 +118,7 @@ namespace VL.Core
         /// <summary>
         /// The directory of the currently running application.
         /// </summary>
-        public string AppBasePath => Path.GetDirectoryName(AppPath)!;
+        public virtual string AppBasePath => Path.GetDirectoryName(AppPath)!;
 
         /// <summary>
         /// Whether the app is exported and runs standalone as an executable.

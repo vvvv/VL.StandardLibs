@@ -4,10 +4,8 @@ using System.Reactive;
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Widgets", Button = true, Tags = "rgba, hsv, hsl")]
-    internal partial class ColorButton : ChannelWidget<Unit>, IHasLabel
+    internal partial class ColorButton : ChannelWidget<Unit>
     {
-        public string? Label { get; set; }
-
         public Color4 Color { private get; set; }
 
         public Vector2 Size { private get; set; }
@@ -17,7 +15,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             Update();
-            if (ImGuiNET.ImGui.ColorButton(widgetLabel.Update(Label), Color.ToImGui(), Flags, Size.FromHectoToImGui()))
+            if (ImGuiNET.ImGui.ColorButton(widgetLabel.Update(label.Value), Color.ToImGui(), Flags, Size.FromHectoToImGui()))
                 Value = Unit.Default;
         }
     }
