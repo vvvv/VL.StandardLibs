@@ -78,6 +78,20 @@ namespace VL.Core.EditorAttributes
             return false;
         }
 
+        public static bool GetIsReadOnly(this IHasAttributes propertyInfoOrChannel)
+        {
+            foreach (var attr in propertyInfoOrChannel.Attributes)
+            {
+                if (attr is ReadOnlyAttribute r)
+                    return true;
+                if (attr is System.ComponentModel.ReadOnlyAttribute r2)
+                    return r2.IsReadOnly;
+            }
+
+            return false;
+        }
+
+
         public static Spread<string> GetTags(this IHasAttributes propertyInfoOrChannel) => propertyInfoOrChannel.Tags;
 
         public static ImmutableDictionary<string, string> GetCustomMetaData(this IHasAttributes propertyInfoOrChannel)
