@@ -26,8 +26,8 @@ namespace VL.Skia.Egl
 		public static readonly IntPtr EGL_NO_DISPLAY = IntPtr.Zero;
 		public static readonly IntPtr EGL_NO_CONTEXT = IntPtr.Zero;
 		public static readonly IntPtr EGL_NO_SURFACE = IntPtr.Zero;
-
-		public const GLBool EGL_FALSE = 0;
+        public const int EGL_CONTEXT_OPENGL_DEBUG = 12720;
+        public const GLBool EGL_FALSE = 0;
 		public const GLBool EGL_TRUE = 1;
 		public const int EGL_SUCCESS = 0x3000;
 
