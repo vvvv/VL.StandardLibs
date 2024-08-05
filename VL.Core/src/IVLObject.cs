@@ -849,6 +849,7 @@ namespace VL.Core
                 return false;
             }
 
+            if (instance is not null)
             {
                 var match = FPropertyRegex.Match(path);
                 if (match.Success)
@@ -863,9 +864,10 @@ namespace VL.Core
                         return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
                     }
                 }
-                value = defaultValue;
-                return false;
             }
+
+            value = defaultValue;
+            return false;
         }
 
         /// <summary>
