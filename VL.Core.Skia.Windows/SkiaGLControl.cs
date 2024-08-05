@@ -84,12 +84,6 @@ namespace VL.Skia
                 .Merge(keyPresses));
         }
 
-        // Fixes key combos like Shift+Left not working in docked help browser
-        protected override bool ProcessKeyPreview(ref Message m)
-        {
-            return false;
-        }
-
         protected override CreateParams CreateParams
         {
             get
