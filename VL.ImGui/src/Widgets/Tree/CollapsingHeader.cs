@@ -13,7 +13,7 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// If set the Header will have a close button which will push to the channel once clicked.
         /// </summary>
-        public IChannel<Unit> Closing { get; set; } = ChannelHelpers.Dummy<Unit>();
+        public IChannel<Bang> Closing { get; set; } = ChannelHelpers.Dummy<Bang>();
 
         /// <summary>
         /// Returns true if the Header is displayed. Set to true to display the Header.
