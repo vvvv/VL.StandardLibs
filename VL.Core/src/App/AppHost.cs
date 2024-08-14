@@ -8,6 +8,7 @@ using System.IO;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using VL.Core.CompilerServices;
@@ -227,6 +228,15 @@ namespace VL.Core
         public T? CreateInstance<T>(NodeContext? nodeContext = default) => CreateInstance(typeof(T), nodeContext) is T t ? t : default;
 
         public T? GetDefaultValue<T>() => GetDefaultValue(typeof(T)) is T t ? t : default;
+
+        public void ReportException(ExceptionDispatchInfo exceptionDispatchInfo)
+        {
+            var exception = exceptionDispatchInfo.SourceException;
+            DefaultLogger.LogError(exception, "Unexpected exception: {Message}", exception.Message);
+            OnException(exceptionDispatchInfo);
+        }
+
+        protected abstract void OnException(ExceptionDispatchInfo exceptionDispatchInfo);
 
         internal object? CreateInstance(Type type, NodeContext? nodeContext = default) => CreateInstance(TypeRegistry.GetTypeInfo(type), nodeContext);
 

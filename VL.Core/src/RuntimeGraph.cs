@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 namespace VL.Core
@@ -27,29 +29,45 @@ namespace VL.Core
         }
 
         /// <summary>
-        /// The exception to throw by the HandleAsyncException call.
+        /// Report an exception to the current app host.
         /// </summary>
         /// <param name="exception">The exception to report.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ReportException(Exception exception)
+        {
+            return ReportException(ExceptionDispatchInfo.Capture(exception));
+        }
+
+        /// <summary>
+        /// Report an exception to the current app host.
+        /// </summary>
+        /// <param name="exception">The exception to report.</param>
+        public static bool ReportException(ExceptionDispatchInfo exception)
         {
             return ReportException(exception, AppHost.CurrentOrGlobal);
         }
 
         /// <summary>
-        /// The exception to throw by the HandleAsyncException call.
+        /// Report an exception to current app host. If no app host is current the captured app host is used.
         /// </summary>
         /// <param name="exception">The exception to report.</param>
-        /// <param name="capturedAppHost">The captured service registry.</param>
+        /// <param name="capturedAppHost">The captured app host.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ReportException(Exception exception, AppHost capturedAppHost)
         {
+            return ReportException(ExceptionDispatchInfo.Capture(exception), capturedAppHost);
+        }
+
+        /// <summary>
+        /// Report an exception to current app host. If no app host is current the captured app host is used.
+        /// </summary>
+        /// <param name="exception">The exception to report.</param>
+        /// <param name="capturedAppHost">The captured app host.</param>
+        public static bool ReportException(ExceptionDispatchInfo exception, AppHost capturedAppHost)
+        {
             var appHost = AppHost.IsAnyCurrent() ? AppHost.Current : capturedAppHost;
-            var runtime = appHost?.Services.GetService<IVLRuntime>();
-            if (runtime != null)
-            {
-                runtime.ReportException(exception);
-                return true;
-            }
-            return false;
+            appHost.ReportException(exception);
+            return true;
         }
     }
 }
