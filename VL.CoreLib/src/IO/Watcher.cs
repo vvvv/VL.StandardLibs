@@ -51,22 +51,33 @@ namespace VL.Lib.IO
         {
             if (FPath != path || FFilter != filter || FIncludeSubDirs != includeSubdirectories)
             {
-                if (string.IsNullOrEmpty(path))
+                FPath = path;
+                FFilter = filter;
+                FIncludeSubDirs = includeSubdirectories;
+
+                Dispose();
+
+                if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+                {
                     FWatcher = null;
+
+                    Changed = Observable.Empty<Path>();
+                    Created = Observable.Empty<Path>();
+                    Deleted = Observable.Empty<Path>();
+                    Renamed = Observable.Empty<RenamedEventArgs>();
+                }
                 else
                 {
-                    Dispose();
-
                     FWatcher = new FileSystemWatcher();
-                    FWatcher.Path = FPath = path;
-                    FWatcher.Filter = FFilter = filter;
-                    FWatcher.IncludeSubdirectories = FIncludeSubDirs = includeSubdirectories;
+                    FWatcher.Path = path;
+                    FWatcher.Filter = filter;
+                    FWatcher.IncludeSubdirectories = includeSubdirectories;
 
                     Changed = Observable.FromEventPattern<FileSystemEventArgs>(FWatcher, "Changed").Select(e => new Path(e.EventArgs.FullPath));
                     Created = Observable.FromEventPattern<FileSystemEventArgs>(FWatcher, "Created").Select(e => new Path(e.EventArgs.FullPath));
                     Deleted = Observable.FromEventPattern<FileSystemEventArgs>(FWatcher, "Deleted").Select(e => new Path(e.EventArgs.FullPath));
                     Renamed = Observable.FromEventPattern<RenamedEventArgs>(FWatcher, "Renamed").Select(e => e.EventArgs);
-                   
+
                     FWatcher.EnableRaisingEvents = true;
                 }
             }

@@ -40,6 +40,10 @@ namespace VL.Lib.Reactive
         {
             throw new NotImplementedException();
         }
+        public IObservable<SubFrameMessage> GetSubFrameEvents()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>

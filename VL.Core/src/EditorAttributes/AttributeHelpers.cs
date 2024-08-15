@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using VL.Core.Utils;
 using VL.Lib.Collections;
+using VL.Lib.IO;
 
 namespace VL.Core.EditorAttributes
 {
@@ -10,76 +12,99 @@ namespace VL.Core.EditorAttributes
     {
         public static Optional<string> GetLabel(this IHasAttributes propertyInfoOrChannel)
         {
-            var labelAttribute = propertyInfoOrChannel.GetAttributes<LabelAttribute>().FirstOrDefault();
-            if (labelAttribute != null)
-                return labelAttribute.Label;
-
-            var displayAttribute = propertyInfoOrChannel.GetAttributes<Stride.Core.DisplayAttribute>().FirstOrDefault();
-            if (displayAttribute != null)
-                return displayAttribute.Name;
-
-            var displayAttribute2 = propertyInfoOrChannel.GetAttributes<System.ComponentModel.DataAnnotations.DisplayAttribute>().FirstOrDefault();
-            if (displayAttribute2 != null)
-                return displayAttribute2.Name;
+            foreach (var attr in propertyInfoOrChannel.Attributes)
+            {
+                if (attr is LabelAttribute l)
+                    return l.Label;
+                if (attr is Stride.Core.DisplayAttribute d)
+                    return d.Name;
+                if (attr is System.ComponentModel.DataAnnotations.DisplayAttribute d1)
+                    return d1.Name;
+            }
 
             return new Optional<string>();
         }
 
         public static Optional<string> GetDescription(this IHasAttributes propertyInfoOrChannel)
         {
-            var descriptionAttribute = propertyInfoOrChannel.GetAttributes<DescriptionAttribute>().FirstOrDefault();
-            if (descriptionAttribute != null)
-                return descriptionAttribute.Description;
-
-            var displayAttribute = propertyInfoOrChannel.GetAttributes<System.ComponentModel.DataAnnotations.DisplayAttribute>().FirstOrDefault();
-            if (displayAttribute != null)
-                return displayAttribute.Description;
+            foreach (var attr in propertyInfoOrChannel.Attributes)
+            {
+                if (attr is DescriptionAttribute d)
+                    return d.Description;
+                if (attr is System.ComponentModel.DataAnnotations.DisplayAttribute d1)
+                    return d1.Description;
+            }
 
             return new Optional<string>();
         }
 
         public static Optional<int> GetOrder(this IHasAttributes propertyInfoOrChannel)
         {
-            var attr = propertyInfoOrChannel.GetAttributes<OrderAttribute>().FirstOrDefault();
-            if (attr != null)
-                return attr.Order;
-
-            var displayAttribute = propertyInfoOrChannel.GetAttributes<System.ComponentModel.DataAnnotations.DisplayAttribute>().FirstOrDefault();
-            if (displayAttribute != null)
+            foreach (var attr in propertyInfoOrChannel.Attributes)
             {
-                var o = displayAttribute.GetOrder();
-                if (o != null)
-                    return new Optional<int>(o.Value);
+                if (attr is OrderAttribute oa)
+                    return oa.Order;
+
+                if (attr is System.ComponentModel.DataAnnotations.DisplayAttribute d)
+                {
+                    var o = d.GetOrder();
+                    if (o is not null)
+                        return new Optional<int>(o.Value);
+                }
             }
+
             return new Optional<int>();
         }
 
         public static Optional<WidgetType> GetWidgetType(this IHasAttributes propertyInfoOrChannel)
         {
-            var attr = propertyInfoOrChannel.GetAttributes<WidgetTypeAttribute>().FirstOrDefault();
-            if (attr != null)
-                return attr.WidgetType;
+            foreach (var attr in propertyInfoOrChannel.Attributes)
+            {
+                if (attr is WidgetTypeAttribute w)
+                    return w.WidgetType;
+            }
+
             return new Optional<WidgetType>();
         }
 
         public static bool GetIsExposed(this IHasAttributes propertyInfoOrChannel)
         {
-            var attr = propertyInfoOrChannel.GetAttributes<ExposedAttribute>().FirstOrDefault();
-            if (attr != null)
-                return true;
+            foreach (var attr in propertyInfoOrChannel.Attributes)
+            {
+                if (attr is ExposedAttribute a)
+                    return true;
+            }
+
             return false;
         }
 
-        public static Spread<string> GetTags(this IHasAttributes propertyInfoOrChannel)
+        public static bool GetIsReadOnly(this IHasAttributes propertyInfoOrChannel)
         {
-            var attr = propertyInfoOrChannel.GetAttributes<TagAttribute>();
-            return attr.Select(a => a.TagLabel).ToSpread();
+            foreach (var attr in propertyInfoOrChannel.Attributes)
+            {
+                if (attr is ReadOnlyAttribute r)
+                    return true;
+                if (attr is System.ComponentModel.ReadOnlyAttribute r2)
+                    return r2.IsReadOnly;
+            }
+
+            return false;
         }
+
+
+        public static Spread<string> GetTags(this IHasAttributes propertyInfoOrChannel) => propertyInfoOrChannel.Tags;
 
         public static ImmutableDictionary<string, string> GetCustomMetaData(this IHasAttributes propertyInfoOrChannel)
         {
-            var attr = propertyInfoOrChannel.GetAttributes<CustomMetaDataAttribute>();
-            return attr.Distinct(a => a.Key).ToImmutableDictionary(a =>  a.Key, a => a.Value);
+            var builder = Pooled.GetDictionaryBuilder<string, string>();
+
+            foreach (var attr in propertyInfoOrChannel.Attributes)
+            {
+                if (attr is CustomMetaDataAttribute c)
+                    builder.Value[c.Key] = c.Value;
+            }
+
+            return builder.ToImmutableAndFree();
         }
 
         public static bool IsOfSupportedType(Type type)
@@ -165,28 +190,38 @@ namespace VL.Core.EditorAttributes
             => (T)DecodeValueFromAttribute(encodedValue, typeof(T));
 
         public static bool HasTaggedValue(this IHasAttributes propertyInfoOrChannel, string key)
-            => propertyInfoOrChannel.GetAttributes<TaggedValueAttribute>().Any(a => a.Key == key);
+        {
+            foreach (var a in propertyInfoOrChannel.Attributes)
+                if (a is TaggedValueAttribute t && t.Key == key)
+                    return true;
+            return false;
+        }
 
         public static Optional<T> GetTaggedValue<T>(this IHasAttributes propertyInfoOrChannel, string key)
         {
-            var attr = propertyInfoOrChannel.GetAttributes<TaggedValueAttribute>().FirstOrDefault(a => a.Key == key);
-            return attr != null ? new Optional<T>(attr.GetValue<T>()) : new Optional<T>();
+            foreach (var a in propertyInfoOrChannel.Attributes)
+                if (a is TaggedValueAttribute t && t.Key == key)
+                    return t.GetValue<T>();
+
+            return default;
         }
 
         public static Optional<T> GetMin<T>(this IHasAttributes propertyInfoOrChannel)
         {
-            var attr = propertyInfoOrChannel.GetAttributes<MinAttribute>().FirstOrDefault();
-            if (attr != null)
-                return (T)DecodeValueFromAttribute(attr.EncodedValue, typeof(T));
-            return new Optional<T>();
+            foreach (var a in propertyInfoOrChannel.Attributes)
+                if (a is MinAttribute m)
+                    return m.GetValue<T>();
+
+            return default;
         }
 
         public static Optional<T> GetMax<T>(this IHasAttributes propertyInfoOrChannel)
         {
-            var attr = propertyInfoOrChannel.GetAttributes<MaxAttribute>().FirstOrDefault();
-            if (attr != null)
-                return (T)DecodeValueFromAttribute(attr.EncodedValue, typeof(T));
-            return new Optional<T>();
+            foreach (var a in propertyInfoOrChannel.Attributes)
+                if (a is MaxAttribute m)
+                    return m.GetValue<T>();
+
+            return default;
         }
 
         //public static Optional<T> GetDefault<T>(this IHasAttributes propertyInfoOrChannel) 

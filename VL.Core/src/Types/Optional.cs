@@ -103,6 +103,16 @@ namespace VL.Core
             return "No value";
         }
 
+        public T TryGetValue (T fallbackValue)
+        {
+            if (HasValue)
+            {
+                return Value;
+            }
+
+            return fallbackValue;
+        }
+
         public static implicit operator Optional<T>(T value) => new Optional<T>(value);
 
         public static bool operator ==(Optional<T> left, Optional<T> right) => left.Equals(right);

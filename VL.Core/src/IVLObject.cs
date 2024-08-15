@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using VL.Core.CompilerServices;
+using VL.Core.EditorAttributes;
 using VL.Core.Logging;
 using VL.Lang;
 using VL.Lib.Collections;
@@ -167,7 +168,9 @@ namespace VL.Core
     /// </summary>
     public interface IHasAttributes
     {
-        IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
+        Spread<Attribute> Attributes { get; }
+        internal Spread<string> Tags => Attributes.OfType<TagAttribute>().Select(t => t.TagLabel).ToSpread();
+        IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
 
     /// <summary>
@@ -231,7 +234,7 @@ namespace VL.Core
         /// <returns>The instance with the newly set value.</returns>
         IVLObject WithValue(IVLObject instance, object value);
 
-        new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
+        new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
 
     public record struct ObjectGraphNode(
@@ -846,6 +849,7 @@ namespace VL.Core
                 return false;
             }
 
+            if (instance is not null)
             {
                 var match = FPropertyRegex.Match(path);
                 if (match.Success)
@@ -860,9 +864,10 @@ namespace VL.Core
                         return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
                     }
                 }
-                value = defaultValue;
-                return false;
             }
+
+            value = defaultValue;
+            return false;
         }
 
         /// <summary>
@@ -1128,7 +1133,7 @@ namespace VL.Core
             public object DefaultValue => null;
             public object GetValue(IVLObject instance) => null;
             public IVLObject WithValue(IVLObject instance, object value) => instance;
-            public IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Enumerable.Empty<TAttribute>();
+            public Spread<Attribute> Attributes => Spread<Attribute>.Empty;
         }
 
         public static IVLPropertyInfo Default = new DefaultImpl();

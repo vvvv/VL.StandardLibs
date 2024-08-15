@@ -78,8 +78,7 @@ namespace VL.ImGui.Editors
                         {
                             // Setup channel
                             var propertyChannel = ChannelHelpers.CreateChannelOfType(property.Type);
-                            var attributes = property.GetAttributes<Attribute>().ToSpread();
-                            propertyChannel.Attributes().Value = attributes;
+                            propertyChannel.Attributes().Value = property.Attributes;
                             
                             subscriptions.Add(
                                 channel.ChannelOfObject.Merge(
