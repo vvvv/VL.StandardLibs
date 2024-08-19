@@ -60,9 +60,11 @@ namespace VL.Lib.Animation
         // add BeforeCreate & AfterCreate?
         SubChannelsGetLocked,
         ModulesWriteGlobalChannels,
-        TrackingGlobalChannels,
+        ApplyClientTime,
         PlayingTransitions,
+        TrackingGlobalChannels,
         SubChannelsMutateParentChannels,
+
         // add BeforeUpdate & AfterUpdate?
         ModulesSendingData,
         // add Dispose?
