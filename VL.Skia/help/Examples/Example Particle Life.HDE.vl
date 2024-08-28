@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="JKAzI1un55OQORlraZU3Qi" LanguageVersion="2024.6.7-0039-gb3dca40bbb" Version="0.128">
+  <NugetDependency Id="SAbyx4hZ7HbOdsbIq2o0Bj" Location="VL.CoreLib" Version="2024.6.7-0037-ga0136f166f" />
+  <Patch Id="TjhS6D1KNxRNdPRHJaIBuj">
+    <Canvas Id="C2NfkQ0anXtLnoleq9zoul" DefaultCategory="Main" CanvasType="FullCategory">
+      <!--
+
+    ************************ RegisterServices ************************
+
+-->
+      <Node Name="RegisterServices" Bounds="369,392,218,147" Id="NsDnhJdoi8IMrT7FutaGQ8">
+        <p:NodeReference>
+          <Choice Kind="OperationDefinition" />
+        </p:NodeReference>
+        <Patch Id="A4OpzFsQzKoQcrQzGLpzPi">
+          <Pin Id="CnOWA0ePN2ZMZHF2JcEC2V" Name="Input" Kind="InputPin" />
+          <ControlPoint Id="EJqBYsvYN9YMGBOIAfZxea" Bounds="433,410" />
+          <Link Id="J0ABLhu9ojXNOAMre5heVV" Ids="CnOWA0ePN2ZMZHF2JcEC2V,EJqBYsvYN9YMGBOIAfZxea" IsHidden="true" />
+          <Node Bounds="453,442,122,77" Id="U05hExHU4ZkNIHLhLRaeqP">
+            <p:NodeReference LastCategoryFullName="HDE.Viewers" LastDependency="VL.HDE.vl">
+              <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="RegisterViewer" />
+            </p:NodeReference>
+            <Pin Id="VqBulgZaHROOzWphDdaNWk" Name="Input" Kind="InputPin" />
+            <Pin Id="ONMLOGVP82tPcgfUKLh5PZ" Name="Output" Kind="OutputPin" />
+            <Patch Id="LrJJ7faDeYQNRtuvsJAaoF" Name="Create" ManuallySortedPins="true">
+              <Pin Id="LU4y0tKlFFoOah1dQpzylP" Name="Result" Kind="OutputPin" />
+              <ControlPoint Id="SlsqMVpyM4kMOMa6WJ2NmA" Bounds="466,512" />
+              <Node Bounds="465,465,98,26" Id="Tz56VXkYtXcMdAE4LAmgAZ">
+                <p:NodeReference LastCategoryFullName="Main.AttractionMatrixViewer" LastDependency="Example Particle Life.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <CategoryReference Kind="ClassType" Name="AttractionMatrixViewer" />
+                  <Choice Kind="OperationCallFlag" Name="Create" />
+                </p:NodeReference>
+                <Pin Id="RmlpkEM0gXWLI8Y12pxdsc" Name="Output" Kind="StateOutputPin" />
+                <Pin Id="BaZFrNIcGMLOSCZGFryiYZ" Name="Node Context" Kind="InputPin" IsHidden="true" />
+              </Node>
+            </Patch>
+          </Node>
+          <Link Id="Tbealiv1smhMG6vhmwHWpe" Ids="SlsqMVpyM4kMOMa6WJ2NmA,LU4y0tKlFFoOah1dQpzylP" IsHidden="true" />
+          <Link Id="FZyHrHTsFpTOPyCzElYxmS" Ids="EJqBYsvYN9YMGBOIAfZxea,VqBulgZaHROOzWphDdaNWk" />
+          <Link Id="NQWDWiFHAB2LBRAVZzZI4w" Ids="RmlpkEM0gXWLI8Y12pxdsc,SlsqMVpyM4kMOMa6WJ2NmA" />
+        </Patch>
+      </Node>
+      <!--
+
+    ************************ AttractionMatrixViewer ************************
+
+-->
+      <Node Name="AttractionMatrixViewer" Bounds="369,336" Id="KRgcJik3z90LuJUDij5ULX">
+        <p:NodeReference>
+          <Choice Kind="ClassDefinition" Name="Class" />
+          <FullNameCategoryReference ID="Primitive" />
+        </p:NodeReference>
+        <p:Interfaces>
+          <TypeReference LastCategoryFullName="Graphics.Skia" LastDependency="VL.Skia.vl">
+            <Choice Kind="MutableInterfaceType" Name="IValueViewer" />
+          </TypeReference>
+        </p:Interfaces>
+        <Patch Id="OmhQajERUVEQMTZdYv0Vdi">
+          <Canvas Id="CqLvDu6nCJpPwHthvWcvFp" CanvasType="Group">
+            <ControlPoint Id="CUP8VseBT7dOGNQk7jLUom" Bounds="362,323" />
+            <ControlPoint Id="Pc7GsXm5LSBMPYgEYr7Jay" Bounds="362,709" />
+            <Node Bounds="360,487,121,19" Id="TQSPivIC2ozPG7YyoLrZ60">
+              <p:NodeReference LastCategoryFullName="Main" LastDependency="Example Particle Life.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <FullNameCategoryReference ID="Main" />
+                <Choice Kind="ProcessAppFlag" Name="AttractionMatrixWidget" />
+              </p:NodeReference>
+              <Pin Id="KeKa9qJrV4oMhRiXYTlhY9" Name="Node Context" Kind="InputPin" IsHidden="true" />
+              <Pin Id="GYR6Q73KTNZLUcuoaKGM64" Name="Attraction Matrix" Kind="InputPin" />
+              <Pin Id="G8H5RickbsTL6OM2p4eaWy" Name="Spacing" Kind="InputPin" IsHidden="true" />
+              <Pin Id="U7Nb9DEZQl2QK61QmxxpRH" Name="Channel" Kind="InputPin" />
+              <Pin Id="N6gVrEKRIBVOVpCAklwOzt" Name="Enable Interaction" Kind="InputPin" DefaultValue="False" />
+              <Pin Id="EjwJcUBsfM0PI5z3yNqLa9" Name="Color Phase" Kind="InputPin" DefaultValue="0" IsHidden="true" />
+              <Pin Id="UO4Nxn5FKsxQKJHAwrvaQJ" Name="Saturation" Kind="InputPin" DefaultValue="1" IsHidden="true" />
+              <Pin Id="MSwK98am5l2LvHHXwk3IvL" Name="Output" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="360,372,74,26" Id="HOQS6ueDBb1LiJ6iczvPu7">
+              <p:NodeReference LastCategoryFullName="Main.AttractionMatrix" LastDependency="Example Particle Life.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="RecordType" Name="AttractionMatrix" />
+                <Choice Kind="OperationCallFlag" Name="Split" />
+              </p:NodeReference>
+              <Pin Id="ND2qdHGvBUpOv9J9QB5Lcz" Name="Input" Kind="StateInputPin" />
+              <Pin Id="P7Zuk1HQ4IlMTzKx4BSUl4" Name="Output" Kind="OutputPin" IsHidden="true" />
+              <Pin Id="VWcUJHWa4KQPhwMyZj91A7" Name="Attraction matrix" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="360,631,71,19" Id="MeV76FrDbosQHGn3rzbupc">
+              <p:NodeReference LastCategoryFullName="HDE.Viewers" LastDependency="VL.HDE.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <FullNameCategoryReference ID="HDE.Viewers" />
+                <Choice Kind="ProcessAppFlag" Name="LayerViewer" />
+              </p:NodeReference>
+              <Pin Id="TB0wSjMpcBJMIo9qXvBn6R" Name="Node Context" Kind="InputPin" IsHidden="true" />
+              <Pin Id="BQMzlSyJoV9NMwESp4aUHR" Name="Value" Kind="InputPin" />
+              <Pin Id="UUbGTNltrCbLGB2KHtQpqC" Name="Context" Kind="InputPin" />
+              <Pin Id="C52AGNIVg19LKos2GyhKbz" Name="Widget" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="OcPqG4CcY2SQADuNF28e9U" Bounds="482,569" />
+          </Canvas>
+          <ProcessDefinition Id="FEdv7Gam6SbNccD72WDXTz">
+            <Fragment Id="S06f4ws7Q8cO9BAsXW7Q0m" Patch="KcVWSXzltD3PBotYaEs0Tv" Enabled="true" />
+            <Fragment Id="NVBdhQqYqYrOSLpQBc2VjX" Patch="TGLDi45GavbOYYOI5sALzh" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="P6CAyGctpviLnmUvQ3hkqX" Ids="POYiZ5KjM3aPSEPwYMM5VT,CUP8VseBT7dOGNQk7jLUom" IsHidden="true" />
+          <Link Id="B8Zd4AziZqXPSBlPNKOQWB" Ids="Pc7GsXm5LSBMPYgEYr7Jay,ILVL1bF6c1mMqj9L7W7Kub" IsHidden="true" />
+          <Patch Id="KcVWSXzltD3PBotYaEs0Tv" Name="Create" />
+          <Patch Id="TGLDi45GavbOYYOI5sALzh" Name="Update">
+            <Pin Id="POYiZ5KjM3aPSEPwYMM5VT" Name="Value" Kind="InputPin" />
+            <Pin Id="P2di4txm8EgMNMuBb9R1kS" Name="Context" Kind="InputPin" />
+            <Pin Id="ILVL1bF6c1mMqj9L7W7Kub" Name="Widget" Kind="OutputPin" />
+          </Patch>
+          <Link Id="HImIRRvIOJKNlOOcr4ZSLu" Ids="CUP8VseBT7dOGNQk7jLUom,ND2qdHGvBUpOv9J9QB5Lcz" />
+          <Link Id="IDOacmRaT7uLrvN3T9Pjlq" Ids="VWcUJHWa4KQPhwMyZj91A7,GYR6Q73KTNZLUcuoaKGM64" />
+          <Link Id="OHTIvcxzdlrPa7PlnqMukW" Ids="C52AGNIVg19LKos2GyhKbz,Pc7GsXm5LSBMPYgEYr7Jay" />
+          <Link Id="IWeKpdxMV4VNZSBxEq2Q0f" Ids="MSwK98am5l2LvHHXwk3IvL,BQMzlSyJoV9NMwESp4aUHR" />
+          <Link Id="QAIVRah3CvCNmXqbmQEQUJ" Ids="OcPqG4CcY2SQADuNF28e9U,UUbGTNltrCbLGB2KHtQpqC" />
+          <Link Id="FZmvkxoByLBQWwSY0GGRfB" Ids="P2di4txm8EgMNMuBb9R1kS,OcPqG4CcY2SQADuNF28e9U" IsHidden="true" />
+        </Patch>
+      </Node>
+    </Canvas>
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="Hm8OtfBrSgoP5kWttowoiP">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="Dd7ryIIHqBhOXpJvS6t927">
+        <Canvas Id="TuQM5k1KgpcNnGLFDvRFaN" CanvasType="Group" />
+        <Patch Id="ECS2n7QUpLzPNSruShy6Th" Name="Create" />
+        <Patch Id="Dcm0RxtxyInQYCm1uaZWAD" Name="Update" />
+        <ProcessDefinition Id="DleR5e9Pky9M3HzbqEfOOR">
+          <Fragment Id="SCKw41Cy0zzMtXPY0MVPsY" Patch="ECS2n7QUpLzPNSruShy6Th" Enabled="true" />
+          <Fragment Id="Hvo6NZJZyS7QTLoEnBH9kb" Patch="Dcm0RxtxyInQYCm1uaZWAD" Enabled="true" />
+        </ProcessDefinition>
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="FOXwyb5OarxMEYzwWqgWu0" Location="VL.HDE" Version="0.0.0" />
+  <DocumentDependency Id="HJqdTYGMqq7LcYt80NIg5t" Location="./Example Particle Life.vl" />
+</Document>

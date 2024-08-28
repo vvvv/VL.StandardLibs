@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,12 +19,14 @@ using System.Reflection;
 using System.Diagnostics;
 using Stride.Core;
 using Stride.Shaders.Parser.Mixins;
+using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 
 namespace VL.Stride.Rendering
 {
     public static class EffectUtils
     {
-        public static string GetPathOfSdslShader(string effectName, IVirtualFileProvider fileProvider, IVirtualFileProvider dbFileProvider = null)
+        public static string? GetPathOfSdslShader(string effectName, IVirtualFileProvider fileProvider, IVirtualFileProvider? dbFileProvider = null)
         {
             var path = EffectCompilerBase.GetStoragePathFromShaderType(effectName);
             if (fileProvider.TryGetFileLocation(path, out var filePath, out _, out _))
@@ -55,7 +58,7 @@ namespace VL.Stride.Rendering
         }
 
         // Called by shader wizard
-        public static bool TryGetShaderFilePath(string shaderName, out string filePath)
+        public static bool TryGetShaderFilePath(string shaderName, [NotNullWhen(true)] out string? filePath)
         {
             var strideServices = VL.Stride.Core.Initialization.GetGlobalStrideServices();
             var effectSystem = strideServices.GetService<EffectSystem>();
@@ -64,7 +67,7 @@ namespace VL.Stride.Rendering
         }
 
         //get shader source from data base, is there a more direct way?
-        public static string GetShaderSourceCode(string effectName, IVirtualFileProvider fileProvider, ShaderSourceManager shaderSourceManager)
+        public static string? GetShaderSourceCode(string effectName, IVirtualFileProvider fileProvider, ShaderSourceManager shaderSourceManager)
         {
             if (!AppHost.Global.IsExported) //only try to load shader source from file when in VL editor
             {
@@ -87,7 +90,12 @@ namespace VL.Stride.Rendering
             return shaderSourceManager?.LoadShaderSource(effectName).Source;
         }
 
-        public static ShaderSourceManager GetShaderSourceManager(this IVirtualFileProvider fileProvider)
+        internal static ShaderSourceManager GetShaderSourceManager(this EffectSystem effectSystem)
+        {
+            return effectSystem.Compiler.GetShaderSourceManager() ?? effectSystem.FileProvider.GetShaderSourceManager();
+        }
+
+        private static ShaderSourceManager GetShaderSourceManager(this IVirtualFileProvider fileProvider)
         {
             var effectCompiler = new EffectCompiler(fileProvider)
             {
@@ -95,6 +103,23 @@ namespace VL.Stride.Rendering
             };
 
             return effectCompiler.GetMixinParser().SourceManager;
+        }
+
+        private static ShaderSourceManager? GetShaderSourceManager(this IEffectCompiler effectCompiler)
+        {
+            if (effectCompiler is EffectCompiler ec)
+                return ec.GetMixinParser().SourceManager;
+            if (effectCompiler is EffectCompilerChain compilerChain)
+                return compilerChain.GetCompiler().GetShaderSourceManager();
+            return null;
+        }
+
+        internal static void RegisterFilePath(this ShaderSourceManager shaderSourceManager, ShaderMetadata shaderMetadata)
+        {
+            lock (shaderSourceManager.GetLocker())
+            {
+                shaderSourceManager.UrlToFilePath[shaderMetadata.Url] = shaderMetadata.FilePath;
+            }
         }
 
         static readonly Dictionary<string, string> LocalShaderFilePaths = GetShaders();
@@ -117,7 +142,7 @@ namespace VL.Stride.Rendering
 
         static readonly Regex FCamelCasePattern = new Regex("[a-z][A-Z0-9]", RegexOptions.Compiled);
 
-        internal static void SelectPin<TPin>(this IVLPin[] pins, IVLPinDescription description, ref TPin pin) where TPin : Pin
+        internal static void SelectPin<TPin>(this IVLPin[] pins, IVLPinDescription description, ref TPin? pin) where TPin : Pin
         {
             pin = pins.OfType<TPin>().FirstOrDefault(p => p.Name == description.Name);
         }
@@ -151,7 +176,7 @@ namespace VL.Stride.Rendering
             return name;
         }
 
-        public static bool TryParseEffect(this IVirtualFileProvider fileProvider, string effectName, ShaderSourceManager shaderSourceManager, out ParsedShader result)
+        public static bool TryParseEffect(this IVirtualFileProvider fileProvider, string effectName, ShaderSourceManager shaderSourceManager, [NotNullWhen(true)] out ParsedShader? result)
         {
             result = null;
 
@@ -166,7 +191,7 @@ namespace VL.Stride.Rendering
         static object parserCacheLock = new object();
         internal static Dictionary<string, ParsedShader> parserCache = new Dictionary<string, ParsedShader>();
         
-        public static void ResetParserCache(string shaderName = null)
+        public static void ResetParserCache(string? shaderName = null)
         {
             lock (parserCacheLock)
             {
@@ -219,7 +244,7 @@ namespace VL.Stride.Rendering
 
                     // get source code
                     var code = GetShaderSourceCode(shaderName, fileProvider, shaderSourceManager);
-                    var inputFileName = shaderName + ".sdsl";
+                    var inputFileName = GetPathOfSdslShader(shaderName, fileProvider) ?? shaderName + ".sdsl";
 
                     var parsingResult = StrideShaderParser.TryPreProcessAndParse(code, inputFileName, macros);
 
@@ -279,7 +304,7 @@ namespace VL.Stride.Rendering
             };
         });
 
-        public static bool TryParseAndAnalyze(string shaderName, IVirtualFileProvider fileProvider, EffectCompiler effectCompiler, out Shader shader)
+        public static bool TryParseAndAnalyze(string shaderName, IVirtualFileProvider fileProvider, EffectCompiler effectCompiler, [NotNullWhen(true)] out Shader? shader)
         {
             shader = null;
             try
@@ -352,10 +377,28 @@ namespace VL.Stride.Rendering
             }
         }
 
-        public static ShaderMixinParser GetMixinParser(this EffectCompiler effectCompiler)
+        public static ShaderMixinParser GetMixinParser(this EffectCompiler compiler)
         {
-            var getMixinParser = typeof(EffectCompiler).GetMethod("GetMixinParser", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (ShaderMixinParser)getMixinParser.Invoke(effectCompiler, new object[0]);
+            return GetMixinParser(compiler);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(GetMixinParser))]
+            extern static ShaderMixinParser GetMixinParser(EffectCompiler compiler);
+        }
+
+        private static EffectCompilerBase GetCompiler(this EffectCompilerChain compilerChain)
+        {
+            return GetCompiler(compilerChain);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "compiler")]
+            extern static ref EffectCompilerBase GetCompiler(EffectCompilerChain compilerChain);
+        }
+
+        private static object GetLocker(this ShaderSourceManager shaderSourceManager)
+        {
+            return GetLocker(shaderSourceManager);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "locker")]
+            extern static ref object GetLocker(ShaderSourceManager compilerChain);
         }
     }
 
@@ -370,7 +413,7 @@ namespace VL.Stride.Rendering
         {
             foreach (var p in parameters.Layout.LayoutParameterKeyInfos)
             {
-                if (map.TryGetValue(p.Key.Name, out T entry))
+                if (map.TryGetValue(p.Key.Name, out var entry))
                     yield return entry;
             }
         }

@@ -67,11 +67,13 @@ namespace VL.IO.Redis
             // Hopefully the situation should improve once https://github.com/StackExchange/StackExchange.Redis/tree/server-cache-invalidation is merged back.
             foreach (var s in _multiplexer.GetServers())
             {
+                if (!s.IsConnected)
+                    continue;
+
                 var pubSubClient = s.ClientList().FirstOrDefault(c => c.Name == _multiplexer.ClientName && c.ClientType == ClientType.PubSub);
                 if (pubSubClient != null)
                 {
                     s.Execute("CLIENT", new object[] { "TRACKING", "ON", "REDIRECT", pubSubClient.Id.ToString(), "BCAST", "NOLOOP" });
-                    break;
                 }
             }
         }
@@ -173,7 +175,7 @@ namespace VL.IO.Redis
                 p.Invalidate(key);
         }
 
-        internal void BeginFrame(FrameTimeMessage _)
+        internal void WriteIntoGlobalChannels(SubFrameMessage _)
         {
             // Make room for the next transaction
             if (_lastTransaction != null)
@@ -194,7 +196,7 @@ namespace VL.IO.Redis
             _networkSync.OnNext(default);
         }
 
-        internal void EndFrame(FrameFinishedMessage _) 
+        internal void SendData(SubFrameMessage _) 
         {
             // Do not build a new transaction while another one is still in progress
             if (_lastTransaction != null)

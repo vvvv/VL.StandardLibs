@@ -5,11 +5,8 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (Float)", Category = "ImGui.Widgets", Tags = "number, updown")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputFloat : ChannelWidget<float>, IHasLabel, IHasInputTextFlags
+    internal partial class InputFloat : ChannelWidget<float>, IHasInputTextFlags
     {
-
-        public string? Label { get; set; }
-
         public float Step { private get; set; } = 0.1f;
 
         public float StepFast { private get; set; } = 10f;
@@ -26,7 +23,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = Update();
-            if (ImGuiNET.ImGui.InputFloat(widgetLabel.Update(Label), ref value, Step, StepFast, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+            if (ImGuiNET.ImGui.InputFloat(widgetLabel.Update(label.Value), ref value, Step, StepFast, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
                 SetValueIfChanged(lastframeValue, value, Flags);
             lastframeValue = value;
         }

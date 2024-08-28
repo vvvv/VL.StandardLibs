@@ -1,4 +1,5 @@
-﻿using Stride.Core;
+﻿#nullable enable
+using Stride.Core;
 using Stride.Core.Extensions;
 using Stride.Core.Mathematics;
 using Stride.Graphics;
@@ -14,6 +15,7 @@ using VL.Model;
 using VL.Stride.Graphics;
 using VL.Stride.Engine;
 using ServiceRegistry = VL.Core.ServiceRegistry;
+using Stride.Engine;
 
 namespace VL.Stride.Rendering
 {
@@ -22,7 +24,7 @@ namespace VL.Stride.Rendering
         const string textureInputName = "Input";
         const string samplerInputName = "Sampler";
 
-        static IVLNodeDescription NewImageEffectShaderNode(this IVLNodeDescriptionFactory factory, NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object> changes, IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
+        static IVLNodeDescription NewImageEffectShaderNode(this IVLNodeDescriptionFactory factory, NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object>? changes, IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
         {
             return factory.NewNodeDescription(
                 name: name,
@@ -136,6 +138,13 @@ namespace VL.Stride.Rendering
                         newNode: nodeBuildContext =>
                         {
                             var gameHandle = AppHost.Current.Services.GetGameHandle();
+                            var game = gameHandle.Resource;
+                            var graphicsDevice = game.GraphicsDevice;
+
+                            // Needed by preprocessor (#include "x.hlsl")
+                            if (shaderMetadata != null)
+                                game.EffectSystem.GetShaderSourceManager().RegisterFilePath(shaderMetadata);
+
                             var effect = new TextureFXEffect("TextureFXEffect", logger: nodeBuildContext.NodeContext.GetLogger()) { Name = shaderName };
 
                             BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var textureFXEffectMixin, effect.Parameters);
@@ -226,9 +235,7 @@ namespace VL.Stride.Rendering
                     var _outputFormat = new PinDescription<PixelFormat>("Output Format", defaultFormat) { IsVisible = false };
                     var _renderFormat = new PinDescription<PixelFormat>("Render Format", defaultRenderFormat) { IsVisible = false, Summary = "Allows to specify a render format that is differet to the output format" };
 
-                        // mip manager pins
-                        var wantsMips = shaderMetadata.WantsMips?.Count > 0;
-                    if (wantsMips)
+                    if (shaderMetadata.WantsMips != null)
                     {
                         foreach (var textureName in shaderMetadata.WantsMips)
                         {
@@ -300,7 +307,7 @@ namespace VL.Stride.Rendering
                                             inputs[texIndex] = newTexturePin;
 
                                             // Insert generate pin
-                                            IVLPin<bool> alwaysGeneratePin = null;
+                                            IVLPin<bool>? alwaysGeneratePin = null;
 
                                             if (textureToManage.wantsMips)
                                             {
@@ -317,7 +324,7 @@ namespace VL.Stride.Rendering
                             }
 
                             var textureInput = inputs.ElementAtOrDefault(shaderNodeInputs.IndexOf(p => p.Name == textureInputName));
-                            var outputTextureInput = inputs.ElementAtOrDefault(shaderNodeInputs.IndexOf(p => p.Name == "Output Texture"));
+                            var outputTextureInput = inputs.ElementAt(shaderNodeInputs.IndexOf(p => p.Name == "Output Texture"));
                             var enabledInput = (IVLPin<bool>)inputs.ElementAt(shaderNodeInputs.IndexOf(p => p.Name == Enabled));
 
                             var outputSize = nodeBuildContext.Input(defaultSize);
@@ -342,8 +349,8 @@ namespace VL.Stride.Rendering
                             var graphicsDevice = game.GraphicsDevice;
 
                             // Remove this once FrameDelay can deal with textures properly
-                            var output1 = default(((Int2 size, PixelFormat format, PixelFormat renderFormat) desc, Texture texture, Texture view));
-                            var output2 = default(((Int2 size, PixelFormat format, PixelFormat renderFormat) desc, Texture texture, Texture view));
+                            var output1 = default(((Int2 size, PixelFormat format, PixelFormat renderFormat) desc, Texture? texture, Texture? view));
+                            var output2 = default(((Int2 size, PixelFormat format, PixelFormat renderFormat) desc, Texture? texture, Texture? view));
                             var lastViewFormat = PixelFormat.None;
                             var usedRenderFormat = PixelFormat.None;
                             var mainOutput = nodeBuildContext.Output(getter: () =>

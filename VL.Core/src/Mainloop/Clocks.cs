@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using VL.Core;
 
 namespace VL.Lib.Animation
@@ -54,10 +55,52 @@ namespace VL.Lib.Animation
         }
     }
 
+    public enum SubFrameEvents
+    {
+        // add BeforeCreate & AfterCreate?
+        SubChannelsGetLocked,
+        ModulesWriteGlobalChannels,
+        ApplyClientTime,
+        PlayingTransitions,
+        TrackingGlobalChannels,
+        SubChannelsMutateParentChannels,
+
+        // add BeforeUpdate & AfterUpdate?
+        ModulesSendingData,
+        // add Dispose?
+    }
+
+    public struct SubFrameMessage
+    {
+        /// <summary>
+        /// The frame time since application start
+        /// </summary>
+        public readonly Time Time;
+
+        public readonly ulong FrameNumber;
+
+        /// <summary>
+        /// The time interval between the last frame and the current frame.
+        /// </summary>
+        public readonly TimeSpan LastInterval;
+
+        public readonly SubFrameEvents SubFrameEvents;
+
+        public SubFrameMessage(Time time, ulong frameNumber, TimeSpan lastInterval, SubFrameEvents subFrameEvents)
+        {
+            Time = time;
+            FrameNumber = frameNumber;
+            LastInterval = lastInterval;
+            SubFrameEvents = subFrameEvents;
+        }
+    }
+
+
     public interface IClock
     {
         Time Time { get; }
     }
+
 
     public interface IFrameClock : IClock
     {
@@ -75,6 +118,8 @@ namespace VL.Lib.Animation
         /// Gets an observable that sends an event directly after the Update call of each frame.
         /// </summary>
         IObservable<FrameFinishedMessage> GetFrameFinished();
+
+        IObservable<SubFrameMessage> GetSubFrameEvents();
     }
 
     public static class Clocks
@@ -119,5 +164,7 @@ namespace VL.Lib.Animation
 
         public static double Seconds(this IClock clock) => clock.Time.Seconds;
 
+        public static IObservable<SubFrameMessage> GetSubFrameEvent(this IFrameClock frameClock, SubFrameEvents @event)
+            => frameClock.GetSubFrameEvents().Where(e => e.SubFrameEvents == @event);
     }
 }

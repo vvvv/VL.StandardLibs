@@ -1,4 +1,5 @@
-﻿using Stride.Core;
+﻿#nullable enable
+using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Graphics;
@@ -20,7 +21,7 @@ namespace VL.Stride.Rendering
     public static partial class EffectShaderNodes
     {
         static IVLNodeDescription NewDrawEffectShaderNode(this IVLNodeDescriptionFactory factory, 
-            NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object> changes, 
+            NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object>? changes, 
             IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
         {
             return factory.NewNodeDescription(
@@ -45,9 +46,9 @@ namespace VL.Stride.Rendering
                 );
         }
 
-        static NodeBuilding.NodeImplementation DrawEffectImpl(string shaderName, ShaderMetadata shaderMetadata,
-            IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice, NodeBuilding.NodeDescriptionBuildContext buildContext,
-            EffectBytecode effectBytecode)
+        static NodeBuilding.NodeImplementation DrawEffectImpl(string shaderName, ShaderMetadata? shaderMetadata,
+            IServiceRegistry? serviceRegistry, GraphicsDevice graphicsDevice, NodeBuilding.NodeDescriptionBuildContext buildContext,
+            EffectBytecode? effectBytecode)
         {
             var (effectInstance, messages, shaderMixinSource) = 
                 CreateEffectInstance("DrawFXEffect", shaderName, shaderMetadata, serviceRegistry, graphicsDevice, effectBytecode: effectBytecode);
@@ -98,9 +99,12 @@ namespace VL.Stride.Rendering
                 {
                     var gameHandle = AppHost.Current.Services.GetGameHandle();
                     var game = gameHandle.Resource;
+                    // Ensure we operate on the proper device
+                    var graphicsDevice = game.GraphicsDevice;
 
-                    // create new effect instance with "better device"
-                    graphicsDevice = game.GraphicsDevice;
+                    // Needed by preprocessor (#include "x.hlsl")
+                    if (shaderMetadata != null)
+                        game.EffectSystem.GetShaderSourceManager().RegisterFilePath(shaderMetadata);
 
                     (effectInstance, _, _) = 
                         CreateEffectInstance("DrawFXEffect", shaderName, shaderMetadata, serviceRegistry, graphicsDevice, effectBytecode: effectBytecode);
@@ -143,7 +147,7 @@ namespace VL.Stride.Rendering
             );
         }
 
-        static bool OpenEditor(ShaderMetadata shaderMetadata)
+        static bool OpenEditor(ShaderMetadata? shaderMetadata)
         {
             var path = shaderMetadata?.FilePath;
             if (string.IsNullOrWhiteSpace(path))

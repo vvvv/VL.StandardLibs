@@ -110,10 +110,6 @@ namespace VL.ImGui.Generator
             var category = nodeAttrData.GetValueOrDefault("Category").Value as string ?? "ImGui";
             string nodeDecl = default;
 
-            var disposeCall = "";
-            if (typeSymbol.Interfaces.Any(interf => interf.Name == nameof(IDisposable)))
-                disposeCall = ", dispose: () => s.Dispose()";
-
             switch (mode)
             {
                 case Mode.RetainedMode:
@@ -122,10 +118,10 @@ namespace VL.ImGui.Generator
                         category = category.Replace("ImGui", "ReGui");
                         category += ".Internal";
                     }
-                    nodeDecl = $"return c.Node(inputs, outputs{disposeCall});";
+                    nodeDecl = $"return c.Node(inputs, outputs, dispose: () => (s as IDisposable)?.Dispose());";
                     break;
                 case Mode.ImmediateMode:
-                    nodeDecl = $"return c.Node(inputs, outputs, () => {{ s.Update(ctx); }}{disposeCall});";
+                    nodeDecl = $"return c.Node(inputs, outputs, () => {{ s.Update(ctx); }}, dispose: () => (s as IDisposable)?.Dispose());";
                     break;
                 default:
                     break;
@@ -140,6 +136,9 @@ namespace VL.ImGui.Generator
             var button = false;
             if (nodeAttrData.GetValueOrDefault("Button").Value is bool b)
                 button = b;
+            var skipLabelProperty = false;
+            if (nodeAttrData.GetValueOrDefault("SkipLabelProperty").Value is bool b1)
+                skipLabelProperty = b1;
 
             var root = declarationSyntax.SyntaxTree.GetCompilationUnitRoot();
             var declaredUsings = root.Usings;
@@ -162,7 +161,15 @@ namespace VL.ImGui.Generator
                 types.Add(ct);
                 ct = ct.BaseType;
             }
-            var properties_ = ((IEnumerable<ITypeSymbol>)types).Reverse().SelectMany(t => t.GetMembers().OfType<IPropertySymbol>());
+            var properties_ = ((IEnumerable<ITypeSymbol>)types).Reverse().SelectMany(t => t.GetMembers().OfType<IPropertySymbol>())
+                .Where(p => !SkipProperty(p));
+
+            bool SkipProperty(IPropertySymbol property)
+            {
+                if (skipLabelProperty)
+                    return property.Name == "Label";
+                return false;
+            }
 
             SortedList<int, IPropertySymbol> properties = new SortedList<int, IPropertySymbol>();
             int i = 0;

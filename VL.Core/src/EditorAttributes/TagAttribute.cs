@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
@@ -20,5 +21,10 @@ namespace VL.Core.EditorAttributes
         }
 
         public string TagLabel { get; }
+
+        public override string ToString()
+        {
+            return $"Tag: {TagLabel}";
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using Stride.Graphics;
 using Stride.Core.Shaders.Ast;
 using System.Linq;
@@ -13,36 +14,45 @@ using Stride.Core.Mathematics;
 using Stride.Rendering.Materials;
 using System.ComponentModel;
 using Stride.Shaders.Parser.Mixins;
+using Stride.Engine;
 
 namespace VL.Stride.Rendering
 {
     public class ShaderMetadata
     {
+        public ShaderMetadata(string url, string? filePath)
+        {
+            Url = url;
+            FilePath = filePath;
+        }
+
         public PixelFormat OutputFormat { get; private set; } = PixelFormat.None;
 
         public Int2 OutputSize { get; private set; }
 
         public PixelFormat RenderFormat { get; private set; } = PixelFormat.None;
 
-        public string Category { get; private set; }
+        public string? Category { get; private set; }
 
-        public string Summary { get; private set; }
+        public string? Summary { get; private set; }
 
-        public string Remarks { get; private set; }
+        public string? Remarks { get; private set; }
 
-        public string Tags { get; private set; }
+        public string? Tags { get; private set; }
 
-        public ParsedShader ParsedShader { get; private set; }
+        public ParsedShader? ParsedShader { get; private set; }
 
         public bool IsTextureSource { get; private set; }
         
-        public List<string> WantsMips { get; private set; }
+        public List<string>? WantsMips { get; private set; }
 
-        public List<string> DontConvertToLinearOnRead{ get; private set; }
+        public List<string>? DontConvertToLinearOnRead{ get; private set; }
 
         public bool DontConvertToSRgbOnOnWrite { get; private set; }
 
-        public string FilePath { get; init; }
+        public string? FilePath { get; }
+
+        public string Url { get; }
 
         public void GetPixelFormats(out PixelFormat outputFormat, out PixelFormat renderFormat)
         {
@@ -89,10 +99,10 @@ namespace VL.Stride.Rendering
             if (category.StartsWith(':'))
                 return category.Substring(1);
 
-            if (!Category.StartsWith(prefix))
-                return prefix + "." + Category;
+            if (!category.StartsWith(prefix))
+                return prefix + "." + category;
 
-            return Category;
+            return category;
         }
 
         Dictionary<string, EnumMetadata> pinEnumTypes = new Dictionary<string, EnumMetadata>();
@@ -103,7 +113,7 @@ namespace VL.Stride.Rendering
             var type = Type.GetType(enumTypeName);
             if (type != null && type.IsEnum)
             {
-                object initalVal = Activator.CreateInstance(type);
+                object initalVal = Activator.CreateInstance(type)!;
                 if (initialValue is LiteralExpression literal)
                 {
                     var defaultText = literal.Text;
@@ -111,7 +121,7 @@ namespace VL.Stride.Rendering
 
                     if (converter != null && converter.IsValid(defaultText))
                     {
-                        var underVal = converter.ConvertFromString(defaultText);
+                        var underVal = converter.ConvertFromString(defaultText)!;
                         initalVal = Enum.ToObject(type, underVal);
                     }
                 }
@@ -204,14 +214,11 @@ namespace VL.Stride.Rendering
 
         IEnumerable<(string textureName, bool wantsMips, bool dontUnapplySRgb)> GetTexturePinsToManageInternal(IEnumerable<string> allTextureInputNames)
         {
-            var wantsMips = WantsMips?.Count > 0;
-            var wantsSRgb = DontConvertToLinearOnRead != null;
-
-            var mipPins = wantsMips ? WantsMips : Enumerable.Empty<string>();
+            var mipPins = WantsMips ?? Enumerable.Empty<string>();
 
             var srgbPins = Enumerable.Empty<string>();
             
-            if (wantsSRgb)
+            if (DontConvertToLinearOnRead != null)
             {
                 if (DontConvertToLinearOnRead.Count > 0)
                     srgbPins = DontConvertToLinearOnRead;
@@ -232,7 +239,7 @@ namespace VL.Stride.Rendering
         /// <summary>
         /// Gets the type of the pin, if overwritten by an attribute, e.g. int -> enum.
         /// </summary>
-        public Type GetPinType(ParameterKey key, out object runtimeDefaultValue, out object compilationDefaultValue)
+        public Type? GetPinType(ParameterKey key, out object? runtimeDefaultValue, out object? compilationDefaultValue)
         {
             runtimeDefaultValue = null;
             compilationDefaultValue = null;
@@ -345,13 +352,13 @@ namespace VL.Stride.Rendering
             StrideAttributes.AvailableAttributes.Add(AssetName);
         }
 
-        public static ShaderMetadata CreateMetadata(string effectName, IVirtualFileProvider fileProvider, ShaderSourceManager shaderSourceManager)
+        public static ShaderMetadata CreateMetadata(string effectName, string url, IVirtualFileProvider fileProvider, ShaderSourceManager shaderSourceManager)
         {
             //create metadata with default values
-            var shaderMetadata = new ShaderMetadata()
-            {
-                FilePath = EffectUtils.GetPathOfSdslShader(effectName, fileProvider)
-            };
+            var shaderMetadata = new ShaderMetadata(url, EffectUtils.GetPathOfSdslShader(effectName, fileProvider));
+
+            // Needed by preprocessor (#include "x.hlsl")
+            shaderSourceManager.RegisterFilePath(shaderMetadata);
 
             //try to populate metdata with information form the shader
             if (fileProvider.TryParseEffect(effectName, shaderSourceManager, out var result))

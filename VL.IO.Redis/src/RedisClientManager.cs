@@ -36,12 +36,12 @@ namespace VL.IO.Redis
             _nodeContext = nodeContext;
             _logger = nodeContext.GetLogger();
 
-            frameClock.GetTicks()
-                .Subscribe(BeginFrame)
+            frameClock.GetSubFrameEvent(SubFrameEvents.ModulesWriteGlobalChannels)
+                .Subscribe(WriteIntoGlobalChannels)
                 .DisposeBy(_disposables);
 
-            frameClock.GetFrameFinished()
-                .Subscribe(EndFrame)
+            frameClock.GetSubFrameEvent(SubFrameEvents.ModulesSendingData)
+                .Subscribe(SendData)
                 .DisposeBy(_disposables);
         }
 
@@ -114,14 +114,14 @@ namespace VL.IO.Redis
             }
         }
 
-        private void BeginFrame(FrameTimeMessage message)
+        private void WriteIntoGlobalChannels(SubFrameMessage message)
         {
-            _redisClient?.BeginFrame(message);
+            _redisClient?.WriteIntoGlobalChannels(message);
         }
 
-        private void EndFrame(FrameFinishedMessage message)
+        private void SendData(SubFrameMessage message)
         {
-            _redisClient?.EndFrame(message);
+            _redisClient?.SendData(message);
         }
     }
 }

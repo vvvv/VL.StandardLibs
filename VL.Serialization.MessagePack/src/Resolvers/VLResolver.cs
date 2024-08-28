@@ -38,7 +38,8 @@ namespace VL.Serialization.MessagePack.Resolvers
                 [
                     StrideResolver.Instance, 
                     SkiaResolver.Instance, 
-                    StandardResolver.Instance
+                    StandardResolver.Instance,
+                    TypelessObjectResolver.Instance
                 ])
         ];
 
@@ -66,6 +67,10 @@ namespace VL.Serialization.MessagePack.Resolvers
 
                     var genericTypeArgument = typeof(T).GetGenericArguments()[0];
                     return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadFormatter<>).MakeGenericType(genericTypeArgument));
+                }
+                else if (typeof(T).IsAssignableTo(typeof(IDynamicEnum)))
+                {
+                    return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(DynamicEnumFormatter<>).MakeGenericType(typeof(T)));
                 }
 
                 foreach (IFormatterResolver item in this.resolvers)

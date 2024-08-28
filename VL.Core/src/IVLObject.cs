@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using VL.Core.CompilerServices;
+using VL.Core.EditorAttributes;
 using VL.Core.Logging;
 using VL.Lang;
 using VL.Lib.Collections;
@@ -97,6 +98,8 @@ namespace VL.Core
         // With this approach the user needs to hold on to the message as well as the runtime host.
         [Obsolete("Use AddPersistentMessage")]
         void TogglePersistentUserRuntimeMessage(Message message, bool on);
+
+        internal bool TryGetLocation(Exception exception, out UniqueId id);
     }
 #nullable restore
 
@@ -165,7 +168,9 @@ namespace VL.Core
     /// </summary>
     public interface IHasAttributes
     {
-        IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
+        Spread<Attribute> Attributes { get; }
+        internal Spread<string> Tags => Attributes.OfType<TagAttribute>().Select(t => t.TagLabel).ToSpread();
+        IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
 
     /// <summary>
@@ -229,7 +234,7 @@ namespace VL.Core
         /// <returns>The instance with the newly set value.</returns>
         IVLObject WithValue(IVLObject instance, object value);
 
-        new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute;
+        new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
 
     public record struct ObjectGraphNode(
@@ -688,10 +693,11 @@ namespace VL.Core
         /// <param name="defaultValue">The default value to use in case retrieval failed.</param>
         /// <param name="value">The returned values.</param>
         /// <returns>True if the retrieval succeeded.</returns>
-        public static bool TryGetValue<T>(this IVLObject instance, string name, T defaultValue, out T value)
+        public static bool TryGetValue<T>(this IVLObject instance, string name, T defaultValue, out T value, out bool pathExists)
         {
             var property = instance.Type.GetProperty(name);
-            if (property != null)
+            pathExists = property != null;
+            if (pathExists)
             {
                 var v = property.GetValue(instance);
                 if (v is T)
@@ -754,16 +760,25 @@ namespace VL.Core
         /// </summary>
         /// <typeparam name="T">The expected type of the value.</typeparam>
         /// <param name="instance">The root instance to start the lookup from.</param>
-        /// <param name="path">A dot separated string of property names. Spreaded properties can be indexed using [N] for example "MySpread[0]" retrieves the first value in MySpread.</param>
+        /// <param name="path">A dot separated string of property names. List items (of Spreads, Arrays and Lists) can be indexed using [N] for example "MySpread[0]" retrieves the first value in MySpread.</param>
         /// <param name="defaultValue">The default value to use in case the lookup failed.</param>
         /// <param name="value">The returned value.</param>
-        /// <returns>True if the lookup succeeded.</returns>
-        public static bool TryGetValueByPath<T>(this object instance, string path, T defaultValue, out T value)
+        /// <param name="pathExists">The path exists.</param>
+        /// <returns>True if the lookup succeeded: Correct path and found data of the requested type.</returns>
+        public static bool TryGetValueByPath<T>(this object instance, string path, T defaultValue, out T value, out bool pathExists)
         {
+            pathExists = false;
+
             if (path == "")
             {
-                value = (T)instance; 
-                return value is T;
+                pathExists = true;
+                if (instance is T v)
+                {
+                    value = v;
+                    return true;
+                }
+                value = defaultValue;
+                return false;
             }
 
             if (instance is IVLObject vlObj)
@@ -773,12 +788,12 @@ namespace VL.Core
                 {
                     var property = match.Groups[1].Value;
                     var rest = match.Groups[2].Value;
-                    if (vlObj.TryGetValue(property, default(object), out var o))
+                    if (vlObj.TryGetValue(property, default(object), out var o, out pathExists))
                     {
-                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
                     }
                 }
-                value = default;
+                value = defaultValue;
                 return false;
             }
 
@@ -791,10 +806,10 @@ namespace VL.Core
                     {
                         var rest = match.Groups[2].Value;
                         var o = spread.GetItem(index);
-                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
                     }
                 }
-                value = default;
+                value = defaultValue;
                 return false;
             }
 
@@ -808,13 +823,33 @@ namespace VL.Core
                     if (dict.Contains(key))
                     {
                         var o = dict[key];
-                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
                     }
                 }
-                value = default;
+                value = defaultValue;
                 return false;
             }
 
+            if (instance is IList list)
+            {
+                var match = FValueIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    {
+                        if (0 <= index && index < list.Count)
+                        {
+                            var rest = match.Groups[2].Value;
+                            var o = list[index];
+                            return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
+                        }
+                    }
+                }
+                value = defaultValue;
+                return false;
+            }
+
+            if (instance is not null)
             {
                 var match = FPropertyRegex.Match(path);
                 if (match.Success)
@@ -826,12 +861,13 @@ namespace VL.Core
                     if (property != null)
                     {
                         var o = property.GetValue(instance);
-                        return o.TryGetValueByPath(rest, defaultValue, out value);
+                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
                     }
                 }
-                value = default;
-                return false;
             }
+
+            value = defaultValue;
+            return false;
         }
 
         /// <summary>
@@ -928,7 +964,7 @@ namespace VL.Core
                             }
                         }
                     }
-                }
+                }   
             }
             updatedInstance = instance;
             return false;
@@ -940,15 +976,21 @@ namespace VL.Core
         /// <typeparam name="TInstance">The type of the instance.</typeparam>
         /// <typeparam name="TValue">The expected type of the value.</typeparam>
         /// <param name="instance">The root instance to start the lookup from.</param>
-        /// <param name="path">A dot separated string of property names. Spreaded properties can be indexed using [N] for example "MySpread[0]" sets the first value in MySpread.</param>
+        /// <param name="path">A dot separated string of property names. List items (of Spreads, Arrays and Lists) can be indexed using [N] for example "MySpread[0]" sets the first value in MySpread.</param>
         /// <param name="value">The value to set.</param>
+        /// <param name="pathExists">The path exists.</param>
         /// <returns>The new root instance (if it is a record) with the updated spine.</returns>
 
-        public static TInstance WithValueByPath<TInstance, TValue>(this TInstance instance, string path, TValue value)
+        public static TInstance WithValueByPath<TInstance, TValue>(this TInstance instance, string path, TValue value, out bool pathExists)
             where TInstance : class
         {
+            pathExists = false;
+
             if (path == "")
+            {
+                pathExists = true;
                 return value as TInstance;
+            }
 
             if (instance is IVLObject vlObj)
             {
@@ -957,9 +999,9 @@ namespace VL.Core
                 {
                     var property = match.Groups[1].Value;
                     var rest = match.Groups[2].Value;
-                    if (vlObj.TryGetValue(property, default(object), out var o))
+                    if (vlObj.TryGetValue(property, default(object), out var o, out pathExists))
                     {
-                        o = o.WithValueByPath(rest, value);
+                        o = o.WithValueByPath(rest, value, out pathExists);
                         return vlObj.WithValue(property, o) as TInstance;
                     }
                 }
@@ -975,7 +1017,7 @@ namespace VL.Core
                     {
                         var rest = match.Groups[2].Value;
                         var o = spread.GetItem(index);
-                        o = o.WithValueByPath(rest, value);
+                        o = o.WithValueByPath(rest, value, out pathExists);
                         return spread.SetItem(index, o) as TInstance;
                     }
                 }
@@ -992,8 +1034,27 @@ namespace VL.Core
                     if (dict.Contains(key))
                     {
                         var o = dict[key];
-                        o = o.WithValueByPath(rest, value);
+                        o = o.WithValueByPath(rest, value, out pathExists);
                         return SetItem(dict, key, o) as TInstance;
+                    }
+                }
+                return instance;
+            }
+
+            if (instance is IList list)
+            {
+                var match = FValueIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    {
+                        if (0 <= index && index < list.Count)
+                        {
+                            var rest = match.Groups[2].Value;
+                            var o = list[index];
+                            o = o.WithValueByPath(rest, value, out pathExists);
+                            return SetItem(list, index, o) as TInstance;
+                        }
                     }
                 }
                 return instance;
@@ -1010,8 +1071,13 @@ namespace VL.Core
                     if (property != null)
                     {
                         var o = property.GetValue(instance);
-                        o = o.WithValueByPath(rest, value);
-                        property?.SetValue(instance, o);
+                        o = o.WithValueByPath(rest, value, out pathExists);
+                        if (property.SetMethod != null)
+                        {
+                            if (type.TryGetCloneMethodOfRecord(out var cloneMethod))
+                                instance = (TInstance)cloneMethod.Invoke(instance, null);
+                            property.SetValue(instance, o);
+                        }
                     }
                 }
                 return instance;
@@ -1035,6 +1101,21 @@ namespace VL.Core
                 return dict;
             }
         }
+
+        static IList SetItem(IList list, int index, object value)
+        {
+            var listType = list.GetType();
+            var toListBuilderMethod = listType.GetMethod(nameof(ImmutableList<object>.ToBuilder));
+            if (toListBuilderMethod != null)
+            {
+                var builder = toListBuilderMethod.Invoke(list, null) as IList;
+                builder[index] = value;
+                var toImmutableMethod = builder.GetType().GetMethod(nameof(ImmutableList<object>.Builder.ToImmutable));
+                return toImmutableMethod.Invoke(builder, null) as IList;
+            }
+            list[index] = value;
+            return list;
+        }
     }
 
     public static class VLPropertyInfoExtensions
@@ -1052,7 +1133,7 @@ namespace VL.Core
             public object DefaultValue => null;
             public object GetValue(IVLObject instance) => null;
             public IVLObject WithValue(IVLObject instance, object value) => instance;
-            public IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Enumerable.Empty<TAttribute>();
+            public Spread<Attribute> Attributes => Spread<Attribute>.Empty;
         }
 
         public static IVLPropertyInfo Default = new DefaultImpl();

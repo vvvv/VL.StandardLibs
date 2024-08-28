@@ -1,22 +1,24 @@
 ﻿using ImGuiNET;
 using Stride.Core.Mathematics;
+using VL.Core;
 
 namespace VL.ImGui.Widgets
 {
-    internal abstract class VerticalSliderWidget<T, TComponent> : ChannelWidget<T>, IHasLabel
+    internal abstract class VerticalSliderWidget<T, TComponent> : ChannelWidget<T>
     {
+        protected readonly MinValueSelector<TComponent> min;
+        protected readonly MaxValueSelector<TComponent> max;
+
         public VerticalSliderWidget(TComponent min, TComponent max, Vector2 size)
         {
-            Min = min;
-            Max = max;
+            AddValueSelector(this.min = new(min));
+            AddValueSelector(this.max = new(max));
             Size = size;
         }
 
-        public string? Label { get; set; }
+        public Optional<TComponent> Min { protected get => default; set => min.SetPinValue(value); }
 
-        public TComponent Min { protected get; set; }
-
-        public TComponent Max { protected get; set; }
+        public Optional<TComponent> Max { protected get => default; set => max.SetPinValue(value); }
 
         public Vector2 Size { get; set; }
 

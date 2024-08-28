@@ -254,6 +254,11 @@ namespace VL.Stride
             /// </summary>
             internal static readonly Dictionary<StrideKeys, VLKeys> ReverseMapKeys = NewMapKeys().ToDictionary(e => e.Value, e => e.Key);
 
+            static WinKeys()
+            {
+                // Map to regular enter key like winforms
+                ReverseMapKeys[StrideKeys.NumPadEnter] = VLKeys.Enter;
+            }
 
             private static Dictionary<VLKeys, StrideKeys> NewMapKeys()
             {
