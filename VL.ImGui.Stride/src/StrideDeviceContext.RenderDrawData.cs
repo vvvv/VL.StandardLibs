@@ -81,7 +81,7 @@ namespace VL.ImGui
 
                         if (renderLayer != null)
                         {
-                            renderLayer.ParentInputSource = inputSource;
+                            renderLayer.ParentInputSource = renderLayer.HasFocus ? inputSource : null;
 
                             if (renderLayer.Viewport.Size.LengthSquared() > 0 && context != null)
                             {

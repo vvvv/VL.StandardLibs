@@ -19,7 +19,7 @@
         {
             this.withViewport = withViewport;
             inputHandle = AppHost.Current.Services.GetInputManagerHandle();
-            inputManager.Sources.Add(this);
+            //inputManager.Sources.Add(this);
         }
 
         public void Connect(IInputSource? inputSource) 
@@ -88,7 +88,7 @@
             }
         }
 
-        private void AddOrUpdateDevice(IInputDevice device )
+        private void AddOrUpdateDevice(IInputDevice device ) 
         {
             var sourceDevice = GetDeviceBySourceDeviceID(device.Id);
             if (sourceDevice == null)
@@ -111,7 +111,10 @@
         #region IInputSource
         public TrackingDictionary<Guid, IInputDevice> Devices { get; } = new TrackingDictionary<Guid, IInputDevice>();
 
-        public void Initialize(InputManager inputManager) { }
+        public void Initialize(InputManager inputManager) 
+        {
+
+        }
         public void Pause() {}
         public void Resume() {}
         public void Scan() {}
@@ -121,7 +124,7 @@
         public void Dispose()
         {
             // TODO ... this will lead into 'Access violation'
-            //inputManager.Sources.Remove(this);
+            // inputManager.Sources.Remove(this);
             inputHandle.Dispose();
         }
     }

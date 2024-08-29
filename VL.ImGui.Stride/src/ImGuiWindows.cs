@@ -18,6 +18,10 @@ using StrideVector2 = Stride.Core.Mathematics.Vector2;
 using StrideApp = Stride.Graphics.SDL.Application;
 using VL.Stride.Games;
 using Silk.NET.SDL;
+using Stride.Engine;
+using System.Windows.Media;
+using System.Windows;
+using VL.Lib.Experimental.ProcessGraph;
 
 namespace VL.ImGui.Stride
 {
@@ -26,16 +30,18 @@ namespace VL.ImGui.Stride
     
     
     public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
-    public delegate void ImGuiWindowsDrawHandler(object stateInput, IGraphicsRendererBase value, IInputSource inputSource, GameWindow gameWindow, GraphicsPresenter presenter, out object stateOutput, out IGraphicsRendererBase result);
+    public delegate void ImGuiWindowsDrawHandler(object stateInput, IGraphicsRendererBase value, GameWindow gameWindow, GraphicsPresenter presenter, out object stateOutput, out IGraphicsRendererBase result);
     public partial class ImGuiWindows : IDisposable
     {
         //VL 
-        private readonly NodeContext nodeContext;
-        private readonly ImGuiWindow mainViewportWindow;
+        private readonly NodeContext _nodeContext;
+        private readonly ImGuiWindow _mainViewportWindow;
         private readonly StrideDeviceContext _strideDeviceContext;
 
 
-        private readonly IResourceHandle<GraphicsDevice> deviceHandle;
+        private readonly IResourceHandle<GraphicsDevice> _deviceHandle;
+        private readonly IResourceHandle<Game> _gameHandle;
+        Game _game => _gameHandle.Resource;
 
         private readonly Platform_CreateWindow _createWindow;
         private readonly Platform_DestroyWindow _destroyWindow;
@@ -51,16 +57,23 @@ namespace VL.ImGui.Stride
 
         public event EventHandler<EventArgs> Closing
         {
-            add { mainViewportWindow.Closing += value; }
-            remove { mainViewportWindow.Closing -= value; }
+            add { _mainViewportWindow.Closing += value; }
+            remove { _mainViewportWindow.Closing -= value; }
         }
+
+        private void AddSource(ImGuiWindow window)
+        {
+            _game.Input.Sources.Add(window.Input);
+        }
+
 
         public unsafe ImGuiWindows(NodeContext nodeContext)
         {
-            this.nodeContext = nodeContext;
+            _nodeContext = nodeContext;
             _strideDeviceContext = new StrideDeviceContext(nodeContext);
 
-            deviceHandle = AppHost.Current.Services.GetDeviceHandle();
+            _deviceHandle = AppHost.Current.Services.GetDeviceHandle();
+            _gameHandle = AppHost.Current.Services.GetGameHandle();
 
             using (_strideDeviceContext.MakeCurrent()) 
             {
@@ -69,11 +82,13 @@ namespace VL.ImGui.Stride
                 ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
                 ImGuiViewportPtr mainViewport = platformIO.Viewports[0];
 
-                mainViewportWindow = new ImGuiWindow(this.nodeContext, _strideDeviceContext, mainViewport);
-                mainViewport.PlatformHandle = mainViewportWindow.Handle;
+                _mainViewportWindow = new ImGuiWindow(_nodeContext, _strideDeviceContext, mainViewport, _game);
+                AddSource(_mainViewportWindow);
+
+                mainViewport.PlatformHandle = _mainViewportWindow.Handle;
 
 
-                mainViewportWindow.Closing += (o, i) =>
+                _mainViewportWindow.Closing += (o, i) =>
                 {
                     // Closing all other Windows
                     ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
@@ -182,13 +197,13 @@ namespace VL.ImGui.Stride
                         // Render (builds mesh with texture coordinates)
                         ImGui.Render();
 
-                        mainViewportWindow.Update(create, draw, ImGui.GetDrawData(), fonts, style);
-
+                        _mainViewportWindow.Update(create, draw, ImGui.GetDrawData(), fonts, style);
+                    
                         // Update and Render additional Platform Windows
                         if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
                         {
                             ImGui.UpdatePlatformWindows();
-                            ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
+                            ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();       
 
                             for (int i = 1; i < platformIO.Viewports.Size; i++)
                             {
@@ -222,17 +237,17 @@ namespace VL.ImGui.Stride
                 _strideDeviceContext.IO.MousePos = new Vector2(x, y);
             }
 
-            _strideDeviceContext.IO.DisplaySize = new Vector2(mainViewportWindow.Size.X, mainViewportWindow.Size.Y);
+            _strideDeviceContext.IO.DisplaySize = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
             _strideDeviceContext.IO.DisplayFramebufferScale = new Vector2(1.0f, 1.0f);
             
             
-            ImGui.GetPlatformIO().Viewports[0].Pos = new Vector2(mainViewportWindow.Position.X, mainViewportWindow.Position.Y);    
-            ImGui.GetPlatformIO().Viewports[0].Size = new Vector2(mainViewportWindow.Size.X, mainViewportWindow.Size.Y);
+            ImGui.GetPlatformIO().Viewports[0].Pos = new Vector2(_mainViewportWindow.Position.X, _mainViewportWindow.Position.Y);    
+            ImGui.GetPlatformIO().Viewports[0].Size = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
         }
 
         private unsafe void UpdateMonitors()
         {
-            var outputs = deviceHandle.Resource.Adapter.Outputs;
+            var outputs = _deviceHandle.Resource.Adapter.Outputs;
 
             ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
             Marshal.FreeHGlobal(platformIO.NativePtr->Monitors.Data);
@@ -255,27 +270,56 @@ namespace VL.ImGui.Stride
 
         private void CreateWindow(ImGuiViewportPtr vp)
         {
-            ImGuiWindow window = new ImGuiWindow(nodeContext, _strideDeviceContext, vp);
+            Helper.Log("Platform.CreateWindow");
+            ImGuiWindow window = new ImGuiWindow(_nodeContext, _strideDeviceContext, vp, _game);
+            AddSource(window);
         }
 
         private void DestroyWindow(ImGuiViewportPtr vp)
         {
+            var viewPort = ImGui.GetMainViewport();
+            var main = viewPort.ID;
+
+
+            Helper.Log("Platform.DestroyWindow");
             if (vp.PlatformUserData != IntPtr.Zero)
             {
                 var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
+
+                var id = vp.ParentViewportId;
 
                 if (target != null)
                 {
                     ImGuiWindow window = (ImGuiWindow)target;
                     window.Dispose();
                 }
-
                 vp.PlatformUserData = IntPtr.Zero;
+                
+            }
+
+            // TODO
+            // Preserve other Sources from normal StrideWindows
+            // Clear Sources And Add all existing ons
+            _game.Input.Sources.Clear();
+            ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
+            for (int i = 0; i < platformIO.Viewports.Size; i++)
+            {
+                ImGuiViewportPtr v = platformIO.Viewports[i];
+                if (v.PlatformUserData != IntPtr.Zero)
+                {
+                    var target = GCHandle.FromIntPtr(v.PlatformUserData).Target;
+                    if (target != null)
+                    {
+                        ImGuiWindow window = (ImGuiWindow)target;
+                        AddSource(window);
+                    }
+                }
             }
         }
 
         private void ShowWindow(ImGuiViewportPtr vp)
         {
+            Helper.Log("Platform.ShowWindow");
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
             {
@@ -296,6 +340,7 @@ namespace VL.ImGui.Stride
 
         private void SetWindowPos(ImGuiViewportPtr vp, Vector2 pos)
         {
+            Helper.Log("Platform.SetWindowPos");
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
             {
@@ -315,6 +360,7 @@ namespace VL.ImGui.Stride
 
         private void SetWindowSize(ImGuiViewportPtr vp, Vector2 size)
         {
+            //Helper.Log("Platform.SetWindowSize");
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
             {
@@ -325,6 +371,7 @@ namespace VL.ImGui.Stride
 
         private void SetWindowFocus(ImGuiViewportPtr vp)
         {
+            //Helper.Log("Platform.SetWindowFocus");
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
             {
@@ -335,19 +382,21 @@ namespace VL.ImGui.Stride
 
         private byte GetWindowFocus(ImGuiViewportPtr vp)
         {
-            bool isActivated = false;
+            //Helper.Log("Platform.SetWindowFocus");
+            bool IsFocused = false;
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
             {
                 ImGuiWindow window = (ImGuiWindow)target;
-                isActivated = window.IsActivated;
+                IsFocused = window.IsFocused;
             }
 
-            return isActivated ? (byte)1 : (byte)0;
+            return IsFocused ? (byte)1 : (byte)0;
         }
 
         private byte GetWindowMinimized(ImGuiViewportPtr vp)
         {
+            //Helper.Log("Platform.GetWindowMinimized");
             bool isMinimized = false;
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
@@ -361,6 +410,7 @@ namespace VL.ImGui.Stride
 
         private unsafe void SetWindowTitle(ImGuiViewportPtr vp, IntPtr title)
         {
+            Helper.Log("Platform.SetWindowTitle");
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
             {
@@ -379,9 +429,10 @@ namespace VL.ImGui.Stride
 
         public void Dispose()
         {
-            deviceHandle.Dispose();
-            mainViewportWindow.Dispose();
+            _deviceHandle.Dispose();
+            _mainViewportWindow.Dispose();
             _strideDeviceContext.Dispose();
+            _gameHandle.Dispose();
         }
     }
 }

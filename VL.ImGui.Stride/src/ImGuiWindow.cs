@@ -15,6 +15,7 @@ using VL.Stride.Rendering;
 using VL.Stride.Engine;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Collections;
+using VL.Stride.Input;
 
 namespace VL.ImGui.Stride
 {
@@ -23,17 +24,13 @@ namespace VL.ImGui.Stride
     internal class ImGuiWindow : IDisposable
     {
         private readonly ImGuiViewportPtr _vp;
-        private readonly IResourceHandle<Game> _gameHandle;
-        private readonly IResourceHandle<InputManager> _inputManagerHandle;
-        Game _game => _gameHandle.Resource;
-        InputManager _inputManager => _inputManagerHandle.Resource;
-
         private readonly GCHandle _gcHandle;
         private readonly SchedulerSystem _schedulerSystem;
+        private readonly GameContext _gameContext;
         private readonly GameWindowRenderer _gameWindowRenderer;
         private readonly IInputSource _inputSource;
         private readonly WindowRenderer _windowRenderer;
-        private readonly ImGuiRenderer _renderer;
+        private readonly ImGuiRenderer _renderer;       
 
         private object? _state;
         private ImGuiWindowsCreateHandler? _createHandler;
@@ -65,9 +62,25 @@ namespace VL.ImGui.Stride
             set { _gameWindowRenderer.Window.Title = value; }
         }
 
-        public bool IsActivated
+        public IInputSource Input
         {
-            get { return _gameWindowRenderer.Window.IsActivated; }
+            get { return _inputSource; }
+        }
+
+        private bool _isFocused = false;
+        public bool IsFocused
+        {
+            get 
+            {
+                var focused = _gameWindowRenderer.Window.Focused;
+
+                if (_isFocused != focused)
+                {
+                    _isFocused = focused;
+                    Helper.Log(Title + " " + _gameWindowRenderer.Window.Focused);
+                }
+                return _isFocused; 
+            }
         }
 
         public void Activate()
@@ -80,7 +93,7 @@ namespace VL.ImGui.Stride
             get { return _gameWindowRenderer.Window.IsMinimized; }
         }
 
-        public ImGuiWindow(NodeContext nodeContext, StrideDeviceContext strideDeviceContext, ImGuiViewportPtr vp)
+        public ImGuiWindow(NodeContext nodeContext, StrideDeviceContext strideDeviceContext, ImGuiViewportPtr vp, Game game)
         {
             _vp = vp;
 
@@ -95,17 +108,13 @@ namespace VL.ImGui.Stride
 
 
             _gcHandle = GCHandle.Alloc(this);
-            _gameHandle = nodeContext.AppHost.Services.GetGameHandle();
-            
-            var gameContext = GameContextFactory.NewGameContextSDL(size.X, size.Y, true);
+           
+            _gameContext = GameContextFactory.NewGameContextSDL(size.X, size.Y, true);
+            _inputSource = InputSourceFactory.NewWindowInputSource(_gameContext);
+            //game.Input.Sources.Add(_inputSource);
 
-            _inputManagerHandle = AppHost.Current.Services.GetInputManagerHandle();
-            _inputSource = InputSourceFactory.NewWindowInputSource(gameContext);
-
-            _inputManager.Sources.Add(_inputSource);
-
-            _gameWindowRenderer = new GameWindowRenderer(_game.Services, gameContext);
-            _schedulerSystem = _game.Services.GetService<SchedulerSystem>();
+            _gameWindowRenderer = new GameWindowRenderer(game.Services, _gameContext);
+            _schedulerSystem = game.Services.GetService<SchedulerSystem>();
 
             var manager = _gameWindowRenderer.WindowManager;
             {
@@ -133,7 +142,7 @@ namespace VL.ImGui.Stride
 
             var window = _gameWindowRenderer.Window;
             {
-
+                window.Title = "MainImgui";
                 window.IsBorderLess = (_vp.Flags & ImGuiViewportFlags.NoDecoration) != 0;
                 window.Position = position;
                 window.FullscreenIsBorderlessWindow = true;
@@ -142,16 +151,42 @@ namespace VL.ImGui.Stride
                 window.IsMouseVisible = true;
                 window.BringToFront();
 
-                window.ClientSizeChanged += (o, i) => _vp.PlatformRequestResize = true;
-                window.Closing += (o, i) => _vp.PlatformRequestClose = true;
+                window.ClientSizeChanged += Window_ClientSizeChanged;
+                window.Closing += Window_Closing; 
+                window.Activated += Window_Activated;
+                window.Deactivated += Window_Deactivated;
             }
 
-            _windowRenderer = new WindowRenderer(_gameWindowRenderer);
+            _windowRenderer = new WindowRenderer(_gameWindowRenderer, _inputSource);
 
             _renderer = new ImGuiRenderer(strideDeviceContext);
 
             vp.PlatformUserData = (IntPtr)_gcHandle;
         }
+
+        #region window.Events
+        private void Window_Closing(object? sender, EventArgs e)
+        {
+            _vp.PlatformRequestClose = true;
+            Helper.Log("ImGuiWindow.Window_Closing");
+        }
+
+        private void Window_ClientSizeChanged(object? sender, EventArgs e)
+        {
+            _vp.PlatformRequestResize = true;
+            Helper.Log("ImGuiWindow.Window_ClientSizeChanged");
+        }
+
+        private void Window_Activated(object? sender, EventArgs e)
+        {
+            Helper.Log("ImGuiWindow.Window_Activated");
+        }
+
+        private void Window_Deactivated(object? sender, EventArgs e)
+        {
+            Helper.Log("ImGuiWindow.Window_Deactivated");
+        }
+        #endregion window.Events
 
         public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, ImDrawDataPtr drawData, Spread<FontConfig?> fonts, IStyle style)
         {
@@ -165,7 +200,7 @@ namespace VL.ImGui.Stride
             {
                 _renderer.Update(fonts, style);
                 _renderer.SetDrawData(drawData);
-                _drawHandler(_state, _renderer, _inputSource, _gameWindowRenderer.Window, _gameWindowRenderer.Presenter, out _state, out var output);
+                _drawHandler(_state, _renderer, _gameWindowRenderer.Window, _gameWindowRenderer.Presenter, out _state, out var output);
                 _windowRenderer.Input = output;
                 _schedulerSystem.Schedule(_windowRenderer);
             }
@@ -173,6 +208,8 @@ namespace VL.ImGui.Stride
 
         public void Dispose()
         {
+            Helper.Log("ImGuiWindow.Dispose()");
+
             try
             {
                 (_state as IDisposable)?.Dispose();
@@ -182,11 +219,19 @@ namespace VL.ImGui.Stride
                 _state = new object();
             }
 
-            _inputManager.Sources.Remove(_inputSource);
+            //_game.Input.Sources.Remove(_inputSource);
+
+            //_inputManager.Sources.Remove(_inputSource);
+
+            _gameWindowRenderer.Window.ClientSizeChanged -= Window_ClientSizeChanged;
+            _gameWindowRenderer.Window.Closing -= Window_Closing;
+            _gameWindowRenderer.Window.Activated -= Window_Activated;
+            _gameWindowRenderer.Window.Deactivated -= Window_Deactivated;
             _gameWindowRenderer.Close();
-            _inputManagerHandle.Dispose();
+            //_inputManagerHandle.Dispose();
             _inputSource.Dispose();
-            _gameHandle.Dispose();
+            //_game.Dispose();
+            //_gameHandle.Dispose();
             _gcHandle.Free();
         }
 
@@ -198,10 +243,13 @@ namespace VL.ImGui.Stride
 
             public IGraphicsRendererBase? Input {  private get; set; }
 
-            public WindowRenderer(GameWindowRenderer gameWindowRenderer)
+            public IInputSource? InputSource { get; set; }
+
+            public WindowRenderer(GameWindowRenderer gameWindowRenderer, IInputSource InputSource)
             {
                 _gameWindowRenderer = gameWindowRenderer;
                 _withRenderTargetAndViewPort = new WithRenderTargetAndViewPort();
+                this.InputSource = InputSource;
             }
 
             public void Draw(RenderDrawContext context)
@@ -213,7 +261,10 @@ namespace VL.ImGui.Stride
                         _withRenderTargetAndViewPort.RenderTarget = _gameWindowRenderer.Presenter.BackBuffer;
                         _withRenderTargetAndViewPort.DepthBuffer = _gameWindowRenderer.Presenter.DepthStencilBuffer;
                         _withRenderTargetAndViewPort.Input = Input;
+
+                        context.RenderContext.SetWindowInputSource(InputSource);
                         _withRenderTargetAndViewPort.Draw(context);
+                        context.RenderContext.SetWindowInputSource(null);
                     }
                     _gameWindowRenderer.EndDraw();
                 }
