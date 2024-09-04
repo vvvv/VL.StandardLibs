@@ -13,9 +13,9 @@ using VL.Stride;
 using VL.Stride.Games;
 using VL.Stride.Rendering;
 using VL.Stride.Engine;
-using VL.Lib.Basics.Resources;
 using VL.Lib.Collections;
 using VL.Stride.Input;
+
 
 namespace VL.ImGui.Stride
 {
@@ -28,6 +28,7 @@ namespace VL.ImGui.Stride
         private readonly SchedulerSystem _schedulerSystem;
         private readonly GameContext _gameContext;
         private readonly GameWindowRenderer _gameWindowRenderer;
+        private readonly InputManager _inputManager;
         private readonly IInputSource _inputSource;
         private readonly WindowRenderer _windowRenderer;
         private readonly ImGuiRenderer _renderer;       
@@ -110,8 +111,9 @@ namespace VL.ImGui.Stride
             _gcHandle = GCHandle.Alloc(this);
            
             _gameContext = GameContextFactory.NewGameContextSDL(size.X, size.Y, true);
+            _inputManager = game.Input;
             _inputSource = InputSourceFactory.NewWindowInputSource(_gameContext);
-            //game.Input.Sources.Add(_inputSource);
+            _inputManager.Sources.Add(_inputSource);
 
             _gameWindowRenderer = new GameWindowRenderer(game.Services, _gameContext);
             _schedulerSystem = game.Services.GetService<SchedulerSystem>();
@@ -152,9 +154,8 @@ namespace VL.ImGui.Stride
                 window.BringToFront();
 
                 window.ClientSizeChanged += Window_ClientSizeChanged;
-                window.Closing += Window_Closing; 
-                window.Activated += Window_Activated;
-                window.Deactivated += Window_Deactivated;
+                window.Closing += Window_Closing;
+                window.FullscreenChanged += Window_FullscreenChanged;
             }
 
             _windowRenderer = new WindowRenderer(_gameWindowRenderer, _inputSource);
@@ -163,6 +164,8 @@ namespace VL.ImGui.Stride
 
             vp.PlatformUserData = (IntPtr)_gcHandle;
         }
+
+        
 
         #region window.Events
         private void Window_Closing(object? sender, EventArgs e)
@@ -177,14 +180,10 @@ namespace VL.ImGui.Stride
             Helper.Log("ImGuiWindow.Window_ClientSizeChanged");
         }
 
-        private void Window_Activated(object? sender, EventArgs e)
+        private void Window_FullscreenChanged(object? sender, EventArgs e)
         {
-            Helper.Log("ImGuiWindow.Window_Activated");
-        }
-
-        private void Window_Deactivated(object? sender, EventArgs e)
-        {
-            Helper.Log("ImGuiWindow.Window_Deactivated");
+            _vp.PlatformRequestResize = true;
+            Helper.Log("ImGuiWindow.Window_FullscreenChanged");
         }
         #endregion window.Events
 
@@ -219,19 +218,12 @@ namespace VL.ImGui.Stride
                 _state = new object();
             }
 
-            //_game.Input.Sources.Remove(_inputSource);
-
-            //_inputManager.Sources.Remove(_inputSource);
-
             _gameWindowRenderer.Window.ClientSizeChanged -= Window_ClientSizeChanged;
             _gameWindowRenderer.Window.Closing -= Window_Closing;
-            _gameWindowRenderer.Window.Activated -= Window_Activated;
-            _gameWindowRenderer.Window.Deactivated -= Window_Deactivated;
+            _gameWindowRenderer.Window.FullscreenChanged -= Window_FullscreenChanged;
             _gameWindowRenderer.Close();
-            //_inputManagerHandle.Dispose();
+            _inputManager.RemoveInputSource(_inputSource);
             _inputSource.Dispose();
-            //_game.Dispose();
-            //_gameHandle.Dispose();
             _gcHandle.Free();
         }
 

@@ -13,15 +13,8 @@ using VL.Lib.Collections;
 using System.Runtime.CompilerServices;
 using VL.Lib.Basics.Resources;
 using VL.Stride;
-
-using StrideVector2 = Stride.Core.Mathematics.Vector2;
-using StrideApp = Stride.Graphics.SDL.Application;
-using VL.Stride.Games;
-using Silk.NET.SDL;
 using Stride.Engine;
-using System.Windows.Media;
-using System.Windows;
-using VL.Lib.Experimental.ProcessGraph;
+
 
 namespace VL.ImGui.Stride
 {
@@ -61,10 +54,6 @@ namespace VL.ImGui.Stride
             remove { _mainViewportWindow.Closing -= value; }
         }
 
-        private void AddSource(ImGuiWindow window)
-        {
-            _game.Input.Sources.Add(window.Input);
-        }
 
 
         public unsafe ImGuiWindows(NodeContext nodeContext)
@@ -83,8 +72,6 @@ namespace VL.ImGui.Stride
                 ImGuiViewportPtr mainViewport = platformIO.Viewports[0];
 
                 _mainViewportWindow = new ImGuiWindow(_nodeContext, _strideDeviceContext, mainViewport, _game);
-                AddSource(_mainViewportWindow);
-
                 mainViewport.PlatformHandle = _mainViewportWindow.Handle;
 
 
@@ -272,14 +259,11 @@ namespace VL.ImGui.Stride
         {
             Helper.Log("Platform.CreateWindow");
             ImGuiWindow window = new ImGuiWindow(_nodeContext, _strideDeviceContext, vp, _game);
-            AddSource(window);
         }
 
         private void DestroyWindow(ImGuiViewportPtr vp)
         {
-            var viewPort = ImGui.GetMainViewport();
-            var main = viewPort.ID;
-
+            IList<IInputSource> sources = new List<IInputSource>();
 
             Helper.Log("Platform.DestroyWindow");
             if (vp.PlatformUserData != IntPtr.Zero)
@@ -293,27 +277,7 @@ namespace VL.ImGui.Stride
                     ImGuiWindow window = (ImGuiWindow)target;
                     window.Dispose();
                 }
-                vp.PlatformUserData = IntPtr.Zero;
-                
-            }
-
-            // TODO
-            // Preserve other Sources from normal StrideWindows
-            // Clear Sources And Add all existing ons
-            _game.Input.Sources.Clear();
-            ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
-            for (int i = 0; i < platformIO.Viewports.Size; i++)
-            {
-                ImGuiViewportPtr v = platformIO.Viewports[i];
-                if (v.PlatformUserData != IntPtr.Zero)
-                {
-                    var target = GCHandle.FromIntPtr(v.PlatformUserData).Target;
-                    if (target != null)
-                    {
-                        ImGuiWindow window = (ImGuiWindow)target;
-                        AddSource(window);
-                    }
-                }
+                vp.PlatformUserData = IntPtr.Zero; 
             }
         }
 

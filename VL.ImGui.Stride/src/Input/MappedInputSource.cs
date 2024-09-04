@@ -6,20 +6,17 @@
     using VL.Lib.Basics.Resources;
     using VL.Core;
     using VL.Stride;
+    using VL.ImGui.Stride;
 
     public class MappedInputSource : IInputSource
     {
-        private readonly IResourceHandle<InputManager> inputHandle;
         private readonly IWithViewport withViewport;
-        InputManager inputManager => inputHandle.Resource;
 
         public Viewport Viewport => withViewport.Viewport;
 
         public MappedInputSource(IWithViewport withViewport)
         {
             this.withViewport = withViewport;
-            inputHandle = AppHost.Current.Services.GetInputManagerHandle();
-            //inputManager.Sources.Add(this);
         }
 
         public void Connect(IInputSource? inputSource) 
@@ -123,9 +120,7 @@
 
         public void Dispose()
         {
-            // TODO ... this will lead into 'Access violation'
-            // inputManager.Sources.Remove(this);
-            inputHandle.Dispose();
+
         }
     }
 }
