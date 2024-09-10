@@ -41,6 +41,13 @@ namespace VL.Stride.Graphics
             return false;
         }
 
+
+        public static bool IsBlockCompressed(this StridePixelFormat format)
+        {
+            return format.ToString().Contains("BC");
+
+        }
+
         /// <summary>
         /// Copies the <paramref name="fromData"/> to the given <paramref name="texture"/> on GPU memory.
         /// </summary>
