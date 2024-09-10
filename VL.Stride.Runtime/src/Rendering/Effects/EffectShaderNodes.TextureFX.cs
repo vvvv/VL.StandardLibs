@@ -374,9 +374,13 @@ namespace VL.Stride.Rendering
                                     if (inputTexture != null)
                                     {
                                         // Base it on the input texture if it is not block compressed (BC1 - B7)
-                                        var viewFormat = inputTexture.ViewFormat.IsBlockCompressed() ? PixelFormat.R8G8B8A8_UNorm_SRgb : inputTexture.ViewFormat;
-
-
+                                        var viewFormat = (inputTexture.ViewFormat.IsCompressed(), inputTexture.ViewFormat.IsSRgb()) switch
+                                        {
+                                            (false, _) => inputTexture.ViewFormat,
+                                            (true, false) => PixelFormat.R8G8B8A8_UNorm,
+                                            (true, true) => PixelFormat.R8G8B8A8_UNorm_SRgb
+                                        };
+                                      
                                         // Figure out render format
                                         if (!shaderMetadata.IsTextureSource && shaderMetadata.DontConvertToSRgbOnOnWrite)
                                         {
