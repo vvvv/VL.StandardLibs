@@ -45,7 +45,6 @@ namespace VL.Stride.Graphics
         public static bool IsBlockCompressed(this StridePixelFormat format)
         {
             return format.ToString().Contains("BC");
-
         }
 
         /// <summary>
