@@ -373,12 +373,16 @@ namespace VL.Stride.Rendering
                                     var desc = (size: defaultSize, format: defaultFormat, renderFormat: defaultRenderFormat);
                                     if (inputTexture != null)
                                     {
+
                                         // Base it on the input texture if it is not block compressed (BC1 - B7)
-                                        var viewFormat = (inputTexture.ViewFormat.IsCompressed(), inputTexture.ViewFormat.IsSRgb()) switch
+                                        var viewFormat = inputTexture.ViewFormat;
+
+                                        viewFormat = (viewFormat.IsCompressed(), viewFormat.IsSRgb(), viewFormat.IsHDR()) switch
                                         {
-                                            (false, _) => inputTexture.ViewFormat,
-                                            (true, false) => PixelFormat.R8G8B8A8_UNorm,
-                                            (true, true) => PixelFormat.R8G8B8A8_UNorm_SRgb
+                                            (false, _, _) => viewFormat,
+                                            (true, false, false) => PixelFormat.R8G8B8A8_UNorm,
+                                            (true, true, false) => PixelFormat.R8G8B8A8_UNorm_SRgb,
+                                            (true, _, true) => PixelFormat.R16G16B16A16_Float
                                         };
                                       
                                         // Figure out render format
