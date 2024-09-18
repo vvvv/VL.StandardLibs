@@ -94,9 +94,12 @@ namespace VL.Lib.IO.Ports
             FCurrentTask?.CancelAndDispose(FCancellation, timeout);
             FCurrentTask = null;
 
-            FPort.Close();
-            FPort.Dispose();
-            FPort = null;
+            if (FPort != null)
+            {
+                FPort.Close();
+                FPort.Dispose();
+                FPort = null;
+            }
         }
 
         public void SendData(IReadOnlyList<byte> data)
