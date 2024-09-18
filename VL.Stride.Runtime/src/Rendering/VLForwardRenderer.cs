@@ -138,7 +138,7 @@ namespace VL.Stride.Rendering
         /// <summary>
         /// Virtual Reality related settings
         /// </summary>
-        public VRRendererSettings VRSettings { get; set; } = new VRRendererSettings();
+        public VRRendererSettings VRSettings { get; set; }
 
         /// <summary>
         /// Multi viewport related settings
@@ -217,11 +217,12 @@ namespace VL.Stride.Rendering
             var camera = Context.GetCurrentCamera();
 
             vrSystem = Services.GetService<VRDeviceSystem>();
-            if (vrSystem != null)
+            var vrSettings = this.VRSettings;
+            if (vrSystem != null && vrSettings != null)
             {
-                if (VRSettings.Enabled)
+                if (vrSettings.Enabled)
                 {
-                    var requiredDescs = VRSettings.RequiredApis.ToArray();
+                    var requiredDescs = vrSettings.RequiredApis.ToArray();
                     vrSystem.PreferredApis = requiredDescs.Select(x => x.Api).Distinct().ToArray();
 
                     // remove VR API duplicates and keep first desired config only
@@ -233,27 +234,27 @@ namespace VL.Stride.Rendering
                     }
                     vrSystem.PreferredScalings = preferredScalings;
 
-                    vrSystem.RequireMirror = VRSettings.CopyMirror;
+                    vrSystem.RequireMirror = vrSettings.CopyMirror;
                     vrSystem.MirrorWidth = GraphicsDevice.Presenter.BackBuffer.Width;
                     vrSystem.MirrorHeight = GraphicsDevice.Presenter.BackBuffer.Height;
-                    vrSystem.RequestPassthrough = VRSettings.RequestPassthrough;
+                    vrSystem.RequestPassthrough = vrSettings.RequestPassthrough;
 
                     vrSystem.Enabled = true; //careful this will trigger the whole chain of initialization!
                     vrSystem.Visible = true;
 
-                    VRSettings.VRDevice = vrSystem.Device;
+                    vrSettings.VRDevice = vrSystem.Device;
 
                     vrSystem.PreviousUseCustomProjectionMatrix = camera.UseCustomProjectionMatrix;
                     vrSystem.PreviousUseCustomViewMatrix = camera.UseCustomViewMatrix;
                     vrSystem.PreviousCameraProjection = camera.ProjectionMatrix;
 
-                    if (VRSettings.VRDevice.SupportsOverlays)
+                    if (vrSettings.VRDevice.SupportsOverlays)
                     {
-                        foreach (var overlay in VRSettings.Overlays)
+                        foreach (var overlay in vrSettings.Overlays)
                         {
                             if (overlay != null && overlay.Texture != null)
                             {
-                                overlay.Overlay = VRSettings.VRDevice.CreateOverlay(overlay.Texture.Width, overlay.Texture.Height, overlay.Texture.MipLevels, (int)overlay.Texture.MultisampleCount);
+                                overlay.Overlay = vrSettings.VRDevice.CreateOverlay(overlay.Texture.Width, overlay.Texture.Height, overlay.Texture.MipLevels, (int)overlay.Texture.MultisampleCount);
                             }
                         }
                     }
@@ -263,7 +264,7 @@ namespace VL.Stride.Rendering
                     vrSystem.Enabled = false;
                     vrSystem.Visible = false;
 
-                    VRSettings.VRDevice = null;
+                    vrSettings.VRDevice = null;
 
                     if (vrSystem.Device != null) //we had a device before so we know we need to restore the camera
                     {
@@ -365,7 +366,8 @@ namespace VL.Stride.Rendering
 
                 CollectStages(context);
 
-                if (VRSettings.Enabled && VRSettings.VRDevice != null)
+                var vrSettings = this.VRSettings;
+                if (vrSettings != null && vrSettings.Enabled && vrSettings.VRDevice != null)
                 {
                     Vector3 cameraPos, cameraScale;
                     Matrix cameraRot;
@@ -382,7 +384,7 @@ namespace VL.Stride.Rendering
                         Vector3.TransformCoordinate(ref cameraPos, ref cameraRot, out cameraPos);
                     }
 
-                    if (VRSettings.IgnoreCameraRotation)
+                    if (vrSettings.IgnoreCameraRotation)
                     {
                         cameraRot = Matrix.Identity;
                     }
@@ -391,7 +393,7 @@ namespace VL.Stride.Rendering
                     Matrix* viewMatrices = stackalloc Matrix[2];
                     Matrix* projectionMatrices = stackalloc Matrix[2];
                     for (var i = 0; i < 2; ++i)
-                        VRSettings.VRDevice.ReadEyeParameters(i == 0 ? Eyes.Left : Eyes.Right, camera.NearClipPlane, camera.FarClipPlane, ref cameraPos, ref cameraRot, VRSettings.IgnoreDeviceRotation, VRSettings.IgnoreDevicePosition, out viewMatrices[i], out projectionMatrices[i]);
+                        vrSettings.VRDevice.ReadEyeParameters(i == 0 ? Eyes.Left : Eyes.Right, camera.NearClipPlane, camera.FarClipPlane, ref cameraPos, ref cameraRot, vrSettings.IgnoreDeviceRotation, vrSettings.IgnoreDevicePosition, out viewMatrices[i], out projectionMatrices[i]);
 
                     // if the VRDevice disagreed with the near and far plane, we must re-discover them and follow:
                     var near = projectionMatrices[0].M43 / projectionMatrices[0].M33;
@@ -414,12 +416,12 @@ namespace VL.Stride.Rendering
 
                     for (var i = 0; i < 2; i++)
                     {
-                        using (context.PushRenderViewAndRestore(VRSettings.RenderViews[i]))
+                        using (context.PushRenderViewAndRestore(vrSettings.RenderViews[i]))
                         using (context.SaveViewportAndRestore())
                         {
                             context.RenderSystem.Views.Add(context.RenderView);
                             context.RenderView.LightingView = commonView;
-                            context.ViewportState.Viewport0 = new Viewport(0, 0, VRSettings.VRDevice.ActualRenderFrameSize.Width / 2.0f, VRSettings.VRDevice.ActualRenderFrameSize.Height);
+                            context.ViewportState.Viewport0 = new Viewport(0, 0, vrSettings.VRDevice.ActualRenderFrameSize.Width / 2.0f, vrSettings.VRDevice.ActualRenderFrameSize.Height);
 
                             //change camera params for eye
                             camera.ViewMatrix = viewMatrices[i];
@@ -442,9 +444,9 @@ namespace VL.Stride.Rendering
                         }
                     }
 
-                    if (VRSettings.VRDevice.SupportsOverlays)
+                    if (vrSettings.VRDevice.SupportsOverlays)
                     {
-                        foreach (var overlay in VRSettings.Overlays)
+                        foreach (var overlay in vrSettings.Overlays)
                         {
                             if (overlay != null && overlay.Texture != null)
                             {
@@ -799,10 +801,11 @@ namespace VL.Stride.Rendering
                 // Render Shadow maps
                 shadowMapRenderer?.Draw(drawContext);
 
-                if (vrSystem != null)
-                    vrSystem.Visible = VRSettings.Enabled;
+                var vrSettings = this.VRSettings;
+                if (vrSystem != null && vrSettings != null)
+                    vrSystem.Visible = vrSettings.Enabled;
 
-                if (VRSettings.Enabled && VRSettings.VRDevice != null)
+                if (vrSettings != null && vrSettings.Enabled && vrSettings.VRDevice != null)
                 {
                     var isFullViewport = (int)viewport.X == 0 && (int)viewport.Y == 0
                                          && (int)viewport.Width == drawContext.CommandList.RenderTarget.ViewWidth
@@ -816,7 +819,7 @@ namespace VL.Stride.Rendering
                     using (drawContext.PushRenderTargetsAndRestore())
                     {
                         var currentRenderTarget = drawContext.CommandList.RenderTarget;
-                        var vrFullFrameSize = VRSettings.VRDevice.ActualRenderFrameSize;
+                        var vrFullFrameSize = vrSettings.VRDevice.ActualRenderFrameSize;
                         var desiredRenderTargetSize = !hasPostEffects ? vrFullFrameSize : new Size2(vrFullFrameSize.Width / 2, vrFullFrameSize.Height);
                         if (hasPostEffects || desiredRenderTargetSize.Width != currentRenderTarget.Width || desiredRenderTargetSize.Height != currentRenderTarget.Height)
                             drawContext.CommandList.SetRenderTargets(null, null); // force to create and bind a new render target
@@ -827,7 +830,7 @@ namespace VL.Stride.Rendering
                         vrFullSurface = viewOutputTarget;
                         if (hasPostEffects)
                         {
-                            var frameSize = VRSettings.VRDevice.ActualRenderFrameSize;
+                            var frameSize = vrSettings.VRDevice.ActualRenderFrameSize;
                             var renderTargetDescription = TextureDescription.New2D(frameSize.Width, frameSize.Height, 1, PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlags.ShaderResource | TextureFlags.RenderTarget);
                             vrFullSurface = PushScopedResource(drawContext.GraphicsContext.Allocator.GetTemporaryTexture2D(renderTargetDescription));
                         }
@@ -868,15 +871,15 @@ namespace VL.Stride.Rendering
 
                                 if (!hasPostEffects && !isWindowsMixedReality) // need to change the viewport between each eye
                                 {
-                                    var frameSize = VRSettings.VRDevice.ActualRenderFrameSize;
+                                    var frameSize = vrSettings.VRDevice.ActualRenderFrameSize;
                                     drawContext.CommandList.SetViewport(new Viewport(i * frameSize.Width / 2, 0, frameSize.Width / 2, frameSize.Height));
                                 }
                                 else if (i == 0) // the viewport is the same for both eyes so we set it only once
                                 {
-                                    drawContext.CommandList.SetViewport(new Viewport(0.0f, 0.0f, VRSettings.VRDevice.ActualRenderFrameSize.Width / 2.0f, VRSettings.VRDevice.ActualRenderFrameSize.Height));
+                                    drawContext.CommandList.SetViewport(new Viewport(0.0f, 0.0f, vrSettings.VRDevice.ActualRenderFrameSize.Width / 2.0f, vrSettings.VRDevice.ActualRenderFrameSize.Height));
                                 }
 
-                                using (context.PushRenderViewAndRestore(VRSettings.RenderViews[i]))
+                                using (context.PushRenderViewAndRestore(vrSettings.RenderViews[i]))
                                 {
                                     // Clear render target and depth stencil
                                     if (hasPostEffects || i == 0) // need to clear for each eye in the case we have two different render targets
@@ -887,13 +890,13 @@ namespace VL.Stride.Rendering
                                     DrawView(context, drawContext, i, 2);
 
                                     if (hasPostEffects) // copy the rendered view into the vr full view framebuffer
-                                        drawContext.CommandList.CopyRegion(viewOutputTarget, 0, null, vrFullSurface, 0, VRSettings.VRDevice.ActualRenderFrameSize.Width / 2 * i);
+                                        drawContext.CommandList.CopyRegion(viewOutputTarget, 0, null, vrFullSurface, 0, vrSettings.VRDevice.ActualRenderFrameSize.Width / 2 * i);
                                 }
                             }
 
-                            if (VRSettings.VRDevice.SupportsOverlays)
+                            if (vrSettings.VRDevice.SupportsOverlays)
                             {
-                                foreach (var overlay in VRSettings.Overlays)
+                                foreach (var overlay in vrSettings.Overlays)
                                 {
                                     if (overlay != null && overlay.Texture != null)
                                     {
@@ -902,14 +905,14 @@ namespace VL.Stride.Rendering
                                 }
                             }
 
-                            VRSettings.VRDevice.Commit(drawContext.CommandList, vrFullSurface);
+                            vrSettings.VRDevice.Commit(drawContext.CommandList, vrFullSurface);
                         }
                     }
 
                     //draw mirror to backbuffer (if size is matching and full viewport)
-                    if (VRSettings.CopyMirror)
+                    if (vrSettings.CopyMirror)
                     {
-                        CopyOrScaleTexture(drawContext, vrFullSurface, drawContext.CommandList.RenderTarget);
+                        CopyOrScaleTexture(drawContext, vrFullSurface, drawContext.CommandList.RenderTarget, vrSettings.MirrorScaler);
                     }
                 }
                 else if (ViewportSettings.Enabled)
@@ -976,13 +979,13 @@ namespace VL.Stride.Rendering
             currentDepthStencilNonMSAA = null;
         }
 
-        private void CopyOrScaleTexture(RenderDrawContext drawContext, Texture input, Texture output)
+        private void CopyOrScaleTexture(RenderDrawContext drawContext, Texture input, Texture output, ImageScaler mirrorScaler)
         {
             if (input.Size != output.Size)
             {
-                VRSettings.MirrorScaler.SetInput(0, input);
-                VRSettings.MirrorScaler.SetOutput(output);
-                VRSettings.MirrorScaler.Draw(drawContext);
+                mirrorScaler.SetInput(0, input);
+                mirrorScaler.SetOutput(output);
+                mirrorScaler.Draw(drawContext);
             }
             else
             {
