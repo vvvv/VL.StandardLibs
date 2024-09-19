@@ -12,13 +12,15 @@ using EGLNativeDisplayType = System.IntPtr;
 using EGLNativeWindowType = System.Object;
 using GLBool = System.Int32;
 
+// Prevents the native dlls getting loaded from PATH variable
+[assembly:DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+
 namespace VL.Skia.Egl
 {
 	public static class NativeEgl
 	{
 		private const string libEGL = "libEGL";
 		private const string libGLESv2 = "libGLESv2";
-		private const string d3dcompiler_47 = "d3dcompiler_47";
 
 		// Out-of-band handle values
 		public static readonly EGLNativeDisplayType EGL_DEFAULT_DISPLAY = IntPtr.Zero;
