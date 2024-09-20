@@ -7,7 +7,7 @@ namespace VL.ImGui.Widgets
     /// Create a MenuItem. Keyboardshortcuts are displayed as a convenience but not processed by Dear ImGui at the moment.
     /// </summary>
     [GenerateNode(Category = "ImGui.Widgets", Button = true)]
-    internal partial class MenuItem : ChannelWidget<Unit>
+    internal partial class MenuItem : ChannelWidget<Bang>
     {
         public string? Shortcut { get; set; }
 
@@ -35,12 +35,12 @@ namespace VL.ImGui.Widgets
             {
                 var isSelected = IsSelectedFlange.Update(SelectedChannel);
                 if (ImGuiNET.ImGui.MenuItem(widgetLabel.Update(label.Value), Shortcut, ref isSelected, enabled: Enabled))
-                    Value = Unit.Default;
+                    Value = Lib.Reactive.Bang.Trigger;
                 IsSelectedFlange.Value = isSelected;
             }
             else
             if (ImGuiNET.ImGui.MenuItem(widgetLabel.Update(label.Value), Shortcut, selected: false, enabled: Enabled))
-                Value = Unit.Default;
+                Value = Lib.Reactive.Bang.Trigger;
 
         }
     }

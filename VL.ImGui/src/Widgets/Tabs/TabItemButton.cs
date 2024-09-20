@@ -1,10 +1,11 @@
 ﻿using System.Reactive;
+using VL.Lib.Reactive;
 
 namespace VL.ImGui.Widgets
 {
 
     [GenerateNode(Category = "ImGui.Widgets", Button = true)]
-    internal partial class TabItemButton : ChannelWidget<Unit>
+    internal partial class TabItemButton : ChannelWidget<Bang>
     {
         public ImGuiNET.ImGuiTabItemFlags Flags { private get; set; }
 
@@ -12,7 +13,7 @@ namespace VL.ImGui.Widgets
         {
             Update();
             if (ImGuiNET.ImGui.TabItemButton(widgetLabel.Update(label.Value), Flags))
-                Value = Unit.Default;
+                Value = Lib.Reactive.Bang.Trigger;
         }
     }
 }

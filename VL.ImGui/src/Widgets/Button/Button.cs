@@ -1,10 +1,11 @@
 ﻿using Stride.Core.Mathematics;
 using System.Reactive;
+using VL.Lib.Reactive;
 
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Widgets", Button = true, Tags = "bang")]
-    internal partial class Button : ChannelWidget<Unit>
+    internal partial class Button : ChannelWidget<Bang>
     {
         public Vector2 Size { private get; set; }
 
@@ -12,7 +13,7 @@ namespace VL.ImGui.Widgets
         {
             Update();
             if (ImGuiNET.ImGui.Button(widgetLabel.Update(label.Value), Size.FromHectoToImGui()))
-                Value = Unit.Default;
+                Value = Lib.Reactive.Bang.Trigger;
         }
     }
 }
