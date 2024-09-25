@@ -8,11 +8,22 @@ namespace VL.ImGui.Editors
     {
         public ChannelWidget<T> Widget { get; }
 
+        public ObjectEditorBasedOnChannelWidget(IChannel<T> channel, ObjectEditorContext context, ChannelWidget<T> widget)
+        {
+            Widget = widget;
+            ConfigureWidget(channel, context, widget);
+        }
+
         public ObjectEditorBasedOnChannelWidget(IChannel<T> channel, ObjectEditorContext context, Type widgetClass)
         {
             var widget = (ChannelWidget<T>)Activator.CreateInstance(widgetClass)!;
-            Widget = widget;
 
+            Widget = widget;
+            ConfigureWidget(channel, context, widget);
+        }
+
+        private static void ConfigureWidget(IChannel<T> channel, ObjectEditorContext context, ChannelWidget<T> widget)
+        {
             widget.Channel = channel;
 
             if (!string.IsNullOrEmpty(context.Label) && widget is IHasLabel hasLabel)

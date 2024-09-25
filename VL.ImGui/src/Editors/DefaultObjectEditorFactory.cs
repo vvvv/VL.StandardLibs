@@ -1,4 +1,5 @@
-﻿using Stride.Core.Mathematics;
+﻿using Stride.Core.Extensions;
+using Stride.Core.Mathematics;
 using System.Reflection;
 using VL.Core;
 using VL.Core.EditorAttributes;
@@ -13,9 +14,33 @@ namespace VL.ImGui.Editors
 
     public sealed class DefaultObjectEditorFactory : IObjectEditorFactory
     {
+        Dictionary<Type, Func<Type, (IChannel channel, ObjectEditorContext context), IObjectEditor?>> customEditors = new();
+
+        public DefaultObjectEditorFactory()
+        {
+            customEditors[typeof(Bang)] =
+                (typeOfValues, args) =>
+                {
+                    var widget = new ButtonSmall();
+                    var contextLabel = args.context.Label;
+                    if (contextLabel.IsNullOrEmpty())
+                        contextLabel = null; 
+                    var label = contextLabel ?? args.channel.Path ?? "Trigger";
+                    widget.Label = label;
+                    var editorType = typeof(ObjectEditorBasedOnChannelWidget<>).MakeGenericType(args.channel.ClrTypeOfValues);
+                    var editor = ((IObjectEditor?)Activator.CreateInstance(editorType, 
+                        new object[] { args.channel, args.context, widget }))?.ToViewOnly(args.context);
+                    return editor;
+                };
+        }
+
         public IObjectEditor? CreateObjectEditor(IChannel channel, ObjectEditorContext context)
         {
             var staticType = channel.ClrTypeOfValues;
+            if (customEditors.TryGetValue(staticType, out var ctor))
+            {
+                return ctor(staticType, (channel, context));
+            }
 
             // Is there a widget for exactly that type?
             var widgetType = channel.Attributes().Value?.OfType<WidgetTypeAttribute>().FirstOrDefault()?.WidgetType ?? GetDefaultWidgetType(staticType);
