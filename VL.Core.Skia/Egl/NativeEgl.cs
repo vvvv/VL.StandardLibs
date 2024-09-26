@@ -13,7 +13,7 @@ using EGLNativeWindowType = System.Object;
 using GLBool = System.Int32;
 
 // Prevents the native dlls getting loaded from PATH variable
-[assembly:DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+[assembly:DefaultDllImportSearchPaths(DllImportSearchPath.ApplicationDirectory)]
 
 namespace VL.Skia.Egl
 {
