@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <VLPackageBasePath>..\</VLPackageBasePath>
+    <Description>Contains the LogView</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\buildTransitive\*">
+      <LinkBase>buildTransitive</LinkBase>
+      <Pack>true</Pack>
+      <PackagePath>buildTransitive</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\VL.TPL.Dataflow\src\VL.TPL.Dataflow.csproj" />
+  </ItemGroup>
+
+</Project>
