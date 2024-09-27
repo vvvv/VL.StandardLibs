@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="PcEVaDjMSfGPGURm8JK86F" LanguageVersion="2024.6.7-0160-g2e7a1296d2" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="PcEVaDjMSfGPGURm8JK86F" LanguageVersion="2024.6.7-0175-g0c20b967f6" Version="0.128">
   <NugetDependency Id="Fl3QJpnYSdoMkc5lOfVuge" Location="VL.CoreLib" Version="2024.6.7-0157-ge9fa055671" />
   <Patch Id="VgLLGzXjMyJMBGmFJbGuph">
     <Canvas Id="LEpeNPUz3OCMLTPjEUbnIF" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -20,6 +20,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="NamedPipeClient" />
             </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="DvrJyDpjEZLLTWzPvNQGby" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="VIfjeqUGgYvPgXEBwDoRzL" Name="Server Name" Kind="InputPin" IsHidden="true" />
             <Pin Id="D5wlXDNK1ATNnVPeQTKetK" Name="Pipe Name" Kind="InputPin" />
@@ -29,17 +30,9 @@
             <Pin Id="A8xmUFZMaaGLr8eZQseDNN" Name="Exception" Kind="OutputPin" />
             <Pin Id="GVoBCdxy7ewPJWJXv9a96E" Name="Buffer Size" Kind="InputPin" IsHidden="true" />
             <Pin Id="LXFeomy6JGeLRJgJgGCMjF" Name="Connect Timeout" Kind="InputPin" IsHidden="true" />
-            <Pin Id="TxvsFPhqTs5NWND1JV4kQw" Name="Enable" Kind="InputPin" />
+            <Pin Id="QZ2GK2U982zOuMofYUD9G7" Name="Enabled" Kind="InputPin" />
             <Pin Id="C5jfbwepcIQOjqwjeqhsGE" Name="Is Connected" Kind="OutputPin" />
           </Node>
-          <Pad Id="C8mUutgd5zZPEYMLdSWJPL" Comment="Enable" Bounds="1030,204,35,35" ShowValueBox="true" isIOBox="true" Value="True">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
-            </p:TypeAnnotation>
-            <p:ValueBoxSettings>
-              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
-            </p:ValueBoxSettings>
-          </Pad>
           <Pad Id="HnBAdjhIcdnPYN9P8TRq4C" Comment="Is Connected" Bounds="1030,286,35,35" ShowValueBox="true" isIOBox="true" />
           <Pad Id="I7cC02G9vcGMKJ1zKbVtWk" Comment="Pipe Name" Bounds="941,179,53,15" ShowValueBox="true" isIOBox="true" Value="MyPipe">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
@@ -164,25 +157,18 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="NamedPipeServer" />
             </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="AvHhk9Cy9cfM33RWbI1B19" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="O1In6tWlcufLwkspj2bhqT" Name="Pipe Name" Kind="InputPin" />
             <Pin Id="PNOKZDsblk7QStWrFgyaoF" Name="Direction" Kind="InputPin" IsHidden="true" />
             <Pin Id="Ob3UIfyJ8eVQZ76ePvNb6C" Name="In Buffer Size" Kind="InputPin" IsHidden="true" />
             <Pin Id="UNZMa3qrKRTPyzmRNrK46F" Name="Out Buffer Size" Kind="InputPin" IsHidden="true" />
-            <Pin Id="NFLdbx9EeACQHv7AYAEHD4" Name="Enable" Kind="InputPin" />
+            <Pin Id="NUtYQM6Opo9L7FoNp73nm8" Name="Enabled" Kind="InputPin" />
             <Pin Id="MTgBNTakJqQLEozYzmd432" Name="PipeStream" Kind="OutputPin" />
             <Pin Id="E7q2PDUIzhWM0ubOI8nqwk" Name="Data" Kind="OutputPin" />
             <Pin Id="GwFy6tGt44EN1JsmKN5M02" Name="Exception" Kind="OutputPin" />
             <Pin Id="TLoPicasIvLLrfuKApxAmx" Name="Is Client Connected" Kind="OutputPin" />
           </Node>
-          <Pad Id="QPUAsfZnKCpN8hTK8sBZBY" Comment="Enable" Bounds="485,205,35,35" ShowValueBox="true" isIOBox="true" Value="True">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
-            </p:TypeAnnotation>
-            <p:ValueBoxSettings>
-              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
-            </p:ValueBoxSettings>
-          </Pad>
           <Pad Id="OtIv5P542f2LjYBDDPsmOD" Comment="Pipe Name" Bounds="395,171,52,15" ShowValueBox="true" isIOBox="true" Value="MyPipe">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
@@ -349,6 +335,22 @@
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
           </Pad>
+          <Pad Id="N8Amp02JwPNPU0nwTA0EJ1" Comment="Enabled" Bounds="485,205,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="STbkSGxQYXBOSYVdZq9OjN" Comment="Enabled" Bounds="1030,205,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
         </Canvas>
         <Patch Id="CgkzzeoGwfwNZxqGyyfvhp" Name="Create" />
         <Patch Id="HRxaOhEZ5neN15qYoFeNCX" Name="Update" />
@@ -356,7 +358,6 @@
           <Fragment Id="D7YSh20kYeLL3VUtH6agUw" Patch="CgkzzeoGwfwNZxqGyyfvhp" Enabled="true" />
           <Fragment Id="SLTyh4z9TB1MXsn8ACKe3J" Patch="HRxaOhEZ5neN15qYoFeNCX" Enabled="true" />
         </ProcessDefinition>
-        <Link Id="M9Lg1TqvnjoN6bShP0zkGa" Ids="C8mUutgd5zZPEYMLdSWJPL,TxvsFPhqTs5NWND1JV4kQw" />
         <Link Id="N2JJc2O35zhLgTmAAXDDRi" Ids="C5jfbwepcIQOjqwjeqhsGE,HnBAdjhIcdnPYN9P8TRq4C" />
         <Link Id="H71cSB6ZGILPgY9yn9uK6R" Ids="I7cC02G9vcGMKJ1zKbVtWk,D5wlXDNK1ATNnVPeQTKetK" />
         <Link Id="B8CuzDgZ9oQPQ3NpdRZAwk" Ids="EHDZ3NHW7YsLM5fz1GLmAg,CZbYMTnoDrELL3xrQv9JmY" IsHidden="true" />
@@ -373,7 +374,6 @@
         <Link Id="LMPkpMD8njlP4RHyADcCAR" Ids="Qa0nxGiq5XJLP3UT1gH7GQ,Lir94rMJKW3Lx9lYAWyiC2" />
         <Link Id="OQKA0aDHHi0QVfpdwLgCd6" Ids="UMBFsSkJEMYNf6VLoXBnUC,OB96i3HXj7YOwre81QSsMp" />
         <Link Id="D91n0c744rMO7xbskgwFup" Ids="DvaxDYMDoDMP655XAh7yod,Fv2sf8O0AkMMvhTcs17ua3" />
-        <Link Id="DfBK6I5umxwOuK8Ou0ZXWz" Ids="QPUAsfZnKCpN8hTK8sBZBY,NFLdbx9EeACQHv7AYAEHD4" />
         <Link Id="DcpeRqdJqlkMIpeLMeGX77" Ids="OtIv5P542f2LjYBDDPsmOD,O1In6tWlcufLwkspj2bhqT" />
         <Link Id="CIsabC8RIzVMwDGV8HNyvx" Ids="TLoPicasIvLLrfuKApxAmx,CU1bfD0xKSmMXbMWJOr8w8" />
         <Link Id="VhPlqN8Z0p3Ol3QyEzbAdH" Ids="RiYcDfydHMtOv2a1HUQ3CI,AklRiGvylpqP8laEXsnFEY" />
@@ -389,6 +389,8 @@
         <Link Id="VQRwZKOeWYvMxgR0ZXjjDp" Ids="JPiKM1Xk1DMNYh2j6eMuZx,NZH8L7lVHhtOVmvGqBNh8c" />
         <Link Id="GfbCltIzeV5Mrdd4CsbGh5" Ids="MhtSGtflOSEMm52GApQ4cU,RmJRI9HlMIGOFcoul0DYnO" />
         <Link Id="Mr3eYhOVt74QK3tRMOj134" Ids="Rpl8TKY3CUfOnbQcxNLZbG,C0P9hn6wJyPP5Tas0ObMB1" />
+        <Link Id="RVSHkyo4XDwPyMdwsUz9pr" Ids="N8Amp02JwPNPU0nwTA0EJ1,NUtYQM6Opo9L7FoNp73nm8" />
+        <Link Id="MPSG80dWH4CPdtXDoysv3Y" Ids="STbkSGxQYXBOSYVdZq9OjN,QZ2GK2U982zOuMofYUD9G7" />
       </Patch>
     </Node>
   </Patch>
