@@ -20,13 +20,12 @@ using System;
 using System.Collections.Generic;
 using VL.Core;
 using Microsoft.Extensions.Logging;
+using MathNet.Numerics.LinearAlgebra.Factorization;
 
 
 
-namespace xyz
-
+namespace VL.Lib.Animation
 {
-
     public static class Helpers
     {
         public const double EPSILON_DEFAULT = 1E-50;
@@ -81,16 +80,16 @@ namespace xyz
         public TMValue P0, P1, V0;
         public TMTime T0;
 
-        public TMFilterData()
+        public TMFilterData(TMTime t0)
         {
             P0 = 0;
             P1 = 0;
             V0 = 0;
-            T0 = GClock.Time; // Assuming GClock is a valid class with a static property Time
+            T0 = t0;
         }
     }
 
-    public class TMSimpleFilterState 
+    public abstract class TMSimpleFilterState 
     {
         protected TMValue CurrentPosition, CurrentVelocity, CurrentAcceleration;
         protected TMTime CurrentTime, CurrentDeltaTime;
@@ -99,6 +98,7 @@ namespace xyz
         protected TMFilterData FilterData;
         protected bool FirstFrame;
         protected ILogger Logger;
+        protected IFrameClock Clock;
 
         public TMSimpleFilterState(NodeContext nodeContext)
         {
@@ -111,7 +111,7 @@ namespace xyz
             FGoToPosition = value;
         }
 
-        public TMSimpleFilterState()
+        public TMSimpleFilterState(IFrameClock clock)
         {
             // FilterData has to be created and initialized by descendants
             FilterChanged = true;
@@ -119,8 +119,9 @@ namespace xyz
             CurrentVelocity = 0;
             CurrentAcceleration = 0;
             FirstFrame = true;
-            CurrentTime = GClock.Time; // Assuming GClock is a valid class with a static property Time
+            CurrentTime = clock.Time.Seconds;
             CurrentDeltaTime = 0;
+            Clock = clock;
         }
 
         ~TMSimpleFilterState()
@@ -133,15 +134,62 @@ namespace xyz
             get { return FGoToPosition; }
             set { SetGoToPosition(value); }
         }
+
+
+        public void UpdateSimple(TMValue goToPosition, bool reset, Action evaluateInputs)
+        {
+            CurrentTime = Clock.Time.Seconds - Clock.TimeDifference;
+
+            FilterChanged = FirstFrame;
+
+            GoToPosition = goToPosition;
+            evaluateInputs();
+
+            if (reset)
+            {
+                FilterChanged = true;
+                CurrentVelocity = 0;
+                CurrentPosition = GoToPosition;
+            }
+
+            if (FilterChanged)
+            {
+                UpdateFilter();
+            }
+
+            CurrentTime = Clock.Time.Seconds;
+            this.Tick();
+
+
+            FilterChanged = false;
+            FirstFrame = false;
+        }
+
+        public virtual void Tick()
+        {
+            CurrentDeltaTime = Math.Max(0, CurrentTime - FilterData.T0);
+        }
+
+        protected abstract void UpdateFilter();
     }
 
 
-    public class TMAdvFilterState : TMSimpleFilterState
+    public abstract class TMAdvFilterState : TMSimpleFilterState
     {
         protected bool Go;
         protected TMUpdateFilterGraph UpdateFilterGraph;
         protected bool Pause;
         protected TMTime Tpause;
+
+
+        public TMAdvFilterState(IFrameClock clock)
+            : base(clock)
+        {
+            Go = false;
+            Pause = false;
+            Tpause = -1;
+            UpdateFilterGraph = TMUpdateFilterGraph.OnNewGoToPosition;
+        }
 
         protected override void SetGoToPosition(TMValue value)
         {
@@ -150,13 +198,77 @@ namespace xyz
             FGoToPosition = value;
         }
 
-        public TMAdvFilterState()
+        public void UpdateAdvanced(TMUpdateFilterGraph updateFilterGraph, TMValue goToPosition, bool go, TMValue positionIn, TMValue velocityIn, 
+            bool forceUpdate, bool pause, bool reset, out TMValue positionOut, out TMValue velocityOut, out TMValue accelerationOut, Action evaluateInputs)
         {
-            Go = false;
-            Pause = false;
-            Tpause = -1;
-            UpdateFilterGraph = TMUpdateFilterGraph.OnNewGoToPosition;
+            CurrentTime = Clock.Time.Seconds - Clock.TimeDifference;
+
+            // if filter wasn't active we update our lastframe CurrentPosition and CurrentVelocity
+            if (!Go)
+            {
+                CurrentPosition = positionIn;
+                CurrentVelocity = velocityIn;
+            }
+
+            FilterChanged = forceUpdate || ((go != Go || FirstFrame) && go);
+            Go = go;
+
+            UpdateFilterGraph = updateFilterGraph;
+            GoToPosition = goToPosition;
+
+            // after this filterchanged is set
+            evaluateInputs();
+
+            // update filter with old filtertime, old position and old velocity
+            // we have to do this because if we get currentposition and currentvelocity from outside
+            // and we have a go-bang the filter should behave the same way as if it was running and
+            // just the conditions/parameters of the filter have changed
+            // THE PATCHER HAS TO TAKE CARE THAT POSITION AND VELOCITY ARE FRAMEDELAYED
+            // it is easier to satisfy this condition, than the condition that position and velocity
+            // are from that frame. you cant satisfy this condition if you want to be able to switch from
+            // one filter to the other and back, because both depend on each other (slicewise). since no
+            // slicewise caching is implemented its impossible to change Graph Evaluation depending on
+            // what filter is active (slicewise). and because of this its impossible to be shure that positionIn
+            // and velocityIn are ThisFrameValues. and because of this the filter is now implemented in a way that
+            // assumes that the positionIn and velocityIn Values are of the last frame... to be continued.
+            if (FilterChanged)
+            {
+                UpdateFilter();
+            }
+
+            // now that the filterfunction is set we put in the updated currenttime to get currentposition and currentvelocity
+
+            CurrentTime = Clock.Time.Seconds;
+            if (Pause)
+            {
+                ApplyPause();
+            }
+            else if (Go)
+            {
+                Tick();
+            }
+
+            Pause = pause;
+            if (Pause)
+            {
+                Tpause = CurrentTime;
+            }
+
+            positionOut = CurrentPosition;
+            velocityOut = CurrentVelocity;
+            accelerationOut = CurrentAcceleration;
+
+            FilterChanged = false;
+            FirstFrame = false;
         }
+
+
+        public virtual void ApplyPause()
+        {
+            var state = this;
+            state.FilterData.T0 = state.CurrentTime - state.Tpause + state.FilterData.T0;
+        }
+
     }
 
 
@@ -175,11 +287,11 @@ namespace xyz
         public TMValue A0;
 
         public TMParabolaData(TMValue p0, TMValue v0, TMValue a0, TMTime t0)
+            : base(t0)
         {
             P0 = p0;
             V0 = v0;
             A0 = a0;
-            T0 = t0;
         }
 
         public void Seek(TMTime aTime, out TMValue Pos, out TMValue Vel, out TMValue Acc)
@@ -200,7 +312,7 @@ namespace xyz
     }
 
 
-    public class TMParabolasState : TMAdvFilterState
+    public abstract class TMParabolasState : TMAdvFilterState
     {
         private List<TMParabolaData> FParabolas;
         private int FCurrentParabola;
@@ -208,7 +320,8 @@ namespace xyz
         protected TMParabolaData FCP;
         protected TMValue FAcceleration;
 
-        public TMParabolasState()
+        public TMParabolasState(IFrameClock clock)
+            : base(clock)
         {
             FParabolas = new List<TMParabolaData>();
             FPlayBack = TMParabolasPlayMode.npbActive;
@@ -362,7 +475,7 @@ namespace xyz
             FCP.Seek(aTime, out Pos, out Vel, out Acc);
         }
 
-        public void Tick()
+        public override void Tick()
         {
             Seek(CurrentTime, out CurrentPosition, out CurrentVelocity, out FAcceleration);
         }
@@ -495,7 +608,7 @@ namespace xyz
             }
         }
 
-        public void ApplyPause()
+        public override void ApplyPause()
         {
             for (int i = 0; i < FParabolas.Count; i++)
             {
@@ -588,7 +701,7 @@ namespace xyz
         }
 
 
-        public TMDeNiroState()
+        public TMDeNiroState(IFrameClock clock) : base(clock)
         {
             FMode = TMDeNiroMode.dnmAccelerationBased;
             FInputSelect = TMDeNiroInputSelect.nisInput;
@@ -885,9 +998,9 @@ namespace xyz
             }
         }
 
-        public void Tick()
+        public override void Tick()
         {
-            // inherited Tick; // Assuming this is a call to a base class method
+            base.Tick();
 
             if (FInputSelect == TMDeNiroInputSelect.nisAcceleration && Math.Abs(CurrentVelocity) > FMaxVelocity)
             {
@@ -942,7 +1055,7 @@ namespace xyz
             FAccelerationIn = value;
         }
 
-        public void UpdateFilter()
+        protected override void UpdateFilter()
         {
             if (FirstFrame || FForceBang)
             {
@@ -976,7 +1089,25 @@ namespace xyz
                     }
                 }
             }
+        }
 
+        public void Update(TMUpdateFilterGraph updateFilterGraph, TMValue goToPosition, bool go, TMValue positionIn, TMValue velocityIn,
+            bool forceUpdate, bool pause, TMDeNiroInputSelect selectInput, TMValue goToVelocity, TMValue acceleration, bool cyclic, TMValue constantDrive,
+            TMValue maxVelocity, bool reset, out TMValue positionOut, out TMValue velocityOut, out TMValue accelerationOut)
+        {
+            UpdateAdvanced(updateFilterGraph, goToPosition, go, positionIn, velocityIn, forceUpdate, pause, reset, out positionOut, out velocityOut, out accelerationOut, 
+                () =>
+            {
+                var state = this;
+                state.InputSelect = selectInput;
+                state.GoToVelocity = velocityIn;
+                state.AccelerationIn = acceleration;
+                state.Mode = TMDeNiroMode.dnmAccelerationBased;
+                state.Cyclic = cyclic;
+                state.ConstantDrive = constantDrive;
+                state.MaxVelocity = maxVelocity;
+                state.ForceBang = false;
+            });
         }
     }
 }
