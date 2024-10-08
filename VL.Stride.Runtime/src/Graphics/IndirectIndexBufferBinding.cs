@@ -44,7 +44,7 @@ namespace VL.Stride.Graphics
         public IndirectIndexBufferBinding(Buffer indexBuffer, Buffer drawArgs, bool is32Bit, int count, int indexOffset = 0) : base(indexBuffer, is32Bit, count, indexOffset)
         {
             if (drawArgs == null) throw new ArgumentNullException("drawArgs");
-            DrawArgs = indexBuffer;
+            DrawArgs = drawArgs;
         }
 
         internal class Serializer : DataSerializer<IndirectIndexBufferBinding>
