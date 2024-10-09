@@ -100,19 +100,16 @@ namespace VL.Lib.Animation
         protected ILogger Logger;
         protected IFrameClock Clock;
 
-        public TMSimpleFilterState(NodeContext nodeContext)
-        {
-            Logger = nodeContext.GetLogger();
-        }
-
         protected virtual void SetGoToPosition(TMValue value)
         {
             FilterChanged = FilterChanged || (FGoToPosition != value);
             FGoToPosition = value;
         }
 
-        public TMSimpleFilterState(IFrameClock clock)
+        public TMSimpleFilterState(NodeContext nodeContext, IFrameClock clock)
         {
+            Logger = nodeContext.GetLogger();
+
             // FilterData has to be created and initialized by descendants
             FilterChanged = true;
             CurrentPosition = 0;
@@ -122,11 +119,6 @@ namespace VL.Lib.Animation
             CurrentTime = clock.Time.Seconds;
             CurrentDeltaTime = 0;
             Clock = clock;
-        }
-
-        ~TMSimpleFilterState()
-        {
-            FilterData = null; // Assuming FilterData is a managed resource
         }
 
         public TMValue GoToPosition
@@ -182,8 +174,8 @@ namespace VL.Lib.Animation
         protected TMTime Tpause;
 
 
-        public TMAdvFilterState(IFrameClock clock)
-            : base(clock)
+        public TMAdvFilterState(NodeContext nodeContext, IFrameClock clock)
+            : base(nodeContext, clock)
         {
             Go = false;
             Pause = false;
@@ -320,8 +312,8 @@ namespace VL.Lib.Animation
         protected TMParabolaData FCP;
         protected TMValue FAcceleration;
 
-        public TMParabolasState(IFrameClock clock)
-            : base(clock)
+        public TMParabolasState(NodeContext nodeContext, IFrameClock clock)
+            : base(nodeContext, clock)
         {
             FParabolas = new List<TMParabolaData>();
             FPlayBack = TMParabolasPlayMode.npbActive;
@@ -701,7 +693,8 @@ namespace VL.Lib.Animation
         }
 
 
-        public TMDeNiroState(IFrameClock clock) : base(clock)
+        public TMDeNiroState(NodeContext nodeContext, IFrameClock clock) 
+            : base(nodeContext, clock)
         {
             FMode = TMDeNiroMode.dnmAccelerationBased;
             FInputSelect = TMDeNiroInputSelect.nisInput;
