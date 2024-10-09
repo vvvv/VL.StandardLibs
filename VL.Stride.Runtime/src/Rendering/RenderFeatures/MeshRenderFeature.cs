@@ -8,8 +8,11 @@ using Stride.Core.Diagnostics;
 using Stride.Graphics;
 using Stride.Rendering;
 using Buffer = Stride.Graphics.Buffer;
-
-using VL.Stride.Graphics;
+using System.Reflection;
+using System;
+using System.Linq;
+using MeshDrawStride = global::Stride.Rendering.MeshDraw;
+using MeshDrawIndirect = VL.Stride.Rendering.MeshDraw;
 
 namespace VL.Stride.Rendering
 {
@@ -58,7 +61,7 @@ namespace VL.Stride.Rendering
                 descriptorSetsLocal = descriptorSets.Value = new DescriptorSet[EffectDescriptorSetSlotCount];
             }
 
-            MeshDraw currentDrawData = null;
+            MeshDrawStride currentDrawData = null;
             int emptyBufferSlot = -1;
             for (int index = startIndex; index < endIndex; index++)
             {
@@ -113,23 +116,28 @@ namespace VL.Stride.Rendering
                 commandList.SetDescriptorSets(0, descriptorSetsLocal);
 
                 // Draw
-                if (drawData.IndexBuffer == null)
+                if (drawData is MeshDrawIndirect && ((MeshDrawIndirect)drawData).DrawArgs != null)
                 {
-                    if (renderMesh.InstanceCount > 0)
-                        commandList.DrawInstanced(drawData.DrawCount, renderMesh.InstanceCount, drawData.StartLocation);
+                    var drawDataIndirect = (MeshDrawIndirect)drawData;
+                    if (drawData.IndexBuffer == null)
+                    {
+                        // TODO PR for Stride to fix commandList.DrawInstanced
+                        // https://github.com/stride3d/stride/pull/2482
+                        CommandListHelper.DrawInstanced(commandList, drawDataIndirect.DrawArgs, 0);
+                    }
                     else
-                        commandList.Draw(drawData.DrawCount, drawData.StartLocation);
+                    {
+                        commandList.DrawIndexedInstanced(drawDataIndirect.DrawArgs, 0);
+                    }
                 }
                 else
-                {
-                    if (drawData.IndexBuffer is IndirectIndexBufferBinding)
+                { 
+                    if (drawData.IndexBuffer == null)
                     {
-                        var indexbuffer = drawData.IndexBuffer as IndirectIndexBufferBinding;
-
                         if (renderMesh.InstanceCount > 0)
-                            commandList.DrawIndexedInstanced(indexbuffer.DrawArgs);
+                            commandList.DrawInstanced(drawData.DrawCount, renderMesh.InstanceCount, drawData.StartLocation);
                         else
-                            commandList.DrawInstanced(indexbuffer.DrawArgs);
+                            commandList.Draw(drawData.DrawCount, drawData.StartLocation);
                     }
                     else
                     {
@@ -140,6 +148,43 @@ namespace VL.Stride.Rendering
                     }
                 }
             }
+        }
+    }
+
+    public static class CommandListHelper
+    {
+        static FieldInfo nativeDeviceContextFi;
+        static FieldInfo nativeDeviceChildFi;
+
+        static MethodInfo PrepareDraw;
+        static object[] arg;
+
+
+        static CommandListHelper()
+        {
+            PrepareDraw = typeof(CommandList).GetMethod("PrepareDraw", BindingFlags.Instance | BindingFlags.NonPublic);
+            nativeDeviceContextFi = typeof(CommandList).GetRuntimeFields().Where(fi => fi.Name == "nativeDeviceContext").First();
+
+            var graphicsResourceBaseType = Type.GetType("Stride.Graphics.GraphicsResourceBase, Stride.Graphics");
+            nativeDeviceChildFi = graphicsResourceBaseType.GetRuntimeFields().Where(i => i.Name == "nativeDeviceChild").First();
+        }
+
+        public static SharpDX.Direct3D11.DeviceContext GetNativeDeviceContext(this CommandList commandList)
+        {
+            return (SharpDX.Direct3D11.DeviceContext)nativeDeviceContextFi.GetValue(commandList);
+        }
+
+        public static void DrawInstanced(this CommandList commandList, Buffer argumentsBuffer, int alignedByteOffsetForArgs = 0)
+        {
+            if (argumentsBuffer == null) throw new ArgumentNullException("argumentsBuffer");
+
+            PrepareDraw.Invoke(commandList, arg);
+
+            var buffer = (SharpDX.Direct3D11.Buffer)nativeDeviceChildFi.GetValue(argumentsBuffer);
+
+            commandList.GetNativeDeviceContext().DrawInstancedIndirect(buffer, alignedByteOffsetForArgs);
+
+            commandList.GraphicsDevice.FrameDrawCalls++;
         }
     }
 }
