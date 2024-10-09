@@ -20,7 +20,7 @@ namespace VL.Stride.Engine
         /// <returns>
         /// True on success
         /// </returns>
-        public static bool SaveScreenshot(GameBase game, string screenshotUrl, int width, int height, PixelFormat pixelFormat = PixelFormat.R8G8B8A8_UNorm, PixelFormat depthBufferFormat = PixelFormat.D24_UNorm_S8_UInt, ImageFileType fileType = ImageFileType.Png)
+        public static bool SaveScreenshot(GameBase game, string screenshotUrl, int width, int height, PixelFormat pixelFormat = PixelFormat.R8G8B8A8_UNorm, PixelFormat depthBufferFormat = PixelFormat.D24_UNorm_S8_UInt, TextureWriterFileType fileType = TextureWriterFileType.Png)
         {
             var status = true;
             var graphicsContext = game.GraphicsContext;

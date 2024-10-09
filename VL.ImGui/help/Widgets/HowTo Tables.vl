@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="Hbxmo0bDNQZOUtvQeTXVAp" LanguageVersion="2022.5.0-0785-g501a43ba3a" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="Hbxmo0bDNQZOUtvQeTXVAp" LanguageVersion="2024.6.7-0170-gc594781800" Version="0.128">
   <Patch Id="K6jOtX5z4AOM2g6L5teo07">
     <Canvas Id="HuM0Neyl9P0P3djIwL4nYf" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -20,14 +20,20 @@
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
             <Pin Id="HcZs7a62BLoPpXAtmDKTiA" Name="Bounds" Kind="InputPin" DefaultValue="1427, 191, 436, 316" />
+            <Pin Id="RWvmHnkfJhBOkYDV90hp2Y" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
             <Pin Id="I4y2Yu3epUTO4TcD7zCPlg" Name="Bound to Document" Kind="InputPin" DefaultValue="True" />
+            <Pin Id="O5n5SMgUlcTNDdUyfyuPJ7" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="JeUSFx73WgTN0WaIBukonb" Name="Dialog If Document Changed" Kind="InputPin" IsHidden="true" />
             <Pin Id="FEmprmZSMXGOZ6BLW3yl3J" Name="Input" Kind="InputPin" />
             <Pin Id="AjjEgsMjzN1LCY9f64wtrD" Name="Color" Kind="InputPin" />
             <Pin Id="SN9Sy5tUeJRL75k6d5gCaB" Name="Clear" Kind="InputPin" DefaultValue="True" />
             <Pin Id="EOF5QMXbGKtO1Eeh1MzQnf" Name="Space" Kind="InputPin" DefaultValue="Normalized" />
             <Pin Id="Unrsb70U6iePtOM6HMRzfV" Name="Show Cursor" Kind="InputPin" />
             <Pin Id="UA8COiWD2ghPmN4LAZoDDV" Name="VSync" Kind="InputPin" />
+            <Pin Id="MF2ovrC5p5jMHboyrkWGZe" Name="Commands" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Lmq4GYJ5krDOU5VBdhzrOL" Name="Enable Keyboard Shortcuts" Kind="InputPin" IsHidden="true" />
             <Pin Id="BGs1SpulZeMPbcit3peXa1" Name="Enabled" Kind="InputPin" />
+            <Pin Id="AMIEg011fTENIdgnEqfZRR" Name="Form Bounds Notifications" Kind="OutputPin" IsHidden="true" />
             <Pin Id="IEolNxvy8ieOHWXoXnUqwO" Name="Form" Kind="OutputPin" />
             <Pin Id="VtCD3TojbCZNIE3ICe23l6" Name="ClientBounds" Kind="OutputPin" />
             <Pin Id="Fi9FymljmNXQYNmU2h76Xz" Name="Render Time" Kind="OutputPin" />
@@ -46,10 +52,11 @@
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
+            <Pin Id="Hiyquxs3q6kMfpVo5cKSQa" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="UWE3erWxQrgPhGPwL0Viqe" Name="Docking Enabled" Kind="InputPin" />
             <Pin Id="BeKnROUBbXWLTcxssnn3FD" Name="Fonts" Kind="InputPin" />
             <Pin Id="RyYSAU31ILuOZCmqAgHfUH" Name="Add Fullscreen Window" Kind="InputPin" />
-            <Pin Id="Itng0abyrb5N6LYVAkGk2s" Name="Fullscreen Window Style" Kind="InputPin" />
+            <Pin Id="Itng0abyrb5N6LYVAkGk2s" Name="Style" Kind="InputPin" />
             <Pin Id="FqLOWRxDaSxPY174gNtnq8" Name="Use Skia Space" Kind="InputPin" />
             <Pin Id="R0TOG1kvRefLjtZCs4Fg9N" Name="Output" Kind="OutputPin" />
             <Patch Id="DCn4kuDcO77NfjPhZc39Bn" ManuallySortedPins="true">
@@ -62,6 +69,7 @@
                 </p:NodeReference>
                 <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
                 <ControlPoint Id="CWG9Z0Q1jI3NwrJq9VFPLU" Bounds="136,469" Alignment="Top" />
+                <Pin Id="Vi8WgSiYIACNTo2PKzgh9S" Name="Node Context" Kind="InputPin" IsHidden="true" />
                 <Pin Id="IcEemX2n8vzK9ilKo7FHGb" Name="Context" Kind="InputPin" />
                 <Pin Id="ADGDlGirzC0OtA2T8d0pJI" Name="Label" Kind="InputPin" />
                 <Pin Id="IemroYNY9PlPq0CuSDisWW" Name="Column Count" Kind="InputPin" />
@@ -208,6 +216,7 @@
                     <ControlPoint Id="O6Ne8S6Ps8sNA4UJl8KaGL" Bounds="489,786" Alignment="Top" />
                     <ControlPoint Id="CsnsjGKXgxAQceJnoxI7bi" Bounds="568,855" Alignment="Bottom" />
                   </Node>
+                  <Patch Id="UEWSCQfQKJAN3xZQYHKnR6" Name="Dispose" />
                 </Patch>
                 <ControlPoint Id="S62VTpoipEfOqUaENsQBiB" Bounds="663,915" Alignment="Bottom" />
               </Node>
@@ -263,11 +272,11 @@
                 <Pin Id="MpuEMrQctcONhMKrTFAC01" Name="Output" Kind="StateOutputPin" />
                 <Pin Id="JRROUr4fClaMbbj82C3K8I" Name="Result" Kind="OutputPin" />
               </Node>
-              <Node Bounds="464,990,98,26" Id="G0qKi7EN7WPOjTi7Yzi6C7">
+              <Node Bounds="464,990,98,19" Id="G0qKi7EN7WPOjTi7Yzi6C7">
                 <p:NodeReference LastCategoryFullName="ImGui.TableColumnSortSpecs" LastDependency="VL.ImGui.Skia.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <CategoryReference Kind="ClassType" Name="TableColumnSortSpecs" />
-                  <Choice Kind="OperationCallFlag" Name="Deconstruct" />
+                  <Choice Kind="OperationCallFlag" Name="Split" />
                 </p:NodeReference>
                 <Pin Id="UjidTywatu7LKlrVLEEMHi" Name="Input" Kind="StateInputPin" />
                 <Pin Id="Uu6YBkLPXtQQc3RjHrutXn" Name="Output" Kind="StateOutputPin" />
@@ -287,6 +296,7 @@
                   <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
                 </p:ValueBoxSettings>
               </Pad>
+              <Patch Id="DOYFhzWn19lNerLEO17n7f" Name="Dispose" />
             </Patch>
           </Node>
           <Node Bounds="742,102,211,122" Id="Dns5lNaQBISLFg0KwkVlZ7">
