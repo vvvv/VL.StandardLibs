@@ -38,7 +38,7 @@ namespace VL.ImGui
             //style.ScaleAllSizes(scale);
         }
 
-        public static void HandleNotification(this ImGuiIOPtr _io, INotification notification, bool useWorldSpace /* HACK - breaks LayerWidget*/)
+        public static void HandleNotification(this ImGuiIOPtr _io, INotification notification)
         {
             if (notification is KeyNotification keyNotification)
             {
@@ -72,10 +72,15 @@ namespace VL.ImGui
                     };
                 }
 
-                // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
-                var pos = useWorldSpace ? mouseNotification.PositionInWorldSpace.FromHectoToImGui() : mouseNotification.Position.ToImGui();
-                _io.AddMousePosEvent(pos.X, pos.Y);
+                // If viewports are enabled, ImGui expects the mouse in DesktopScreenSpace, this is set in ImGuiWindows/SetPerFrameImGuiData, if not use the old approach
+                var flag = ImGui.GetIO().ConfigFlags;
+                if ((flag & ImGuiConfigFlags.ViewportsEnable) == 0)
+                {
+                    var pos = mouseNotification.PositionInWorldSpace.FromHectoToImGui();
+                    _io.AddMousePosEvent(pos.X, pos.Y);
+                }
 
+                // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
                 switch (mouseNotification.Kind)
                 {
                     case MouseNotificationKind.MouseDown:
