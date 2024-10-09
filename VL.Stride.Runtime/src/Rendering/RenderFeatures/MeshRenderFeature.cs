@@ -172,7 +172,7 @@ namespace VL.Stride.Rendering
             return (SharpDX.Direct3D11.DeviceContext)nativeDeviceContextFi.GetValue(commandList);
         }
 
-        public static void DrawInstanced(this CommandList commandList, Buffer argumentsBuffer, int alignedByteOffsetForArgs = 0)
+        public static CommandList DrawInstanced(this CommandList commandList, Buffer argumentsBuffer, int alignedByteOffsetForArgs = 0)
         {
             if (argumentsBuffer == null) throw new ArgumentNullException("argumentsBuffer");
 
@@ -183,6 +183,8 @@ namespace VL.Stride.Rendering
             commandList.GetNativeDeviceContext().DrawInstancedIndirect(buffer, alignedByteOffsetForArgs);
 
             commandList.GraphicsDevice.FrameDrawCalls++;
+
+            return commandList;
         }
     }
 }
