@@ -11,8 +11,6 @@ using Buffer = Stride.Graphics.Buffer;
 using System.Reflection;
 using System;
 using System.Linq;
-using MeshDrawStride = global::Stride.Rendering.MeshDraw;
-using MeshDrawIndirect = VL.Stride.Rendering.MeshDraw;
 
 namespace VL.Stride.Rendering
 {
@@ -61,7 +59,7 @@ namespace VL.Stride.Rendering
                 descriptorSetsLocal = descriptorSets.Value = new DescriptorSet[EffectDescriptorSetSlotCount];
             }
 
-            MeshDrawStride currentDrawData = null;
+            MeshDraw currentDrawData = null;
             int emptyBufferSlot = -1;
             for (int index = startIndex; index < endIndex; index++)
             {
