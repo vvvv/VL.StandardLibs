@@ -119,9 +119,14 @@ namespace VL.Stride.Rendering
                     var drawDataIndirect = (MeshDrawIndirect)drawData;
                     if (drawData.IndexBuffer == null)
                     {
-                        // TODO PR for Stride to fix commandList.DrawInstanced
-                        // https://github.com/stride3d/stride/pull/2482
-                        CommandListHelper.DrawInstanced(commandList, drawDataIndirect.DrawArgs, 0);
+                        if (drawData.VertexBuffers[0].Buffer.Flags == BufferFlags.StreamOutput)
+                            commandList.DrawAuto();
+                        else
+                        {
+                            // TODO PR for Stride to fix commandList.DrawInstanced
+                            // https://github.com/stride3d/stride/pull/2482
+                            CommandListHelper.DrawInstanced(commandList, drawDataIndirect.DrawArgs, 0);
+                        }
                     }
                     else
                     {
@@ -132,7 +137,9 @@ namespace VL.Stride.Rendering
                 { 
                     if (drawData.IndexBuffer == null)
                     {
-                        if (renderMesh.InstanceCount > 0)
+                        if(drawData.VertexBuffers[0].Buffer.Flags == BufferFlags.StreamOutput)
+                            commandList.DrawAuto();
+                        else if (renderMesh.InstanceCount > 0)
                             commandList.DrawInstanced(drawData.DrawCount, renderMesh.InstanceCount, drawData.StartLocation);
                         else
                             commandList.Draw(drawData.DrawCount, drawData.StartLocation);
