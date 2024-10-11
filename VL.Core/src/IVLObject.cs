@@ -638,7 +638,7 @@ namespace VL.Core
             {
                 var value = property.GetValue(instance);
                 var localID = property.OriginalName;
-                var path = string.IsNullOrWhiteSpace(pathOfParent) ? localID : $"{pathOfParent}.{localID}";
+                var path = /*string.IsNullOrWhiteSpace(pathOfParent) ? localID :*/ $"{pathOfParent}.{localID}";
                 if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, property))
                 {
                     var childtype = property.Type.ClrType; // let's use the type of the property, not the type of the object. Embracing super types.
