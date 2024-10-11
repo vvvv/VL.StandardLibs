@@ -271,6 +271,12 @@ namespace VL.Stride.Rendering.Compositing
             yield return nodeFactory.NewNode<UIRenderFeature>(category: renderingCategoryAdvanced)
                 .AddCachedListInput(nameof(UIRenderFeature.RenderStageSelectors), x => x.RenderStageSelectors);
 
+            yield return nodeFactory.NewNode<WireframeRenderFeature>(category: renderingCategoryAdvanced)
+                .AddCachedListInput(nameof(WireframeRenderFeature.RenderStageSelectors), x => x.RenderStageSelectors);
+
+            yield return nodeFactory.NewNode<MeshOutlineRenderFeature>(category: renderingCategoryAdvanced)
+                .AddCachedListInput(nameof(MeshOutlineRenderFeature.RenderStageSelectors), x => x.RenderStageSelectors);
+
             // Sub render features for mesh render feature
             var renderFeaturesCategory = $"{renderingCategoryAdvanced}.RenderFeatures";
             yield return new StrideNodeDesc<TransformRenderFeature>(nodeFactory, category: renderFeaturesCategory);
