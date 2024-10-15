@@ -44,5 +44,12 @@ namespace VL.Stride.Rendering
         }
 
         public Buffer DrawArgs;
+
+        bool drawAuto = false;
+        public bool DrawAuto
+        {
+            get => drawAuto;
+            set => drawAuto = value;
+        }
     }
 }

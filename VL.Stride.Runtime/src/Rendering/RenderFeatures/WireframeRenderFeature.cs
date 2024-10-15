@@ -107,53 +107,14 @@ namespace VL.Stride.Rendering
 
                 if (drawData.IndexBuffer != null)
                     commandList.SetIndexBuffer(drawData.IndexBuffer.Buffer, drawData.IndexBuffer.Offset, drawData.IndexBuffer.Is32Bit);
+
                 commandList.SetPipelineState(pipelineState.CurrentState);
-
-
 
                 // apply the effect
                 shader.Apply(context.GraphicsContext);
 
-                
-
-                if (drawData is MeshDrawIndirect && ((MeshDrawIndirect)drawData).DrawArgs != null)
-                {
-                    var drawDataIndirect = (MeshDrawIndirect)drawData;
-                    if (drawData.IndexBuffer == null)
-                    {
-                        if (drawData.VertexBuffers[0].Buffer.Flags == BufferFlags.StreamOutput)
-                            commandList.DrawAuto();
-                        else
-                        {
-                            // TODO PR for Stride to fix commandList.DrawInstanced
-                            // https://github.com/stride3d/stride/pull/2482
-                            CommandListHelper.DrawInstanced(commandList, drawDataIndirect.DrawArgs, 0);
-                        }
-                    }
-                    else
-                    {
-                        commandList.DrawIndexedInstanced(drawDataIndirect.DrawArgs, 0);
-                    }
-                }
-                else
-                {
-                    if (drawData.IndexBuffer == null)
-                    {
-                        if (drawData.VertexBuffers[0].Buffer.Flags == BufferFlags.StreamOutput)
-                            commandList.DrawAuto();
-                        else if (renderMesh.InstanceCount > 0)
-                            commandList.DrawInstanced(drawData.DrawCount, renderMesh.InstanceCount, drawData.StartLocation);
-                        else
-                            commandList.Draw(drawData.DrawCount, drawData.StartLocation);
-                    }
-                    else
-                    {
-                        if (renderMesh.InstanceCount > 0)
-                            commandList.DrawIndexedInstanced(drawData.DrawCount, renderMesh.InstanceCount, drawData.StartLocation);
-                        else
-                            commandList.DrawIndexed(drawData.DrawCount, drawData.StartLocation);
-                    }
-                }
+                // Draw
+                commandList.DrawMesh(drawData, renderMesh.InstanceCount);
             }
         }
     }

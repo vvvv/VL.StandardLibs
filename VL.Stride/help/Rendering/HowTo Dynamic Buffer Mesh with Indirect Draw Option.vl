@@ -26,7 +26,7 @@
               <Choice Kind="ProcessAppFlag" Name="SceneWindow" />
             </p:NodeReference>
             <Pin Id="IR54PZh0q4CPYG75OQiY1Z" Name="Node Context" Kind="InputPin" IsHidden="true" />
-            <Pin Id="Dd2sSeyMWm4PaCZ6OtV7H5" Name="Bounds" Kind="InputPin" DefaultValue="2601, 298, 783, 620">
+            <Pin Id="Dd2sSeyMWm4PaCZ6OtV7H5" Name="Bounds" Kind="InputPin" DefaultValue="4612, 1089, 783, 620">
               <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="CoreLibBasics.vl">
                 <Choice Kind="TypeFlag" Name="Rectangle" />
               </p:TypeAnnotation>
@@ -485,7 +485,7 @@
             <Pin Id="UQf6dll09lIMZ2z5mPRyPe" Name="Rasterizer State" Kind="InputPin" />
             <Pin Id="S1TvUaF5TqNOKwFqGlwjzt" Name="Depth Stencil State" Kind="InputPin" />
             <Pin Id="OWwftgkJJ3TMyxo3muYPzF" Name="Mesh" Kind="InputPin" />
-            <Pin Id="GqsyW3feF4ALzha9kCyqUm" Name="Instance Count" Kind="InputPin" />
+            <Pin Id="CDciisaeLmzQKBm88CBJr6" Name="Instance Count" Kind="InputPin" DefaultValue="1" />
             <Pin Id="VL2A2DtXLkyNNgClTBu45Q" Name="Profiling Name" Kind="InputPin" />
             <Pin Id="NQge8QSnkgMPTnU8Io5tMV" Name="Topology" Kind="InputPin" />
             <Pin Id="IjVhufIcuHlQcoDOcg9P03" Name="Draw Count" Kind="InputPin" />
@@ -526,7 +526,7 @@
             <Pin Id="F4SEGV2XjRVQbuCQO7Y1LJ" Name="Components" Kind="InputPin" />
             <Pin Id="CEr582h3IMjQS4S4zj4aKC" Name="Children" Kind="InputPin" />
             <Pin Id="Rd7hxwBqiRiNuBG4N8nZAD" Name="Name" Kind="InputPin" />
-            <Pin Id="KZywbyktUv6PTic3gPUeSJ" Name="Enabled" Kind="InputPin" />
+            <Pin Id="KZywbyktUv6PTic3gPUeSJ" Name="Enabled" Kind="InputPin" DefaultValue="True" />
             <Pin Id="V6fIqGYIwKdPS0sN4Zb754" Name="Output" Kind="OutputPin" />
           </Node>
           <Pad Id="Eceil5uDTAUOS45B0TDfzi" Comment="Render Stage" Bounds="1289,1324,140,15" ShowValueBox="true" isIOBox="true" Value="ShadowCaster">
@@ -543,18 +543,6 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Node Bounds="1094,1191,80,19" Id="LHTXKDIlvS7QVForMP6z73">
-            <p:NodeReference LastCategoryFullName="Stride.Rendering.DrawShaders" LastDependency="VL.Stride.Rendering.EffectShaderNodes">
-              <CategoryReference Kind="Category" Name="Stride" />
-              <CategoryReference Kind="Category" Name="Rendering" />
-              <CategoryReference Kind="Category" Name="DrawShaders" />
-              <Choice Kind="ProcessNode" Name="WColorShader" />
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-            </p:NodeReference>
-            <Pin Id="CRw4tLgiAnLNENavWXvXPG" Name="World" Kind="InputPin" />
-            <Pin Id="LweopqnUvj8LGFakyBU7XD" Name="Parameter Setter" Kind="InputPin" />
-            <Pin Id="O4C1ezC2lXNP74no4TXlQF" Name="Output" Kind="OutputPin" />
-          </Node>
           <Node Bounds="1054,1402,85,19" Id="HNCZZbaROGpPFMZzL6PtGU">
             <p:NodeReference LastCategoryFullName="Stride" LastDependency="VL.Stride.Engine.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -611,7 +599,7 @@
               <Choice Kind="TypeFlag" Name="Vector3" />
             </p:TypeAnnotation>
           </Pad>
-          <Node Bounds="1159,1159,58,19" Id="MASUKWotz8ZORoHRVFtDWA">
+          <Node Bounds="1168,1189,58,19" Id="MASUKWotz8ZORoHRVFtDWA">
             <p:NodeReference LastCategoryFullName="Stride.Graphics.RasterizerStates" LastDependency="Stride.Graphics.dll">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="AssemblyCategory" Name="RasterizerStates" />
@@ -620,6 +608,21 @@
             <Pin Id="Pykt8Ck5pgnQP78RG6xF1u" Name="Cull None" Kind="OutputPin" />
           </Node>
           <ControlPoint Id="PIKyMacRHVcL0em9Xsinyd" Bounds="1056,1492" />
+          <Node Bounds="1094,1160,112,19" Id="ML1UntfUjNkNUx5P9TmdUs">
+            <p:NodeReference LastCategoryFullName="Stride.Rendering.DrawShaders" LastDependency="VL.Stride.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessNode" Name="ConstantColorShader" />
+            </p:NodeReference>
+            <Pin Id="BvjFL29DRTzMaww4cvWmsA" Name="Color Input" Kind="InputPin" />
+            <Pin Id="Svj19yv3jABMCBanEoC7Va" Name="World" Kind="InputPin" />
+            <Pin Id="LtbB4V5PoCyL17iMVy0o9V" Name="Parameter Setter" Kind="InputPin" />
+            <Pin Id="Ox1vWCJKwSxNKfcakxTM6s" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="BmNAE4rK496Ms3tUVrEGf6" Comment="Color Input" Bounds="1096,1143,28,15" ShowValueBox="true" isIOBox="true" Value="0.95000005, 0, 0.85499924, 1">
+            <p:TypeAnnotation LastCategoryFullName="Color" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="RGBA" />
+            </p:TypeAnnotation>
+          </Pad>
         </Canvas>
         <Patch Id="MlJDEAkmWSCNFrBbC1wcnK" Name="Create" />
         <Patch Id="FH0PMPoKAjCPHHW3NlP1Bj" Name="Update" />
@@ -640,7 +643,6 @@
         <Link Id="IzwfPfjrc4SMXuTMJJ7Sc3" Ids="N1Ah3tkDMaKNEj3lIv4Srw,L6Iihm4Cv4LQN86ZTSgUzn" />
         <Link Id="K3NaWvXkqwWMQjT292axqd" Ids="HAuxVSCwHQrN6PfqBF2Xp8,BxrjxXCnyXgMLU8iR63Lcj" />
         <Link Id="Rv97oLndDKmMtz0G7iPb3m" Ids="Mpkn4Mx7Ow0QILft0DcIgh,RfNLc8ou7iKPQdO8Gtqt4h" />
-        <Link Id="ShNxcMFvFFhMkbeSTAQ3RQ" Ids="BsJhILep1XiMFB1p76f40I,Eov12hEms0KOyl9GpTe3yf" />
         <Link Id="BPrZMFS8TswNotL06C2hWC" Ids="LYV6XKbUg6yOigLSdYLVPf,Q1bFM3LUBOxLHBW5j0I23Y" />
         <Link Id="GIv4oQoeSWbOiQNnEtleXY" Ids="GziCDdaYMdMPv9tZR7FbIZ,Nc2zv5EWP3NNKbKRfecMXC" />
         <Link Id="BXObhZJdaO1LYMcQudMGvU" Ids="BaVip31NfKVNHzF3r9q3rZ,M7VKWG0onMGMdI8BQu5Ikx" />
@@ -670,7 +672,6 @@
         <Link Id="LaJnvTMDciUMLtWwDUzuPJ" Ids="QIMitPLZ0huNAulwpQsMCS,RlCRGWno69pN87KivM940Q" />
         <Link Id="BQ7i8ct8yU8NijM7sgPVHz" Ids="QIMitPLZ0huNAulwpQsMCS,GFDA5Pdr4reOlaNGrp3Yvp" />
         <Link Id="Sj35UExT9klNoj1OIljGU0" Ids="Eceil5uDTAUOS45B0TDfzi,FBp082H8LVyMRsQIL6WDlX" />
-        <Link Id="BcnCJYubkWbOM01PWCi0K5" Ids="O4C1ezC2lXNP74no4TXlQF,Vd7MxkqrrbGPlCzR1pDhK0" />
         <Link Id="C4m1xRjlZFDL02DDx3aUyi" Ids="CFVfjzrkcSQMjejiXN8U4Z,GILOFefzWhbLdM782bt1uM" />
         <Link Id="C01OAyce5PzNgBXTTcd6St" Ids="V6fIqGYIwKdPS0sN4Zb754,ACMTtg2uoUaNGRX9DPgvrF" />
         <Link Id="D59VbjMt0A6OMiZNxvf69l" Ids="ShzXF2vKkt1Qc8O5rYSv1g,VdBslIBBkSVLW68tX0ZHb3,OWwftgkJJ3TMyxo3muYPzF" />
@@ -682,6 +683,9 @@
         <Link Id="KEI8YchsyiSOk7WOgLQEuS" Ids="M87B8QrUkZTQD4d0nCJB7h,LYz3lh3x61ELxtqycCEZUD" />
         <Link Id="MAMoggntL12QTMYXQAdiFc" Ids="SwYFDMMFiODPUkr8SPm58l,ChQBgUewC9cMZ0K6wpE3mw" />
         <Link Id="Kkq377DudhzN2wswsElrga" Ids="Pykt8Ck5pgnQP78RG6xF1u,UQf6dll09lIMZ2z5mPRyPe" />
+        <Link Id="GZwwGdRXbr9PTZW6xzKJnK" Ids="Ox1vWCJKwSxNKfcakxTM6s,Vd7MxkqrrbGPlCzR1pDhK0" />
+        <Link Id="UqzXjd97yxKLm3ErdQPeqS" Ids="BmNAE4rK496Ms3tUVrEGf6,BvjFL29DRTzMaww4cvWmsA" />
+        <Link Id="K3H8CbJLq7FLcS7u5l8HDj" Ids="BsJhILep1XiMFB1p76f40I,Eov12hEms0KOyl9GpTe3yf" />
       </Patch>
     </Node>
   </Patch>

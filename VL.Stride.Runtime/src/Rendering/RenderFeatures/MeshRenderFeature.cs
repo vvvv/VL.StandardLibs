@@ -11,6 +11,8 @@ using Buffer = Stride.Graphics.Buffer;
 using System.Reflection;
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using VL.Lib.Reactive;
 
 namespace VL.Stride.Rendering
 {
@@ -113,83 +115,113 @@ namespace VL.Stride.Rendering
                 commandList.SetPipelineState(renderEffect.PipelineState);
                 commandList.SetDescriptorSets(0, descriptorSetsLocal);
 
-                // Draw
-                if (drawData is MeshDrawIndirect && ((MeshDrawIndirect)drawData).DrawArgs != null)
-                {
-                    var drawDataIndirect = (MeshDrawIndirect)drawData;
-                    if (drawData.IndexBuffer == null)
-                    {
-                        if (drawData.VertexBuffers[0].Buffer.Flags == BufferFlags.StreamOutput)
-                            commandList.DrawAuto();
-                        else
-                        {
-                            // TODO PR for Stride to fix commandList.DrawInstanced
-                            // https://github.com/stride3d/stride/pull/2482
-                            CommandListHelper.DrawInstanced(commandList, drawDataIndirect.DrawArgs, 0);
-                        }
-                    }
-                    else
-                    {
-                        commandList.DrawIndexedInstanced(drawDataIndirect.DrawArgs, 0);
-                    }
-                }
-                else
-                { 
-                    if (drawData.IndexBuffer == null)
-                    {
-                        if(drawData.VertexBuffers[0].Buffer.Flags == BufferFlags.StreamOutput)
-                            commandList.DrawAuto();
-                        else if (renderMesh.InstanceCount > 0)
-                            commandList.DrawInstanced(drawData.DrawCount, renderMesh.InstanceCount, drawData.StartLocation);
-                        else
-                            commandList.Draw(drawData.DrawCount, drawData.StartLocation);
-                    }
-                    else
-                    {
-                        if (renderMesh.InstanceCount > 0)
-                            commandList.DrawIndexedInstanced(drawData.DrawCount, renderMesh.InstanceCount, drawData.StartLocation);
-                        else
-                            commandList.DrawIndexed(drawData.DrawCount, drawData.StartLocation);
-                    }
-                }
+                commandList.DrawMesh(drawData, renderMesh.InstanceCount);
+
+                //// Draw
+                //if (drawData is MeshDrawIndirect drawDataIndirect && drawDataIndirect.DrawArgs != null)
+                //{
+                //    if (drawData.IndexBuffer == null)
+                //    {
+                //        if ((drawData.VertexBuffers[0].Buffer.Flags & BufferFlags.StreamOutput) != 0)
+                //            commandList.DrawAuto();
+                //        else
+                //        {
+                //            // TODO PR for Stride to fix commandList.DrawInstanced
+                //            // https://github.com/stride3d/stride/pull/2482
+                //            CommandListHelper.DrawInstanced(commandList, drawDataIndirect.DrawArgs, 0);
+                //        }
+                //    }
+                //    else
+                //    {
+                //        commandList.DrawIndexedInstanced(drawDataIndirect.DrawArgs, 0);
+                //    }
+                //}
+                //else
+                //{ 
+                //    if (drawData.IndexBuffer == null)
+                //    {
+                //        if(drawData.VertexBuffers[0].Buffer.Flags == BufferFlags.StreamOutput)
+                //            commandList.DrawAuto();
+                //        else if (renderMesh.InstanceCount > 0)
+                //            commandList.DrawInstanced(drawData.DrawCount, renderMesh.InstanceCount, drawData.StartLocation);
+                //        else
+                //            commandList.Draw(drawData.DrawCount, drawData.StartLocation);
+                //    }
+                //    else
+                //    {
+                //        if (renderMesh.InstanceCount > 0)
+                //            commandList.DrawIndexedInstanced(drawData.DrawCount, renderMesh.InstanceCount, drawData.StartLocation);
+                //        else
+                //            commandList.DrawIndexed(drawData.DrawCount, drawData.StartLocation);
+                //    }
+                //}
             }
         }
     }
 
     public static class CommandListHelper
     {
-        static FieldInfo nativeDeviceContextFi;
-        static FieldInfo nativeDeviceChildFi;
+        [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(PrepareDraw))]
+        extern static void PrepareDraw(this CommandList c);
 
-        static MethodInfo PrepareDraw;
-        static object[] arg;
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "nativeDeviceContext")]
+        extern static ref SharpDX.Direct3D11.DeviceContext NativeDeviceContext(this CommandList commandList);
 
-
-        static CommandListHelper()
+        static SharpDX.Direct3D11.Buffer NativeBuffer(this Buffer buffer)
         {
-            PrepareDraw = typeof(CommandList).GetMethod("PrepareDraw", BindingFlags.Instance | BindingFlags.NonPublic);
-            nativeDeviceContextFi = typeof(CommandList).GetRuntimeFields().Where(fi => fi.Name == "nativeDeviceContext").First();
+            ref var buf = ref NativeBuffer(buffer);
 
-            var graphicsResourceBaseType = Type.GetType("Stride.Graphics.GraphicsResourceBase, Stride.Graphics");
-            nativeDeviceChildFi = graphicsResourceBaseType.GetRuntimeFields().Where(i => i.Name == "nativeDeviceChild").First();
+            return (SharpDX.Direct3D11.Buffer)buf;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "nativeDeviceChild")]
+            extern static ref SharpDX.Direct3D11.DeviceChild NativeBuffer(GraphicsResourceBase buffer);
         }
 
-        public static SharpDX.Direct3D11.DeviceContext GetNativeDeviceContext(this CommandList commandList)
-        {
-            return (SharpDX.Direct3D11.DeviceContext)nativeDeviceContextFi.GetValue(commandList);
-        }
-
-        public static CommandList DrawInstanced(this CommandList commandList, Buffer argumentsBuffer, int alignedByteOffsetForArgs = 0)
+        static CommandList DrawInstanced(this CommandList commandList, Buffer argumentsBuffer, int alignedByteOffsetForArgs = 0)
         {
             if (argumentsBuffer == null) throw new ArgumentNullException("argumentsBuffer");
 
-            PrepareDraw.Invoke(commandList, arg);
-
-            var buffer = (SharpDX.Direct3D11.Buffer)nativeDeviceChildFi.GetValue(argumentsBuffer);
-
-            commandList.GetNativeDeviceContext().DrawInstancedIndirect(buffer, alignedByteOffsetForArgs);
-
+            commandList.PrepareDraw();  
+            commandList.NativeDeviceContext().DrawInstancedIndirect(argumentsBuffer.NativeBuffer(), alignedByteOffsetForArgs);
             commandList.GraphicsDevice.FrameDrawCalls++;
+
+            return commandList;
+        }
+
+        public static CommandList DrawMesh(this CommandList commandList, MeshDraw drawData, int InstanceCount)
+        {
+            // Draw
+            if (drawData is MeshDrawIndirect drawDataIndirect && drawDataIndirect.DrawArgs != null)
+            {
+                if (drawData.IndexBuffer == null)
+                {
+                    if ((drawData.VertexBuffers[0].Buffer.Flags & BufferFlags.StreamOutput) != 0 && drawDataIndirect.DrawAuto)
+                        commandList.DrawAuto();
+                    else
+                        // TODO PR for Stride to fix commandList.DrawInstanced
+                        // https://github.com/stride3d/stride/pull/2482
+                        DrawInstanced(commandList, drawDataIndirect.DrawArgs, 0); 
+                }
+                else
+                    commandList.DrawIndexedInstanced(drawDataIndirect.DrawArgs, 0);
+            }
+            else
+            {
+                if (drawData.IndexBuffer == null)
+                {
+                    if (InstanceCount > 0)
+                        commandList.DrawInstanced(drawData.DrawCount, InstanceCount, drawData.StartLocation);
+                    else
+                        commandList.Draw(drawData.DrawCount, drawData.StartLocation);
+                }
+                else
+                {
+                    if (InstanceCount > 0)
+                        commandList.DrawIndexedInstanced(drawData.DrawCount, InstanceCount, drawData.StartLocation);
+                    else
+                        commandList.DrawIndexed(drawData.DrawCount, drawData.StartLocation);
+                }
+            }
 
             return commandList;
         }
