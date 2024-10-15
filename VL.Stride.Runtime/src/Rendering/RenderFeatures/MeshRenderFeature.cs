@@ -116,45 +116,6 @@ namespace VL.Stride.Rendering
                 commandList.SetDescriptorSets(0, descriptorSetsLocal);
 
                 commandList.DrawMesh(drawData, renderMesh.InstanceCount);
-
-                //// Draw
-                //if (drawData is MeshDrawIndirect drawDataIndirect && drawDataIndirect.DrawArgs != null)
-                //{
-                //    if (drawData.IndexBuffer == null)
-                //    {
-                //        if ((drawData.VertexBuffers[0].Buffer.Flags & BufferFlags.StreamOutput) != 0)
-                //            commandList.DrawAuto();
-                //        else
-                //        {
-                //            // TODO PR for Stride to fix commandList.DrawInstanced
-                //            // https://github.com/stride3d/stride/pull/2482
-                //            CommandListHelper.DrawInstanced(commandList, drawDataIndirect.DrawArgs, 0);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        commandList.DrawIndexedInstanced(drawDataIndirect.DrawArgs, 0);
-                //    }
-                //}
-                //else
-                //{ 
-                //    if (drawData.IndexBuffer == null)
-                //    {
-                //        if(drawData.VertexBuffers[0].Buffer.Flags == BufferFlags.StreamOutput)
-                //            commandList.DrawAuto();
-                //        else if (renderMesh.InstanceCount > 0)
-                //            commandList.DrawInstanced(drawData.DrawCount, renderMesh.InstanceCount, drawData.StartLocation);
-                //        else
-                //            commandList.Draw(drawData.DrawCount, drawData.StartLocation);
-                //    }
-                //    else
-                //    {
-                //        if (renderMesh.InstanceCount > 0)
-                //            commandList.DrawIndexedInstanced(drawData.DrawCount, renderMesh.InstanceCount, drawData.StartLocation);
-                //        else
-                //            commandList.DrawIndexed(drawData.DrawCount, drawData.StartLocation);
-                //    }
-                //}
             }
         }
     }
