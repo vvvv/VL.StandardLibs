@@ -8,6 +8,7 @@ using System.Reactive;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using VL.Core.CompilerServices;
 using VL.Core.EditorAttributes;
 using VL.Core.Logging;
@@ -637,7 +638,7 @@ namespace VL.Core
             {
                 var value = property.GetValue(instance);
                 var localID = property.OriginalName;
-                var path = string.IsNullOrWhiteSpace(pathOfParent) ? localID : $"{pathOfParent}.{localID}";
+                var path = /*string.IsNullOrWhiteSpace(pathOfParent) ? localID :*/ $"{pathOfParent}.{localID}";
                 if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, property))
                 {
                     var childtype = property.Type.ClrType; // let's use the type of the property, not the type of the object. Embracing super types.
@@ -869,6 +870,106 @@ namespace VL.Core
             value = defaultValue;
             return false;
         }
+
+
+        public static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath(this object instance, string path, object? accessedViaKey, Type? accessedViaType, string accessedViaPath)
+        {
+            if (path == "")
+            {
+                if (instance != null)
+                    return new ObjectGraphNode(accessedViaPath, instance, accessedViaType ?? instance.GetType(), accessedViaKey);
+
+                return default;
+            }
+
+            if (instance is IVLObject vlObj)
+            {
+                var match = FPropertyRegex.Match(path);
+                if (match.Success)
+                {
+                    var propertyName = match.Groups[1].Value;
+                    var rest = match.Groups[2].Value;
+                    var property = vlObj.Type.GetProperty(propertyName);
+                    if (property != null)
+                    {
+                        var o = property.GetValue(vlObj);
+                        return o.TryGetObjectGraphNodeByPath(rest, propertyName, property.Type.ClrType, accessedViaPath);
+                    }
+                }
+                return default;
+            }
+
+            if (instance is ISpread spread)
+            {
+                var match = FValueIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    {
+                        var rest = match.Groups[2].Value;
+                        var o = spread.GetItem(index);
+                        return o.TryGetObjectGraphNodeByPath(rest, index, spread.ElementType, accessedViaPath);
+                    }
+                }
+                return default;
+            }
+
+            if (instance is IDictionary dict)
+            {
+                var match = FStringIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    var key = match.Groups[1].Value;
+                    var rest = match.Groups[2].Value;
+                    if (dict.Contains(key))
+                    {
+                        var o = dict[key];
+                        return o.TryGetObjectGraphNodeByPath(rest, key, accessedViaType: null /* should be something like dict.TypeOfValues */, accessedViaPath);
+                    }
+                }
+                return default;
+            }
+
+            if (instance is IList list)
+            {
+                var match = FValueIndexerRegex.Match(path);
+                if (match.Success)
+                {
+                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    {
+                        if (0 <= index && index < list.Count)
+                        {
+                            var rest = match.Groups[2].Value;
+                            var o = list[index];
+                            return o.TryGetObjectGraphNodeByPath(rest, index, accessedViaType: null /* should be something like list.ElementType */, accessedViaPath);
+                        }
+                    }
+                }
+                return default;
+            }
+
+            if (instance is not null)
+            {
+                var match = FPropertyRegex.Match(path);
+                if (match.Success)
+                {
+                    var type = instance.GetType();
+                    var propertyName = match.Groups[1].Value;
+                    var rest = match.Groups[2].Value;
+                    var property = type.GetProperty(propertyName);
+                    if (property != null)
+                    {
+                        var o = property.GetValue(instance);
+                        return o.TryGetObjectGraphNodeByPath(rest, propertyName, accessedViaType: property.PropertyType, accessedViaPath);
+                    }
+                }
+                return default;
+            }
+
+            return default;
+        }
+
+
 
         /// <summary>
         /// Whether or not the type is supported by <see cref="TryReplaceDescendant"/>.

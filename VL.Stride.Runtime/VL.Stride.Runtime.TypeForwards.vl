@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="TiJxb2oN2LtNWRy2MbJV6Q" LanguageVersion="2024.6.0-0313-g70edef4106" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="TiJxb2oN2LtNWRy2MbJV6Q" LanguageVersion="2024.6.7-0136-ga34ff89f71" Version="0.128">
   <NugetDependency Id="LpDzfnL2ypqNzyyOieWuHI" Location="VL.CoreLib" Version="2021.4.11-1125-g2d2d476ad1" />
   <PlatformDependency Id="JJ0ZRRgadtbPuisZUaeinf" Location="Stride.Graphics.dll" />
   <NugetDependency Id="RUpxj8weM25L4I4AlKb6Yw" Location="VL.Core" Version="2021.4.11-1125-g2d2d476ad1" />
@@ -2513,8 +2513,39 @@
                 <Choice Kind="TypeFlag" Name="CommandList" />
               </p:TypeAnnotation>
               <Patch Id="BBsQros4BSiLqyyg7Kqe5Q">
-                <Canvas Id="MvSYpVSXs37PwMoCoR7mQu" BordersChecked="false" CanvasType="Group" />
-                <ProcessDefinition Id="SNu3a8iMSXnP4matC4BIAH" IsHidden="true" />
+                <Canvas Id="MvSYpVSXs37PwMoCoR7mQu" CanvasType="Group">
+                  <!--
+
+    ************************ DrawMesh ************************
+
+-->
+                  <Node Name="DrawMesh" Bounds="797,440,113,80" Id="O5F59rFB1TuObsZjMUIzfs">
+                    <p:NodeReference>
+                      <Choice Kind="OperationDefinition" Name="Operation" />
+                      <CategoryReference Kind="Category" Name="Primitive" />
+                    </p:NodeReference>
+                    <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+                    <Patch Id="Jck1aiKCUwJPewjx3YKloG">
+                      <Node Bounds="809,469,89,26" AutoConnect="true" Id="GJfpgVzNEfKMEbyl7WD0Oz">
+                        <p:NodeReference LastCategoryFullName="VL.Stride.Rendering.CommandListHelper" LastDependency="VL.Stride.Runtime.dll">
+                          <Choice Kind="OperationNode" Name="DrawMesh" />
+                          <FullNameCategoryReference ID="VL.Stride.Rendering.CommandListHelper" />
+                        </p:NodeReference>
+                        <Pin Id="RVzihOLeKQBLCiAZSjllad" Name="Input" Kind="StateInputPin" />
+                        <Pin Id="NiYdRZpNhhCNzMyCh2LvOi" Name="Draw Data" Kind="InputPin" />
+                        <Pin Id="MIFABM8AMvyOYQLwffivsd" Name="Instance Count" Kind="InputPin" />
+                        <Pin Id="QBXQ0wUGdwmPPZKQJD3vWK" Name="Output" Kind="OutputPin" />
+                      </Node>
+                      <Pin Id="N9KXFQgSWbwMD2Gias0nm9" Name="Input" Kind="InputPin" />
+                      <Pin Id="OnPO56EZld6Mlf54m7knS8" Name="Draw Data" Kind="InputPin" />
+                      <Pin Id="T5EAClRLNrUPJ17qjthbFs" Name="Instance Count" Kind="InputPin" />
+                      <Pin Id="Uz93UuqASjtNs4SxOAXKWB" Name="Output" Kind="OutputPin" />
+                    </Patch>
+                  </Node>
+                </Canvas>
+                <ProcessDefinition Id="SNu3a8iMSXnP4matC4BIAH" IsHidden="true">
+                  <Fragment Id="K7cKpTh3E1wP1u7grNjAID" Patch="O5F59rFB1TuObsZjMUIzfs" />
+                </ProcessDefinition>
               </Patch>
             </Node>
             <!--
@@ -7755,6 +7786,42 @@
               </Patch>
             </Node>
           </Canvas>
+          <!--
+
+    ************************ WireframeComponent ************************
+
+-->
+          <Node Name="WireframeComponent" Bounds="322,663" Id="IqvxKVg6GbdMYTv0tIm53B">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="VL.Stride.Rendering" LastDependency="VL.Stride.Runtime.dll">
+              <Choice Kind="TypeFlag" Name="WireframeComponent" />
+            </p:TypeAnnotation>
+            <Patch Id="OWwMuUrHbBqNicsPQDlZOH">
+              <Canvas Id="OvSoD0TkTPGN7qY4Hy5egx" CanvasType="Group" />
+              <ProcessDefinition Id="FbQFLMDT5QzQQhADIMy2as" IsHidden="true" />
+            </Patch>
+          </Node>
+          <!--
+
+    ************************ MeshOutlineComponent ************************
+
+-->
+          <Node Name="MeshOutlineComponent" Bounds="324,722" Id="VM9SSRF7ixIOUNXq4xMOJT">
+            <p:NodeReference>
+              <Choice Kind="ForwardDefinition" Name="Forward" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+            </p:NodeReference>
+            <p:TypeAnnotation LastCategoryFullName="VL.Stride.Rendering" LastDependency="VL.Stride.Runtime.dll">
+              <Choice Kind="TypeFlag" Name="MeshOutlineComponent" />
+            </p:TypeAnnotation>
+            <Patch Id="BEdedK1qDBBQDKNZhaCF67">
+              <Canvas Id="HHpKLCGtd7UMeT2UB2KjXE" BordersChecked="false" CanvasType="Group" />
+              <ProcessDefinition Id="GlynMHkAxr6MCHzbPb0qGy" IsHidden="true" />
+            </Patch>
+          </Node>
         </Canvas>
         <Canvas Id="Bd789eT964HO9PAhxU72OF" Name="Engine" Position="386,328">
           <!--
