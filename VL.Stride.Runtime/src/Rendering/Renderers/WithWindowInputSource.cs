@@ -11,16 +11,8 @@ namespace VL.Stride.Rendering
 
         protected override void DrawInternal(RenderDrawContext context)
         {
-
             var inputSource = InputSource;
-            if (inputSource != null)
-            {
-                using (context.RenderContext.PushTagAndRestore(InputExtensions.WindowInputSource, inputSource))
-                {
-                    DrawInput(context);
-                }
-            }
-            else
+            using (context.RenderContext.PushTagAndRestore(InputExtensions.WindowInputSource, inputSource))
             {
                 DrawInput(context);
             }

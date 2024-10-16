@@ -45,7 +45,7 @@ namespace VL.Stride.Input
 
         protected override void DrawCore(RenderContext context, RenderDrawContext drawContext)
         {
-            var inputSource = InputSource ?? context.GetWindowInputSource();
+            var inputSource = Enabled ? InputSource ?? context.GetWindowInputSource() : null;
 
             if (CameraInputSourceComponent != null)
             {
