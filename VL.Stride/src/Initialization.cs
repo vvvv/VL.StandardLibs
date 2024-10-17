@@ -58,6 +58,10 @@ namespace VL.Stride.Lib
             {
                 var game = new VLGame(appHost.NodeFactoryRegistry).DisposeBy(appHost);
 
+                // Check for --debug-gpu commandline flag to load debug graphics device
+                if (Array.Exists(Environment.GetCommandLineArgs(), argument => argument == "--debug-gpu"))
+                    game.GraphicsDeviceManager.DeviceCreationFlags |= DeviceCreationFlags.Debug;
+
                 var assetBuildService = new AssetBuilderServiceScript();
                 game.Services.AddService(assetBuildService);
                 game.Services.AddService(appHost.Factory);
@@ -124,6 +128,8 @@ namespace VL.Stride.Lib
                     // Remove the message filter
                     if (messageFilter != null)
                         Application.RemoveMessageFilter(messageFilter);
+
+                    game.Services.GetService<RenderDocManager>()?.RemoveHooks();
                 };
 
                 return ResourceProvider.Return<Game>(game);
