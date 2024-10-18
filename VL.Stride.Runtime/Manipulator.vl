@@ -3573,20 +3573,6 @@
                 <Link Id="QqnDJnx0daxOHJdD1JXuOv" Ids="D5F340YeNrbL7oPYYv6D8V,LbBBJ53FxvzNdNKnAVlcuh" />
               </Patch>
             </Node>
-            <Node Bounds="1106,2373,99,19" Id="IWr8akIL3yoLdaTL6slmrR">
-              <p:NodeReference LastCategoryFullName="Gizmo" LastDependency="Manipulator.vl">
-                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                <Choice Kind="ProcessAppFlag" Name="CoordinateSystem" />
-              </p:NodeReference>
-              <Pin Id="V3sUzX4rh8vOfGRhhHwoA4" Name="Output" Kind="StateOutputPin" />
-              <Pin Id="QHZsqT9YAxyMVOeBolULGN" Name="Node Context" Kind="InputPin" IsHidden="true" />
-              <Pin Id="C3g9uUn3KxLMxw0KhVTK9j" Name="Position Delta" Kind="InputPin" />
-              <Pin Id="MRznZY5BT0fQIn7Fy04OoG" Name="Scale Delta" Kind="InputPin" />
-              <Pin Id="D1WyEXpq65xLyzUXAWjPll" Name="Rotation Delta" Kind="InputPin" />
-              <Pin Id="QfXrAHINbVKMPo9MSDFSGX" Name="Update" Kind="InputPin" />
-            </Node>
-            <ControlPoint Id="F6SspzRUEggOkcIpK08v1i" Bounds="1758,2246" />
-            <ControlPoint Id="GnQtCdxm7tyQdbulp6fxlH" Bounds="1104,2453" />
           </Canvas>
           <Patch Id="UOdGVIy8JTJPdebi4BpFMO" Name="Create" />
           <Patch Id="SXAHphluPa5NGzPafUgHAf" Name="Update">
@@ -3598,7 +3584,6 @@
             <Pin Id="OIFuFZGDgiqLF3BDdBQd7z" Name="Output" Kind="OutputPin" />
             <Pin Id="KP16ZQP8vA8PfWPzf1FZ7X" Name="Hovered" Kind="OutputPin" />
             <Pin Id="DoMxCn86S9jLCXgjmHl2Gl" Name="Active" Kind="OutputPin" />
-            <Pin Id="HmMHENXpIEnMKfLVKR8eQN" Name="Coordinate System" Kind="OutputPin" />
             <Pin Id="DFPeb7eDqjAL2OMUuGYetS" Name="Translation" Kind="OutputPin" />
             <Pin Id="VgrbZt6o1crNM9MtUfnqDR" Name="Scale" Kind="OutputPin" />
             <Pin Id="BNPpYjliDT8PbAa0LrXt2A" Name="Translation Enabled" Kind="InputPin" />
@@ -3866,12 +3851,6 @@
           <Link Id="GsfbCZnRfxrP0AqWV8Y7px" Ids="NkPAPYgb5OaLVbvuat9S7r,NVWOugDL2EcLiwvKxS7u8i" />
           <Link Id="NxRcseiXBjkMVLGz95hrwC" Ids="FKohR5zLTayPsB8iFh3rKu,PxoaFZBRnc9L0sOji2MTki" />
           <Link Id="RLMyizLBVVXLZX5qxqpZWW" Ids="FKohR5zLTayPsB8iFh3rKu,K0qcKF2sQyPMQJxK6JufZE" />
-          <Link Id="PxIxAML8mcRLrTWesskpUL" Ids="FzoUfiRaSiBQOG2EVCGlQe,QfXrAHINbVKMPo9MSDFSGX" />
-          <Link Id="DLTxEHt0IJtOLorGB0gV1u" Ids="Rs8K8bQdntPQaH9vXo4hLe,C3g9uUn3KxLMxw0KhVTK9j" />
-          <Link Id="UpyU5ZsOPCaMRMEjmWrhp9" Ids="NJ05RCS5AzUMNrXWfVn0rC,MRznZY5BT0fQIn7Fy04OoG" />
-          <Link Id="DB57ZKAeG8VMnPBX7xR5yk" Ids="B9jpbNLZdiNMo1DOm6Aky9,F6SspzRUEggOkcIpK08v1i,D1WyEXpq65xLyzUXAWjPll" />
-          <Link Id="RRucdctNa0iMJ1RCvM56iZ" Ids="V3sUzX4rh8vOfGRhhHwoA4,GnQtCdxm7tyQdbulp6fxlH" />
-          <Link Id="Ay0oVQsvqAWNUgjUHYZ8zZ" Ids="GnQtCdxm7tyQdbulp6fxlH,HmMHENXpIEnMKfLVKR8eQN" IsHidden="true" />
           <Link Id="JcoNxuPKJzvNO9JsIRHy9U" Ids="JIB2rUKfeozMH6CoVzFNMx,NVjTtVBPNeROicjgMuGAvm" />
         </Patch>
       </Node>
@@ -3930,10 +3909,10 @@
       </Node>
       <!--
 
-    ************************ CoordinateSystem ************************
+    ************************ PegState ************************
 
 -->
-      <Node Name="CoordinateSystem" Bounds="649,311" Id="OVLqXhKd8xePV98Nw7RVUB">
+      <Node Name="PegState" Bounds="649,311" Id="OVLqXhKd8xePV98Nw7RVUB">
         <p:NodeReference>
           <Choice Kind="ClassDefinition" />
         </p:NodeReference>
@@ -4050,8 +4029,9 @@
               </p:TypeAnnotation>
             </Pad>
             <Node Bounds="398,782,102,26" Id="L1pJ16L9CYtOJ17NQiLtTq">
-              <p:NodeReference LastCategoryFullName="Gizmo.CoordinateSystem" LastDependency="Manipulator.vl">
+              <p:NodeReference LastCategoryFullName="Gizmo.PegState" LastDependency="Manipulator.vl">
                 <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="ClassType" Name="PegState" NeedsToBeDirectParent="true" />
                 <Choice Kind="OperationCallFlag" Name="ApplyPositionDelta" />
               </p:NodeReference>
               <Pin Id="FlKSH5VoitlMOwcUqi7QQx" Name="Input" Kind="StateInputPin" />
@@ -4068,9 +4048,9 @@
               <Pin Id="QPHix6dl4TfNJ0fTMYXrew" Name="Instance" Kind="OutputPin" />
             </Node>
             <Node Bounds="398,860,104,26" Id="PKqyV1XUgqtPgvpdmPngao">
-              <p:NodeReference LastCategoryFullName="Gizmo.CoordinateSystem" LastDependency="Manipulator.vl">
+              <p:NodeReference LastCategoryFullName="Gizmo.PegState" LastDependency="Manipulator.vl">
                 <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                <FullNameCategoryReference ID="Gizmo.CoordinateSystem" />
+                <CategoryReference Kind="ClassType" Name="PegState" NeedsToBeDirectParent="true" />
                 <Choice Kind="OperationCallFlag" Name="ApplyScaleDelta" />
               </p:NodeReference>
               <Pin Id="Nvonv2u3nlSMoSbJ4DtMrh" Name="Input" Kind="StateInputPin" />
@@ -4079,9 +4059,9 @@
             </Node>
             <ControlPoint Id="BOsCN2fHH9oNaX5Wp9ECqB" Bounds="602,872" />
             <Node Bounds="398,933,104,26" Id="M733o4VahTvNEMycq5r7sy">
-              <p:NodeReference LastCategoryFullName="Gizmo.CoordinateSystem" LastDependency="Manipulator.vl">
+              <p:NodeReference LastCategoryFullName="Gizmo.PegState" LastDependency="Manipulator.vl">
                 <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                <FullNameCategoryReference ID="Gizmo.CoordinateSystem" />
+                <CategoryReference Kind="ClassType" Name="PegState" NeedsToBeDirectParent="true" />
                 <Choice Kind="OperationCallFlag" Name="ApplyRotationDelta" />
               </p:NodeReference>
               <Pin Id="TJz4GPQQBAhN1fpYsIW43f" Name="Input" Kind="StateInputPin" />
@@ -4103,19 +4083,73 @@
               <Pin Id="SeDy6QYLvciQcXOHIH2Atv" Name="Instance" Kind="OutputPin" />
             </Node>
             <Node Bounds="1254,879,92,26" Id="IzV4AkTrO8rPxoGdFqr9H3">
-              <p:NodeReference LastCategoryFullName="Gizmo.CoordinateSystem" LastDependency="Manipulator.vl">
+              <p:NodeReference LastCategoryFullName="Gizmo.PegState" LastDependency="Manipulator.vl">
                 <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="ClassType" Name="PegState" NeedsToBeDirectParent="true" />
                 <Choice Kind="OperationCallFlag" Name="GetRotationEuler" />
               </p:NodeReference>
               <Pin Id="DCjkkxlVFn4LobpIrt8s3G" Name="Input" Kind="StateInputPin" />
               <Pin Id="T6afNJqierxOaCRU7WmctU" Name="Output" Kind="StateOutputPin" />
               <Pin Id="LYurfIVvLMXM4BuI9y3F1j" Name="Rotation" Kind="OutputPin" />
             </Node>
+            <Node Bounds="840,1128,80,19" Id="OVvbr89zvOrMhUCcwvyviR">
+              <p:NodeReference LastCategoryFullName="3D.Transform" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="Category" Name="Transform" NeedsToBeDirectParent="true">
+                  <p:OuterCategoryReference Kind="Category" Name="3D" NeedsToBeDirectParent="true" />
+                </CategoryReference>
+                <Choice Kind="OperationCallFlag" Name="TransformSRT" />
+              </p:NodeReference>
+              <Pin Id="Q3C7QkNuNbiNbYe1WvMOih" Name="Input" Kind="InputPin" />
+              <Pin Id="GD9yCXjWySFOUvxbnEuQd2" Name="Scaling" Kind="InputPin" />
+              <Pin Id="NcKG5f0WSdHOfBeRDYnboP" Name="Rotation" Kind="InputPin" />
+              <Pin Id="BWdu8FSp7AeLVGo21yJ06a" Name="Translation" Kind="InputPin" />
+              <Pin Id="Epe5nvumg0mOwKxM935vCs" Name="Output" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="839,1002,36,19" Id="CuK6Mgx8ODrMksAIgB6R7F">
+              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="Category" Name="Primitive" />
+                <Choice Kind="ProcessNode" Name="This" />
+              </p:NodeReference>
+              <Pin Id="Gwj6kg4RfwuNJ5UELkO9B7" Name="Instance" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="864,1046,65,26" Id="RUMplxS38NuOTS9EQW22OB">
+              <p:NodeReference LastCategoryFullName="Gizmo.PegState" LastDependency="Manipulator.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <CategoryReference Kind="ClassType" Name="PegState" NeedsToBeDirectParent="true" />
+                <Choice Kind="OperationCallFlag" Name="Split" />
+              </p:NodeReference>
+              <Pin Id="J3tAAAcqdaXPBZKdQlOSRO" Name="Input" Kind="StateInputPin" />
+              <Pin Id="H7M2ENmnQe9Lr2ZRxTV6Vf" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="Q0LGOVhpQSAOSxDSC93lks" Name="Position" Kind="OutputPin" />
+              <Pin Id="AxtcBm9jwunM8IpRaGlvTd" Name="Scale" Kind="OutputPin" />
+              <Pin Id="O3xOYIIstWbPrLeLDE9qTz" Name="Rotation" Kind="OutputPin" />
+            </Node>
+            <ControlPoint Id="KDHzOhj8wmfLLCgo0gKh1F" Bounds="842,1179" />
+            <Pad Id="IMKI33x1RbuL3Dq97aGB8F" SlotId="CYg3reptOegNgnCXQrq0gY" Bounds="860,160" />
+            <Pad Id="G1zMQsX9GNANjuLEbCNlWC" SlotId="G1yXfKzKhDnNbQyFdaphgO" Bounds="970,160" />
+            <Pad Id="ABBNX05BoN8ML7DUWLWfK1" SlotId="JbkHc8yHe5gQFMIyqzmsdD" Bounds="1069,160" />
+            <Pad Id="UKOYWREGCDXPQrtRRaA96L" Comment="Scale" Bounds="969,75,35,43" ShowValueBox="true" isIOBox="true" Value="1, 1, 1">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+              </p:TypeAnnotation>
+            </Pad>
+            <Pad Id="H3Kh783HQZBMpYDNQeMFVE" Comment="Position" Bounds="860,75,35,43" ShowValueBox="true" isIOBox="true" Value="0, 0, 0">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Vector3" />
+              </p:TypeAnnotation>
+            </Pad>
+            <Pad Id="Tw5Q9KDLftGOHnI0XTxvau" Comment="Rotation" Bounds="1069,75,35,57" ShowValueBox="true" isIOBox="true" Value="0, 0, 0, 1">
+              <p:TypeAnnotation LastCategoryFullName="3D" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="Quaternion" />
+              </p:TypeAnnotation>
+            </Pad>
           </Canvas>
           <Patch Id="GMQMZH7HGR7LaEa7G5UhxR" Name="Create" ParticipatingElements="Bobx72a3gN3NUR1zobPrUq,TDhmwQbJsqAPzIYQsXD2Mk,EJkcIbd7T3PLaRHeHzYPqL" />
           <ProcessDefinition Id="F4gwrP4RC7fN5OEMiDzed7" HasStateOut="true">
             <Fragment Id="MbVorPnvxLDPfgkNNvvzSF" Patch="GMQMZH7HGR7LaEa7G5UhxR" Enabled="true" />
-            <Fragment Id="JpAXexmTsxWPZ7yNYf68kh" Patch="Ba6ASbv6d8KQZ78iIKOvf8" />
+            <Fragment Id="ENY7tkctyH7LYkF1dNrEbc" Patch="LhDtZM1v5eLP56lVMrR7qC" />
             <Fragment Id="VSodpMiyVRBMY1pRni9B6Z" Patch="Jughc3arsjxPrkVN2GXpTl" />
             <Fragment Id="Icl41VeNeHJMsKZjr3Kbzu" Patch="Bv2opqY00jfLKpYhNzpcBl" />
             <Fragment Id="TbUxJHUhS9jPGpqtaGW3ew" Patch="MLsv0wSgPWcMA03rsd604N" />
@@ -4127,6 +4161,8 @@
             <Fragment Id="CP4fiAXlP0rPfEi0ErQR3U" Patch="MEFpajdFwJKMlM79hTMOI6" />
             <Fragment Id="A4unvQY6LuMOwZrPUwZ4f8" Patch="DbuOwEODGtFLL3I9Xh6U4v" Enabled="true" />
             <Fragment Id="LcDaJMDj0KyNydtgYNHqP6" Patch="Dlurk4vwjkONqDc1nQHvq4" />
+            <Fragment Id="GkLmLxwqnNyN7Vf0caNgxh" Patch="AOBNBjf77YVO71Nb9xV2iC" />
+            <Fragment Id="JpAXexmTsxWPZ7yNYf68kh" Patch="Ba6ASbv6d8KQZ78iIKOvf8" />
           </ProcessDefinition>
           <Slot Id="G1yXfKzKhDnNbQyFdaphgO" Name="Scale" />
           <Slot Id="JbkHc8yHe5gQFMIyqzmsdD" Name="Rotation" />
@@ -4197,7 +4233,7 @@
           <Link Id="Bobx72a3gN3NUR1zobPrUq" Ids="D6GHim4PxJUN073ZYlEIpT,KkLa20JJjrIN56kks9GtOp" />
           <Link Id="TDhmwQbJsqAPzIYQsXD2Mk" Ids="QSIab0XBHjHOC1j4K3ryyr,O6Z3EwkjPiqPDeyfKpEsj6" />
           <Link Id="EJkcIbd7T3PLaRHeHzYPqL" Ids="Bo24WfoQ544MJ5nfMI6ePP,NYDvvOwNGEnQPXied2XRZX" />
-          <Patch Id="DbuOwEODGtFLL3I9Xh6U4v" Name="Update">
+          <Patch Id="DbuOwEODGtFLL3I9Xh6U4v" Name="ApplyDeltas">
             <Pin Id="G8uxR23JRcWPG4e1iiTPoD" Name="Position Delta" Kind="InputPin" />
             <Pin Id="D4iQWzOQJ8fK9vJ9lajDLX" Name="Scale Delta" Kind="InputPin" />
             <Pin Id="ACiwKbDmLhFMrjuyA9eClm" Name="Rotation Delta" Kind="InputPin" />
@@ -4223,6 +4259,19 @@
           <Link Id="JJb5WJzdzy1OxCSNyD4oZX" Ids="SydfK4nw2KMOESFelzfPE7,CEeRy8tZHLANPAERMaXf1a" IsHidden="true" />
           <Link Id="DCVgvj0i3HtLUbZovx6KYL" Ids="SeDy6QYLvciQcXOHIH2Atv,DCjkkxlVFn4LobpIrt8s3G" />
           <Link Id="IhQI9OLN3sCLH0lKUlwWrU" Ids="LYurfIVvLMXM4BuI9y3F1j,SydfK4nw2KMOESFelzfPE7" />
+          <Patch Id="AOBNBjf77YVO71Nb9xV2iC" Name="GetTransformation">
+            <Pin Id="HGiUtWibkUWMoXq6Qqi8hD" MergeId="336432" Name="Transformation" Kind="OutputPin" />
+          </Patch>
+          <Link Id="Qke2WZcqlkuPexqXCUzmcr" Ids="Gwj6kg4RfwuNJ5UELkO9B7,J3tAAAcqdaXPBZKdQlOSRO" />
+          <Link Id="KxZfIGanoKSPzr0PfBTVhC" Ids="Q0LGOVhpQSAOSxDSC93lks,BWdu8FSp7AeLVGo21yJ06a" />
+          <Link Id="ITQv4cRWvRVL06tuSgUeQa" Ids="AxtcBm9jwunM8IpRaGlvTd,GD9yCXjWySFOUvxbnEuQd2" />
+          <Link Id="UdJRpdSBYLGLCZQ2nVDpUC" Ids="O3xOYIIstWbPrLeLDE9qTz,NcKG5f0WSdHOfBeRDYnboP" />
+          <Link Id="GyDI8cH0yJELSnCAHnWJWy" Ids="Epe5nvumg0mOwKxM935vCs,KDHzOhj8wmfLLCgo0gKh1F" />
+          <Link Id="LF2kUsepV9SNG9Cxdtw52v" Ids="KDHzOhj8wmfLLCgo0gKh1F,HGiUtWibkUWMoXq6Qqi8hD" IsHidden="true" />
+          <Patch Id="LhDtZM1v5eLP56lVMrR7qC" Name="CreateDefault" ParticipatingElements="V7mWgZe6gDcPivVVm5DYmY,LpxKo9xrekBPKYwfcpC7WP,V1SGIkddbBxMmbmSaZLysQ" />
+          <Link Id="V7mWgZe6gDcPivVVm5DYmY" Ids="UKOYWREGCDXPQrtRRaA96L,G1zMQsX9GNANjuLEbCNlWC" />
+          <Link Id="LpxKo9xrekBPKYwfcpC7WP" Ids="H3Kh783HQZBMpYDNQeMFVE,IMKI33x1RbuL3Dq97aGB8F" />
+          <Link Id="V1SGIkddbBxMmbmSaZLysQ" Ids="Tw5Q9KDLftGOHnI0XTxvau,ABBNX05BoN8ML7DUWLWfK1" />
         </Patch>
       </Node>
     </Canvas>
