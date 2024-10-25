@@ -32,19 +32,15 @@ namespace VL.Stride.Input
         {
             var inputSource = context.GetWindowInputSource();
 
-            if (inputSource != null)
+            foreach (var entityKeyPair in ComponentDatas)
             {
-                foreach (var entityKeyPair in ComponentDatas)
-                {
-                    var component = entityKeyPair.Key;
-                    //var associatedData = entityKeyPair.Value;
+                var component = entityKeyPair.Key;
+                //var associatedData = entityKeyPair.Value;
 
-                    if (component.Enabled)
-                        component.InputSource = inputSource;
-                    else
-                        component.InputSource = null;
-                }
-
+                if (component.Enabled)
+                    component.InputSource = inputSource;
+                else
+                    component.InputSource = null;
             }
             base.Draw(context);
         }
