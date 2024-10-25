@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="UkmmXsBghGFMCsgR01w34Y" LanguageVersion="2024.6.7-0195-gbeba45077f" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="UkmmXsBghGFMCsgR01w34Y" LanguageVersion="2024.6.7-0199-gdeb6aa1e6c" Version="0.128">
   <NugetDependency Id="BHD5XUOPeLAOjKUsQQW3Nb" Location="VL.CoreLib" Version="2024.6.7-0178-g62ce298253" />
   <Patch Id="VpM1gXUwiWRNgEFlW4LDxQ">
     <Canvas Id="PJK8EOC85s6OAsBaURv46i" DefaultCategory="Gizmo" CanvasType="FullCategory">
@@ -3914,7 +3914,8 @@
 -->
       <Node Name="PegState" Category="Stride.Dummies" Bounds="649,311" Id="OVLqXhKd8xePV98Nw7RVUB">
         <p:NodeReference>
-          <Choice Kind="ClassDefinition" />
+          <Choice Kind="RecordDefinition" Name="Record" />
+          <CategoryReference Kind="Category" Name="Primitive" />
         </p:NodeReference>
         <Patch Id="TW4XqTw1vbLORYJoHVUdA8">
           <Canvas Id="MaMHsoLMnw5PU6LTtVOBWG" CanvasType="Group">
@@ -4010,24 +4011,9 @@
             <ControlPoint Id="CJtLCC8icWXLv5SEkWUxcp" Bounds="919,459" />
             <ControlPoint Id="UzJyG9WAJgpQS1pVRZXjRL" Bounds="698,463" />
             <Pad Id="GQlg8awfF3hOGHVSB10c5f" SlotId="JbkHc8yHe5gQFMIyqzmsdD" Bounds="875,576" />
-            <Pad Id="O6Z3EwkjPiqPDeyfKpEsj6" SlotId="CYg3reptOegNgnCXQrq0gY" Bounds="421,148" />
-            <Pad Id="KkLa20JJjrIN56kks9GtOp" SlotId="G1yXfKzKhDnNbQyFdaphgO" Bounds="531,148" />
-            <Pad Id="NYDvvOwNGEnQPXied2XRZX" SlotId="JbkHc8yHe5gQFMIyqzmsdD" Bounds="630,148" />
-            <Pad Id="D6GHim4PxJUN073ZYlEIpT" Comment="Scale" Bounds="530,63,35,43" ShowValueBox="true" isIOBox="true" Value="1, 1, 1">
-              <p:TypeAnnotation LastCategoryFullName="3D" LastDependency="VL.CoreLib.vl">
-                <Choice Kind="TypeFlag" Name="Vector3" />
-              </p:TypeAnnotation>
-            </Pad>
-            <Pad Id="QSIab0XBHjHOC1j4K3ryyr" Comment="Position" Bounds="421,63,35,43" ShowValueBox="true" isIOBox="true" Value="0, 0, 0">
-              <p:TypeAnnotation LastCategoryFullName="3D" LastDependency="VL.CoreLib.vl">
-                <Choice Kind="TypeFlag" Name="Vector3" />
-              </p:TypeAnnotation>
-            </Pad>
-            <Pad Id="Bo24WfoQ544MJ5nfMI6ePP" Comment="Rotation" Bounds="630,63,35,57" ShowValueBox="true" isIOBox="true" Value="0, 0, 0, 1">
-              <p:TypeAnnotation LastCategoryFullName="3D" LastDependency="VL.CoreLib.vl">
-                <Choice Kind="TypeFlag" Name="Quaternion" />
-              </p:TypeAnnotation>
-            </Pad>
+            <Pad Id="O6Z3EwkjPiqPDeyfKpEsj6" SlotId="CYg3reptOegNgnCXQrq0gY" Bounds="411,148" />
+            <Pad Id="KkLa20JJjrIN56kks9GtOp" SlotId="G1yXfKzKhDnNbQyFdaphgO" Bounds="527,148" />
+            <Pad Id="NYDvvOwNGEnQPXied2XRZX" SlotId="JbkHc8yHe5gQFMIyqzmsdD" Bounds="626,148" />
             <Node Bounds="398,782,102,26" Id="L1pJ16L9CYtOJ17NQiLtTq">
               <p:NodeReference LastCategoryFullName="Gizmo.PegState" LastDependency="Manipulator.vl">
                 <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -4145,8 +4131,16 @@
                 <Choice Kind="TypeFlag" Name="Quaternion" />
               </p:TypeAnnotation>
             </Pad>
+            <ControlPoint Id="H75QMm4nAf4MheUeipdTtK" Bounds="388,1024" />
+            <ControlPoint Id="SYlXF3RNbNwL9ZeFG2tOaN" Bounds="411,99" />
+            <ControlPoint Id="UeO21IUWKBNQL25djrkd2J" Bounds="527,99" />
+            <ControlPoint Id="LJ3ojd4qEL5LkIU3zjtDnw" Bounds="626,99" />
           </Canvas>
-          <Patch Id="GMQMZH7HGR7LaEa7G5UhxR" Name="Create" ParticipatingElements="Bobx72a3gN3NUR1zobPrUq,TDhmwQbJsqAPzIYQsXD2Mk,EJkcIbd7T3PLaRHeHzYPqL" />
+          <Patch Id="GMQMZH7HGR7LaEa7G5UhxR" Name="Create">
+            <Pin Id="QlglTFiWF2TMHxY6x6na1r" Name="Position" Kind="InputPin" />
+            <Pin Id="M1bFXCSy79GMnop1DOo04H" Name="Scale" Kind="InputPin" DefaultValue="1, 1, 1" />
+            <Pin Id="BvLcJUyGTuvN0EUPe9QNAj" Name="Rotation" Kind="InputPin" />
+          </Patch>
           <ProcessDefinition Id="F4gwrP4RC7fN5OEMiDzed7" HasStateOut="true">
             <Fragment Id="MbVorPnvxLDPfgkNNvvzSF" Patch="GMQMZH7HGR7LaEa7G5UhxR" Enabled="true" />
             <Fragment Id="ENY7tkctyH7LYkF1dNrEbc" Patch="LhDtZM1v5eLP56lVMrR7qC" />
@@ -4159,7 +4153,7 @@
             <Fragment Id="LIgEyNGjwBmORrpkXMEg12" Patch="EOdDLZpyZLaPaNJUslR0nE" />
             <Fragment Id="NcZXnsxwYz4OOlnVI89Q6q" Patch="U9jivP0RSzUQFWya4kPZ3N" />
             <Fragment Id="CP4fiAXlP0rPfEi0ErQR3U" Patch="MEFpajdFwJKMlM79hTMOI6" />
-            <Fragment Id="A4unvQY6LuMOwZrPUwZ4f8" Patch="DbuOwEODGtFLL3I9Xh6U4v" Enabled="true" />
+            <Fragment Id="A4unvQY6LuMOwZrPUwZ4f8" Patch="DbuOwEODGtFLL3I9Xh6U4v" />
             <Fragment Id="LcDaJMDj0KyNydtgYNHqP6" Patch="Dlurk4vwjkONqDc1nQHvq4" />
             <Fragment Id="GkLmLxwqnNyN7Vf0caNgxh" Patch="AOBNBjf77YVO71Nb9xV2iC" />
             <Fragment Id="JpAXexmTsxWPZ7yNYf68kh" Patch="Ba6ASbv6d8KQZ78iIKOvf8" />
@@ -4230,13 +4224,11 @@
             <Pin Id="QxDA5Hw3W2zQPdTp9SJW3T" Name="Rotation" Kind="OutputPin" />
           </Patch>
           <Link Id="NgxEOCZzW0lNZU5e4shWHC" Ids="Rc411N4TeTrK98gJqjG49Q,GQlg8awfF3hOGHVSB10c5f" />
-          <Link Id="Bobx72a3gN3NUR1zobPrUq" Ids="D6GHim4PxJUN073ZYlEIpT,KkLa20JJjrIN56kks9GtOp" />
-          <Link Id="TDhmwQbJsqAPzIYQsXD2Mk" Ids="QSIab0XBHjHOC1j4K3ryyr,O6Z3EwkjPiqPDeyfKpEsj6" />
-          <Link Id="EJkcIbd7T3PLaRHeHzYPqL" Ids="Bo24WfoQ544MJ5nfMI6ePP,NYDvvOwNGEnQPXied2XRZX" />
           <Patch Id="DbuOwEODGtFLL3I9Xh6U4v" Name="ApplyDeltas">
             <Pin Id="G8uxR23JRcWPG4e1iiTPoD" Name="Position Delta" Kind="InputPin" />
             <Pin Id="D4iQWzOQJ8fK9vJ9lajDLX" Name="Scale Delta" Kind="InputPin" />
             <Pin Id="ACiwKbDmLhFMrjuyA9eClm" Name="Rotation Delta" Kind="InputPin" />
+            <Pin Id="DhhOJlvcOSGPLMJDlN1rUW" Name="Output" Kind="OutputPin" />
           </Patch>
           <Link Id="JIaSpiifJlIOHYoV2vhjU0" Ids="VCMGqXUl4j9MsnA5EYaWgS,Oi7ow9HHDCmNxruTRQ8p4V" />
           <Link Id="Aq6BFKhBZaIMhZqXnzAdkh" Ids="G8uxR23JRcWPG4e1iiTPoD,VCMGqXUl4j9MsnA5EYaWgS" IsHidden="true" />
@@ -4272,6 +4264,14 @@
           <Link Id="V7mWgZe6gDcPivVVm5DYmY" Ids="UKOYWREGCDXPQrtRRaA96L,G1zMQsX9GNANjuLEbCNlWC" />
           <Link Id="LpxKo9xrekBPKYwfcpC7WP" Ids="H3Kh783HQZBMpYDNQeMFVE,IMKI33x1RbuL3Dq97aGB8F" />
           <Link Id="V1SGIkddbBxMmbmSaZLysQ" Ids="Tw5Q9KDLftGOHnI0XTxvau,ABBNX05BoN8ML7DUWLWfK1" />
+          <Link Id="HI2nCKDQIf9MSw85sM9Q6W" Ids="SW9xXDBp1oWOLWGcgdC6EV,H75QMm4nAf4MheUeipdTtK" />
+          <Link Id="Qv5dqBokXjyPMmvXYioUVO" Ids="H75QMm4nAf4MheUeipdTtK,DhhOJlvcOSGPLMJDlN1rUW" IsHidden="true" />
+          <Link Id="LT3PW3OPbiTPsoRXaO8MtG" Ids="SYlXF3RNbNwL9ZeFG2tOaN,O6Z3EwkjPiqPDeyfKpEsj6" />
+          <Link Id="E7KHftzY2N5N6npYeSPSV2" Ids="UeO21IUWKBNQL25djrkd2J,KkLa20JJjrIN56kks9GtOp" />
+          <Link Id="QmpfTj3XYWAOOlIxLqgOPQ" Ids="M1bFXCSy79GMnop1DOo04H,UeO21IUWKBNQL25djrkd2J" IsHidden="true" />
+          <Link Id="F7rNc1xsYy3OzpV0o3NrXs" Ids="LJ3ojd4qEL5LkIU3zjtDnw,NYDvvOwNGEnQPXied2XRZX" />
+          <Link Id="G4NIWQAVB3TNXJSGAAIPIX" Ids="BvLcJUyGTuvN0EUPe9QNAj,LJ3ojd4qEL5LkIU3zjtDnw" IsHidden="true" />
+          <Link Id="IsnPfensVvFMRM1mH8o4cl" Ids="QlglTFiWF2TMHxY6x6na1r,SYlXF3RNbNwL9ZeFG2tOaN" IsHidden="true" />
         </Patch>
       </Node>
     </Canvas>
