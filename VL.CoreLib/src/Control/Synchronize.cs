@@ -14,10 +14,29 @@ namespace VL.Lib.Control
         where TState : class
         where TKey : notnull
     {
-        private readonly Dictionary<TKey, TState> states;
+        private sealed class State : ISwappableGenericType, IDisposable
+        { 
+            public State(TState s) => S = s;
+
+            public TState S; 
+            public bool MarkedForRemoval;
+
+            public object Swap(Type newType, Swapper swapObject)
+            {
+                return Activator.CreateInstance(newType, [ swapObject(S, newType.GenericTypeArguments[1])])!;
+            }
+
+            public void Dispose()
+            {
+                if (S is IDisposable disposable) 
+                    disposable.Dispose();
+            }
+        }
+
+        private readonly Dictionary<TKey, State> states;
         private Spread<TOutput> outputs;
 
-        private MutableSynchronizer(Dictionary<TKey, TState> states, Spread<TOutput> outputs)
+        private MutableSynchronizer(Dictionary<TKey, State> states, Spread<TOutput> outputs)
         {
             this.states = states;
             this.outputs = outputs;
@@ -37,34 +56,37 @@ namespace VL.Lib.Control
         {
             var outputsBuilder = CollectionBuilders.GetBuilder(this.outputs, 0);
 
-            using var preparedInput = Pooled.GetDictionary<TKey, TInput>();
+            foreach (var s in states)
+                s.Value.MarkedForRemoval = true;
+
+            // https://github.com/devvvvs/vvvv/issues/6942
+            // Keys are not necessarily unique, so we need to keep the input in a list to ensure a correct output spread
+            using var preparedInput = Pooled.GetList<(TKey key, TInput input)>();
             foreach (var i in input)
             {
                 var key = keySelector(i);
-                preparedInput.Add(key, i);
+                preparedInput.Value.Add((key, i));
+                if (states.TryGetValue(key, out var state))
+                    state.MarkedForRemoval = false;
             }
 
-            using var invalidKeys = Pooled.GetList<TKey>();
-            foreach (var (k, v) in states)
+            foreach (var (k, s) in states)
             {
-                if (preparedInput.Value.ContainsKey(k))
-                    continue;
-
-                invalidKeys.Add(k);
-                (v as IDisposable)?.Dispose();
+                if (s.MarkedForRemoval)
+                {
+                    // Yes, this is ok to remove while iterating see https://github.com/dotnet/runtime/issues/26314
+                    states.Remove(k);
+                    s.Dispose();
+                }
             }
-
-            foreach (var k in invalidKeys.Value)
-                states.Remove(k);
 
             foreach (var (key, i) in preparedInput.Value)
             {
                 if (!states.TryGetValue(key, out var state))
-                    state = states[key] = create(i);
+                    state = states[key] = new(create(i));
 
-                var (newState, output) = updator(state, i);
-                if (newState != state)
-                    states[key] = newState;
+                var (newState, output) = updator(state.S, i);
+                state.S = newState;
 
                 outputsBuilder.Add(output);
             }
@@ -76,17 +98,17 @@ namespace VL.Lib.Control
         public void Dispose()
         {
             foreach (var s in states.Values)
-                if (s is IDisposable d)
-                    d.Dispose();
+                s.Dispose();
+            states.Clear();
         }
 
         object? ISwappableGenericType.Swap(Type newType, Swapper swapObject)
         {
             var args = newType.GetGenericArguments();
             var newTKey = args[0];
-            var newTState = args[1];
+            var newState = typeof(State).GetGenericTypeDefinition().MakeGenericType(args);
             var newTOutput = args[3];
-            var newdictType = typeof(Dictionary<,>).MakeGenericType(newTKey, newTState);
+            var newdictType = typeof(Dictionary<,>).MakeGenericType(newTKey, newState);
             var newdict = swapObject(states, newdictType);
             var newSpreadType = typeof(Spread<>).MakeGenericType(newTOutput);
             var newspread = swapObject(outputs, newSpreadType);
