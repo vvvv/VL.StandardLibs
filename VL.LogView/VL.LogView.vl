@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="R2LICEmlSXxL8HJLbLuhGm" LanguageVersion="2024.6.3-0025-g2be4fbaa62" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="R2LICEmlSXxL8HJLbLuhGm" LanguageVersion="2024.6.7-0237-gcfe460b4dd" Version="0.128">
   <NugetDependency Id="OBrNmIfxsdpN6JWirSFRRP" Location="VL.CoreLib" Version="2023.5.3-0206-gc024672b94" />
   <Patch Id="N1C4uEVY2koOIOYR8R6OZ9">
     <Canvas Id="ApOayCXQuioQUClP3dE9Ga" DefaultCategory="System.Logging.LogUI" CanvasType="FullCategory">
@@ -9592,6 +9592,7 @@
                       <Pin Id="QUM3PoI8XMhMgWzu9fYio7" Name="Context" Kind="OutputPin" />
                       <Pin Id="ImVC0tdmv77LC4c3M56wHJ" Name="Bang" Kind="OutputPin" />
                       <Pin Id="CZdnzI2qRPSMFhvqbHl5Ue" Name="Value" Kind="OutputPin" />
+                      <Pin Id="V5rMAnZsfrQPXWCany61aD" Name="Content Is Visible" Kind="OutputPin" />
                     </Node>
                     <Node Bounds="-494,1020,97,19" Id="MDdgsc2dv4INUkSlBGn7Lk">
                       <p:NodeReference LastCategoryFullName="ImGui.Commands" LastDependency="VL.ImGui.vl">
@@ -13925,24 +13926,20 @@
     ************************ GoToSource ************************
 
 -->
-          <Node Name="GoToSource" Bounds="291,293,123,208" Id="Hgb1ZypfziiLxUpqfZZYJU">
+          <Node Name="GoToSource" Bounds="293,293,123,118" Id="Hgb1ZypfziiLxUpqfZZYJU">
             <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
               <CategoryReference Kind="Category" Name="Primitive" NeedsToBeDirectParent="true" />
               <Choice Kind="OperationDefinition" Name="Operation" />
             </p:NodeReference>
             <Patch Id="Gif1RkE3BvUNda54nBjO0u">
-              <Node Bounds="303,462,99,19" Id="LzLgJacwdCUN8Rt50LHDzS">
+              <Node Bounds="305,372,99,19" Id="LzLgJacwdCUN8Rt50LHDzS">
                 <p:NodeReference LastCategoryFullName="VL.Session" LastDependency="VL.CoreLib.vl" OverloadStrategy="AllPinsThatAreNotCommon">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                  <Choice Kind="OperationCallFlag" Name="ShowPatchOfNode" />
                   <CategoryReference Kind="ClassType" Name="Session" NeedsToBeDirectParent="true" />
-                  <PinReference Kind="InputPin" Name="Node ID">
-                    <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="VL.Core" LastDependency="VL.Core.dll">
-                      <Choice Kind="TypeFlag" Name="UniqueId" />
-                    </p:DataTypeReference>
-                  </PinReference>
+                  <Choice Kind="OperationCallFlag" Name="ShowPatchOfNode" />
+                  <PinReference Kind="InputPin" Name="Node Path" />
                 </p:NodeReference>
-                <Pin Id="Sb2TXLucapPMzqNpxaV7Mv" Name="Node ID" Kind="InputPin" />
+                <Pin Id="Sb2TXLucapPMzqNpxaV7Mv" Name="Node Path" Kind="InputPin" />
               </Node>
               <Node Bounds="305,334,76,26" Id="VvmJ387Vl1UNJGEpexpueb">
                 <p:NodeReference LastCategoryFullName="System.Logging.LogMessage" LastDependency="VL.CoreLib.vl">
@@ -13954,43 +13951,11 @@
                 <Pin Id="RuTidWqwBjjMGMOrma3TEG" Name="Output" Kind="OutputPin" IsHidden="true" />
                 <Pin Id="QEUoUGHGWaeOVLJbMDGslx" Name="Node Path" Kind="OutputPin" />
               </Node>
-              <Node Bounds="305,377,51,26" Id="NIhrbK7QUslLGyIOjnyeAF">
-                <p:NodeReference LastCategoryFullName="System.Reflection.NodePath" LastDependency="VL.CoreLib.vl" OverloadStrategy="AllPinsThatAreNotCommon">
-                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                  <CategoryReference Kind="ClassType" Name="NodePath" />
-                  <Choice Kind="OperationCallFlag" Name="Stack" />
-                  <PinReference Kind="OutputPin" Name="Stack" ParameterModifier="ref">
-                    <p:DataTypeReference p:Type="TypeReference" LastCategoryFullName="Collections" LastDependency="VL.CoreLib.vl">
-                      <Choice Kind="TypeFlag" Name="Stack" />
-                      <p:TypeArguments>
-                        <TypeReference LastCategoryFullName="VL.Core" LastDependency="VL.CoreLib.vl">
-                          <Choice Kind="TypeFlag" Name="UniqueId" />
-                        </TypeReference>
-                      </p:TypeArguments>
-                    </p:DataTypeReference>
-                  </PinReference>
-                </p:NodeReference>
-                <Pin Id="L2pawTu3Iq5PpyjpSyXCTP" Name="Input" Kind="StateInputPin" />
-                <Pin Id="SOQXTBn8G7uQBPaibh5Dua" Name="Output" Kind="StateOutputPin" />
-                <Pin Id="Hw14NqpEZOONdzwM2bIULX" Name="Stack" Kind="OutputPin" />
-              </Node>
-              <Node Bounds="303,425,38,26" Id="DicCURDfqzvLKxaRGJ4NWc">
-                <p:NodeReference LastCategoryFullName="Collections.Stack" LastDependency="VL.CoreLib.vl">
-                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                  <CategoryReference Kind="4026531840" Name="Stack" />
-                  <Choice Kind="OperationCallFlag" Name="Peek" />
-                </p:NodeReference>
-                <Pin Id="DuPCOWxQlJ9MSctwI9S7F5" Name="Input" Kind="StateInputPin" />
-                <Pin Id="M6MckPL4wzePxzltpy11dd" Name="Output" Kind="OutputPin" IsHidden="true" />
-                <Pin Id="EwmenXEA7mNPFePCyLB1AJ" Name="Result" Kind="OutputPin" />
-              </Node>
-              <Link Id="RDrbanill8NQYLnU38D84r" Ids="Hw14NqpEZOONdzwM2bIULX,DuPCOWxQlJ9MSctwI9S7F5" />
-              <Link Id="CbsSWok0n77OaMAB86E2QM" Ids="EwmenXEA7mNPFePCyLB1AJ,Sb2TXLucapPMzqNpxaV7Mv" />
-              <Link Id="UAtWXBcbVesL1BGaJS695i" Ids="QEUoUGHGWaeOVLJbMDGslx,L2pawTu3Iq5PpyjpSyXCTP" />
               <ControlPoint Id="Ra396YebFVVPJhkCkbyBDk" Bounds="307,311" />
               <Link Id="RV8OAes4UTWNVcx3DZXT8x" Ids="Ra396YebFVVPJhkCkbyBDk,E45P50n6fxKMNijPPB7ZsV" />
               <Pin Id="RWiKJwbo6C2MMHRRW8CoEv" Name="Input" Kind="InputPin" Bounds="2470,687" />
               <Link Id="QCaQZZJ7kUEP0mQ85REEzV" Ids="RWiKJwbo6C2MMHRRW8CoEv,Ra396YebFVVPJhkCkbyBDk" IsHidden="true" />
+              <Link Id="TaJsI3HkPv4MjbGQhWShmt" Ids="QEUoUGHGWaeOVLJbMDGslx,Sb2TXLucapPMzqNpxaV7Mv" />
             </Patch>
           </Node>
           <!--
@@ -14485,6 +14450,7 @@
                   <Pin Id="Rozc9Xbo1K8QInFZJ5FCiJ" Name="Context" Kind="InputPin" />
                   <Pin Id="RrpdjF9HSTrLPCVgqlWZjo" Name="Min" Kind="InputPin" />
                   <Pin Id="APaFdzCXYyJPOAHsYtWrjR" Name="Max" Kind="InputPin" />
+                  <Pin Id="LpXHXj74hcvPl0BwJvHHYt" Name="Callback" Kind="InputPin" />
                   <Pin Id="TmInmpXCQPkLKUSoahvQkf" Name="Enabled" Kind="InputPin" />
                   <Pin Id="QXaY5RH3OqQP8ljhlCeT9r" Name="Context" Kind="OutputPin" />
                 </Node>

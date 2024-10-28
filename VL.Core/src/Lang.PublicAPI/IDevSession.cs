@@ -58,6 +58,7 @@ namespace VL.Lang.PublicAPI
         void ShowPatchOfNode(uint nodeID);
 
         void ShowPatchOfNode(UniqueId nodeID);
+        void ShowPatchOfNode(NodePath nodePath);
 
         // HACK: Used by Renderer [Skia] node only, we should be able to get rid of it once we have some sort of unified view over our windows
         Keys OneUp { get; }
