@@ -23,15 +23,15 @@ namespace VL.Skia.Video
         private VideoStream? videoStream;
         private IResourceProvider<SKImage>? current, latest;
 
-        public VideoStreamToSKImage()
+        public VideoStreamToSKImage(NodeContext nodeContext)
         {
             renderContext = RenderContext.ForCurrentThread();
 
             var frameClock = AppHost.Current.Services.GetRequiredService<IFrameClock>();
             if (renderContext.EglContext.Dislpay.TryGetD3D11Device(out var d3dDevice))
-                ctx = new VideoPlaybackContext(frameClock, d3dDevice, GraphicsDeviceType.Direct3D11, renderContext.UseLinearColorspace);
+                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger(), d3dDevice, GraphicsDeviceType.Direct3D11, renderContext.UseLinearColorspace);
             else
-                ctx = new VideoPlaybackContext(frameClock);
+                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger());
         }
 
         public unsafe VideoStream? VideoStream 
