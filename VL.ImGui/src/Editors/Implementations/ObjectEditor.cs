@@ -109,6 +109,8 @@ namespace VL.ImGui.Editors
                 { 
                     if (editor != null)
                     {
+                        //this is needed as long as we don't have a proper way to react on property changes of a mutable parent object
+                        propertyChannel.EnsureObject(property.GetValue((IVLObject)channel.Value));
                         if (editor.NeedsMoreThanOneLine)
                         {
                             if (ImGui.TreeNode(label))
