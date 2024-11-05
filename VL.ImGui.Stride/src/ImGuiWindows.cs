@@ -257,7 +257,6 @@ namespace VL.ImGui.Stride
 
         private void CreateWindow(ImGuiViewportPtr vp)
         {
-            Helper.Log("Platform.CreateWindow");
             ImGuiWindow window = new ImGuiWindow(_nodeContext, _strideDeviceContext, vp, _game);
         }
 
@@ -265,7 +264,6 @@ namespace VL.ImGui.Stride
         {
             IList<IInputSource> sources = new List<IInputSource>();
 
-            Helper.Log("Platform.DestroyWindow");
             if (vp.PlatformUserData != IntPtr.Zero)
             {
                 var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
@@ -283,7 +281,6 @@ namespace VL.ImGui.Stride
 
         private void ShowWindow(ImGuiViewportPtr vp)
         {
-            Helper.Log("Platform.ShowWindow");
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
             {
@@ -304,7 +301,6 @@ namespace VL.ImGui.Stride
 
         private void SetWindowPos(ImGuiViewportPtr vp, Vector2 pos)
         {
-            Helper.Log("Platform.SetWindowPos");
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
             {
@@ -324,7 +320,6 @@ namespace VL.ImGui.Stride
 
         private void SetWindowSize(ImGuiViewportPtr vp, Vector2 size)
         {
-            //Helper.Log("Platform.SetWindowSize");
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
             {
@@ -335,7 +330,6 @@ namespace VL.ImGui.Stride
 
         private void SetWindowFocus(ImGuiViewportPtr vp)
         {
-            //Helper.Log("Platform.SetWindowFocus");
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
             {
@@ -346,7 +340,6 @@ namespace VL.ImGui.Stride
 
         private byte GetWindowFocus(ImGuiViewportPtr vp)
         {
-            //Helper.Log("Platform.SetWindowFocus");
             bool IsFocused = false;
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
@@ -360,7 +353,6 @@ namespace VL.ImGui.Stride
 
         private byte GetWindowMinimized(ImGuiViewportPtr vp)
         {
-            //Helper.Log("Platform.GetWindowMinimized");
             bool isMinimized = false;
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
@@ -374,7 +366,6 @@ namespace VL.ImGui.Stride
 
         private unsafe void SetWindowTitle(ImGuiViewportPtr vp, IntPtr title)
         {
-            Helper.Log("Platform.SetWindowTitle");
             var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
             if (target != null)
             {

@@ -78,7 +78,6 @@ namespace VL.ImGui.Stride
                 if (_isFocused != focused)
                 {
                     _isFocused = focused;
-                    Helper.Log(Title + " " + _gameWindowRenderer.Window.Focused);
                 }
                 return _isFocused; 
             }
@@ -171,19 +170,16 @@ namespace VL.ImGui.Stride
         private void Window_Closing(object? sender, EventArgs e)
         {
             _vp.PlatformRequestClose = true;
-            Helper.Log("ImGuiWindow.Window_Closing");
         }
 
         private void Window_ClientSizeChanged(object? sender, EventArgs e)
         {
             _vp.PlatformRequestResize = true;
-            Helper.Log("ImGuiWindow.Window_ClientSizeChanged");
         }
 
         private void Window_FullscreenChanged(object? sender, EventArgs e)
         {
             _vp.PlatformRequestResize = true;
-            Helper.Log("ImGuiWindow.Window_FullscreenChanged");
         }
         #endregion window.Events
 
@@ -207,8 +203,6 @@ namespace VL.ImGui.Stride
 
         public void Dispose()
         {
-            Helper.Log("ImGuiWindow.Dispose()");
-
             try
             {
                 (_state as IDisposable)?.Dispose();
