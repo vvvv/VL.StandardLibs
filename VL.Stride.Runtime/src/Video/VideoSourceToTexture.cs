@@ -17,7 +17,7 @@ namespace VL.Stride.Video
         private readonly IResourceHandle<RenderContext> renderContextHandle;
         private readonly VideoPlaybackContext ctx;
 
-        public VideoSourceToTexture()
+        public VideoSourceToTexture(NodeContext nodeContext)
         {
             renderContextHandle = AppHost.Current.Services.GetGameProvider()
                 .Bind(g => RenderContext.GetShared(g.Services))
@@ -26,9 +26,9 @@ namespace VL.Stride.Video
             var graphicsDevice = renderContextHandle.Resource.GraphicsDevice;
             var frameClock = AppHost.Current.Services.GetRequiredService<IFrameClock>();
             if (SharpDXInterop.GetNativeDevice(graphicsDevice) is SharpDX.Direct3D11.Device device)
-                ctx = new VideoPlaybackContext(frameClock, device.NativePointer, GraphicsDeviceType.Direct3D11, graphicsDevice.ColorSpace == ColorSpace.Linear);
+                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger(), device.NativePointer, GraphicsDeviceType.Direct3D11, graphicsDevice.ColorSpace == ColorSpace.Linear);
             else
-                ctx = new VideoPlaybackContext(frameClock);
+                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger());
         }
 
         protected override VideoPlaybackContext Context => ctx;

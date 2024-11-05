@@ -104,15 +104,15 @@ namespace VL.Stride.Graphics
             return Texture.New(device, image, textureFlags, usage);
         }
 
-        public static void SaveTexture(this Texture texture, CommandList commandList, string filename, ImageFileType imageFileType = ImageFileType.Png)
+        public static void SaveTexture(this Texture texture, CommandList commandList, string filename, TextureWriterFileType imageFileType = TextureWriterFileType.Png)
         {
             using (var resultFileStream = File.OpenWrite(filename))
             {
-                texture.Save(commandList, resultFileStream, imageFileType);
+                texture.Save(commandList, resultFileStream, (ImageFileType)imageFileType);
             }
         }
 
-        public static void SaveStagingTexture(this Texture stagingTexture, CommandList commandList, string filename, ImageFileType imageFileType = ImageFileType.Png)
+        public static void SaveStagingTexture(this Texture stagingTexture, CommandList commandList, string filename, TextureWriterFileType imageFileType = TextureWriterFileType.Png)
         {
             if (stagingTexture is null)
                 throw new ArgumentNullException(nameof(stagingTexture));
@@ -122,7 +122,7 @@ namespace VL.Stride.Graphics
 
             using (var resultFileStream = File.OpenWrite(filename))
             {
-                stagingTexture.Save(commandList, resultFileStream, stagingTexture, imageFileType);
+                stagingTexture.Save(commandList, resultFileStream, stagingTexture, (ImageFileType)imageFileType);
             }
         }
 
@@ -246,5 +246,23 @@ namespace VL.Stride.Graphics
             }
         }
 
+    }
+
+    public enum EncodedStrideImageFormat
+    {
+        Jpeg = 3,
+        Png = 4,
+        Webp = 6,
+    }
+
+    public enum TextureWriterFileType
+    {
+        Stride = 0,
+        Dds = 1,
+        Png = 2,
+        Gif = 3,
+        Jpg = 4,
+        Bmp = 5,
+        Tiff = 6,
     }
 }

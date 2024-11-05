@@ -3,6 +3,7 @@ using CommunityToolkit.HighPerformance;
 using Stride.Core.Mathematics;
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
@@ -343,7 +344,7 @@ namespace VL.Video.MF
                             ToRawColorBGRA(videoPlayer.BorderColor));
 
                         var videoFrame = new GpuVideoFrame<BgraPixel>(texture);
-                        return ResourceProvider.Return(videoFrame, (texture, texturePool), x => x.texturePool.Return(x.texture));
+                        return ResourceProvider.Return(videoFrame, (texture, texturePool), static x => x.texturePool.Return(x.texture));
                     }
                     else if (bitmapPool != null)
                     {

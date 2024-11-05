@@ -12,6 +12,8 @@ namespace VL.Lib.Animation
         /// </summary>
         public const double MinTimeDifferenceInSeconds = 0.000001;
 
+        Time FClientFrameTime;
+        double FClientTimeDifference;
         Time FFrameTime;
         ulong FCurrentFrame = 0;
         TimeSpan FLastInterval;
@@ -60,6 +62,26 @@ namespace VL.Lib.Animation
             OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.PlayingTransitions));
             OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.TrackingGlobalChannels));
             OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.SubChannelsMutateParentChannels));
+        }
+
+        public void ApplyClientFrameTime(Time frameTime)
+        {
+            if (frameTime != FClientFrameTime)
+            {
+                FFrameTime = frameTime;
+                if (FInitialized)
+                    TimeDifference = Math.Max(frameTime.Seconds - FClientFrameTime.Seconds, MinTimeDifferenceInSeconds);
+                else
+                    TimeDifference = DesiredTimeDifference;
+
+                FClientFrameTime = frameTime;
+                FClientTimeDifference = TimeDifference;
+            }
+            else
+            {
+                FFrameTime = FClientFrameTime;
+                TimeDifference = FClientTimeDifference;
+            }
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -25,7 +26,7 @@ namespace VL.Lib.Video
 
         protected abstract VideoPlaybackContext Context { get; }
 
-        private VideoPlaybackContext GetVideoPlaybackContext(bool preferGpu) => preferGpu ? Context : new VideoPlaybackContext(Context.FrameClock);
+        private VideoPlaybackContext GetVideoPlaybackContext(bool preferGpu) => preferGpu ? Context : new VideoPlaybackContext(Context.FrameClock, Context.Logger);
 
         protected abstract void OnPush(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped);
 
@@ -50,7 +51,7 @@ namespace VL.Lib.Video
                 {
                     streamSubscription.Disposable = videoSource?.GetPushBasedStream(ctx)
                         .Finally(() => imageSubscription.Disposable = null)
-                        .Subscribe(v => OnPush(v, mipmapped));
+                        .Subscribe(v => OnPush(v, mipmapped), onError: e => Context.Logger.LogError(e, "Error in video stream."));
                 }
                 else
                 {

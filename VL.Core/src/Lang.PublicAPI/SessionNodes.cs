@@ -49,6 +49,9 @@ namespace VL.Lang.PublicAPI
         public static void ShowPatchOfNode(UniqueId nodeID)
             => Current?.ShowPatchOfNode(nodeID);
 
+        public static void ShowPatchOfNode(NodePath nodePath)
+            => Current?.ShowPatchOfNode(nodePath);
+
         public static Keys OneUp => Current?.OneUp ?? Keys.None;
 
         /// <summary>

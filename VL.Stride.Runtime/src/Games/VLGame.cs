@@ -9,6 +9,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using VL.Core;
+using VL.Stride.Core;
 using VL.Stride.Engine;
 using VL.Stride.Rendering;
 
@@ -21,6 +22,8 @@ namespace VL.Stride.Games
         private bool forceElapsedTimeToZero;
 
         internal readonly SchedulerSystem SchedulerSystem;
+        public bool CaptureFrame { get; set; }
+        private bool captureInProgress;
         private readonly NodeFactoryRegistry NodeFactoryRegistry;
 
         internal event EventHandler BeforeDestroy;
@@ -165,6 +168,13 @@ namespace VL.Stride.Games
             // Ensure all the paths referenced by VL are visible to the effect system
             UpdateShaderPaths(NodeFactoryRegistry);
 
+            if (CaptureFrame)
+            {
+                CaptureFrame = false;
+                RenderDocConnector.RenderDocManager?.StartFrameCapture(GraphicsDevice, IntPtr.Zero);
+                captureInProgress = true;
+            }
+
             base.Update(gameTime);
         }
 
@@ -180,6 +190,12 @@ namespace VL.Stride.Games
             finally
             {
                 PendingPresentCalls.Clear();
+
+                if (captureInProgress)
+                {
+                    captureInProgress = false;
+                    RenderDocConnector.RenderDocManager?.EndFrameCapture(GraphicsDevice, IntPtr.Zero);
+                }
             }
         }
 

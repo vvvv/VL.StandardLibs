@@ -16,19 +16,19 @@ namespace VL.Skia.Video
         private readonly VideoPlaybackContext ctx;
         private readonly Thread? mainThread;
 
-        public VideoSourceToSKImage()
+        public VideoSourceToSKImage(NodeContext nodeContext)
         {
             renderContext = RenderContext.ForCurrentThread();
 
             var frameClock = AppHost.Current.Services.GetRequiredService<IFrameClock>();
             if (renderContext.EglContext.Dislpay.TryGetD3D11Device(out var d3dDevice))
             {
-                ctx = new VideoPlaybackContext(frameClock, d3dDevice, GraphicsDeviceType.Direct3D11, renderContext.UseLinearColorspace);
+                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger(), d3dDevice, GraphicsDeviceType.Direct3D11, renderContext.UseLinearColorspace);
                 mainThread = Thread.CurrentThread;
             }
             else
             {
-                ctx = new VideoPlaybackContext(frameClock);
+                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger());
             }
         }
 

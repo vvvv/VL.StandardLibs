@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,16 +62,23 @@ namespace VL.Lib.Video
                 {
                     while (!token.IsCancellationRequested)
                     {
-                        var frame = videoSource.GrabVideoFrame();
-                        if (frame != null)
+                        if (videoSource.TryGrabVideoFrame(ctx, out var frame))
                         {
-                            observer.OnNext(frame);
-                            await Task.Yield();
+                            if (frame != null)
+                            {
+                                observer.OnNext(frame);
+                                await Task.Yield();
+                            }
+                            else
+                            {
+                                // To prevent CPU going to 100%
+                                await Task.Delay(1);
+                            }
                         }
                         else
                         {
-                            // To prevent CPU going to 100%
-                            await Task.Delay(1);
+                            // Give it a break
+                            await Task.Delay(100, token);
                         }
                     }
                 })
@@ -92,16 +100,23 @@ namespace VL.Lib.Video
 
                         while (!token.IsCancellationRequested)
                         {
-                            var frame = player.GrabVideoFrame();
-                            if (frame != null)
+                            if (player.TryGrabVideoFrame(ctx, out var frame))
                             {
-                                observer.OnNext(frame);
-                                await Task.Yield();
+                                if (frame != null)
+                                {
+                                    observer.OnNext(frame);
+                                    await Task.Yield();
+                                }
+                                else
+                                {
+                                    // To prevent CPU going to 100%
+                                    await Task.Delay(1);
+                                }
                             }
                             else
                             {
-                                // To prevent CPU going to 100%
-                                await Task.Delay(1);
+                                // Give it a break
+                                await Task.Delay(100, token);
                             }
                         }
                     }
@@ -117,6 +132,36 @@ namespace VL.Lib.Video
                     finishedEvent.WaitOne();
                     finishedEvent.Dispose();
                 });
+        }
+
+        private static bool TryGrabVideoFrame(this IVideoPlayer player, VideoPlaybackContext context, out IResourceProvider<VideoFrame>? frame)
+        {
+            try
+            {
+                frame = player.GrabVideoFrame();
+                return true;
+            }
+            catch (Exception e)
+            {
+                context.Logger.LogError(e, "Error while grabbing video frame.");
+                frame = null;
+                return false;
+            }
+        }
+
+        private static bool TryGrabVideoFrame(this IVideoSource source, VideoPlaybackContext context, out IResourceProvider<VideoFrame>? frame)
+        {
+            try
+            {
+                frame = source.GrabVideoFrame();
+                return true;
+            }
+            catch (Exception e)
+            {
+                context.Logger.LogError(e, "Error while grabbing video frame.");
+                frame = null;
+                return false;
+            }
         }
     }
 }

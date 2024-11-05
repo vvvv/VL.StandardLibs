@@ -43,7 +43,7 @@ public class ActionBlockNode<T> : BlockNode<ActionBlock<T>, ExecutionDataflowBlo
                     using var lease = manager.LeaseState(_create);
                     _update(lease.State, x, out lease.State);
                 }
-                catch (Exception e)
+                catch (Exception e) when (e is not OperationCanceledException)
                 {
                     RuntimeGraph.ReportException(e, AppHost);
                     throw;
