@@ -117,6 +117,37 @@ namespace VL.Core
 
         public ILogger GetLogger() => _appHost.LoggerFactory.CreateLogger(null, this);
 
+        /// <summary>
+        /// Returns the ancestors of this node.
+        /// </summary>
+        public IEnumerable<NodeContext> GetAncestors()
+        {
+            var parent = Parent;
+            while (parent != null)
+            {
+                yield return parent;
+                parent = parent.Parent;
+            }
+        }
+
+        /// <summary>
+        /// Returns the type infos of the patches calling this node. Say this node is placed in App -> Patch1 -> Node1, we get Patch1 and App.
+        /// </summary>
+        public IEnumerable<IVLTypeInfo> GetCallingPatches()
+        {
+            foreach (var ancestor in GetAncestors())
+            {
+                var typeId = ancestor.DefinitionId;
+                if (typeId.HasValue)
+                {
+                    var typeRegistry = AppHost.TypeRegistry;
+                    var type = typeRegistry.GetTypeById(typeId.Value);
+                    if (type != null)
+                        yield return type;
+                }
+            }
+        }
+
         internal ImmutableStack<UniqueId> Stack
         {
             get
