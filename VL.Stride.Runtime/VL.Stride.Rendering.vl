@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="PwY6LKPeo6iO0yovVrdC7t" LanguageVersion="2024.6.7-0199-gdeb6aa1e6c" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="PwY6LKPeo6iO0yovVrdC7t" LanguageVersion="2024.6.7-0228-gd4263f9987" Version="0.128">
   <NugetDependency Id="RpPAo2Mz2hINnzdyPwCgpq" Location="VL.CoreLib" Version="2021.4.10-1007-g66c84f8e50" />
   <Patch Id="J2Vq6inJsyVOtMcCMNylcQ">
     <Canvas Id="JSu0taSJ8rOOa9Gx7GIL6b" DefaultCategory="Stride" CanvasType="FullCategory">
@@ -20048,7 +20048,7 @@
     ************************ TextureWriter ************************
 
 -->
-        <Node Name="TextureWriter" Bounds="342,488" Id="JxlPbXDCEoNPBOO4zIeoGa">
+        <Node Name="TextureWriter" Bounds="342,503" Id="JxlPbXDCEoNPBOO4zIeoGa">
           <p:NodeReference LastCategoryFullName="Primitive" LastDependency="builtin">
             <Choice Kind="ContainerDefinition" Name="Process" />
           </p:NodeReference>
@@ -20246,7 +20246,7 @@
     ************************ TextureEncoder ************************
 
 -->
-        <Node Name="TextureEncoder" Bounds="342,536" Id="QGddLvsRvQaMACY6nS4ebC">
+        <Node Name="TextureEncoder" Bounds="342,551" Id="QGddLvsRvQaMACY6nS4ebC">
           <p:NodeReference LastCategoryFullName="Primitive" LastDependency="builtin">
             <Choice Kind="ContainerDefinition" Name="Process" />
           </p:NodeReference>
@@ -20397,7 +20397,7 @@
     ************************ TextureDecoder ************************
 
 -->
-        <Node Name="TextureDecoder" Bounds="343,582" Id="R7jpbgwgsR9OajttTZiANS">
+        <Node Name="TextureDecoder" Bounds="343,597" Id="R7jpbgwgsR9OajttTZiANS">
           <p:NodeReference LastCategoryFullName="Primitive" LastDependency="builtin">
             <Choice Kind="ContainerDefinition" Name="Process" />
           </p:NodeReference>
@@ -20461,6 +20461,55 @@
             <Link Id="IhlZ2tJxWvkPWsvhWxD2vS" Ids="E7Z0e6vLkgmPlaAYwHuVBR,Qnz8qDN3HxcNWbQFCKal45" />
             <Link Id="B0t76fTirN7O1lM2f17YUg" Ids="Ec08U9McFD5LRmrZAMWZuL,OaTEM1doujsNQ6r3gi1uHm" />
             <Link Id="TtuPQ2Hlh0hN6U4gBJTdWR" Ids="GnC4jDIHft8PEd60XvwUeq,Ec08U9McFD5LRmrZAMWZuL" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ TextureToSkImage ************************
+
+-->
+        <Node Name="TextureToSkImage" Bounds="346,437" Id="H2LJg1FIP6SPrNddPT9hCh" Summary="Downloads the texture data and returns it as an SKImage. The returned image is a few frames delayed." Remarks="The returned image is only valid for that particular frame. It needs to be cloned manually in case one wants to store it and use at a later time.">
+          <p:NodeReference>
+            <Choice Kind="ContainerDefinition" />
+          </p:NodeReference>
+          <Patch Id="DS9owz0iKV3QOnDq7P8gk8">
+            <Canvas Id="CmjLymNOPzWQUG8OiQCl8l" CanvasType="Group">
+              <Node Bounds="498,186,120,19" Id="H3NRhVvqaVGQIaUWc5wCGn">
+                <p:NodeReference LastCategoryFullName="Stride.Video" LastDependency="VL.Stride.Video.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="ProcessAppFlag" Name="TextureToVideoStream" />
+                </p:NodeReference>
+                <Pin Id="Ao8II8cpNREMdbnja8Urdj" Name="Node Context" Kind="InputPin" IsHidden="true" />
+                <Pin Id="JubUV40684dNYKKnuGRJfb" Name="Input" Kind="InputPin" />
+                <Pin Id="KgWPKnekYQnLcV5es5bxiY" Name="Metadata" Kind="InputPin" />
+                <Pin Id="P4UEwi6wMyhLh6KZx5lACb" Name="Output" Kind="OutputPin" />
+              </Node>
+              <Node Bounds="498,239,124,19" Id="SNipKD3LESrN98e6m3HbTt">
+                <p:NodeReference LastCategoryFullName="Graphics.Skia.Video" LastDependency="VL.Skia.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="ProcessAppFlag" Name="VideoStreamToSKImage" />
+                </p:NodeReference>
+                <Pin Id="IAS2XJFMLzuPdE1FNCwRPm" Name="Node Context" Kind="InputPin" IsHidden="true" />
+                <Pin Id="SFFW5feml4ZMKO7jZo4Fzj" Name="Input" Kind="InputPin" />
+                <Pin Id="INQeHxGPvpUNf5MNjBvJdH" Name="Output" Kind="OutputPin" />
+              </Node>
+              <ControlPoint Id="BRWq6KwxB8LPokXMKPOdM5" Bounds="500,136" />
+              <ControlPoint Id="AFdOK61W4OkMHbh2s5aKbg" Bounds="500,317" />
+            </Canvas>
+            <Patch Id="OwzC3j7mShoK9nu7L20Mfi" Name="Create" />
+            <Patch Id="Rj5Ar9twimWOO2pgfwszkR" Name="Update">
+              <Pin Id="GGBC5DDo2GvPvvOrlpY8iD" Name="Input" Kind="InputPin" />
+              <Pin Id="AiUFV9mSDaBNf0wj7Ubj8m" Name="Output" Kind="OutputPin" />
+            </Patch>
+            <ProcessDefinition Id="Js1EUqGnCBhLMNkhGdexIE">
+              <Fragment Id="OmKSvvhdIx8PtufMuieXm1" Patch="OwzC3j7mShoK9nu7L20Mfi" Enabled="true" />
+              <Fragment Id="Fybrj6qYpXwMrVCu9nMegO" Patch="Rj5Ar9twimWOO2pgfwszkR" Enabled="true" />
+            </ProcessDefinition>
+            <Link Id="TUi0GdocEThLwmy7Q452ad" Ids="P4UEwi6wMyhLh6KZx5lACb,SFFW5feml4ZMKO7jZo4Fzj" />
+            <Link Id="JyjPGrbzAz0N0keopSKIoH" Ids="BRWq6KwxB8LPokXMKPOdM5,JubUV40684dNYKKnuGRJfb" />
+            <Link Id="Sf4frI2RYgPMn2em5oYX3N" Ids="GGBC5DDo2GvPvvOrlpY8iD,BRWq6KwxB8LPokXMKPOdM5" IsHidden="true" />
+            <Link Id="GfgRnLI1kxgLbxjhIU2yxq" Ids="INQeHxGPvpUNf5MNjBvJdH,AFdOK61W4OkMHbh2s5aKbg" />
+            <Link Id="LNenUBlBTaKNHUjrABOY7x" Ids="AFdOK61W4OkMHbh2s5aKbg,AiUFV9mSDaBNf0wj7Ubj8m" IsHidden="true" />
           </Patch>
         </Node>
       </Canvas>
@@ -20856,4 +20905,5 @@
   <PlatformDependency Id="P3iOq9IB3APNicu2fcvYv0" Location="System.IO" />
   <NugetDependency Id="BVOrrqgjpHFMkXvHPycJWJ" Location="VL.Skia" Version="2021.4.10-1021-g8bbd4c6f55" />
   <PlatformDependency Id="NkcShIhT7TJMjgk17Ir1gA" Location="System.Threading.Tasks" />
+  <DocumentDependency Id="V51KntoDXeZQWDlc8GaV9q" Location="./VL.Stride.Video.vl" />
 </Document>
