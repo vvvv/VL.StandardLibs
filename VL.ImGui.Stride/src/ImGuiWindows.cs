@@ -190,6 +190,8 @@ namespace VL.ImGui.Stride
                         if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
                         {
                             ImGui.UpdatePlatformWindows();
+                            //ImGui.RenderPlatformWindowsDefault();
+
                             ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();       
 
                             for (int i = 1; i < platformIO.Viewports.Size; i++)
@@ -227,9 +229,16 @@ namespace VL.ImGui.Stride
             _strideDeviceContext.IO.DisplaySize = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
             _strideDeviceContext.IO.DisplayFramebufferScale = new Vector2(1.0f, 1.0f);
             
+            try
+            {
+                ImGui.GetPlatformIO().Viewports[0].Pos = new Vector2(_mainViewportWindow.Position.X, _mainViewportWindow.Position.Y);    
+                ImGui.GetPlatformIO().Viewports[0].Size = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
+            }
+            catch 
+            { 
+
+            }
             
-            ImGui.GetPlatformIO().Viewports[0].Pos = new Vector2(_mainViewportWindow.Position.X, _mainViewportWindow.Position.Y);    
-            ImGui.GetPlatformIO().Viewports[0].Size = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
         }
 
         private unsafe void UpdateMonitors()
@@ -243,13 +252,15 @@ namespace VL.ImGui.Stride
             platformIO.NativePtr->Monitors = new ImVector(numMonitors, numMonitors, data);
             for (int i = 0; i < numMonitors; i++)
             {
-                Rectangle r = outputs[i].DesktopBounds;
+                Vector2 pos = new Vector2(outputs[i].DesktopBounds.X, outputs[i].DesktopBounds.Y);
+                Vector2 size = new Vector2(outputs[i].CurrentDisplayMode.Width, outputs[i].CurrentDisplayMode.Height);
+
                 ImGuiPlatformMonitorPtr monitor = platformIO.Monitors[i];
-                monitor.DpiScale = 1f;
-                monitor.MainPos = new Vector2(r.X, r.Y);
-                monitor.MainSize = new Vector2(r.Width, r.Height);
-                monitor.WorkPos = new Vector2(r.X, r.Y);
-                monitor.WorkSize = new Vector2(r.Width, r.Height);
+                monitor.DpiScale = 1f; // TODO GET SCALE PER MONITOR
+                monitor.MainPos = pos;
+                monitor.MainSize = size;
+                monitor.WorkPos = pos;
+                monitor.WorkSize = size;
             }
         }
 
