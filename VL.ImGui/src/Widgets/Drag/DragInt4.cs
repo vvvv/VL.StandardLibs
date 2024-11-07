@@ -12,7 +12,7 @@ namespace VL.ImGui.Widgets
         protected override bool Drag(string label, ref Int4 value, float speed, int min, int max, string? format, ImGuiSliderFlags flags)
         {
             ref var x = ref value.X;
-            if (ImGuiNET.ImGui.DragInt2(label, ref x, speed, min, max, format, flags))
+            if (ImGuiNET.ImGui.DragInt4(label, ref x, speed, min, max, format, flags))
             {
                 value = Unsafe.As<int, Int4>(ref x);
                 return true;
