@@ -33,11 +33,11 @@ namespace VL.Stride.Core
     {
         public static string GetPathToAssetDatabase()
         {
-            var thisDirectory = Path.GetDirectoryName(typeof(Initialization).Assembly.Location);
-            if (thisDirectory is null)
+            var buildPath = AppHost.Global.BuildPath;
+            if (buildPath is null)
                 return null; // Exported single file exe
 
-            var dataDir = Path.Combine(thisDirectory, "data");
+            var dataDir = Path.Combine(buildPath, "data");
             if (Directory.Exists(dataDir))
                 return dataDir;
 

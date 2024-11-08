@@ -122,6 +122,14 @@ namespace VL.Core
         public virtual string AppBasePath => Path.GetDirectoryName(AppPath)!;
 
         /// <summary>
+        /// The directory where the system places various build artefacts like assemblies, asset database, etc.
+        /// </summary>
+        /// <remarks>
+        /// Only set when running inside the editor. Null for exported applications.
+        /// </remarks>
+        public virtual string? BuildPath => null;
+
+        /// <summary>
         /// Whether the app is exported and runs standalone as an executable.
         /// </summary>
         public abstract bool IsExported { get; }
