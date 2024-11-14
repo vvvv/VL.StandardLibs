@@ -31,6 +31,11 @@
     <Version>2024.6.4</Version>
   </PropertyGroup>
 
+  <!-- Produce version information in release builds only. Avoids various build/pack caching bugs and unneccessary disk usage. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <NBGV_GitEngine>Disabled</NBGV_GitEngine>
+  </PropertyGroup>
+
   <!-- Read the version information from our private repo (for now) -->
   <PropertyGroup Condition="Exists('$(MsBuildThisFileDirectory)..\version.json')">
     <GitRepoRoot>$(MSBuildThisFileDirectory)..\</GitRepoRoot>
