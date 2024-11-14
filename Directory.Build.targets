@@ -9,6 +9,14 @@
     <Content Remove="$(VLPackageBasePath)**\*.vl.dll" />
   </ItemGroup>
 
+  <!-- Puts the compiler generated nuspec file into the package root folder. This file will be read by our package system. -->
+  <Target Name="_EnsureNuspecIsPresent"  Condition="$(VLPackageBasePath) != ''" AfterTargets="Build" DependsOnTargets="GenerateNuspec">
+    <ItemGroup>
+      <_NuspecFiles Include="@(_OutputPackItems)" Condition="'%(Extension)' == '.nuspec'" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_NuspecFiles)" DestinationFiles="@(_NuspecFiles->'$(VLPackageBasePath)$(PackageId).nuspec')" SkipUnchangedFiles="true" />
+  </Target>
+
   <ItemGroup Condition=" '$(IsPackable)' != 'false' ">
     <None Include="$(MsBuildThisFileDirectory)build\nugeticon.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
