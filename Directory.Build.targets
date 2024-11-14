@@ -10,16 +10,20 @@
   </ItemGroup>
 
   <!-- Puts the compiler generated nuspec file into the package root folder. This file will be read by our package system. -->
-  <Target Name="_EnsureNuspecIsPresent"  Condition="$(VLPackageBasePath) != ''" AfterTargets="Build" DependsOnTargets="GenerateNuspec">
+  <!--<Target Name="_EnsureNuspecIsPresent"  Condition="$(VLPackageBasePath) != ''" AfterTargets="Build" DependsOnTargets="GenerateNuspec">
     <ItemGroup>
       <_NuspecFiles Include="@(_OutputPackItems)" Condition="'%(Extension)' == '.nuspec'" />
     </ItemGroup>
     <Copy SourceFiles="@(_NuspecFiles)" DestinationFiles="@(_NuspecFiles->'$(VLPackageBasePath)$(PackageId).nuspec')" SkipUnchangedFiles="true" />
-  </Target>
+  </Target>-->
 
   <ItemGroup Condition=" '$(IsPackable)' != 'false' ">
     <None Include="$(MsBuildThisFileDirectory)build\nugeticon.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(IsPackable)' != 'false' ">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
 
   <!-- Workaround to specifiy aliases for PackageReference - taken from https://github.com/NuGet/Home/issues/4989 -->
   <Target Name="AddPackageAliases" BeforeTargets="ResolveReferences" Outputs="%(PackageReference.Identity)">
