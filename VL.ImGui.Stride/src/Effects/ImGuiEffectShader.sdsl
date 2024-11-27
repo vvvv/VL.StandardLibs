@@ -10,7 +10,9 @@
 
             if (TSRgb)
             {
-                streams.Color = ColorUtility.ToLinear(streams.Color);
+                streams.Color = ColorUtility.SRgbToLinear(streams.Color);                
+                float additionalAdjust = pow(streams.Color.a, 1.2);
+                streams.Color.rgb *= additionalAdjust;
             }
         }
 
