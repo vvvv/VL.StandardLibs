@@ -532,7 +532,7 @@ namespace VL.Core
         {
             public void Reset() { }
             bool Include(string path, string localID, object value, int depth, object accessedViaKey) => true;
-            public bool IndexingCountsAsHop => false;
+            public bool IndexingCountsAsHop => true;
             public bool CrawlVLObjects => true;
             public bool CrawlAllProperties => false;
             public bool IndexIntoSpreads => true;
