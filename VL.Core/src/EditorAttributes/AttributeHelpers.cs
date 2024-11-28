@@ -1,6 +1,7 @@
 ﻿using Stride.Core.Mathematics;
 using System;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Linq;
 using VL.Core.Utils;
 using VL.Lib.Collections;
@@ -76,6 +77,17 @@ namespace VL.Core.EditorAttributes
             }
 
             return false;
+        }
+
+        public static bool GetIsBrowsable(this IHasAttributes propertyInfoOrChannel)
+        {
+            foreach (var attr in propertyInfoOrChannel.Attributes)
+            {
+                if (attr is BrowsableAttribute a)
+                    return a.Browsable;
+            }
+
+            return true;
         }
 
         public static bool GetIsReadOnly(this IHasAttributes propertyInfoOrChannel)
