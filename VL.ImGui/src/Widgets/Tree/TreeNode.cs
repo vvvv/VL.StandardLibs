@@ -31,13 +31,16 @@ namespace VL.ImGui.Widgets
 
         internal override void UpdateCore(Context context)
         {
-            var collapsed = CollapsedFlange.Update(Collapsed);
-
-            ImGuiNET.ImGui.SetNextItemOpen(!collapsed);
+            if (!Flags.HasFlag(ImGuiNET.ImGuiTreeNodeFlags.Leaf)) 
+            {
+                var collapsed = CollapsedFlange.Update(Collapsed);
+                ImGuiNET.ImGui.SetNextItemOpen(!collapsed);
+            }
 
             ContentIsVisible = ImGuiNET.ImGui.TreeNodeEx(widgetLabel.Update(Label), Flags);
 
-            CollapsedFlange.Value = !ContentIsVisible;
+            if (!Flags.HasFlag(ImGuiNET.ImGuiTreeNodeFlags.Leaf))
+                CollapsedFlange.Value = !ContentIsVisible;
 
             if (ContentIsVisible)
             {
