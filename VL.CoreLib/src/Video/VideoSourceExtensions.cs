@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
 
@@ -83,7 +81,7 @@ namespace VL.Lib.Video
                                 else
                                 {
                                     // Give it a break
-                                    await Task.Delay(100, token);
+                                    await scheduler.Sleep(TimeSpan.FromMilliseconds(100), token);
                                 }
                             }
                         }
@@ -125,18 +123,18 @@ namespace VL.Lib.Video
                                     if (frame != null)
                                     {
                                         observer.OnNext(frame);
-                                            await scheduler.Yield(token);
+                                        await scheduler.Yield(token);
                                     }
                                     else
                                     {
                                         // To prevent CPU going to 100%
-                                            await scheduler.Sleep(TimeSpan.FromMilliseconds(1), token);
+                                        await scheduler.Sleep(TimeSpan.FromMilliseconds(1), token);
                                     }
                                 }
                                 else
                                 {
                                     // Give it a break
-                                    await Task.Delay(100, token);
+                                    await scheduler.Sleep(TimeSpan.FromMilliseconds(100), token);
                                 }
                             }
                         }
