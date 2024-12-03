@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace VL.Core
 {
@@ -19,8 +20,10 @@ namespace VL.Core
             Context = context;
         }
 
+        [Browsable(false)]
         public AppHost AppHost { get; }
 
+        [Browsable(false)]
         public NodeContext Context { get; }
 
         uint IVLObject.Identity => 0;
