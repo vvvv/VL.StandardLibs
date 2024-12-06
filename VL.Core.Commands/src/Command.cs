@@ -28,7 +28,10 @@ public static class Command
         return new CommandWithExceptionManagement(command);
     }
 
-    internal static ICommand ExecuteOn(this ICommand command, SynchronizationContext context)
+    /// <summary>
+    /// Executes the command on the given <see cref="SynchronizationContext"/>.
+    /// </summary>
+    public static ICommand ExecuteOn(this ICommand command, SynchronizationContext context)
     {
         if (command is SynchronizationContextAwareCommand)
             return command;
