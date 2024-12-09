@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using VL.Lib.Collections;
 
 namespace VL.Core.Tests
 {
@@ -95,6 +96,46 @@ namespace VL.Core.Tests
                 var lookupSucceeded = list.TryGetValueByPath("[-3]", defaultValue, out value, out pathExists);
                 Assert.IsFalse(lookupSucceeded);
                 Assert.AreEqual(defaultValue, value);
+                Assert.IsFalse(pathExists);
+            });
+        }
+
+        [Test]
+        public void SpreadGetIndexBoundsChecked()
+        {
+            var list = Spread.Create(1, 2, 3);
+            int value = -1;
+            int defaultValue = 0;
+            bool pathExists;
+            Assert.DoesNotThrow(() => {
+                var lookupSucceeded = list.TryGetValueByPath("[3]", defaultValue, out value, out pathExists);
+                Assert.IsFalse(lookupSucceeded);
+                Assert.AreEqual(defaultValue, value);
+                Assert.IsFalse(pathExists);
+
+            });
+            Assert.DoesNotThrow(() => {
+                var lookupSucceeded = list.TryGetValueByPath("[-3]", defaultValue, out value, out pathExists);
+                Assert.IsFalse(lookupSucceeded);
+                Assert.AreEqual(defaultValue, value);
+                Assert.IsFalse(pathExists);
+            });
+        }
+
+        [Test]
+        public void SpreadSetIndexBoundsChecked()
+        {
+            var list = Spread.Create(1, 2, 3);
+            bool pathExists;
+            Assert.DoesNotThrow(() => {
+                var indexOverflow = list.WithValueByPath("[3]", 4, out pathExists);
+                Assert.AreEqual(list, indexOverflow);
+                Assert.IsFalse(pathExists);
+
+            });
+            Assert.DoesNotThrow(() => {
+                var indexUnderflow = list.WithValueByPath("[-3]", 4, out pathExists);
+                Assert.AreEqual(list, indexUnderflow);
                 Assert.IsFalse(pathExists);
             });
         }
