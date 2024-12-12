@@ -48,7 +48,7 @@ namespace VL.ImGui.Editors
             if (staticType.HasMonadicValueEditor())
                 return MonadicEditor.Create(channel, context);
 
-            if (staticType.IsConstructedGenericType)
+            if (staticType.IsConstructedGenericType && !context.PrimitiveOnly)
             {
                 if (staticType.GetGenericTypeDefinition() == typeof(Spread<>))
                     return Activator.CreateInstance(typeof(SpreadEditor<>).MakeGenericType(staticType.GenericTypeArguments), new object[] { channel, context }) as IObjectEditor;

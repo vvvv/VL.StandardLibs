@@ -58,6 +58,15 @@ namespace VL.Lang.PublicAPI
         void ShowPatchOfNode(uint nodeID);
 
         void ShowPatchOfNode(UniqueId nodeID);
+        void ShowPatchOfNode(NodePath nodePath);
+
+        /// <summary>
+        /// Registers a node with the session. This allows the editor to interact with it.
+        /// The node can populate its context menu by implementing the <see cref="IHasCommands"/> interface.
+        /// </summary>
+        /// <param name="node">The node to register.</param>
+        /// <returns>A disposable to remove the registration.</returns>
+        IDisposable RegisterNode(IVLObject node);
 
         // HACK: Used by Renderer [Skia] node only, we should be able to get rid of it once we have some sort of unified view over our windows
         Keys OneUp { get; }

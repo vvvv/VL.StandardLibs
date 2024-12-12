@@ -119,7 +119,7 @@ namespace VL.Lib.Animation
         /// </summary>
         IObservable<FrameFinishedMessage> GetFrameFinished();
 
-        IObservable<SubFrameMessage> GetSubFrameEvents();
+        IObservable<SubFrameMessage> GetSubFrameEvents() => Observable.Never<SubFrameMessage>();
     }
 
     public static class Clocks
