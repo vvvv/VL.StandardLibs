@@ -39,24 +39,6 @@
     </ItemGroup>
   </Target>
 
-  <!-- https://github.com/dotnet/sdk/issues/1458#issuecomment-401497095 -->
-  <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml"
-          AfterTargets="ResolveReferences">
-    <ItemGroup>
-      <!-- Only include pdb files when building in Debug -->
-      <ReferenceCopyLocalPaths
-        Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdb')"
-        Condition="'$(Configuration)' == 'Debug'
-                    and '%(ReferenceCopyLocalPaths.NuGetPackageId)' != ''
-                    and Exists('%(RootDir)%(Directory)%(Filename).pdb')" />
-      <!-- We always want the documentation files - so help texts on nodes work properly -->
-      <ReferenceCopyLocalPaths
-        Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')"
-        Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != ''
-                    and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
-    </ItemGroup>
-  </Target>
-
   <!-- From https://stackoverflow.com/questions/17461175/how-to-get-all-the-metadata-keys-for-any-itemgroup-item -->
   <UsingTask
   TaskName="GetMetadataTask"
