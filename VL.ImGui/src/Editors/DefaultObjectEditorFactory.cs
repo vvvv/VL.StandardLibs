@@ -1,4 +1,5 @@
 ﻿using Stride.Core.Mathematics;
+using System.Reactive;
 using System.Reflection;
 using VL.Core;
 using VL.Core.EditorAttributes;
@@ -75,6 +76,9 @@ namespace VL.ImGui.Editors
 
             if (type == typeof(string))
                 return WidgetType.Input;
+
+            if (type == typeof(Unit))
+                return WidgetType.Bang;
 
             return WidgetType.Default;
         }
