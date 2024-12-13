@@ -285,7 +285,7 @@ namespace VL.Skia
                 fixed (byte* pSrc = imageData.Bytes.Span)
                 {
                     var pDst = (byte*)pixels.Data.ToPointer();
-                    ConvertFrom24To32(pixelCount, pSrc, pDst);
+                    ConvertFrom24To32(imageData.ScanSize, info.Width, info.Height, pSrc, pDst);
                 }
                 var colorType = info.Format == PixelFormat.R8G8B8 ? SKColorType.Rgba8888 : SKColorType.Bgra8888;
                 return SKImage.FromPixels(
@@ -295,19 +295,25 @@ namespace VL.Skia
             }
         }
 
-        static unsafe void ConvertFrom24To32(int pixelCount, byte* rgbP, byte* rgbaP)
+        static unsafe void ConvertFrom24To32(int scanSize, int width, int height, byte* rgbP, byte* rgbaP)
         {
-            if ((pixelCount & 3) != 0)
-                ConvertFrom24To32Slow(pixelCount, rgbP, (uint*)rgbaP);
+            if (scanSize != width * 3)
+                ConvertFrom24To32Slow(scanSize, width, height, rgbP, (uint*)rgbaP);
             else
-                ConvertFrom24To32Fast(pixelCount, rgbP, (uint*)rgbaP);
+                ConvertFrom24To32Fast(width*height, rgbP, (uint*)rgbaP);
         }
 
-        static unsafe void ConvertFrom24To32Slow(long pixelCount, byte* rgbP, uint* rgbaP)
+        static unsafe void ConvertFrom24To32Slow(int scanSize, int width, int height, byte* rgbP, uint* rgbaP)
         {
-            for (long i = 0; i < pixelCount; i++)
+            var padding = scanSize - width * 3;
+            for (int i = 0; i < height; i++)
             {
-                *(rgbaP++) = *(uint*)(rgbP += 3L) | 0xff000000;
+                for (int j = 0; j < width; j++)
+                {
+                    *(rgbaP++) = *(uint*)(rgbP) | 0xff000000;
+                    rgbP += 3L;
+                }
+                rgbP += padding;
             }
         }
 

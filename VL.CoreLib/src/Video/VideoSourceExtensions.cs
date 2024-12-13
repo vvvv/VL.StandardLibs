@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
 
@@ -57,81 +55,103 @@ namespace VL.Lib.Video
             if (videoSource is IVideoSource2 videoSource2)
                 return videoSource2.GetPushBasedStream(ctx);
 
-            return Observable.Create<IResourceProvider<VideoFrame>>(
-                subscribeAsync: async (observer, token) =>
-                {
-                    while (!token.IsCancellationRequested)
+            var finishedEvent = new ManualResetEvent(false);
+            return Observable.Using(
+                () => new EventLoopScheduler(), 
+                scheduler => Observable.Create<IResourceProvider<VideoFrame>>(
+                    subscribeAsync: async (observer, token) =>
                     {
-                        if (videoSource.TryGrabVideoFrame(ctx, out var frame))
+                        try
                         {
-                            if (frame != null)
+                            while (!token.IsCancellationRequested)
                             {
-                                observer.OnNext(frame);
-                                await Task.Yield();
-                            }
-                            else
-                            {
-                                // To prevent CPU going to 100%
-                                await Task.Delay(1);
+                                if (videoSource.TryGrabVideoFrame(ctx, out var frame))
+                                {
+                                    if (frame != null)
+                                    {
+                                        observer.OnNext(frame);
+                                        await scheduler.Yield(token);
+                                    }
+                                    else
+                                    {
+                                        // To prevent CPU going to 100%
+                                        await scheduler.Sleep(TimeSpan.FromMilliseconds(1), token);
+                                    }
+                                }
+                                else
+                                {
+                                    // Give it a break
+                                    await scheduler.Sleep(TimeSpan.FromMilliseconds(100), token);
+                                }
                             }
                         }
-                        else
+                        finally
                         {
-                            // Give it a break
-                            await Task.Delay(100, token);
+                            // Only works like this. Doesn't work with RX Finally operator!
+                            finishedEvent.Set();
                         }
-                    }
-                })
-                .SubscribeOn(Scheduler.Default);
+                    })
+                    // Render contexts are thread affine, use a dedicated thread
+                    .SubscribeOn(scheduler)
+                    .Finally(() =>
+                    {
+                        // Wait until the last frame has been processed
+                        finishedEvent.WaitOne();
+                        finishedEvent.Dispose();
+                    }));
         }
 
         private static IObservable<IResourceProvider<VideoFrame>> GetPushBasedStream(this IVideoSource2 videoSource, VideoPlaybackContext ctx)
         {
             var finishedEvent = new ManualResetEvent(false);
-            return Observable.Create<IResourceProvider<VideoFrame>>(
-                subscribeAsync: async (observer, token) =>
-                {
-                    try
+            return Observable.Using(
+                () => new EventLoopScheduler(),
+                scheduler => Observable.Create<IResourceProvider<VideoFrame>>(
+                    subscribeAsync: async (observer, token) =>
                     {
-                        using var player = videoSource.Start(ctx);
-
-                        if (player is null)
-                            return;
-
-                        while (!token.IsCancellationRequested)
+                        try
                         {
-                            if (player.TryGrabVideoFrame(ctx, out var frame))
+                            using var player = videoSource.Start(ctx);
+
+                            if (player is null)
+                                return;
+
+                            while (!token.IsCancellationRequested)
                             {
-                                if (frame != null)
+                                if (player.TryGrabVideoFrame(ctx, out var frame))
                                 {
-                                    observer.OnNext(frame);
-                                    await Task.Yield();
+                                    if (frame != null)
+                                    {
+                                        observer.OnNext(frame);
+                                        await scheduler.Yield(token);
+                                    }
+                                    else
+                                    {
+                                        // To prevent CPU going to 100%
+                                        await scheduler.Sleep(TimeSpan.FromMilliseconds(1), token);
+                                    }
                                 }
                                 else
                                 {
-                                    // To prevent CPU going to 100%
-                                    await Task.Delay(1);
+                                    // Give it a break
+                                    await scheduler.Sleep(TimeSpan.FromMilliseconds(100), token);
                                 }
                             }
-                            else
-                            {
-                                // Give it a break
-                                await Task.Delay(100, token);
-                            }
                         }
-                    }
-                    finally
+                        finally
+                        {
+                            // Only works like this. Doesn't work with RX Finally operator!
+                            finishedEvent.Set();
+                        }
+                    })
+                    // Render contexts are thread affine, use a dedicated thread
+                    .SubscribeOn(scheduler)
+                    .Finally(() =>
                     {
-                        // Only works like this. Doesn't work with RX Finally operator!
-                        finishedEvent.Set();
-                    }
-                })
-                .SubscribeOn(Scheduler.Default)
-                .Finally(() =>
-                {
-                    finishedEvent.WaitOne();
-                    finishedEvent.Dispose();
-                });
+                        // Wait until the last frame has been processed
+                        finishedEvent.WaitOne();
+                        finishedEvent.Dispose();
+                    }));
         }
 
         private static bool TryGrabVideoFrame(this IVideoPlayer player, VideoPlaybackContext context, out IResourceProvider<VideoFrame>? frame)

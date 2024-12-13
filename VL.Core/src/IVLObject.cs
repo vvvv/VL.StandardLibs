@@ -532,7 +532,7 @@ namespace VL.Core
         {
             public void Reset() { }
             bool Include(string path, string localID, object value, int depth, object accessedViaKey) => true;
-            public bool IndexingCountsAsHop => false;
+            public bool IndexingCountsAsHop => true;
             public bool CrawlVLObjects => true;
             public bool CrawlAllProperties => false;
             public bool IndexIntoSpreads => true;
@@ -805,9 +805,12 @@ namespace VL.Core
                 {
                     if (int.TryParse(match.Groups[1].Value, out var index))
                     {
-                        var rest = match.Groups[2].Value;
-                        var o = spread.GetItem(index);
-                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
+                        if (0 <= index && index < spread.Count)
+                        {
+                            var rest = match.Groups[2].Value;
+                            var o = spread.GetItem(index);
+                            return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
+                        }
                     }
                 }
                 value = defaultValue;
@@ -1116,10 +1119,13 @@ namespace VL.Core
                 {
                     if (int.TryParse(match.Groups[1].Value, out var index))
                     {
-                        var rest = match.Groups[2].Value;
-                        var o = spread.GetItem(index);
-                        o = o.WithValueByPath(rest, value, out pathExists);
-                        return spread.SetItem(index, o) as TInstance;
+                        if (0 <= index && index < spread.Count)
+                        {
+                            var rest = match.Groups[2].Value;
+                            var o = spread.GetItem(index);
+                            o = o.WithValueByPath(rest, value, out pathExists);
+                            return spread.SetItem(index, o) as TInstance;
+                        }
                     }
                 }
                 return instance;

@@ -15,9 +15,9 @@ namespace VL.Stride.Rendering
     /// </summary>
     public sealed class GraphicsRendererGroup : IGraphicsRendererBase
     {
-        Spread<IGraphicsRendererBase> upstreamRenderers = Spread<IGraphicsRendererBase>.Empty;
+        IReadOnlyList<IGraphicsRendererBase> upstreamRenderers = Spread<IGraphicsRendererBase>.Empty;
 
-        public void Update(Spread<IGraphicsRendererBase> input)
+        public void Update(IReadOnlyList<IGraphicsRendererBase> input)
         {
             upstreamRenderers = input;
         }

@@ -34,29 +34,27 @@ namespace VL.Core.Import
 
         public string? GetCategory(string? ns)
         {
-            if (Namespace is null)
-                return ns;
-
             if (!IsMatch(ns))
-                return ns;
+                return null;
 
-            if (ns is null)
-                return Category;
+            var root = Category ?? string.Empty;
+            if (string.IsNullOrEmpty(ns))
+                return root;
 
             string cat;
-            if (ns.Length > Namespace.Length)
+            if (string.IsNullOrEmpty(Namespace))
+                cat = ns;
+            else if (ns.Length > Namespace.Length)
                 cat = ns.Substring(Namespace.Length + 1);
             else
-                cat = Namespace;
-
-            if (Category is null)
-                return cat;
+                cat = string.Empty;
 
             if (string.IsNullOrEmpty(cat))
-                return Category;
-
-            return $"{Category}.{cat}";
-
+                return root;
+            else if (string.IsNullOrEmpty(root))
+                return cat;
+            else
+                return $"{root}.{cat}";
         }
     }
 }

@@ -61,7 +61,7 @@ namespace VL.ImGui.Widgets
             if (visible)
             {
 
-                ContentIsVisible = ImGui.BeginPopup(label);
+                ContentIsVisible = ImGui.BeginPopup(label, Flags);
                 VisibleFlange.Value = ContentIsVisible;
 
                 if (ContentIsVisible)
