@@ -12,7 +12,7 @@
             this.mouse = mouse;
         }
 
-        public bool SetSourceDevice(IInputDevice device)
+        public new bool SetSourceDevice(IInputDevice device)
         {
             if (device is IMouseDevice mouse)
             {

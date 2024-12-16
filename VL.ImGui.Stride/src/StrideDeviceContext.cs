@@ -36,7 +36,6 @@ namespace VL.ImGui
 
         public ImGuiIOPtr IO => _io;
 
-
         // ImGui
         private readonly ImGuiIOPtr _io;
         private float _fontScaling;
@@ -53,15 +52,17 @@ namespace VL.ImGui
 
         //VL 
         private NodeContext nodeContext;
-        
+
+        // Flag to detect redundant calls
+        private bool disposed = false;
 
         public unsafe StrideDeviceContext(NodeContext nodeContext) : base()
         {
             this.nodeContext = nodeContext;
 
-            deviceHandle = AppHost.Current.Services.GetDeviceHandle();
-            GraphicsContextHandle = AppHost.Current.Services.GetGraphicsContextHandle();
-            inputHandle = AppHost.Current.Services.GetInputManagerHandle();
+            deviceHandle = nodeContext.AppHost.Services.GetDeviceHandle();
+            GraphicsContextHandle = nodeContext.AppHost.Services.GetGraphicsContextHandle();
+            inputHandle = nodeContext.AppHost.Services.GetInputManagerHandle();
 
             using var gameHandle = nodeContext.AppHost.Services.GetGameHandle();
             var effectSystem = gameHandle.Resource.EffectSystem;
@@ -111,11 +112,9 @@ namespace VL.ImGui
                     Output = new RenderOutputDescription(PixelFormat.R8G8B8A8_UNorm)
                 };
 
-
                 // finally set up the pipeline
                 var pipelineState = PipelineState.New(device, ref pipeline);
                 imPipeline = pipelineState;
-
 
                 // Setup Buffers
                 var is32Bits = false;
@@ -149,20 +148,36 @@ namespace VL.ImGui
         }
         #endregion scaling
 
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            imPipeline.Dispose();
-            vertexBinding.Buffer.Dispose();
-            indexBinding.Buffer.Dispose();
-            fontTexture?.Dispose();
-            imShader.Dispose();
-           
-            deviceHandle.Dispose();
-            GraphicsContextHandle.Dispose();
-            inputHandle.Dispose();
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose managed resources
+                    imPipeline.Dispose();
+                    vertexBinding.Buffer.Dispose();
+                    indexBinding.Buffer.Dispose();
+                    fontTexture?.Dispose();
+                    imShader.Dispose();
 
-            base.Dispose();
+                    deviceHandle.Dispose();
+                    GraphicsContextHandle.Dispose();
+                    inputHandle.Dispose();
+                }
+
+                // Dispose unmanaged resources
+
+                disposed = true;
+            }
+
+            // Call base class implementation
+            base.Dispose(disposing);
         }
 
+        ~StrideDeviceContext()
+        {
+            Dispose(false);
+        }
     }
 }

@@ -1,20 +1,16 @@
 ﻿using ImGuiNET;
 using System.Runtime.InteropServices;
-
-using VL.Core;
+using System.Runtime.CompilerServices;
 
 using Stride.Games;
 using Stride.Rendering;
-using Stride.Input;
 using Stride.Graphics;
-
 using Stride.Core.Mathematics;
+
+using VL.Core;
 using VL.Lib.Collections;
-using System.Runtime.CompilerServices;
 using VL.Lib.Basics.Resources;
 using VL.Stride;
-using Stride.Engine;
-
 
 namespace VL.ImGui.Stride
 {
@@ -22,7 +18,7 @@ namespace VL.ImGui.Stride
     using Vector2 = System.Numerics.Vector2;
     
     
-public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
+    public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
     public delegate void ImGuiWindowsDrawHandler(object stateInput, IGraphicsRendererBase value, GameWindow gameWindow, GraphicsPresenter presenter, out object stateOutput, out IGraphicsRendererBase result);
     public partial class ImGuiWindows : IDisposable
     {
@@ -32,10 +28,7 @@ public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
         private readonly StrideDeviceContext _strideDeviceContext;
 
         private readonly IResourceHandle<GraphicsDevice> _deviceHandle;
-        private readonly IResourceHandle<Game> _gameHandle;
         private bool _disposed = false;
-
-        Game _game => _gameHandle.Resource;
 
         private readonly Platform_CreateWindow _createWindow;
         private readonly Platform_DestroyWindow _destroyWindow;
@@ -51,8 +44,8 @@ public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
 
         public event EventHandler<EventArgs> Closing
         {
-            add { _mainViewportWindow.Closing += value; }
-            remove { _mainViewportWindow.Closing -= value; }
+            add => _mainViewportWindow.Closing += value;
+            remove => _mainViewportWindow.Closing -= value;
         }
 
         public unsafe ImGuiWindows(NodeContext nodeContext)
@@ -60,8 +53,7 @@ public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
             _nodeContext = nodeContext;
             _strideDeviceContext = new StrideDeviceContext(nodeContext);
 
-            _deviceHandle = AppHost.Current.Services.GetDeviceHandle();
-            _gameHandle = AppHost.Current.Services.GetGameHandle();
+            _deviceHandle = nodeContext.AppHost.Services.GetDeviceHandle();
 
             using (_strideDeviceContext.MakeCurrent())
             {
@@ -70,16 +62,26 @@ public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
                 ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
                 ImGuiViewportPtr mainViewport = platformIO.Viewports[0];
 
-                _mainViewportWindow = new ImGuiWindow(_nodeContext, _strideDeviceContext, mainViewport, _game);
+                _mainViewportWindow = new ImGuiWindow(_nodeContext, _strideDeviceContext, mainViewport);
                 mainViewport.PlatformHandle = _mainViewportWindow.Handle;
 
                 _mainViewportWindow.Closing += (o, i) =>
                 {
-                    // Closing all other Windows
-                    ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
-                    for (int index = 1; index < platformIO.Viewports.Size; index++)
+                    using (_strideDeviceContext.MakeCurrent())
                     {
-                        DestroyWindow(platformIO.Viewports[index]);
+                        // Closing all other Windows
+                        ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
+                        if ((nint)platformIO.NativePtr != IntPtr.Zero)
+                        {
+                            var viewPorts = platformIO.Viewports;
+                            if (viewPorts.Data != IntPtr.Zero)
+                            {
+                                for (int index = 1; index < platformIO.Viewports.Size; index++)
+                                {
+                                    platformIO.Viewports[index].PlatformRequestClose = true;
+                                }
+                            }
+                        }
                     }
                 };
 
@@ -192,16 +194,10 @@ public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
                             for (int i = 1; i < platformIO.Viewports.Size; i++)
                             {
                                 ImGuiViewportPtr vp = platformIO.Viewports[i];
-                                if (vp.PlatformUserData != IntPtr.Zero)
+                                GetWindow(vp, (window) =>
                                 {
-                                    var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
-
-                                    if (target != null)
-                                    {
-                                        ImGuiWindow window = (ImGuiWindow)target;
-                                        window.Update(create, draw, vp.DrawData, fonts, style);
-                                    }
-                                }
+                                    window.Update(create, draw, vp.DrawData, fonts, style);
+                                });
                             }
                         }
                     }
@@ -211,197 +207,152 @@ public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
 
         private void SetPerFrameImGuiData()
         {
-            unsafe
+            using (_strideDeviceContext.MakeCurrent())
             {
-                int x, y;
-                uint buttons = global::Stride.Graphics.SDL.Window.SDL.GetGlobalMouseState(&x, &y);
-                _strideDeviceContext.IO.MouseDown[0] = (buttons & 0b0001) != 0;
-                _strideDeviceContext.IO.MouseDown[1] = (buttons & 0b0010) != 0;
-                _strideDeviceContext.IO.MouseDown[2] = (buttons & 0b0100) != 0;
-                _strideDeviceContext.IO.MousePos = new Vector2(x, y);
-            }
-
-            _strideDeviceContext.IO.DisplaySize = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
-            _strideDeviceContext.IO.DisplayFramebufferScale = new Vector2(1.0f, 1.0f);
-
-            unsafe
-            {
-                var platformIO = ImGui.GetPlatformIO();
-                if (_mainViewportWindow != null && (nint)platformIO.NativePtr != IntPtr.Zero && platformIO.Viewports.Size > 0 && (nint)platformIO.Viewports[0].NativePtr != IntPtr.Zero)
+                unsafe
                 {
-                    platformIO.Viewports[0].Pos = new Vector2(_mainViewportWindow.Position.X, _mainViewportWindow.Position.Y);
-                    platformIO.Viewports[0].Size = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
+                    int x, y;
+                    uint buttons = global::Stride.Graphics.SDL.Window.SDL.GetGlobalMouseState(&x, &y);
+                    _strideDeviceContext.IO.MouseDown[0] = (buttons & 0b0001) != 0;
+                    _strideDeviceContext.IO.MouseDown[1] = (buttons & 0b0010) != 0;
+                    _strideDeviceContext.IO.MouseDown[2] = (buttons & 0b0100) != 0;
+                    _strideDeviceContext.IO.MousePos = new Vector2(x, y);
+                }
+
+                _strideDeviceContext.IO.DisplaySize = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
+                _strideDeviceContext.IO.DisplayFramebufferScale = new Vector2(1.0f, 1.0f);
+
+                unsafe
+                {
+                    var platformIO = ImGui.GetPlatformIO();
+                    if ((nint)platformIO.NativePtr != IntPtr.Zero)
+                    {
+                        var viewPorts = platformIO.Viewports;
+                        if (viewPorts.Data != IntPtr.Zero)
+                        {
+                            if (_mainViewportWindow != null && platformIO.Viewports.Size > 0 && (nint)platformIO.Viewports[0].NativePtr != IntPtr.Zero)
+                            {
+                                platformIO.Viewports[0].Pos = new Vector2(_mainViewportWindow.Position.X, _mainViewportWindow.Position.Y);
+                                platformIO.Viewports[0].Size = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
+                            }
+                        }
+                    }
                 }
             }
         }
 
         private unsafe void UpdateMonitors()
         {
-            var outputs = _deviceHandle.Resource.Adapter.Outputs;
-
-            ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
-            if (platformIO.NativePtr->Monitors.Data != IntPtr.Zero)
+            using (_strideDeviceContext.MakeCurrent())
             {
-                Marshal.FreeHGlobal(platformIO.NativePtr->Monitors.Data);
-            }
+                var outputs = _deviceHandle.Resource.Adapter.Outputs;
 
-            int numMonitors = outputs.Length;
-            IntPtr data = IntPtr.Zero;
-
-            try
-            {
-                data = Marshal.AllocHGlobal(Unsafe.SizeOf<ImGuiPlatformMonitor>() * numMonitors);
-                platformIO.NativePtr->Monitors = new ImVector(numMonitors, numMonitors, data);
-
-                for (int i = 0; i < numMonitors; i++)
+                ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
+                if (platformIO.NativePtr->Monitors.Data != IntPtr.Zero)
                 {
-                    Vector2 pos = new Vector2(outputs[i].DesktopBounds.X, outputs[i].DesktopBounds.Y);
-                    Vector2 size = new Vector2(outputs[i].CurrentDisplayMode.Width, outputs[i].CurrentDisplayMode.Height);
-
-                    ImGuiPlatformMonitorPtr monitor = platformIO.Monitors[i];
-                    monitor.DpiScale = 1f; // TODO GET SCALE PER MONITOR
-                    monitor.MainPos = pos;
-                    monitor.MainSize = size;
-                    monitor.WorkPos = pos;
-                    monitor.WorkSize = size;
+                    Marshal.FreeHGlobal(platformIO.NativePtr->Monitors.Data);
                 }
-            }
-            catch
-            {
-                if (data != IntPtr.Zero)
+
+                int numMonitors = outputs.Length;
+                IntPtr data = IntPtr.Zero;
+
+                try
                 {
-                    Marshal.FreeHGlobal(data);
+                    data = Marshal.AllocHGlobal(Unsafe.SizeOf<ImGuiPlatformMonitor>() * numMonitors);
+                    platformIO.NativePtr->Monitors = new ImVector(numMonitors, numMonitors, data);
+
+                    for (int i = 0; i < numMonitors; i++)
+                    {
+                        Vector2 pos = new Vector2(outputs[i].DesktopBounds.X, outputs[i].DesktopBounds.Y);
+                        Vector2 size = new Vector2(outputs[i].CurrentDisplayMode.Width, outputs[i].CurrentDisplayMode.Height);
+
+                        ImGuiPlatformMonitorPtr monitor = platformIO.Monitors[i];
+                        monitor.DpiScale = 1f; // TODO GET SCALE PER MONITOR
+                        monitor.MainPos = pos;
+                        monitor.MainSize = size;
+                        monitor.WorkPos = pos;
+                        monitor.WorkSize = size;
+                    }
                 }
-                throw;
-            }
-            finally
-            {
-                if (data != IntPtr.Zero && platformIO.NativePtr->Monitors.Data == IntPtr.Zero)
+                catch
                 {
-                    Marshal.FreeHGlobal(data);
+                    if (data != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(data);
+                    }
+                    throw;
+                }
+                finally
+                {
+                    if (data != IntPtr.Zero && platformIO.NativePtr->Monitors.Data == IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(data);
+                    }
                 }
             }
         }
 
         #region Platformfunctions
-
         private void CreateWindow(ImGuiViewportPtr vp)
         {
-            ImGuiWindow window = new ImGuiWindow(_nodeContext, _strideDeviceContext, vp, _game);
+            ImGuiWindow window = new ImGuiWindow(_nodeContext, _strideDeviceContext, vp);
+            vp.PlatformUserData = GCHandle.ToIntPtr(GCHandle.Alloc(window));
         }
 
         private void DestroyWindow(ImGuiViewportPtr vp)
         {
-            IList<IInputSource> sources = new List<IInputSource>();
-
-            if (vp.PlatformUserData != IntPtr.Zero)
-            {
-                var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
-
-                var id = vp.ParentViewportId;
-
-                if (target != null)
-                {
-                    ImGuiWindow window = (ImGuiWindow)target;
-                    window.Dispose();
-                }
+            GetWindow(vp, (window) => 
+            { 
+                window.Dispose();
+                GCHandle.FromIntPtr(vp.PlatformUserData).Free();
                 vp.PlatformUserData = IntPtr.Zero;
-            }
+            });
         }
 
         private void ShowWindow(ImGuiViewportPtr vp)
         {
-            var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
-            if (target != null)
-            {
-                ImGuiWindow window = (ImGuiWindow)target;
-                window.Activate();
-            }
+            GetWindow(vp, (window) => { window.Activate(); });
         }
 
         private unsafe void GetWindowPos(ImGuiViewportPtr vp, Vector2* outPos)
         {
-            var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
-            if (target != null)
-            {
-                ImGuiWindow window = (ImGuiWindow)target;
-                *outPos = new Vector2(window.Position.X, window.Position.Y);
-            }
+            GetWindow(vp, (window) => { *outPos = new Vector2(window.Position.X, window.Position.Y); });
         }
 
         private void SetWindowPos(ImGuiViewportPtr vp, Vector2 pos)
         {
-            var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
-            if (target != null)
-            {
-                ImGuiWindow window = (ImGuiWindow)target;
-                window.Position = new Int2((int)pos.X, (int)pos.Y);
-            }
+            GetWindow(vp, (window) => { window.Position = new Int2((int)pos.X, (int)pos.Y); });
         }
 
         private unsafe void GetWindowSize(ImGuiViewportPtr vp, Vector2* outSize)
         {
-            var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
-            if (target != null)
-            {
-                ImGuiWindow window = (ImGuiWindow)target;
-                *outSize = new Vector2(window.Size.X, window.Size.Y);
-            }
+            GetWindow(vp, (window) => { *outSize = new Vector2(window.Size.X, window.Size.Y); });
         }
 
         private void SetWindowSize(ImGuiViewportPtr vp, Vector2 size)
         {
-            var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
-            if (target != null)
-            {
-                ImGuiWindow window = (ImGuiWindow)target;
-                window.Size = new Int2((int)size.X, (int)size.Y);
-            }
+            GetWindow(vp, (window) => { window.Size = new Int2((int)size.X, (int)size.Y); });
         }
 
         private void SetWindowFocus(ImGuiViewportPtr vp)
         {
-            var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
-            if (target != null)
-            {
-                ImGuiWindow window = (ImGuiWindow)target;
-                window.Activate();
-            }
+            GetWindow(vp, (window) => { window.Activate();});
         }
 
         private byte GetWindowFocus(ImGuiViewportPtr vp)
         {
-            bool IsFocused = false;
-            var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
-            if (target != null)
-            {
-                ImGuiWindow window = (ImGuiWindow)target;
-                IsFocused = window.IsFocused;
-            }
-
-            return IsFocused ? (byte)1 : (byte)0;
+            return GetWindow(vp, () => { return (byte)0; }, (window) => { return window.IsFocused ? (byte)1 : (byte)0; });
         }
 
         private byte GetWindowMinimized(ImGuiViewportPtr vp)
         {
-            bool isMinimized = false;
-            var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
-            if (target != null)
-            {
-                ImGuiWindow window = (ImGuiWindow)target;
-                isMinimized = window.IsMinimized;
-            }
-
-            return isMinimized ? (byte)1 : (byte)0;
+            return GetWindow(vp, () => { return (byte)0; }, (window) => { return window.IsMinimized ? (byte)1 : (byte)0; } );
         }
 
         private unsafe void SetWindowTitle(ImGuiViewportPtr vp, IntPtr title)
         {
-            var target = GCHandle.FromIntPtr(vp.PlatformUserData).Target;
-            if (target != null)
+            GetWindow(vp, (window) => 
             {
-                ImGuiWindow window = (ImGuiWindow)target;
-
                 byte* titlePtr = (byte*)title;
                 int count = 0;
                 while (titlePtr[count] != 0)
@@ -409,9 +360,39 @@ public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
                     count += 1;
                 }
                 window.Title = System.Text.Encoding.ASCII.GetString(titlePtr, count);
+            });      
+        }
+
+        private void GetWindow(ImGuiViewportPtr vp, Action<ImGuiWindow> IsTrue)
+        {
+            GetWindow<bool>(vp, () => {return false;}, (window) => { IsTrue.Invoke(window); return true; });
+        }
+
+        private TResult GetWindow<TResult>(ImGuiViewportPtr vp, Func<TResult> IsFalse, Func<ImGuiWindow, TResult> IsTrue)
+        {
+            if (vp.PlatformUserData == IntPtr.Zero)
+            {
+                return IsFalse.Invoke();
+            }
+
+            var handle = GCHandle.FromIntPtr(vp.PlatformUserData);
+            if (!handle.IsAllocated)
+            {
+                return IsFalse.Invoke();
+            }
+
+            var target = handle.Target;
+            if (target != null && target is ImGuiWindow window)
+            {
+                return IsTrue.Invoke(window);
+            }
+            else
+            {
+                return IsFalse.Invoke();
             }
         }
 
+        
         #endregion Platformfunctions
 
         protected virtual void Dispose(bool disposing)
@@ -423,7 +404,6 @@ public delegate void ImGuiWindowsCreateHandler(out object stateOutput);
                     _deviceHandle.Dispose();
                     _mainViewportWindow.Dispose();
                     _strideDeviceContext.Dispose();
-                    _gameHandle.Dispose();
                 }
 
                 _disposed = true;

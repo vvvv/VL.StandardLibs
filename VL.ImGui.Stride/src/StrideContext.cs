@@ -98,12 +98,24 @@ namespace VL.ImGui
 
         public override void Dispose()
         {
-            foreach (var r in Renderers)
-                OnRemoved(r);
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            Renderers.Clear();
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Dispose managed resources
+                foreach (var r in Renderers)
+                    OnRemoved(r);
 
-            base.Dispose();
+                Renderers.Clear();
+                managedSkiaRenderers.Clear();
+            }
+
+            // Call base class implementation
+            base.Dispose(disposing);
         }
     }
 }

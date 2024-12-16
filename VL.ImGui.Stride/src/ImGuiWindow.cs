@@ -6,7 +6,6 @@ using Stride.Graphics;
 using Stride.Input;
 using Stride.Rendering;
 using Stride.Core.Mathematics;
-using Stride.Engine;
 
 using VL.Core;
 using VL.Stride;
@@ -15,7 +14,7 @@ using VL.Stride.Rendering;
 using VL.Stride.Engine;
 using VL.Lib.Collections;
 using VL.Stride.Input;
-
+using VL.Lib.Basics.Resources;
 
 namespace VL.ImGui.Stride
 {
@@ -28,72 +27,72 @@ namespace VL.ImGui.Stride
         private readonly SchedulerSystem _schedulerSystem;
         private readonly GameContext _gameContext;
         private readonly GameWindowRenderer _gameWindowRenderer;
-        private readonly InputManager _inputManager;
         private readonly IInputSource _inputSource;
         private readonly WindowRenderer _windowRenderer;
-        private readonly ImGuiRenderer _renderer;       
+        private readonly ImGuiRenderer _renderer;
+
+        private readonly IResourceHandle<InputManager> _inputHandle;
+        InputManager _inputManager => _inputHandle.Resource;
 
         private object? _state;
         private ImGuiWindowsCreateHandler? _createHandler;
         private ImGuiWindowsDrawHandler? _drawHandler;
 
-        public IntPtr Handle => _gameWindowRenderer.Window.NativeWindow.Handle;
+        public IntPtr Handle => _gameWindowRenderer.Window?.NativeWindow.Handle ?? IntPtr.Zero;
 
         public event EventHandler<EventArgs> Closing
         {
-            add {    if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Closing += value; }
+            add { if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Closing += value; }
             remove { if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Closing -= value; }
         }
 
         public Int2 Position
         {
-            get { return _gameWindowRenderer.Window.Position; }
-            set { _gameWindowRenderer.Window.Position = value; }
+            get => _gameWindowRenderer.Window?.Position ?? Int2.Zero;
+            set { if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Position = value; }
         }
 
         public Int2 Size
         {
-            get { return new Int2(_gameWindowRenderer.Window.ClientBounds.Width, _gameWindowRenderer.Window.ClientBounds.Height); }
-            set { _gameWindowRenderer.Window.SetSize(value); }
+            get => _gameWindowRenderer.Window != null ? new Int2(_gameWindowRenderer.Window.ClientBounds.Width, _gameWindowRenderer.Window.ClientBounds.Height) : Int2.Zero;
+            set { _gameWindowRenderer.Window?.SetSize(value); }
         }
 
         public string Title
         {
-            get { return _gameWindowRenderer.Window.Title; }
-            set { _gameWindowRenderer.Window.Title = value; }
+            get => _gameWindowRenderer.Window?.Title ?? string.Empty;
+            set { if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Title = value; }
         }
 
-        public IInputSource Input
-        {
-            get { return _inputSource; }
-        }
+        public IInputSource Input => _inputSource;
 
-        private bool _isFocused = false;
+        private bool _isFocused;
         public bool IsFocused
         {
-            get 
+            get
             {
-                var focused = _gameWindowRenderer.Window.Focused;
-
+                var focused = _gameWindowRenderer.Window?.Focused ?? false;
                 if (_isFocused != focused)
                 {
                     _isFocused = focused;
+                    if (focused)
+                    {
+                        _inputManager.Sources.Clear();
+                        _inputManager.Sources.Add(_inputSource);
+                    }
                 }
-                return _isFocused; 
+                return _isFocused;
             }
         }
 
         public void Activate()
         {
-            _gameWindowRenderer.Window.BringToFront();
+            _gameWindowRenderer.Window?.BringToFront();
         }
 
-        public bool IsMinimized
-        {
-            get { return _gameWindowRenderer.Window.IsMinimized; }
-        }
+        public bool IsMinimized => _gameWindowRenderer.Window?.IsMinimized ?? false;
 
-        public ImGuiWindow(NodeContext nodeContext, StrideDeviceContext strideDeviceContext, ImGuiViewportPtr vp, Game game)
+        public ImGuiWindow(NodeContext nodeContext, StrideDeviceContext strideDeviceContext, ImGuiViewportPtr vp)
         {
             _vp = vp;
 
@@ -106,33 +105,34 @@ namespace VL.ImGui.Stride
                 size = new Int2((int)_vp.Size.X, (int)_vp.Size.Y);
             }
 
-
             _gcHandle = GCHandle.Alloc(this);
-           
-            _gameContext = GameContextFactory.NewGameContextSDL(size.X, size.Y, true);
-            _inputManager = game.Input;
-            _inputSource = InputSourceFactory.NewWindowInputSource(_gameContext);
-            _inputManager.Sources.Add(_inputSource);
 
-            _gameWindowRenderer = new GameWindowRenderer(game.Services, _gameContext);
-            _schedulerSystem = game.Services.GetService<SchedulerSystem>();
+            using (var gameHandle = nodeContext.AppHost.Services.GetGameHandle())
+            {
+                _gameContext = GameContextFactory.NewGameContextSDL(size.X, size.Y, true);
+                _gameWindowRenderer = new GameWindowRenderer(gameHandle.Resource.Services, _gameContext);
+                _schedulerSystem = gameHandle.Resource.Services.GetService<SchedulerSystem>();
+                
+                _inputSource = InputSourceFactory.NewWindowInputSource(_gameContext);
+                _inputHandle = nodeContext.AppHost.Services.GetInputManagerHandle();
+                _inputManager.Sources.Clear();
+                _inputManager.Sources.Add(_inputSource);
+            }
 
             var manager = _gameWindowRenderer.WindowManager;
+            manager.PreferredBackBufferWidth = size.X;
+            manager.PreferredBackBufferHeight = size.Y;
+            manager.PreferredBackBufferFormat = PixelFormat.R16G16B16A16_Float;
+            manager.PreferredDepthStencilFormat = PixelFormat.D24_UNorm_S8_UInt;
+            manager.ShaderProfile = GraphicsProfile.Level_11_0;
+            manager.PreferredGraphicsProfile = new[] { GraphicsProfile.Level_11_0 };
+
+            using (var dev = nodeContext.AppHost.Services.GetDeviceHandle())
             {
-                manager.PreferredBackBufferWidth = size.X; 
-                manager.PreferredBackBufferHeight = size.Y;
-                manager.PreferredBackBufferFormat = PixelFormat.R16G16B16A16_Float;
-                manager.PreferredDepthStencilFormat = PixelFormat.D24_UNorm_S8_UInt;
-                manager.ShaderProfile = GraphicsProfile.Level_11_0;
-                manager.PreferredGraphicsProfile = [GraphicsProfile.Level_11_0];
-
-                using (var dev = nodeContext.AppHost.Services.GetDeviceHandle())
-                {
-                    manager.PreferredColorSpace = dev.Resource.ColorSpace;
-                }
-
-                manager.PreferredMultisampleCount = MultisampleCount.None;
+                manager.PreferredColorSpace = dev.Resource.ColorSpace;
             }
+
+            manager.PreferredMultisampleCount = MultisampleCount.None;
 
             _gameWindowRenderer.Initialize();
 
@@ -142,20 +142,18 @@ namespace VL.ImGui.Stride
             }
 
             var window = _gameWindowRenderer.Window;
-            {
-                window.Title = "MainImgui";
-                window.IsBorderLess = (_vp.Flags & ImGuiViewportFlags.NoDecoration) != 0;
-                window.Position = position;
-                window.FullscreenIsBorderlessWindow = true;
-                window.PreferredFullscreenSize = new Int2(-1, -1); // adapt desktop Size
-                window.AllowUserResizing = (_vp.Flags & ImGuiViewportFlags.NoDecoration) == 0; ;
-                window.IsMouseVisible = true;
-                window.BringToFront();
+            window.Title = "MainImgui";
+            window.IsBorderLess = (_vp.Flags & ImGuiViewportFlags.NoDecoration) != 0;
+            window.Position = position;
+            window.FullscreenIsBorderlessWindow = true;
+            window.PreferredFullscreenSize = new Int2(-1, -1); // adapt desktop Size
+            window.AllowUserResizing = (_vp.Flags & ImGuiViewportFlags.NoDecoration) == 0;
+            window.IsMouseVisible = true;
+            window.BringToFront();
 
-                window.ClientSizeChanged += Window_ClientSizeChanged;
-                window.Closing += Window_Closing;
-                window.FullscreenChanged += Window_FullscreenChanged;
-            }
+            window.ClientSizeChanged += Window_ClientSizeChanged;
+            window.Closing += Window_Closing;
+            window.FullscreenChanged += Window_FullscreenChanged;
 
             _windowRenderer = new WindowRenderer(_gameWindowRenderer, _inputSource);
 
@@ -163,8 +161,6 @@ namespace VL.ImGui.Stride
 
             vp.PlatformUserData = (IntPtr)_gcHandle;
         }
-
-        
 
         #region window.Events
         private void Window_Closing(object? sender, EventArgs e)
@@ -203,39 +199,47 @@ namespace VL.ImGui.Stride
 
         public void Dispose()
         {
-            try
-            {
-                (_state as IDisposable)?.Dispose();
-            }
-            finally
-            {
-                _state = new object();
-            }
-
-            _gameWindowRenderer.Window.ClientSizeChanged -= Window_ClientSizeChanged;
-            _gameWindowRenderer.Window.Closing -= Window_Closing;
-            _gameWindowRenderer.Window.FullscreenChanged -= Window_FullscreenChanged;
-            _gameWindowRenderer.Close();
-            _inputManager.RemoveInputSource(_inputSource);
-            _inputSource.Dispose();
-            _gcHandle.Free();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Dispose managed resources
+                (_state as IDisposable)?.Dispose();
+                _state = null;
+
+                if (_gameWindowRenderer.Window != null)
+                {
+                    _gameWindowRenderer.Window.ClientSizeChanged -= Window_ClientSizeChanged;
+                    _gameWindowRenderer.Window.Closing -= Window_Closing;
+                    _gameWindowRenderer.Window.FullscreenChanged -= Window_FullscreenChanged;
+                }
+                _gameWindowRenderer.Close();
+                _inputHandle.Dispose();
+                _inputSource.Dispose();
+            }
+
+            // Dispose unmanaged resources
+            _gcHandle.Free();
+        }
 
         class WindowRenderer : IGraphicsRendererBase
         {
             private readonly GameWindowRenderer _gameWindowRenderer;
             private readonly WithRenderTargetAndViewPort _withRenderTargetAndViewPort;
 
-            public IGraphicsRendererBase? Input {  private get; set; }
+            public IGraphicsRendererBase? Input { private get; set; }
 
             public IInputSource? InputSource { get; set; }
 
-            public WindowRenderer(GameWindowRenderer gameWindowRenderer, IInputSource InputSource)
+            public WindowRenderer(GameWindowRenderer gameWindowRenderer, IInputSource inputSource)
             {
                 _gameWindowRenderer = gameWindowRenderer;
                 _withRenderTargetAndViewPort = new WithRenderTargetAndViewPort();
-                this.InputSource = InputSource;
+                InputSource = inputSource;
             }
 
             public void Draw(RenderDrawContext context)
