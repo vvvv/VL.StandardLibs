@@ -58,6 +58,8 @@ namespace VL.ImGui.Stride
             set { _gameWindowRenderer.Window?.SetSize(value); }
         }
 
+        public GameWindow GameWindow => _gameWindowRenderer.Window;
+
         public string Title
         {
             get => _gameWindowRenderer.Window?.Title ?? string.Empty;
@@ -92,12 +94,12 @@ namespace VL.ImGui.Stride
 
         public bool IsMinimized => _gameWindowRenderer.Window?.IsMinimized ?? false;
 
-        public ImGuiWindow(NodeContext nodeContext, StrideDeviceContext strideDeviceContext, ImGuiViewportPtr vp)
+        public ImGuiWindow(NodeContext nodeContext, StrideDeviceContext strideDeviceContext, ImGuiViewportPtr vp, RectangleF bounds)
         {
             _vp = vp;
 
-            Int2 position = new Int2(100, 100);
-            Int2 size = new Int2(640, 480);
+            Int2 position = new Int2((int)bounds.Top, (int)bounds.Left);
+            Int2 size = new Int2((int)bounds.Width, (int)bounds.Height);
 
             if ((_vp.Flags & ImGuiViewportFlags.NoDecoration) != 0)
             {

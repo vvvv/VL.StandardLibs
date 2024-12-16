@@ -24,6 +24,7 @@ namespace VL.ImGui.Stride
     {
         // VL
         private readonly NodeContext _nodeContext;
+        private readonly RectangleF _bounds;
         private readonly ImGuiWindow _mainViewportWindow;
         private readonly StrideDeviceContext _strideDeviceContext;
 
@@ -48,9 +49,12 @@ namespace VL.ImGui.Stride
             remove => _mainViewportWindow.Closing -= value;
         }
 
-        public unsafe ImGuiWindows(NodeContext nodeContext)
+        public GameWindow GameWindow => _mainViewportWindow.GameWindow;
+
+        public unsafe ImGuiWindows(NodeContext nodeContext, RectangleF bounds)
         {
             _nodeContext = nodeContext;
+            _bounds = bounds;
             _strideDeviceContext = new StrideDeviceContext(nodeContext);
 
             _deviceHandle = nodeContext.AppHost.Services.GetDeviceHandle();
@@ -62,7 +66,7 @@ namespace VL.ImGui.Stride
                 ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
                 ImGuiViewportPtr mainViewport = platformIO.Viewports[0];
 
-                _mainViewportWindow = new ImGuiWindow(_nodeContext, _strideDeviceContext, mainViewport);
+                _mainViewportWindow = new ImGuiWindow(_nodeContext, _strideDeviceContext, mainViewport, _bounds);
                 mainViewport.PlatformHandle = _mainViewportWindow.Handle;
 
                 _mainViewportWindow.Closing += (o, i) =>
@@ -295,7 +299,7 @@ namespace VL.ImGui.Stride
         #region Platformfunctions
         private void CreateWindow(ImGuiViewportPtr vp)
         {
-            ImGuiWindow window = new ImGuiWindow(_nodeContext, _strideDeviceContext, vp);
+            ImGuiWindow window = new ImGuiWindow(_nodeContext, _strideDeviceContext, vp, _bounds);
             vp.PlatformUserData = GCHandle.ToIntPtr(GCHandle.Alloc(window));
         }
 
