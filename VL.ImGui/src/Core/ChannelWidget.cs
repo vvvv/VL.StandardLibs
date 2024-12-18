@@ -27,10 +27,17 @@ namespace VL.ImGui.Widgets
             {
                 if (value != channel)
                 {
+                    var old = channel;
                     channel = value;
                     attributesSubscription.Disposable = channel?.Attributes().StartWith([channel?.Attributes().Value]).Subscribe(a => UpdateDefaultsFromAttributes(a ?? Spread<Attribute>.Empty));
+
+                    OnChannelChanged(value, old);
                 }
             }
+        }
+
+        protected virtual void OnChannelChanged(IChannel<T>? channel, IChannel<T>? old)
+        {
         }
 
         public Optional<string> Label { get => default /* Only accessed by generated code*/; set => label.SetPinValue(value!); }
@@ -83,5 +90,12 @@ namespace VL.ImGui.Widgets
         }
 
         string? IHasLabel.Label { get => label.Value; set => label.SetPinValue(value); }
+
+        protected override void Dispose(bool disposing)
+        {
+            Channel = null;
+            base.Dispose(disposing);
+        }
+
     }
 }
