@@ -249,9 +249,9 @@ namespace VL.ImGui
 
             public void Dispose()
             {
-                context.IsBeforeFrame = false;
-
                 style?.Reset(context);
+
+                context.IsBeforeFrame = false;
             }
         }
     }

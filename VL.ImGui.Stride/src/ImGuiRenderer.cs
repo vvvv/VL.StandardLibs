@@ -203,6 +203,9 @@ namespace VL.ImGui
                 else
                     _io.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
+
+                var onlySomeStyles = _context.ApplyStyle(style, beforeNewFrame: true);
+
                 _context.NewFrame();
 
                 try
@@ -234,6 +237,9 @@ namespace VL.ImGui
                 }
                 finally
                 {
+
+                    onlySomeStyles.Dispose();
+
                     if (fullscreenWindow && !dockingEnabled)
                     {
                         ImGui.End();
