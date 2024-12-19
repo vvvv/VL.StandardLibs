@@ -40,6 +40,8 @@ namespace VL.ImGui.Styling
         /// </summary>
         public Optional<float> BorderSize { private get; set; }
 
+        internal override bool CanDoStuffBeforeFrame => true;
+
         internal override void SetCore(Context context)
         {
             if (Background.HasValue)
