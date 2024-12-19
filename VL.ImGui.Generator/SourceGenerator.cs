@@ -250,6 +250,11 @@ namespace VL.ImGui.Generator
                 outputs.Insert(0, "c.Output(() => s),");
             }
 
+
+            bool hasConstructorWithNodeContext = typeSymbol.InstanceConstructors.Any(constructor => constructor.Parameters.Length == 1 && constructor.Parameters.First().Type.Name == "NodeContext");
+
+            string ctxPara = hasConstructorWithNodeContext ? "c.NodeContext" : default;
+
             return $@"
 using VL.Core;
 
@@ -275,7 +280,7 @@ namespace {typeSymbol.ContainingNamespace}
                     _outputs, 
                     c =>
                     {{
-                        var s = new {typeSymbol.Name}();
+                        var s = new {typeSymbol.Name}({ctxPara});
                         {ctx}
                         var inputs = new IVLPin[]
                         {{

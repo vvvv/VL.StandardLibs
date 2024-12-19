@@ -345,7 +345,7 @@ namespace VL.ImGui
         {
             using (_context.MakeCurrent())
             {
-                _io.HandleNotification(notification, useWorldSpace: true);
+                _io.HandleNotification(notification);
 
                 foreach (var layer in _context.Layers)
                 {
