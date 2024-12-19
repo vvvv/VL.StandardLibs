@@ -57,6 +57,8 @@ namespace VL.ImGui.Styling
                 ImGui.PopFont();
                 fontPushed = false;
             }
+
+            base.ResetCore(context);
         }
     }
 }
