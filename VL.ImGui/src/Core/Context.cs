@@ -69,6 +69,7 @@ namespace VL.ImGui
         internal DrawList DrawList;
         internal System.Numerics.Vector2 DrawListOffset;
         internal bool IsInBeginTables;
+        internal bool IsBeforeFrame;
 
         public Context()
         {
@@ -85,6 +86,7 @@ namespace VL.ImGui
             finally
             {
                 _widgetsToReset.Clear();
+
                 ImGui.NewFrame();
             }
         }
@@ -225,9 +227,9 @@ namespace VL.ImGui
         /// </code>
         /// </example>
         /// <returns>A disposable which removes the style on dispose.</returns>
-        public StyleFrame ApplyStyle(IStyle? style)
+        public StyleFrame ApplyStyle(IStyle? style, bool beforeNewFrame = false)
         {
-            return new StyleFrame(this, style);
+            return new StyleFrame(this, style, beforeNewFrame);
         }
 
         public readonly struct StyleFrame : IDisposable
@@ -235,8 +237,10 @@ namespace VL.ImGui
             private readonly Context context;
             private readonly IStyle? style;
 
-            public StyleFrame(Context context, IStyle? style)
+            public StyleFrame(Context context, IStyle? style, bool beforeNewFrame = false)
             {
+                context.IsBeforeFrame = beforeNewFrame;
+
                 this.context = context;
                 this.style = style;
 
@@ -245,6 +249,8 @@ namespace VL.ImGui
 
             public void Dispose()
             {
+                context.IsBeforeFrame = false;
+
                 style?.Reset(context);
             }
         }

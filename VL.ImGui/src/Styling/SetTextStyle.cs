@@ -50,15 +50,13 @@ namespace VL.ImGui.Styling
             }
         }
 
-        public override void Reset(Context context)
+        internal override void ResetCore(Context context)
         {
             if (fontPushed)
             {
                 ImGui.PopFont();
                 fontPushed = false;
             }
-
-            base.Reset(context);
         }
     }
 }

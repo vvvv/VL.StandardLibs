@@ -94,6 +94,8 @@ namespace VL.ImGui
                 else
                     _io.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
+                var onlySomeStyles = _context.ApplyStyle(Style, beforeNewFrame: true);
+
                 _context.NewFrame();
                 try
                 {
@@ -125,6 +127,8 @@ namespace VL.ImGui
                 }
                 finally
                 {
+                    onlySomeStyles.Dispose();
+
                     if (DefaultWindow && !dockingEnabled)
                     {
                         ImGui.End();
