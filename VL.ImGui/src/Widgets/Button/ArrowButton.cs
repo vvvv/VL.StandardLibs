@@ -16,6 +16,8 @@ namespace VL.ImGui.Widgets
             Update();
             if (ImGuiNET.ImGui.ArrowButton(widgetLabel.Update(label.Value), Direction))
                 Value = Unit.Default;
+
+            widgetLabel.DrawLabelInSameLine();
         }
     }
 }

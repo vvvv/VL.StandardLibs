@@ -26,6 +26,8 @@ namespace VL.ImGui.Widgets
             if (selfbang)
                 Value = Unit.Default;
             bang = false;
+
+            widgetLabel.DrawLabelInSameLine();
         }
 
         protected override void OnChannelChanged(IChannel<Unit>? channel, IChannel<Unit>? old)
