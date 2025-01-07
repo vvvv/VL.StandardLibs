@@ -237,7 +237,6 @@ namespace VL.ImGui
                 }
                 finally
                 {
-
                     onlySomeStyles.Dispose();
 
                     if (fullscreenWindow && !dockingEnabled)
