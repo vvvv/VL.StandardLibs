@@ -5,9 +5,6 @@ using VL.Lib.Reactive;
 
 namespace VL.ImGui.Widgets
 {
-    /// <summary>
-    /// Square button with an arrow shape
-    /// </summary>
     [GenerateNode(Category = "ImGui.Widgets", Button = true, Tags = "bang")]
     [WidgetType(WidgetType.Bang)]
     internal partial class BangButton : ChannelWidget<Unit>
@@ -26,6 +23,8 @@ namespace VL.ImGui.Widgets
             if (selfbang)
                 Value = Unit.Default;
             bang = false;
+
+            widgetLabel.DrawLabelInSameLine();
         }
 
         protected override void OnChannelChanged(IChannel<Unit>? channel, IChannel<Unit>? old)

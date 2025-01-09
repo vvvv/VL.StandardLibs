@@ -1108,6 +1108,10 @@ namespace VL.Core
                         o = o.WithValueByPath(rest, value, out pathExists);
                         return vlObj.WithValue(property, o) as TInstance;
                     }
+                    if (pathExists && rest == "")
+                    {
+                        return vlObj.WithValue(property, value) as TInstance;
+                    }
                 }
                 return instance;
             }

@@ -64,7 +64,13 @@ namespace VL.Stride.Video
         private static Texture AsTexture(VideoTexture videoTexture, GraphicsDevice graphicsDevice)
         {
             var nativeTexture = new Texture2D(videoTexture.NativePointer);
-            return SharpDXInterop.CreateTextureFromNative(graphicsDevice, nativeTexture, takeOwnership: true, isSRgb: false);
+            var strideTexture = SharpDXInterop.CreateTextureFromNative(graphicsDevice, nativeTexture, takeOwnership: true, isSRgb: false);
+
+            // Undo the ref count increment of an internal QueryInterface call
+            if ((strideTexture.Description.Options & TextureOptions.Shared) != 0)
+                ((SharpDX.IUnknown)nativeTexture).Release();
+
+            return strideTexture;
         }
 
         sealed class SRgbTexture : IDisposable
@@ -75,6 +81,7 @@ namespace VL.Stride.Video
                 var desc = texture.Description;
                 desc.Format = desc.Format.ToSRgb();
                 desc.Flags = TextureFlags.ShaderResource;
+                desc.Options = TextureOptions.None;
                 return new SRgbTexture(Texture.New(graphicsDevice, desc));
             }
 

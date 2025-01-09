@@ -18,6 +18,7 @@ namespace VL.ImGui
         static int widgetCreationCounter;
         int Id;
         string? label = "Rumpelstilzchen";
+        public string? LabelWithoutHash = "Rumpelstilzchen";
         public string LabelForImGUI = "Rumpelstilzchen##666";
 
         public WidgetLabel()
@@ -32,27 +33,40 @@ namespace VL.ImGui
             {
                 if (label == value) return;
                 label = value;
-                LabelForImGUI = ComputeLabelForImGui(label);
+                ComputeLabelForImGui(label);
             }
         }
 
         public override string ToString() => $"Label: {Label}; LabelForImGui: {LabelForImGUI}";
 
-        internal string ComputeLabelForImGui(string? label)
+        internal void ComputeLabelForImGui(string? label)
         {
-            var autoGenerate = string.IsNullOrWhiteSpace(label) || !label.Contains("##");
-            if (!autoGenerate)
-                return label!;
-
-            label = label == null ? string.Empty : label;
-            label = $"{label}##__<{Id}>";
-            return label;
+            var i = label != null ? label.IndexOf("##", StringComparison.Ordinal) : -1;
+            if (i >= 0)
+            {
+                LabelWithoutHash = label!.Substring(0, i);
+                LabelForImGUI = label;
+            }
+            else
+            {
+                LabelWithoutHash = label;
+                LabelForImGUI = $"{label}##__<{Id}>";
+            }
         }
 
         public string Update(string? label)
         {
             Label = label;
             return LabelForImGUI;
+        }
+
+        public void DrawLabelInSameLine()
+        {
+            if (string.IsNullOrEmpty(LabelWithoutHash))
+                return;
+
+            ImGui.SameLine();
+            ImGui.TextUnformatted(LabelWithoutHash);
         }
     }
 

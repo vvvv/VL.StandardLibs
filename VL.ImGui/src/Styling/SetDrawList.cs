@@ -35,6 +35,8 @@ namespace VL.ImGui.Styling
             context.DrawList = previousDrawList;
             context.DrawListPtr = previousDrawListPtr;
             context.DrawListOffset = previousOffset;
+
+            base.ResetCore(context);
         }
     }
 }
