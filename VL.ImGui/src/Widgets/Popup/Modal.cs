@@ -69,14 +69,15 @@ namespace VL.ImGui.Widgets
                     ImGui.CloseCurrentPopup();
             }
 
-            if (boundsChanged || visibilityChanged)
-            {
-                ImGui.SetNextWindowPos(bounds.TopLeft.FromHectoToImGui());
-                ImGui.SetNextWindowSize(bounds.Size.FromHectoToImGui());
-            }
-
             if (visible)
             {
+
+                if (boundsChanged)
+                {
+                    ImGui.SetNextWindowPos(bounds.TopLeft.FromHectoToImGui());
+                    ImGui.SetNextWindowSize(bounds.Size.FromHectoToImGui());
+                }
+
                 if (Closing.IsValid())
                 {
                     // From Imgui Demo:
