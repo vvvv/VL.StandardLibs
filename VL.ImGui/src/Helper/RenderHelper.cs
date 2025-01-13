@@ -51,7 +51,7 @@ namespace VL.ImGui
                 {
                     _io.AddKeyEvent(keyCodeNotification.KeyCode.ToImGuiKey(), keyCodeNotification.IsKeyDown);
                 }
-                else if (keyNotification is KeyPressNotification keyPressNotification)
+                if (keyNotification is KeyPressNotification keyPressNotification)
                 {
                     _io.AddInputCharacter(keyPressNotification.KeyChar);
                 }
