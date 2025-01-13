@@ -9,7 +9,7 @@ namespace VL.ImGui
     using ImGui = ImGuiNET.ImGui;
 
     public static class ContextHelpers
-    {        
+    {
         public static Context? Validate(this Context? c) => c ?? Context.Current;
     }
 
@@ -18,7 +18,6 @@ namespace VL.ImGui
         static int widgetCreationCounter;
         int Id;
         string? label = "Rumpelstilzchen";
-        public string? LabelWithoutHash = "Rumpelstilzchen";
         public string LabelForImGUI = "Rumpelstilzchen##666";
 
         public WidgetLabel()
@@ -33,40 +32,27 @@ namespace VL.ImGui
             {
                 if (label == value) return;
                 label = value;
-                ComputeLabelForImGui(label);
+                LabelForImGUI = ComputeLabelForImGui(label);
             }
         }
 
         public override string ToString() => $"Label: {Label}; LabelForImGui: {LabelForImGUI}";
 
-        internal void ComputeLabelForImGui(string? label)
+        internal string ComputeLabelForImGui(string? label)
         {
-            var i = label != null ? label.IndexOf("##", StringComparison.Ordinal) : -1;
-            if (i >= 0)
-            {
-                LabelWithoutHash = label!.Substring(0, i);
-                LabelForImGUI = label;
-            }
-            else
-            {
-                LabelWithoutHash = label;
-                LabelForImGUI = $"{label}##__<{Id}>";
-            }
+            var autoGenerate = string.IsNullOrWhiteSpace(label) || !label.Contains("##");
+            if (!autoGenerate)
+                return label!;
+
+            label = label == null ? string.Empty : label;
+            label = $"{label}##__<{Id}>";
+            return label;
         }
 
         public string Update(string? label)
         {
             Label = label;
             return LabelForImGUI;
-        }
-
-        public void DrawLabelInSameLine()
-        {
-            if (string.IsNullOrEmpty(LabelWithoutHash))
-                return;
-
-            ImGui.SameLine();
-            ImGui.TextUnformatted(LabelWithoutHash);
         }
     }
 
@@ -75,6 +61,7 @@ namespace VL.ImGui
     {
         private readonly IntPtr _context;
         private readonly List<Widget> _widgetsToReset = new List<Widget>();
+        private bool _disposed = false;
 
         [ThreadStatic]
         internal static Context? Current = null;
@@ -83,7 +70,6 @@ namespace VL.ImGui
         internal DrawList DrawList;
         internal System.Numerics.Vector2 DrawListOffset;
         internal bool IsInBeginTables;
-        internal bool IsBeforeFrame;
 
         public Context()
         {
@@ -100,7 +86,6 @@ namespace VL.ImGui
             finally
             {
                 _widgetsToReset.Clear();
-
                 ImGui.NewFrame();
             }
         }
@@ -144,7 +129,7 @@ namespace VL.ImGui
                 DrawList.Foreground => default,
                 DrawList.Background => default,
                 _ => throw new NotImplementedException()
-            };             
+            };
 
             // TODO: All points are drawn in the main viewport. In order to have them drawn inside the window without having to transform them manually
             // we should look into the drawList.AddCallback(..., ...) method. It should allow us to modify the transformation matrix and clipping rects.
@@ -152,7 +137,21 @@ namespace VL.ImGui
 
         public virtual void Dispose()
         {
-            ImGui.DestroyContext(_context);
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                ImGui.DestroyContext(_context);
+            }
+
+            _disposed = true;
         }
 
         internal readonly Dictionary<string, ImFontPtr> Fonts = new Dictionary<string, ImFontPtr>();
@@ -190,8 +189,8 @@ namespace VL.ImGui
         }
 
         internal record struct ItemState(
-            bool IsActivated, 
-            bool IsActive, 
+            bool IsActivated,
+            bool IsActive,
             bool IsLeftClicked,
             bool IsMiddleClicked,
             bool IsRightClicked,
@@ -241,9 +240,9 @@ namespace VL.ImGui
         /// </code>
         /// </example>
         /// <returns>A disposable which removes the style on dispose.</returns>
-        public StyleFrame ApplyStyle(IStyle? style, bool beforeNewFrame = false)
+        public StyleFrame ApplyStyle(IStyle? style)
         {
-            return new StyleFrame(this, style, beforeNewFrame);
+            return new StyleFrame(this, style);
         }
 
         public readonly struct StyleFrame : IDisposable
@@ -251,10 +250,8 @@ namespace VL.ImGui
             private readonly Context context;
             private readonly IStyle? style;
 
-            public StyleFrame(Context context, IStyle? style, bool beforeNewFrame = false)
+            public StyleFrame(Context context, IStyle? style)
             {
-                context.IsBeforeFrame = beforeNewFrame;
-
                 this.context = context;
                 this.style = style;
 
@@ -264,8 +261,6 @@ namespace VL.ImGui
             public void Dispose()
             {
                 style?.Reset(context);
-
-                context.IsBeforeFrame = false;
             }
         }
     }

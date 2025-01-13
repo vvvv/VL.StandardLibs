@@ -30,13 +30,12 @@ namespace VL.ImGui.Styling
             context.SetDrawList(DrawList);
         }
 
-        internal override void ResetCore(Context context)
+        public override void Reset(Context context)
         {
             context.DrawList = previousDrawList;
             context.DrawListPtr = previousDrawListPtr;
             context.DrawListOffset = previousOffset;
-
-            base.ResetCore(context);
+            base.Reset(context);
         }
     }
 }
