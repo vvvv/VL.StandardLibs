@@ -873,8 +873,7 @@ namespace VL.Core
             value = defaultValue;
             return false;
         }
-
-
+       
         public static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath(this object instance, string path, object? accessedViaKey, Type? accessedViaType, string accessedViaPath)
         {
             if (path == "")
@@ -910,8 +909,11 @@ namespace VL.Core
                     if (int.TryParse(match.Groups[1].Value, out var index))
                     {
                         var rest = match.Groups[2].Value;
-                        var o = spread.GetItem(index);
-                        return o.TryGetObjectGraphNodeByPath(rest, index, spread.ElementType, accessedViaPath);
+                        if (0 <= index && index < spread.Count)
+                        {
+                            var o = spread.GetItem(index);
+                            return o.TryGetObjectGraphNodeByPath(rest, index, spread.ElementType, accessedViaPath);
+                        }
                     }
                 }
                 return default;
