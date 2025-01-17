@@ -31,13 +31,6 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
-        protected override void Dispose(bool disposing)
-        {
-            PositionFlange.Dispose();
-            VisibleFlange.Dispose();
-            base.Dispose(disposing);
-        }
-
         internal override void UpdateCore(Context context)
         {
             var position = PositionFlange.Update(Position, out bool positionChanged);

@@ -96,6 +96,5 @@ namespace VL.ImGui.Widgets
             Channel = null;
             base.Dispose(disposing);
         }
-
     }
 }
