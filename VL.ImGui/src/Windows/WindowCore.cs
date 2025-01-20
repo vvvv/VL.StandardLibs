@@ -3,6 +3,7 @@ using ImGuiNET;
 using VL.Lib.Reactive;
 using System.Reactive;
 using System.Reflection.Emit;
+using VL.Core;
 
 namespace VL.ImGui.Windows
 {
@@ -18,7 +19,7 @@ namespace VL.ImGui.Windows
         /// <summary>
         /// If set the window will have a close button which will push to the channel once clicked.
         /// </summary>
-        public IChannel<Unit> Closing { get; set; } = ChannelHelpers.Dummy<Unit>();
+        public Optional<IChannel<Unit>> Closing { get; set; }
 
         /// <summary>
         /// Bounds of the Window.
@@ -72,13 +73,13 @@ namespace VL.ImGui.Windows
 
                 ImGui.SetNextWindowCollapsed(collapsed);
 
-                if (Closing.IsValid())
+                if (Closing.HasValue)
                 {
                     var isVisible = true;
                     ContentIsVisible = ImGui.Begin(widgetLabel.Update(Name), ref isVisible, Flags);
                     if (!isVisible)
                     {
-                        Closing.Value = default;
+                        Closing.Value.Value = default;
                         CloseClicked = true;
                     }
                         

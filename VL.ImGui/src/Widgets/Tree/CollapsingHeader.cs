@@ -1,5 +1,6 @@
 ﻿using VL.Lib.Reactive;
 using System.Reactive;
+using VL.Core;
 
 namespace VL.ImGui.Widgets
 {
@@ -13,7 +14,7 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// If set the Header will have a close button which will push to the channel once clicked.
         /// </summary>
-        public IChannel<Unit> Closing { get; set; } = ChannelHelpers.Dummy<Unit>();
+        public Optional<IChannel<Unit>> Closing { get; set; }
 
         /// <summary>
         /// Returns true if the Header is displayed. Set to true to display the Header.
@@ -51,13 +52,13 @@ namespace VL.ImGui.Widgets
                 var collapsed = CollapsedFlange.Update(Collapsed);
                 ImGuiNET.ImGui.SetNextItemOpen(!collapsed);
 
-                if (Closing.IsValid())
+                if (Closing.HasValue)
                 {
                     var isVisible = true;
                     ContentIsVisible = ImGuiNET.ImGui.CollapsingHeader(widgetLabel.Update(Label), ref isVisible, Flags);
                     if (!isVisible)
                     {
-                        Closing.Value = default;
+                        Closing.Value.Value = default;
                         CloseClicked = true;
                     }      
                 }

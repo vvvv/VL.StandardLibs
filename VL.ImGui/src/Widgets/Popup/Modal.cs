@@ -1,6 +1,7 @@
 ﻿using Stride.Core.Mathematics;
 using VL.Lib.Reactive;
 using System.Reactive;
+using VL.Core;
 
 namespace VL.ImGui.Widgets
 {
@@ -20,7 +21,7 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// If set the Popup will have a close button which will push to the channel once clicked.
         /// </summary>
-        public IChannel<Unit> Closing { get; set; } = ChannelHelpers.Dummy<Unit>();
+        public Optional<IChannel<Unit>> Closing { get; set; }
 
         /// <summary>
         /// Bounds of the Window.
@@ -71,7 +72,7 @@ namespace VL.ImGui.Widgets
                     ImGui.SetNextWindowSize(bounds.Size.FromHectoToImGui());
                 }
 
-                if (Closing.IsValid())
+                if (Closing.HasValue)
                 {
                     // From Imgui Demo:
                     // ...Also demonstrate passing a bool* to BeginPopupModal(), this will create a regular close button which
@@ -83,7 +84,7 @@ namespace VL.ImGui.Widgets
                     ContentIsVisible = ImGui.BeginPopupModal(label, ref isVisible, Flags);
                     if (!isVisible)
                     {
-                        Closing.Value = default;
+                        Closing.Value.Value = default;
                         CloseClicked = true;
                     }
                         
