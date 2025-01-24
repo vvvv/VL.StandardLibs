@@ -11,12 +11,14 @@ namespace VL.Core.PublicAPI
         public string Name;
         public Type TypeInfo;
         public int Index;
+        public bool IsSplicer;
 
-        public BorderControlPointDescription(string name, Type typeInfo, int index)
+        public BorderControlPointDescription(string name, Type typeInfo, int index, bool isSplicer)
         {
             Name = name;
             TypeInfo = typeInfo;
             Index = index;
+            IsSplicer = isSplicer;
         }
 
         public override string ToString()
