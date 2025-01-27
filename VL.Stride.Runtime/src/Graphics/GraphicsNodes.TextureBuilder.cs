@@ -1,4 +1,5 @@
-﻿using Stride.Core;
+﻿#nullable enable
+using Stride.Core;
 using Stride.Engine;
 using Stride.Graphics;
 using System;
@@ -14,13 +15,13 @@ namespace VL.Stride.Graphics
         {
             private TextureDescription description;
             private TextureViewDescription viewDescription;
-            private IGraphicsDataProvider[] initalData;
+            private IGraphicsDataProvider[]? initalData;
             private bool needsRebuild = true;
-            private Texture texture;
+            private Texture? texture;
             internal bool Recreate;
             private readonly IResourceHandle<Game> gameHandle;
 
-            public Texture Texture
+            public Texture? Texture
             {
                 get
                 {
@@ -55,7 +56,7 @@ namespace VL.Stride.Graphics
                 }
             }
 
-            public IGraphicsDataProvider[] InitalData
+            public IGraphicsDataProvider[]? InitalData
             {
                 get => initalData;
                 set
@@ -77,8 +78,8 @@ namespace VL.Stride.Graphics
                 gameHandle.Dispose();
             }
 
-            PinnedGraphicsData[] pinnedGraphicsDatas = new PinnedGraphicsData[0];
-            DataBox[] boxes = new DataBox[0];
+            PinnedGraphicsData[] pinnedGraphicsDatas = Array.Empty<PinnedGraphicsData>();
+            DataBox[] boxes = Array.Empty<DataBox>();
 
             private void RebuildTexture()
             {
@@ -117,11 +118,20 @@ namespace VL.Stride.Graphics
                         } 
                     }
                 }
+                else
+                {
+                    pinnedGraphicsDatas = Array.Empty<PinnedGraphicsData>();
+                    boxes = Array.Empty<DataBox>();
+                }
 
                 try
                 {
                     texture?.Dispose();
                     texture = null;
+
+                    if (description.Width == 0 || description.Height == 0 || description.ArraySize == 0)
+                        return;
+
                     var game = gameHandle.Resource;
                     texture = Texture.New(game.GraphicsDevice, description, viewDescription, boxes);
                 }
@@ -141,14 +151,14 @@ namespace VL.Stride.Graphics
 
         class TextureViewBuilder : IDisposable
         {
-            private Texture texture;
+            private Texture? texture;
             private TextureViewDescription viewDescription;
             private bool needsRebuild = true;
-            private Texture textureView;
+            private Texture? textureView;
             internal bool Recreate;
             private readonly IResourceHandle<Game> gameHandle;
 
-            public Texture TextureView
+            public Texture? TextureView
             {
                 get
                 {
@@ -163,7 +173,7 @@ namespace VL.Stride.Graphics
                 private set => textureView = value;
             }
 
-            public Texture Input
+            public Texture? Input
             {
                 get => texture;
                 set
