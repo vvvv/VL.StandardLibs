@@ -483,6 +483,9 @@ namespace VL.Lib.Reactive
         public static bool IsValid([NotNullWhen(true)] this IChannel? c)
             => c is not null && c is not IDummyChannel;
 
+        [Obsolete("No longer needed", error: true)]
+        public static bool IsSystemGenerated(this IChannel channel) => false;
+
         public static void EnsureValue<T>(this IChannel<T> input, T? value, bool force = false, string? author = default)
         {
             if (force || !EqualityComparer<T>.Default.Equals(input.Value, value))
