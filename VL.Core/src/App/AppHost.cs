@@ -232,7 +232,7 @@ namespace VL.Core
         public void ReportException(ExceptionDispatchInfo exceptionDispatchInfo)
         {
             var exception = exceptionDispatchInfo.SourceException;
-            DefaultLogger.LogError(exception, "Unexpected exception: {Message}", exception.Message);
+            DefaultLogger.LogCritical(exception, exception.Message);
             OnException(exceptionDispatchInfo);
         }
 
