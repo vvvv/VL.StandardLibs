@@ -9,10 +9,14 @@ using Vector2 = Stride.Core.Mathematics.Vector2;
 using VL.Skia.Egl;
 using Stride.Core.Mathematics;
 using System.Reactive.Linq;
+using System.Drawing.Imaging;
+using System.Drawing;
+using Rectangle = System.Drawing.Rectangle;
+using Color = System.Drawing.Color;
 
 namespace VL.Skia
 {
-    public partial class SkiaGLControl : UserControl, IProjectionSpace, IWorldSpace2d
+    public partial class SkiaGLControl : Control, IProjectionSpace, IWorldSpace2d
     {
         private readonly RenderStopwatch renderStopwatch = new RenderStopwatch();
 
@@ -20,11 +24,6 @@ namespace VL.Skia
         private Keyboard? keyboard;
         private TouchDevice? touchDevice;
 
-        private RenderContext? renderContext;
-        private EglSurface? eglSurface;
-        private SKSurface? surface;
-        private Int2 surfaceSize;
-        private SKCanvas? canvas;
         private bool? lastSetVSync;
 
         public CallerInfo CallerInfo { get; private set; } =  CallerInfo.Default;
@@ -42,11 +41,13 @@ namespace VL.Skia
 
         public SkiaGLControl()
         {
-            SetStyle(ControlStyles.Opaque, true);
-            SetStyle(ControlStyles.UserPaint, true);
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.ResizeRedraw, true);
+            BackColor = Color.Red;
+
+            //SetStyle(ControlStyles.Opaque, true);
+            //SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-            DoubleBuffered = false;
-            ResizeRedraw = true;
         }
 
         public Mouse Mouse => mouse ??= CreateMouse();
@@ -97,13 +98,6 @@ namespace VL.Skia
 
         protected override void OnHandleCreated(EventArgs e)
         {
-            DestroySurface();
-
-            renderContext?.Dispose();
-
-            // Retrieve the render context. Doing so in the constructor can lead to crashes when running unit tests with headless machines.
-            renderContext = RenderContext.ForCurrentThread();
-
             lastSetVSync = default;
 
             base.OnHandleCreated(e);
@@ -113,72 +107,41 @@ namespace VL.Skia
         {
             base.OnHandleDestroyed(e);
 
-            DestroySurface();
-
-            renderContext?.Dispose();
-            renderContext = null;
+            FreeBitmap();
         }
 
         protected override sealed void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
 
-            if (!Visible || renderContext is null || Handle == 0)
+            if (!Visible || Handle == 0)
                 return;
 
-            renderStopwatch.StartRender();
-            try
+
+            // get the bitmap
+            var info = CreateBitmap();
+
+            if (info.Width == 0 || info.Height == 0)
+                return;
+
+            var data = bitmap.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
+
+            // create the surface
+            using (var surface = SKSurface.Create(info, data.Scan0, data.Stride))
             {
-                // Ensure our GL context is current on current thread
-                var eglContext = renderContext.EglContext;
-
-                // Create offscreen surface to render into
-                if (eglSurface is null || surfaceSize.X != Width || surfaceSize.Y != Height)
-                {
-                    DestroySurface();
-
-                    surfaceSize = new Int2(Width, Height);
-
-                    eglSurface = eglContext.CreatePlatformWindowSurface(Handle, Width, Height);
-                    lastSetVSync = default;
-                }
-
-                if (eglSurface is null)
-                    return;
-
-                eglContext.MakeCurrent(eglSurface);
-
-                if (surface is null)
-                {
-                    surface = CreateSkSurface(renderContext, surfaceSize.X, surfaceSize.Y);
-                    canvas = surface?.Canvas;
-                    CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, canvas, renderContext.SkiaContext);
-                }
-
-                if (surface is null)
-                    return;
-
-                // Set VSync
-                if (!lastSetVSync.HasValue || VSync != lastSetVSync.Value)
-                {
-                    lastSetVSync = VSync;
-                    eglContext.SwapInterval(VSync ? 1 : 0);
-                }
-
-                // Render
-                using (new SKAutoCanvasRestore(canvas, true))
+                var canvas = surface.Canvas;
+                CallerInfo = CallerInfo.InRenderer(info.Width, info.Height, canvas, null);
+                // start drawing
+                using (new SKAutoCanvasRestore(surface.Canvas, true))
                 {
                     OnPaint(CallerInfo);
                 }
-                surface.Flush();
+                surface.Canvas.Flush();
+            }
 
-                // Swap 
-                eglContext.SwapBuffers(eglSurface);
-            }
-            finally
-            {
-                renderStopwatch.EndRender();
-            }
+            // write the bitmap to the graphics
+            bitmap.UnlockBits(data);
+            e.Graphics.DrawImage(bitmap, 0, 0);
         }
 
         protected virtual void OnPaint(CallerInfo callerInfo)
@@ -206,23 +169,6 @@ namespace VL.Skia
             return SKSurface.Create(renderContext.SkiaContext, renderTarget, GRSurfaceOrigin.BottomLeft, colorType);
         }
 
-        private void DestroySurface()
-        {
-            var eglContext = renderContext?.EglContext;
-            if (eglContext is null)
-                return;
-
-            eglContext.MakeCurrent(eglSurface);
-
-            surface?.Dispose();
-            surface = null;
-
-            eglSurface?.Dispose();
-            eglSurface = default;
-
-            eglContext.MakeCurrent(null);
-        }
-
         public void MapFromPixels(INotificationWithPosition notification, out Vector2 inNormalizedProjection, out Vector2 inProjection)
         {
             SpaceHelpers.DoMapFromPixels(notification.Position, notification.ClientArea, out inNormalizedProjection, out inProjection);
@@ -236,6 +182,32 @@ namespace VL.Skia
         protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
         {
             e.IsInputKey = true;
+        }
+
+        private Bitmap bitmap;
+
+        private SKImageInfo CreateBitmap()
+        {
+            var info = new SKImageInfo(Width, Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+
+            if (bitmap == null || bitmap.Width != info.Width || bitmap.Height != info.Height)
+            {
+                FreeBitmap();
+
+                if (info.Width != 0 && info.Height != 0)
+                    bitmap = new Bitmap(info.Width, info.Height, PixelFormat.Format32bppPArgb);
+            }
+
+            return info;
+        }
+
+        private void FreeBitmap()
+        {
+            if (bitmap != null)
+            {
+                bitmap.Dispose();
+                bitmap = null;
+            }
         }
     }
 }
