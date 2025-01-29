@@ -8,6 +8,7 @@ using Stride.Rendering.Materials.ComputeColors;
 using Stride.Shaders;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reactive.Disposables;
 using VL.Core;
 using VL.Lib.Basics.Resources;
@@ -97,6 +98,7 @@ namespace VL.Stride.Rendering.Materials
                 .AddCachedInput(nameof(MiscAttributes.Transparency), x => x.Transparency, (x, v) => x.Transparency = v)
                 .AddCachedInput(nameof(MiscAttributes.Overrides), x => x.Overrides, (x, v) => x.Overrides = v)
                 .AddCachedInput(nameof(MiscAttributes.CullMode), x => x.CullMode, (x, v) => x.CullMode = v, CullMode.Back)
+                .AddCachedInput(nameof(MiscAttributes.DepthFunction), x => x.DepthFunction, (x, v) => x.DepthFunction = v, CompareFunction.Less)
                 .AddCachedInput(nameof(MiscAttributes.ClearCoat), x => x.ClearCoat, (x, v) => x.ClearCoat = v);
             yield return NewMaterialNode<MaterialOcclusionMapFeature>(nodeFactory, "Occlusion", miscCategory);
             yield return NewMaterialNode<MaterialTransparencyAdditiveFeature>(nodeFactory, "Additive", transparencyCategory);
@@ -242,6 +244,7 @@ namespace VL.Stride.Rendering.Materials
                 Transparency = Misc?.Transparency,
                 Overrides = { UVScale = Misc?.Overrides?.UVScale ?? @default.Overrides.UVScale },
                 CullMode = Misc?.CullMode ?? @default.CullMode,
+                DepthFunction = Misc?.DepthFunction ?? @default.DepthFunction,
                 ClearCoat = Misc?.ClearCoat
             };
         }
@@ -491,6 +494,13 @@ namespace VL.Stride.Rendering.Materials
         /// </summary>
         /// <userdoc>Cull some faces of the model depending on orientation</userdoc>
         public CullMode CullMode { get; set; }
+
+        /// <summary>
+        /// The test used to figure out whether the material should be drawn when behind other models
+        /// </summary>
+        /// <userdoc>The test used to figure out whether the material should be drawn when behind other models</userdoc>
+        [DefaultValue(CompareFunction.Less)]
+        public CompareFunction DepthFunction { get; set; } = CompareFunction.Less;
 
         /// <summary>
         /// Gets or sets the clear coat shading features for the material.
