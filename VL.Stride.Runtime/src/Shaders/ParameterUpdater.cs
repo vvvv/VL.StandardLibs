@@ -112,9 +112,9 @@ namespace VL.Stride.Shaders.ShaderFX
             if (convertToDeviceColorSpace && typeof(T) == typeof(Color4))
             {
                 // We do the same as what the ColorIn node does in its default settings
-                var color = Unsafe.As<T, Color4>(ref value);
+                var color = Unsafe.BitCast<T, Color4>(value);
                 var deviceColor = Color4.PremultiplyAlpha(color.ToColorSpace(colorSpace));
-                parameters.Set(key, ref Unsafe.As<Color4, T>(ref deviceColor));
+                parameters.Set(key, Unsafe.BitCast<Color4, T>(deviceColor));
             }
             else
             {

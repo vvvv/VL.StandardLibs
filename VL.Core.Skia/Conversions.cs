@@ -7,19 +7,19 @@ namespace VL.Skia
     public static class Conversions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref SKSize AsSKSize(ref Vector2 input) => ref Unsafe.As<Vector2, SKSize>(ref input);
+        public static SKSize AsSKSize(Vector2 input) => Unsafe.BitCast<Vector2, SKSize>(input);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref SKPoint AsSKPoint(ref Vector2 input) => ref Unsafe.As<Vector2, SKPoint>(ref input);
+        public static SKPoint AsSKPoint(Vector2 input) => Unsafe.BitCast<Vector2, SKPoint>(input);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref SKPoint3 AsSKPoint3(ref Vector3 input) => ref Unsafe.As<Vector3, SKPoint3>(ref input);
+        public static SKPoint3 AsSKPoint3(Vector3 input) => Unsafe.BitCast<Vector3, SKPoint3>(input);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref Vector2 AsVector2(ref SKPoint input) => ref Unsafe.As<SKPoint, Vector2>(ref input);
+        public static Vector2 AsVector2(SKPoint input) => Unsafe.BitCast<SKPoint, Vector2>(input);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref Vector3 AsVector3(ref SKPoint3 input) => ref Unsafe.As<SKPoint3, Vector3>(ref input);
+        public static Vector3 AsVector3(SKPoint3 input) => Unsafe.BitCast<SKPoint3, Vector3>(input);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SKColor ToSKColor(ref Color4 input)
