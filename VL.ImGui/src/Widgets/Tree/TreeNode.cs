@@ -23,12 +23,6 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiTreeNodeFlags Flags { private get; set; }
 
-        protected override void Dispose(bool disposing)
-        {
-            CollapsedFlange.Dispose();
-            base.Dispose(disposing);
-        }
-
         internal override void UpdateCore(Context context)
         {
             if (!Flags.HasFlag(ImGuiNET.ImGuiTreeNodeFlags.Leaf)) 

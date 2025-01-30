@@ -18,5 +18,7 @@ namespace VL.ImGui.Widgets
         public void SetPinValue(Optional<T> value) => pinValue = value;
 
         public void SetAttributeValue(Optional<T> value) => attributeValue = value;
+
+        public bool HasValue => pinValue.HasValue | attributeValue.HasValue;
     }
 }

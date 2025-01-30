@@ -64,22 +64,16 @@ namespace VL.Stride.Graphics
         public static Buffer New(GraphicsDevice graphicsDevice, BufferDescription description, BufferViewDescription viewDescription, IntPtr intialData)
         {
             var buffer = BufferCtor(graphicsDevice);
-            return BufferInit(buffer, description, viewDescription, intialData);
+            return InitializeFromImpl(buffer, description, viewDescription.Flags, viewDescription.Format, intialData);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Constructor)]
+            extern static Buffer BufferCtor(GraphicsDevice graphicsDevice);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(InitializeFromImpl))]
+            extern static Buffer InitializeFromImpl(Buffer buffer, BufferDescription description, BufferFlags flags, PixelFormat viewFormat, nint data);
         }
 
         const BindingFlags NonPunblicInst = BindingFlags.NonPublic | BindingFlags.Instance;
-
-        static Buffer BufferCtor(GraphicsDevice graphicsDevice)
-        {
-            var ctor = typeof(Buffer).GetConstructor(NonPunblicInst, null, new[] { typeof(GraphicsDevice) }, null);
-            return (Buffer)ctor.Invoke(new[] { graphicsDevice });
-        }
-
-        static Buffer BufferInit(Buffer buffer, BufferDescription description, BufferViewDescription viewDescription, IntPtr intialData)
-        {
-            var init = typeof(Buffer).GetMethod("InitializeFromImpl", NonPunblicInst, null, new[] { typeof(BufferDescription), typeof(BufferFlags), typeof(PixelFormat), typeof(IntPtr) }, null);
-            return (Buffer)init.Invoke(buffer, new object[] { description, viewDescription.Flags, viewDescription.Format, intialData});
-        }
 
         internal static readonly PropertyKey<Buffer> ParentBuffer = new PropertyKey<Buffer>(nameof(ParentBuffer), typeof(Buffer));
 
