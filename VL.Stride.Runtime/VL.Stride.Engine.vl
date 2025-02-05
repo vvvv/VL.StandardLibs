@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="UFzEbZy7D3GNY8xnLUU17p" LanguageVersion="2025.7.0-0005-gfd21b8f14a" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="UFzEbZy7D3GNY8xnLUU17p" LanguageVersion="2025.7.0-0069-g739776fa63" Version="0.128">
   <NugetDependency Id="EKAeSpl0TUSO67sl9VuE19" Location="VL.CoreLib" Version="2021.4.12-1361-g53776bfdff" />
   <Patch Id="M3fVx2jjvOSLPGL4EJGFf9">
     <Canvas Id="JugVUmEZoitO7m1cCzT7W3" DefaultCategory="Stride" CanvasType="FullCategory">
@@ -7542,6 +7542,7 @@
                                     <Pin Id="PxYZoWZg9MhOlHhlwY8zos" Name="Channel" Kind="InputPin" />
                                     <Pin Id="L190GsDlfDHLtTADUuMWS3" Name="Value" Kind="InputPin" />
                                     <Pin Id="OMED1kOC9qUMl2rTuYU4gO" Name="Output" Kind="StateOutputPin" />
+                                    <Pin Id="SJ5GDPBSbSiO3tdBQVzLJP" Name="Author" Kind="InputPin" />
                                   </Node>
                                 </Patch>
                               </Node>
@@ -25708,8 +25709,9 @@
                   <p:NodeReference LastCategoryFullName="Stride.Games.GameContextFactory" LastDependency="Stride.Games.dll">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                     <CategoryReference Kind="AssemblyCategory" Name="GameContextFactory" />
-                    <Choice Kind="OperationCallFlag" Name="NewGameContextSDL" />
+                    <Choice Kind="OperationCallFlag" Name="NewGameContext" />
                   </p:NodeReference>
+                  <Pin Id="PrWD8VDkOdhLj35wHE73pK" Name="Type" Kind="InputPin" />
                   <Pin Id="H6qy1UZw1O4OFJN3jFax9Q" Name="Requested Width" Kind="InputPin" />
                   <Pin Id="GyGvGb8cxY4L3ZCUq0Pal6" Name="Requested Height" Kind="InputPin" />
                   <Pin Id="LkGn0ZGhtPyQGu5Y0xKVal" Name="Is User Managing Run" Kind="InputPin" />
@@ -26295,6 +26297,26 @@
                     <Patch Id="V0q4wyq8kqJNveYHPzUoBJ" Name="Dispose" />
                   </Patch>
                 </Node>
+                <Node Bounds="367,74,53,26" Id="Jk7vyzHO8C9OtC4h9reFMg">
+                  <p:NodeReference LastCategoryFullName="Stride.Games.GameBase" LastDependency="Stride.Games.dll">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <CategoryReference Kind="AssemblyCategory" Name="GameBase" NeedsToBeDirectParent="true" />
+                    <Choice Kind="OperationCallFlag" Name="Context" />
+                  </p:NodeReference>
+                  <Pin Id="BsdqjslhBb3PB89GPxrdA9" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="CUx4GkvkAe6LmR5Ay1ixQi" Name="Output" Kind="StateOutputPin" />
+                  <Pin Id="EaeCvdF0rPqOFvusMnidwv" Name="Context" Kind="OutputPin" />
+                </Node>
+                <Node Bounds="415,111,74,26" Id="NjQKgWcw3QPP9AzS9qpFBH">
+                  <p:NodeReference LastCategoryFullName="Stride.Games.GameContext" LastDependency="Stride.Games.dll">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <FullNameCategoryReference ID="Stride.Games.GameContext" />
+                    <Choice Kind="OperationCallFlag" Name="ContextType" />
+                  </p:NodeReference>
+                  <Pin Id="O7FQHoT12VNPbEAGNOUfhl" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="CuhFDrf5ARlP5JIlT1mCid" Name="Output" Kind="StateOutputPin" />
+                  <Pin Id="ORbGAf9TevZNSfcseWxtmU" Name="Context Type" Kind="OutputPin" />
+                </Node>
               </Canvas>
               <Link Id="KU6k8ilhe88PSHGLTisurU" Ids="FgZ58iFc480Omy7xGU7UCP,Ejh34mhLJ0SN7n8YoDT9f0" />
               <Link Id="VJujxDLpOeALpH3xN7Mc7x" Ids="DxI050qzrDWNwaHiG5S4my,NyMXzWN18n4NNPOEu5aYqY" />
@@ -26450,6 +26472,9 @@
               <Link Id="U0rQvqxHWjaMTOtQJMlVXQ" Ids="ST3Mh5EoMYlOlMn9ZNgiea,CYmREmF722pPrPd30eFVoN" />
               <Link Id="DBrMXRaNINrPiU95UktBPF" Ids="ARBIfoKpgn8L6ZOGriMrbV,TPJkFxICkhvMbAg0T2gO7o" />
               <Link Id="Iqn7LvoGMzQOC93LFClaBt" Ids="BDdvlw9CiJXQYW4Kxi5Y8P,BkXTTwsE773QU5QT0q0CSN" />
+              <Link Id="OdZwWlMAbRjP9bgWbyBOtp" Ids="TCcsoVXbeT4Le2spNp50uy,BsdqjslhBb3PB89GPxrdA9" />
+              <Link Id="NDwjyvb6SlKNCEumE4DYyk" Ids="EaeCvdF0rPqOFvusMnidwv,O7FQHoT12VNPbEAGNOUfhl" />
+              <Link Id="Sye7SS2NBKlLfkdzP70th5" Ids="ORbGAf9TevZNSfcseWxtmU,PrWD8VDkOdhLj35wHE73pK" />
             </Patch>
           </Node>
         </Canvas>

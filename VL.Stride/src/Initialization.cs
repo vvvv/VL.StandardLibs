@@ -76,7 +76,7 @@ namespace VL.Stride.Lib
 
                 MessageFilter messageFilter = default;
                 GameContext gameContext;
-                if (UseSDL)
+                if (UseSDL && appHost.IsUser /* SDL assumes one main thread, so let's not use it when game is created inside of editor */)
                 {
                     gameContext = new GameContextSDL(null, 0, 0, isUserManagingRun: true);
                     // SDL_PumpEvents shall not run the message loop (Translate/Dispatch) - already done by windows forms
