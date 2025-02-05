@@ -124,7 +124,7 @@ namespace VL.Core
         /// <summary>
         /// Whether the app is exported and runs standalone as an executable.
         /// </summary>
-        public abstract bool IsExported { get; }
+        public virtual bool IsExported => false;
 
         /// <summary>
         /// The service registry of the app.
