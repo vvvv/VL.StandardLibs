@@ -127,6 +127,11 @@ namespace VL.Core
         public virtual bool IsExported => false;
 
         /// <summary>
+        /// Whether the app is running in the user thread.
+        /// </summary>
+        public virtual bool IsUser => false;
+
+        /// <summary>
         /// The service registry of the app.
         /// </summary>
         public abstract ServiceRegistry Services { get; }
