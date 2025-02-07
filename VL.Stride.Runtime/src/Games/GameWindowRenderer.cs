@@ -13,7 +13,7 @@ namespace VL.Stride.Games
 {
     public interface IPresentCallIntercept
     {
-        void Present();
+        void Present(GraphicsPresenter presenter);
     }
 
     /// <summary>
@@ -195,7 +195,7 @@ namespace VL.Stride.Games
                     if (PresentCallIntercept is null)
                         Presenter.Present();
                     else
-                        PresentCallIntercept.Present();
+                        PresentCallIntercept.Present(Presenter);
                 }
                 catch (GraphicsException ex)
                 {
