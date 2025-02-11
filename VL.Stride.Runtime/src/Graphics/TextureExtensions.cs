@@ -13,6 +13,7 @@ using VL.Stride.Engine;
 using VL.Core;
 using Stride.Rendering;
 using System.Buffers;
+using System.Runtime.InteropServices;
 
 namespace VL.Stride.Graphics
 {
@@ -68,10 +69,12 @@ namespace VL.Stride.Graphics
         public static unsafe Texture SetDataFromIImage(this Texture texture, CommandList commandList, IImage image, int arraySlice, int mipSlice, ResourceRegion? region)
         {
             using (var data = image.GetData())
-            using (var handle = data.Bytes.Pin())
             {
-                var dp = new DataPointer(handle.Pointer, data.Bytes.Length);
-                texture.SetData(commandList, dp, arraySlice, mipSlice, region);
+                // Why is Stride not taking a ReadOnlySpan here? :(
+                // https://github.com/dotnet/runtime/issues/23494
+                var readonlySpan = data.Bytes.Span;
+                var readwriteSpan = MemoryMarshal.CreateSpan(ref MemoryMarshal.GetReference(readonlySpan), readonlySpan.Length);
+                texture.SetData(commandList, readwriteSpan, arraySlice, mipSlice, region);
             }
 
             return texture;
@@ -83,7 +86,8 @@ namespace VL.Stride.Graphics
             {
                 using (var handle = data.Pin())
                 {
-                    texture.SetData(commandList, new DataPointer(handle.Pointer, data.SizeInBytes), arraySlice, mipSlice, region);
+                    var span = new Span<byte>((void*)handle.Pointer, data.SizeInBytes);
+                    texture.SetData(commandList, span, arraySlice, mipSlice, region);
                 }
             }
 
@@ -149,15 +153,8 @@ namespace VL.Stride.Graphics
             var pixelDataCount = texture.CalculatePixelDataCount<T>();
             var memoryOwner = MemoryPool<T>.Shared.Rent(pixelDataCount);
             var memory = memoryOwner.Memory.Slice(0, pixelDataCount);
-            GetData(staging, commandList, memory);
+            staging.GetData(commandList, staging, memory.Span);
             return new SlicedOwner<T>(memoryOwner,memory);
-
-            static unsafe void GetData(Texture staging, CommandList commandList, Memory<T> memory)
-            {
-                using var pinned = memory.Pin();
-                var data = new DataPointer(pinned.Pointer, memory.Length);
-                staging.GetData(commandList, staging, data);
-            }
         }
 
         private sealed class SlicedOwner<T>(IMemoryOwner<T> upstream, Memory<T> memory) : IMemoryOwner<T>

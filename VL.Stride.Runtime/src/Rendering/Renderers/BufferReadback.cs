@@ -17,15 +17,13 @@ namespace VL.Stride.Rendering
     /// </summary>
     /// <typeparam name="T">Pixel struct that should match the input buffer format</typeparam>
     /// <remarks>The input buffer should be small enough to avoid CPU/GPU readback stalling</remarks>
-    public class BufferReadback<T> : RendererBase, IDisposable where T : struct
+    public class BufferReadback<T> : RendererBase, IDisposable where T : unmanaged
     {
         private readonly List<Buffer> stagingTargets;
 
         private readonly List<bool> stagingUsed;
         private int currentStagingIndex;
         private T[] result;
-        DataPointer pinnedResult;
-        SerialDisposable pinDisposer = new SerialDisposable(); 
 
         public new Buffer Input { get; set; }
         Buffer inputBuffer;
@@ -159,11 +157,10 @@ namespace VL.Stride.Rendering
                         if (i == 0)
                         {
                             // Get data blocking (otherwise we would loop without getting any readback if StagingCount is not enough high)
-                            stagingTarget.GetData(context.CommandList, pinnedResult);
+                            IsResultAvailable = stagingTarget.GetData(context.CommandList, result, doNotWait: false);
                             IsSlow = true;
-                            IsResultAvailable = true;
                         }
-                        else if (stagingTarget.GetData(context.CommandList, pinnedResult, true, 0, 0)) // Get data non-blocking
+                        else if (stagingTarget.GetData(context.CommandList, result, doNotWait: true)) // Get data non-blocking
                         {
                             IsResultAvailable = true;
                         }
@@ -189,9 +186,6 @@ namespace VL.Stride.Rendering
                 {
                     // Allocate result data
                     result = new T[input.CalculateElementCount<T>()];
-                    var handle = new GCPinner(result);
-                    pinDisposer.Disposable = handle;
-                    pinnedResult = new DataPointer(handle.Pointer, result.Length * Unsafe.SizeOf<T>());
 
                     for (int i = 0; i < FrameDelayCount; i++)
                     {
@@ -218,7 +212,6 @@ namespace VL.Stride.Rendering
         public void Dispose()
         {
             DisposeStaging();
-            pinDisposer.Dispose();
         }
     }
 }

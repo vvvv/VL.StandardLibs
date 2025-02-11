@@ -182,7 +182,7 @@ namespace VL.Stride.Graphics
         /// See the unmanaged documentation about Map/UnMap for usage and restrictions.
         /// </remarks>
         /// <returns>The GPU buffer.</returns>
-        public static unsafe Buffer SetData<TData>(this Buffer buffer, CommandList commandList, IHasMemory<TData> fromData, int offsetInBytes = 0) where TData : struct
+        public static unsafe Buffer SetData<TData>(this Buffer buffer, CommandList commandList, IHasMemory<TData> fromData, int offsetInBytes = 0) where TData : unmanaged
         {
             if (fromData.TryGetMemory(out ReadOnlyMemory<TData> memory))
                 return buffer.SetData(commandList, memory, offsetInBytes);
@@ -202,24 +202,20 @@ namespace VL.Stride.Graphics
         /// See the unmanaged documentation about Map/UnMap for usage and restrictions.
         /// </remarks>
         /// <returns>The GPU buffer.</returns>
-        public static unsafe Buffer SetData<TData>(this Buffer buffer, CommandList commandList, ReadOnlyMemory<TData> memory, int offsetInBytes = 0) where TData : struct
+        public static unsafe Buffer SetData<TData>(this Buffer buffer, CommandList commandList, ReadOnlyMemory<TData> memory, int offsetInBytes = 0) where TData : unmanaged
         {
-            using (var handle = memory.Pin())
-            {
-                var elementSize = Unsafe.SizeOf<TData>();
-                var dataPointer = new DataPointer(handle.Pointer, memory.Length * elementSize);
-                buffer.SetData(commandList, dataPointer, offsetInBytes);
-                return buffer;
-            }
+            buffer.SetData(commandList, memory.Span, offsetInBytes);
+            return buffer;
         }
 
-        public static Buffer SetDataFromProvider(this Buffer buffer, CommandList commandList, IGraphicsDataProvider data, int offsetInBytes = 0)
+        public static unsafe Buffer SetDataFromProvider(this Buffer buffer, CommandList commandList, IGraphicsDataProvider data, int offsetInBytes = 0)
         {
             if (buffer != null && data != null)
             {
                 using (var handle = data.Pin())
                 {
-                    buffer.SetData(commandList, new DataPointer(handle.Pointer, data.SizeInBytes), offsetInBytes);
+                    var span = new ReadOnlySpan<byte>((void*)handle.Pointer, data.SizeInBytes);
+                    buffer.SetData(commandList, span, offsetInBytes);
                 } 
             }
 
@@ -236,7 +232,7 @@ namespace VL.Stride.Graphics
         /// <param name="usage">The buffer usage.</param>
         /// <exception cref="ArgumentException">If retrieval of read-only memory failed.</exception>
         /// <returns>The newly created buffer.</returns>
-        public static unsafe Buffer New<TData>(GraphicsDevice device, IHasMemory<TData> fromData, BufferFlags bufferFlags, GraphicsResourceUsage usage) where TData : struct
+        public static unsafe Buffer New<TData>(GraphicsDevice device, IHasMemory<TData> fromData, BufferFlags bufferFlags, GraphicsResourceUsage usage) where TData : unmanaged
         {
             if (fromData.TryGetMemory(out ReadOnlyMemory<TData> memory))
                 return New(device, memory, bufferFlags, usage);
@@ -253,14 +249,9 @@ namespace VL.Stride.Graphics
         /// <param name="usage">The buffer usage.</param>
         /// <exception cref="ArgumentException">If retrieval of read-only memory failed.</exception>
         /// <returns>The newly created buffer.</returns>
-        public static unsafe Buffer New<TData>(GraphicsDevice device, ReadOnlyMemory<TData> memory, BufferFlags bufferFlags, GraphicsResourceUsage usage) where TData : struct
+        public static unsafe Buffer New<TData>(GraphicsDevice device, ReadOnlyMemory<TData> memory, BufferFlags bufferFlags, GraphicsResourceUsage usage) where TData : unmanaged
         {
-            using (var handle = memory.Pin())
-            {
-                var elementSize = Unsafe.SizeOf<TData>();
-                var dataPointer = new DataPointer(handle.Pointer, memory.Length * elementSize);
-                return Buffer.New(device, dataPointer, elementSize, bufferFlags, usage);
-            }
+            return Buffer.New(device, memory.Span, bufferFlags, viewFormat: default, usage);
         }
 
 
@@ -323,18 +314,15 @@ namespace VL.Stride.Graphics
             var chunk = pool.Rent(Math.Min(buffer.SizeInBytes, 0x10000));
             try
             {
-                fixed (byte* chunkPtr = chunk)
+                var offset = 0;
+                while (stream.CanRead)
                 {
-                    var offset = 0;
-                    while (stream.CanRead)
+                    var bytesRead = stream.Read(chunk);
+                    if (bytesRead > 0)
                     {
-                        var bytesRead = stream.Read(chunk, 0, chunk.Length);
-                        if (bytesRead > 0)
-                        {
-                            var dp = new DataPointer(chunkPtr, bytesRead);
-                            buffer.SetData(commandList, dp, offset);
-                            offset += bytesRead;
-                        }
+                        var s = new ReadOnlySpan<byte>(chunk, 0, bytesRead);
+                        buffer.SetData(commandList, s, offset);
+                        offset += bytesRead;
                     }
                 }
             }
@@ -373,7 +361,7 @@ namespace VL.Stride.Graphics
         /// This method is only working when called from the main thread that is accessing the main <see cref="GraphicsDevice"/>.
         /// This method creates internally a stagging resource if this buffer is not already a stagging resouce, copies to it and map it to memory. Use method with explicit staging resource
         /// for optimal performances.</remarks>
-        public static bool GetData<TData>(this Buffer thisBuffer, CommandList commandList, TData[] toData, bool doNotWait = false, int offsetInBytes = 0, int lengthInBytes = 0) where TData : struct
+        public static bool GetData<TData>(this Buffer thisBuffer, CommandList commandList, TData[] toData, bool doNotWait = false, int offsetInBytes = 0, int lengthInBytes = 0) where TData : unmanaged
         {
             // Get data from this resource
             if (thisBuffer.Usage == GraphicsResourceUsage.Staging)
@@ -403,10 +391,9 @@ namespace VL.Stride.Graphics
         /// <remarks>
         /// This method is only working when called from the main thread that is accessing the main <see cref="GraphicsDevice"/>.
         /// </remarks>
-        public static bool GetData<TData>(this Buffer thisBuffer, CommandList commandList, Buffer staginBuffer, TData[] toData, bool doNotWait = false, int offsetInBytes = 0, int lengthInBytes = 0) where TData : struct
+        public static bool GetData<TData>(this Buffer thisBuffer, CommandList commandList, Buffer staginBuffer, TData[] toData, bool doNotWait = false, int offsetInBytes = 0, int lengthInBytes = 0) where TData : unmanaged
         {
-            using (var pinner = new GCPinner(toData))
-                return thisBuffer.GetData(commandList, staginBuffer, new DataPointer(pinner.Pointer, toData.Length * Unsafe.SizeOf<TData>()), doNotWait, offsetInBytes, lengthInBytes);
+            return thisBuffer.GetData(commandList, staginBuffer, toData.AsSpan(), doNotWait, offsetInBytes, lengthInBytes);
         }
 
         /// <summary>
@@ -423,7 +410,7 @@ namespace VL.Stride.Graphics
         /// This method is only working when called from the main thread that is accessing the main <see cref="GraphicsDevice"/>.
         /// This method creates internally a stagging resource if this buffer is not already a stagging resouce, copies to it and map it to memory. Use method with explicit staging resource
         /// for optimal performances.</remarks>
-        public static bool GetData(this Buffer thisBuffer, CommandList commandList, DataPointer toData, bool doNotWait = false, int offsetInBytes = 0, int lengthInBytes = 0)
+        public static bool GetData<T>(this Buffer thisBuffer, CommandList commandList, Span<T> toData, bool doNotWait = false, int offsetInBytes = 0, int lengthInBytes = 0) where T : unmanaged
         {
             // Get data from this resource
             if (thisBuffer.Usage == GraphicsResourceUsage.Staging)
@@ -453,10 +440,11 @@ namespace VL.Stride.Graphics
         /// <remarks>
         /// This method is only working when called from the main thread that is accessing the main <see cref="GraphicsDevice"/>.
         /// </remarks>
-        public static unsafe bool GetData(this Buffer thisBuffer, CommandList commandList, Buffer stagingBuffer, DataPointer toData, bool doNotWait = false, int offsetInBytes = 0, int lengthInBytes = 0)
+        public static unsafe bool GetData<T>(this Buffer thisBuffer, CommandList commandList, Buffer stagingBuffer, Span<T> toData, bool doNotWait = false, int offsetInBytes = 0, int lengthInBytes = 0) where T : unmanaged
         {
             // Check size validity of data to copy to
-            if (toData.Pointer == IntPtr.Zero || toData.Size != thisBuffer.SizeInBytes)
+            int toDataInBytes = toData.Length * sizeof(T);
+            if (toData.Length == 0 || toDataInBytes != thisBuffer.SizeInBytes)
                 return false;
 
             // Copy the texture to a staging resource
@@ -469,7 +457,8 @@ namespace VL.Stride.Graphics
             {
                 if (mappedResource.DataBox.DataPointer != IntPtr.Zero)
                 {
-                    Unsafe.CopyBlockUnaligned(toData.Pointer.ToPointer(), mappedResource.DataBox.DataPointer.ToPointer(), (uint)toData.Size);
+                    fixed (void* pointer = toData)
+                        Unsafe.CopyBlockUnaligned(pointer, (void*)mappedResource.DataBox.DataPointer, (uint)toDataInBytes);
                 }
                 else
                 {

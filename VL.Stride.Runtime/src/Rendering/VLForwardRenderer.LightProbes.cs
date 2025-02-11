@@ -245,9 +245,9 @@ namespace VL.Stride.Rendering
                 fixed (Vector4* matrices = lightProbesData.Matrices)
                 fixed (Int4* probeIndices = lightProbesData.LightProbeIndices)
                 {
-                    lightprobesCoefficients.SetData(drawContext.CommandList, new DataPointer((IntPtr)lightProbeCoefficients, lightprobesCoefficients.SizeInBytes));
-                    tetrahedronProbeIndices.SetData(drawContext.CommandList, new DataPointer((IntPtr)probeIndices, tetrahedronProbeIndices.SizeInBytes));
-                    tetrahedronMatrices.SetData(drawContext.CommandList, new DataPointer((IntPtr)matrices, tetrahedronMatrices.SizeInBytes));
+                    drawContext.CommandList.UpdateSubresource(lightprobesCoefficients, 0, new DataBox((IntPtr)lightProbeCoefficients, 0, 0));
+                    drawContext.CommandList.UpdateSubresource(tetrahedronProbeIndices, 0, new DataBox((IntPtr)probeIndices, 0, 0));
+                    drawContext.CommandList.UpdateSubresource(tetrahedronMatrices, 0, new DataBox((IntPtr)matrices, 0, 0));
 
                     // Find which probe we are currently in
                     // TODO: Optimize (use previous coherency info?)
