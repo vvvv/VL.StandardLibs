@@ -333,10 +333,7 @@ namespace VL.ImGui
 
         public CallerInfo PushTransformation(CallerInfo caller, SKMatrix relative)
         {
-            SKMatrix target = caller.Transformation;
-#pragma warning disable CS0618 // Type or member is obsolete
-            SKMatrix.PreConcat(ref target, ref relative);
-#pragma warning restore CS0618 // Type or member is obsolete
+            SKMatrix target = caller.Transformation.PostConcat(relative);
             return caller.WithTransformation(target);
         }
 
