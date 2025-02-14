@@ -52,6 +52,24 @@ namespace VL.Serialization.MessagePack.Tests
         }
 
         [Test]
+        public void OptionalSerialization()
+        {
+            var myClass = new MyClass6() { Value = 1 };
+            var content = MessagePackSerialization.Serialize(myClass);
+            var result = MessagePackSerialization.Deserialize<MyClass6>((IEnumerable<byte>)content);
+            Assert.AreEqual(myClass.Value.Value, result.Value.Value);
+        }
+
+        [Test]
+        public void OptionalNoneSerialization()
+        {
+            var myClass = new MyClass6() { Value = default };
+            var content = MessagePackSerialization.Serialize(myClass);
+            var result = MessagePackSerialization.Deserialize<MyClass6>((IEnumerable<byte>)content);
+            Assert.IsTrue(result.Value.HasNoValue);
+        }
+
+        [Test]
         public void DynamicEnumSerialization()
         {
             var comPort = new ComPort("Foo");
@@ -111,6 +129,13 @@ namespace VL.Serialization.MessagePack.Tests
         {
             [Key(0)]
             public IMyInterface2? NestedProperty { get; set; }
+        }
+
+        [MessagePackObject]
+        public class MyClass6
+        {
+            [Key(0)]
+            public Optional<float> Value { get; set; }
         }
 
         public interface IMyInterface { }

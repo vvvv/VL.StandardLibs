@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="QuMTdtMDfhJOdxTx9ZFzce" LanguageVersion="2022.5.0-0685-ga251664bc1" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="QuMTdtMDfhJOdxTx9ZFzce" LanguageVersion="2025.7.0-0065-gc80c460f96" Version="0.128">
   <NugetDependency Id="EKAeSpl0TUSO67sl9VuE19" Location="VL.CoreLib" Version="2021.4.6-0825-gfd5be72bbc" />
   <Patch Id="M3fVx2jjvOSLPGL4EJGFf9">
     <Canvas Id="JugVUmEZoitO7m1cCzT7W3" DefaultCategory="Stride" CanvasType="FullCategory">
@@ -22,6 +22,7 @@
                   <CategoryReference Kind="Category" Name="Resources" />
                   <Choice Kind="ProcessAppFlag" Name="Using (Process)" />
                 </p:NodeReference>
+                <Pin Id="LdGxUUXGNogLAttQJU8zv5" Name="Node Context" Kind="InputPin" IsHidden="true" />
                 <Pin Id="Jeejivio9V9LRTBFmKaV8u" Name="Input" Kind="InputPin" />
                 <Pin Id="K807SJnAAcxMCMPM8FXcOi" Name="Resource" Kind="OutputPin" />
               </Node>
@@ -74,6 +75,7 @@
                   <Choice Kind="ProcessAppFlag" Name="Game" />
                 </p:NodeReference>
                 <Pin Id="AtGC07ypbipOjKzuql7e6t" Name="Output" Kind="OutputPin" />
+                <Pin Id="LlO8ZOHEw4oMqaBbAwE2DT" Name="Node Context" Kind="InputPin" IsHidden="true" />
               </Node>
               <Node Bounds="668,367,72,26" Id="TOI6uUXzskBNSqKX11m1tU">
                 <p:NodeReference LastCategoryFullName="Stride.API.Core.IServiceRegistry" LastDependency="VL.Stride.Graphics.vl">
@@ -147,12 +149,13 @@
           </p:NodeReference>
           <Patch Id="CFQ6DUDYFjDPOuNRZ1x87f">
             <Canvas Id="IouD5fwt0pUMCYzvJcr4Ug" CanvasType="Group">
-              <Node Bounds="620,284,25,19" Id="HlqP7SeZm0GPiBhfMyrdtk">
+              <Node Bounds="620,284,42,19" Id="HlqP7SeZm0GPiBhfMyrdtk">
                 <p:NodeReference LastCategoryFullName="Stride.Utils" LastDependency="VL.Stride.Games.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessAppFlag" Name="Game" />
                 </p:NodeReference>
                 <Pin Id="F31YnThUYdNOKXBIRwzRbK" Name="Output" Kind="OutputPin" />
+                <Pin Id="CtWOc26c2B5N0mRTPYFGVq" Name="Node Context" Kind="InputPin" IsHidden="true" />
               </Node>
               <Node Bounds="668,367,72,26" Id="FovDfNMZx5ZPLP8MF3cGha">
                 <p:NodeReference LastCategoryFullName="Stride.API.Core.IServiceRegistry" LastDependency="VL.Stride.Graphics.vl">
@@ -165,7 +168,7 @@
                 <Pin Id="EFSrSKcgHoBMzdmWXGVjKM" Name="Result" Kind="OutputPin" />
               </Node>
               <Pad Id="T5nRZ46YSmxLHOQDVrcY7R" SlotId="TEbq17BDKunL7Bafj0cmnz" Bounds="736,436" />
-              <ControlPoint Id="PIoq38UmHw0Pryok5QVKWI" Bounds="736,518" />
+              <ControlPoint Id="PIoq38UmHw0Pryok5QVKWI" Bounds="736,643" />
               <Node Bounds="620,322,53,26" Id="E4Zr3z8ynbQNjYk3YRR70U">
                 <p:NodeReference LastCategoryFullName="Stride.Games.IGame" LastDependency="Stride.Games.dll">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -186,7 +189,19 @@
                 <Pin Id="LbP99ApvsHQLLbmrKoWBJo" Name="Renderer" Kind="InputPin" />
                 <Pin Id="HZKMxlfOHMiMkeqEWdMmP1" Name="Output" Kind="StateOutputPin" />
               </Node>
-              <ControlPoint Id="M6qMoRdwd0OL9pymOpP99z" Bounds="872,433" />
+              <ControlPoint Id="M6qMoRdwd0OL9pymOpP99z" Bounds="872,421" />
+              <Pad Id="PI12Qfxm37kOKVZHjqrrW9" SlotId="K3esPWcar4ZMM0gfUTivfx" Bounds="872,446" />
+              <Node Bounds="801,562,76,26" Id="OHALuF0SFRFPLyrJxDdvmt">
+                <p:NodeReference LastCategoryFullName="VL.Stride.Engine.SchedulerSystem" LastDependency="VL.Stride.Runtime.dll">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <FullNameCategoryReference ID="VL.Stride.Engine.SchedulerSystem" />
+                  <Choice Kind="OperationCallFlag" Name="Remove" />
+                </p:NodeReference>
+                <Pin Id="Qz6dfr48sQ8LDxsHkHalo6" Name="Input" Kind="StateInputPin" />
+                <Pin Id="GHq5dverQGsLSX9xSVhoVT" Name="Renderer" Kind="InputPin" />
+                <Pin Id="VacuOFbFYSiLanDhhoLgvw" Name="Output" Kind="StateOutputPin" />
+              </Node>
+              <Pad Id="TZ3w6bHCBgAMvLjDNaSLK1" SlotId="K3esPWcar4ZMM0gfUTivfx" Bounds="874,531" />
             </Canvas>
             <Patch Id="CQ0NHOqgQH9M7kwR6mvwMq" Name="Create" ParticipatingElements="FovDfNMZx5ZPLP8MF3cGha" />
             <Patch Id="EkHiWbnX3CeQJBazDWnku2" Name="GetScheduler">
@@ -204,7 +219,7 @@
             <Link Id="ADU1Vyg8jZJN2KCalOSrVy" Ids="LMzvfe921LnO7ZwqprnigY,M6qMoRdwd0OL9pymOpP99z" IsHidden="true" />
             <Link Id="L649pqphx3rPuZiBwkNRLT" Ids="T5nRZ46YSmxLHOQDVrcY7R,H31yydP5lG9PY06ElXswXB" />
             <Link Id="GfqON1nQgZuLoWqUN3bDdQ" Ids="T5nRZ46YSmxLHOQDVrcY7R,PIoq38UmHw0Pryok5QVKWI" />
-            <Patch Id="Cjafl7IONCpO9Ni7DGhOOu" Name="Schedule">
+            <Patch Id="Cjafl7IONCpO9Ni7DGhOOu" Name="Schedule" ParticipatingElements="Qv89D82866WOMuPSIr60Er">
               <Pin Id="LMzvfe921LnO7ZwqprnigY" Name="Renderer" Kind="InputPin" />
             </Patch>
             <ProcessDefinition Id="O2Bu1qgdsvZOKGTD2MBphQ">
@@ -212,7 +227,12 @@
               <Fragment Id="MW8OBfL4a32P1mlXBdIaht" Patch="Cjafl7IONCpO9Ni7DGhOOu" Enabled="true" />
               <Fragment Id="D4bPjyGYJa6PGed3t332u2" Patch="EkHiWbnX3CeQJBazDWnku2" Enabled="true" />
             </ProcessDefinition>
-            <Link Id="HNK1yOUy8FxNTiFJQ80qjI" Ids="M6qMoRdwd0OL9pymOpP99z,LbP99ApvsHQLLbmrKoWBJo" />
+            <Link Id="HNK1yOUy8FxNTiFJQ80qjI" Ids="M6qMoRdwd0OL9pymOpP99z,PI12Qfxm37kOKVZHjqrrW9" />
+            <Link Id="JwWZf5Dt5GBNv7h2XRhVb7" Ids="PI12Qfxm37kOKVZHjqrrW9,LbP99ApvsHQLLbmrKoWBJo" />
+            <Slot Id="K3esPWcar4ZMM0gfUTivfx" Name="Renderer" />
+            <Link Id="LzmsWEYxLIxNaBCdFbLuKW" Ids="T5nRZ46YSmxLHOQDVrcY7R,Qz6dfr48sQ8LDxsHkHalo6" />
+            <Link Id="N8q8onuFk1FQOl7dRK6eC5" Ids="TZ3w6bHCBgAMvLjDNaSLK1,GHq5dverQGsLSX9xSVhoVT" />
+            <Patch Id="PEFrWJFR9wHPJHICaq14Ri" Name="Dispose" ParticipatingElements="OHALuF0SFRFPLyrJxDdvmt" />
           </Patch>
         </Node>
       </Canvas>
@@ -259,6 +279,7 @@
                         <Choice Kind="ProcessAppFlag" Name="Game" />
                       </p:NodeReference>
                       <Pin Id="GAI0VQy6mdYOWju30cyR16" Name="Output" Kind="OutputPin" />
+                      <Pin Id="BS5diwwk8jAPaH8PyfEvYB" Name="Node Context" Kind="InputPin" IsHidden="true" />
                     </Node>
                   </Patch>
                 </Node>

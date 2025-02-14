@@ -1,4 +1,5 @@
-﻿using Stride.Core;
+﻿#nullable enable
+using Stride.Core;
 using Stride.Core.Annotations;
 using Stride.Core.Diagnostics;
 using Stride.Games;
@@ -17,7 +18,7 @@ namespace VL.Stride.Engine
     /// </summary>
     public class SchedulerSystem : GameSystemBase
     {
-        internal readonly ref struct CustomScheduler(SchedulerSystem schedulerSystem, Action<IGraphicsRendererBase> previous)
+        internal readonly ref struct CustomScheduler(SchedulerSystem schedulerSystem, Action<IGraphicsRendererBase>? previous)
         {
             public void Dispose()
             {
@@ -30,7 +31,7 @@ namespace VL.Stride.Engine
         private List<GameSystemBase> front = new List<GameSystemBase>();
         private List<GameSystemBase> back = new List<GameSystemBase>();
         private readonly Stack<ConsecutiveRenderSystem> pool = new Stack<ConsecutiveRenderSystem>();
-        private Action<IGraphicsRendererBase> privateScheduler;
+        private Action<IGraphicsRendererBase>? privateScheduler;
 
         public SchedulerSystem([NotNull] IServiceRegistry registry) : base(registry)
         {
@@ -70,6 +71,19 @@ namespace VL.Stride.Engine
         }
 
         /// <summary>
+        /// Removes a renderer from the scheduler. Used by RendererScheduler node on Dispose to ensure that the renderer is not called after it has been disposed.
+        /// </summary>
+        public void Remove(IGraphicsRendererBase? renderer)
+        {
+            if (renderer is null)
+                return;
+
+            foreach (var s in front)
+                if (s is ConsecutiveRenderSystem crs)
+                    crs.Renderers.Remove(renderer);
+        }
+
+        /// <summary>
         /// Allows to install a custom schedulerer. Used by regions like CustomPostFX during their draw call.
         /// </summary>
         internal CustomScheduler WithPrivateScheduler(Action<IGraphicsRendererBase> scheduler)
@@ -80,8 +94,15 @@ namespace VL.Stride.Engine
 
         public override void Update(GameTime gameTime)
         {
+            // Game runs after Patch.Update which in turn could've disposed the system
+            if (IsDisposed)
+                return;
+
             foreach (var system in front)
             {
+                if (system.IsDisposed)
+                    continue;
+
                 if (!system.Tags.Get(contentLoaded) && system is IContentable c)
                 {
                     c.LoadContent();
@@ -94,6 +115,10 @@ namespace VL.Stride.Engine
 
         public override void Draw(GameTime gameTime)
         {
+            // Game runs after Patch.Update which in turn could've disposed the system
+            if (IsDisposed) 
+                return;
+
             var renderContext = RenderContext.GetShared(Services);
 
             // Reset the context
@@ -108,6 +133,9 @@ namespace VL.Stride.Engine
             {
                 foreach (var system in queue)
                 {
+                    if (system.IsDisposed)
+                        continue;
+
                     if (system.Visible)
                     {
                         if (system.BeginDraw())
@@ -134,9 +162,9 @@ namespace VL.Stride.Engine
             private List<IGraphicsRendererBase> front = new();
             private List<IGraphicsRendererBase> back = new();
 
-            private RenderView renderView;
-            private RenderContext renderContext;
-            private RenderDrawContext renderDrawContext;
+            private RenderView? renderView;
+            private RenderContext? renderContext;
+            private RenderDrawContext? renderDrawContext;
 
             public ConsecutiveRenderSystem([NotNull] IServiceRegistry registry) : base(registry)
             {
@@ -167,8 +195,8 @@ namespace VL.Stride.Engine
                 Utilities.Swap(ref front, ref back);
                 try
                 {
-                    using (renderContext.PushRenderViewAndRestore(renderView))
-                    using (renderDrawContext.PushRenderTargetsAndRestore())
+                    using (renderContext!.PushRenderViewAndRestore(renderView))
+                    using (renderDrawContext!.PushRenderTargetsAndRestore())
                     {
                         // Report the exceptions but continue drawing the next renderer. Otherwise one failing renderer can cause the whole app to fail.
                         foreach (var renderer in renderers)
@@ -187,8 +215,8 @@ namespace VL.Stride.Engine
                 finally
                 {
                     renderers.Clear();
-                    renderDrawContext.ResourceGroupAllocator.Flush();
-                    renderDrawContext.QueryManager.Flush();
+                    renderDrawContext!.ResourceGroupAllocator.Flush();
+                    renderDrawContext!.QueryManager.Flush();
                 }
             }
         }

@@ -68,6 +68,11 @@ namespace VL.Serialization.MessagePack.Resolvers
                     var genericTypeArgument = typeof(T).GetGenericArguments()[0];
                     return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(SpreadFormatter<>).MakeGenericType(genericTypeArgument));
                 }
+                else if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(Optional<>))
+                {
+                    var genericTypeArgument = typeof(T).GetGenericArguments()[0];
+                    return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(OptionalFormatter<>).MakeGenericType(genericTypeArgument));
+                }
                 else if (typeof(T).IsAssignableTo(typeof(IDynamicEnum)))
                 {
                     return (IMessagePackFormatter<T>?)Activator.CreateInstance(typeof(DynamicEnumFormatter<>).MakeGenericType(typeof(T)));

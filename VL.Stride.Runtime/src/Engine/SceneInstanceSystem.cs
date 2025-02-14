@@ -32,6 +32,10 @@ namespace VL.Stride.Engine
 
         public override void Update(GameTime gameTime)
         {
+            // Game runs after Patch.Update which in turn could've disposed the system
+            if (IsDisposed)
+                return;
+
             SceneInstance.Update(gameTime);
         }
 

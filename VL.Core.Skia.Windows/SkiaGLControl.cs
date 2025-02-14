@@ -1,44 +1,21 @@
 ﻿#nullable enable
 
 using System;
-using VL.Lib.IO;
-using VL.Lib.IO.Notifications;
 using System.Windows.Forms;
 using SkiaSharp;
-using Vector2 = Stride.Core.Mathematics.Vector2;
 using VL.Skia.Egl;
 using Stride.Core.Mathematics;
-using System.Reactive.Linq;
 
 namespace VL.Skia
 {
-    public partial class SkiaGLControl : UserControl, IProjectionSpace, IWorldSpace2d
+    public class SkiaGLControl : SkiaControlBase
     {
-        private readonly RenderStopwatch renderStopwatch = new RenderStopwatch();
-
-        private Mouse? mouse;
-        private Keyboard? keyboard;
-        private TouchDevice? touchDevice;
-
         private RenderContext? renderContext;
         private EglSurface? eglSurface;
         private SKSurface? surface;
         private Int2 surfaceSize;
         private SKCanvas? canvas;
         private bool? lastSetVSync;
-
-        public CallerInfo CallerInfo { get; private set; } =  CallerInfo.Default;
-
-        public event Action<CallerInfo>? OnRender;
-
-        /// <summary>
-        /// The time to evaluate the layer input in μs.
-        /// </summary>
-        public float RenderTime => renderStopwatch.RenderTime;
-
-        public bool VSync { get; set; }
-
-        public bool DirectCompositionEnabled { get; init; }
 
         public SkiaGLControl()
         {
@@ -47,52 +24,6 @@ namespace VL.Skia
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             DoubleBuffered = false;
             ResizeRedraw = true;
-        }
-
-        public Mouse Mouse => mouse ??= CreateMouse();
-
-        public Keyboard Keyboard => keyboard ??= CreateKeyboard();
-
-        public TouchDevice TouchDevice => touchDevice ??= new TouchDevice(TouchNotifications);
-
-        Mouse CreateMouse()
-        {
-            var mouseDowns = Observable.FromEventPattern<MouseEventArgs>(this, nameof(MouseDown))
-                .Select(p => p.EventArgs.ToMouseDownNotification(this, this));
-            var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(this, nameof(MouseMove))
-                .Select(p => p.EventArgs.ToMouseMoveNotification(this, this));
-            var mouseUps = Observable.FromEventPattern<MouseEventArgs>(this, nameof(MouseUp))
-                .Select(p => p.EventArgs.ToMouseUpNotification(this, this));
-            var mouseWheels = Observable.FromEventPattern<MouseEventArgs>(this, nameof(MouseWheel))
-                .Select(p => p.EventArgs.ToMouseWheelNotification(this, this));
-            return new Mouse(mouseDowns
-                .Merge<MouseNotification>(mouseMoves)
-                .Merge(mouseUps)
-                .Merge(mouseWheels));
-        }
-
-        Keyboard CreateKeyboard()
-        {
-            var keyDowns = Observable.FromEventPattern<KeyEventArgs>(this, nameof(KeyDown))
-                .Select(p => p.EventArgs.ToKeyDownNotification(this));
-            var keyUps = Observable.FromEventPattern<KeyEventArgs>(this, nameof(KeyUp))
-                .Select(p => p.EventArgs.ToKeyUpNotification(this));
-            var keyPresses = Observable.FromEventPattern<KeyPressEventArgs>(this, nameof(KeyPress))
-                .Select(p => p.EventArgs.ToKeyPressNotification(this));
-            return new Keyboard(keyDowns
-                .Merge<KeyNotification>(keyUps)
-                .Merge(keyPresses));
-        }
-
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                var createParams = base.CreateParams;
-                if (DirectCompositionEnabled)
-                    createParams.ExStyle |= (int)Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE.WS_EX_NOREDIRECTIONBITMAP;
-                return createParams;
-            }
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -119,71 +50,56 @@ namespace VL.Skia
             renderContext = null;
         }
 
-        protected override sealed void OnPaint(PaintEventArgs e)
+        protected override sealed void OnPaintCore(PaintEventArgs e)
         {
-            base.OnPaint(e);
-
-            if (!Visible || renderContext is null || Handle == 0)
+            if (renderContext is null)
                 return;
 
-            renderStopwatch.StartRender();
-            try
+            // Ensure our GL context is current on current thread
+            var eglContext = renderContext.EglContext;
+
+            // Create offscreen surface to render into
+            if (eglSurface is null || surfaceSize.X != Width || surfaceSize.Y != Height)
             {
-                // Ensure our GL context is current on current thread
-                var eglContext = renderContext.EglContext;
+                DestroySurface();
 
-                // Create offscreen surface to render into
-                if (eglSurface is null || surfaceSize.X != Width || surfaceSize.Y != Height)
-                {
-                    DestroySurface();
+                surfaceSize = new Int2(Width, Height);
 
-                    surfaceSize = new Int2(Width, Height);
-
-                    eglSurface = eglContext.CreatePlatformWindowSurface(Handle, Width, Height);
-                    lastSetVSync = default;
-                }
-
-                if (eglSurface is null)
-                    return;
-
-                eglContext.MakeCurrent(eglSurface);
-
-                if (surface is null)
-                {
-                    surface = CreateSkSurface(renderContext, surfaceSize.X, surfaceSize.Y);
-                    canvas = surface?.Canvas;
-                    CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, canvas, renderContext.SkiaContext);
-                }
-
-                if (surface is null)
-                    return;
-
-                // Set VSync
-                if (!lastSetVSync.HasValue || VSync != lastSetVSync.Value)
-                {
-                    lastSetVSync = VSync;
-                    eglContext.SwapInterval(VSync ? 1 : 0);
-                }
-
-                // Render
-                using (new SKAutoCanvasRestore(canvas, true))
-                {
-                    OnPaint(CallerInfo);
-                }
-                surface.Flush();
-
-                // Swap 
-                eglContext.SwapBuffers(eglSurface);
+                eglSurface = eglContext.CreatePlatformWindowSurface(Handle, Width, Height);
+                lastSetVSync = default;
             }
-            finally
+
+            if (eglSurface is null)
+                return;
+
+            eglContext.MakeCurrent(eglSurface);
+
+            if (surface is null)
             {
-                renderStopwatch.EndRender();
+                surface = CreateSkSurface(renderContext, surfaceSize.X, surfaceSize.Y);
+                canvas = surface?.Canvas;
+                CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, canvas, renderContext.SkiaContext);
             }
-        }
 
-        protected virtual void OnPaint(CallerInfo callerInfo)
-        {
-            OnRender?.Invoke(CallerInfo);
+            if (surface is null)
+                return;
+
+            // Set VSync
+            if (!lastSetVSync.HasValue || VSync != lastSetVSync.Value)
+            {
+                lastSetVSync = VSync;
+                eglContext.SwapInterval(VSync ? 1 : 0);
+            }
+
+            // Render
+            using (new SKAutoCanvasRestore(canvas, true))
+            {
+                OnPaint(CallerInfo);
+            }
+            surface.Flush();
+
+            // Swap 
+            eglContext.SwapBuffers(eglSurface);
         }
 
         static SKSurface CreateSkSurface(RenderContext renderContext, int width, int height)
@@ -221,21 +137,6 @@ namespace VL.Skia
             eglSurface = default;
 
             eglContext.MakeCurrent(null);
-        }
-
-        public void MapFromPixels(INotificationWithPosition notification, out Vector2 inNormalizedProjection, out Vector2 inProjection)
-        {
-            SpaceHelpers.DoMapFromPixels(notification.Position, notification.ClientArea, out inNormalizedProjection, out inProjection);
-        }
-
-        public Vector2 MapFromPixels(INotificationWithPosition notification)
-        {
-            return notification.Position;
-        }
-
-        protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
-        {
-            e.IsInputKey = true;
         }
     }
 }
