@@ -62,5 +62,14 @@ namespace VL.Stride.Input
 
         [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(SetSurfaceSize))]
         extern static void SetSurfaceSize(this PointerDeviceBase device, Vector2 newSize);
+
+        /// <summary>
+        /// The priority of the input devices. Larger means higher priority when selecting the first device of some type.
+        /// </summary>
+        public static void SetPriority(this IInputSource inputSource, int priority)
+        {
+            foreach (var (_, device) in inputSource.Devices)
+                device.Priority = priority;
+        }
     }
 }

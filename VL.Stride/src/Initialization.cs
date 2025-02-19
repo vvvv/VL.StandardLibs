@@ -17,6 +17,7 @@ using ServiceRegistry = VL.Core.ServiceRegistry;
 using VL.Stride.Core;
 using Stride.Core.Diagnostics;
 using System.Threading;
+using VL.Stride.Input;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Lib.Initialization))]
 
@@ -100,6 +101,10 @@ namespace VL.Stride.Lib
 
                 // Make sure the main window doesn't block the main loop
                 game.GraphicsDevice.Presenter.PresentInterval = PresentInterval.Immediate;
+
+                // Give input devices of default window lowest priority so that the input manager prefers the ones from our windows
+                foreach (var s in game.Input.Sources)
+                    s.SetPriority(int.MinValue);
 
                 var frameClock = Clocks.FrameClock;
                 frameClock.GetFrameFinished().Subscribe(ffm =>
