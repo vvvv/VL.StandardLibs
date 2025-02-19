@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="UFzEbZy7D3GNY8xnLUU17p" LanguageVersion="2025.7.0-0078-gedfd4fed5f" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="UFzEbZy7D3GNY8xnLUU17p" LanguageVersion="2025.7.0-0151-gaea40a7afa" Version="0.128">
   <NugetDependency Id="EKAeSpl0TUSO67sl9VuE19" Location="VL.CoreLib" Version="2021.4.12-1361-g53776bfdff" />
   <Patch Id="M3fVx2jjvOSLPGL4EJGFf9">
     <Canvas Id="JugVUmEZoitO7m1cCzT7W3" DefaultCategory="Stride" CanvasType="FullCategory">
@@ -22539,6 +22539,7 @@
                 <Pin Id="Mk7hmhcOWwlPE2651HOM9T" Name="Back Buffer Format" Kind="InputPin" />
                 <Pin Id="RNI9TX5nv04LcueXEzUVbm" Name="Depth Buffer Format" Kind="InputPin" />
                 <Pin Id="UDCOQdcdSTvMPgPyWptwUZ" Name="Multisample Count" Kind="InputPin" />
+                <Pin Id="LbaSVCOA8e3Pf0HywKCyGq" Name="Input Priority" Kind="InputPin" />
                 <Pin Id="I6xApofExatNGpF2m2PO3f" Name="Input" Kind="InputPin" />
                 <Pin Id="EmdjHJOC2ayNaJ00RqXkXP" Name="Render View" Kind="InputPin" />
                 <Pin Id="LK6c33LHG9LP6A8INi98bH" Name="Title" Kind="InputPin" />
@@ -25792,26 +25793,6 @@
                   <Pin Id="HTlayOIFXorNMVVkS74zB6" Name="Output" Kind="StateOutputPin" />
                   <Pin Id="N3zufsigi7VPbeoySmIAYz" Name="Result" Kind="OutputPin" />
                 </Node>
-                <Node Bounds="716,332,66,26" Id="LR1tWWZXunDP1obzaUf7pX">
-                  <p:NodeReference LastCategoryFullName="Stride.API.Input.InputManager" LastDependency="VL.Stride.Runtime.TypeForwards.vl">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <CategoryReference Kind="ClassType" Name="InputManager" />
-                    <Choice Kind="OperationCallFlag" Name="Sources" />
-                  </p:NodeReference>
-                  <Pin Id="NKB7v4oNuduONyIz7rgTYl" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="VMNd5W7vPYBMg7bJ5xtDQX" Name="Output" Kind="StateOutputPin" />
-                  <Pin Id="AL3Pl5RcwoIP7BC2ptHhOP" Name="Sources" Kind="OutputPin" />
-                </Node>
-                <Node Bounds="777,367,54,26" Id="LtzeEEQY1XhOEyXwTe5cnU">
-                  <p:NodeReference LastCategoryFullName="Collections.Interfaces.ICollection" LastDependency="VL.CoreLib.vl">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <Choice Kind="OperationCallFlag" Name="Add" />
-                    <CategoryReference Kind="MutableInterfaceType" Name="ICollection" NeedsToBeDirectParent="true" />
-                  </p:NodeReference>
-                  <Pin Id="Cx8E3Iomd0oLstHLMZAiCG" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="Ix3KqSKpjAiLqT9m6Ahztu" Name="Item" Kind="InputPin" />
-                  <Pin Id="AhecIEfLLhMOUQKkPkUhep" Name="Output" Kind="StateOutputPin" />
-                </Node>
                 <Node Bounds="-125,401,66,26" Id="Di6banXmtybM8HOywyjOFD">
                   <p:NodeReference LastCategoryFullName="Stride.API.Input.InputManager" LastDependency="VL.Stride.Runtime.TypeForwards.vl">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -26328,6 +26309,16 @@
                   <Pin Id="SJwrI6L0QsSQBnlfiCftAe" Name="Output" Kind="StateOutputPin" />
                 </Node>
                 <ControlPoint Id="OKwW0XytubxPE6dW0CadS3" Bounds="688,1537" />
+                <ControlPoint Id="JSrGDjOCvBkLD7nDMWkVki" Bounds="1006,300" />
+                <Node Bounds="922,320,87,26" Id="CxgRzTVX3lCMrsyf1pnCDh">
+                  <p:NodeReference LastCategoryFullName="VL.Stride.Input.InputExtensions" LastDependency="VL.Stride.Runtime.dll">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="AddWithPriority" />
+                  </p:NodeReference>
+                  <Pin Id="JYFhI2ZInXGO6RiDQfJaLs" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="Vk069kUx29qPYW7xyaZ8DV" Name="Input Source" Kind="InputPin" />
+                  <Pin Id="NvwAdbz9H5vQDHGboOODWO" Name="Priority" Kind="InputPin" />
+                </Node>
               </Canvas>
               <Link Id="KU6k8ilhe88PSHGLTisurU" Ids="FgZ58iFc480Omy7xGU7UCP,Ejh34mhLJ0SN7n8YoDT9f0" />
               <Link Id="VJujxDLpOeALpH3xN7Mc7x" Ids="DxI050qzrDWNwaHiG5S4my,NyMXzWN18n4NNPOEu5aYqY" />
@@ -26345,12 +26336,8 @@
               <Link Id="Q6jbXVz9j5IMheKqm2ipKy" Ids="TCcsoVXbeT4Le2spNp50uy,SuWNsBRGpm0PHa98JKCoKS" />
               <Link Id="JSLpXyIhrdlQVoNG7Kikk0" Ids="B6PRiuuLvsaMzkcRTpmwj2,TOsbzlntjU4PMA93djklCX" />
               <Link Id="BQHVX2YBN2JNbYFcd71lRK" Ids="B6PRiuuLvsaMzkcRTpmwj2,Ayu3mvYjBDDLolyYwU3APS" />
-              <Link Id="RbAd6lVtqigPlFHR36rApj" Ids="N3zufsigi7VPbeoySmIAYz,NKB7v4oNuduONyIz7rgTYl" />
-              <Link Id="VdLV0sivdJDL9TkjmCzW7J" Ids="AL3Pl5RcwoIP7BC2ptHhOP,Cx8E3Iomd0oLstHLMZAiCG" />
-              <Link Id="QUUf44PIdPCOl9nZxrDxKR" Ids="Kp9ZdKnZfbVLyLvmHr4l8Y,Ix3KqSKpjAiLqT9m6Ahztu" />
               <Link Id="Ey63xgW8SoROVptwuvdUP1" Ids="EdfQr4G0aFqM1D4fSUxeba,GWpCYX4aBKENFxWnImP1Pe" />
               <Slot Id="K2NvRgFVfiqOF3jbcgLmDf" Name="Input Source" />
-              <Link Id="VsGl12kkVPsOTBJxgtrLtg" Ids="Kp9ZdKnZfbVLyLvmHr4l8Y,UL4YfLtnestMxtD0FPl0Hb" />
               <Link Id="VpOejvnV7C2LWs0qwLIlqi" Ids="S5SqczNIlSlOSNwYGauNZI,LvzizeCg7JSNNIxb8IV2Yc" />
               <Link Id="HMb8spBGYEvM2JzZoIj9nL" Ids="UL4YfLtnestMxtD0FPl0Hb,OfBeGLHi3cpNtAyM3auz9X" />
               <Link Id="TIc4ISugophNHwK4BksvK9" Ids="OfBeGLHi3cpNtAyM3auz9X,OrxmNga9uGlP9ueNrnyf5n" IsHidden="true" />
@@ -26449,6 +26436,7 @@
                     <Choice Kind="TypeFlag" Name="GraphicsProfile" />
                   </p:TypeAnnotation>
                 </Pin>
+                <Pin Id="ILbIYDjL3g2Om8RzkjnIED" Name="Input Priority" Kind="InputPin" />
               </Patch>
               <Patch Id="DHGZdX2IeHkNNHhTU2dzMG" Name="Dispose" ParticipatingElements="LwSiY5qMUcUPVnyg8NKMXb" />
               <Patch Id="Svr7KqJBT0YONlCAvDifxg" Name="InputSource">
@@ -26493,6 +26481,11 @@
               <Patch Id="OHG0dDBc1aTLPHSZIIv3uv" Name="SetCustomPresent">
                 <Pin Id="EvotnGFKBgCMnrmF3umNg0" Name="Present Call Intercept" Kind="InputPin" />
               </Patch>
+              <Link Id="JzqJcJVnUCHLn3iG6qfkGl" Ids="ILbIYDjL3g2Om8RzkjnIED,JSrGDjOCvBkLD7nDMWkVki" IsHidden="true" />
+              <Link Id="JHlvE1ApUWOPrB0GLDl6z4" Ids="N3zufsigi7VPbeoySmIAYz,JYFhI2ZInXGO6RiDQfJaLs" />
+              <Link Id="P2OrvwZlysvMPmcR0RphJx" Ids="Kp9ZdKnZfbVLyLvmHr4l8Y,Vk069kUx29qPYW7xyaZ8DV" />
+              <Link Id="Em3kIWffdv2MXzQMRk4Hb3" Ids="JSrGDjOCvBkLD7nDMWkVki,NvwAdbz9H5vQDHGboOODWO" />
+              <Link Id="ULZTatLOLe5LkcxEzBbV6S" Ids="Kp9ZdKnZfbVLyLvmHr4l8Y,UL4YfLtnestMxtD0FPl0Hb" />
             </Patch>
           </Node>
         </Canvas>
@@ -26522,6 +26515,7 @@
                 <Pin Id="SLPOMFUogecQDqIeFcyXtf" Name="Back Buffer Format" Kind="InputPin" />
                 <Pin Id="QsvHaxWeNDCPIEb7QFSReg" Name="Depth Buffer Format" Kind="InputPin" IsHidden="true" />
                 <Pin Id="VqN61usX4DjNu8ProtTQ6E" Name="Multisample Count" Kind="InputPin" IsHidden="true" />
+                <Pin Id="VWkkGZt11MEPpXvIwfsHI1" Name="Input Priority" Kind="InputPin" />
                 <Pin Id="RDFAFoR0280P1fKuzScQmr" Name="Input" Kind="InputPin" />
                 <Pin Id="HASSHMRkYbnL3lnQnMRVpB" Name="Render View" Kind="InputPin" />
                 <Pin Id="FmLgrnFhf0KM52mE43kxn8" Name="Title" Kind="InputPin" />
@@ -29644,6 +29638,7 @@
               <Pin Id="SAbtIS1HkmxOqEmqqzsPce" Name="Back Buffer Format" Kind="InputPin" />
               <Pin Id="OdFLhrRQjTwMxlUTT6vx5o" Name="Depth Buffer Format" Kind="InputPin" />
               <Pin Id="A3jSIyla5ZaQTuvVHCCumR" Name="Multisample Count" Kind="InputPin" />
+              <Pin Id="NtHSRoEJLs1P8yY6cmadT9" Name="Input Priority" Kind="InputPin" />
               <Pin Id="FIPur4xiTA5NQLaGGbSs8n" Name="Input" Kind="InputPin" />
               <Pin Id="Pk9YipoIyw5PdPHAj3pjxK" Name="Render View" Kind="InputPin" />
               <Pin Id="JT2MXw46XGKPhG4532TsaJ" Name="Title" Kind="InputPin" />
@@ -29927,6 +29922,7 @@
               </p:ValueBoxSettings>
             </Pad>
             <ControlPoint Id="NoEYVtjX1mmNAJACHppexu" Bounds="869,1042" />
+            <ControlPoint Id="R2iqL9L7SMdN7b4lYq9sPq" Bounds="459,1000" />
           </Canvas>
           <Link Id="JKnUileeJ7FNJsu7KpPf94" Ids="G7SBfHwE22bMfljT0fnHrW,EEQ60u0n9ATNadblUovIX7" IsHidden="true" />
           <Link Id="ToLCItn5JyDMzpOHiAEnJu" Ids="RzkQ5YRhHQALLkSoQA085R,Hdw9ETxxng9OxCDbLeNcTB" IsHidden="true" />
@@ -30024,6 +30020,7 @@
                 <Choice Kind="TypeFlag" Name="PixelFormat" />
               </p:TypeAnnotation>
             </Pin>
+            <Pin Id="PJenrBIDCoIMA1VAKTQrIS" Name="Input Priority" Kind="InputPin" Visibility="Optional" Summary="The priority of the input devices. Larger means higher priority when selecting the first device of some type." />
           </Patch>
           <Patch Id="SweairbMPOwONl7gfkFoCe" Name="Update" ManuallySortedPins="true">
             <Pin Id="UKmQYPYdCnZPHT8DByXUUm" Name="Input" Kind="InputPin" Bounds="251,226" />
@@ -30125,6 +30122,8 @@
           </Patch>
           <Link Id="MW2AmKoQQkLOqUdLpbqS5j" Ids="Ezbj7IR1gAjNRn8TRbmTCL,NoEYVtjX1mmNAJACHppexu" IsHidden="true" />
           <Link Id="BxxPO55jgKDN7jj8cVdSEY" Ids="NoEYVtjX1mmNAJACHppexu,MAY2fcZOXjZOI9ZEftOBAQ" />
+          <Link Id="Lue7ERNIigQMbtEpwwpr4j" Ids="R2iqL9L7SMdN7b4lYq9sPq,NtHSRoEJLs1P8yY6cmadT9" />
+          <Link Id="SbAhOgY5Nq2LO9971G3hCb" Ids="PJenrBIDCoIMA1VAKTQrIS,R2iqL9L7SMdN7b4lYq9sPq" IsHidden="true" />
         </Patch>
       </Node>
       <!--
@@ -30604,7 +30603,7 @@
             <Pad Id="UD8gOG2u4TWOfHUwjQniTJ" SlotId="T4QVG8EitL9PYMmIkpDdit" Bounds="380,812" />
             <Pad Id="HjlKEbTHkp2MqDmagbsjvS" SlotId="PAV2QLEHIawLiiMQjeCSBx" Bounds="49,1004" />
             <Overlay Id="U0VWKppbMlKO1tpNFLIDKg" Name="Update" Bounds="-65,663,657,426" />
-            <Node Bounds="821,-29,125,19" Id="SccbkpZLMnHQHA2h8BFgzN">
+            <Node Bounds="821,-29,145,19" Id="SccbkpZLMnHQHA2h8BFgzN">
               <p:NodeReference LastCategoryFullName="Stride.Windowing" LastDependency="VL.Stride.Engine.vl">
                 <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                 <Choice Kind="ProcessAppFlag" Name="GameWindowManager" />
@@ -30615,6 +30614,7 @@
               <Pin Id="LivoAB5rQk6LKGHMzqu6F6" Name="Multisample Count" Kind="InputPin" />
               <Pin Id="SDiA12YTMC7NsMHo1b0oMz" Name="Depth Buffer Format" Kind="InputPin" />
               <Pin Id="PT3zkJZcgLUL0ddMNVFMqc" Name="Graphics Profile" Kind="InputPin" />
+              <Pin Id="Gjsy3BUdG2lNtaXVMiOF1G" Name="Input Priority" Kind="InputPin" />
               <Pin Id="Kmxqv7AsWDzOFvZPoCMvLj" Name="Present Interval" Kind="InputPin" />
               <Pin Id="Ijvt2pnk9AqMBE5x1Y8R3G" Name="Output" Kind="OutputPin" />
               <Pin Id="Q8ZbdhyWbgJLtpqrj4S5YY" Name="Window" Kind="OutputPin" />
@@ -31500,6 +31500,7 @@
             </Node>
             <ControlPoint Id="Ko9uuE6xSYQOKehGYDUwtU" Bounds="149,-240" />
             <ControlPoint Id="HLYYVJMAh9lO4OtRfpllBs" Bounds="1040,-47" />
+            <ControlPoint Id="SrMDSOJouEDN9MtWYnV359" Bounds="1014,-90" />
           </Canvas>
           <Slot Id="PAV2QLEHIawLiiMQjeCSBx" Name="Game Window" />
           <Link Id="V7zVQDv7tilLMv638pLUGg" Ids="Aovd7gXzFIqPW6xwdW7oln,MUiMMxbgDwTMwpBxtCke2j" IsHidden="true" />
@@ -31696,6 +31697,7 @@
                 <Choice Kind="TypeFlag" Name="MultisampleCount" />
               </p:TypeAnnotation>
             </Pin>
+            <Pin Id="PAVIxxUArNQNDHN8eEuuJc" Name="Input Priority" Kind="InputPin" Visibility="Optional" Summary="The priority of the input devices. Larger means higher priority when selecting the first device of some type." />
           </Patch>
           <Patch Id="UskQfQ7KEU5NHU6ZCjF5Ek" Name="Update" ParticipatingElements="GqiJ1DCdytJMeIXd9n5IfF" ManuallySortedPins="true">
             <Pin Id="UHqiiwM0HjMNZBnMVFXdnN" Name="Input" Kind="InputPin" Bounds="667,-18" />
@@ -31743,6 +31745,8 @@
           </Patch>
           <Link Id="HxBUrFBoR14LuwbYYebgN1" Ids="PvUe47tLDVGLOjuAxmPLx2,HLYYVJMAh9lO4OtRfpllBs" IsHidden="true" />
           <Link Id="MnRxiBaldKQM73e2PT4D8B" Ids="HLYYVJMAh9lO4OtRfpllBs,RcwjrG2zJ1FPuD8XNfUxfc" />
+          <Link Id="IlYQVKoEDw5LtOJBRkixMf" Ids="SrMDSOJouEDN9MtWYnV359,Gjsy3BUdG2lNtaXVMiOF1G" />
+          <Link Id="CyPNOX3bQJiOqHOrAS11Bs" Ids="PAVIxxUArNQNDHN8eEuuJc,SrMDSOJouEDN9MtWYnV359" IsHidden="true" />
         </Patch>
       </Node>
       <!--
