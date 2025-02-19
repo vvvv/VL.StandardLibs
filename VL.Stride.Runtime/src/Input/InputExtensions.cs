@@ -2,6 +2,7 @@
 using Stride.Core.Mathematics;
 using Stride.Input;
 using Stride.Rendering;
+using System.Runtime.CompilerServices;
 
 namespace VL.Stride.Input
 {
@@ -53,20 +54,13 @@ namespace VL.Stride.Input
                 foreach (var item in inputSource.Devices)
                 {
                     var device = item.Value;
-                    if (device is IPointerDevice pointer)
-                        pointer.UpdateSurfaceArea(size);
+                    if (device is PointerDeviceBase pointer)
+                        pointer.SetSurfaceSize(size);
                 }
             }
         }
 
-        public static void UpdateSurfaceArea(this IPointerDevice pointer, Vector2 size)
-        {
-            if (pointer != null)
-            {
-                var methodInfo = typeof(PointerDeviceBase).GetMethod("SetSurfaceSize", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-
-                methodInfo.Invoke(pointer, new object[] { size });
-            }
-        }
+        [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(SetSurfaceSize))]
+        extern static void SetSurfaceSize(this PointerDeviceBase device, Vector2 newSize);
     }
 }
