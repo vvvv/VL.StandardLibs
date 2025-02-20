@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace VL.Lib.IO
 {
-    partial class Path : IComparable, ICloneable, IConvertible, IEnumerable, IComparable<String>, IEnumerable<char>, IEquatable<String>
+    partial class Path : IComparable, ICloneable, IConvertible, IComparable<String>, IEquatable<String>
     {
         public int CompareTo(string other)
         {
@@ -21,16 +19,6 @@ namespace VL.Lib.IO
         public bool Equals(string other)
         {
             return _path.Equals(other);
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<char>)_path).GetEnumerator();
-        }
-
-        public IEnumerator<char> GetEnumerator()
-        {
-            return ((IEnumerable<char>)_path).GetEnumerator();
         }
 
         public TypeCode GetTypeCode()
