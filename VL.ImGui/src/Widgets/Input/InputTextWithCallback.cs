@@ -14,6 +14,7 @@ namespace VL.ImGui.Widgets
         public CreateHandler? Create { get; set; }
         public CharFilterHandler? Filter { get; set; }
         public TextCallbackHandler? Edit { get; set; }
+        public TextCallbackHandler? Always { get; set; }
         public TextCallbackHandler? Completion { get; set; }
         public TextCallbackHandler? History { get; set; }
 
@@ -61,6 +62,7 @@ namespace VL.ImGui.Widgets
                     }
                     break;
                 case ImGuiInputTextFlags.CallbackAlways:
+                    Always?.Invoke(state, new InputTextCallbackData(data), out state);
                     break;
                 case ImGuiInputTextFlags.CallbackResize:
                     break;
