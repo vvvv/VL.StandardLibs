@@ -33,5 +33,7 @@ namespace VL.Core.Import
         /// Controls how fragments get selected. By default all public members will be included.
         /// </summary>
         public FragmentSelection FragmentSelection { get; set; }
+
+        public bool StateOutputNotVisibleByDefault { get; set; }
     }
 }
