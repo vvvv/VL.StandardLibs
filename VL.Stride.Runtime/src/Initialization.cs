@@ -37,17 +37,15 @@ namespace VL.Stride.Core
         [ModuleInitializer] //needs to be called before any Skia code is called by the vvvv UI
         public static void Initialize()
         {
-            if (Array.Exists(Environment.GetCommandLineArgs(), argument => argument == "--renderdoc"))
+            if (Array.Exists(Environment.GetCommandLineArgs(), argument => argument == "--debug-gpu"))
             {
                 var renderDocManager = new RenderDocManager();
 
-                // Only true if RenderDoc is installed
                 if (!renderDocManager.IsInitialized)
-                    return;
+                    renderDocManager.Initialize();
 
-                // When calling this method the capture no longer works, didn't see anything in the RenderDoc UI (progress bar flashes, but no captured frame)
-                //renderDocManager.Initialize();
-                RenderDocManager = renderDocManager;
+                if (renderDocManager.IsInitialized)
+                    RenderDocManager = renderDocManager;
             }
         }
     }

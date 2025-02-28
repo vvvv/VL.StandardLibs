@@ -9,12 +9,37 @@ namespace VL.ImGui.Windows
 {
     using ImGui = ImGuiNET.ImGui;
 
+
+    // Use Codegeneration 
     [GenerateNode(Category = "ImGui.Widgets.Internal", GenerateRetained = false)]
     internal sealed partial class WindowCore : Widget
     {
-        public Widget? Content { get; set; }
+        // UniqueId is used for Uniqe Name, so Menu Layout can be saved
+        private readonly UniqueId UniqueId;
 
-        public string? Name { get; set; }
+        // if you use a Constructor with NodeContext
+        // and that is the only option the CodeGen gives you
+        // than you need also a empty Constructor 
+        public WindowCore(NodeContext nodeContext)
+        {
+            // ?? why Pop().Peek(), Peek() always the same
+            UniqueId = nodeContext.Path.Stack.Pop().Peek();
+        }
+
+        // empty Constructor
+        public WindowCore()
+        {
+            UniqueId = new UniqueId();
+        }
+   
+        public Widget? Content { get; set; }
+ 
+        string? name; 
+        public string? Name 
+        {
+            get {return name + "##" + UniqueId; }
+            set { name = value; } 
+        }
 
         /// <summary>
         /// If set the window will have a close button which will push to the channel once clicked.

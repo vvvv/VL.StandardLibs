@@ -133,9 +133,17 @@ namespace VL.ImGui.Editors
             {
                 currentEditor.Draw(context);
             }
+            else if (publicChannel.Object is not null)
+            {
+                var s = publicChannel.Object.ToString();
+                if (!string.IsNullOrEmpty(editorContext.Label))
+                    ImGui.LabelText(editorContext.LabelForImGUI, s);
+                else
+                    ImGui.TextUnformatted(s);
+            }
             else
             {
-                var s = publicChannel.Object?.ToString() ?? "NULL";
+                var s = "NULL";
                 if (!string.IsNullOrEmpty(editorContext.Label))
                     ImGui.LabelText(editorContext.LabelForImGUI, s);
                 else

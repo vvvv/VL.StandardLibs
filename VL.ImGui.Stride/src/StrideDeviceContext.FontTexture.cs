@@ -1,13 +1,24 @@
 ﻿using ImGuiNET;
+using SkiaSharp;
 using Stride.Graphics;
+using VL.Lib.Collections;
 
 namespace VL.ImGui
 {
-    partial class ImGuiRenderer
+    partial class StrideDeviceContext
     {
+        public void SetFonts(Spread<FontConfig?> fonts)
+        {
+            if (!fonts.IsEmpty && !_fonts.SequenceEqual(fonts))
+            {
+                _fonts = fonts;
+                BuildImFontAtlas(device, _io.Fonts, _fontScaling);
+            }
+        }
+
         void BuildImFontAtlas(GraphicsDevice device, ImFontAtlasPtr atlas, float scaling)
         {
-            atlas.BuildImFontAtlas(scaling, _context, fonts);
+            atlas.BuildImFontAtlas(scaling, this, _fonts);
 
             unsafe
             {
@@ -16,7 +27,7 @@ namespace VL.ImGui
                 {
                     // Something went wrong, load default font
                     atlas.Clear();
-                    _context.Fonts.Clear();
+                    this.Fonts.Clear();
                     atlas.AddFontDefault();
                     atlas.GetTexDataAsRGBA32(out pixelData, out width, out height, out bytesPerPixel);
                 }

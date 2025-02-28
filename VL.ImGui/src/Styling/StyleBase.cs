@@ -12,35 +12,22 @@
         public void Set(Context context)
         {
             Input?.Set(context);
-
-            if (!context.IsBeforeFrame || CanDoStuffBeforeFrame)
-            {
-                colorCount = 0;
-                valueCount = 0;
-                SetCore(context);
-            }
+            colorCount = 0;
+            valueCount = 0;
+            SetCore(context);
         }
 
-        public void Reset(Context context)
-        {
-            if (!context.IsBeforeFrame || CanDoStuffBeforeFrame)
-            {
-                ResetCore(context);
-            }
-
-            Input?.Reset(context);
-        }
-
-        internal abstract void SetCore(Context context);
-        internal virtual void ResetCore(Context context)
+        public virtual void Reset(Context context)
         {
             if (colorCount > 0)
                 ImGui.PopStyleColor(colorCount);
             if (valueCount > 0)
                 ImGui.PopStyleVar(valueCount);
+            Input?.Reset(context);
         }
 
-        internal virtual bool CanDoStuffBeforeFrame => false;
+        internal abstract void SetCore(Context context);
+
 
         // not really used
         internal void Update(Context context)

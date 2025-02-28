@@ -37,6 +37,8 @@ namespace VL.ImGui
 
         readonly ImGuiIOPtr _io;
 
+        public bool DefaultWindow = true;
+
         // OpenGLES rendering (https://github.com/dotnet/Silk.NET/tree/v2.15.0/src/OpenGL/Extensions/Silk.NET.OpenGL.Extensions.ImGui)
         private readonly SkiaContext _context;
         private readonly RenderContext _renderContext;
@@ -69,7 +71,7 @@ namespace VL.ImGui
             }
         }
 
-        public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig?> fonts, bool fullscreenWindow, IStyle? Style)
+        public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig?> fonts, IStyle? Style)
         {
             if (_lastCallerInfo is null)
                 return this;
@@ -92,14 +94,12 @@ namespace VL.ImGui
                 else
                     _io.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
-                var onlySomeStyles = _context.ApplyStyle(Style, beforeNewFrame: true);
-
                 _context.NewFrame();
                 try
                 {
                     using var _ = _context.ApplyStyle(Style);
 
-                    if (fullscreenWindow)
+                    if (DefaultWindow)
                     {
                         var viewPort = ImGui.GetMainViewport();
                         if (dockingEnabled)
@@ -120,13 +120,12 @@ namespace VL.ImGui
                     }
 
                     _context.SetDrawList(DrawList.Foreground);
+                    // ImGui.ShowDemoWindow();
                     _context.Update(widget);
                 }
                 finally
                 {
-                    onlySomeStyles.Dispose();
-
-                    if (fullscreenWindow && !dockingEnabled)
+                    if (DefaultWindow && !dockingEnabled)
                     {
                         ImGui.End();
                     }
@@ -342,7 +341,7 @@ namespace VL.ImGui
         {
             using (_context.MakeCurrent())
             {
-                _io.HandleNotification(notification, useWorldSpace: true);
+                _io.HandleNotification(notification);
 
                 foreach (var layer in _context.Layers)
                 {

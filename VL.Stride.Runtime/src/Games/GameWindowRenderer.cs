@@ -85,6 +85,11 @@ namespace VL.Stride.Games
             base.Initialize();
         }
 
+        public void Close()
+        {
+            Destroy();
+        }
+
         protected override void Destroy()
         {
             if (Presenter != null)

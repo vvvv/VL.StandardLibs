@@ -50,7 +50,7 @@ namespace VL.ImGui.Styling
             }
         }
 
-        internal override void ResetCore(Context context)
+        public override void Reset(Context context)
         {
             if (fontPushed)
             {
@@ -58,7 +58,7 @@ namespace VL.ImGui.Styling
                 fontPushed = false;
             }
 
-            base.ResetCore(context);
+            base.Reset(context);
         }
     }
 }

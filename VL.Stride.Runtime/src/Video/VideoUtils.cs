@@ -75,7 +75,6 @@ namespace VL.Stride.Video
                 var desc = texture.Description;
                 desc.Format = desc.Format.ToSRgb();
                 desc.Flags = TextureFlags.ShaderResource;
-                desc.Options = TextureOptions.None;
                 return new SRgbTexture(Texture.New(graphicsDevice, desc));
             }
 
