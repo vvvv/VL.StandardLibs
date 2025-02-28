@@ -1,4 +1,5 @@
-﻿using Stride.Core;
+﻿#nullable enable
+using Stride.Core;
 using Stride.Engine;
 using Stride.Graphics;
 using System;
@@ -15,13 +16,13 @@ namespace VL.Stride.Graphics
         {
             private BufferDescription description;
             private BufferViewDescription viewDescription;
-            private IGraphicsDataProvider initalData;
+            private IGraphicsDataProvider? initalData;
             private bool needsRebuild = true;
-            private Buffer buffer;
+            private Buffer? buffer;
             internal bool Recreate;
             private readonly IResourceHandle<Game> gameHandle;
 
-            public Buffer Buffer
+            public Buffer? Buffer
             {
                 get
                 {
@@ -56,7 +57,7 @@ namespace VL.Stride.Graphics
                 }
             }
 
-            public IGraphicsDataProvider InitalData
+            public IGraphicsDataProvider? InitalData
             {
                 get => initalData;
                 set
@@ -90,6 +91,10 @@ namespace VL.Stride.Graphics
                 {
                     buffer?.Dispose();
                     buffer = null;
+
+                    if (description.SizeInBytes == 0)
+                        return;
+
                     var game = gameHandle.Resource;
 
                     if (viewDescription.Flags == BufferFlags.None)
@@ -110,14 +115,14 @@ namespace VL.Stride.Graphics
 
         class BufferViewBuilder : IDisposable
         {
-            private Buffer buffer;
+            private Buffer? buffer;
             private BufferViewDescription viewDescription;
             private bool needsRebuild = true;
-            private Buffer bufferView;
+            private Buffer? bufferView;
             internal bool Recreate;
             private readonly IResourceHandle<Game> gameHandle;
 
-            public Buffer Buffer
+            public Buffer? Buffer
             {
                 get
                 {
@@ -132,7 +137,7 @@ namespace VL.Stride.Graphics
                 private set => bufferView = value;
             }
 
-            public Buffer Input
+            public Buffer? Input
             {
                 get => buffer;
                 set

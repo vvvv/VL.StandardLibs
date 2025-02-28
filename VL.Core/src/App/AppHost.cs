@@ -124,7 +124,12 @@ namespace VL.Core
         /// <summary>
         /// Whether the app is exported and runs standalone as an executable.
         /// </summary>
-        public abstract bool IsExported { get; }
+        public virtual bool IsExported => false;
+
+        /// <summary>
+        /// Whether the app is running in the user thread.
+        /// </summary>
+        public virtual bool IsUser => false;
 
         /// <summary>
         /// The service registry of the app.
@@ -232,7 +237,7 @@ namespace VL.Core
         public void ReportException(ExceptionDispatchInfo exceptionDispatchInfo)
         {
             var exception = exceptionDispatchInfo.SourceException;
-            DefaultLogger.LogError(exception, "Unexpected exception: {Message}", exception.Message);
+            DefaultLogger.LogCritical(exception, exception.Message);
             OnException(exceptionDispatchInfo);
         }
 

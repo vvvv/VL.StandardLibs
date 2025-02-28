@@ -187,12 +187,17 @@ namespace VL.Skia
                 //.Merge(Observable.FromEventPattern<EventArgs>(this, nameof(Leave)))
                 //.Merge(Observable.FromEventPattern<EventArgs>(this, nameof(DragLeave)))
                 .Select(p => p.EventArgs.ToLostFocusNotification(this, this));
+            var gotfocus = Observable.Never<EventPattern<EventArgs>>()
+                .Merge(Observable.FromEventPattern<EventArgs>(FControl, nameof(MouseEnter))) // enter with mouse
+                .Merge(Observable.FromEventPattern<EventArgs>(FControl, nameof(GotFocus))) // alt-tab into window
+                .Select(p => p.EventArgs.ToGotFocusNotification(this, this));
             Observable.Merge(new IObservable<INotification>[] {
                 Mouse.Notifications,
                 Keyboard.Notifications,
                 TouchDevice.Notifications,
                 BoundsStream.Select(r => new NotificationWithClientArea(r.Size.ToVector2(), ModifierKeys.ToOurs(), this)),
-                lostfocus
+                lostfocus,
+                gotfocus
                 })
             .Subscribe(OnNotification);
 

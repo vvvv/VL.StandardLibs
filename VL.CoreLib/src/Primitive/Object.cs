@@ -44,6 +44,16 @@ namespace VL.Lib.Primitive.Object
         }
 
         /// <summary>
+        /// If the Input is NULL the fallbackValue will be returned
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T AvoidNULL<T>(T input, T fallbackValue)
+        {
+            return input != null ? input : fallbackValue;
+        }
+
+        /// <summary>
         /// Casts the input value to the downstream connected type. Will throw a InvalidCastException if the cast fails
         /// </summary>
         /// <typeparam name="T"></typeparam>

@@ -109,6 +109,10 @@ namespace VL.ImGui
             {
                 // ImGui has no touch - we rely on the mouse emulation of the event system
             }
+            else if (notification is GotFocusNotification)
+            {
+                _io.AddFocusEvent(true);
+            }
             else if (notification is LostFocusNotification)
             {
                 _io.ClearInputKeys();

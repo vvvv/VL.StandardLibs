@@ -85,8 +85,9 @@ namespace VL.Lib.IO.Socket
                         }
                         catch (Exception)
                         {
-                            // Try again
-                            await Task.Delay(100);
+                            if (!token.IsCancellationRequested)
+                                // Try again
+                                await Task.Delay(100);
                             continue;
                         }
                     }

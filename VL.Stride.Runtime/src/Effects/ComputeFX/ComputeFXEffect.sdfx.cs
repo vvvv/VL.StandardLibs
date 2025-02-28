@@ -30,7 +30,7 @@ namespace VL.Stride.Effects.ComputeFX
                 context.Mixin(mixin, context.GetParam(EffectNodeBaseKeys.EffectNodeBaseShader));
             }
 
-            [ModuleInitializer]
+            [System.Runtime.CompilerServices.ModuleInitializer]
             internal static void __Initialize__()
 
             {

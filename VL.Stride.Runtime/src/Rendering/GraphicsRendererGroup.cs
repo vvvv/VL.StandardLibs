@@ -13,7 +13,7 @@ namespace VL.Stride.Rendering
     /// <summary>
     /// Groups a sequence of <see cref="IGraphicsRendererBase"/> into one.
     /// </summary>
-    public sealed class GraphicsRendererGroup : IGraphicsRendererBase
+    public sealed class GraphicsRendererGroup : DisposeBase, IGraphicsRendererBase
     {
         IReadOnlyList<IGraphicsRendererBase> upstreamRenderers = Spread<IGraphicsRendererBase>.Empty;
 
@@ -24,6 +24,9 @@ namespace VL.Stride.Rendering
 
         void IGraphicsRendererBase.Draw(RenderDrawContext context)
         {
+            if (IsDisposed)
+                return;
+
             foreach (var upstreamLayer in upstreamRenderers)
                 upstreamLayer?.Draw(context);
         }

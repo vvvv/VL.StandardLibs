@@ -17,6 +17,7 @@ using ServiceRegistry = VL.Core.ServiceRegistry;
 using VL.Stride.Core;
 using Stride.Core.Diagnostics;
 using System.Threading;
+using VL.Stride.Input;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Lib.Initialization))]
 
@@ -76,7 +77,7 @@ namespace VL.Stride.Lib
 
                 MessageFilter messageFilter = default;
                 GameContext gameContext;
-                if (UseSDL)
+                if (UseSDL && appHost.IsUser /* SDL assumes one main thread, so let's not use it when game is created inside of editor */)
                 {
                     gameContext = new GameContextSDL(null, 0, 0, isUserManagingRun: true);
                     // SDL_PumpEvents shall not run the message loop (Translate/Dispatch) - already done by windows forms
@@ -100,6 +101,10 @@ namespace VL.Stride.Lib
 
                 // Make sure the main window doesn't block the main loop
                 game.GraphicsDevice.Presenter.PresentInterval = PresentInterval.Immediate;
+
+                // Give input devices of default window lowest priority so that the input manager prefers the ones from our windows
+                foreach (var s in game.Input.Sources)
+                    s.SetPriority(int.MinValue);
 
                 var frameClock = Clocks.FrameClock;
                 frameClock.GetFrameFinished().Subscribe(ffm =>

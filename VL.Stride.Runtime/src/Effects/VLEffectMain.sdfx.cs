@@ -46,7 +46,7 @@ namespace VL.Stride.Rendering
                 }
             }
 
-            [ModuleInitializer]
+            [System.Runtime.CompilerServices.ModuleInitializer]
             internal static void __Initialize__()
 
             {

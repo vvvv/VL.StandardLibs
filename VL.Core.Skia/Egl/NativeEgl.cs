@@ -60,7 +60,9 @@ namespace VL.Skia.Egl
 		public const int EGL_D3D11_TEXTURE_ANGLE = 0x3484;
 		public const int EGL_TEXTURE_INTERNAL_FORMAT_ANGLE = 0x345D;
 
-		public const int EGL_BACK_BUFFER = 0x3084;
+        public const int EGL_RENDER_BUFFER = 0x3086;
+        public const int EGL_SINGLE_BUFFER = 0x3085;
+        public const int EGL_BACK_BUFFER = 0x3084;
 
         public const int EGL_READ = 0x305A;
         public const int EGL_DRAW = 0x3059;

@@ -3,13 +3,12 @@ using System.Drawing;
 using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.Windows.Input;
 using VL.Lang.PublicAPI;
 using VL.Lib.IO.Notifications;
 
 namespace VL.Skia
 {
-    partial class SkiaGLControl
+    partial class SkiaControlBase
     {
         private readonly Subject<TouchNotification> touchNotifications = new Subject<TouchNotification>();
 

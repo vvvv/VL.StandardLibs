@@ -187,7 +187,8 @@ namespace VL.Core
         /// <summary>
         /// The id of the property.
         /// </summary>
-        uint Id { get; }
+        [Obsolete($"Will get removed in the future.", error: true)]
+        uint Id => 0;
 
         /// <summary>
         /// The name of the property. Special characters are escaped. 
@@ -711,23 +712,6 @@ namespace VL.Core
             return false;
         }
 
-        public static bool TryGetValueIncludingAllFields<T>(this IVLObject instance, uint id, T defaultValue, out T value)
-        {
-            var property = instance.Type.AllProperties.FirstOrDefault(p => p.Id == id);
-            if (property != null)
-            {
-                var v = property.GetValue(instance);
-                if (v is T)
-                {
-                    value = (T)v;
-                    return true;
-                }
-            }
-            value = defaultValue;
-            return false;
-        }
-
-
         /// <summary>
         /// Tries to set the value of the given property and returns a new instance (if it is a record) with the set value.
         /// </summary>
@@ -873,8 +857,7 @@ namespace VL.Core
             value = defaultValue;
             return false;
         }
-
-
+       
         public static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath(this object instance, string path, object? accessedViaKey, Type? accessedViaType, string accessedViaPath)
         {
             if (path == "")
@@ -910,8 +893,11 @@ namespace VL.Core
                     if (int.TryParse(match.Groups[1].Value, out var index))
                     {
                         var rest = match.Groups[2].Value;
-                        var o = spread.GetItem(index);
-                        return o.TryGetObjectGraphNodeByPath(rest, index, spread.ElementType, accessedViaPath);
+                        if (0 <= index && index < spread.Count)
+                        {
+                            var o = spread.GetItem(index);
+                            return o.TryGetObjectGraphNodeByPath(rest, index, spread.ElementType, accessedViaPath);
+                        }
                     }
                 }
                 return default;

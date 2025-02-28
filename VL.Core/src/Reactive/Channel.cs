@@ -341,9 +341,7 @@ namespace VL.Lib.Reactive
 
     interface IDummyChannel { }
 
-    interface ISystemGeneratedChannel { }
-
-    internal sealed class DummyChannel<T> : Channel<T>, IDummyChannel, ISystemGeneratedChannel
+    internal sealed class DummyChannel<T> : Channel<T>, IDummyChannel
     {
         public static readonly IChannel<T> Instance = new DummyChannel<T>();
 
@@ -359,11 +357,6 @@ namespace VL.Lib.Reactive
         }
 
         public override bool AcceptsValue => false;
-    }
-
-    internal sealed class SystemGeneratedChannel<T> : Channel<T>, ISystemGeneratedChannel
-    {
-
     }
 
     public static class Channel
@@ -490,7 +483,8 @@ namespace VL.Lib.Reactive
         public static bool IsValid([NotNullWhen(true)] this IChannel? c)
             => c is not null && c is not IDummyChannel;
 
-        public static bool IsSystemGenerated(this IChannel channel) => channel is ISystemGeneratedChannel;
+        [Obsolete("No longer needed", error: true)]
+        public static bool IsSystemGenerated(this IChannel channel) => false;
 
         public static void EnsureValue<T>(this IChannel<T> input, T? value, bool force = false, string? author = default)
         {

@@ -25,7 +25,7 @@ namespace VL.ImGui.Stride.Effects
                 context.Mixin(mixin, "ImGuiEffectShader", context.GetParam(ImGuiEffectShaderKeys.ColorIsSRgb));
             }
 
-            [ModuleInitializer]
+            [System.Runtime.CompilerServices.ModuleInitializer]
             internal static void __Initialize__()
 
             {
