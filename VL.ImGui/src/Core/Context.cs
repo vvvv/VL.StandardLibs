@@ -9,7 +9,7 @@ namespace VL.ImGui
     using ImGui = ImGuiNET.ImGui;
 
     public static class ContextHelpers
-    {        
+    {
         public static Context? Validate(this Context? c) => c ?? Context.Current;
     }
 
@@ -75,6 +75,7 @@ namespace VL.ImGui
     {
         private readonly IntPtr _context;
         private readonly List<Widget> _widgetsToReset = new List<Widget>();
+        private bool _disposed = false;
 
         [ThreadStatic]
         internal static Context? Current = null;
@@ -144,7 +145,7 @@ namespace VL.ImGui
                 DrawList.Foreground => default,
                 DrawList.Background => default,
                 _ => throw new NotImplementedException()
-            };             
+            };
 
             // TODO: All points are drawn in the main viewport. In order to have them drawn inside the window without having to transform them manually
             // we should look into the drawList.AddCallback(..., ...) method. It should allow us to modify the transformation matrix and clipping rects.
@@ -152,7 +153,21 @@ namespace VL.ImGui
 
         public virtual void Dispose()
         {
-            ImGui.DestroyContext(_context);
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                ImGui.DestroyContext(_context);
+            }
+
+            _disposed = true;
         }
 
         internal readonly Dictionary<string, ImFontPtr> Fonts = new Dictionary<string, ImFontPtr>();
@@ -190,8 +205,8 @@ namespace VL.ImGui
         }
 
         internal record struct ItemState(
-            bool IsActivated, 
-            bool IsActive, 
+            bool IsActivated,
+            bool IsActive,
             bool IsLeftClicked,
             bool IsMiddleClicked,
             bool IsRightClicked,
