@@ -27,9 +27,9 @@ namespace VL.ImGui
             var self = new SetNotify();
             self.Update(null, (n, c) =>
             {
-                using (_strideDeviceContext.MakeCurrent())
+                using (_context.MakeCurrent())
                 {
-                    _strideDeviceContext.IO.HandleNotification(n);
+                    _context.IO.HandleNotification(n);
                 }
                 return n.Handled;
             }, out _);

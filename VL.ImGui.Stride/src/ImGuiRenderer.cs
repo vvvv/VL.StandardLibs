@@ -23,7 +23,7 @@ namespace VL.ImGui
 
     public partial class ImGuiRenderer : RendererBase, IDisposable
     {
-        private readonly StrideDeviceContext _strideDeviceContext;
+        private readonly StrideDeviceContext _context;
 
         private ImDrawDataPtr _drawData;
 
@@ -40,12 +40,12 @@ namespace VL.ImGui
 
         internal unsafe ImGuiRenderer(StrideDeviceContext strideDeviceContext)
         {
-            _strideDeviceContext = strideDeviceContext;
+            _context = strideDeviceContext;
         }
 
         public unsafe ImGuiRenderer(NodeContext nodeContext)
         {
-            _strideDeviceContext = new StrideDeviceContext(nodeContext);
+            _context = new StrideDeviceContext(nodeContext);
         }
         
         internal void SetDrawData(ImDrawDataPtr _drawData)
@@ -55,7 +55,7 @@ namespace VL.ImGui
 
         internal void Update( Spread<FontConfig?> fonts, IStyle style)
         {
-            _strideDeviceContext.SetFonts(fonts);
+            _context.SetFonts(fonts);
             this.style = style;
         }
 
@@ -73,9 +73,9 @@ namespace VL.ImGui
             var commandList = context.CommandList;
             var renderTarget = commandList.RenderTarget;
 
-            using (_strideDeviceContext.MakeCurrent())
+            using (_context.MakeCurrent())
             {
-                _strideDeviceContext.IO.DeltaTime = (float)context.RenderContext.Time.TimePerFrame.TotalSeconds;
+                _context.IO.DeltaTime = (float)context.RenderContext.Time.TimePerFrame.TotalSeconds;
 
                 // Handle the inputSource for ImGui
                 var inputSource = context.RenderContext.GetWindowInputSource();
@@ -87,18 +87,18 @@ namespace VL.ImGui
                 
                 if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) == 0)
                 {
-                    _strideDeviceContext.IO.DisplaySize = new System.Numerics.Vector2(renderTarget.Width, renderTarget.Height);
-                    _strideDeviceContext.IO.DisplayFramebufferScale = new System.Numerics.Vector2(1.0f, 1.0f);
+                    _context.IO.DisplaySize = new System.Numerics.Vector2(renderTarget.Width, renderTarget.Height);
+                    _context.IO.DisplayFramebufferScale = new System.Numerics.Vector2(1.0f, 1.0f);
 
                     // Enable Docking
                     if (dockingEnabled)
-                        _strideDeviceContext.IO.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+                        _context.IO.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
 
-                    _strideDeviceContext.NewFrame();
+                    _context.NewFrame();
 
                     try
                     {
-                        using var _ = _strideDeviceContext.ApplyStyle(style);
+                        using var _ = _context.ApplyStyle(style);
 
                         if (fullscreenWindow)
                         {
@@ -118,8 +118,8 @@ namespace VL.ImGui
                             ImGui.DockSpaceOverViewport();
                         }
 
-                        _strideDeviceContext.SetDrawList(DrawList.AtCursor);
-                        _strideDeviceContext.Update(widget);
+                        _context.SetDrawList(DrawList.Foreground);
+                        _context.Update(widget);
                     }
                     finally
                     {
@@ -140,7 +140,7 @@ namespace VL.ImGui
                     SetDrawData(ImGui.GetDrawData());              
                 }
             }
-            _strideDeviceContext.RenderDrawLists(context, _drawData);
+            _context.RenderDrawLists(context, _drawData);
 
         }
 
@@ -151,7 +151,7 @@ namespace VL.ImGui
             {
                 if (errorImGuiInsideImGui.Count == 0)
                 {
-                    foreach (var id in _strideDeviceContext.path)
+                    foreach (var id in _context.path)
                     {
                         errorImGuiInsideImGui.Add(IVLRuntime.Current.AddPersistentMessage(new Lang.Message(id, Lang.MessageSeverity.Error, "Don't use ImGui[Renderer] inside ImGui[Renderer]")));
                     }
@@ -163,7 +163,7 @@ namespace VL.ImGui
         {
             errorImGuiInsideImGui.Dispose(); ;
             inputSubscription.Dispose();
-            _strideDeviceContext.Dispose();
+            _context.Dispose();
 
             base.Destroy();
         }
