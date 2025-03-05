@@ -1,4 +1,9 @@
 ﻿using SixLabors.Fonts;
+using System.Runtime.InteropServices;
+using System;
+using VL.Core;
+using VL.Lib.Adaptive;
+using VL.Lib.Mathematics;
 using VL.Lib.Text;
 
 namespace VL.ImGui
@@ -16,9 +21,14 @@ namespace VL.ImGui
         FontStyle FontStyle = FontStyle.Regular, 
         float Size = 0.16f, 
         string Name = "", 
-        GlyphRange GlyphRange = default)
+        GlyphRange GlyphRange = default
+        )
     {
+        public Optional<Range<byte>> CustomRange {  get; set; } 
+
         public static readonly FontConfig? Default;
+
+        //public GlyphRange
 
         static FontConfig()
         {
@@ -28,6 +38,8 @@ namespace VL.ImGui
                 Default = new FontConfig(new FontList(defaultTypeFace.FontFamily.Name));
             }
         }
+        
+
 
         public override string ToString() => !string.IsNullOrEmpty(Name) ? Name : $"{FamilyName} {FontStyle} {Size}";
     }
