@@ -10,6 +10,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using VL.Core;
 using VL.Core.EditorAttributes;
+using VL.Core.Reactive;
 using VL.Lib.Collections;
 
 #nullable enable
@@ -257,6 +258,11 @@ namespace VL.Lib.Reactive
 
     internal class Channel<T> : C<T>, IChannel<object>, IInternalChannel
     {
+        public Channel()
+        {
+            Path = ChannelHubHelpers.CreateUniqueKey();
+        }
+
         object? IMonadicValue<object>.Value => Value;
 
         object? IMonadicValue.BoxedValue => Value;
