@@ -169,10 +169,9 @@ namespace VL.ImGui
                     s.Slice(0, Math.Min(s.Length, dst.Length)).CopyTo(dst);
 
                     // TODO this caused a Memory leak ... old Font will not disposed??
-                    if (font.CustomRange.HasValue && (font.CustomRange.Value.From != font.CustomRange.Value.To))
+                    if (font._CustomGlyphRange_ != null)
                     {
-                        ushort[] Range = { font.CustomRange.Value.From, font.CustomRange.Value.To, 0 };
-                        var rangeIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(Range, 0);
+                        var rangeIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(font._CustomGlyphRange_, 0);
 
                         var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, rangeIntPtr);
                         anyFontLoaded = true;
@@ -180,6 +179,8 @@ namespace VL.ImGui
                     }
                     else
                     {
+                        var defaultRange = new Span<ushort>(GetGlypthRange(atlas, font.GlyphRange).ToPointer(), 3);
+
                         var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, GetGlypthRange(atlas, font.GlyphRange));
                         anyFontLoaded = true;
                         _context.Fonts[font.Name] = f;

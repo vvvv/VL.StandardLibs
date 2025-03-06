@@ -5,6 +5,7 @@ using VL.Core;
 using VL.Lib.Adaptive;
 using VL.Lib.Mathematics;
 using VL.Lib.Text;
+using VL.Lib.Collections;
 
 namespace VL.ImGui
 {
@@ -16,19 +17,19 @@ namespace VL.ImGui
     /// <param name="Size">The size of the font in device independent hecto pixel (1 = 100 DIP).</param>
     /// <param name="Name">An optional name to use for this configuration.</param>
     /// <param name="GlyphRange">The glyph range.</param>
+    /// <param name="CustomGlyphRange">Custom glyph range. If set <see cref="GlyphRange"/> will be ignored. A valid range is 1..0xFFFF</param>
     public record FontConfig(
         FontList FamilyName, 
         FontStyle FontStyle = FontStyle.Regular, 
         float Size = 0.16f, 
         string Name = "", 
-        GlyphRange GlyphRange = default
+        GlyphRange GlyphRange = default,
+        Spread<Range<int>>? CustomGlyphRange = default
         )
     {
-        public Optional<Range<byte>> CustomRange {  get; set; } 
-
         public static readonly FontConfig? Default;
 
-        //public GlyphRange
+        public Spread<Range<int>>? CustomRanges { get; init; } = CheckValidRange(CustomGlyphRange);
 
         static FontConfig()
         {
@@ -38,9 +39,42 @@ namespace VL.ImGui
                 Default = new FontConfig(new FontList(defaultTypeFace.FontFamily.Name));
             }
         }
-        
-
 
         public override string ToString() => !string.IsNullOrEmpty(Name) ? Name : $"{FamilyName} {FontStyle} {Size}";
+
+        internal ushort[]? _CustomGlyphRange_
+        {
+            get
+            {
+                if (customGlyphRange is null && CustomRanges != null && CustomRanges.Count > 0)
+                {
+                    var i = 0;
+                    customGlyphRange = GC.AllocateArray<ushort>(CustomRanges.Count * 2 + 1, pinned: true);
+                    foreach (var r in CustomRanges)
+                    {
+                        customGlyphRange[i++] = (ushort)r.From;
+                        customGlyphRange[i++] = (ushort)r.To;
+                    }
+                    customGlyphRange[i++] = 0;
+                }
+                return customGlyphRange;
+            }
+        }
+        ushort[]? customGlyphRange;
+
+        static Spread<Range<int>>? CheckValidRange(Spread<Range<int>>? r)
+        {
+            if (r is null || r.Count == 0)
+                return null;
+
+            if (!HasValidRanges(r))
+                throw new ArgumentOutOfRangeException(nameof(CustomRanges));
+
+            return r;
+
+            static bool HasValidRanges(Spread<Range<int>> r) => r.Count > 0 && r.All(IsValidRange);
+
+            static bool IsValidRange(Range<int> r) => r.From > 0 && r.To > 0 && r.From <= r.To && r.To <= ushort.MaxValue;
+        }
     }
 }
