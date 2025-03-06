@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using SixLabors.Fonts;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using VL.Core;
 using VL.Lib.Collections;
@@ -167,10 +168,24 @@ namespace VL.ImGui
                     var dst = new Span<byte>(cfg.Name, 40);
                     s.Slice(0, Math.Min(s.Length, dst.Length)).CopyTo(dst);
 
-                    // TODO this caused a Memory leak ... old Font will not disposed?? 
-                    var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, GetGlypthRange(atlas, font.GlyphRange));
-                    anyFontLoaded = true;
-                    _context.Fonts[font.Name] = f;
+                    // TODO this caused a Memory leak ... old Font will not disposed??
+                    if (font._CustomGlyphRange_ != null)
+                    {
+                        var rangeIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(font._CustomGlyphRange_, 0);
+
+                        var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, rangeIntPtr);
+                        anyFontLoaded = true;
+                        _context.Fonts[font.Name] = f;
+                    }
+                    else
+                    {
+                        var defaultRange = new Span<ushort>(GetGlypthRange(atlas, font.GlyphRange).ToPointer(), 3);
+
+                        var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, GetGlypthRange(atlas, font.GlyphRange));
+                        anyFontLoaded = true;
+                        _context.Fonts[font.Name] = f;
+                    }
+                    
                 }
             }
 
