@@ -1,8 +1,5 @@
 ﻿using SixLabors.Fonts;
 using System.Runtime.InteropServices;
-using System;
-using VL.Core;
-using VL.Lib.Adaptive;
 using VL.Lib.Mathematics;
 using VL.Lib.Text;
 using VL.Lib.Collections;
@@ -42,7 +39,7 @@ namespace VL.ImGui
 
         public override string ToString() => !string.IsNullOrEmpty(Name) ? Name : $"{FamilyName} {FontStyle} {Size}";
 
-        internal ushort[]? _CustomGlyphRange_
+        internal IntPtr CustomGlyphRangePtr
         {
             get
             {
@@ -57,7 +54,7 @@ namespace VL.ImGui
                     }
                     customGlyphRange[i++] = 0;
                 }
-                return customGlyphRange;
+                return customGlyphRange != null ? Marshal.UnsafeAddrOfPinnedArrayElement(customGlyphRange, 0) : default;
             }
         }
         ushort[]? customGlyphRange;

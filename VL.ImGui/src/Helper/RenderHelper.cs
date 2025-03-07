@@ -1,11 +1,11 @@
 ﻿using ImGuiNET;
-using SixLabors.Fonts;
-using System.Numerics;
+using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
 using System.Text;
 using VL.Core;
 using VL.Lib.Collections;
 using VL.Lib.IO.Notifications;
+using VL.Lib.Text;
 
 namespace VL.ImGui
 {
@@ -137,25 +137,22 @@ namespace VL.ImGui
                 if (font is null)
                     continue;
 
+                var fontPath = FontListDefinition.GetFontPath(font.FamilyName.Value, font.FontStyle);
+                if (fontPath.IsDefault)
+                    continue;
+
                 var size = Math.Clamp(font.Size * 100 /* hecto pixel */ * scaling, 1, short.MaxValue);
-
-                var family = SystemFonts.Families.FirstOrDefault(f => f.Name == font.FamilyName.Value);
-                if (family.Name is null)
-                    continue;
-
-                var systemFont = family.CreateFont((float)(size * 0.75f) /* PT */, font.FontStyle);
-                if (!systemFont.TryGetPath(out var path))
-                    continue;
 
                 ImFontConfig cfg = new ImFontConfig()
                 {
                     SizePixels = size,
-                    FontDataOwnedByAtlas = 0,
+                    FontNo = fontPath.Index,
+                    FontDataOwnedByAtlas = 1,
                     EllipsisChar = unchecked((ushort)-1),
                     OversampleH = 2,
                     OversampleV = 1,
                     PixelSnapH = 1,
-                    GlyphOffset = new System.Numerics.Vector2(0, 0),
+                    GlyphOffset = default,
                     GlyphMaxAdvanceX = float.MaxValue,
                     RasterizerMultiply = 1.0f,
                     RasterizerDensity = 1.0f
@@ -168,24 +165,12 @@ namespace VL.ImGui
                     var dst = new Span<byte>(cfg.Name, 40);
                     s.Slice(0, Math.Min(s.Length, dst.Length)).CopyTo(dst);
 
-                    // TODO this caused a Memory leak ... old Font will not disposed??
-                    if (font._CustomGlyphRange_ != null)
-                    {
-                        var rangeIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(font._CustomGlyphRange_, 0);
-
-                        var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, rangeIntPtr);
-                        anyFontLoaded = true;
-                        _context.Fonts[font.Name] = f;
-                    }
-                    else
-                    {
-                        var defaultRange = new Span<ushort>(GetGlypthRange(atlas, font.GlyphRange).ToPointer(), 3);
-
-                        var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, GetGlypthRange(atlas, font.GlyphRange));
-                        anyFontLoaded = true;
-                        _context.Fonts[font.Name] = f;
-                    }
-                    
+                    var glyphRange = font.CustomGlyphRangePtr;
+                    if (glyphRange == default)
+                        glyphRange = GetGlypthRange(atlas, font.GlyphRange);
+                    var f = atlas.AddFontFromFileTTF(fontPath.Path, cfg.SizePixels, &cfg, glyphRange);
+                    anyFontLoaded = true;
+                    _context.Fonts[font.Name] = f;
                 }
             }
 
@@ -193,6 +178,8 @@ namespace VL.ImGui
             {
                 atlas.AddFontDefault();
             }
+
+            atlas.Build();
 
             return atlas;
 
