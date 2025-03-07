@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using SixLabors.Fonts;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using VL.Core;
 using VL.Lib.Collections;
@@ -38,7 +39,7 @@ namespace VL.ImGui
             //style.ScaleAllSizes(scale);
         }
 
-        public static void HandleNotification(this ImGuiIOPtr _io, INotification notification, bool useWorldSpace /* HACK - breaks LayerWidget*/)
+        public static void HandleNotification(this ImGuiIOPtr _io, INotification notification)
         {
             if (notification is KeyNotification keyNotification)
             {
@@ -72,10 +73,15 @@ namespace VL.ImGui
                     };
                 }
 
-                // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
-                var pos = useWorldSpace ? mouseNotification.PositionInWorldSpace.FromHectoToImGui() : mouseNotification.Position.ToImGui();
-                _io.AddMousePosEvent(pos.X, pos.Y);
+                // If viewports are enabled, ImGui expects the mouse in DesktopScreenSpace, this is set in ImGuiWindows/SetPerFrameImGuiData, if not use the old approach
+                var flag = ImGui.GetIO().ConfigFlags;
+                if ((flag & ImGuiConfigFlags.ViewportsEnable) == 0)
+                {
+                    var pos = mouseNotification.PositionInWorldSpace.FromHectoToImGui();
+                    _io.AddMousePosEvent(pos.X, pos.Y);
+                }
 
+                // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
                 switch (mouseNotification.Kind)
                 {
                     case MouseNotificationKind.MouseDown:
@@ -162,10 +168,24 @@ namespace VL.ImGui
                     var dst = new Span<byte>(cfg.Name, 40);
                     s.Slice(0, Math.Min(s.Length, dst.Length)).CopyTo(dst);
 
-                    // TODO this caused a Memory leak ... old Font will not disposed?? 
-                    var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, GetGlypthRange(atlas, font.GlyphRange));
-                    anyFontLoaded = true;
-                    _context.Fonts[font.Name] = f;
+                    // TODO this caused a Memory leak ... old Font will not disposed??
+                    if (font._CustomGlyphRange_ != null)
+                    {
+                        var rangeIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(font._CustomGlyphRange_, 0);
+
+                        var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, rangeIntPtr);
+                        anyFontLoaded = true;
+                        _context.Fonts[font.Name] = f;
+                    }
+                    else
+                    {
+                        var defaultRange = new Span<ushort>(GetGlypthRange(atlas, font.GlyphRange).ToPointer(), 3);
+
+                        var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, GetGlypthRange(atlas, font.GlyphRange));
+                        anyFontLoaded = true;
+                        _context.Fonts[font.Name] = f;
+                    }
+                    
                 }
             }
 
