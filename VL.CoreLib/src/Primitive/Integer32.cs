@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using VL.Core;
 
 namespace VL.Lib.Primitive
@@ -16,6 +17,7 @@ namespace VL.Lib.Primitive
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Inc(this int input)
         {
             return input + 1;
@@ -26,6 +28,7 @@ namespace VL.Lib.Primitive
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Dec(this int input)
         {
             return input - 1;
@@ -39,6 +42,7 @@ namespace VL.Lib.Primitive
         /// <param name="z"></param>
         /// <param name="input2"></param>
         /// <returns>Remainder of division z / d.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ZMOD(this int z, int input2 = 1)
         {
             if (z >= input2)
@@ -52,6 +56,7 @@ namespace VL.Lib.Primitive
                 return z;
         }     
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Lerp(int input, int input2, float scalar)
         {
             return (int)(input + (input2 - input) * scalar);
