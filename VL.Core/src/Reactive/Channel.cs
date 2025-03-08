@@ -332,7 +332,7 @@ namespace VL.Lib.Reactive
 
         public static implicit operator T?(Channel<T> c) => c.Value;
 
-        public override string ToString() => Path != null ? $"{Path} = {Value}" : $"{Value}";
+        public override string ToString() => Path != null && !Path.StartsWith("_Anonymous") ? $"{Path} = {Value}" : $"{Value}";
 
         void IInternalChannel.SetPath(string path)
         {
@@ -415,31 +415,7 @@ namespace VL.Lib.Reactive
             return newC;
         }
 
-        public static object EnsureSingleComponentOfType(this IChannel channel, object component, bool renew)
-        {
-            var type = component.GetType();
-            foreach (object? c in channel.Components)
-            {
-                if (c.GetType() == type)
-                {
-                    if (!renew)
-                    {
-                        (component as IDisposable)?.Dispose();
-                        return c;
-                    }
-                    channel.Components = channel.Components.Replace(c, component);
-                    (c as IDisposable)?.Dispose();
-                    return component;
-                }
-            }
-            channel.Components = channel.Components.Add(component);
-            return component;
-        }
-
-        public static IChannel<Spread<Attribute>> Attributes(this IChannel channel)
-        {
-            return channel.TryGetComponent<IChannel<Spread<Attribute>>>() ?? channel.EnsureSingleComponentOfType(() => Channel.Create(Spread<Attribute>.Empty), false);
-        }
+        public static IChannel<Spread<Attribute>> Attributes(this IChannel channel) => channel.EnsureSingleComponentOfType(() => Channel.Create(Spread<Attribute>.Empty), false);
 
         public static bool TryGetAttribute<T>(this IChannel channel, [NotNullWhen(true)] out T? attribute) where T : Attribute
         {
