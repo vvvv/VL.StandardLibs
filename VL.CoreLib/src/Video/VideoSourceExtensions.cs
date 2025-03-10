@@ -69,7 +69,9 @@ namespace VL.Lib.Video
                                 {
                                     if (frame != null)
                                     {
-                                        observer.OnNext(frame);
+                                        // Using ensures the frame is disposed in case no one took ownership
+                                        using (frame.GetHandle())
+                                            observer.OnNext(frame);
                                         await scheduler.Yield(token);
                                     }
                                     else
@@ -122,7 +124,9 @@ namespace VL.Lib.Video
                                 {
                                     if (frame != null)
                                     {
-                                        observer.OnNext(frame);
+                                        // Using ensures the frame is disposed in case no one took ownership
+                                        using (frame.GetHandle())
+                                            observer.OnNext(frame);
                                         await scheduler.Yield(token);
                                     }
                                     else
