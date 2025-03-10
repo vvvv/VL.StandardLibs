@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="RyHGnrGwx62M5wAmYdxalg" LanguageVersion="2025.7.0-0002-g93330f7cea" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="RyHGnrGwx62M5wAmYdxalg" LanguageVersion="2025.7.0-0230-g54e3f3f1ca" Version="0.128">
   <Patch Id="G3nwiSIzxN4Ou89Ez8bkgq">
     <Canvas Id="BbzXWz4r1wLNOxUhunSd9q" DefaultCategory="VL.Advanced" CanvasType="FullCategory">
       <!--
@@ -500,6 +500,7 @@
                     <Pin Id="DkcF2qlD8FvQRIYPRPdTBI" Name="Node Context" Kind="InputPin" IsHidden="true" />
                     <Pin Id="OqW8twEDSKzNLqrjMTqwnD" Name="Messages" Kind="InputPin" />
                     <Pin Id="DIPSbBswwK7OINzidSqSNh" Name="Reset" Kind="InputPin" />
+                    <Pin Id="K3CScDhZIFMLzWy8TB5SET" Name="Output" Kind="OutputPin" IsHidden="true" />
                     <Pin Id="P4TIwkfInvdMGVYkAyIAws" Name="Result" Kind="OutputPin" />
                     <Patch Id="Sa1gqsCOVVnMHIb6ou7XBX" ManuallySortedPins="true">
                       <Patch Id="Qy2aAndTmy5Ozm8ln12LxO" Name="Create" ManuallySortedPins="true" />
@@ -1613,7 +1614,7 @@
                   <Pad Id="G9ILuzZOGB2LL6s0hdV9lG" SlotId="E940Od5pzyyL8WDNhP4ZCa" Bounds="486,548">
                     <p:Value r:IsNull="true" />
                   </Pad>
-                  <Node Bounds="370,591,487,273" Id="BQpbDu6KvsRNYzG5bHRY6W">
+                  <Node Bounds="369,591,487,273" Id="BQpbDu6KvsRNYzG5bHRY6W">
                     <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
                       <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
                       <CategoryReference Kind="Category" Name="Primitive" />
@@ -1706,10 +1707,19 @@
                     </Patch>
                   </Node>
                   <ControlPoint Id="LybLagU4UzkMQmn2N3itYD" Bounds="264,501" />
+                  <Node Bounds="473,901,67,26" Id="VcqfIR3jr9aOX5MEUNhm4F">
+                    <p:NodeReference LastCategoryFullName="Primitive.IDisposable" LastDependency="CoreLibBasics.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <Choice Kind="OperationCallFlag" Name="TryDispose (Instance)" />
+                    </p:NodeReference>
+                    <Pin Id="UfgxbdfbbZYLEGitOVhAQm" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="ELijjsdEyhOLz2XdTDZ4tJ" Name="Success" Kind="OutputPin" />
+                  </Node>
                 </Canvas>
                 <ProcessDefinition Id="Beu2vkUNf8zOCL0uFiCr7T" HasStateOut="true">
                   <Fragment Id="T5Imffb38vbN4chsyWsmNI" Patch="UIYBuEj153LPUQ2wrP5Lin" Enabled="true" />
                   <Fragment Id="OssEEENn0WTO89YvAdSUw7" Patch="UVyyWAu3TBSNjtM8PiJHQq" />
+                  <Fragment Id="QreFi2Bn7FJLWS1gq6MlHj" Patch="C7bl95hYyv0PBB0FtFVdvt" />
                 </ProcessDefinition>
                 <Link Id="Hq3KbPYssv3LCNo1GuY4Ha" Ids="PsxwdQgwr9YOtWfTsA8T98,JZ0pix4UqP5McosRppDfEf" IsHidden="true" />
                 <Link Id="TAcfcDaL3UrLaIIIcpLcUi" Ids="MJCeqdvQJ07POQC8SX2LQX,U3aLBRhaImUPjrZXpn69cJ" />
@@ -1754,6 +1764,8 @@
                 <Link Id="JgrfJLxGNkiOy4nbydHnHB" Ids="GaHIwLsDiB2OTXqPPz0uNU,G1T8PSC9NN8MIAAO8zHTm0" />
                 <Link Id="Dob6yMnZpg8L7XBtgSEe2P" Ids="LybLagU4UzkMQmn2N3itYD,MwpF8QUAZ2UQLMcL9JvRAT" />
                 <Link Id="UsWcla5FQbcPWCohpj2Lte" Ids="F89PuBLSpPEOQiJC8lmDrd,LybLagU4UzkMQmn2N3itYD" IsHidden="true" />
+                <Patch Id="C7bl95hYyv0PBB0FtFVdvt" Name="Clear" ParticipatingElements="VcqfIR3jr9aOX5MEUNhm4F" />
+                <Link Id="RWUjkkNURsrQZuRLRmX8GJ" Ids="F18LDyEbuErLdtJgZLmKJD,UfgxbdfbbZYLEGitOVhAQm" />
               </Patch>
             </Node>
           </Canvas>
