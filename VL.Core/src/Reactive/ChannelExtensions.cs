@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive.Disposables;
 using VL.Core;
+using VL.Core.Reactive;
+using VL.Lib.Basics.Resources;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
 
@@ -170,12 +172,141 @@ namespace VL.Lib.Reactive
 
             return subscription;
         }
-    
 
 
+        record class UpLink(IDisposable Disposable) : IDisposable
+        {
+            public void Dispose()
+            {
+                Disposable.Dispose();
+            }
+        }
 
 
+        public static void InitSubChannel(this IChannel channel, ObjectGraphNode node)
+        {
+            if (node.AccessedViaKey is IVLPropertyInfo p)
+            {
+                var attribChannel = Attributes(channel);
+                if (!attribChannel.Value.SequenceEqual(p.Attributes))
+                {
+                    attribChannel.SetValueAndAuthor(p.Attributes, author: "InitSubChannel");
+                }
+            }
+        }
 
+
+        public static void GetOrAddSubChannel<A, B>(this IChannel<A> main, string relativePath, out IChannel<B> subChannel, out IDisposable handleOnSomeBridges)
+            where A : class
+        {
+            subChannel = null;
+            handleOnSomeBridges = Disposable.Empty;
+
+            static IEnumerable<ObjectGraphNode> yieldPathToNode(ObjectGraphNode node)
+            {
+                if (node.Parent != null)
+                    foreach (var n in yieldPathToNode(node.Parent))
+                        yield return n;
+                yield return node;
+            }
+
+            if (main == null)
+                throw new ArgumentException("Main channel must be set.", nameof(main));
+
+            if (relativePath.Length == 0)
+                throw new ArgumentException("Relative path must not be empty.", nameof(relativePath));
+
+            if (string.IsNullOrWhiteSpace(main.Path))
+                throw new ArgumentException("Select(ByPath) only supported on shared channels.", nameof(main));
+
+            var node = main.Object.TryGetObjectGraphNodeByPath(relativePath);
+
+            if (node.HasValue)
+            {
+                var channelHub = AppHost.Current.Services.GetRequiredService<IChannelHub>();
+                IChannel<object> parent = null;
+                IChannel<object> channel = null;
+                var handleOnSomeSyncs = new CompositeDisposable();
+                foreach (var n in yieldPathToNode(node.Value))
+                {
+                    if (parent == null)
+                    {
+                        parent = main as IChannel<object>;
+                        continue;
+                    }
+
+                    var globalPath = main.Path + n.Path;
+                    channel = channelHub.TryGetChannel(globalPath);
+                    if (channel == null)
+                    {
+                        channel = channelHub.TryAddChannel(globalPath, typeof(object));
+                        InitSubChannel(channel, n);
+                    }
+
+                    var subSync = channel.EnsureSingleComponentOfType(() =>
+                    {
+                        return
+                            ResourceProvider.New(() => SubChannelSyncer(parent, channel, n.AccessedViaKeyPath))
+                            .ShareInParallel();
+                    });
+
+                    handleOnSomeSyncs.Add(subSync.GetHandle()); // diposing this will keep the channels but remove the sync (if not needed by other SelectByPath)
+                    parent = channel;
+                }
+                subChannel = Channel.Create<B>(default); //TODO: view
+                handleOnSomeSyncs.Add(channel.Merge(subChannel, v => v is B ? (B)v : default, v => v, ChannelMergeInitialization.UseA, ChannelSelection.Both));
+                handleOnSomeBridges = handleOnSomeSyncs;
+            }
+        }
+
+
+        private static IDisposable SubChannelSyncer<A, B>(IChannel<A> main, IChannel<B> sub, string relativePath)
+            where A : class
+        {
+            if (!main.IsValid() || !sub.IsValid())
+                return Disposable.Empty;
+
+            var subscription = new CompositeDisposable();
+
+            if (main.Value.TryGetValueByPath(relativePath, default, out B value, out _))
+                sub.EnsureValue(value, author: "SubChannelSyncer.Init");
+
+            var isBusy = false;
+            subscription.Add(main.Subscribe(v =>
+            {
+                if (!isBusy)
+                {
+                    isBusy = true;
+                    try
+                    {
+                        if (main.Value.TryGetValueByPath(relativePath, default, out B value, out _))
+                            sub.EnsureValue(value, author: "SubChannelSyncer.FromParent");
+                    }
+                    finally
+                    {
+                        isBusy = false;
+                    }
+                }
+            }));
+            subscription.Add(sub.Subscribe(v =>
+            {
+                if (!isBusy)
+                {
+                    isBusy = true;
+                    try
+                    {
+                        var newBig = main.Value.WithValueByPath(relativePath, v, out _);
+                        main.SetValueAndAuthor(newBig, author: "SubChannelSyncer.FromChild");
+                    }
+                    finally
+                    {
+                        isBusy = false;
+                    }
+                }
+            }));
+
+            return subscription;
+        }
 
 
         public static void AddComponent(this IChannel channel, object component)
@@ -197,7 +328,7 @@ namespace VL.Lib.Reactive
             return default;
         }
 
-        public static TComponent EnsureSingleComponentOfType<TComponent>(this IChannel channel, Func<TComponent> producer, bool renew) where TComponent : class
+        public static TComponent EnsureSingleComponentOfType<TComponent>(this IChannel channel, Func<TComponent> producer, bool renew = false) where TComponent : class
         {
             var c = channel.TryGetComponent<TComponent>();
             if (c is null)
