@@ -250,34 +250,36 @@ namespace VL.Core
         /// Is either a string (dictionaryKey.ToString()), a PropertyInfo (.Net object property), an IVLPropertyInfo (IVLObject property) or an int (index of collection).
         /// </summary>
         public object AccessedViaKey { get; }
+        public string AccessedViaKeyPath { get; }
         public ObjectGraphNode Parent { get; }
 
-        private ObjectGraphNode(string path, object value, Type type, object accessedViaKey, ObjectGraphNode parent)
+        private ObjectGraphNode(string path, object value, Type type, object accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
         {
             Path = path;
             Value = value;
             Type = type;
             AccessedViaKey = accessedViaKey;
             Parent = parent;
+            AccessedViaKeyPath = accessedViaKeyPath;
         }
 
-        public ObjectGraphNode(string path, object value, Type type, IVLPropertyInfo accessedViaKey, ObjectGraphNode parent)
-            : this(path, value, type, (object)accessedViaKey, parent)
+        public ObjectGraphNode(string path, object value, Type type, IVLPropertyInfo accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+            : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
 
-        public ObjectGraphNode(string path, object value, Type type, string accessedViaKey, ObjectGraphNode parent)
-            : this(path, value, type, (object)accessedViaKey, parent)
+        public ObjectGraphNode(string path, object value, Type type, string accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+            : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
 
-        public ObjectGraphNode(string path, object value, Type type, int accessedViaKey, ObjectGraphNode parent)
-            : this(path, value, type, (object)accessedViaKey, parent)
+        public ObjectGraphNode(string path, object value, Type type, int accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+            : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
 
-        public ObjectGraphNode(string path, object value, Type type, PropertyInfo accessedViaKey, ObjectGraphNode parent)
-            : this(path, value, type, (object)accessedViaKey, parent)
+        public ObjectGraphNode(string path, object value, Type type, PropertyInfo accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+            : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
     }
@@ -613,7 +615,7 @@ namespace VL.Core
             filter.Reset();
             var collection = new SpreadBuilder<ObjectGraphNode>();
 
-            var root = new ObjectGraphNode(rootPath, instance, type, 0, null);
+            var root = new ObjectGraphNode(rootPath, instance, type, 0, null, "");
             if (includeRoot)
                 collection.Add(root);
 
@@ -690,7 +692,7 @@ namespace VL.Core
                 if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, property))
                 {
                     var childtype = property.Type.ClrType; // let's use the type of the property, not the type of the object. Embracing super types.
-                    var c = new ObjectGraphNode(path, value, childtype, property, node);
+                    var c = new ObjectGraphNode(path, value, childtype, property, node, localID);
                     action(c, depth);
                 }
             }
@@ -707,7 +709,7 @@ namespace VL.Core
                 if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, i))
                 {
                     var childtype = spread.ElementType; // let's use the element type of the spread, not the type of the object. Embracing super types.
-                    var c = new ObjectGraphNode(path, value, childtype, i, node);
+                    var c = new ObjectGraphNode(path, value, childtype, i, node, localID);
                     action(c, depth);
                 }
             }
@@ -727,7 +729,7 @@ namespace VL.Core
                 if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, entry.Key))
                 {
                     var childtype = valueType; // let's use the type of the value collection, not the type of the object. Embracing super types.
-                    var c = new ObjectGraphNode(path, value, childtype, entry.Key.ToString(), node);
+                    var c = new ObjectGraphNode(path, value, childtype, entry.Key.ToString(), node, localID);
                     action(c, depth);
                 }
             }
@@ -905,8 +907,14 @@ namespace VL.Core
             return false;
         }
 
-        public static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath(this object instance, string path)
-            => TryGetObjectGraphNodeByPath_(path, new ObjectGraphNode("", instance, instance?.GetType(), 0, null));
+        public static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath(this object instance, string path, string rootpath = "")
+        {
+            if (path.Length == 0)
+                return default;
+            var firstChar = path[0];
+            path = firstChar == '.' || firstChar == '[' ? path : '.' + path;
+            return TryGetObjectGraphNodeByPath_(path, new ObjectGraphNode(rootpath, instance, instance?.GetType(), 0, null, ""));
+        }
 
         static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath_(string path, ObjectGraphNode parent)
         {
@@ -930,7 +938,7 @@ namespace VL.Core
                     if (property != null)
                     {
                         var o = property.GetValue(vlObj);
-                        var node = new ObjectGraphNode($"{parent.Path}.{propertyName}", o, property.Type.ClrType, property, parent);
+                        var node = new ObjectGraphNode($"{parent.Path}.{propertyName}", o, property.Type.ClrType, property, parent, propertyName);
                         return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
@@ -948,7 +956,7 @@ namespace VL.Core
                         if (0 <= index && index < spread.Count)
                         {
                             var o = spread.GetItem(index);
-                            var node = new ObjectGraphNode($"{parent.Path}[{index}]", o, spread.ElementType, index, parent);
+                            var node = new ObjectGraphNode($"{parent.Path}[{index}]", o, spread.ElementType, index, parent, $"[{index}]");
                             return TryGetObjectGraphNodeByPath_(rest, node);
                         }
                     }
@@ -966,7 +974,8 @@ namespace VL.Core
                     if (dict.Contains(key))
                     {
                         var o = dict[key];
-                        var node = new ObjectGraphNode($"{parent.Path}[\"{key}\"]", o, o?.GetType() /* should be something like dict.TypeOfValues */, key, parent);
+                        var node = new ObjectGraphNode($"{parent.Path}[\"{key}\"]", o, 
+                            o?.GetType() /* should be something like dict.TypeOfValues */, key, parent, $"[\"{key}\"]");
                         return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
@@ -984,7 +993,8 @@ namespace VL.Core
                         {
                             var rest = match.Groups[2].Value;
                             var o = list[index];
-                            var node = new ObjectGraphNode($"{parent.Path}[{index}]", o, o?.GetType() /* should be something like list.ElementType */, index, parent);
+                            var node = new ObjectGraphNode($"{parent.Path}[{index}]", o, 
+                                o?.GetType() /* should be something like list.ElementType */, index, parent, $"[{index}]");
                             return TryGetObjectGraphNodeByPath_(rest, node);
                         }
                     }
@@ -1004,7 +1014,7 @@ namespace VL.Core
                     if (property != null)
                     {
                         var o = property.GetValue(instance);
-                        var node = new ObjectGraphNode($"{parent.Path}.{propertyName}", o, property.PropertyType, property, parent);   
+                        var node = new ObjectGraphNode($"{parent.Path}.{propertyName}", o, property.PropertyType, property, parent, propertyName);   
                         return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
