@@ -15,6 +15,7 @@ using VL.Core.Logging;
 using VL.Lang;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
+using static VL.Core.VLObjectExtensions;
 
 namespace VL.Core
 {
@@ -239,11 +240,47 @@ namespace VL.Core
         new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
 
-    public record struct ObjectGraphNode(
-        string Path, 
-        object Value, 
-        Type Type,         
-        object? AccessedViaKey);
+    public class ObjectGraphNode
+    {
+        public string Path { get; }
+        public object Value { get; }
+        public Type Type { get; }
+
+        /// <summary>
+        /// Is either a string (dictionaryKey.ToString()), a PropertyInfo (.Net object property), an IVLPropertyInfo (IVLObject property) or an int (index of collection).
+        /// </summary>
+        public object AccessedViaKey { get; }
+        public ObjectGraphNode Parent { get; }
+
+        private ObjectGraphNode(string path, object value, Type type, object accessedViaKey, ObjectGraphNode parent)
+        {
+            Path = path;
+            Value = value;
+            Type = type;
+            AccessedViaKey = accessedViaKey;
+            Parent = parent;
+        }
+
+        public ObjectGraphNode(string path, object value, Type type, IVLPropertyInfo accessedViaKey, ObjectGraphNode parent)
+            : this(path, value, type, (object)accessedViaKey, parent)
+        {
+        }
+
+        public ObjectGraphNode(string path, object value, Type type, string accessedViaKey, ObjectGraphNode parent)
+            : this(path, value, type, (object)accessedViaKey, parent)
+        {
+        }
+
+        public ObjectGraphNode(string path, object value, Type type, int accessedViaKey, ObjectGraphNode parent)
+            : this(path, value, type, (object)accessedViaKey, parent)
+        {
+        }
+
+        public ObjectGraphNode(string path, object value, Type type, PropertyInfo accessedViaKey, ObjectGraphNode parent)
+            : this(path, value, type, (object)accessedViaKey, parent)
+        {
+        }
+    }
 
     public static class VLFactoryExtensions
     {
@@ -575,62 +612,72 @@ namespace VL.Core
                 filter = new DefaultCrawlObjectGraphFilter();
             filter.Reset();
             var collection = new SpreadBuilder<ObjectGraphNode>();
+
+            var root = new ObjectGraphNode(rootPath, instance, type, 0, null);
             if (includeRoot)
-                collection.Add(new ObjectGraphNode(rootPath, instance, type, AccessedViaKey: null));
-            CollectChildPaths(instance, rootPath, filter, collection, -1, type);
+                collection.Add(root);
+
+            Action<ObjectGraphNode, int> action = null;
+            action = (ObjectGraphNode node, int depth) =>
+            {
+                collection.Add(node);
+                ActOnChildren(node.Value, node.Path, filter, depth, node, action);
+            };
+
+            ActOnChildren(instance, rootPath, filter, -1, root, action);
+
             return collection.ToSpread();
         }
 
-        static void CollectChildPaths(object value, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int parentDepth, Type type)
+        static void ActOnChildren(object value, string pathOfParent, ICrawlObjectGraphFilter filter, int parentDepth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
         {
             if (filter.CrawlOnTypeLevel)
             {
-                if (type.IsAssignableTo(typeof(IVLObject)))
+                if (node.Type.IsAssignableTo(typeof(IVLObject)))
                 {
                     var child = (IVLObject)value;
                     if (filter.CrawlVLObjects)
-                        CollectChildPaths(child, pathOfParent, filter, collection, parentDepth + 1, type);
+                        ActOnChildren(child, pathOfParent, filter, parentDepth + 1, node, action);
                 }
-                else if (type.IsAssignableTo(typeof(ISpread)))
+                else if (node.Type.IsAssignableTo(typeof(ISpread)))
                 {
                     var spread = (ISpread)value;
                     if (filter.IndexIntoSpreads)
-                        CollectChildPaths(spread, pathOfParent, filter, collection, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, type);
+                        ActOnChildren(spread, pathOfParent, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
                 }
-                else if (type.IsAssignableTo(typeof(IDictionary)))
+                else if (node.Type.IsAssignableTo(typeof(IDictionary)))
                 {
                     var dict = (IDictionary)value;
                     if (filter.IndexIntoDictionaries)
-                        CollectChildPaths(dict, pathOfParent, filter, collection, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, type);
+                        ActOnChildren(dict, pathOfParent, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
                 }
             }
             else
             {
                 if (value is null)
                     return;
-                type = value.GetType();
                 if (value is IVLObject child)
                 {
                     if (filter.CrawlVLObjects)
-                        CollectChildPaths(child, pathOfParent, filter, collection, parentDepth + 1, type);
+                        ActOnChildren(child, pathOfParent, filter, parentDepth + 1, node, action);
                 }
                 else if (value is ISpread spread)
                 {
                     if (filter.IndexIntoSpreads)
-                        CollectChildPaths(spread, pathOfParent, filter, collection, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, type);
+                        ActOnChildren(spread, pathOfParent, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
                 }
                 else if (value is IDictionary dict)
                 {
                     if (filter.IndexIntoDictionaries)
-                        CollectChildPaths(dict, pathOfParent, filter, collection, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, type);
+                        ActOnChildren(dict, pathOfParent, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
                 }
             }
         }
         
-        static void CollectChildPaths(IVLObject instance, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int depth, Type type)
+        static void ActOnChildren(IVLObject instance, string pathOfParent, ICrawlObjectGraphFilter filter, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
         {
             var typeInfo = filter.CrawlOnTypeLevel ? 
-                instance.AppHost.TypeRegistry.GetTypeInfo(type) : 
+                (node?.Type != null ? instance.AppHost.TypeRegistry.GetTypeInfo(node.Type) : instance.Type) : 
                 instance.Type;
 
             var properties = filter.CrawlAllProperties ? typeInfo.AllProperties : typeInfo.Properties;
@@ -643,13 +690,13 @@ namespace VL.Core
                 if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, property))
                 {
                     var childtype = property.Type.ClrType; // let's use the type of the property, not the type of the object. Embracing super types.
-                    collection.Add(new ObjectGraphNode(path, value, childtype, AccessedViaKey: property));
-                    CollectChildPaths(value, path, filter, collection, depth, childtype);
+                    var c = new ObjectGraphNode(path, value, childtype, property, node);
+                    action(c, depth);
                 }
             }
         }
 
-        static void CollectChildPaths(ISpread spread, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int depth, Type type)
+        static void ActOnChildren(ISpread spread, string pathOfParent, ICrawlObjectGraphFilter filter, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
         {
             var count = spread.Count;
             for (int i = 0; i < count; i++)
@@ -660,13 +707,13 @@ namespace VL.Core
                 if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, i))
                 {
                     var childtype = spread.ElementType; // let's use the element type of the spread, not the type of the object. Embracing super types.
-                    collection.Add(new ObjectGraphNode(path, value, childtype, AccessedViaKey: i));
-                    CollectChildPaths(value, path, filter, collection, depth, childtype);
+                    var c = new ObjectGraphNode(path, value, childtype, i, node);
+                    action(c, depth);
                 }
             }
         }
 
-        static void CollectChildPaths(IDictionary dict, string pathOfParent, ICrawlObjectGraphFilter filter, SpreadBuilder<ObjectGraphNode> collection, int depth, Type type)
+        static void ActOnChildren(IDictionary dict, string pathOfParent, ICrawlObjectGraphFilter filter, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
         {
             var enumerator = dict.GetEnumerator();
             var dictType = dict.GetType();
@@ -680,8 +727,8 @@ namespace VL.Core
                 if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, entry.Key))
                 {
                     var childtype = valueType; // let's use the type of the value collection, not the type of the object. Embracing super types.
-                    collection.Add(new ObjectGraphNode(path, value, childtype, AccessedViaKey: entry.Key));
-                    CollectChildPaths(value, path, filter, collection, depth, childtype);
+                    var c = new ObjectGraphNode(path, value, childtype, entry.Key.ToString(), node);
+                    action(c, depth);
                 }
             }
         }
@@ -857,13 +904,17 @@ namespace VL.Core
             value = defaultValue;
             return false;
         }
-       
-        public static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath(this object instance, string path, object? accessedViaKey, Type? accessedViaType, string accessedViaPath)
+
+        public static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath(this object instance, string path)
+            => TryGetObjectGraphNodeByPath_(path, new ObjectGraphNode("", instance, instance?.GetType(), 0, null));
+
+        static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath_(string path, ObjectGraphNode parent)
         {
+            var instance = parent.Value;
             if (path == "")
             {
                 if (instance != null)
-                    return new ObjectGraphNode(accessedViaPath, instance, accessedViaType ?? instance.GetType(), accessedViaKey);
+                    return parent; 
 
                 return default;
             }
@@ -879,7 +930,8 @@ namespace VL.Core
                     if (property != null)
                     {
                         var o = property.GetValue(vlObj);
-                        return o.TryGetObjectGraphNodeByPath(rest, propertyName, property.Type.ClrType, accessedViaPath);
+                        var node = new ObjectGraphNode($"{parent.Path}.{propertyName}", o, property.Type.ClrType, property, parent);
+                        return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
                 return default;
@@ -896,7 +948,8 @@ namespace VL.Core
                         if (0 <= index && index < spread.Count)
                         {
                             var o = spread.GetItem(index);
-                            return o.TryGetObjectGraphNodeByPath(rest, index, spread.ElementType, accessedViaPath);
+                            var node = new ObjectGraphNode($"{parent.Path}[{index}]", o, spread.ElementType, index, parent);
+                            return TryGetObjectGraphNodeByPath_(rest, node);
                         }
                     }
                 }
@@ -913,7 +966,8 @@ namespace VL.Core
                     if (dict.Contains(key))
                     {
                         var o = dict[key];
-                        return o.TryGetObjectGraphNodeByPath(rest, key, accessedViaType: null /* should be something like dict.TypeOfValues */, accessedViaPath);
+                        var node = new ObjectGraphNode($"{parent.Path}[\"{key}\"]", o, o?.GetType() /* should be something like dict.TypeOfValues */, key, parent);
+                        return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
                 return default;
@@ -930,7 +984,8 @@ namespace VL.Core
                         {
                             var rest = match.Groups[2].Value;
                             var o = list[index];
-                            return o.TryGetObjectGraphNodeByPath(rest, index, accessedViaType: null /* should be something like list.ElementType */, accessedViaPath);
+                            var node = new ObjectGraphNode($"{parent.Path}[{index}]", o, o?.GetType() /* should be something like list.ElementType */, index, parent);
+                            return TryGetObjectGraphNodeByPath_(rest, node);
                         }
                     }
                 }
@@ -949,7 +1004,8 @@ namespace VL.Core
                     if (property != null)
                     {
                         var o = property.GetValue(instance);
-                        return o.TryGetObjectGraphNodeByPath(rest, propertyName, accessedViaType: property.PropertyType, accessedViaPath);
+                        var node = new ObjectGraphNode($"{parent.Path}.{propertyName}", o, property.PropertyType, property, parent);   
+                        return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
                 return default;
