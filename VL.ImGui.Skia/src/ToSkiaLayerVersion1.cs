@@ -335,7 +335,7 @@ namespace VL.ImGui
         {
             SKMatrix target = caller.Transformation;
 #pragma warning disable CS0618 // Type or member is obsolete
-            SKMatrix.PreConcat(ref target, ref relative);
+            target = target.PreConcat(relative);
 #pragma warning restore CS0618 // Type or member is obsolete
             return caller.WithTransformation(target);
         }

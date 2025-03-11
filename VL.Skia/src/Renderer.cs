@@ -25,7 +25,7 @@ namespace VL.Skia
     public partial class SkiaRenderer : Form, IDisposable
     {
         private readonly AppHost FAppHost;
-        private readonly SkiaGLControl FControl;
+        private readonly SkiaControlBase FControl;
         private readonly SerialDisposable FDarkModeSubscription = new();
 
         bool HasValidLayer;
@@ -174,7 +174,7 @@ namespace VL.Skia
             Icon = Properties.Resources.QuadIcon;
             StartPosition = FormStartPosition.Manual;
 
-            FControl = new SkiaGLControl() { DirectCompositionEnabled = false /* Rendering works but GPU is still at 20%, so keep it disabled for now */ };
+            FControl = new SkiaD3D12Control() { DirectCompositionEnabled = false /* Rendering works but GPU is still at 20%, so keep it disabled for now */ };
             FControl.Dock = DockStyle.Fill;
             FControl.OnRender += FControl_OnRender;
             Controls.Add(FControl);

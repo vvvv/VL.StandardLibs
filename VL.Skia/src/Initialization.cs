@@ -43,6 +43,7 @@ namespace VL.Skia
             });
 
             appHost.Factory.RegisterSerializer<SKTypeface, SKTypefaceSerializer>(new SKTypefaceSerializer());
+            appHost.Factory.RegisterSerializer<SKFontStyle, SKFontStyleSerializer>(new SKFontStyleSerializer());
         }
 
         sealed class SKObjectRefCounter : IRefCounter<SKObject>
@@ -101,6 +102,40 @@ namespace VL.Skia
                     context.Serialize(nameof(SKTypeface.FontWeight), value.FontWeight),
                     context.Serialize(nameof(SKTypeface.FontWidth), value.FontWidth),
                     context.Serialize(nameof(SKTypeface.FontSlant), value.FontSlant),
+                };
+            }
+        }
+
+        sealed class SKFontStyleSerializer : ISerializer<SKFontStyle>
+        {
+            public SKFontStyle Deserialize(SerializationContext context, object content, Type type)
+            {
+                if (content is null)
+                    return SKFontStyle.Normal;
+
+                try
+                {
+                    return new SKFontStyle(
+                        context.Deserialize<SKFontStyleWeight>(content, nameof(SKFontStyle.Weight)),
+                        context.Deserialize<SKFontStyleWidth>(content, nameof(SKFontStyle.Width)),
+                        context.Deserialize<SKFontStyleSlant>(content, nameof(SKFontStyle.Slant)));
+                }
+                catch
+                {
+                    return SKFontStyle.Normal;
+                }
+            }
+
+            public object Serialize(SerializationContext context, SKFontStyle value)
+            {
+                if (value is null)
+                    return null;
+
+                return new object[]
+                {
+                    context.Serialize(nameof(SKFontStyle.Weight), value.Weight),
+                    context.Serialize(nameof(SKFontStyle.Width), value.Width),
+                    context.Serialize(nameof(SKFontStyle.Slant), value.Slant),
                 };
             }
         }

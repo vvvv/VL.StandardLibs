@@ -50,3 +50,15 @@ namespace VL.Skia
         Webp = 6,
     }
 }
+
+namespace SkiaSharp
+{
+    [Obsolete("Only for compatibility")]
+    public enum SKTypefaceStyle
+    {
+        Normal = 0,
+        Bold = 1,
+        Italic = 2,
+        BoldItalic = 3
+    }
+}
