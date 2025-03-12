@@ -623,35 +623,36 @@ namespace VL.Core
             action = (ObjectGraphNode node, int depth) =>
             {
                 collection.Add(node);
-                ActOnChildren(node.Value, node.Path, filter, depth, node, action);
+                ActOnChildren(filter, depth, node, action);
             };
 
-            ActOnChildren(instance, rootPath, filter, -1, root, action);
+            ActOnChildren(filter, -1, root, action);
 
             return collection.ToSpread();
         }
 
-        static void ActOnChildren(object value, string pathOfParent, ICrawlObjectGraphFilter filter, int parentDepth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
+        static void ActOnChildren(ICrawlObjectGraphFilter filter, int parentDepth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
         {
+            var value = node.Value;
             if (filter.CrawlOnTypeLevel)
             {
                 if (node.Type.IsAssignableTo(typeof(IVLObject)))
                 {
                     var child = (IVLObject)value;
                     if (filter.CrawlVLObjects)
-                        ActOnChildren(child, pathOfParent, filter, parentDepth + 1, node, action);
+                        ActOnChildren(child, filter, parentDepth + 1, node, action);
                 }
                 else if (node.Type.IsAssignableTo(typeof(ISpread)))
                 {
                     var spread = (ISpread)value;
                     if (filter.IndexIntoSpreads)
-                        ActOnChildren(spread, pathOfParent, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
+                        ActOnChildren(spread, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
                 }
                 else if (node.Type.IsAssignableTo(typeof(IDictionary)))
                 {
                     var dict = (IDictionary)value;
                     if (filter.IndexIntoDictionaries)
-                        ActOnChildren(dict, pathOfParent, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
+                        ActOnChildren(dict, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
                 }
             }
             else
@@ -661,22 +662,22 @@ namespace VL.Core
                 if (value is IVLObject child)
                 {
                     if (filter.CrawlVLObjects)
-                        ActOnChildren(child, pathOfParent, filter, parentDepth + 1, node, action);
+                        ActOnChildren(child, filter, parentDepth + 1, node, action);
                 }
                 else if (value is ISpread spread)
                 {
                     if (filter.IndexIntoSpreads)
-                        ActOnChildren(spread, pathOfParent, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
+                        ActOnChildren(spread, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
                 }
                 else if (value is IDictionary dict)
                 {
                     if (filter.IndexIntoDictionaries)
-                        ActOnChildren(dict, pathOfParent, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
+                        ActOnChildren(dict, filter, filter.IndexingCountsAsHop ? parentDepth + 1 : parentDepth, node, action);
                 }
             }
         }
         
-        static void ActOnChildren(IVLObject instance, string pathOfParent, ICrawlObjectGraphFilter filter, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
+        static void ActOnChildren(IVLObject instance, ICrawlObjectGraphFilter filter, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
         {
             var typeInfo = filter.CrawlOnTypeLevel ? 
                 (node?.Type != null ? instance.AppHost.TypeRegistry.GetTypeInfo(node.Type) : instance.Type) : 
@@ -688,7 +689,7 @@ namespace VL.Core
             {
                 var value = property.GetValue(instance);
                 var localID = property.OriginalName;
-                var path = /*string.IsNullOrWhiteSpace(pathOfParent) ? localID :*/ $"{pathOfParent}.{localID}";
+                var path = /*string.IsNullOrWhiteSpace(pathOfParent) ? localID :*/ $"{node.Path}.{localID}";
                 if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, property))
                 {
                     var childtype = property.Type.ClrType; // let's use the type of the property, not the type of the object. Embracing super types.
@@ -698,14 +699,14 @@ namespace VL.Core
             }
         }
 
-        static void ActOnChildren(ISpread spread, string pathOfParent, ICrawlObjectGraphFilter filter, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
+        static void ActOnChildren(ISpread spread, ICrawlObjectGraphFilter filter, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
         {
             var count = spread.Count;
             for (int i = 0; i < count; i++)
             {
                 var value = spread.GetItem(i);
                 var localID = $"[{i}]";
-                var path = $"{pathOfParent}{localID}";
+                var path = $"{node.Path}{localID}";
                 if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, i))
                 {
                     var childtype = spread.ElementType; // let's use the element type of the spread, not the type of the object. Embracing super types.
@@ -715,7 +716,7 @@ namespace VL.Core
             }
         }
 
-        static void ActOnChildren(IDictionary dict, string pathOfParent, ICrawlObjectGraphFilter filter, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
+        static void ActOnChildren(IDictionary dict, ICrawlObjectGraphFilter filter, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
         {
             var enumerator = dict.GetEnumerator();
             var dictType = dict.GetType();
@@ -725,7 +726,7 @@ namespace VL.Core
                 var entry = enumerator.Entry;
                 var value = entry.Value;
                 var localID = $"[\"{entry.Key}\"]";
-                var path = $"{pathOfParent}{localID}";
+                var path = $"{node.Path}{localID}";
                 if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, entry.Key))
                 {
                     var childtype = valueType; // let's use the type of the value collection, not the type of the object. Embracing super types.

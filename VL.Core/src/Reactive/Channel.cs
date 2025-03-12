@@ -357,5 +357,185 @@ namespace VL.Lib.Reactive
     }
 
 
+
+    internal abstract class ChannelView_<T> : IChannel<T>
+    {
+        static T asT(object? value)
+        {
+            if (value is T t)
+                return t;
+            return default!;
+        }
+
+        protected readonly IChannel<object> original;
+
+        public ChannelView_(IChannel original)
+        {
+            this.original = original.ChannelOfObject;
+        }
+
+        public T? Value
+        {
+            get => asT(original.Object);
+            set => original.Object = value;
+        }
+
+        public Func<T?, Optional<T?>>? Validator
+        {
+            set
+            {
+                if (value == null)
+                {
+                    original.Validator = null;
+                    return;
+                }
+                original.Validator = v =>
+                {
+                    var opt = value(asT(v));
+                    if (opt.HasValue)
+                        return opt.Value;
+                    return new Optional<object?>();
+                };
+            }
+        }
+
+        public Type ClrTypeOfValues => original.ClrTypeOfValues;
+
+        public ImmutableArray<object> Components
+        {
+            get => original.Components;
+            set => original.Components = value;
+        }
+
+        public IChannel<object> ChannelOfObject => original.ChannelOfObject;
+
+        public bool Enabled
+        {
+            get => original.Enabled;
+            set => original.Enabled = value;
+        }
+
+        public bool IsBusy => original.IsBusy;
+
+        public object? Object
+        {
+            get => original.Object;
+            set => original.Object = value;
+        }
+
+        public string? LatestAuthor => original.LatestAuthor;
+
+        public string? Path => original.Path;
+
+        public Spread<Attribute> Attributes => original.Attributes;
+
+        public bool HasValue => original.HasValue;
+
+        public bool AcceptsValue => original.AcceptsValue;
+
+        int IChannel.Revision => original.Revision;
+
+        public IDisposable BeginChange() => original.BeginChange();
+
+        public void Dispose()
+        {
+            // nothing to be done.
+            // we didn't subscribe to the original channel, so we don't need to unsubscribe.
+        }
+
+        public void OnCompleted() => original.OnCompleted();
+
+        public void OnError(Exception error) => original.OnError(error);
+
+        public void OnNext(T? value) => original.OnNext(value);
+
+        public void SetObjectAndAuthor(object? @object, string? author) => original.SetObjectAndAuthor(@object, author);
+
+        public IMonadicValue<T> SetValue(T? value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetValueAndAuthor(T? value, string? author) => original.SetValueAndAuthor(value, author);
+
+        public IDisposable Subscribe(IObserver<T?> observer)
+        {
+            return original.Subscribe(new ObserverWrapper(observer));
+        }
+
+        private struct ObserverWrapper : IObserver<object?>
+        {
+            private readonly IObserver<T?> observer;
+
+            public ObserverWrapper(IObserver<T?> observer)
+            {
+                this.observer = observer;
+            }
+
+            public void OnCompleted()
+            {
+                observer.OnCompleted();
+            }
+
+            public void OnError(Exception error)
+            {
+                observer.OnError(error);
+            }
+
+            public void OnNext(object? value)
+            {
+                observer.OnNext(asT(value));
+            }
+        }
+    }
+
+
+    internal class ChannelView<T> : ChannelView_<T>, IChannel, IChannel<object>
+    {
+        public ChannelView(IChannel original) : base(original)
+        {
+        }
+
+        object? IChannel<object>.Value
+        {
+            get => original.Value;
+            set => original.Value = value;
+        }
+
+        void IChannel<object>.SetValueAndAuthor(object? value, string? author)
+        {
+            original.SetValueAndAuthor(value, author);
+        }
+
+        Func<object?, Optional<object?>>? IChannel<object>.Validator
+        {
+            set => original.Validator = value;
+        }
+
+        void IObserver<object?>.OnNext(object? value)
+        {
+            original.OnNext(value);
+        }
+
+        IDisposable IObservable<object?>.Subscribe(IObserver<object?> observer)
+        {
+            return original.Subscribe(observer);
+        }
+
+        object? IMonadicValue<object>.Value => original.Value;
+
+        IMonadicValue<object> IMonadicValue<object>.SetValue(object? value)
+        {
+            return ((IMonadicValue<object>)original).SetValue(value);
+        }
+
+        object? IMonadicValue.BoxedValue => original.BoxedValue;
+
+        public static implicit operator T?(ChannelView<T> c) => c.Value;
+
+        public override string ToString() => original.ToString();
+
+    }
+
 }
 #nullable disable

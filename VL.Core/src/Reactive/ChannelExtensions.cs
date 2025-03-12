@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reactive.Disposables;
 using VL.Core;
 using VL.Core.Reactive;
@@ -173,7 +174,6 @@ namespace VL.Lib.Reactive
             return subscription;
         }
 
-
         record class UpLink(IDisposable Disposable) : IDisposable
         {
             public void Dispose()
@@ -181,7 +181,6 @@ namespace VL.Lib.Reactive
                 Disposable.Dispose();
             }
         }
-
 
         public static void InitSubChannel(this IChannel channel, ObjectGraphNode node)
         {
@@ -217,24 +216,18 @@ namespace VL.Lib.Reactive
                 throw new ArgumentException("Relative path must not be empty.", nameof(relativePath));
 
             if (string.IsNullOrWhiteSpace(main.Path))
-                throw new ArgumentException("Select(ByPath) only supported on shared channels.", nameof(main));
+                throw new ArgumentException("Select (ByPath) only supported on shared channels.", nameof(main));
 
             var node = main.Object.TryGetObjectGraphNodeByPath(relativePath);
 
             if (node.HasValue)
             {
                 var channelHub = AppHost.Current.Services.GetRequiredService<IChannelHub>();
-                IChannel<object> parent = null;
+                var parent = main as IChannel<object>;
                 IChannel<object> channel = null;
                 var handleOnSomeSyncs = new CompositeDisposable();
-                foreach (var n in yieldPathToNode(node.Value))
+                foreach (var n in yieldPathToNode(node.Value).Skip(1))
                 {
-                    if (parent == null)
-                    {
-                        parent = main as IChannel<object>;
-                        continue;
-                    }
-
                     var globalPath = main.Path + n.Path;
                     channel = channelHub.TryGetChannel(globalPath);
                     if (channel == null)
@@ -243,28 +236,34 @@ namespace VL.Lib.Reactive
                         InitSubChannel(channel, n);
                     }
 
-                    var subSync = channel.EnsureSingleComponentOfType(() =>
-                    {
-                        return
-                            ResourceProvider.New(() => SubChannelSyncer(parent, channel, n.AccessedViaKeyPath))
-                            .ShareInParallel();
-                    });
+                    IResourceProvider<UpLink> subSync = GetUpLinkProvider(parent, channel, n);
 
-                    handleOnSomeSyncs.Add(subSync.GetHandle()); // diposing this will keep the channels but remove the sync (if not needed by other SelectByPath)
+                    handleOnSomeSyncs.Add(subSync.GetHandle()); // disposing this will keep the channels but remove the UpLink (if not needed by other SelectByPath)
                     parent = channel;
                 }
-                subChannel = Channel.Create<B>(default); //TODO: view
-                handleOnSomeSyncs.Add(channel.Merge(subChannel, v => v is B ? (B)v : default, v => v, ChannelMergeInitialization.UseA, ChannelSelection.Both));
+                subChannel = new ChannelView<B>(channel);
                 handleOnSomeBridges = handleOnSomeSyncs;
             }
         }
 
+        private static IResourceProvider<UpLink> GetUpLinkProvider(IChannel<object> parent, IChannel<object> channel, ObjectGraphNode n)
+        {
+            IResourceProvider<UpLink> provider = null;
 
-        private static IDisposable SubChannelSyncer<A, B>(IChannel<A> main, IChannel<B> sub, string relativePath)
+            provider = channel.EnsureSingleComponentOfType(() =>
+                ResourceProvider.New(
+                    () => CreateUpLink(parent, channel, n.AccessedViaKeyPath), 
+                    _ => channel.RemoveComponent(provider))
+                .ShareInParallel());
+
+            return provider;
+        }
+
+        private static UpLink CreateUpLink<A, B>(IChannel<A> main, IChannel<B> sub, string relativePath)
             where A : class
         {
             if (!main.IsValid() || !sub.IsValid())
-                return Disposable.Empty;
+                return new UpLink(Disposable.Empty);
 
             var subscription = new CompositeDisposable();
 
@@ -305,7 +304,7 @@ namespace VL.Lib.Reactive
                 }
             }));
 
-            return subscription;
+            return new UpLink(subscription);
         }
 
 
