@@ -73,6 +73,8 @@ namespace VL.ImGui.Editors
                 // Build new channel using the runtime type
                 privateChannel?.Dispose();
                 privateChannel = ChannelHelpers.CreateChannelOfType(type);
+                if (publicChannel.Attributes.Any())
+                    privateChannel.Attributes().Value = publicChannel.Attributes;
                 privateChannel.Object = value;
                 privateChannelSubscription.Disposable = privateChannel.Subscribe(v =>
                 {
