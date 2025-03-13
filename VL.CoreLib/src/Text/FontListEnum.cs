@@ -116,8 +116,6 @@ namespace VL.Lib.Text
                 var fontFamilyName = GetString(0, names);
                 fonts.Add(fontFamilyName);
             }
-
-            Marshal.ReleaseComObject(factory);
         }
 
         [SupportedOSPlatform("windows6.1")]
@@ -180,10 +178,13 @@ namespace VL.Lib.Text
         [SupportedOSPlatform("windows6.1")]
         private static unsafe FontPath GetFontPathDirectWrite(string familyName, FontStyle fontStyle)
         {
-            PInvoke.DWriteCreateFactory(DWRITE_FACTORY_TYPE.DWRITE_FACTORY_TYPE_SHARED, typeof(IDWriteFactory).GUID, out var factory)
+            PInvoke.DWriteCreateFactory(DWRITE_FACTORY_TYPE.DWRITE_FACTORY_TYPE_SHARED, typeof(IDWriteFactory).GUID, out var unknown)
                 .ThrowOnFailure();
 
-            ((IDWriteFactory)factory).GetSystemFontCollection(out var fontCollection, checkForUpdates: true);
+            if (unknown is not IDWriteFactory factory)
+                throw new InvalidCastException($"Returned interface {unknown} does not implement {nameof(IDWriteFactory)}");
+
+            factory.GetSystemFontCollection(out var fontCollection, checkForUpdates: true);
 
             fontCollection.FindFamilyName(familyName, out var index, out var exists);
             if (!exists)
