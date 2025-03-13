@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -778,7 +779,10 @@ namespace VL.Core
             {
                 var property = vlObj.Type.GetProperty(name);
                 if (property != null)
-                    return (property.WithValue(vlObj, value) as TInstance) ?? instance;
+                    if (value?.GetType().IsAssignableTo(property.Type.ClrType) ?? false)
+                        return (property.WithValue(vlObj, value) as TInstance) ?? instance;
+                    else
+                        AppHost.CurrentDefaultLogger.LogWarning($"Property {name} is of type {property.Type.FullName}, value is of type {value?.GetType()}");
                 return instance;
             }
 

@@ -174,14 +174,6 @@ namespace VL.Lib.Reactive
             return subscription;
         }
 
-        record class UpLink(IDisposable Disposable) : IDisposable
-        {
-            public void Dispose()
-            {
-                Disposable.Dispose();
-            }
-        }
-
         public static void InitSubChannel(this IChannel channel, ObjectGraphNode node)
         {
             if (node.AccessedViaKey is IVLPropertyInfo p)
@@ -193,120 +185,6 @@ namespace VL.Lib.Reactive
                 }
             }
         }
-
-
-        public static void GetOrAddSubChannel<A, B>(this IChannel<A> main, string relativePath, out IChannel<B> subChannel, out IDisposable handleOnSomeBridges)
-            where A : class
-        {
-            subChannel = null;
-            handleOnSomeBridges = Disposable.Empty;
-
-            static IEnumerable<ObjectGraphNode> yieldPathToNode(ObjectGraphNode node)
-            {
-                if (node.Parent != null)
-                    foreach (var n in yieldPathToNode(node.Parent))
-                        yield return n;
-                yield return node;
-            }
-
-            if (main == null)
-                throw new ArgumentException("Main channel must be set.", nameof(main));
-
-            if (relativePath.Length == 0)
-                throw new ArgumentException("Relative path must not be empty.", nameof(relativePath));
-
-            if (string.IsNullOrWhiteSpace(main.Path))
-                throw new ArgumentException("Select (ByPath) only supported on shared channels.", nameof(main));
-
-            var node = main.Object.TryGetObjectGraphNodeByPath(relativePath);
-
-            if (node.HasValue)
-            {
-                var channelHub = AppHost.Current.Services.GetRequiredService<IChannelHub>();
-                var parent = main as IChannel<object>;
-                IChannel<object> channel = null;
-                var handleOnSomeSyncs = new CompositeDisposable();
-                foreach (var n in yieldPathToNode(node.Value).Skip(1))
-                {
-                    var globalPath = main.Path + n.Path;
-                    channel = channelHub.TryGetChannel(globalPath);
-                    if (channel == null)
-                    {
-                        channel = channelHub.TryAddChannel(globalPath, typeof(object));
-                        InitSubChannel(channel, n);
-                    }
-
-                    IResourceProvider<UpLink> subSync = GetUpLinkProvider(parent, channel, n);
-
-                    handleOnSomeSyncs.Add(subSync.GetHandle()); // disposing this will keep the channels but remove the UpLink (if not needed by other SelectByPath)
-                    parent = channel;
-                }
-                subChannel = new ChannelView<B>(channel);
-                handleOnSomeBridges = handleOnSomeSyncs;
-            }
-        }
-
-        private static IResourceProvider<UpLink> GetUpLinkProvider(IChannel<object> parent, IChannel<object> channel, ObjectGraphNode n)
-        {
-            IResourceProvider<UpLink> provider = null;
-
-            provider = channel.EnsureSingleComponentOfType(() =>
-                ResourceProvider.New(
-                    () => CreateUpLink(parent, channel, n.AccessedViaKeyPath), 
-                    _ => channel.RemoveComponent(provider))
-                .ShareInParallel());
-
-            return provider;
-        }
-
-        private static UpLink CreateUpLink<A, B>(IChannel<A> main, IChannel<B> sub, string relativePath)
-            where A : class
-        {
-            if (!main.IsValid() || !sub.IsValid())
-                return new UpLink(Disposable.Empty);
-
-            var subscription = new CompositeDisposable();
-
-            if (main.Value.TryGetValueByPath(relativePath, default, out B value, out _))
-                sub.EnsureValue(value, author: "SubChannelSyncer.Init");
-
-            var isBusy = false;
-            subscription.Add(main.Subscribe(v =>
-            {
-                if (!isBusy)
-                {
-                    isBusy = true;
-                    try
-                    {
-                        if (main.Value.TryGetValueByPath(relativePath, default, out B value, out _))
-                            sub.EnsureValue(value, author: "SubChannelSyncer.FromParent");
-                    }
-                    finally
-                    {
-                        isBusy = false;
-                    }
-                }
-            }));
-            subscription.Add(sub.Subscribe(v =>
-            {
-                if (!isBusy)
-                {
-                    isBusy = true;
-                    try
-                    {
-                        var newBig = main.Value.WithValueByPath(relativePath, v, out _);
-                        main.SetValueAndAuthor(newBig, author: "SubChannelSyncer.FromChild");
-                    }
-                    finally
-                    {
-                        isBusy = false;
-                    }
-                }
-            }));
-
-            return new UpLink(subscription);
-        }
-
 
         public static void AddComponent(this IChannel channel, object component)
         {
