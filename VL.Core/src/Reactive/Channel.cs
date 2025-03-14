@@ -332,7 +332,7 @@ namespace VL.Lib.Reactive
 
         public static implicit operator T?(Channel<T> c) => c.Value;
 
-        public override string ToString() => Path != null && !Path.StartsWith("_Anonymous") ? $"{Path} = {Value}" : $"{Value}";
+        public override string ToString() => Path != null && !this.IsAnonymous() ? $"{Path} = {Value}" : $"{Value}";
 
         void IInternalChannel.SetPath(string path)
         {

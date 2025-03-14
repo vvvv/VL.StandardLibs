@@ -99,7 +99,7 @@ namespace VL.Core.Reactive
             { 
                 var c = ChannelHelpers.CreateChannelOfType(typeOfValues); 
                 ((IInternalChannel)c).SetPath(key);
-                revision++; 
+                if (!c.IsAnonymous()) revision++; 
                 return c; 
             });
             if (c.ClrTypeOfValues != typeOfValues)
@@ -121,7 +121,7 @@ namespace VL.Core.Reactive
             var gotRemoved = Channels.TryRemove(key, out var c);
             if (c != null)
             {
-                revision++;
+                if (!c.IsAnonymous()) revision++;
                 c.Dispose();
             }
             return gotRemoved;
@@ -134,7 +134,7 @@ namespace VL.Core.Reactive
             if (c != null)
             {
                 var o = c.Object;
-                revision++;
+                if (!c.IsAnonymous()) revision++;
                 c.Dispose();
                 c = TryAddChannel(newKey, c.ClrTypeOfValues);
                 if (c != null && o != null && c.ClrTypeOfValues.IsAssignableFrom(o.GetType()))
@@ -151,7 +151,7 @@ namespace VL.Core.Reactive
             if (c != null)
             {
                 var o = c.Object;
-                revision++;
+                if (!c.IsAnonymous()) revision++;
                 c.Dispose();
                 c = TryAddChannel(key, typeOfValues);
                 if (c != null && o != null && typeOfValues.IsAssignableFrom(o.GetType()))

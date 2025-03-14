@@ -118,13 +118,20 @@ namespace VL.Core.Reactive
 
     public static class ChannelHubHelpers
     {
+        public static string AnonymousChannelPrefix => "_Anonymous.";
+
         static int anonymousChannelCounter = 0;
 
         public static string CreateUniqueKey()
         {
             var x = Interlocked.Increment(ref anonymousChannelCounter);
-            return $"_Anonymous.{x}";
+            return $"{AnonymousChannelPrefix}{x}";
         }
+
+        public static bool IsAnonymous(this IChannel channel)
+        {
+            return channel?.Path?.StartsWith(AnonymousChannelPrefix) ?? true;
+        }   
     }
 
 
