@@ -13,9 +13,9 @@ namespace VL.Core.Logging
         /// <summary>
         /// Holds all the log messages from all apps. To configure use <see cref="IStartup.SetupConfiguration(AppHost, Microsoft.Extensions.Configuration.IConfigurationBuilder)"/> and <see cref="LogRecorderOptions"/>.
         /// </summary>
-        public static LogRecorder GlobalRecorder => AppHost.Global.LoggerFactory.Recorder;
+        public static LogRecorder? GlobalRecorder => AppHost.Global.LoggerFactory.Recorder;
 
-        protected abstract LogRecorder Recorder { get; }
+        protected abstract LogRecorder? Recorder { get; }
 
         public abstract void AddProvider(ILoggerProvider provider);
 
