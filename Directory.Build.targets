@@ -2,11 +2,11 @@
 <Project>
   
   <ItemGroup Condition="$(VLPackageBasePath) != ''">
-    <None Include="$(VLPackageBasePath)*.vl" PackagePath="%(RecursiveDir)%(Filename)%(Extension)" Pack="true" />
-    <None Include="$(VLPackageBasePath)Assets\**" PackagePath="Assets\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="Assets" Pack="true"  />
-    <None Include="$(VLPackageBasePath)help\**" PackagePath="help\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="help" Pack="true" />
-    <None Include="$(VLPackageBasePath)vvvv\**" PackagePath="vvvv\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="vvvv" Pack="true" />
-    <None Remove="$(VLPackageBasePath)**\*.vl.dll" />
+    <Content Include="$(VLPackageBasePath)*.vl" PackagePath="%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="$(VLPackageBasePath)Assets\**" PackagePath="Assets\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="Assets" />
+    <Content Include="$(VLPackageBasePath)help\**" PackagePath="help\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="help" />
+    <Content Include="$(VLPackageBasePath)vvvv\**" PackagePath="vvvv\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="vvvv" />
+    <Content Remove="$(VLPackageBasePath)**\*.vl.dll" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(IsPackable)' != 'false' ">
