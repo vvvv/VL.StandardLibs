@@ -9,20 +9,24 @@ namespace VL.Skia.Video
 {
     static class VideoUtils
     {
-        public static IResourceProvider<SKImage> ToSkImage(this IResourceProvider<VideoFrame> provider, RenderContext renderContext, bool mipmapped)
+        public static IResourceProvider<SKImage?> ToSkImage(this IResourceProvider<VideoFrame> provider, RenderContext renderContext, bool mipmapped)
         {
             return provider.GetHandle().ToSkImage(renderContext, mipmapped);
         }
 
-        public static IResourceProvider<SKImage> ToSkImage(this IResourceHandle<VideoFrame> handle, RenderContext renderContext, bool mipmapped)
+        public static IResourceProvider<SKImage?> ToSkImage(this IResourceHandle<VideoFrame> handle, RenderContext renderContext, bool mipmapped)
         {
             var videoFrame = handle.Resource;
             if (videoFrame.TryGetTexture(out var texture))
             {
-                // Tie the lifetime of the Skia image to the texture object (which might be pooled)
-                var image = texture.Get<TextureImage>() ?? texture.Attach(FromTexture(texture, renderContext));
-                // But hold on to the video frame to prevent the texture object from being used for another frame
-                return ResourceProvider.Return(image.Image, handle, handle => handle.Dispose());
+                return ResourceProvider.Return(handle, h => h.Dispose())
+                    .Bind(_ => 
+                        // Defer operator defers access to handle.Resource property so we can assume it will happen on the render thread where we need to be.
+                        ResourceProvider.Defer(() =>
+                            ResourceProvider.NewPooledPerApp(texture,
+                                factory: texture => FromTexture(texture, renderContext),
+                                delayDisposalInMilliseconds: 1000 /* Keep the wrappers in memory for a bit */)
+                            .Bind(imageHandle => imageHandle?.Image)));
             }
             else
             {
@@ -33,11 +37,6 @@ namespace VL.Skia.Video
                     x.handle.Dispose();
                 });
             }
-        }
-
-        public static bool HasAttachedSkImage(this VideoFrame videoFrame)
-        {
-            return videoFrame.TryGetTexture(out var videoTexture) && videoTexture.Get<SKImage>() != null;
         }
 
         private static unsafe SKImage FromMemory(VideoFrame videoFrame, RenderContext renderContext, bool mipmapped)
@@ -54,7 +53,7 @@ namespace VL.Skia.Video
             //return image.ToTextureImage(renderContext.SkiaContext, mipmapped);
         }
 
-        private static TextureImage FromTexture(VideoTexture texture, RenderContext renderContext)
+        private static TextureImage? FromTexture(VideoTexture texture, RenderContext renderContext)
         {
             renderContext.MakeCurrent();
 
@@ -83,8 +82,6 @@ namespace VL.Skia.Video
                 mipmapped: false,
                 glInfo: glInfo);
 
-            var result = default(TextureImage);
-
             var image = SKImage.FromTexture(
                 renderContext.SkiaContext,
                 backendTexture,
@@ -94,7 +91,10 @@ namespace VL.Skia.Video
                 // TODO: Check this
                 colorspace: /*renderContext.UseLinearColorspace ? SKColorSpace.CreateSrgbLinear() : */SKColorSpace.CreateSrgb());
 
-            return result = new(image, renderContext, textureId);
+            if (image is null)
+                return null;
+
+            return new TextureImage(image, renderContext, textureId);
         }
 
         sealed class TextureImage : IDisposable
@@ -104,6 +104,7 @@ namespace VL.Skia.Video
 
             public TextureImage(SKImage image, RenderContext renderContext, uint textureId)
             {
+                if (image is null) throw new ArgumentNullException(nameof(image));
                 Image = image;
                 this.renderContext = renderContext;
                 this.textureId = textureId;

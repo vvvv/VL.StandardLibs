@@ -21,7 +21,7 @@ namespace VL.Skia.Video
         private readonly VideoPlaybackContext ctx;
 
         private VideoStream? videoStream;
-        private IResourceProvider<SKImage>? current, latest;
+        private IResourceProvider<SKImage?>? current, latest;
 
         public VideoStreamToSKImage(NodeContext nodeContext)
         {
@@ -72,7 +72,7 @@ namespace VL.Skia.Video
             }
         }
 
-        public IResourceProvider<SKImage>? Provider
+        public IResourceProvider<SKImage?>? Provider
         {
             get
             {

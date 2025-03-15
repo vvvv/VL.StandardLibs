@@ -1,9 +1,6 @@
 ﻿#nullable enable
 using System;
-using System.Reactive.Disposables;
-using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Direct3D;
 using Windows.Win32.Graphics.Direct3D11;
 using EGLDeviceEXT = System.IntPtr;
@@ -20,7 +17,7 @@ namespace VL.Skia.Egl
             return new EglDevice(angleDevice);
         }
 
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows6.1")]
         public static unsafe EglDevice NewD3D11()
         {
             D3D_FEATURE_LEVEL featureLevels = D3D_FEATURE_LEVEL.D3D_FEATURE_LEVEL_11_1;
@@ -30,35 +27,56 @@ namespace VL.Skia.Egl
             if (Array.Exists(Environment.GetCommandLineArgs(), argument => argument == "--debug-gpu"))
                 flags |= D3D11_CREATE_DEVICE_FLAG.D3D11_CREATE_DEVICE_DEBUG;
 
-            Windows.Win32.PInvoke.D3D11CreateDevice(null, D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE, default, flags, &featureLevels, 1, 7, out var device, &featureLevel, out var context);
+            ID3D11Device* device;
+            ID3D11DeviceContext* deviceContext;
+            Windows.Win32.PInvoke.D3D11CreateDevice(null, D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE, default, flags, &featureLevels, 1, 7, &device, &featureLevel, &deviceContext);
             if (device is null)
-                Windows.Win32.PInvoke.D3D11CreateDevice(null, D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE, default, flags, default, 0, 7, out device, &featureLevel, out context);
+                Windows.Win32.PInvoke.D3D11CreateDevice(null, D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE, default, flags, default, 0, 7, &device, &featureLevel, &deviceContext);
             if (device is null)
                 throw new Exception("Failed to create D3D11 device");
 
-            var angleDevice = NativeEgl.eglCreateDeviceANGLE(NativeEgl.EGL_D3D11_DEVICE_ANGLE, Marshal.GetIUnknownForObject(device), null);
-            if (angleDevice == default)
-                throw new Exception("Failed to create EGL device");
-
-            return new EglDevice(angleDevice, Disposable.Create(() =>
+            try
             {
-                Marshal.ReleaseComObject(context);
-                Marshal.ReleaseComObject(device);
-            }));
+                var angleDevice = NativeEgl.eglCreateDeviceANGLE(NativeEgl.EGL_D3D11_DEVICE_ANGLE, (nint)device, null);
+                if (angleDevice == default)
+                    throw new Exception("Failed to create EGL device");
+
+                return new EglDevice(angleDevice, (nint)device);
+            }
+            finally
+            {
+                deviceContext->Release();
+                device->Release();
+            }
         }
 
-        private IDisposable? cleanup;
 
-        private EglDevice(EGLDeviceEXT angleDevice, IDisposable? cleanup = null)
+        private EglDevice(EGLDeviceEXT angleDevice, nint? nativeDevice = default)
             : base(angleDevice)
         {
-            this.cleanup = cleanup;
+            //this.nativeDevice = nativeDevice;
         }
 
         protected override void Destroy()
         {
             NativeEgl.eglReleaseDeviceANGLE(NativePointer);
-            cleanup?.Dispose();
         }
+
+        // Helpful To debug memory leaks
+        /*
+        public int InternalRefCount
+        {
+            get
+            {
+                if (nativeDevice.HasValue)
+                {
+                    Marshal.AddRef(nativeDevice.Value);
+                    return Marshal.Release(nativeDevice.Value);
+                }
+                return -1;
+            }
+        }
+        private nint? nativeDevice;
+        */
     }
 }

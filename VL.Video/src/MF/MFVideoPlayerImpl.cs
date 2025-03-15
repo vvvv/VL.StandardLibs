@@ -76,7 +76,10 @@ namespace VL.Video.MF
             {
                 // Add multi thread protection on device (MF is multi-threaded)
                 if (device->QueryInterface(in ID3D10Multithread.IID_Guid, out var x).Succeeded)
+                {
                     ((ID3D10Multithread*)x)->SetMultithreadProtected(true);
+                    ((IUnknown*)x)->Release();
+                }
 
                 // Reset device
                 IMFDXGIDeviceManager* manager;

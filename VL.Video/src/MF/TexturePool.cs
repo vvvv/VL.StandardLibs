@@ -51,7 +51,6 @@ namespace VL.Video.MF
                 if (isDisposed || pool.Count > 16)
                 {
                     ((ID3D11Texture2D*)texture.NativePointer)->Release();
-                    texture.Dispose();
                 }
                 else
                 {
@@ -69,7 +68,6 @@ namespace VL.Video.MF
                 foreach (var t in pool)
                 {
                     ((ID3D11Texture2D*)t.NativePointer)->Release();
-                    t.Dispose();
                 }
                 pool.Clear();
             }
