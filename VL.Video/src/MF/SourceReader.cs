@@ -208,7 +208,6 @@ namespace VL.Video.MF
                                 ((IUnknown*)x.dxgiBuffer)->Release();
                                 ((IUnknown*)x.buffer)->Release();
                                 ((IUnknown*)x.sample)->Release();
-                                x.videoTexture.Dispose();
                             });
                     }
 

@@ -36,10 +36,11 @@ namespace VL.Skia
                 return context;
             }
 
-            if (OperatingSystem.IsWindows())
+            if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
             {
                 // We need a device for each thread
-                var device = EglDevice.NewD3D11();
+                // EglDisplay will take ownership via refcounting. It's therefor correct to release it here.
+                using var device = EglDevice.NewD3D11();
                 context = New(device, 0, useLinearColorspace: false);
             }
             else

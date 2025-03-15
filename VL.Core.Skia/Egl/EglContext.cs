@@ -168,6 +168,14 @@ namespace VL.Skia.Egl
             }
         }
 
+        public void ReleaseCurrent()
+        {
+            if (NativeEgl.eglMakeCurrent(display, NativeEgl.EGL_NO_SURFACE, NativeEgl.EGL_NO_SURFACE, NativeEgl.EGL_NO_CONTEXT) == NativeEgl.EGL_FALSE)
+            {
+                throw new Exception("Failed to release current context");
+            }
+        }
+
         public bool SwapInterval(int interval)
         {
             return (NativeEgl.eglSwapInterval(display, interval) == NativeEgl.EGL_TRUE);
@@ -182,6 +190,8 @@ namespace VL.Skia.Egl
         {
             lock (contextCreationLock)
             {
+                ReleaseCurrent();
+
                 NativeEgl.eglDestroyContext(display, NativePointer);
 
                 shareContext?.Release();

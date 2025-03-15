@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using SkiaSharp;
-using System.Threading;
 using VL.Core;
 using VL.Core.Utils;
 using VL.Lib.Animation;
@@ -14,7 +13,6 @@ namespace VL.Skia.Video
     {
         private readonly RenderContext renderContext;
         private readonly VideoPlaybackContext ctx;
-        private readonly Thread? mainThread;
 
         public VideoSourceToSKImage(NodeContext nodeContext)
         {
@@ -22,40 +20,18 @@ namespace VL.Skia.Video
 
             var frameClock = AppHost.Current.Services.GetRequiredService<IFrameClock>();
             if (renderContext.EglContext.Dislpay.TryGetD3D11Device(out var d3dDevice))
-            {
                 ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger(), d3dDevice, GraphicsDeviceType.Direct3D11, renderContext.UseLinearColorspace);
-                mainThread = Thread.CurrentThread;
-            }
             else
-            {
                 ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger());
-            }
         }
 
         protected override VideoPlaybackContext Context => ctx;
 
         protected override void OnPush(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped)
         {
-            var handle = videoFrameProvider.GetHandle();
-            var videoFrame = handle.Resource;
-            if (videoFrame.IsTextureBacked && !videoFrame.HasAttachedSkImage() && ctx != null && Thread.CurrentThread != mainThread)
-            {
-                // Wrapping needs to happen on the main thread
-                if (!workQueueForMainThread.TryAddSafe(() => ProduceImage(handle, mipmapped), millisecondsTimeout: 10))
-                    handle.Dispose();
-            }
-            else
-            {
-                // Video source pushed a memory backed frame
-                ProduceImage(handle, mipmapped);
-            }
-
-            void ProduceImage(IResourceHandle<VideoFrame> handle, bool mipmapped)
-            {
-                var imageHandle = handle.ToSkImage(renderContext, mipmapped).GetHandle();
-                if (!resultQueue.TryAddSafe(imageHandle, millisecondsTimeout: 10))
-                    imageHandle.Dispose();
-            }
+            var handle = videoFrameProvider?.GetHandle().ToSkImage(renderContext, mipmapped).GetHandle();
+            if (handle != null && !resultQueue.TryAddSafe(handle, millisecondsTimeout: 10))
+                handle.Dispose();
         }
 
         protected override void OnPull(IResourceProvider<VideoFrame>? videoFrameProvider, bool mipmapped)

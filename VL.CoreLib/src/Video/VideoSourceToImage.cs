@@ -13,8 +13,7 @@ namespace VL.Lib.Video
 {
     public abstract class VideoSourceToImage<TImage> : IDisposable
     {
-        protected readonly BlockingCollection<Action> workQueueForMainThread = new(boundedCapacity: 1);
-        protected readonly BlockingCollection<IResourceHandle<TImage>> resultQueue = new(boundedCapacity: 1);
+        protected readonly BlockingCollection<IResourceHandle<TImage?>> resultQueue = new(boundedCapacity: 1);
 
         private readonly SerialDisposable streamSubscription = new SerialDisposable();
         private readonly SerialDisposable imageSubscription = new SerialDisposable();
@@ -66,14 +65,11 @@ namespace VL.Lib.Video
             if (streamSubscription.Disposable is IEnumerator enumerator)
                 enumerator.MoveNext();
 
-            if (workQueueForMainThread.TryTake(out var action))
-                action();
-
             if (resultQueue.TryTake(out var newHandle))
                 imageSubscription.Disposable = newHandle;
 
-            if (imageSubscription.Disposable is IResourceHandle<TImage> handle)
-                return handle.Resource;
+            if (imageSubscription.Disposable is IResourceHandle<TImage?> handle)
+                return handle.Resource ?? fallback;
             else
                 return fallback;
         }
@@ -82,10 +78,6 @@ namespace VL.Lib.Video
         {
             imageSubscription.Dispose();
             streamSubscription.Dispose();
-
-            workQueueForMainThread.CompleteAdding();
-            foreach (var action in workQueueForMainThread.GetConsumingEnumerable())
-                action();
 
             resultQueue.CompleteAdding();
             foreach (var remaining in resultQueue.GetConsumingEnumerable())
