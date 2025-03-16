@@ -252,8 +252,6 @@ namespace VL.Skia.Video
             eglSurface?.Dispose();
             renderTarget?.Dispose();
             device = null;
-
-            renderContext.Dispose();
         }
     }
 }

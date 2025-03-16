@@ -14,13 +14,11 @@ namespace VL.Stride.Shaders
     public static class NativeDeviceUtils
     {
         //command list
-        static FieldInfo nativeDeviceContextFi;
         static FieldInfo unorderedAccessViewsFi;
         static FieldInfo nativeDeviceChildFi;
         static FieldInfo unorderedAccessViewFi;
 
         //graphics device
-        static FieldInfo nativeDeviceFi;
         static MethodInfo registerBufferMemoryUsageMi;
 
 
@@ -43,7 +41,6 @@ namespace VL.Stride.Shaders
         {
             var comandListType = Type.GetType("Stride.Graphics.CommandList, Stride.Graphics");
             var comandListTypeFields = comandListType.GetRuntimeFields();
-            nativeDeviceContextFi = comandListTypeFields.Where(fi => fi.Name == "nativeDeviceContext").First();
             unorderedAccessViewsFi = comandListTypeFields.Where(fi => fi.Name == "unorderedAccessViews").First();
 
             var graphicsResourceBaseType = Type.GetType("Stride.Graphics.GraphicsResourceBase, Stride.Graphics");
@@ -57,7 +54,6 @@ namespace VL.Stride.Shaders
  
             //graphics device native device
             var graphicsDeviceType = Type.GetType("Stride.Graphics.GraphicsDevice, Stride.Graphics");
-            nativeDeviceFi = graphicsDeviceType.GetFieldWithName("nativeDevice");
             registerBufferMemoryUsageMi = graphicsDeviceType.GetmethodWithName("RegisterBufferMemoryUsage");
 
             //buffer
@@ -94,11 +90,6 @@ namespace VL.Stride.Shaders
             return t.GetRuntimeMethods().Where(i => i.Name == name).First();
         }
 
-        static T InvokeMethod<T>(this MethodInfo mi, object instance, params object[] parameters)
-        {
-            return (T)mi.Invoke(instance, parameters);
-        }
-
         static void InvokeMethod(this MethodInfo mi, object instance, params object[] parameters)
         {
             mi.Invoke(instance, parameters);
@@ -106,12 +97,17 @@ namespace VL.Stride.Shaders
 
         public static SharpDX.Direct3D11.DeviceContext GetNativeDeviceContext(this CommandList commandList)
         {
-            return (SharpDX.Direct3D11.DeviceContext)nativeDeviceContextFi.GetValue(commandList);
+            return GetNativeDeviceContext(commandList.GraphicsDevice);
+        }
+
+        public static SharpDX.Direct3D11.DeviceContext GetNativeDeviceContext(this GraphicsDevice graphicsDevice)
+        {
+            return (SharpDX.Direct3D11.DeviceContext)SharpDXInterop.GetNativeDeviceContext(graphicsDevice);
         }
 
         public static SharpDX.Direct3D11.Device GetNativeDevice(this GraphicsDevice graphicsDevice)
         {
-            return (SharpDX.Direct3D11.Device)nativeDeviceFi.GetValue(graphicsDevice);
+            return (SharpDX.Direct3D11.Device)SharpDXInterop.GetNativeDevice(graphicsDevice);
         }
 
         public static void ComputeShaderReApplyUnorderedAccessView(this CommandList commandList, int slot, int counterValue)

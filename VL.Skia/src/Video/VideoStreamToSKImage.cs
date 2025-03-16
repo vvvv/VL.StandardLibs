@@ -94,7 +94,6 @@ namespace VL.Skia.Video
             latestSubscription.Dispose();
             currentSubscription.Dispose();
             imageStreamSubscription.Dispose();
-            renderContext.Dispose();
         }
     }
 }

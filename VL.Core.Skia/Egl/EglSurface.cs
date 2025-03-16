@@ -23,9 +23,11 @@ namespace VL.Skia.Egl
             }
         }
 
-        protected override void Destroy()
+        public void Bind() => display.BindTexImage(this);
+
+        protected override void Destroy(nint nativePointer)
         {
-            NativeEgl.eglDestroySurface(display, NativePointer);
+            NativeEgl.eglDestroySurface(display, nativePointer);
         }
     }
 }

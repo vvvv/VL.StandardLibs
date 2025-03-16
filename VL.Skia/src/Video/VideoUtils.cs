@@ -55,7 +55,7 @@ namespace VL.Skia.Video
 
         private static TextureImage? FromTexture(VideoTexture texture, RenderContext renderContext)
         {
-            renderContext.MakeCurrent();
+            //renderContext.MakeCurrent();
 
             var eglContext = renderContext.EglContext;
 
@@ -108,21 +108,17 @@ namespace VL.Skia.Video
                 Image = image;
                 this.renderContext = renderContext;
                 this.textureId = textureId;
-
-                renderContext.AddRef();
             }
 
             public SKImage Image { get; }
 
             public void Dispose()
             {
-                renderContext.MakeCurrent();
+                //renderContext.MakeCurrent();
 
                 Image.Dispose();
 
                 NativeGles.glDeleteTextures(1, ref textureId);
-
-                renderContext.Release();
             }
         }
     }

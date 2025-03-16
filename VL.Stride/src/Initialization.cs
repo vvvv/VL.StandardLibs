@@ -19,6 +19,7 @@ using Stride.Core.Diagnostics;
 using System.Threading;
 using VL.Stride.Input;
 using Microsoft.Extensions.DependencyInjection;
+using VL.Lib.Basics.Video;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Lib.Initialization))]
 
@@ -56,7 +57,7 @@ namespace VL.Stride.Lib
                 GlobalLogger.GlobalMessageLogged += new LogBridge(loggerFactory, defaultLogger);
             }
 
-            var services = appHost.Services.RegisterService<Game>(_ =>
+            var services = appHost.Services.RegisterService<VLGame>(_ =>
             {
                 var game = new VLGame(appHost.NodeFactoryRegistry);
 
@@ -140,6 +141,9 @@ namespace VL.Stride.Lib
 
                 return game;
             });
+            appHost.Services.RegisterService<Game>(s => s.GetRequiredService<VLGame>());
+            if (appHost.IsUser)
+                appHost.Services.RegisterService<IGraphicsDeviceProvider>(s => s.GetRequiredService<VLGame>());
 
             // Older code paths (like CEF) use obsolete IVLFactory.CreateService(NodeContext => IResourceProvider<Game>)
             appHost.Services.RegisterService<IResourceProvider<Game>>(s => ResourceProvider.Return(s.GetRequiredService<Game>()));

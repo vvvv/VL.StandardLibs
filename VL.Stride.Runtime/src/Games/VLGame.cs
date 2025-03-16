@@ -1,3 +1,4 @@
+using SharpDX.Direct3D11;
 using Stride.Core.Diagnostics;
 using Stride.Engine;
 using Stride.Engine.Design;
@@ -9,13 +10,17 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using VL.Core;
+using VL.Lib.Basics.Video;
 using VL.Stride.Core;
 using VL.Stride.Engine;
 using VL.Stride.Rendering;
+using VL.Stride.Shaders;
+using CommandList = Stride.Graphics.CommandList;
+using DeviceCreationFlags = Stride.Graphics.DeviceCreationFlags;
 
 namespace VL.Stride.Games
 {
-    public class VLGame : Game
+    public class VLGame : Game, IGraphicsDeviceProvider
     {
         private readonly TimeSpan maximumElapsedTime = TimeSpan.FromMilliseconds(2000.0);
         private TimeSpan accumulatedElapsedGameTime;
@@ -23,6 +28,7 @@ namespace VL.Stride.Games
 
         internal readonly SchedulerSystem SchedulerSystem;
         public bool CaptureFrame { get; set; }
+
         private bool captureInProgress;
         private readonly NodeFactoryRegistry NodeFactoryRegistry;
 
@@ -42,6 +48,12 @@ namespace VL.Stride.Games
             // as we'd need to either recreate all textures and swapchains in that moment or make sure that these weren't created yet.
             GraphicsDeviceManager.PreferredColorSpace = ColorSpace.Linear;
         }
+
+        GraphicsDeviceType IGraphicsDeviceProvider.Type => GraphicsDevice.Platform == GraphicsPlatform.Direct3D11 ? GraphicsDeviceType.Direct3D11 : GraphicsDeviceType.None;
+
+        nint IGraphicsDeviceProvider.NativePointer => SharpDXInterop.GetNativeDevice(GraphicsDevice) is SharpDX.Direct3D11.Device d3d11 ? d3d11.NativePointer : default;
+
+        bool IGraphicsDeviceProvider.UsesLinearColorspace => GraphicsDevice.ColorSpace == ColorSpace.Linear;
 
         protected override LogListener GetLogListener()
         {
@@ -178,6 +190,23 @@ namespace VL.Stride.Games
             base.Update(gameTime);
         }
 
+        protected override bool BeginDraw()
+        {
+            if (deviceContextState is null)
+            {
+                using var device = GraphicsDevice.GetNativeDevice().QueryInterface<Device1>();
+                deviceContextState = device.CreateDeviceContextState<Device1>(CreateDeviceContextStateFlags.None, [device.FeatureLevel], out _);
+            }
+
+            using var deviceContext = GraphicsDevice.GetNativeDeviceContext().QueryInterface<DeviceContext1>();
+            deviceContext.SwapDeviceContextState(deviceContextState, out previousState);
+
+            return base.BeginDraw();
+        }
+
+        DeviceContextState deviceContextState;
+        DeviceContextState previousState;
+
         protected override void EndDraw(bool present)
         {
             try
@@ -196,6 +225,10 @@ namespace VL.Stride.Games
                     captureInProgress = false;
                     RenderDocConnector.RenderDocManager?.EndFrameCapture(GraphicsDevice, IntPtr.Zero);
                 }
+
+                using var deviceContext = GraphicsDevice.GetNativeDeviceContext().QueryInterface<DeviceContext1>();
+                deviceContext.SwapDeviceContextState(previousState, out var s);
+                s.Dispose();
             }
         }
 

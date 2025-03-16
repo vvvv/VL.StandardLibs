@@ -35,8 +35,7 @@ namespace VL.Skia
                             var grContext = renderContext.SkiaContext;
                             return ibc.Node(
                                 inputs: new[] { ibc.Input(v => grContext.SetResourceCacheLimit(v), RenderContext.ResourceCacheLimit) },
-                                outputs: new[] { ibc.Output(() => grContext) },
-                                dispose: () => renderContext.Dispose());
+                                outputs: new[] { ibc.Output(() => grContext) });
                         });
                 });
                 return NodeBuilding.NewFactoryImpl(ImmutableArray.Create(graphicsContextNode));

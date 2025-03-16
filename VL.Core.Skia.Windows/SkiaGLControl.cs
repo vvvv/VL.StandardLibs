@@ -30,8 +30,6 @@ namespace VL.Skia
         {
             DestroySurface();
 
-            renderContext?.Dispose();
-
             // Retrieve the render context. Doing so in the constructor can lead to crashes when running unit tests with headless machines.
             renderContext = RenderContext.ForCurrentThread();
 
@@ -45,9 +43,6 @@ namespace VL.Skia
             base.OnHandleDestroyed(e);
 
             DestroySurface();
-
-            renderContext?.Dispose();
-            renderContext = null;
         }
 
         protected override sealed void OnPaintCore(PaintEventArgs e)
@@ -61,6 +56,8 @@ namespace VL.Skia
             // Create offscreen surface to render into
             if (eglSurface is null || surfaceSize.X != Width || surfaceSize.Y != Height)
             {
+                eglContext.MakeCurrent();
+
                 DestroySurface();
 
                 surfaceSize = new Int2(Width, Height);
@@ -72,7 +69,7 @@ namespace VL.Skia
             if (eglSurface is null)
                 return;
 
-            eglContext.MakeCurrent(eglSurface);
+            using var _ = renderContext.MakeCurrent(eglSurface);
 
             if (surface is null)
             {
@@ -128,7 +125,7 @@ namespace VL.Skia
             if (eglContext is null)
                 return;
 
-            eglContext.MakeCurrent(eglSurface);
+            //eglContext.MakeCurrent(eglSurface);
 
             surface?.Dispose();
             surface = null;
@@ -136,7 +133,7 @@ namespace VL.Skia
             eglSurface?.Dispose();
             eglSurface = default;
 
-            eglContext.MakeCurrent(null);
+            //eglContext.MakeCurrent(null);
         }
     }
 }

@@ -44,8 +44,6 @@ namespace VL.Skia.Video
         public override void Dispose()
         {
             base.Dispose();
-
-            renderContext.Dispose();
         }
     }
 }

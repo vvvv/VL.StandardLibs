@@ -1,20 +1,45 @@
 ﻿#nullable enable
 using System;
 using System.Runtime.Versioning;
+using VL.Core.Skia;
+using Windows.Win32;
 using Windows.Win32.Graphics.Direct3D;
 using Windows.Win32.Graphics.Direct3D11;
 using EGLDeviceEXT = System.IntPtr;
 
 namespace VL.Skia.Egl
 {
-    public sealed class EglDevice : EglResource
+    public unsafe sealed class EglDevice : EglResource
     {
         public static EglDevice FromD3D11(IntPtr d3dDevice)
         {
-            var angleDevice = NativeEgl.eglCreateDeviceANGLE(NativeEgl.EGL_D3D11_DEVICE_ANGLE, d3dDevice, null);
-            if (angleDevice == default)
-                throw new Exception("Failed to create EGL device");
-            return new EglDevice(angleDevice);
+            //using var device = D3D11Utils.GetD3D11Device1((ID3D11Device*)d3dDevice);
+            //D3D_FEATURE_LEVEL chosenFeatureLevel;
+            //ID3DDeviceContextState* deviceContextState;
+            //device.Ptr->CreateDeviceContextState(
+            //    0,
+            //    [device.Ptr->GetFeatureLevel()],
+            //    PInvoke.D3D11_SDK_VERSION,
+            //    in ID3D11Device1.IID_Guid,
+            //    &chosenFeatureLevel,
+            //    &deviceContextState);
+
+            //using var ctx = D3D11Utils.GetD3D11DeviceContext1((ID3D11Device*)d3dDevice);
+            //ID3DDeviceContextState* p;
+            //ctx.Ptr->SwapDeviceContextState(deviceContextState, &p);
+
+            try
+            {
+                var angleDevice = NativeEgl.eglCreateDeviceANGLE(NativeEgl.EGL_D3D11_DEVICE_ANGLE, d3dDevice, null);
+                if (angleDevice == default)
+                    throw new Exception("Failed to create EGL device");
+                return new EglDevice(angleDevice, isOwner: false, d3dDevice/*, (nint)deviceContextState*/);
+            }
+            finally
+            {
+                //ctx.Ptr->SwapDeviceContextState(p);
+                //p->Release();
+            }
         }
 
         [SupportedOSPlatform("windows6.1")]
@@ -41,7 +66,7 @@ namespace VL.Skia.Egl
                 if (angleDevice == default)
                     throw new Exception("Failed to create EGL device");
 
-                return new EglDevice(angleDevice, (nint)device);
+                return new EglDevice(angleDevice, isOwner: true, (nint)device);
             }
             finally
             {
@@ -51,15 +76,21 @@ namespace VL.Skia.Egl
         }
 
 
-        private EglDevice(EGLDeviceEXT angleDevice, nint? nativeDevice = default)
+        private EglDevice(EGLDeviceEXT angleDevice, bool isOwner, nint? nativeDevice = default, nint contextState = default)
             : base(angleDevice)
         {
+            IsOwner = isOwner;
+            ContextState = contextState;
             //this.nativeDevice = nativeDevice;
         }
 
-        protected override void Destroy()
+        public bool IsOwner { get; }
+
+        public nint ContextState { get; }
+
+        protected override void Destroy(nint nativePointer)
         {
-            NativeEgl.eglReleaseDeviceANGLE(NativePointer);
+            NativeEgl.eglReleaseDeviceANGLE(nativePointer);
         }
 
         // Helpful To debug memory leaks

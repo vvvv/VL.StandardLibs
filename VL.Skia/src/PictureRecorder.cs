@@ -25,10 +25,6 @@ namespace VL.Skia
             layer?.Render(CallerInfo.InRenderer(2 * LargeNumber, 2 * LargeNumber, canvas, null));
             var picture = output.Resource = pictureRecorder.EndRecording();
 
-            // Further make the picture dependent on our render context - Skia doesn't track that dependency.
-            renderContext.AddRef();
-            picture.AfterDispose(() => renderContext.Release());
-
             return picture;
         }
 
@@ -36,7 +32,6 @@ namespace VL.Skia
         {
             output.Dispose();
             pictureRecorder.Dispose();
-            renderContext.Release();
         }
     }
 }

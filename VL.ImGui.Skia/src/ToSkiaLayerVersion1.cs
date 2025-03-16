@@ -374,7 +374,6 @@ namespace VL.ImGui
                 return;
 
             _disposed = true;
-            _renderContext.Dispose();
             _context.Dispose();
         }
     }

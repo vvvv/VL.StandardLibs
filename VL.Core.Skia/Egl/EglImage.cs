@@ -12,9 +12,9 @@ namespace VL.Skia.Egl
             this.display = display;
         }
 
-        protected override void Destroy()
+        protected override void Destroy(nint nativePointer)
         {
-            NativeEgl.eglDestroyImageKHR(display, NativePointer);
+            NativeEgl.eglDestroyImageKHR(display, nativePointer);
         }
     }
 }

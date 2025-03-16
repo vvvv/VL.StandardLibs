@@ -22,8 +22,25 @@ namespace VL.Skia.Egl
 		private const string libEGL = "libEGL";
 		private const string libGLESv2 = "libGLESv2";
 
-		// Out-of-band handle values
-		public static readonly EGLNativeDisplayType EGL_DEFAULT_DISPLAY = IntPtr.Zero;
+        // Error codes
+        public const int EGL_SUCCESS = 0x3000;
+        public const int EGL_NOT_INITIALIZED = 0x3001;
+        public const int EGL_BAD_ACCESS = 0x3002;
+        public const int EGL_BAD_ALLOC = 0x3003;
+        public const int EGL_BAD_ATTRIBUTE = 0x3004;
+        public const int EGL_BAD_CONTEXT = 0x3006;
+        public const int EGL_BAD_CONFIG = 0x3005;
+        public const int EGL_BAD_CURRENT_SURFACE = 0x3007;
+        public const int EGL_BAD_DISPLAY = 0x3008;
+        public const int EGL_BAD_SURFACE = 0x3009;
+        public const int EGL_BAD_MATCH = 0x300A;
+        public const int EGL_BAD_PARAMETER = 0x300C;
+        public const int EGL_BAD_NATIVE_PIXMAP = 0x300B;
+        public const int EGL_BAD_NATIVE_WINDOW = 0x300D;
+        public const int EGL_CONTEXT_LOST = 0x300E;
+
+        // Out-of-band handle values
+        public static readonly EGLNativeDisplayType EGL_DEFAULT_DISPLAY = IntPtr.Zero;
 		public static readonly IntPtr EGL_NO_CONFIG = IntPtr.Zero;
 		public static readonly IntPtr EGL_NO_DISPLAY = IntPtr.Zero;
 		public static readonly IntPtr EGL_NO_CONTEXT = IntPtr.Zero;
@@ -31,7 +48,6 @@ namespace VL.Skia.Egl
         public const int EGL_CONTEXT_OPENGL_DEBUG = 12720;
         public const GLBool EGL_FALSE = 0;
 		public const GLBool EGL_TRUE = 1;
-		public const int EGL_SUCCESS = 0x3000;
 
 		// Config attributes
 		public const int EGL_BUFFER_SIZE = 0x3020;
@@ -181,5 +197,36 @@ namespace VL.Skia.Egl
 		public static extern EGLImageKHR eglCreateImageKHR(EGLDisplay dpy, EGLContext ctx, int target, IntPtr buffer, int[] attrib_list);
 		[DllImport(libEGL)]
 		public static extern GLBool eglDestroyImageKHR(EGLDisplay dpy, EGLImageKHR image);
-	}
+
+        [DllImport(libEGL)]
+        public static extern EGLContext eglGetCurrentContext();
+
+        [DllImport(libEGL)]
+        public static extern EGLSurface eglGetCurrentSurface(int readDraw);
+
+		public static string GetLastError() => GetErrorText(eglGetError());
+
+        public static string GetErrorText(int errorCode)
+        {
+            return errorCode switch
+            {
+                EGL_SUCCESS => "The last function succeeded without error.",
+                EGL_NOT_INITIALIZED => "EGL is not initialized, or could not be initialized, for the specified EGL display connection.",
+                EGL_BAD_ACCESS => "EGL cannot access a requested resource (for example a context is bound in another thread).",
+                EGL_BAD_ALLOC => "EGL failed to allocate resources for the requested operation.",
+                EGL_BAD_ATTRIBUTE => "An unrecognized attribute or attribute value was passed in the attribute list.",
+                EGL_BAD_CONTEXT => "An EGLContext argument does not name a valid EGL rendering context.",
+                EGL_BAD_CONFIG => "An EGLConfig argument does not name a valid EGL frame buffer configuration.",
+                EGL_BAD_CURRENT_SURFACE => "The current surface of the calling thread is a window, pixel buffer or pixmap that is no longer valid.",
+                EGL_BAD_DISPLAY => "An EGLDisplay argument does not name a valid EGL display connection.",
+                EGL_BAD_SURFACE => "An EGLSurface argument does not name a valid surface (window, pixel buffer or pixmap) configured for GL rendering.",
+                EGL_BAD_MATCH => "Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).",
+                EGL_BAD_PARAMETER => "One or more argument values are invalid.",
+                EGL_BAD_NATIVE_PIXMAP => "A NativePixmapType argument does not refer to a valid native pixmap.",
+                EGL_BAD_NATIVE_WINDOW => "A NativeWindowType argument does not refer to a valid native window.",
+                EGL_CONTEXT_LOST => "A power management event has occurred. The application must destroy all contexts and reinitialise OpenGL ES state and objects to continue rendering.",
+                _ => "Unknown EGL error code."
+            };
+        }
+    }
 }
