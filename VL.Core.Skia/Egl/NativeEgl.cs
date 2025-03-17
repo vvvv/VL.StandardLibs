@@ -11,6 +11,7 @@ using EGLSync = System.IntPtr;
 using EGLNativeDisplayType = System.IntPtr;
 using EGLNativeWindowType = System.Object;
 using GLBool = System.Int32;
+using System.Runtime.InteropServices.Marshalling;
 
 // Prevents the native dlls getting loaded from PATH variable
 [assembly:DefaultDllImportSearchPaths(DllImportSearchPath.ApplicationDirectory)]
@@ -143,9 +144,11 @@ namespace VL.Skia.Egl
 		[DllImport(libEGL)]
 		public static extern EGLDisplay eglGetPlatformDisplayEXT(uint platform, EGLNativeDisplayType native_display, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern GLBool eglInitialize(EGLDisplay dpy, out int major, out int minor);
+		[return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglInitialize(EGLDisplay dpy, out int major, out int minor);
 		[DllImport(libEGL)]
-		public static extern GLBool eglChooseConfig(EGLDisplay dpy, int[] attrib_list, [In, Out] EGLConfig[] configs, int config_size, out int num_config);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglChooseConfig(EGLDisplay dpy, int[] attrib_list, [In, Out] EGLConfig[] configs, int config_size, out int num_config);
 		[DllImport(libEGL)]
 		public static extern EGLContext eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context, int[] attrib_list);
 		[DllImport(libEGL)]
@@ -155,19 +158,26 @@ namespace VL.Skia.Egl
 		[DllImport(libEGL)]
 		public static extern EGLSync eglCreateSync(EGLDisplay display, int type, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern GLBool eglQuerySurface(EGLDisplay dpy, EGLSurface surface, int attribute, out int value);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglQuerySurface(EGLDisplay dpy, EGLSurface surface, int attribute, out int value);
 		[DllImport(libEGL)]
-		public static extern GLBool eglDestroySurface(EGLDisplay dpy, EGLSurface surface);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglDestroySurface(EGLDisplay dpy, EGLSurface surface);
 		[DllImport(libEGL)]
-		public static extern GLBool eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx);
 		[DllImport(libEGL)]
-		public static extern GLBool eglSwapBuffers(EGLDisplay dpy, EGLSurface surface);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglSwapBuffers(EGLDisplay dpy, EGLSurface surface);
 		[DllImport(libEGL)]
-		public static extern GLBool eglSwapInterval(EGLDisplay dpy, int interval);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglSwapInterval(EGLDisplay dpy, int interval);
 		[DllImport(libEGL)]
-		public static extern GLBool eglDestroyContext(EGLDisplay dpy, EGLContext ctx);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglDestroyContext(EGLDisplay dpy, EGLContext ctx);
 		[DllImport(libEGL)]
-		public static extern GLBool eglTerminate(EGLDisplay dpy);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglTerminate(EGLDisplay dpy);
 		[DllImport(libEGL)]
 		public static extern int eglGetError();
 		[DllImport(libEGL)]
@@ -175,28 +185,38 @@ namespace VL.Skia.Egl
 		[DllImport(libEGL)]
 		public static extern EGLSurface eglCreatePbufferFromClientBuffer(EGLDisplay display, int buftype, IntPtr buffer, EGLConfig config, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern GLBool eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface, int attribute, int value);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface, int attribute, int value);
 
 		[DllImport(libEGL)]
 		public static extern EGLDeviceEXT eglCreateDeviceANGLE(int dpy, IntPtr native_device, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern GLBool eglReleaseDeviceANGLE(EGLDeviceEXT device);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglReleaseDeviceANGLE(EGLDeviceEXT device);
 
 		[DllImport(libEGL)]
-		public static extern GLBool eglQueryDeviceAttribEXT(EGLDeviceEXT device, int attribute, out IntPtr value);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglQueryDeviceAttribEXT(EGLDeviceEXT device, int attribute, out IntPtr value);
 
 		[DllImport(libEGL)]
-		public static extern GLBool eglQueryDisplayAttribEXT(EGLDisplay dpy, int attribute, out IntPtr value);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglQueryDisplayAttribEXT(EGLDisplay dpy, int attribute, out IntPtr value);
 
 		[DllImport(libEGL)]
-		public static extern GLBool eglBindTexImage(EGLDisplay display, EGLSurface surface, int buffer);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglBindTexImage(EGLDisplay display, EGLSurface surface, int buffer);
 		[DllImport(libEGL)]
-		public static extern GLBool eglReleaseTexImage(EGLDisplay display, EGLSurface surface, int buffer);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglReleaseTexImage(EGLDisplay display, EGLSurface surface, int buffer);
 
 		[DllImport(libEGL)]
 		public static extern EGLImageKHR eglCreateImageKHR(EGLDisplay dpy, EGLContext ctx, int target, IntPtr buffer, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern GLBool eglDestroyImageKHR(EGLDisplay dpy, EGLImageKHR image);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglDestroyImageKHR(EGLDisplay dpy, EGLImageKHR image);
+
+        [DllImport(libEGL)]
+        public static extern EGLDisplay eglGetCurrentDisplay();
 
         [DllImport(libEGL)]
         public static extern EGLContext eglGetCurrentContext();

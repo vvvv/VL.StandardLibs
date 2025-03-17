@@ -6,9 +6,14 @@ using Stride.Input;
 using Stride.Rendering;
 using System;
 using System.Reactive.Disposables;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using VL.Core.Skia;
 using VL.Skia;
 using VL.Skia.Egl;
 using VL.Stride.Input;
+using VL.Stride.Shaders;
+using Windows.Win32.Graphics.Direct3D11;
 using CommandList = Stride.Graphics.CommandList;
 using PixelFormat = Stride.Graphics.PixelFormat;
 using SkiaRenderContext = VL.Skia.RenderContext;
@@ -47,12 +52,11 @@ namespace VL.Stride
             var commandList = context.CommandList;
             var renderTarget = commandList.RenderTarget;
 
+            // Save and restore the current state of the underlying D3D11 device context
+            //using var _ = SaveAndRestoreDeviceContextState(GraphicsDevice);
+
             // Fetch the skia render context (uses ANGLE -> DirectX11)
             var skiaRenderContext = SkiaRenderContext.ForCurrentThread(/*(int)renderTarget.MultisampleCount*/);
-
-            // Make current on current thread 
-            var eglContext = skiaRenderContext.EglContext;
-            eglContext.MakeCurrent();
 
             // Subscribe to input events - in case we have many sinks we assume that there's only one input source active
             var renderTargetSize = new Int2(renderTarget.Width, renderTarget.Height);
@@ -64,10 +68,13 @@ namespace VL.Stride
                 inputSubscription.Disposable = SubscribeToInputSource(inputSource, context, canvas: null, skiaRenderContext.SkiaContext);
             }
 
+            // Make current on current thread for resource creation
+            var eglContext = skiaRenderContext.EglContext;
+            using var __ = eglContext.MakeCurrent(forRendering: false);
             var nativeTempRenderTarget = SharpDXInterop.GetNativeResource(renderTarget) as Texture2D;
             using var eglSurface = eglContext.CreateSurfaceFromClientBuffer(nativeTempRenderTarget.NativePointer);
             // Make the surface current (becomes default FBO)
-            using (skiaRenderContext.MakeCurrent(eglSurface))
+            using (skiaRenderContext.MakeCurrent(forRendering: true, eglSurface))
             {
                 // Setup a skia surface around the currently set render target
                 using var surface = CreateSkSurface(skiaRenderContext.SkiaContext, renderTarget);
@@ -185,5 +192,41 @@ namespace VL.Stride
                     return SKColorType.Unknown;
             }
         }
+
+        private unsafe class D3D11Handle : SafeHandle
+        {
+            public D3D11Handle(nint state)
+                : base(default, ownsHandle: true)
+            {
+                SetHandle(state);
+            }
+
+            public override bool IsInvalid => handle == default;
+
+            protected override bool ReleaseHandle()
+            {
+                Marshal.Release(handle);
+                return true;
+            }
+        }
+
+        unsafe D3D11Utils.DeviceContextScope SaveAndRestoreDeviceContextState(GraphicsDevice device)
+        {
+            if (OperatingSystem.IsWindowsVersionAtLeast(8))
+            {
+                if (deviceContextState is null)
+                {
+                    using var device1 = D3D11Utils.GetD3D11Device1(device.GetNativeDevice().NativePointer);
+                    deviceContextState = new D3D11Handle((nint)D3D11Utils.CreateDeviceContextState(device1));
+                }
+
+                var deviceContext = D3D11Utils.GetD3D11DeviceContext1(device.GetNativeDevice().NativePointer);
+                var statePtr = (ID3DDeviceContextState*)deviceContextState.DangerousGetHandle();
+                return D3D11Utils.SwitchState(deviceContext, statePtr);
+            }
+            return default;
+        }
+
+        D3D11Handle deviceContextState;
     }
 }

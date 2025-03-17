@@ -56,7 +56,7 @@ namespace VL.Skia
             // Create offscreen surface to render into
             if (eglSurface is null || surfaceSize.X != Width || surfaceSize.Y != Height)
             {
-                eglContext.MakeCurrent();
+                using var _1 = eglContext.MakeCurrent(forRendering: false);
 
                 DestroySurface();
 
@@ -69,7 +69,7 @@ namespace VL.Skia
             if (eglSurface is null)
                 return;
 
-            using var _ = renderContext.MakeCurrent(eglSurface);
+            using var _ = renderContext.MakeCurrent(forRendering: true, eglSurface);
 
             if (surface is null)
             {

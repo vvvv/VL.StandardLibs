@@ -92,7 +92,7 @@ namespace VL.Skia
                 throw new InvalidOperationException("Render must be called on the same thread as where the renderer has been created in.");
 
             // Make our render context the current one
-            using var _ = renderContext.MakeCurrent();
+            using var _ = renderContext.MakeCurrent(forRendering: true);
 
             // Release the previously rendered image. If no other consumers are present this will allow us to re-use the backing texture for this render pass.
             output.Resource = null;

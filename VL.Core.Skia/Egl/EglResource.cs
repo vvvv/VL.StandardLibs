@@ -1,30 +1,34 @@
 ﻿using System;
-using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace VL.Skia.Egl
 {
-    public abstract class EglResource : IDisposable
+    public abstract class EglResource : SafeHandle
     {
-        private IntPtr nativePointer;
+        internal EglResource()
+            : base(default, true)
+        {
+        }
 
         public EglResource(IntPtr nativePointer)
+            : base(default, true)
         {
             if (nativePointer == default)
                 throw new ArgumentNullException(nameof(nativePointer));
 
-            this.nativePointer = nativePointer;
+            SetHandle(nativePointer);
         }
 
-        public IntPtr NativePointer => nativePointer != default ? nativePointer : throw new ObjectDisposedException(GetType().Name);
+        public override bool IsInvalid => handle == default;
 
-        public void Dispose()
+        public IntPtr NativePointer
         {
-            var ptr = Interlocked.Exchange(ref nativePointer, IntPtr.Zero);
-            if (ptr != IntPtr.Zero)
-                Destroy(ptr);
+            get
+            {
+                ObjectDisposedException.ThrowIf(IsClosed, this);
+                return handle;
+            }
         }
-
-        protected abstract void Destroy(nint nativePointer);
 
         public static implicit operator IntPtr(EglResource resource)
         {

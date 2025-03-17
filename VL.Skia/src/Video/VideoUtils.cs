@@ -55,7 +55,7 @@ namespace VL.Skia.Video
 
         private static TextureImage? FromTexture(VideoTexture texture, RenderContext renderContext)
         {
-            //renderContext.MakeCurrent();
+            using var _ = renderContext.MakeCurrent(forRendering: false);
 
             var eglContext = renderContext.EglContext;
 

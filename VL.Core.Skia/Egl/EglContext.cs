@@ -7,6 +7,18 @@ using EGLSurface = System.IntPtr;
 using System.Collections.Generic;
 using System.Linq;
 using static VL.Skia.Egl.NativeEgl;
+using VL.Core.Skia;
+using Windows.Win32.Graphics.Direct3D11;
+using Windows.Win32.System.Com;
+using static Windows.Win32.PInvoke;
+using static Windows.Win32.Graphics.Direct3D11.D3D11_1_CREATE_DEVICE_CONTEXT_STATE_FLAG;
+using static VL.Core.Skia.D3D11Utils;
+using Windows.Win32.Graphics.Direct3D;
+using System.Drawing;
+using VL.Core.Skia;
+using System.Reactive.Disposables;
+using VL.Lib.Collections;
+using System.Runtime.InteropServices;
 
 namespace VL.Skia.Egl
 {
@@ -34,7 +46,7 @@ namespace VL.Skia.Egl
             ];
 
             EGLDisplay[] configs = new EGLDisplay[1];
-            if ((eglChooseConfig(display, configAttributes, configs, configs.Length, out int numConfigs) == EGL_FALSE) || (numConfigs == 0))
+            if ((!eglChooseConfig(display, configAttributes, configs, configs.Length, out int numConfigs)) || (numConfigs == 0))
             {
                 throw new Exception($"Failed to choose first EGLConfig. {GetLastError()}");
             }
@@ -61,9 +73,12 @@ namespace VL.Skia.Egl
             this.config = config;
             this.shareContext = shareContext;
             this.msaaSamples = msaaSamples;
+
+            var success = false;
+            display.DangerousAddRef(ref success);
         }
 
-        public EglDisplay Dislpay => display;
+        public EglDisplay Display => display;
 
         public int MsaaSamples => msaaSamples;
 
@@ -175,17 +190,37 @@ namespace VL.Skia.Egl
             return new EglImage(display, image);
         }
 
-        public void MakeCurrent(EglSurface surface = default)
+        public unsafe Scope MakeCurrent(bool forRendering, EglSurface surface = null)
         {
-            if (eglMakeCurrent(display, surface, surface, this) == EGL_FALSE)
+            var deviceContext = default(ComPtr<ID3D11DeviceContext1>);
+            if (forRendering && OperatingSystem.IsWindowsVersionAtLeast(8) && display.TryGetD3D11Device(out var d3dDevice))
             {
-                throw new Exception($"Failed to make EGLSurface current. {GetLastError()}");
+                deviceContext = GetD3D11DeviceContext1(d3dDevice);
+                if (deviceContextState == default)
+                {
+                    using var device = GetD3D11Device1(d3dDevice);
+                    D3D_FEATURE_LEVEL chosenFeatureLevel;
+                    ID3DDeviceContextState* deviceContextState;
+                    device.Ptr->CreateDeviceContextState(
+                        0,
+                        [device.Ptr->GetFeatureLevel()],
+                        D3D11_SDK_VERSION,
+                        in ID3D11Device1.IID_Guid,
+                        &chosenFeatureLevel,
+                        &deviceContextState);
+                    this.deviceContextState = (nint)deviceContextState;
+                }
+                return new Scope(this, surface, deviceContext, (ID3DDeviceContextState*)deviceContextState);
             }
+
+            return new Scope(this, surface);
         }
+
+        nint deviceContextState;
 
         public void ReleaseCurrent()
         {
-            if (eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT) == EGL_FALSE)
+            if (!eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT))
             {
                 throw new Exception($"Failed to release current context. {GetLastError()}");
             }
@@ -193,19 +228,64 @@ namespace VL.Skia.Egl
 
         public bool SwapInterval(int interval)
         {
-            return (eglSwapInterval(display, interval) == EGL_TRUE);
+            return eglSwapInterval(display, interval);
         }
 
         public bool SwapBuffers(EGLSurface eglSurface)
         {
-            return (eglSwapBuffers(display, eglSurface) == EGL_TRUE);
+            return eglSwapBuffers(display, eglSurface);
         }
 
-        protected override void Destroy(nint nativePointer)
+        protected override bool ReleaseHandle()
         {
             ReleaseCurrent();
 
-            eglDestroyContext(display, nativePointer);
+            if (deviceContextState != default)
+                Marshal.Release(deviceContextState);
+
+            try
+            {
+                return eglDestroyContext(display, handle);
+            }
+            finally
+            {
+                display.DangerousRelease();
+            }
+        }
+
+        public unsafe ref struct Scope : IDisposable
+        {
+            private readonly DeviceContextScope deviceContextScope;
+            private readonly nint display;
+            private readonly nint context;
+            private readonly nint read;
+            private readonly nint draw;
+
+            internal Scope(EglContext eglContext, EglSurface surface, ID3D11DeviceContext1* deviceContext = null, ID3DDeviceContextState* newState = null)
+            {
+                if (OperatingSystem.IsWindowsVersionAtLeast(8) && deviceContext != null)
+                    deviceContextScope = SwitchState(deviceContext, newState);
+
+                display = eglGetCurrentDisplay();
+                context = eglGetCurrentContext();
+                draw = eglGetCurrentSurface(EGL_DRAW);
+                read = eglGetCurrentSurface(EGL_READ);
+                if (!eglMakeCurrent(eglContext.Display, surface, surface, eglContext))
+                {
+                    throw new Exception($"Failed to make EGLContext current. {GetLastError()}");
+                }
+            }
+
+            public void Dispose()
+            {
+                if (display != default && !eglMakeCurrent(display, draw, read, context))
+                {
+                    throw new Exception($"Failed to make EGLContext current. {GetLastError()}");
+                }
+
+                if (OperatingSystem.IsWindowsVersionAtLeast(8))
+                    deviceContextScope.Dispose();
+            }
         }
     }
 }
