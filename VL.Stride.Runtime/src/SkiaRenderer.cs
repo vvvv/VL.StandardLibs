@@ -56,6 +56,9 @@ namespace VL.Stride
             //using var _ = SaveAndRestoreDeviceContextState(GraphicsDevice);
 
             // Fetch the skia render context (uses ANGLE -> DirectX11)
+            if (renderTarget.MultisampleCount != MultisampleCount.None)
+                throw new NotImplementedException("TODO: Sample count Skia render context");
+
             var skiaRenderContext = SkiaRenderContext.ForCurrentThread(/*(int)renderTarget.MultisampleCount*/);
 
             // Subscribe to input events - in case we have many sinks we assume that there's only one input source active

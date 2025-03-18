@@ -58,7 +58,7 @@ namespace VL.Skia
                 if (image.Handle == IntPtr.Zero)
                     throw new ObjectDisposedException(nameof(image));
 
-                var rasterImage = image.ToRasterImage(ensurePixelData: true);
+                var rasterImage = image.ToRasterImageSafe(ensurePixelData: true);
                 if (rasterImage is null)
                     throw new InvalidOperationException("Can't read pixels");
 

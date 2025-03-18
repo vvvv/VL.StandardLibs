@@ -5,7 +5,6 @@ using VL.Lib.IO.Notifications;
 using Stride.Core.Mathematics;
 using VL.Lib.Basics.Resources;
 using System.Threading;
-using VL.Skia.Egl;
 
 namespace VL.Skia
 {
@@ -19,7 +18,6 @@ namespace VL.Skia
         private SKSurface surface;
         private Int2 surfaceSize;
         private SKCanvas canvas;
-        private EglSurface eglSurface;
 
         public OffScreenRenderer()
         {
@@ -103,14 +101,8 @@ namespace VL.Skia
             {
                 surfaceSize = size;
                 surface?.Dispose();
-                //eglSurface?.Dispose();
-                //eglSurface = renderContext.EglContext.CreatePbufferSurface(size.X, size.Y);
                 var info = new SKImageInfo(size.X, size.Y, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
                 surface = SKSurface.Create(renderContext.SkiaContext, budgeted: false, info, sampleCount: 0, origin: GRSurfaceOrigin.TopLeft, null, shouldCreateWithMips: true);
-                //using (renderContext.MakeCurrent(eglSurface))
-                //{
-                //    surface = CreateSkSurface(renderContext, eglSurface);
-                //}
                 canvas = surface.Canvas;
             }
 
@@ -124,68 +116,15 @@ namespace VL.Skia
 
             // Ref count the rendered image. As far as we're concerned it shall be valid until the next frame.
             // So if no one was interested in it, it will be disposed and the backing texture will go back into the texture pool.
-            var image = output.Resource = surface.Snapshot();
-
-            //renderContext.EglContext.ReleaseCurrent();
-
-            return image;
+            return output.Resource = surface.Snapshot();
         }
 
         public void Dispose()
         {
-            //renderContext.MakeCurrent();
-
             FMouseSubscription?.Dispose();
             FKeyboardSubscription?.Dispose();
             output.Dispose();
             surface?.Dispose();
-        }
-
-        SKSurface CreateSkSurface(RenderContext context, EglSurface eglSurface)
-        {
-            var colorType = SKColorType.Rgba8888;
-            NativeGles.glGetIntegerv(NativeGles.GL_FRAMEBUFFER_BINDING, out var framebuffer);
-            NativeGles.glGetIntegerv(NativeGles.GL_STENCIL_BITS, out var stencil);
-            NativeGles.glGetIntegerv(NativeGles.GL_SAMPLES, out var samples);
-            var maxSamples = context.SkiaContext.GetMaxSurfaceSampleCount(colorType);
-            if (samples > maxSamples)
-                samples = maxSamples;
-
-            var glInfo = new GRGlFramebufferInfo(
-                fboId: (uint)framebuffer,
-                format: colorType.ToGlSizedFormat());
-
-            using var renderTarget = new GRBackendRenderTarget(
-                width: eglSurface.Size.X,
-                height: eglSurface.Size.Y,
-                sampleCount: samples,
-                stencilBits: stencil,
-                glInfo: glInfo);
-
-            var useLinearColorspace = false;
-            if (context.UseLinearColorspace)
-            {
-                // Output looks correct in the following cases:
-                // - Rendering to swap chain, the render target is non-srgb while the view is srgb
-                // - Rendering to a typeless texture with a srgb view
-                // In those cases we can assume the hardware is taking care of interpreting the bits correctly.
-
-                // In all other cases we can somewhat "fix" the colors by telling Skia to use a linear colorspace,
-                // but alpha blending is still somewhat broken leading to wrong output. For example use the "Randomwalk" Skia help patch.
-
-                // Blending results are even worse when using a floating point texture. This also seems independent of the used color space.
-
-                // TODO: Should we change the default of the RenderTexture node to use a typeless format? Or at least adjust the SkiaTexture node?
-                // TODO: Re-evaluate this part once Skia has the srgb flags (see comment in https://discourse.vvvv.org/t/combining-stride-and-skia-render-engine/19798/8)
-                useLinearColorspace = true;
-            }
-
-            return SKSurface.Create(
-                context.SkiaContext,
-                renderTarget,
-                GRSurfaceOrigin.TopLeft,
-                colorType,
-                colorspace: useLinearColorspace ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb());
         }
     }
 }

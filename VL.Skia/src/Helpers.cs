@@ -139,5 +139,20 @@ namespace VL.Skia
             if (input != null && input.Handle != IntPtr.Zero)
                 input.Dispose();
         }       
+
+        public static SKImage ToRasterImageSafe(this SKImage image, bool ensurePixelData)
+        {
+            if (image is null)
+                return null;
+
+            if (image.IsTextureBacked)
+            {
+                // Needs GPU -> ensure our render context is current
+                using var _ = RenderContext.ForCurrentThread().MakeCurrent(forRendering: false);
+                return image.ToRasterImage(ensurePixelData: ensurePixelData);
+            }
+
+            return image.ToRasterImage(ensurePixelData);
+        }
     }
 }
