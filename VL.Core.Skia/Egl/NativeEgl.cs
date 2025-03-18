@@ -11,6 +11,7 @@ using EGLSync = System.IntPtr;
 using EGLNativeDisplayType = System.IntPtr;
 using EGLNativeWindowType = System.Object;
 using GLBool = System.Int32;
+using System.Runtime.InteropServices.Marshalling;
 
 // Prevents the native dlls getting loaded from PATH variable
 [assembly:DefaultDllImportSearchPaths(DllImportSearchPath.ApplicationDirectory)]
@@ -22,8 +23,25 @@ namespace VL.Skia.Egl
 		private const string libEGL = "libEGL";
 		private const string libGLESv2 = "libGLESv2";
 
-		// Out-of-band handle values
-		public static readonly EGLNativeDisplayType EGL_DEFAULT_DISPLAY = IntPtr.Zero;
+        // Error codes
+        public const int EGL_SUCCESS = 0x3000;
+        public const int EGL_NOT_INITIALIZED = 0x3001;
+        public const int EGL_BAD_ACCESS = 0x3002;
+        public const int EGL_BAD_ALLOC = 0x3003;
+        public const int EGL_BAD_ATTRIBUTE = 0x3004;
+        public const int EGL_BAD_CONTEXT = 0x3006;
+        public const int EGL_BAD_CONFIG = 0x3005;
+        public const int EGL_BAD_CURRENT_SURFACE = 0x3007;
+        public const int EGL_BAD_DISPLAY = 0x3008;
+        public const int EGL_BAD_SURFACE = 0x3009;
+        public const int EGL_BAD_MATCH = 0x300A;
+        public const int EGL_BAD_PARAMETER = 0x300C;
+        public const int EGL_BAD_NATIVE_PIXMAP = 0x300B;
+        public const int EGL_BAD_NATIVE_WINDOW = 0x300D;
+        public const int EGL_CONTEXT_LOST = 0x300E;
+
+        // Out-of-band handle values
+        public static readonly EGLNativeDisplayType EGL_DEFAULT_DISPLAY = IntPtr.Zero;
 		public static readonly IntPtr EGL_NO_CONFIG = IntPtr.Zero;
 		public static readonly IntPtr EGL_NO_DISPLAY = IntPtr.Zero;
 		public static readonly IntPtr EGL_NO_CONTEXT = IntPtr.Zero;
@@ -31,7 +49,6 @@ namespace VL.Skia.Egl
         public const int EGL_CONTEXT_OPENGL_DEBUG = 12720;
         public const GLBool EGL_FALSE = 0;
 		public const GLBool EGL_TRUE = 1;
-		public const int EGL_SUCCESS = 0x3000;
 
 		// Config attributes
 		public const int EGL_BUFFER_SIZE = 0x3020;
@@ -44,8 +61,12 @@ namespace VL.Skia.Egl
 		public const int EGL_SAMPLES = 0x3031;
 		public const int EGL_SAMPLE_BUFFERS = 0x3032;
 
-		// QuerySurface / SurfaceAttrib / CreatePbufferSurface targets
-		public const int EGL_HEIGHT = 0x3056;
+		public const int EGL_GL_COLORSPACE = 0x309D;
+		public const int EGL_GL_COLORSPACE_SRGB = 0x3089;
+		public const int EGL_GL_COLORSPACE_LINEAR = 0x308A;
+
+        // QuerySurface / SurfaceAttrib / CreatePbufferSurface targets
+        public const int EGL_HEIGHT = 0x3056;
 		public const int EGL_WIDTH = 0x3057;
 
 		public const int GL_RGB = 0x1907;
@@ -127,9 +148,11 @@ namespace VL.Skia.Egl
 		[DllImport(libEGL)]
 		public static extern EGLDisplay eglGetPlatformDisplayEXT(uint platform, EGLNativeDisplayType native_display, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern GLBool eglInitialize(EGLDisplay dpy, out int major, out int minor);
+		[return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglInitialize(EGLDisplay dpy, out int major, out int minor);
 		[DllImport(libEGL)]
-		public static extern GLBool eglChooseConfig(EGLDisplay dpy, int[] attrib_list, [In, Out] EGLConfig[] configs, int config_size, out int num_config);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglChooseConfig(EGLDisplay dpy, int[] attrib_list, [In, Out] EGLConfig[] configs, int config_size, out int num_config);
 		[DllImport(libEGL)]
 		public static extern EGLContext eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context, int[] attrib_list);
 		[DllImport(libEGL)]
@@ -139,19 +162,26 @@ namespace VL.Skia.Egl
 		[DllImport(libEGL)]
 		public static extern EGLSync eglCreateSync(EGLDisplay display, int type, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern GLBool eglQuerySurface(EGLDisplay dpy, EGLSurface surface, int attribute, out int value);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglQuerySurface(EGLDisplay dpy, EGLSurface surface, int attribute, out int value);
 		[DllImport(libEGL)]
-		public static extern GLBool eglDestroySurface(EGLDisplay dpy, EGLSurface surface);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglDestroySurface(EGLDisplay dpy, EGLSurface surface);
 		[DllImport(libEGL)]
-		public static extern GLBool eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx);
 		[DllImport(libEGL)]
-		public static extern GLBool eglSwapBuffers(EGLDisplay dpy, EGLSurface surface);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglSwapBuffers(EGLDisplay dpy, EGLSurface surface);
 		[DllImport(libEGL)]
-		public static extern GLBool eglSwapInterval(EGLDisplay dpy, int interval);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglSwapInterval(EGLDisplay dpy, int interval);
 		[DllImport(libEGL)]
-		public static extern GLBool eglDestroyContext(EGLDisplay dpy, EGLContext ctx);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglDestroyContext(EGLDisplay dpy, EGLContext ctx);
 		[DllImport(libEGL)]
-		public static extern GLBool eglTerminate(EGLDisplay dpy);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglTerminate(EGLDisplay dpy);
 		[DllImport(libEGL)]
 		public static extern int eglGetError();
 		[DllImport(libEGL)]
@@ -159,27 +189,68 @@ namespace VL.Skia.Egl
 		[DllImport(libEGL)]
 		public static extern EGLSurface eglCreatePbufferFromClientBuffer(EGLDisplay display, int buftype, IntPtr buffer, EGLConfig config, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern GLBool eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface, int attribute, int value);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface, int attribute, int value);
 
 		[DllImport(libEGL)]
 		public static extern EGLDeviceEXT eglCreateDeviceANGLE(int dpy, IntPtr native_device, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern GLBool eglReleaseDeviceANGLE(EGLDeviceEXT device);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglReleaseDeviceANGLE(EGLDeviceEXT device);
 
 		[DllImport(libEGL)]
-		public static extern GLBool eglQueryDeviceAttribEXT(EGLDeviceEXT device, int attribute, out IntPtr value);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglQueryDeviceAttribEXT(EGLDeviceEXT device, int attribute, out IntPtr value);
 
 		[DllImport(libEGL)]
-		public static extern GLBool eglQueryDisplayAttribEXT(EGLDisplay dpy, int attribute, out IntPtr value);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglQueryDisplayAttribEXT(EGLDisplay dpy, int attribute, out IntPtr value);
 
 		[DllImport(libEGL)]
-		public static extern GLBool eglBindTexImage(EGLDisplay display, EGLSurface surface, int buffer);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglBindTexImage(EGLDisplay display, EGLSurface surface, int buffer);
 		[DllImport(libEGL)]
-		public static extern GLBool eglReleaseTexImage(EGLDisplay display, EGLSurface surface, int buffer);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglReleaseTexImage(EGLDisplay display, EGLSurface surface, int buffer);
 
 		[DllImport(libEGL)]
 		public static extern EGLImageKHR eglCreateImageKHR(EGLDisplay dpy, EGLContext ctx, int target, IntPtr buffer, int[] attrib_list);
 		[DllImport(libEGL)]
-		public static extern GLBool eglDestroyImageKHR(EGLDisplay dpy, EGLImageKHR image);
-	}
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool eglDestroyImageKHR(EGLDisplay dpy, EGLImageKHR image);
+
+        [DllImport(libEGL)]
+        public static extern EGLDisplay eglGetCurrentDisplay();
+
+        [DllImport(libEGL)]
+        public static extern EGLContext eglGetCurrentContext();
+
+        [DllImport(libEGL)]
+        public static extern EGLSurface eglGetCurrentSurface(int readDraw);
+
+		public static string GetLastError() => GetErrorText(eglGetError());
+
+        public static string GetErrorText(int errorCode)
+        {
+            return errorCode switch
+            {
+                EGL_SUCCESS => "The last function succeeded without error.",
+                EGL_NOT_INITIALIZED => "EGL is not initialized, or could not be initialized, for the specified EGL display connection.",
+                EGL_BAD_ACCESS => "EGL cannot access a requested resource (for example a context is bound in another thread).",
+                EGL_BAD_ALLOC => "EGL failed to allocate resources for the requested operation.",
+                EGL_BAD_ATTRIBUTE => "An unrecognized attribute or attribute value was passed in the attribute list.",
+                EGL_BAD_CONTEXT => "An EGLContext argument does not name a valid EGL rendering context.",
+                EGL_BAD_CONFIG => "An EGLConfig argument does not name a valid EGL frame buffer configuration.",
+                EGL_BAD_CURRENT_SURFACE => "The current surface of the calling thread is a window, pixel buffer or pixmap that is no longer valid.",
+                EGL_BAD_DISPLAY => "An EGLDisplay argument does not name a valid EGL display connection.",
+                EGL_BAD_SURFACE => "An EGLSurface argument does not name a valid surface (window, pixel buffer or pixmap) configured for GL rendering.",
+                EGL_BAD_MATCH => "Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).",
+                EGL_BAD_PARAMETER => "One or more argument values are invalid.",
+                EGL_BAD_NATIVE_PIXMAP => "A NativePixmapType argument does not refer to a valid native pixmap.",
+                EGL_BAD_NATIVE_WINDOW => "A NativeWindowType argument does not refer to a valid native window.",
+                EGL_CONTEXT_LOST => "A power management event has occurred. The application must destroy all contexts and reinitialise OpenGL ES state and objects to continue rendering.",
+                _ => "Unknown EGL error code."
+            };
+        }
+    }
 }

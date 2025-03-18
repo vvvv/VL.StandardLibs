@@ -4,12 +4,10 @@ using Stride.Core.Mathematics;
 using Stride.Graphics;
 using Stride.Input;
 using Stride.Rendering;
-using System;
 using System.Reactive.Disposables;
 using VL.Skia;
 using VL.Skia.Egl;
 using VL.Stride.Input;
-using CommandList = Stride.Graphics.CommandList;
 using PixelFormat = Stride.Graphics.PixelFormat;
 using SkiaRenderContext = VL.Skia.RenderContext;
 
@@ -28,7 +26,7 @@ namespace VL.Stride
         private Int2 lastRenderTargetSize;
         private readonly InViewportUpstream viewportLayer = new InViewportUpstream();
         private readonly SetSpaceUpstream2 withinCommonSpaceLayer = new SetSpaceUpstream2();
-        
+
         public ILayer Layer { get; set; }
 
         public CommonSpace Space { get; set; }
@@ -48,10 +46,7 @@ namespace VL.Stride
             var renderTarget = commandList.RenderTarget;
 
             // Fetch the skia render context (uses ANGLE -> DirectX11)
-            var interopContext = GetInteropContext(context.GraphicsDevice, (int)renderTarget.MultisampleCount);
-            var skiaRenderContext = interopContext.SkiaRenderContext;
-
-            var eglContext = skiaRenderContext.EglContext;
+            var skiaRenderContext = SkiaRenderContext.ForCurrentApp();
 
             // Subscribe to input events - in case we have many sinks we assume that there's only one input source active
             var renderTargetSize = new Int2(renderTarget.Width, renderTarget.Height);
@@ -63,16 +58,14 @@ namespace VL.Stride
                 inputSubscription.Disposable = SubscribeToInputSource(inputSource, context, canvas: null, skiaRenderContext.SkiaContext);
             }
 
-            using (interopContext.Scoped(commandList))
+            // Make current on current thread for resource creation
+            var eglContext = skiaRenderContext.EglContext;
+            using var __ = eglContext.MakeCurrent(forRendering: false);
+            var nativeTempRenderTarget = SharpDXInterop.GetNativeResource(renderTarget) as Texture2D;
+            using var eglSurface = eglContext.CreateSurfaceFromClientBuffer(nativeTempRenderTarget.NativePointer);
+            // Make the surface current (becomes default FBO)
+            using (skiaRenderContext.MakeCurrent(forRendering: true, eglSurface))
             {
-                var nativeTempRenderTarget = SharpDXInterop.GetNativeResource(renderTarget) as Texture2D;
-                using var eglSurface = eglContext.CreateSurfaceFromClientBuffer(nativeTempRenderTarget.NativePointer);
-                // Make the surface current (becomes default FBO)
-                skiaRenderContext.MakeCurrent(eglSurface);
-
-                // Uncomment for debugging
-                // SimpleStupidTestRendering();
-
                 // Setup a skia surface around the currently set render target
                 using var surface = CreateSkSurface(skiaRenderContext.SkiaContext, renderTarget);
 
@@ -87,16 +80,12 @@ namespace VL.Stride
 
                 // Flush
                 surface.Flush();
-
-                // Ensures surface gets released
-                eglContext.MakeCurrent(default);
             }
         }
 
         SKSurface CreateSkSurface(GRContext context, Texture texture)
         {
             var colorType = GetColorType(texture.ViewFormat);
-            NativeGles.glGetIntegerv(NativeGles.GL_FRAMEBUFFER_BINDING, out var framebuffer);
             NativeGles.glGetIntegerv(NativeGles.GL_STENCIL_BITS, out var stencil);
             NativeGles.glGetIntegerv(NativeGles.GL_SAMPLES, out var samples);
             var maxSamples = context.GetMaxSurfaceSampleCount(colorType);
@@ -104,7 +93,7 @@ namespace VL.Stride
                 samples = maxSamples;
 
             var glInfo = new GRGlFramebufferInfo(
-                fboId: (uint)framebuffer,
+                fboId: (uint)0, // This is intentional - FBO 0 is used because it represents the EGL surface created from the D3D11 texture
                 format: colorType.ToGlSizedFormat());
 
             using var renderTarget = new GRBackendRenderTarget(
@@ -184,111 +173,6 @@ namespace VL.Stride
                     return SKColorType.Gray8;
                 default:
                     return SKColorType.Unknown;
-            }
-        }
-
-        //static void SimpleStupidTestRendering()
-        //{
-        //    if (++i % 2 == 0)
-        //        Gles.glClearColor(1, 0, 0, 1);
-        //    else
-        //        Gles.glClearColor(1, 1, 0, 1);
-
-        //    Gles.glClear(Gles.GL_COLOR_BUFFER_BIT);
-        //    Gles.glFlush();
-        //}
-        //int i = 0;
-
-        // Works, also simple Gles drawing commands work but SkSurface.Flush causes device lost :(
-
-        internal static SkiaRenderContext GetSkiaRenderContext(GraphicsDevice graphicsDevice, int msaaSamples)
-        {
-            return graphicsDevice.GetOrCreateSharedData($"VL.Stride.Skia.SkiaRenderContext{msaaSamples}", gd =>
-            {
-                if (SharpDXInterop.GetNativeDevice(gd) is Device device)
-                {
-                    // https://github.com/google/angle/blob/master/src/tests/egl_tests/EGLDeviceTest.cpp#L272
-                    // EglDisplay will take ownership via refcounting. It's therefor correct to release it here.
-                    using var angleDevice = EglDevice.FromD3D11(device.NativePointer);
-                    return SkiaRenderContext.New(angleDevice, msaaSamples, graphicsDevice.ColorSpace == ColorSpace.Linear);
-                }
-                return null;
-            });
-        }
-
-        static InteropContext GetInteropContext(GraphicsDevice graphicsDevice, int msaaSamples)
-        {
-            return graphicsDevice.GetOrCreateSharedData($"VL.Stride.Skia.InteropContext{msaaSamples}", gd =>
-            {
-                if (SharpDXInterop.GetNativeDevice(gd) is Device device)
-                {
-                    var skiaRenderContext = GetSkiaRenderContext(graphicsDevice, msaaSamples);
-                    var d1 = device.QueryInterface<Device1>();
-                    var contextState = d1.CreateDeviceContextState<Device1>(
-                        CreateDeviceContextStateFlags.None,
-                        new[] { device.FeatureLevel },
-                        out _);
-
-                    return new InteropContext(skiaRenderContext, d1, contextState);
-                }
-                return null;
-            });
-        }
-
-        sealed class InteropContext : IDisposable
-        {
-            public readonly SkiaRenderContext SkiaRenderContext;
-            public readonly Device1 Device;
-            public readonly DeviceContextState ContextState;
-
-            public InteropContext(SkiaRenderContext skiaRenderContext, Device1 device, DeviceContextState contextState)
-            {
-                SkiaRenderContext = skiaRenderContext;
-                Device = device;
-                ContextState = contextState;
-            }
-
-            public ScopedDeviceContext Scoped(CommandList commandList)
-            {
-                return new ScopedDeviceContext(commandList, Device.ImmediateContext1, ContextState);
-            }
-
-            public void Dispose()
-            {
-                ContextState.Dispose();
-                Device.Dispose();
-            }
-        }
-
-        readonly struct ScopedDeviceContext : IDisposable
-        {
-            readonly CommandList commandList;
-            readonly DeviceContext1 deviceContext;
-            readonly DeviceContextState oldContextState;
-
-            public ScopedDeviceContext(CommandList commandList, DeviceContext1 deviceContext, DeviceContextState contextState)
-            {
-                this.commandList = commandList;
-                this.deviceContext = deviceContext;
-                deviceContext.SwapDeviceContextState(contextState, out oldContextState);
-            }
-
-            public void Dispose()
-            {
-                // Ensure no references are held to the render targets (would prevent resize)
-                var currentRenderTarget = commandList.RenderTarget;
-                var currentDepthStencil = commandList.DepthStencilBuffer;
-                commandList.UnsetRenderTargets();
-                deviceContext.SwapDeviceContextState(oldContextState, out var contextState);
-                oldContextState.Dispose();
-                contextState.Dispose();
-                commandList.SetRenderTarget(currentDepthStencil, currentRenderTarget);
-
-                // Doesn't work - why?
-                //var renderTargets = deviceContext.OutputMerger.GetRenderTargets(8, out var depthStencilView);
-                //deviceContext.OutputMerger.ResetTargets();
-                //deviceContext.SwapDeviceContextState(oldContextState, out _);
-                //deviceContext.OutputMerger.SetTargets(depthStencilView, renderTargets);
             }
         }
     }

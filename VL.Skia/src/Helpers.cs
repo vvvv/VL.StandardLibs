@@ -1,5 +1,12 @@
 ﻿using SkiaSharp;
 using System;
+using System.Diagnostics;
+using VL.Core;
+using VL.Lib.Basics.Video;
+using VL.Skia.Egl;
+using Windows.Win32.Graphics.Direct3D11;
+using Windows.Win32.Graphics.Dxgi.Common;
+using static Windows.Win32.Graphics.Dxgi.Common.DXGI_FORMAT;
 
 namespace VL.Skia
 {
@@ -139,5 +146,20 @@ namespace VL.Skia
             if (input != null && input.Handle != IntPtr.Zero)
                 input.Dispose();
         }       
+
+        public static SKImage ToRasterImageSafe(this SKImage image, bool ensurePixelData)
+        {
+            if (image is null)
+                return null;
+
+            if (image.IsTextureBacked)
+            {
+                // Needs GPU -> ensure our render context is current
+                using var _ = RenderContext.ForCurrentApp().MakeCurrent(forRendering: false);
+                return image.ToRasterImage(ensurePixelData: ensurePixelData);
+            }
+
+            return image.ToRasterImage(ensurePixelData);
+        }
     }
 }

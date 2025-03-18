@@ -9,3 +9,6 @@ using System.Runtime.CompilerServices;
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
 [assembly: ComVisible(false)]
 [assembly: InternalsVisibleTo("VL.Skia")]
+[assembly: InternalsVisibleTo("VL.Stride")]
+[assembly: InternalsVisibleTo("VL.Stride.Runtime")]
+[assembly: InternalsVisibleTo("VL.Stride.Runtime.Nodes")]

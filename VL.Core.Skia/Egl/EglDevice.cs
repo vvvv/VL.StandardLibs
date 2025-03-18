@@ -4,17 +4,48 @@ using System.Runtime.Versioning;
 using Windows.Win32.Graphics.Direct3D;
 using Windows.Win32.Graphics.Direct3D11;
 using EGLDeviceEXT = System.IntPtr;
+using static VL.Skia.Egl.NativeEgl;
+using VL.Core;
+using VL.Lib.Basics.Video;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace VL.Skia.Egl
 {
-    public sealed class EglDevice : EglResource
+    public unsafe sealed class EglDevice : EglResource
     {
-        public static EglDevice FromD3D11(IntPtr d3dDevice)
+        public static EglDevice ForCurrentApp()
         {
-            var angleDevice = NativeEgl.eglCreateDeviceANGLE(NativeEgl.EGL_D3D11_DEVICE_ANGLE, d3dDevice, null);
+            var appHost = AppHost.CurrentOrGlobal;
+            return appHost.Services.GetOrAddService(s =>
+            {
+                if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+                {
+                    EglDevice device;
+                    // TODO: Hmm, because of extensions assemblies being part of service scope we always create a Stride game this way - ideas?
+                    if (s.GetService<IGraphicsDeviceProvider>() is IGraphicsDeviceProvider graphicsDeviceProvider &&
+                        graphicsDeviceProvider.Type == GraphicsDeviceType.Direct3D11)
+                    {
+                        device = FromD3D11(graphicsDeviceProvider.NativePointer, graphicsDeviceProvider);
+                    }
+                    else
+                    {
+                        device = NewD3D11();
+                    }
+                    return device;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }, allowToAskParent: false);
+        }
+
+        public static EglDevice FromD3D11(IntPtr d3dDevice, IGraphicsDeviceProvider? graphicsDeviceProvider = null)
+        {
+            var angleDevice = eglCreateDeviceANGLE(EGL_D3D11_DEVICE_ANGLE, d3dDevice, null);
             if (angleDevice == default)
                 throw new Exception("Failed to create EGL device");
-            return new EglDevice(angleDevice);
+            return new EglDevice(angleDevice, d3dDevice, graphicsDeviceProvider: graphicsDeviceProvider);
         }
 
         [SupportedOSPlatform("windows6.1")]
@@ -37,7 +68,7 @@ namespace VL.Skia.Egl
 
             try
             {
-                var angleDevice = NativeEgl.eglCreateDeviceANGLE(NativeEgl.EGL_D3D11_DEVICE_ANGLE, (nint)device, null);
+                var angleDevice = eglCreateDeviceANGLE(EGL_D3D11_DEVICE_ANGLE, (nint)device, null);
                 if (angleDevice == default)
                     throw new Exception("Failed to create EGL device");
 
@@ -50,16 +81,23 @@ namespace VL.Skia.Egl
             }
         }
 
+        private readonly IGraphicsDeviceProvider? graphicsDeviceProvider;
 
-        private EglDevice(EGLDeviceEXT angleDevice, nint? nativeDevice = default)
+        private EglDevice(EGLDeviceEXT angleDevice, nint? nativeDevice = default, nint contextState = default, IGraphicsDeviceProvider? graphicsDeviceProvider = null)
             : base(angleDevice)
         {
+            ContextState = contextState;
+            this.graphicsDeviceProvider = graphicsDeviceProvider;
             //this.nativeDevice = nativeDevice;
         }
 
-        protected override void Destroy()
+        public nint ContextState { get; }
+
+        public bool UseLinearColorspace => graphicsDeviceProvider?.UseLinearColorspace ?? false;
+
+        protected override bool ReleaseHandle()
         {
-            NativeEgl.eglReleaseDeviceANGLE(NativePointer);
+            return eglReleaseDeviceANGLE(handle);
         }
 
         // Helpful To debug memory leaks

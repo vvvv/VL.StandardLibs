@@ -39,9 +39,9 @@ namespace VL.Skia.Video
 
         public SKImageToVideoStream()
         {
-            renderContext = RenderContext.ForCurrentThread();
+            renderContext = RenderContext.ForCurrentApp();
             var eglContext = renderContext.EglContext;
-            if (eglContext.Dislpay.TryGetD3D11Device(out var devicePtr))
+            if (eglContext.Display.TryGetD3D11Device(out var devicePtr))
                 device = new Device(devicePtr);
             videoStream = new VideoStream(frames);
         }
@@ -51,6 +51,7 @@ namespace VL.Skia.Video
             if (image is null)
                 return null;
 
+            using var _ = renderContext.MakeCurrent(forRendering: false);
             if (device != null)
                 DownloadWithStagingTexture(image, metadata);
             else
@@ -162,8 +163,7 @@ namespace VL.Skia.Video
                 uint textureId = 0u;
                 NativeGles.glGenTextures(1, ref textureId);
                 NativeGles.glBindTexture(NativeGles.GL_TEXTURE_2D, textureId);
-                var result = NativeEgl.eglBindTexImage(eglContext.Dislpay, eglSurface, NativeEgl.EGL_BACK_BUFFER);
-                if (result == 0)
+                if (!NativeEgl.eglBindTexImage(eglContext.Display, eglSurface, NativeEgl.EGL_BACK_BUFFER))
                     throw new Exception("Failed to bind surface");
 
                 uint fbo = 0u;
@@ -248,12 +248,11 @@ namespace VL.Skia.Video
             while (textureDownloads.Count > 0)
                 textureDownloads.Dequeue().texture.Dispose();
 
+            using var _ = renderContext.MakeCurrent(forRendering: false);
             surface?.Dispose();
             eglSurface?.Dispose();
             renderTarget?.Dispose();
             device = null;
-
-            renderContext.Dispose();
         }
     }
 }

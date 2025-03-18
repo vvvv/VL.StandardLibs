@@ -25,8 +25,7 @@ namespace VL.Skia.Video
                         ResourceProvider.Defer(() =>
                             ResourceProvider.NewPooledPerApp(texture,
                                 factory: texture => FromTexture(texture, renderContext),
-                                delayDisposalInMilliseconds: 1000 /* Keep the wrappers in memory for a bit */)
-                            .Bind(imageHandle => imageHandle?.Image)));
+                                delayDisposalInMilliseconds: 1000 /* Keep the wrappers in memory for a bit */)));
             }
             else
             {
@@ -53,77 +52,10 @@ namespace VL.Skia.Video
             //return image.ToTextureImage(renderContext.SkiaContext, mipmapped);
         }
 
-        private static TextureImage? FromTexture(VideoTexture texture, RenderContext renderContext)
+        private static SKImage FromTexture(VideoTexture texture, RenderContext renderContext)
         {
-            renderContext.MakeCurrent();
-
-            var eglContext = renderContext.EglContext;
-
-            using var eglImage = eglContext.CreateImageFromD3D11Texture(texture.NativePointer);
-
-            uint textureId = 0;
-            NativeGles.glGenTextures(1, ref textureId);
-
-            // We need to restore the currently bound texture (https://github.com/devvvvs/vvvv/issues/5925)
-            NativeGles.glGetIntegerv(NativeGles.GL_TEXTURE_BINDING_2D, out var currentTextureId);
-            NativeGles.glBindTexture(NativeGles.GL_TEXTURE_2D, textureId);
-            NativeGles.glEGLImageTargetTexture2DOES(NativeGles.GL_TEXTURE_2D, eglImage);
-            NativeGles.glBindTexture(NativeGles.GL_TEXTURE_2D, (uint)currentTextureId);
-
-            var colorType = texture.PixelFormat.ToSkColorType();
-            var glInfo = new GRGlTextureInfo(
-                id: textureId,
-                target: NativeGles.GL_TEXTURE_2D,
-                format: colorType.ToGlSizedFormat());
-
-            using var backendTexture = new GRBackendTexture(
-                width: texture.Width,
-                height: texture.Height,
-                mipmapped: false,
-                glInfo: glInfo);
-
-            var image = SKImage.FromTexture(
-                renderContext.SkiaContext,
-                backendTexture,
-                GRSurfaceOrigin.TopLeft,
-                colorType,
-                SKAlphaType.Premul,
-                // TODO: Check this
-                colorspace: /*renderContext.UseLinearColorspace ? SKColorSpace.CreateSrgbLinear() : */SKColorSpace.CreateSrgb());
-
-            if (image is null)
-                return null;
-
-            return new TextureImage(image, renderContext, textureId);
-        }
-
-        sealed class TextureImage : IDisposable
-        {
-            private readonly RenderContext renderContext;
-            private uint textureId;
-
-            public TextureImage(SKImage image, RenderContext renderContext, uint textureId)
-            {
-                if (image is null) throw new ArgumentNullException(nameof(image));
-                Image = image;
-                this.renderContext = renderContext;
-                this.textureId = textureId;
-
-                renderContext.AddRef();
-            }
-
-            public SKImage Image { get; }
-
-            public void Dispose()
-            {
-                renderContext.MakeCurrent();
-
-                Image.Dispose();
-
-                NativeGles.glDeleteTextures(1, ref textureId);
-
-                renderContext.Release();
-            }
+            using var _ = renderContext.MakeCurrent(forRendering: false);
+            return D3D11Utils.TextureToSKImage(renderContext, texture.nativePointer);
         }
     }
 }

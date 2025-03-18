@@ -126,7 +126,7 @@ namespace VL.Lib.Reactive
         {
             if (state is IDisposable disposable)
             {
-                if (syncContext != null)
+                if (syncContext != null && syncContext != SynchronizationContext.Current)
                     syncContext.Post(_ =>
                     {
                         try

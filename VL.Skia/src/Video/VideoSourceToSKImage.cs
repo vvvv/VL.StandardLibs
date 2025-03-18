@@ -16,10 +16,10 @@ namespace VL.Skia.Video
 
         public VideoSourceToSKImage(NodeContext nodeContext)
         {
-            renderContext = RenderContext.ForCurrentThread();
+            renderContext = RenderContext.ForCurrentApp();
 
             var frameClock = AppHost.Current.Services.GetRequiredService<IFrameClock>();
-            if (renderContext.EglContext.Dislpay.TryGetD3D11Device(out var d3dDevice))
+            if (renderContext.EglContext.Display.TryGetD3D11Device(out var d3dDevice))
                 ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger(), d3dDevice, GraphicsDeviceType.Direct3D11, renderContext.UseLinearColorspace);
             else
                 ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger());
@@ -44,8 +44,6 @@ namespace VL.Skia.Video
         public override void Dispose()
         {
             base.Dispose();
-
-            renderContext.Dispose();
         }
     }
 }

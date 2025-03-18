@@ -6,79 +6,79 @@ using EGLConfig = System.IntPtr;
 using EGLSurface = System.IntPtr;
 using System.Collections.Generic;
 using System.Linq;
+using static VL.Skia.Egl.NativeEgl;
+using Windows.Win32.Graphics.Direct3D11;
+using static Windows.Win32.PInvoke;
+using static VL.Skia.Egl.D3D11Utils;
+using Windows.Win32.Graphics.Direct3D;
+using System.Runtime.InteropServices;
 
 namespace VL.Skia.Egl
 {
     public sealed class EglContext : EglResource
     {
-        private static readonly object contextCreationLock = new object();
-
-        public static EglContext New(EglDisplay display, int msaaSamples)
+        public static EglContext New(EglDisplay display)
         {
-            lock (contextCreationLock)
+            int[] configAttributes =
+            [
+                EGL_RED_SIZE, 8,
+                EGL_GREEN_SIZE, 8,
+                EGL_BLUE_SIZE, 8,
+                EGL_ALPHA_SIZE, 8,
+                EGL_DEPTH_SIZE, 8,
+                EGL_STENCIL_SIZE, 8,
+                EGL_NONE
+            ];
+
+            int[] contextAttributes =
+            [
+                EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL_NONE
+            ];
+
+            EGLDisplay[] configs = new EGLDisplay[1];
+            if ((!eglChooseConfig(display, configAttributes, configs, configs.Length, out int numConfigs)) || (numConfigs == 0))
             {
-                int[] configAttributes = new[]
-                {
-                    NativeEgl.EGL_RED_SIZE, 8,
-                    NativeEgl.EGL_GREEN_SIZE, 8,
-                    NativeEgl.EGL_BLUE_SIZE, 8,
-                    NativeEgl.EGL_ALPHA_SIZE, 8,
-                    NativeEgl.EGL_DEPTH_SIZE, 8,
-                    NativeEgl.EGL_STENCIL_SIZE, 8,
-                    NativeEgl.EGL_SAMPLE_BUFFERS, msaaSamples > 0 ? 1 : 0,
-                    NativeEgl.EGL_SAMPLES, msaaSamples,
-                    NativeEgl.EGL_NONE
-                };
-
-                int[] contextAttributes = new[]
-                {
-                    NativeEgl.EGL_CONTEXT_CLIENT_VERSION, 3,
-                    NativeEgl.EGL_NONE
-                };
-
-                EGLDisplay[] configs = new EGLDisplay[1];
-                if ((NativeEgl.eglChooseConfig(display, configAttributes, configs, configs.Length, out int numConfigs) == NativeEgl.EGL_FALSE) || (numConfigs == 0))
-                {
-                    throw new Exception("Failed to choose first EGLConfig");
-                }
-                var config = configs[0];
-
-                var context = NativeEgl.eglCreateContext(display, config, share_context: default, contextAttributes);
-                if (context == default)
-                {
-                    throw new Exception("Failed to create EGL context");
-                }
-
-                return new EglContext(display, context, config, shareContext: null, msaaSamples);
+                throw new Exception($"Failed to choose first EGLConfig. {GetLastError()}");
             }
+            var config = configs[0];
+
+            var context = eglCreateContext(display, config, share_context: default, contextAttributes);
+            if (context == default)
+            {
+                throw new Exception($"Failed to create EGL context. {GetLastError()}");
+            }
+
+            return new EglContext(display, context, config, shareContext: null);
         }
 
         private readonly EglDisplay display;
         private readonly EGLConfig config;
         private readonly EglContext shareContext;
-        private readonly int msaaSamples;
 
-        private EglContext(EglDisplay display, EGLContext context, EGLConfig config, EglContext shareContext, int msaaSamples)
+        private EglContext(EglDisplay display, EGLContext context, EGLConfig config, EglContext shareContext)
             : base(context)
         {
             this.display = display;
             this.config = config;
             this.shareContext = shareContext;
-            this.msaaSamples = msaaSamples;
-            shareContext?.AddRef();
+
+            // To ensure cleanup happens in the right order
+            var success = false;
+            display.DangerousAddRef(ref success);
         }
 
-        public EglDisplay Dislpay => display;
+        public EglDisplay Display => display;
 
-        public EglSurface CreatePlatformWindowSurface(IntPtr nativeWindow, bool directComposition = false)
+        public EglSurface CreatePlatformWindowSurface(nint nativeWindow, bool directComposition = false)
         {
             if (nativeWindow == default)
                 throw new ArgumentNullException(nameof(nativeWindow));
 
             var surfaceAttributes = GetAttributes().ToArray();
-            var surface = NativeEgl.eglCreatePlatformWindowSurface(display, config, nativeWindow, surfaceAttributes);
+            var surface = eglCreatePlatformWindowSurface(display, config, nativeWindow, surfaceAttributes);
             if (surface == default)
-                throw new Exception("Failed to create EGL surface");
+                throw new Exception($"Failed to create EGL surface. {GetLastError()}");
 
             return new EglSurface(display, surface);
 
@@ -86,117 +86,193 @@ namespace VL.Skia.Egl
             {
                 if (directComposition)
                 {
-                    yield return NativeEgl.EGL_DIRECT_COMPOSITION_ANGLE;
-                    yield return NativeEgl.EGL_TRUE;
+                    yield return EGL_DIRECT_COMPOSITION_ANGLE;
+                    yield return EGL_TRUE;
                 }
-                yield return NativeEgl.EGL_NONE;
+                yield return EGL_NONE;
             }
         }
 
-        public EglSurface CreatePlatformWindowSurface(IntPtr nativeWindow, int width, int height)
+        public EglSurface CreatePlatformWindowSurface(nint nativeWindow, int width, int height)
         {
             if (nativeWindow == default)
                 throw new ArgumentNullException(nameof(nativeWindow));
 
             var surfaceAttributes = GetAttributes().ToArray();
-            var surface = NativeEgl.eglCreatePlatformWindowSurface(display, config, nativeWindow, surfaceAttributes);
+            var surface = eglCreatePlatformWindowSurface(display, config, nativeWindow, surfaceAttributes);
             if (surface == default)
-                throw new Exception("Failed to create EGL surface");
+                throw new Exception($"Failed to create EGL surface. {GetLastError()}");
 
             return new EglSurface(display, surface);
 
             IEnumerable<nint> GetAttributes()
             {
-                yield return NativeEgl.EGL_FIXED_SIZE_ANGLE;
-                yield return NativeEgl.EGL_TRUE;
-                yield return NativeEgl.EGL_WIDTH;
+                yield return EGL_FIXED_SIZE_ANGLE;
+                yield return EGL_TRUE;
+                yield return EGL_WIDTH;
                 yield return width;
-                yield return NativeEgl.EGL_HEIGHT;
+                yield return EGL_HEIGHT;
                 yield return height;
-                yield return NativeEgl.EGL_NONE;
+                yield return EGL_NONE;
             }
         }
 
-        public EglSurface CreateSurfaceFromClientBuffer(IntPtr buffer)
+        public EglSurface CreatePbufferSurface(int width, int height)
+        {
+            int[] surfaceAttributes =
+            [
+                EGL_WIDTH,          width,
+                EGL_HEIGHT,         height,
+                EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGBA,
+                EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
+                EGL_NONE,           EGL_NONE,
+            ];
+
+            var surface = eglCreatePbufferSurface(display, config, surfaceAttributes);
+            if (surface == default)
+                throw new Exception($"Failed to create EGL surface. {GetLastError()}");
+
+            return new EglSurface(display, surface);
+        }
+
+        public EglSurface CreateSurfaceFromClientBuffer(nint buffer)
         {
             if (buffer == default)
                 throw new ArgumentNullException(nameof(buffer));
 
-            int[] surfaceAttributes = new[]
-            {
-                NativeEgl.EGL_NONE
-            };
+            int[] surfaceAttributes =
+            [
+                EGL_NONE
+            ];
 
-            var surface = NativeEgl.eglCreatePbufferFromClientBuffer(display, NativeEgl.EGL_D3D_TEXTURE_ANGLE, buffer, config, surfaceAttributes);
+            var surface = eglCreatePbufferFromClientBuffer(display, EGL_D3D_TEXTURE_ANGLE, buffer, config, surfaceAttributes);
             if (surface == default)
-                throw new Exception("Failed to create EGL surface");
+                throw new Exception($"Failed to create EGL surface. {GetLastError()}");
 
             return new EglSurface(display, surface);
         }
 
-        public EglSurface CreateSurfaceFromSharedHandle(int width, int height, IntPtr handle)
+        public EglSurface CreateSurfaceFromSharedHandle(int width, int height, nint handle)
         {
-            int[] surfaceAttributes = new[]
-            {
-                NativeEgl.EGL_WIDTH, width,
-                NativeEgl.EGL_HEIGHT, height,
-                NativeEgl.EGL_TEXTURE_TARGET, NativeEgl.EGL_TEXTURE_2D,
-                NativeEgl.EGL_TEXTURE_FORMAT, NativeEgl.EGL_TEXTURE_RGBA,
-                NativeEgl.EGL_NONE
-            };
+            int[] surfaceAttributes =
+            [
+                EGL_WIDTH, width,
+                EGL_HEIGHT, height,
+                EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
+                EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGBA,
+                EGL_NONE
+            ];
 
-            EGLSurface surface = NativeEgl.eglCreatePbufferFromClientBuffer(display, NativeEgl.EGL_D3D_TEXTURE_2D_SHARE_HANDLE_ANGLE, handle, config, surfaceAttributes);
-            if (surface == NativeEgl.EGL_NO_SURFACE)
+            EGLSurface surface = eglCreatePbufferFromClientBuffer(display, EGL_D3D_TEXTURE_2D_SHARE_HANDLE_ANGLE, handle, config, surfaceAttributes);
+            if (surface == EGL_NO_SURFACE)
             {
-                throw new Exception("Failed to create EGL surface");
+                throw new Exception($"Failed to create EGL surface. {GetLastError()}");
             }
 
             return new EglSurface(display, surface);
         }
 
-        public EglImage CreateImageFromD3D11Texture(IntPtr texture)
+        public EglImage CreateImageFromD3D11Texture(nint texture)
         {
-            var image = NativeEgl.eglCreateImageKHR(display, IntPtr.Zero, NativeEgl.EGL_D3D11_TEXTURE_ANGLE, texture, null);
+            var image = eglCreateImageKHR(display, default, EGL_D3D11_TEXTURE_ANGLE, texture, null);
             return new EglImage(display, image);
         }
 
-        public void MakeCurrent(EglSurface eglSurface = default)
+        public unsafe Scope MakeCurrent(bool forRendering, EglSurface surface = null)
         {
-            if (NativeEgl.eglMakeCurrent(display, eglSurface, eglSurface, this) == NativeEgl.EGL_FALSE)
+            var deviceContext = default(ComPtr<ID3D11DeviceContext1>);
+            if (forRendering && OperatingSystem.IsWindowsVersionAtLeast(8) && display.TryGetD3D11Device(out var d3dDevice))
             {
-                throw new Exception("Failed to make EGLSurface current");
+                deviceContext = GetD3D11DeviceContext1(d3dDevice);
+                if (deviceContextState == default)
+                {
+                    using var device = GetD3D11Device1(d3dDevice);
+                    D3D_FEATURE_LEVEL chosenFeatureLevel;
+                    ID3DDeviceContextState* deviceContextState;
+                    device.Ptr->CreateDeviceContextState(
+                        0,
+                        [device.Ptr->GetFeatureLevel()],
+                        D3D11_SDK_VERSION,
+                        in ID3D11Device1.IID_Guid,
+                        &chosenFeatureLevel,
+                        &deviceContextState);
+                    this.deviceContextState = (nint)deviceContextState;
+                }
+                return new Scope(this, surface, deviceContext, (ID3DDeviceContextState*)deviceContextState);
             }
+
+            return new Scope(this, surface);
         }
+
+        nint deviceContextState;
 
         public void ReleaseCurrent()
         {
-            if (NativeEgl.eglMakeCurrent(display, NativeEgl.EGL_NO_SURFACE, NativeEgl.EGL_NO_SURFACE, NativeEgl.EGL_NO_CONTEXT) == NativeEgl.EGL_FALSE)
+            if (!eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT))
             {
-                throw new Exception("Failed to release current context");
+                throw new Exception($"Failed to release current context. {GetLastError()}");
             }
         }
 
         public bool SwapInterval(int interval)
         {
-            return (NativeEgl.eglSwapInterval(display, interval) == NativeEgl.EGL_TRUE);
+            return eglSwapInterval(display, interval);
         }
 
         public bool SwapBuffers(EGLSurface eglSurface)
         {
-            return (NativeEgl.eglSwapBuffers(display, eglSurface) == NativeEgl.EGL_TRUE);
+            return eglSwapBuffers(display, eglSurface);
         }
 
-        protected override void Destroy()
+        protected override bool ReleaseHandle()
         {
-            lock (contextCreationLock)
+            ReleaseCurrent();
+
+            if (deviceContextState != default)
+                Marshal.Release(deviceContextState);
+
+            try
             {
-                ReleaseCurrent();
+                return eglDestroyContext(display, handle);
+            }
+            finally
+            {
+                display.DangerousRelease();
+            }
+        }
 
-                NativeEgl.eglDestroyContext(display, NativePointer);
+        public unsafe ref struct Scope : IDisposable
+        {
+            private readonly DeviceContextScope deviceContextScope;
+            private readonly nint display;
+            private readonly nint context;
+            private readonly nint read;
+            private readonly nint draw;
 
-                shareContext?.Release();
+            internal Scope(EglContext eglContext, EglSurface surface, ID3D11DeviceContext1* deviceContext = null, ID3DDeviceContextState* newState = null)
+            {
+                if (OperatingSystem.IsWindowsVersionAtLeast(8) && deviceContext != null)
+                    deviceContextScope = new DeviceContextScope(deviceContext, newState);
 
-                display.Release();
+                display = eglGetCurrentDisplay();
+                context = eglGetCurrentContext();
+                draw = eglGetCurrentSurface(EGL_DRAW);
+                read = eglGetCurrentSurface(EGL_READ);
+                if (!eglMakeCurrent(eglContext.Display, surface, surface, eglContext))
+                {
+                    throw new Exception($"Failed to make EGLContext current. {GetLastError()}");
+                }
+            }
+
+            public void Dispose()
+            {
+                if (display != default && !eglMakeCurrent(display, draw, read, context))
+                {
+                    throw new Exception($"Failed to make EGLContext current. {GetLastError()}");
+                }
+
+                if (OperatingSystem.IsWindowsVersionAtLeast(8))
+                    deviceContextScope.Dispose();
             }
         }
     }

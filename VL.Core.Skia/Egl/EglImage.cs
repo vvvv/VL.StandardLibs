@@ -1,5 +1,5 @@
 ﻿using System;
-using Stride.Core.Mathematics;
+using static VL.Skia.Egl.NativeEgl;
 
 namespace VL.Skia.Egl
 {
@@ -12,9 +12,9 @@ namespace VL.Skia.Egl
             this.display = display;
         }
 
-        protected override void Destroy()
+        protected override bool ReleaseHandle()
         {
-            NativeEgl.eglDestroyImageKHR(display, NativePointer);
+            return eglDestroyImageKHR(display, handle);
         }
     }
 }

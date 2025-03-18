@@ -31,12 +31,11 @@ namespace VL.Skia
                         summary: "Allows to retrieve and configure the underlying backend 3D API context of the current thread",
                         newNode: ibc =>
                         {
-                            var renderContext = RenderContext.ForCurrentThread();
+                            var renderContext = RenderContext.ForCurrentApp();
                             var grContext = renderContext.SkiaContext;
                             return ibc.Node(
                                 inputs: new[] { ibc.Input(v => grContext.SetResourceCacheLimit(v), RenderContext.ResourceCacheLimit) },
-                                outputs: new[] { ibc.Output(() => grContext) },
-                                dispose: () => renderContext.Dispose());
+                                outputs: new[] { ibc.Output(() => grContext) });
                         });
                 });
                 return NodeBuilding.NewFactoryImpl(ImmutableArray.Create(graphicsContextNode));

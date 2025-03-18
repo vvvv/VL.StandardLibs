@@ -97,30 +97,5 @@ namespace VL.Stride.Video
             var nativeTexture = new Texture2D(videoTexture.NativePointer);
             return SharpDXInterop.CreateTextureFromNative(graphicsDevice, nativeTexture, takeOwnership: true, isSRgb: false);
         }
-
-        sealed class SRgbTexture : IDisposable
-        {
-            // Create texture with sRGB format
-            public static SRgbTexture Create(Texture texture, GraphicsDevice graphicsDevice)
-            {
-                var desc = texture.Description;
-                desc.Format = desc.Format.ToSRgb();
-                desc.Flags = TextureFlags.ShaderResource;
-                desc.Options = TextureOptions.None;
-                return new SRgbTexture(Texture.New(graphicsDevice, desc));
-            }
-
-            public readonly Texture Texture;
-
-            private SRgbTexture(Texture texture)
-            {
-                Texture = texture;
-            }
-
-            public void Dispose()
-            {
-                Texture?.Dispose();
-            }
-        }
     }
 }
