@@ -613,9 +613,9 @@ namespace VL.Lib.Animation
 
     public enum TMDeNiroInputSelect
     {
-        nisInput,
-        nisVelocity,
-        nisAcceleration
+        Input,
+        Velocity,
+        Acceleration
     }
 
     public enum TMDeNiroMode
@@ -697,7 +697,7 @@ namespace VL.Lib.Animation
             : base(nodeContext, clock)
         {
             FMode = TMDeNiroMode.dnmAccelerationBased;
-            FInputSelect = TMDeNiroInputSelect.nisInput;
+            FInputSelect = TMDeNiroInputSelect.Input;
             FCyclic = false;
             FFilterTime = 1;
             FConstantDrive = 0;
@@ -995,7 +995,7 @@ namespace VL.Lib.Animation
         {
             base.Tick();
 
-            if (FInputSelect == TMDeNiroInputSelect.nisAcceleration && Math.Abs(CurrentVelocity) > FMaxVelocity)
+            if (FInputSelect == TMDeNiroInputSelect.Acceleration && Math.Abs(CurrentVelocity) > FMaxVelocity)
             {
                 CurrentVelocity = Helpers.Clip(CurrentVelocity, -FMaxVelocity, FMaxVelocity);
                 Fly();
@@ -1016,35 +1016,35 @@ namespace VL.Lib.Animation
             if (FMaxVelocity != value)
             {
                 FMaxVelocity = value;
-                FGoToVelocity = FGoToVelocity;
+                GoToVelocity = FGoToVelocity;
                 FilterChanged = FilterChanged || (UpdateFilterGraph == TMUpdateFilterGraph.OnAnyConditionsChanged);
             }
         }
 
         public void SetGoToPosition(TMValue value)
         {
-            FilterChanged = FilterChanged ||
+            FilterChanged |= 
                 (((Math.Abs(FGoToPosition - value) > Helpers.EPSILON_DEFAULT) && FCyclic) || ((FGoToPosition != value) && !FCyclic)) &&
-                (FInputSelect == TMDeNiroInputSelect.nisInput) && (UpdateFilterGraph == TMUpdateFilterGraph.OnNewGoToPosition || UpdateFilterGraph == TMUpdateFilterGraph.OnAnyConditionsChanged);
+                (FInputSelect == TMDeNiroInputSelect.Input) && (UpdateFilterGraph == TMUpdateFilterGraph.OnNewGoToPosition || UpdateFilterGraph == TMUpdateFilterGraph.OnAnyConditionsChanged);
             FGoToPosition = value;
         }
 
         public void SetGoToVelocity(TMValue value)
         {
             value = Helpers.Clip(value, -FMaxVelocity, FMaxVelocity);
-            FilterChanged = FilterChanged ||
-                ((FGoToVelocity != value) &&
-                 ((FInputSelect == TMDeNiroInputSelect.nisInput) && (UpdateFilterGraph == TMUpdateFilterGraph.OnAnyConditionsChanged)) ||
-                 ((FInputSelect == TMDeNiroInputSelect.nisVelocity) && (UpdateFilterGraph == TMUpdateFilterGraph.OnNewGoToPosition || UpdateFilterGraph == TMUpdateFilterGraph.OnAnyConditionsChanged)));
+            FilterChanged |=  
+                (FGoToVelocity != value) &&
+                 (((FInputSelect == TMDeNiroInputSelect.Input) && (UpdateFilterGraph == TMUpdateFilterGraph.OnAnyConditionsChanged)) ||
+                  ((FInputSelect == TMDeNiroInputSelect.Velocity) && (UpdateFilterGraph == TMUpdateFilterGraph.OnNewGoToPosition || UpdateFilterGraph == TMUpdateFilterGraph.OnAnyConditionsChanged)));
             FGoToVelocity = value;
         }
 
         public void SetAccelerationIn(TMValue value)
         {
-            FilterChanged = FilterChanged ||
-                ((FAccelerationIn != value) &&
-                 ((FInputSelect == TMDeNiroInputSelect.nisInput || FInputSelect == TMDeNiroInputSelect.nisVelocity) && (UpdateFilterGraph == TMUpdateFilterGraph.OnAnyConditionsChanged)) ||
-                 ((FInputSelect == TMDeNiroInputSelect.nisAcceleration) && (UpdateFilterGraph == TMUpdateFilterGraph.OnNewGoToPosition || UpdateFilterGraph == TMUpdateFilterGraph.OnAnyConditionsChanged)));
+            FilterChanged |= 
+                (FAccelerationIn != value) &&
+                 (((FInputSelect == TMDeNiroInputSelect.Input || FInputSelect == TMDeNiroInputSelect.Velocity) && (UpdateFilterGraph == TMUpdateFilterGraph.OnAnyConditionsChanged)) ||
+                  ((FInputSelect == TMDeNiroInputSelect.Acceleration) && (UpdateFilterGraph == TMUpdateFilterGraph.OnNewGoToPosition || UpdateFilterGraph == TMUpdateFilterGraph.OnAnyConditionsChanged)));
             FAccelerationIn = value;
         }
 
@@ -1055,11 +1055,11 @@ namespace VL.Lib.Animation
                 FilterChanged = true;
                 switch (FInputSelect)
                 {
-                    case TMDeNiroInputSelect.nisInput:
-                    case TMDeNiroInputSelect.nisVelocity:
+                    case TMDeNiroInputSelect.Input:
+                    case TMDeNiroInputSelect.Velocity:
                         Force(FGoToPosition, FGoToVelocity, 0);
                         break;
-                    case TMDeNiroInputSelect.nisAcceleration:
+                    case TMDeNiroInputSelect.Acceleration:
                         Force(FGoToPosition, FGoToVelocity, FAccelerationIn);
                         break;
                 }
@@ -1070,14 +1070,14 @@ namespace VL.Lib.Animation
                 {
                     switch (FInputSelect)
                     {
-                        case TMDeNiroInputSelect.nisInput:
+                        case TMDeNiroInputSelect.Input:
                             DriveToGoToPosition();
                             break;
-                        case TMDeNiroInputSelect.nisVelocity:
+                        case TMDeNiroInputSelect.Velocity:
                             DriveToGoToVelocity();
                             break;
-                        case TMDeNiroInputSelect.nisAcceleration:
-                            CurrentAcceleration = FAccelerationIn;
+                        case TMDeNiroInputSelect.Acceleration:
+                            Acceleration = FAccelerationIn;
                             break;
                     }
                 }
@@ -1093,7 +1093,7 @@ namespace VL.Lib.Animation
             {
                 var state = this;
                 state.InputSelect = selectInput;
-                state.GoToVelocity = velocityIn;
+                state.GoToVelocity = goToVelocity;
                 state.AccelerationIn = acceleration;
                 state.Mode = TMDeNiroMode.dnmAccelerationBased;
                 state.Cyclic = cyclic;
