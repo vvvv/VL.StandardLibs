@@ -27,6 +27,9 @@ namespace VL.Stride
         private readonly InViewportUpstream viewportLayer = new InViewportUpstream();
         private readonly SetSpaceUpstream2 withinCommonSpaceLayer = new SetSpaceUpstream2();
 
+        // To access render targets with multi sampling enabled we need a custom EGL context
+        private EglContext msaaAwareEglContext;
+
         public ILayer Layer { get; set; }
 
         public CommonSpace Space { get; set; }
@@ -34,6 +37,7 @@ namespace VL.Stride
         protected override void Destroy()
         {
             inputSubscription.Dispose();
+            msaaAwareEglContext?.Dispose();
             base.Destroy();
         }
 
@@ -44,9 +48,16 @@ namespace VL.Stride
 
             var commandList = context.CommandList;
             var renderTarget = commandList.RenderTarget;
+            var sampleCount = (int)renderTarget.MultisampleCount;
 
             // Fetch the skia render context (uses ANGLE -> DirectX11)
             var skiaRenderContext = SkiaRenderContext.ForCurrentApp();
+            if (msaaAwareEglContext is null || msaaAwareEglContext.SampleCount != sampleCount)
+            {
+                msaaAwareEglContext?.Dispose();
+                var shareContext = skiaRenderContext.EglContext;
+                msaaAwareEglContext = EglContext.New(shareContext.Display, sampleCount, shareContext);
+            }
 
             // Subscribe to input events - in case we have many sinks we assume that there's only one input source active
             var renderTargetSize = new Int2(renderTarget.Width, renderTarget.Height);
@@ -59,11 +70,14 @@ namespace VL.Stride
             }
 
             // Make current on current thread for resource creation
-            var eglContext = skiaRenderContext.EglContext;
-            using var __ = eglContext.MakeCurrent(forRendering: false);
-            var nativeTempRenderTarget = SharpDXInterop.GetNativeResource(renderTarget) as Texture2D;
-            using var eglSurface = eglContext.CreateSurfaceFromClientBuffer(nativeTempRenderTarget.NativePointer);
+            EglSurface eglSurface;
+            using (msaaAwareEglContext.MakeCurrent(forRendering: false))
+            {
+                var nativeTempRenderTarget = SharpDXInterop.GetNativeResource(renderTarget) as Texture2D;
+                eglSurface = msaaAwareEglContext.CreateSurfaceFromClientBuffer(nativeTempRenderTarget.NativePointer);
+            }
             // Make the surface current (becomes default FBO)
+            using (eglSurface)
             using (skiaRenderContext.MakeCurrent(forRendering: true, eglSurface))
             {
                 // Setup a skia surface around the currently set render target

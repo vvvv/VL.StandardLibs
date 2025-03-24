@@ -26,9 +26,9 @@ namespace VL.Skia
             }, allowToAskParent: false /* Please don't */);
         }
 
-        public static RenderContext New(EglDisplay display)
+        public static RenderContext New(EglDisplay display, int sampleCount = 1, EglContext shareContext = null)
         {
-            var context = EglContext.New(display);
+            var context = EglContext.New(display, sampleCount, shareContext);
             using var _ = context.MakeCurrent(forRendering: false);
             var backendContext = GRGlInterface.CreateAngle();
             if (backendContext is null)
@@ -39,7 +39,7 @@ namespace VL.Skia
 
             // 512MB instead of the default 96MB
             skiaContext.SetResourceCacheLimit(ResourceCacheLimit);
-            return new RenderContext(context, backendContext, skiaContext);
+            return new RenderContext(context, backendContext, skiaContext, sampleCount);
         }
 
         public readonly EglContext EglContext;
@@ -48,17 +48,20 @@ namespace VL.Skia
         private readonly GRGlInterface BackendContext;
         private readonly Thread thread;
 
-        RenderContext(EglContext eglContext, GRGlInterface backendContext, GRContext skiaContext)
+        RenderContext(EglContext eglContext, GRGlInterface backendContext, GRContext skiaContext, int sampleCount)
         {
             EglContext = eglContext ?? throw new ArgumentNullException(nameof(eglContext));
             BackendContext = backendContext ?? throw new ArgumentNullException(nameof(backendContext));
             SkiaContext = skiaContext ?? throw new ArgumentNullException(nameof(skiaContext));
+            SampleCount = sampleCount;
             thread = Thread.CurrentThread;
         }
 
         public bool UseLinearColorspace => EglContext.Display.UseLinearColorspace;
 
         public bool IsOnCorrectThread => Thread.CurrentThread == thread;
+
+        public int SampleCount { get; }
 
         public bool IsDisposed => EglContext.IsClosed;
 

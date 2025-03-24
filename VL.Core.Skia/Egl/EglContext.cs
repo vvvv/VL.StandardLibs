@@ -17,7 +17,7 @@ namespace VL.Skia.Egl
 {
     public sealed class EglContext : EglResource
     {
-        public static EglContext New(EglDisplay display)
+        public static EglContext New(EglDisplay display, int sampleCount = 0, EglContext shareContext = null)
         {
             int[] configAttributes =
             [
@@ -27,6 +27,8 @@ namespace VL.Skia.Egl
                 EGL_ALPHA_SIZE, 8,
                 EGL_DEPTH_SIZE, 8,
                 EGL_STENCIL_SIZE, 8,
+                EGL_SAMPLE_BUFFERS, sampleCount > 1 ? 1 : 0,
+                EGL_SAMPLES, sampleCount,
                 EGL_NONE
             ];
 
@@ -43,32 +45,41 @@ namespace VL.Skia.Egl
             }
             var config = configs[0];
 
-            var context = eglCreateContext(display, config, share_context: default, contextAttributes);
+            var context = eglCreateContext(display, config, share_context: shareContext, contextAttributes);
             if (context == default)
             {
                 throw new Exception($"Failed to create EGL context. {GetLastError()}");
             }
 
-            return new EglContext(display, context, config, shareContext: null);
+            return new EglContext(display, context, config, shareContext, sampleCount);
         }
 
         private readonly EglDisplay display;
         private readonly EGLConfig config;
         private readonly EglContext shareContext;
 
-        private EglContext(EglDisplay display, EGLContext context, EGLConfig config, EglContext shareContext)
+        private EglContext(EglDisplay display, EGLContext context, EGLConfig config, EglContext shareContext, int sampleCount)
             : base(context)
         {
             this.display = display;
             this.config = config;
             this.shareContext = shareContext;
+            SampleCount = sampleCount;
 
             // To ensure cleanup happens in the right order
             var success = false;
             display.DangerousAddRef(ref success);
+
+            if (shareContext != null)
+            {
+                success = false;
+                shareContext.DangerousAddRef(ref success);
+            }
         }
 
         public EglDisplay Display => display;
+
+        public int SampleCount { get; }
 
         public EglSurface CreatePlatformWindowSurface(nint nativeWindow, bool directComposition = false)
         {
@@ -238,6 +249,7 @@ namespace VL.Skia.Egl
             finally
             {
                 display.DangerousRelease();
+                shareContext?.DangerousRelease();
             }
         }
 
