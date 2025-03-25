@@ -78,7 +78,7 @@ namespace VL.Lib.Reactive
         public void SetValueAndAuthor(T? value, string? author)
         {
             AssertAlive();
-            if (!Enabled || !this.IsValid())
+            if (!Enabled)
                 return;
 
             if (Validator != null)
