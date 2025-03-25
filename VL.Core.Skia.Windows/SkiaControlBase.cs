@@ -6,6 +6,7 @@ using VL.Lib.IO.Notifications;
 using System.Windows.Forms;
 using Vector2 = Stride.Core.Mathematics.Vector2;
 using System.Reactive.Linq;
+using Keys = System.Windows.Forms.Keys;
 
 namespace VL.Skia
 {
@@ -29,6 +30,8 @@ namespace VL.Skia
         public bool VSync { get; set; }
 
         public bool DirectCompositionEnabled { get; init; }
+
+        public bool TreatAllKeysAsInputKeys { get; init; }
 
         public Mouse Mouse => mouse ??= CreateMouse();
 
@@ -113,7 +116,8 @@ namespace VL.Skia
 
         protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
         {
-            e.IsInputKey = true;
+            if (TreatAllKeysAsInputKeys)
+                e.IsInputKey = true;
         }
     }
 }

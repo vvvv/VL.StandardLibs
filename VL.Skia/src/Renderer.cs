@@ -174,7 +174,11 @@ namespace VL.Skia
             Icon = Properties.Resources.QuadIcon;
             StartPosition = FormStartPosition.Manual;
 
-            FControl = new SkiaGLControl() { DirectCompositionEnabled = false /* Rendering works but GPU is still at 20%, so keep it disabled for now */ };
+            FControl = new SkiaGLControl()
+            { 
+                DirectCompositionEnabled = false /* Rendering works but GPU is still at 20%, so keep it disabled for now */,
+                TreatAllKeysAsInputKeys = true
+            };
             FControl.Dock = DockStyle.Fill;
             FControl.OnRender += FControl_OnRender;
             Controls.Add(FControl);
