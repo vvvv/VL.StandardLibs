@@ -122,7 +122,7 @@ namespace VL.Skia
             if (renderContext is null)
                 return;
 
-            using var _ = renderContext.MakeCurrent(forRendering: false, eglSurface);
+            using var _ = renderContext.MakeCurrent(forRendering: false);
             surface?.Dispose();
             surface = null;
 
