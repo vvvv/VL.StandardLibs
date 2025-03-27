@@ -14,6 +14,7 @@ namespace VL.Core
         object? DefaultValue { get; }
         PinGroupKind PinGroupKind => PinGroupKind.None;
         int PinGroupDefaultCount => 0;
+        PinGroupEditModes? PinGroupEditMode => null;
     }
 }
 #nullable restore
