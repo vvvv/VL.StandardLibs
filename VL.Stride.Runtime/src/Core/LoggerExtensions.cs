@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Stride.Core.Diagnostics;
 using VL.Core.Diagnostics;
+using ILogger = Stride.Core.Diagnostics.ILogger;
 
 namespace VL.Stride.Core
 {

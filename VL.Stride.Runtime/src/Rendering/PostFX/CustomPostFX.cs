@@ -1,4 +1,5 @@
-﻿using Stride.Core;
+﻿#nullable enable
+using Stride.Core;
 using Stride.Engine;
 using Stride.Graphics;
 using Stride.Rendering;

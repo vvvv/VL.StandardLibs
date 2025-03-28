@@ -1,9 +1,11 @@
-﻿using Stride.Core.Mathematics;
+﻿#nullable enable
+using Stride.Core.Mathematics;
 using Stride.Graphics;
 using Stride.Rendering;
 using Stride.Rendering.Images;
 using Stride.Rendering.Materials;
 using Stride.Shaders;
+using System.Reactive.Disposables;
 using VL.Core;
 using VL.Lib.Basics.Resources;
 using VL.Stride.Rendering.PostFX.Internal;

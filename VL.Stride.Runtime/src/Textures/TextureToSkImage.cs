@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿#nullable enable
 using SkiaSharp;
 using Stride.Core;
 using Stride.Engine;

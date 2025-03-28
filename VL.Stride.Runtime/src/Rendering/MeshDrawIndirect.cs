@@ -4,6 +4,7 @@
 using Stride.Core;
 using Stride.Graphics;
 using Stride.Rendering;
+using Buffer = Stride.Graphics.Buffer;
 
 namespace VL.Stride.Rendering
 {
