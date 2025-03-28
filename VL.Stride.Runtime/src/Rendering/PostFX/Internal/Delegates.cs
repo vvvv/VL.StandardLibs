@@ -1,4 +1,5 @@
-﻿using Stride.Core.Mathematics;
+﻿#nullable enable
+using Stride.Core.Mathematics;
 using Stride.Graphics;
 using Stride.Rendering;
 using VL.Stride.Rendering.PostFX.Advanced;
