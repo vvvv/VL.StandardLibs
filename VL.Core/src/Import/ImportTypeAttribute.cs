@@ -30,6 +30,11 @@ public sealed class ImportTypeAttribute : ImportAttribute
     public Type Type { get; }
 
     /// <summary>
+    /// The name to use in VL. Leave empty to use the type's name.
+    /// </summary>
+    public string? Name { get; set; }
+
+    /// <summary>
     /// Defines the category where the type is placed in VL.
     /// If not set the category is the namespace of the type with optional <see cref="NamespacePrefixToStrip"/> removed.
     /// </summary>
