@@ -1,4 +1,5 @@
-﻿using Stride.Rendering.Images;
+﻿#nullable enable
+using Stride.Rendering.Images;
 using VL.Lib.Collections;
 
 namespace VL.Stride.Rendering.PostFX;
