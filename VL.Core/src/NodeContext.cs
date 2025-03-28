@@ -43,15 +43,17 @@ namespace VL.Core
         private readonly NodeContext? _parent;
         private readonly UniqueId _localId;
         private readonly UniqueId? _definitionId;
+        private readonly string? _privateData;
         private ImmutableStack<UniqueId>? _stack;
 
-        private NodeContext(AppHost appHost, NodeContext? parent, UniqueId localId, bool isImmutable = false, UniqueId? definitionId = null)
+        private NodeContext(AppHost appHost, NodeContext? parent, UniqueId localId, bool isImmutable = false, UniqueId? definitionId = null, string? privateData = null)
         {
             _appHost = appHost ?? throw new ArgumentNullException(nameof(appHost));
             _parent = parent;
             _localId = localId;
             IsImmutable = isImmutable;
             _definitionId = definitionId;
+            _privateData = privateData;
 
             Path = new NodePath(this);
         }
@@ -91,11 +93,13 @@ namespace VL.Core
         /// </summary>
         public NodeContext CreateSubContext(UniqueId id) => new NodeContext(_appHost, this, id, IsImmutable, _definitionId);
 
-        public NodeContext WithIsImmutable(bool value) => value != IsImmutable ? new NodeContext(_appHost, _parent, _localId, value, _definitionId) : this;
+        public NodeContext WithIsImmutable(bool value) => value != IsImmutable ? new NodeContext(_appHost, _parent, _localId, value, _definitionId, privateData: _privateData) : this;
 
         public NodeContext WithDefinitionId(string documentId, string elementId) => WithDefinitionId(new UniqueId(documentId, elementId));
 
-        public NodeContext WithDefinitionId(UniqueId value) => value != DefinitionId ? new NodeContext(_appHost, _parent, _localId, IsImmutable, value) : this;
+        public NodeContext WithDefinitionId(UniqueId value) => value != DefinitionId ? new NodeContext(_appHost, _parent, _localId, IsImmutable, value, privateData: _privateData) : this;
+
+        public NodeContext WithPrivateData(string? value) => value != _privateData ? new NodeContext(_appHost, _parent, _localId, IsImmutable, _definitionId, value) : this;
 
         [Obsolete]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -116,6 +120,8 @@ namespace VL.Core
         public IClock RealTimeClock => ServiceRegistry.Current.GetRequiredService<IClock>();
 
         public ILogger GetLogger() => _appHost.LoggerFactory.CreateLogger(null, this);
+
+        public string? PrivateData => _privateData;
 
         /// <summary>
         /// Returns the ancestors of this node.
