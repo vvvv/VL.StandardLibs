@@ -22,7 +22,7 @@ namespace VL.Core.Import
         public PinGroupEditModes PinGroupEditMode
         {
             get => pinGroupEditMode.GetValueOrDefault();
-            set => PinGroupEditMode = value;
+            set => pinGroupEditMode = value;
         }
 
         public PinGroupEditModes? GetPinGroupEditMode() => pinGroupEditMode;
