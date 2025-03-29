@@ -3,13 +3,18 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using VL.Core;
+using VL.Core.Import;
 using VL.Lib.Collections;
+using VL.Lib.Parallel;
+
+[assembly: ImportType(typeof(ForEach<,>), Category = "Experimental.Control.Parallel")]
 
 namespace VL.Lib.Parallel
 {
     /// <summary>
     /// A loop region with one input and one output which runs in parallel. The returned spread builder is always the same and will be re-used by the loop.
     /// </summary>
+    [ProcessNode]
     public class ForEach<TState, TOutput> : IDisposable
         where TState : class
     {

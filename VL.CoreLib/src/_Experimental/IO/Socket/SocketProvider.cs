@@ -14,12 +14,17 @@ using VL.Lib.Animation;
 using System.Threading;
 using System.Threading.Tasks;
 using VL.Lib.IO.Net;
+using VL.Core.Import;
+using VL.Lib.IO.Socket;
+
+[assembly: ImportType(typeof(SocketProvider), Category = "Experimental.IO.Socket")]
 
 namespace VL.Lib.IO.Socket
 {
     /// <summary>
     /// Returns a very basic socket type
     /// </summary>
+    [ProcessNode]
     public class SocketProvider
     {
         IFrameClock FClock;
@@ -46,7 +51,7 @@ namespace VL.Lib.IO.Socket
             return FSocket;
         }
 
-        public IResourceProvider<NetSocket> CreateSocketProvider(SocketType socketType, ProtocolType protocolType, IPAddress localAddress, int localPort, out bool changed, Action<NetSocket> applyBeforeSharing = null, int skipDisposal = 1, bool forceUpdate = false)
+        internal IResourceProvider<NetSocket> CreateSocketProvider(SocketType socketType, ProtocolType protocolType, IPAddress localAddress, int localPort, out bool changed, Action<NetSocket> applyBeforeSharing = null, int skipDisposal = 1, bool forceUpdate = false)
         {
             changed = false;
             if (FSocket == null || forceUpdate ||

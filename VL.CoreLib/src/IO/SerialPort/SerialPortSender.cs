@@ -10,12 +10,17 @@ using VL.Lib.Collections;
 using NetSerialPort = System.IO.Ports.SerialPort;
 using VL.Lib.Threading;
 using VL.Core;
+using VL.Core.Import;
+using VL.Lib.IO.Ports;
+
+[assembly: ImportType(typeof(Sender), Category = "IO.Ports")]
 
 namespace VL.Lib.IO.Ports
 {
     /// <summary>
     /// Sends bytes on a SerialPort.
     /// </summary>
+    [ProcessNode]
     public class Sender : IDisposable
     {
         object FData;

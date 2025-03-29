@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
 using System.Reactive.Linq;
+using VL.Core.Import;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Collections;
+using SerialPort = VL.Lib.IO.Ports.SerialPort;
 using NetSerialPort = System.IO.Ports.SerialPort;
+
+[assembly: ImportType(typeof(SerialPort), Category = "IO.Ports")]
 
 namespace VL.Lib.IO.Ports
 {
@@ -56,6 +60,7 @@ namespace VL.Lib.IO.Ports
     /// <summary>
     /// Manages a serialport provider.
     /// </summary>
+    [ProcessNode]
     public class SerialPort
     {
         ResourceProviderMonitor<NetSerialPort> FCurrentProvider;
@@ -68,11 +73,6 @@ namespace VL.Lib.IO.Ports
         bool FDtrEnable;
         bool FRtsEnable;
         bool FBreakState;
-
-        /// <summary>
-        /// Whether or not the serialport is connected.
-        /// </summary>
-        public bool IsOpen => FCurrentProvider?.ResourcesUsedBySinks.FirstOrDefault()?.IsOpen ?? false;
 
         /// <summary>
         /// Configures the internally managed serialport provider.
@@ -124,5 +124,10 @@ namespace VL.Lib.IO.Ports
                 return FCurrentProvider;
             return null;
         }
+
+        /// <summary>
+        /// Whether or not the serialport is connected.
+        /// </summary>
+        public bool IsOpen => FCurrentProvider?.ResourcesUsedBySinks.FirstOrDefault()?.IsOpen ?? false;
     }
 }

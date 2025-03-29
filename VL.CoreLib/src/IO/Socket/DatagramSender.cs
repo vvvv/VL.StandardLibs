@@ -8,15 +8,20 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using VL.Core;
+using VL.Core.Import;
 using VL.Lib.Basics.Resources;
+using VL.Lib.IO.Socket;
 using VL.Lib.Reactive;
 using NetSocket = System.Net.Sockets.Socket;
+
+[assembly: ImportType(typeof(DatagramSender), Name = "Sender (Datagram)", Category = "IO.Socket.Advanced")]
 
 namespace VL.Lib.IO.Socket
 {
     /// <summary>
     /// Sends datagrams on a local socket.
     /// </summary>
+    [ProcessNode]
     public class DatagramSender : IDisposable
     {
         private readonly SerialDisposable FSubscription = new SerialDisposable();

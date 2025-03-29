@@ -8,15 +8,25 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using VL.Core;
+using VL.Core.Import;
 using VL.Lib.Basics.Resources;
+using VL.Lib.IO;
 using VL.Lib.Reactive;
 using VL.Lib.Text;
+
+[assembly: ImportType(typeof(ByteReader), Category = "IO.Advanced")]
+[assembly: ImportType(typeof(AsyncByteReader), Name = $"{nameof(ByteReader)} (Reactive)", Category = "IO.Advanced")]
+[assembly: ImportType(typeof(CharReader), Category = "IO.Advanced")]
+[assembly: ImportType(typeof(AsyncCharReader), Name = $"{nameof(CharReader)} (Reactive)", Category = "IO.Advanced")]
+[assembly: ImportType(typeof(XDocumentReader), Category = "System.XML.Advanced")]
+[assembly: ImportType(typeof(AsyncXDocumentReader), Name = $"{nameof(XDocumentReader)} (Reactive)", Category = "System.XML.Advanced")]
 
 namespace VL.Lib.IO
 {
     /// <summary>
     /// Returns a sequence which will read chunks of bytes from the given stream when enumerated.
     /// </summary>
+    [ProcessNode]
     public class ByteReader
     {
         object FInput;
@@ -70,6 +80,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Returns a sequence which will read chunks of characters from the given stream when enumerated.
     /// </summary>
+    [ProcessNode]
     public class CharReader
     {
         object FInput;
@@ -130,6 +141,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Reads and returns the <see cref="XDocument"/> from the given stream.
     /// </summary>
+    [ProcessNode]
     public class XDocumentReader
     {
         XDocument FOutput = new XDocument();
@@ -159,6 +171,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Returns an observable sequence which will read chunks of bytes from the given stream on subscription.
     /// </summary>
+    [ProcessNode]
     public class AsyncByteReader
     {
         object FInput;
@@ -217,6 +230,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Returns an observable sequence which will read chunks of characters from the given stream on subscription.
     /// </summary>
+    [ProcessNode]
     public class AsyncCharReader
     {
         object FInput;
@@ -282,6 +296,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Returns an observable sequence which will read the <see cref="XDocument"/> from the given stream on subscription.
     /// </summary>
+    [ProcessNode]
     public class AsyncXDocumentReader
     {
         object FInput;

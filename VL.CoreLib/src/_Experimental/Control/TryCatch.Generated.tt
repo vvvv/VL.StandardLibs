@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using VL.Core;
+using VL.Core.Import;
 
 namespace VL.Lib.Control
 {
@@ -31,9 +32,10 @@ for(var i=2; i<=_numberOfInputs; i++) {
     /// TRY <#=i#>
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch and returns whether it has been successful or not. Supports <#=i#> regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch and returns whether it has been successful or not. Supports <#=i#> regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryStateful<#=i#><TState> : TryStateful<TState>
         where TState : class
     {
@@ -44,7 +46,7 @@ for(var i=2; i<=_numberOfInputs; i++) {
             TOutput<#=j#> defaultOutput<#=j#>,
             out TOutput<#=j#> output<#=j#>,
 <#}#>
-            bool reInitialize,
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out bool success,
             out string errorMessage)
         {
@@ -75,9 +77,10 @@ for(var i=2; i<=_numberOfInputs; i++) {
     /// TRYCATCH <#=i#>
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports <#=i#> regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch, runs catch instead if it has been unsuccessful. Supports <#=i#> regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryCatchStateful<#=i#><TState> : TryCatchStateful<TState>
         where TState : class
     {
@@ -85,7 +88,7 @@ for(var i=2; i<=_numberOfInputs; i++) {
             Func<TState> create,
             Func<TState, Tuple<TState, <#=typeParams#>>> @try,
             Func<TState, Exception, Tuple<TState, <#=typeParams#>>> @catch,
-            bool reInitialize,
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
 <#for(var j = 1; j<i; j++) { #>
             out TOutput<#=j#> output<#=j#>,
 <#}#>
@@ -128,9 +131,10 @@ for(var i=2; i<=_numberOfInputs; i++) {
     /// TRYCATCHFINALLY <#=i#>
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports <#=i#> regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch, runs catch instead if it has been unsuccessful. Supports <#=i#> regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryCatchFinallyStateful<#=i#><TState> : TryCatchFinallyStateful<TState>
         where TState : class
     {
@@ -139,7 +143,7 @@ for(var i=2; i<=_numberOfInputs; i++) {
             Func<TState, Tuple<TState, <#=dataParams#>>> @try,
             Func<TState, Exception, Tuple<TState, <#=dataParams#>>> @catch,
             Func<TState, <#=dataParams#>, Tuple<TState, <#=typeParams#> >> @finally,
-            bool reInitialize,
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
 <#for(var j = 1; j<i; j++) { #>
             out TOutput<#=j#> output<#=j#>,
 <#}#>

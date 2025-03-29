@@ -5,9 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Core.Import;
+using VL.Lib;
+
+[assembly: ImportType(typeof(ManageProcess<,>), Name = "ManageProcess (1 Output)", Category = "Primitive.Obsolete")]
+[assembly: ImportType(typeof(ManageProcess2<,,>), Name = "ManageProcess (2 Outputs)", Category = "Primitive.Obsolete")]
 
 namespace VL.Lib
 {
+    [ProcessNode]
     public class ManageProcess<TState, TOutput> : IDisposable
     {
         TState FState;
@@ -50,6 +56,7 @@ namespace VL.Lib
         }
     }
 
+    [ProcessNode]
     public class ManageProcess2<TState, TOutput, TOutput2> : IDisposable
     {
         TState FState;
