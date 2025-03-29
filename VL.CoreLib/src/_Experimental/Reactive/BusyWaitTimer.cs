@@ -4,7 +4,12 @@ using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Threading;
 using VL.Core;
+using VL.Core.Import;
 using VL.Lib.Animation;
+using VL.Lib.Reactive;
+
+[assembly: ImportType(typeof(TimerClock), Category = "Reactive.Advanced.Experimental")]
+[assembly: ImportType(typeof(BusyWaitTimerObservable), Name = "BusyWaitTimer", Category = "Reactive.Advanced.Experimental")]
 
 namespace VL.Lib.Reactive
 {
@@ -49,6 +54,7 @@ namespace VL.Lib.Reactive
     /// <summary>
     /// Timer using the busy wait method, extremely accurate but uses 100% of one core. But hey... don't you have enough of them?
     /// </summary>
+    [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
     public class BusyWaitTimerObservable
     {
         readonly Subject<TimerClock> FTimerSubject;
@@ -67,6 +73,7 @@ namespace VL.Lib.Reactive
         /// <param name="enabled">If set to <c>true</c> the timer runs.</param>
         /// <param name="lastPeriod">Last measured period time in milliseconds.</param>
         /// <returns>Observable of a TimerClock that can be used as frame clock input for animation nodes.</returns> 
+        [Fragment]
         public IObservable<TimerClock> Update(out float lastPeriod, float period = 100, int waitAccuracy = 4, TimerMode mode = TimerMode.Periodic, ApartmentState threadApartmentState = ApartmentState.MTA, bool resetCounter = false, bool enabled = true)
         {
             this.Mode = mode;
@@ -149,6 +156,7 @@ namespace VL.Lib.Reactive
         /// <summary>
         /// Initializes a new instance of the Timer class.
         /// </summary>
+        [Fragment]
         public BusyWaitTimerObservable()
         {
 

@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Reactive.Linq;
 using VL.Core;
+using VL.Core.Import;
+using VL.Lib.IO;
 using VL.Lib.Reactive;
+
+[assembly: ImportType(typeof(Monitor<>), Name = "Monitor (Reactive)", Category = "IO.Advanced")]
 
 namespace VL.Lib.IO
 {
@@ -10,6 +14,7 @@ namespace VL.Lib.IO
     /// The "In Progress" outputs returns true whenever one of the inner streams get activated.
     /// The "OnCompleted" output bangs whenever one of the inner streams terminate successfully.
     /// </summary>
+    [ProcessNode]
     public class Monitor<T>
     {
         IObservable<IObservable<Chunk<T>>> FInput;
@@ -18,6 +23,7 @@ namespace VL.Lib.IO
         bool FInProgress;
         bool FOnCompleted;
 
+        [return: Pin(Name = "Output")]
         public IObservable<IObservable<Chunk<T>>> Update(
             IObservable<IObservable<Chunk<T>>> input, out float progress, out bool inProgress, out bool onCompleted)
         {

@@ -1,8 +1,12 @@
 ﻿using System;
 using System.IO;
 using VL.Core;
+using VL.Core.Import;
 using VL.Lib.Animation;
 using VL.Lib.Basics.Resources;
+using VL.Lib.IO;
+
+[assembly: ImportType(typeof(FileNode), Category = "IO")]
 
 namespace VL.Lib.IO
 {
@@ -10,6 +14,7 @@ namespace VL.Lib.IO
     /// Gets or creates the stream of a file for reading and writing. 
     /// The directory will be created in case it doesn't exist and the file mode is set in a way that a new file should be created.
     /// </summary>
+    [ProcessNode(Name = "File")]
     public class FileNode
     {
         private IResourceProvider<Stream> FStreamProvider;

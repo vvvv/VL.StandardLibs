@@ -3,14 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using VL.Core.Import;
 using VL.Lib.Collections;
+using VL.Lib.IO;
 using VL.Lib.Reactive;
+
+[assembly: ImportType(typeof(ByteCollector), Category = "IO.Advanced")]
+[assembly: ImportType(typeof(AsyncByteCollector), Name = $"{nameof(ByteCollector)} (Reactive)", Category = "IO.Advanced")]
+[assembly: ImportType(typeof(CharCollector), Category = "IO.Advanced")]
+[assembly: ImportType(typeof(AsyncCharCollector), Name = $"{nameof(CharCollector)} (Reactive)", Category = "IO.Advanced")]
 
 namespace VL.Lib.IO
 {
     /// <summary>
     /// Collects the incoming chunks into a spread.
     /// </summary>
+    [ProcessNode]
     public class ByteCollector
     {
         Spread<byte> FOutput = Spread<byte>.Empty;
@@ -35,6 +43,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Collects the incoming chunks into a string.
     /// </summary>
+    [ProcessNode]
     public class CharCollector
     {
         string FOutput = string.Empty;
@@ -59,6 +68,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Collects the incoming chunks into spreads.
     /// </summary>
+    [ProcessNode]
     public class AsyncByteCollector
     {
         object FInput;
@@ -88,6 +98,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Collects the incoming chunks into strings.
     /// </summary>
+    [ProcessNode]
     public class AsyncCharCollector
     {
         object FInput;
