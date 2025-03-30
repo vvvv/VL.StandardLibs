@@ -1,6 +1,7 @@
 ﻿using SkiaSharp;
 using System;
 using System.Diagnostics;
+using System.Reactive.Disposables;
 using System.Threading;
 using VL.Core;
 using VL.Skia.Egl;
@@ -11,18 +12,25 @@ namespace VL.Skia
     {
         public const int ResourceCacheLimit = 512 * 1024 * 1024;
 
+        [Obsolete("Use ForCurrentApp() instead")]
+        public static RenderContext ForCurrentThread() => ForCurrentApp();
+
         /// <summary>
-        /// Returns the render context for the current thread.
+        /// Returns the render context for the current app.
         /// </summary>
-        /// <returns>The render context for the current thread.</returns>
         public static unsafe RenderContext ForCurrentApp()
         {
             var appHost = AppHost.CurrentOrGlobal;
             return appHost.Services.GetOrAddService(s =>
             {
-
                 var display = EglDisplay.ForCurrentApp();
-                return New(display);
+                var renderContext = New(display);
+
+                // For compatibility with existing code
+                var lifetime = Disposable.Create(renderContext, ctx => ctx.DoDispose());
+                lifetime.DisposeBy(appHost);
+
+                return renderContext;
             }, allowToAskParent: false /* Please don't */);
         }
 
@@ -65,7 +73,13 @@ namespace VL.Skia
 
         public bool IsDisposed => EglContext.IsClosed;
 
+        [Obsolete("The lifetime is managed by the app host")]
         public void Dispose()
+        {
+            // For compatibility with existing code
+        }
+
+        private void DoDispose()
         {
             using (EglContext.MakeCurrent(forRendering: false))
             {
@@ -81,6 +95,18 @@ namespace VL.Skia
                 throw new InvalidOperationException("MakeCurrent called on the wrong thrad");
 
             return EglContext.MakeCurrent(forRendering, surface);
+        }
+
+        [Obsolete("Use MakeCurrent(bool forRendering, EglSurface surface) instead")]
+        public void MakeCurrent(EglSurface surface = null)
+        {
+            if (!IsOnCorrectThread)
+                throw new InvalidOperationException("MakeCurrent called on the wrong thrad");
+
+            if (!NativeEgl.eglMakeCurrent(EglContext.Display, surface, surface, EglContext))
+            {
+                throw new Exception("Failed to make EGLSurface current");
+            }
         }
     }
 }

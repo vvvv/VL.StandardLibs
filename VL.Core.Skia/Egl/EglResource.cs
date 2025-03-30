@@ -1,9 +1,25 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
+namespace VL.Skia
+{
+    // Needed for ABI compatibility
+    public abstract class RefCounted : SafeHandle
+    {
+        protected RefCounted(nint invalidHandleValue, bool ownsHandle) : base(invalidHandleValue, ownsHandle)
+        {
+        }
+
+        public new void Dispose()
+        {
+            base.Dispose();
+        }
+    }
+}
+
 namespace VL.Skia.Egl
 {
-    public abstract class EglResource : SafeHandle
+    public abstract class EglResource : RefCounted
     {
         internal EglResource()
             : base(default, true)

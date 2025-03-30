@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 
 using EGLDisplay = System.IntPtr;
 using EGLContext = System.IntPtr;
@@ -12,6 +13,8 @@ using static Windows.Win32.PInvoke;
 using static VL.Skia.Egl.D3D11Utils;
 using Windows.Win32.Graphics.Direct3D;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Diagnostics;
 
 namespace VL.Skia.Egl
 {
@@ -78,6 +81,9 @@ namespace VL.Skia.Egl
         }
 
         public EglDisplay Display => display;
+
+        [Obsolete("Use Display")]
+        public EglDisplay Dislpay => display;
 
         public int SampleCount { get; }
 
@@ -189,7 +195,7 @@ namespace VL.Skia.Egl
             return new EglImage(display, image);
         }
 
-        public unsafe Scope MakeCurrent(bool forRendering, EglSurface surface = null)
+        public unsafe Scope MakeCurrent(bool forRendering, EglSurface? surface = null)
         {
             var deviceContext = default(ComPtr<ID3D11DeviceContext1>);
             if (forRendering && OperatingSystem.IsWindowsVersionAtLeast(8) && display.TryGetD3D11Device(out var d3dDevice))
@@ -255,21 +261,23 @@ namespace VL.Skia.Egl
 
         public unsafe ref struct Scope : IDisposable
         {
-            private readonly DeviceContextScope deviceContextScope;
-            private readonly nint display;
-            private readonly nint context;
-            private readonly nint read;
-            private readonly nint draw;
+            [ThreadStatic]
+            private static EglContext? s_currentContext;
+            [ThreadStatic]
+            private static EglSurface? s_currentSurface;
 
-            internal Scope(EglContext eglContext, EglSurface surface, ID3D11DeviceContext1* deviceContext = null, ID3DDeviceContextState* newState = null)
+            private readonly DeviceContextScope deviceContextScope;
+            private readonly EglContext? previousContext;
+            private readonly EglSurface? previousSurface;
+
+            internal Scope(EglContext eglContext, EglSurface? surface, ID3D11DeviceContext1* deviceContext = null, ID3DDeviceContextState* newState = null)
             {
+                previousContext = Interlocked.Exchange(ref s_currentContext, eglContext);
+                previousSurface = Interlocked.Exchange(ref s_currentSurface, surface);
+
                 if (OperatingSystem.IsWindowsVersionAtLeast(8) && deviceContext != null)
                     deviceContextScope = new DeviceContextScope(deviceContext, newState);
 
-                display = eglGetCurrentDisplay();
-                context = eglGetCurrentContext();
-                draw = eglGetCurrentSurface(EGL_DRAW);
-                read = eglGetCurrentSurface(EGL_READ);
                 if (!eglMakeCurrent(eglContext.Display, surface, surface, eglContext))
                 {
                     throw new Exception($"Failed to make EGLContext current. {GetLastError()}");
@@ -278,13 +286,32 @@ namespace VL.Skia.Egl
 
             public void Dispose()
             {
-                if (display != default && !eglMakeCurrent(display, draw, read, context))
+                // If there was a previous context, restore it, otherwise release the current context
+                var currentContext = Interlocked.Exchange(ref s_currentContext, previousContext);
+                var currentSurface = Interlocked.Exchange(ref s_currentSurface, previousSurface);
+                try
                 {
-                    throw new Exception($"Failed to make EGLContext current. {GetLastError()}");
+                    if (previousContext != null)
+                    {
+                        if (!eglMakeCurrent(previousContext.Display, previousSurface, previousSurface, previousContext))
+                        {
+                            throw new Exception($"Failed to restore previous EGLContext. {GetLastError()}");
+                        }
+                    }
+                    else
+                    {
+                        Debug.Assert(currentContext != null);
+                        if (!eglMakeCurrent(currentContext.Display, default, default, default))
+                        {
+                            throw new Exception($"Failed to release EGLContext. {GetLastError()}");
+                        }
+                    }
                 }
-
-                if (OperatingSystem.IsWindowsVersionAtLeast(8))
-                    deviceContextScope.Dispose();
+                finally
+                {
+                    if (OperatingSystem.IsWindowsVersionAtLeast(8))
+                        deviceContextScope.Dispose();
+                }
             }
         }
     }
