@@ -72,6 +72,8 @@ namespace VL.Skia.Egl
         [SupportedOSPlatform("windows6.1")]
         public static unsafe SKImage TextureToSKImage(RenderContext renderContext, nint d3d11Texture)
         {
+            using var _ = renderContext.MakeCurrent(forRendering: false);
+
             using var eglImage = renderContext.EglContext.CreateImageFromD3D11Texture(d3d11Texture);
 
             uint textureId = 0;
