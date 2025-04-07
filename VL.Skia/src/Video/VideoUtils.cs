@@ -54,7 +54,6 @@ namespace VL.Skia.Video
 
         private static SKImage FromTexture(VideoTexture texture, RenderContext renderContext)
         {
-            using var _ = renderContext.MakeCurrent(forRendering: false);
             return D3D11Utils.TextureToSKImage(renderContext, texture.nativePointer);
         }
     }
