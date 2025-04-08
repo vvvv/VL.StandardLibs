@@ -1,9 +1,11 @@
-﻿using SkiaSharp;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SkiaSharp;
 using System;
 using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Threading;
 using VL.Core;
+using VL.Lib.Animation;
 using VL.Skia.Egl;
 
 namespace VL.Skia
@@ -29,6 +31,12 @@ namespace VL.Skia
                 // For compatibility with existing code
                 var lifetime = Disposable.Create(renderContext, ctx => ctx.DoDispose());
                 lifetime.DisposeBy(appHost);
+
+                // Make sure the context is current now and whenever a new frame starts to ensure nodes that for example "download" pixel data (like Pipet) work.
+                renderContext.MakeCurrent();
+                var frameclock = s.GetService<IFrameClock>();
+                if (frameclock is not null)
+                    frameclock.GetTicks().Subscribe(_ => renderContext.MakeCurrent()).DisposeBy(appHost);
 
                 return renderContext;
             }, allowToAskParent: false /* Please don't */);
@@ -97,16 +105,12 @@ namespace VL.Skia
             return EglContext.MakeCurrent(forRendering, surface);
         }
 
-        [Obsolete("Use MakeCurrent(bool forRendering, EglSurface surface) instead")]
         public void MakeCurrent(EglSurface surface = null)
         {
             if (!IsOnCorrectThread)
                 throw new InvalidOperationException("MakeCurrent called on the wrong thrad");
 
-            if (!NativeEgl.eglMakeCurrent(EglContext.Display, surface, surface, EglContext))
-            {
-                throw new Exception("Failed to make EGLSurface current");
-            }
+            EglContext.MakeCurrent(surface);
         }
     }
 }

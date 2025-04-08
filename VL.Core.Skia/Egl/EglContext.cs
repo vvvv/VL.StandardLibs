@@ -15,6 +15,8 @@ using Windows.Win32.Graphics.Direct3D;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
+using SkiaSharp;
+using System.Drawing;
 
 namespace VL.Skia.Egl
 {
@@ -223,6 +225,22 @@ namespace VL.Skia.Egl
 
         nint deviceContextState;
 
+        public void MakeCurrent(EglSurface? surface = null)
+        {
+            Interlocked.Exchange(ref s_currentContext, this);
+            Interlocked.Exchange(ref s_currentSurface, surface);
+
+            if (!eglMakeCurrent(Display, surface, surface, this))
+            {
+                throw new Exception($"Failed to make EGLContext current. {GetLastError()}");
+            }
+        }
+
+        [ThreadStatic]
+        private static EglContext? s_currentContext;
+        [ThreadStatic]
+        private static EglSurface? s_currentSurface;
+
         public void ReleaseCurrent()
         {
             if (!eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT))
@@ -261,11 +279,6 @@ namespace VL.Skia.Egl
 
         public unsafe ref struct Scope : IDisposable
         {
-            [ThreadStatic]
-            private static EglContext? s_currentContext;
-            [ThreadStatic]
-            private static EglSurface? s_currentSurface;
-
             private readonly DeviceContextScope deviceContextScope;
             private readonly EglContext? previousContext;
             private readonly EglSurface? previousSurface;
