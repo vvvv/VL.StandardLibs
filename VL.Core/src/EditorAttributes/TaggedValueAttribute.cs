@@ -17,14 +17,14 @@ namespace VL.Core.EditorAttributes
         public TaggedValueAttribute(string key, object value)
         {
             Key = key;
-            EncodedValue = AttributeHelpers.EncodeValueForAttribute(value);
+            EncodedValue = AttributeHelpers.EncodeValueForAttribute(value).Value;
         }
 
         public string Key { get; }
 
         string EncodedValue { get; }
 
-        public T GetValue<T>() => AttributeHelpers.DecodeValueFromAttribute<T>(EncodedValue);
+        public T GetValue<T>() => AttributeHelpers.DecodeValueFromAttribute<T>(EncodedValue).Value;
 
         //public static string DefaultKey = "Default";
 

@@ -152,5 +152,9 @@ namespace VL.Core
         public static TValue? ValueOrDefault_ForReferenceType<TValue>(this Optional<TValue> value, TValue? @default = null)
             where TValue : class
             => value.HasValue ? value.Value : @default;
+
+        public static Optional<B> Project<A, B>(this Optional<A> value, Func<A, B> projection)
+            => value.HasValue ? new Optional<B>(projection(value.Value)) : new Optional<B>();
+
     }
 }

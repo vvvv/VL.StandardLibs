@@ -12,12 +12,12 @@ namespace VL.Core.EditorAttributes
     {
         public MinAttribute(object value)
         {
-            EncodedValue = AttributeHelpers.EncodeValueForAttribute(value);
+            EncodedValue = AttributeHelpers.EncodeValueForAttribute(value).Value;
         }
 
         public string EncodedValue { get; }
 
-        public T GetValue<T>() => AttributeHelpers.DecodeValueFromAttribute<T>(EncodedValue);
+        public T GetValue<T>() => AttributeHelpers.DecodeValueFromAttribute<T>(EncodedValue).Value;
 
         public override string ToString()
         {

@@ -142,7 +142,7 @@ namespace VL.Core.EditorAttributes
         /// more primitive types might get added later on.
         /// JSON serialization might be added for other types later on. (The first character being a {)
         /// </summary>
-        public static string EncodeValueForAttribute(object value)
+        public static Optional<string> EncodeValueForAttribute(object value)
         {
             if (value is null)
                 return null;
@@ -161,45 +161,53 @@ namespace VL.Core.EditorAttributes
             if (value is Color4 c4)
                 return $"{c4.R}, {c4.G}, {c4.B}, {c4.A}";
 
-            throw new NotImplementedException();
+            return new Optional<string>();
         }
 
-        public static object DecodeValueFromAttribute(string encodedValue, Type targetType)
+        public static Optional<object> DecodeValueFromAttribute(string encodedValue, Type targetType)
         {
-            if (targetType == typeof(int))
-                return int.Parse(encodedValue);
+            try
+            {
+                if (targetType == typeof(int))
+                    return int.Parse(encodedValue);
 
-            if (targetType == typeof(float))
-                return float.Parse(encodedValue);
+                if (targetType == typeof(float))
+                    return float.Parse(encodedValue);
 
-            if (targetType == typeof(double))
-                return double.Parse(encodedValue);
+                if (targetType == typeof(double))
+                    return double.Parse(encodedValue);
 
-            var values = encodedValue.Split(',')
-                .Select(DecodeValueFromAttribute<float>)
-                .ToArray();
+                var values = encodedValue.Split(',')
+                    .Select(x => DecodeValueFromAttribute<float>(x).TryGetValue(0))
+                    .ToArray();
 
-            var firstSlice = values.Length > 0 ? values[0] : default;
+                var firstSlice = values.Length > 0 ? values[0] : default;
 
-            var resampledValues =
-                new[] { 0, 1, 2, 3 }
-                .Select(i => values.Length > i ? values[i] : firstSlice)
-                .ToArray();
+                var resampledValues =
+                    new[] { 0, 1, 2, 3 }
+                    .Select(i => values.Length > i ? values[i] : firstSlice)
+                    .ToArray();
 
-            if (targetType == typeof(Vector2))
-                return new Vector2(resampledValues[0], resampledValues[1]);
+                if (targetType == typeof(Vector2))
+                    return new Vector2(resampledValues[0], resampledValues[1]);
 
-            if (targetType == typeof(Vector3))
-                return new Vector3(resampledValues[0], resampledValues[1], resampledValues[2]);
+                if (targetType == typeof(Vector3))
+                    return new Vector3(resampledValues[0], resampledValues[1], resampledValues[2]);
 
-            if (targetType == typeof(Color4))
-                return new Color4(resampledValues[0], resampledValues[1], resampledValues[2], resampledValues[3]);
+                if (targetType == typeof(Color4))
+                    return new Color4(resampledValues[0], resampledValues[1], resampledValues[2], resampledValues[3]);
 
-            throw new NotImplementedException();
+                return new Optional<object>();
+            }
+            catch (Exception)
+            {
+                return new Optional<object>();
+            }
         }
 
-        public static T DecodeValueFromAttribute<T>(string encodedValue)
-            => (T)DecodeValueFromAttribute(encodedValue, typeof(T));
+        public static Optional<T> DecodeValueFromAttribute<T>(string encodedValue)
+            => DecodeValueFromAttribute(encodedValue, typeof(T))
+                .Project(x => (T)x);
 
         public static bool HasTaggedValue(this IHasAttributes propertyInfoOrChannel, string key)
         {
