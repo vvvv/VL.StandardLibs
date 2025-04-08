@@ -244,10 +244,18 @@ namespace VL.Core.EditorAttributes
             return default;
         }
 
-        //public static Optional<T> GetDefault<T>(this IHasAttributes propertyInfoOrChannel) 
-        //    => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.DefaultKey);
+        public static Optional<T> GetDefault<T>(this IHasAttributes propertyInfoOrChannel)
+        {
+            foreach (var a in propertyInfoOrChannel.Attributes)
+                if (a is DefaultAttribute m)
+                    return m.GetValue<T>();
+
+            return default;
+        }
 
         //public static Optional<T> GetStepSize<T>(this IHasAttributes propertyInfoOrChannel) 
         //    => GetTaggedValue<T>(propertyInfoOrChannel, TaggedValueAttribute.StepSizeKey);
+
+
     }
 }

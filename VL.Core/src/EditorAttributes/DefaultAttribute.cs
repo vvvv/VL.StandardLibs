@@ -29,16 +29,18 @@ namespace VL.Core.EditorAttributes
 
         public string EncodedValue { get; }
 
-        public T GetValue<T>()
+        public T GetValue<T>() => (T)GetValue(typeof(T));
+
+        public object GetValue(Type type)
         {
             if (EncodedValue.StartsWith('<'))
-                return Serialization.Deserialize<T>(NodeContext, XElement.Parse(EncodedValue));
+                return Serialization.Deserialize(NodeContext, XElement.Parse(EncodedValue), type);
 
-            var optional = AttributeHelpers.DecodeValueFromAttribute<T>(EncodedValue);
+            var optional = AttributeHelpers.DecodeValueFromAttribute(EncodedValue, type);
             if (optional.HasValue)
                 return optional.Value;
             else
-                return Serialization.Deserialize<T>(NodeContext, XElement.Parse(EncodedValue));
+                return Serialization.Deserialize(NodeContext, XElement.Parse(EncodedValue), type);
         }
 
         public override string ToString()
