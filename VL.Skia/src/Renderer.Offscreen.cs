@@ -4,12 +4,15 @@ using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
 using Stride.Core.Mathematics;
 using VL.Lib.Basics.Resources;
+using VL.Core;
+using System.Threading;
 
 namespace VL.Skia
 {
     public sealed class OffScreenRenderer : IDisposable
     {
         private readonly RenderContext renderContext;
+        private readonly IDisposable appHostSubscription;
 
         private readonly Producing<SKImage> output = new Producing<SKImage>();
         private Int2 size;
@@ -19,6 +22,7 @@ namespace VL.Skia
         public OffScreenRenderer()
         {
             renderContext = RenderContext.ForCurrentApp();
+            appHostSubscription = renderContext.OnDispose.Subscribe(_ => ReleaseGraphicsResources());
         }
 
         public ILayer Layer { get; set; }
@@ -114,12 +118,24 @@ namespace VL.Skia
 
         public void Dispose()
         {
-            using var _ = renderContext.MakeCurrent(forRendering: false);
-
+            appHostSubscription.Dispose();
             FMouseSubscription?.Dispose();
             FKeyboardSubscription?.Dispose();
 
+            if (!renderContext.IsDisposed)
+            {
+                using var _ = renderContext.MakeCurrent(forRendering: false);
+                ReleaseGraphicsResources();
+            }
+
             output.Dispose();
+        }
+
+        private void ReleaseGraphicsResources()
+        {
+            output.Resource = null;
+
+            var surface = Interlocked.Exchange(ref this.surface, null);
             surface?.Dispose();
         }
     }

@@ -243,6 +243,12 @@ namespace VL.Skia.Egl
 
         public void ReleaseCurrent()
         {
+            if (Interlocked.CompareExchange(ref s_currentContext, null, this) == this)
+            {
+                s_currentContext = null;
+                s_currentSurface = null;
+            }
+
             if (!eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT))
             {
                 throw new Exception($"Failed to release current context. {GetLastError()}");

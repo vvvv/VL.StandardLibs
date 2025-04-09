@@ -2,7 +2,9 @@
 using SkiaSharp;
 using System;
 using System.Diagnostics;
+using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Subjects;
 using System.Threading;
 using VL.Core;
 using VL.Lib.Animation;
@@ -63,6 +65,7 @@ namespace VL.Skia
 
         private readonly GRGlInterface BackendContext;
         private readonly Thread thread;
+        private readonly Subject<Unit> onDispose = new();
 
         RenderContext(EglContext eglContext, GRGlInterface backendContext, GRContext skiaContext, int sampleCount)
         {
@@ -81,6 +84,8 @@ namespace VL.Skia
 
         public bool IsDisposed => EglContext.IsClosed;
 
+        public IObservable<Unit> OnDispose => onDispose;
+
         [Obsolete("The lifetime is managed by the app host")]
         public void Dispose()
         {
@@ -91,6 +96,9 @@ namespace VL.Skia
         {
             using (EglContext.MakeCurrent(forRendering: false))
             {
+                onDispose.OnNext(Unit.Default);
+                onDispose.Dispose();
+
                 SkiaContext.Dispose();
                 BackendContext.Dispose();
             }
