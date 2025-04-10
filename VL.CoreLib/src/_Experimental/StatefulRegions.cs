@@ -13,12 +13,16 @@ using VL.Lib;
 
 namespace VL.Lib
 {
-    [ProcessNode]
+    [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
     public class ManageProcess<TState, TOutput> : IDisposable
     {
         TState FState;
         TOutput FLastOutput;
 
+        [Fragment]
+        public ManageProcess() { }
+
+        [Fragment]
         public TOutput Update(Func<TState> create, Func<TState, Tuple<TState, TOutput>> update, bool enabled = true, bool reset = false)
         {
             if (FState == null || reset)
@@ -42,6 +46,9 @@ namespace VL.Lib
         {
             DisposeInternalState();
         }
+
+        [Obsolete("Use Dispose() instead. This method will be removed in a future version.")]
+        public void Destroy() => Dispose();
 
         private void DisposeInternalState()
         {
