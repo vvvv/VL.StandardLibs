@@ -122,6 +122,7 @@ namespace VL.Stride.Games
                     DepthStencilFormat = WindowManager.PreferredDepthStencilFormat,
                     PresentationInterval = PresentInterval.Immediate,
                     MultisampleCount = WindowManager.PreferredMultisampleCount,
+                    OutputColorSpace = WindowManager.PreferredPresenterColorSpace,
                 };
 
 #if STRIDE_GRAPHICS_API_DIRECT3D11 && STRIDE_PLATFORM_UWP
