@@ -44,7 +44,7 @@ namespace VL.Stride.Games
 
         private PixelFormat preferredBackBufferFormat;
 
-        private ColorSpaceType preferredPresenterColorSpace;
+        private ColorSpaceType preferredOutputColorSpace;
 
         private int preferredBackBufferHeight;
 
@@ -89,7 +89,7 @@ namespace VL.Stride.Games
 
             // Set defaults
             PreferredBackBufferFormat = PixelFormat.R8G8B8A8_UNorm;
-            PreferredPresenterColorSpace = ColorSpaceType.RgbFullG22NoneP709;
+            PreferredOutputColorSpace = ColorSpaceType.RgbFullG22NoneP709;
             PreferredDepthStencilFormat = PixelFormat.D24_UNorm_S8_UInt;
             PreferredBackBufferWidth = 1280;
             PreferredBackBufferHeight = 720;
@@ -271,21 +271,22 @@ namespace VL.Stride.Games
         }
 
         /// <summary>
-        /// Gets or sets the preferred back buffer format.
+        /// Gets or sets the preferred presenter output color space. Can be used to render to HDR monitors.
+        /// See: https://learn.microsoft.com/en-us/windows/win32/direct3darticles/high-dynamic-range
         /// </summary>
-        /// <value>The preferred back buffer format.</value>
-        public ColorSpaceType PreferredPresenterColorSpace
+        /// <value>The preferred presenter output color space.</value>
+        public ColorSpaceType PreferredOutputColorSpace
         {
             get
             {
-                return preferredPresenterColorSpace;
+                return preferredOutputColorSpace;
             }
 
             set
             {
-                if (preferredPresenterColorSpace != value)
+                if (preferredOutputColorSpace != value)
                 {
-                    preferredPresenterColorSpace = value;
+                    preferredOutputColorSpace = value;
                     deviceSettingsChanged = true;
                 }
             }
