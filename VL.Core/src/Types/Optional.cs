@@ -128,6 +128,14 @@ namespace VL.Core
         public static bool operator >=(Optional<T> left, Optional<T> right) => left.CompareTo(right) >= 0;
         
         object IOptional.Object => Value;
+
+        public static Optional<T> Select(object value, Func<object, T> selector)
+        {
+            if (value != null)
+                return new Optional<T>(selector(value));
+            else
+                return new Optional<T>();
+        }
     }
 
 #nullable enable
@@ -156,5 +164,26 @@ namespace VL.Core
         public static Optional<B> Project<A, B>(this Optional<A> value, Func<A, B> projection)
             => value.HasValue ? new Optional<B>(projection(value.Value)) : new Optional<B>();
 
+        public static IOptional CreateOptional(Type t)
+        {
+            var optionalType = typeof(Optional<>).MakeGenericType(t);
+            var optional = Activator.CreateInstance(optionalType);
+            return (IOptional)optional;
+        }
+
+        public static IOptional CreateOptional(object value, Type t)
+        {
+            var optionalType = typeof(Optional<>).MakeGenericType(t);
+            var optional = Activator.CreateInstance(optionalType, value);
+            return (IOptional)optional;
+        }
+
+        public static IOptional Select(object value, Func<object, object> selector, Type type)
+        {
+            if (value != null)
+                return OptionalExtensions.CreateOptional(selector(value), type);
+            else
+                return OptionalExtensions.CreateOptional(type);
+        }
     }
 }

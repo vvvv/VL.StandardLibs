@@ -10,7 +10,12 @@ namespace VL.Core.EditorAttributes
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public class MaxAttribute : Attribute
     {
-        public MaxAttribute(object value)
+        public MaxAttribute(string encodedValue)
+        {
+            EncodedValue = encodedValue;
+        }
+
+        public MaxAttribute(float value)
         {
             EncodedValue = AttributeHelpers.EncodeValueForAttribute(value).Value;
         }
