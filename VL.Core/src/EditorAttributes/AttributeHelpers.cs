@@ -68,15 +68,15 @@ namespace VL.Core.EditorAttributes
             return new Optional<WidgetType>();
         }
 
-        public static bool GetIsExposed(this IHasAttributes propertyInfoOrChannel)
+        public static bool GetCanBePublished(this IHasAttributes propertyInfoOrChannel, bool fallback = true)
         {
             foreach (var attr in propertyInfoOrChannel.Attributes)
             {
-                if (attr is ExposedAttribute a)
-                    return true;
+                if (attr is CanBePublishedAttribute a)
+                    return a.CanBePublished;
             }
 
-            return false;
+            return fallback;
         }
 
         public static bool GetIsBrowsable(this IHasAttributes propertyInfoOrChannel)
