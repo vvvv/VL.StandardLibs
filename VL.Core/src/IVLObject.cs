@@ -241,7 +241,7 @@ namespace VL.Core
         new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
 
-    public class ObjectGraphNode
+    public struct ObjectGraphNode
     {
         public string Path { get; }
         public object Value { get; }
@@ -252,34 +252,36 @@ namespace VL.Core
         /// </summary>
         public object AccessedViaKey { get; }
         public string AccessedViaKeyPath { get; }
-        public ObjectGraphNode Parent { get; }
 
-        private ObjectGraphNode(string path, object value, Type type, object accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+        object parent;
+        public ObjectGraphNode? Parent => (ObjectGraphNode?)parent;
+
+        private ObjectGraphNode(string path, object value, Type type, object accessedViaKey, object parent, string accessedViaKeyPath)
         {
             Path = path;
             Value = value;
             Type = type;
             AccessedViaKey = accessedViaKey;
-            Parent = parent;
+            this.parent = parent;
             AccessedViaKeyPath = accessedViaKeyPath;
         }
 
-        public ObjectGraphNode(string path, object value, Type type, IVLPropertyInfo accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+        public ObjectGraphNode(string path, object value, Type type, IVLPropertyInfo accessedViaKey, object parent, string accessedViaKeyPath)
             : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
 
-        public ObjectGraphNode(string path, object value, Type type, string accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+        public ObjectGraphNode(string path, object value, Type type, string accessedViaKey, object parent, string accessedViaKeyPath)
             : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
 
-        public ObjectGraphNode(string path, object value, Type type, int accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+        public ObjectGraphNode(string path, object value, Type type, int accessedViaKey, object parent, string accessedViaKeyPath)
             : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
 
-        public ObjectGraphNode(string path, object value, Type type, PropertyInfo accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+        public ObjectGraphNode(string path, object value, Type type, PropertyInfo accessedViaKey, object parent, string accessedViaKeyPath)
             : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
@@ -600,6 +602,8 @@ namespace VL.Core
                 Count++;
                 return Count <= MaxCount;
             }
+
+            public static DefaultCrawlObjectGraphFilter Instance = new DefaultCrawlObjectGraphFilter();
         }
 
         public static Spread<ObjectGraphNode> CrawlObjectGraph(object instance, string rootPath, ICrawlObjectGraphFilter filter, bool includeRoot, Type type = default)
@@ -612,7 +616,7 @@ namespace VL.Core
                 if (!instance.GetType().IsAssignableTo(type))
                     throw new ArgumentException($"{instance.GetType()} is not of specified type {type}");
             if (filter == null)
-                filter = new DefaultCrawlObjectGraphFilter();
+                filter = DefaultCrawlObjectGraphFilter.Instance;
             filter.Reset();
             var collection = new SpreadBuilder<ObjectGraphNode>();
 
@@ -630,6 +634,22 @@ namespace VL.Core
             ActOnChildren(filter, -1, root, action);
 
             return collection.ToSpread();
+        }
+
+        public static void IterateChildren(object instance, string rootPath, ICrawlObjectGraphFilter filter, 
+            Action<ObjectGraphNode, int> action, Type type = default)
+        {
+            if (type is null)
+                type = instance.GetType();
+            else
+                if (!instance.GetType().IsAssignableTo(type))
+                    throw new ArgumentException($"{instance.GetType()} is not of specified type {type}");
+            if (filter == null)
+                filter = DefaultCrawlObjectGraphFilter.Instance;
+            filter.Reset();
+
+            var root = new ObjectGraphNode(rootPath, instance, type, 0, null, "");
+            ActOnChildren(filter, -1, root, action);
         }
 
         static void ActOnChildren(ICrawlObjectGraphFilter filter, int parentDepth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
@@ -681,7 +701,7 @@ namespace VL.Core
         static void ActOnChildren(IVLObject instance, ICrawlObjectGraphFilter filter, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
         {
             var typeInfo = filter.CrawlOnTypeLevel ? 
-                (node?.Type != null ? instance.AppHost.TypeRegistry.GetTypeInfo(node.Type) : instance.Type) : 
+                (node.Type != null ? instance.AppHost.TypeRegistry.GetTypeInfo(node.Type) : instance.Type) : 
                 instance.Type;
 
             var properties = filter.CrawlAllProperties ? typeInfo.AllProperties : typeInfo.Properties;
