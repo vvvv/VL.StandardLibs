@@ -22,12 +22,13 @@ namespace VL.Skia
         /// <summary>
         /// Returns the render context for the current app.
         /// </summary>
-        public static unsafe RenderContext ForCurrentApp()
+        public static unsafe RenderContext ForCurrentApp() => ForApp(AppHost.CurrentOrGlobal);
+
+        public static unsafe RenderContext ForApp(AppHost appHost)
         {
-            var appHost = AppHost.CurrentOrGlobal;
             return appHost.Services.GetOrAddService(s =>
             {
-                var display = EglDisplay.ForCurrentApp();
+                var display = EglDisplay.ForApp(appHost);
                 var renderContext = New(display);
 
                 // For compatibility with existing code
