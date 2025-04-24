@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="AHSPWwKr5ddPKaFmbjSTQH" LanguageVersion="2025.7.0-0311-gf322ef3207" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="AHSPWwKr5ddPKaFmbjSTQH" LanguageVersion="2025.7.0-0317-g6dd19fb0a2" Version="0.128">
   <NugetDependency Id="URZgVx0JByIL1sViPXj4Au" Location="VL.CoreLib" Version="2024.6.0-0280-g5542bf5529" />
   <Patch Id="MQYZJPR3i79MqraWAwdyMd">
     <Canvas Id="EXCiKSKPeaiOzkrweGVZ9V" DefaultCategory="Main" CanvasType="FullCategory">
@@ -1455,6 +1455,20 @@
                   </AttributeArgument>
                 </p:Arguments>
               </AttributeData>
+              <AttributeData>
+                <p:TypeReference LastCategoryFullName="VL.Core.EditorAttributes" LastDependency="VL.CoreLib.vl">
+                  <Choice Kind="TypeFlag" Name="DefaultAttribute" />
+                </p:TypeReference>
+                <p:Arguments>
+                  <AttributeArgument>
+                    <p:Value SerializedValue="0">
+                      <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                        <Choice Kind="TypeFlag" Name="String" />
+                      </p:TypeAnnotation>
+                    </p:Value>
+                  </AttributeArgument>
+                </p:Arguments>
+              </AttributeData>
             </p:Attributes>
           </Slot>
           <Slot Id="GdZWs5hbhn6Opw3Yy0tfBu" Name="Friction">
@@ -1597,13 +1611,13 @@
               </AttributeData>
               <AttributeData>
                 <p:TypeReference LastCategoryFullName="VL.Core.EditorAttributes" LastDependency="VL.CoreLib.vl">
-                  <Choice Kind="TypeFlag" Name="CanBePublishedAttribute" />
+                  <Choice Kind="TypeFlag" Name="MinAttribute" />
                 </p:TypeReference>
                 <p:Arguments>
                   <AttributeArgument>
-                    <p:Value SerializedValue="False">
+                    <p:Value SerializedValue="2.05, 2.63">
                       <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-                        <Choice Kind="TypeFlag" Name="Boolean" />
+                        <Choice Kind="TypeFlag" Name="String" />
                       </p:TypeAnnotation>
                     </p:Value>
                   </AttributeArgument>
@@ -4801,7 +4815,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
-            <Pin Id="GINErnmYkmCQIMqvcmXUQt" Name="Bounds" Kind="InputPin" DefaultValue="1776, 566, 676, 468" IsHidden="true" />
+            <Pin Id="GINErnmYkmCQIMqvcmXUQt" Name="Bounds" Kind="InputPin" DefaultValue="1776, 537, 676, 494" IsHidden="true" />
             <Pin Id="IACLekgRr0SLSrtcoDaUXH" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
             <Pin Id="Now0LQ1MM3PMXfEtpM2v7J" Name="Bound to Document" Kind="InputPin" DefaultValue="True" IsHidden="true" />
             <Pin Id="FdLBGjouMzNL5gNIhivqdL" Name="Node Context" Kind="InputPin" IsHidden="true" />
@@ -5144,30 +5158,19 @@
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Node Bounds="511,182,82,19" Id="TyZaluM3ROQMQVUFnB3CeG">
-            <p:NodeReference LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="PublicChannel" />
-            </p:NodeReference>
-            <Pin Id="E7KhpYkhfT7NopfV3xnaI7" Name="Node Context" Kind="InputPin" IsHidden="true" />
-            <Pin Id="Bi7Qf3xO55WPogyVpqSEwe" Name="Path" Kind="InputPin" DefaultValue="Config" />
-            <Pin Id="FuW6sjOXxTlMJMevcirrA1" Name="Value" Kind="InputPin" />
-            <Pin Id="TCAk0yVovb0L3Ig8Ojz8M1" Name="Output" Kind="OutputPin" />
-            <Pin Id="TbEQfDFEL8BO0PU7bcoy5P" Name="Path" Kind="OutputPin" />
-            <Pin Id="Q0MqJZqVFAaMKB7B6GyJWV" Name="Value" Kind="OutputPin" />
-            <Pin Id="RLFWBuOJ57HQVy7JQwtWcq" Name="Author" Kind="InputPin" IsHidden="true" />
-          </Node>
-          <Node Bounds="659,310,75,19" Id="D7CN2WlzGE9LIqrKnj7LzI">
+          <Node Bounds="511,190,49,19" Id="D7CN2WlzGE9LIqrKnj7LzI">
             <p:NodeReference LastCategoryFullName="Reactive.ChannelHub.Modules.SubChannels" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="SubChannels" />
+              <CategoryReference Kind="Category" Name="SubChannels" NeedsToBeDirectParent="true" />
+              <Choice Kind="ProcessAppFlag" Name="Publish" />
             </p:NodeReference>
             <Pin Id="Nsvz66helT3Ouj1jMbsoZT" Name="Node Context" Kind="InputPin" IsHidden="true" />
-            <Pin Id="U1KwNyzVaeOOhL4b3oMjDr" Name="Main Channel" Kind="InputPin" />
-            <Pin Id="F2icuGt71DENREwDsMo7UA" Name="Output" Kind="OutputPin" IsHidden="true" />
+            <Pin Id="JzvqyQRloNVLZV6RmoIeOe" Name="Value" Kind="InputPin" />
+            <Pin Id="Ae0gxfD3BOHPuSiX7Vvrwv" Name="Path" Kind="InputPin" DefaultValue="Config" />
+            <Pin Id="EYugXwjK64wMI8L2kPPffD" Name="Output" Kind="OutputPin" />
             <Pin Id="FaDcX64kybUMkAItDd5Pcc" Name="SubChannels" Kind="OutputPin" />
           </Node>
-          <Node Bounds="647,357,101,86" Id="OMsEPcoex4rNrYgD80X2yE">
+          <Node Bounds="647,276,101,86" Id="OMsEPcoex4rNrYgD80X2yE">
             <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <CategoryReference Kind="Category" Name="Control" />
@@ -5177,7 +5180,7 @@
               <Patch Id="Frmo2MDQrURQIrzzvmdgas" Name="Create" ManuallySortedPins="true" />
               <Patch Id="FM7sGnCuNDNNo2SKa015DH" Name="Update" ManuallySortedPins="true" />
               <Patch Id="BYvqdSWLBRZQOO6AIJZBk7" Name="Dispose" ManuallySortedPins="true" />
-              <Node Bounds="659,391,77,19" Id="Hgbb14rPDNgLg2RfFLr5nm">
+              <Node Bounds="659,310,77,19" Id="Hgbb14rPDNgLg2RfFLr5nm">
                 <p:NodeReference LastCategoryFullName="Application.Transitions" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                   <Choice Kind="ProcessAppFlag" Name="TriggerPreset" />
@@ -5192,9 +5195,9 @@
               </Node>
             </Patch>
             <Pin Id="UYlwaFm34xFMVLCoidzCFT" Name="Node Context" Kind="InputPin" IsHidden="true" />
-            <ControlPoint Id="KRInyxmhP01MePUEULslJq" Bounds="661,363" Alignment="Top" />
+            <ControlPoint Id="KRInyxmhP01MePUEULslJq" Bounds="661,282" Alignment="Top" />
           </Node>
-          <Pad Id="ETcrddM36FBLUEytFbLslg" Bounds="764,399,103,71" ShowValueBox="true" isIOBox="true" Value="..triggers presets on startup">
+          <Pad Id="ETcrddM36FBLUEytFbLslg" Bounds="764,318,103,71" ShowValueBox="true" isIOBox="true" Value="..triggers presets on startup">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -5203,7 +5206,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="CRMx8mtnDDkNYUHcQJePRp" Bounds="615,204,137,44" ShowValueBox="true" isIOBox="true" Value="..enters the world of public channels">
+          <Pad Id="CRMx8mtnDDkNYUHcQJePRp" Bounds="573,190,137,44" ShowValueBox="true" isIOBox="true" Value="..enters the world of public channels">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -5212,7 +5215,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Node Bounds="774,344,54,19" Id="Jkf6F6jOsDdPDsP5tMm404">
+          <Node Bounds="774,263,54,19" Id="Jkf6F6jOsDdPDsP5tMm404">
             <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="OnOpen" />
@@ -5267,10 +5270,9 @@
         <Link Id="CQqx3R4tke9On8DaKJQ0ek" Ids="LcvfNmmYfl7PJO7zQ3B7Mi,AWFW8XIHcKFPubBwieMMpl" />
         <Link Id="I9DXi4WM8V7OEvlYVyESh2" Ids="CP0HS7N9gRcN5mfmfQ7Hmu,SuhKeAJqJzHMJmFituz9uz" />
         <Link Id="ERRbQhBnLDlQIHUtL5GuUN" Ids="VEc088GzI9cLwjpXmL3YB3,P5FijlTgLLdO7Qk5CpK00f" />
-        <Link Id="B4e5eBvBqgXMDc9XsNUAiU" Ids="CtRN1vBOK8UMQGEuHsAXXZ,FuW6sjOXxTlMJMevcirrA1" />
-        <Link Id="GaOxTerGYkzLol5uFyE0na" Ids="TCAk0yVovb0L3Ig8Ojz8M1,U1KwNyzVaeOOhL4b3oMjDr" />
-        <Link Id="Qt7SRxd2MDkLG96cyshwlh" Ids="TCAk0yVovb0L3Ig8Ojz8M1,NUh4NpVrJEYOoHTHDXZ7Ay" />
         <Link Id="CuVbE0SUBwjLWT26gfxWO8" Ids="PC7Kiq3r3EcOflvRVYpRZp,Vap0nJDh28dPSqbqxmUofO" />
+        <Link Id="PC12jeRcpKHNS0GBpFNLR8" Ids="CtRN1vBOK8UMQGEuHsAXXZ,JzvqyQRloNVLZV6RmoIeOe" />
+        <Link Id="LfPnPfEi4cKPxeLaYxircr" Ids="EYugXwjK64wMI8L2kPPffD,NUh4NpVrJEYOoHTHDXZ7Ay" />
       </Patch>
     </Node>
   </Patch>
