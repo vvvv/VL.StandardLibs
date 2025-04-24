@@ -46,11 +46,13 @@ namespace VL.Lang.PublicAPI
         public static void ShowPatchOfNode(uint nodeID)
             => Current?.ShowPatchOfNode(nodeID);
 
-        public static void ShowPatchOfNode(UniqueId nodeID)
-            => Current?.ShowPatchOfNode(nodeID);
+        /// <inheritdoc cref="IDevSession.ShowPatchOfNode(UniqueId, bool)"/>
+        public static void ShowPatchOfNode(UniqueId nodeID, bool toDefinition = false)
+            => Current?.ShowPatchOfNode(nodeID, toDefinition);
 
-        public static void ShowPatchOfNode(NodePath nodePath)
-            => Current?.ShowPatchOfNode(nodePath);
+        /// <inheritdoc cref="IDevSession.ShowPatchOfNode(NodePath, bool)"/>
+        public static void ShowPatchOfNode(NodePath nodePath, bool toDefinition = false)
+            => Current?.ShowPatchOfNode(nodePath, toDefinition);
 
         public static Keys OneUp => Current?.OneUp ?? Keys.None;
 

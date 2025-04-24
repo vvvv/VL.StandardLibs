@@ -5,10 +5,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Core.Import;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Collections;
 using VL.Lib.IO;
 using VL.Lib.Text;
+
+[assembly: ImportType(typeof(ReaderNode), Name = "Reader", Category = "IO.Experimental.Stream")]
+[assembly: ImportType(typeof(ReaderAll), Name = "ReaderAll", Category = "IO.Experimental.Stream")]
+[assembly: ImportType(typeof(ReaderString), Name = "ReaderAll", Category = "IO.Experimental.Stream")]
+[assembly: ImportType(typeof(WriterBytes), Name = "Writer", Category = "IO.Experimental.Stream")]
+[assembly: ImportType(typeof(WriterString), Name = "Writer (String)", Category = "IO.Experimental.Stream")]
 
 namespace VL.Lib.IO
 {
@@ -90,9 +97,6 @@ namespace VL.Lib.IO
         }
     }
 
-    //translates to two Process nodes in vl:
-    //- Reader
-    //- ReaderAll
     public class ReaderBytes : Reader<Spread<byte>>
     {
         public ReaderBytes()
@@ -101,7 +105,7 @@ namespace VL.Lib.IO
             FData = Spread<byte>.Empty;
         }
 
-        private async Task<Spread<byte>> ReadBytesTask(IResourceProvider<Stream> input, long offset, long count, IProgress<float> progress, CancellationToken ct)
+        protected async Task<Spread<byte>> ReadBytesTask(IResourceProvider<Stream> input, long offset, long count, IProgress<float> progress, CancellationToken ct)
         {
            var builder = new SpreadBuilder<byte>();
             using (var handle = input.GetHandle())
@@ -144,21 +148,30 @@ namespace VL.Lib.IO
             }
             return builder.ToSpread();
         }
+    }
 
-        public IResourceProvider<Stream> ReadAllBytes(IResourceProvider<Stream> input, long offset, bool read, bool abort, out Spread<byte> data, out float progress, out bool inProgress)
-        {
-            return Read(input, offset, long.MaxValue, read, abort, out progress, out inProgress, out data, ReadBytesTask);
-        }
-
-        public IResourceProvider<Stream> ReadBytes(IResourceProvider<Stream> input, long offset, long count, bool read, bool abort, out Spread<byte> data, out float progress, out bool inProgress)
+    [ProcessNode]
+    public class ReaderNode : ReaderBytes
+    {
+        public IResourceProvider<Stream> Update(IResourceProvider<Stream> input, long offset, long count, bool read, bool abort, out Spread<byte> data, out float progress, out bool inProgress)
         {
             return Read(input, offset, count, read, abort, out progress, out inProgress, out data, ReadBytesTask);
+        }
+    }
+
+    [ProcessNode]
+    public class ReaderAll : ReaderBytes
+    {
+        public IResourceProvider<Stream> Update(IResourceProvider<Stream> input, long offset, bool read, bool abort, out Spread<byte> data, out float progress, out bool inProgress)
+        {
+            return Read(input, offset, long.MaxValue, read, abort, out progress, out inProgress, out data, ReadBytesTask);
         }
     }
 
     /// <summary>
     /// Asynchronously reads string from an entire stream
     /// </summary>
+    [ProcessNode]
     public class ReaderString : Reader<string>
     {
         public ReaderString()
@@ -274,11 +287,12 @@ namespace VL.Lib.IO
     /// <summary>
     /// Asynchronously writes bytes to a stream
     /// </summary>
+    [ProcessNode]
     public class WriterBytes : Writer<Spread<byte>>
     {
-        public IResourceProvider<Stream> Update(IResourceProvider<Stream> input, Spread<byte> data, long offset, bool write, bool abort, out float progress, out bool inProgress)
+        public void Update(IResourceProvider<Stream> input, Spread<byte> data, long offset, bool write, bool abort, out float progress, out bool inProgress)
         {
-            return Write(input, data, offset, write, abort, out progress, out inProgress, WriteAsync);
+            Write(input, data, offset, write, abort, out progress, out inProgress, WriteAsync);
         }
 
         private async Task WriteAsync(IResourceProvider<Stream> provider, Spread<byte> data, long offset, IProgress<float> progress, CancellationToken ct)
@@ -317,11 +331,12 @@ namespace VL.Lib.IO
     /// <summary>
     /// Asynchronously writes strings to a stream
     /// </summary>
+    [ProcessNode]
     public class WriterString : Writer<string>
     {
-        public IResourceProvider<Stream> Update(IResourceProvider<Stream> input, Encodings encoding, string data, long offset, bool write, bool abort, out float progress, out bool inProgress)
+        public void Update(IResourceProvider<Stream> input, Encodings encoding, string data, long offset, bool write, bool abort, out float progress, out bool inProgress)
         {
-            return Write(input, data, offset, write, abort, out progress, out inProgress, (a,b,c,d,e) => WriteAsync(a,b,c,d,e,encoding));
+            Write(input, data, offset, write, abort, out progress, out inProgress, (a,b,c,d,e) => WriteAsync(a,b,c,d,e,encoding));
         }
 
         private async Task WriteAsync(IResourceProvider<Stream> provider, string data, long offset, IProgress<float> progress, CancellationToken ct, Encodings encoding)

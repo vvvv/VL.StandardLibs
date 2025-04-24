@@ -13,9 +13,8 @@ namespace VL.Skia.Egl
 {
     public unsafe sealed class EglDevice : EglResource
     {
-        public static EglDevice ForCurrentApp()
+        public static EglDevice ForApp(AppHost appHost)
         {
-            var appHost = AppHost.CurrentOrGlobal;
             return appHost.Services.GetOrAddService(s =>
             {
                 if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))

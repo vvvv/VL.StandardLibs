@@ -54,11 +54,24 @@ namespace VL.Lang.PublicAPI
 
         ISolution CloseDocumentOfNode(UniqueId nodeID, bool showDialogIfChanged = true);
 
+        /// <inheritdoc cref="ShowPatchOfNode(UniqueId, bool)"/>
         [Obsolete("Please use the overload with the unique id")]
         void ShowPatchOfNode(uint nodeID);
 
-        void ShowPatchOfNode(UniqueId nodeID);
-        void ShowPatchOfNode(NodePath nodePath);
+        /// <summary>
+        /// Shows the patch of the node in the editor.
+        /// </summary>
+        /// <param name="nodeID">Refers to a node application or a node definition</param>
+        /// <param name="toDefinition">
+        /// If false, the patch where the node resides in will be shown.
+        /// If true, it depends on the node type:
+        /// - for a node application, the patch of its definition will be shown
+        /// - for a node definition, its patch will be shown
+        /// </param>
+        void ShowPatchOfNode(UniqueId nodeID, bool toDefinition = false);
+
+        /// <inheritdoc cref="ShowPatchOfNode(UniqueId, bool)"/>
+        void ShowPatchOfNode(NodePath nodePath, bool toDefinition = false);
 
         /// <summary>
         /// Registers a node with the session. This allows the editor to interact with it.

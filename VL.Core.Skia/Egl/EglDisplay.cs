@@ -9,12 +9,11 @@ namespace VL.Skia.Egl
 {
     public sealed class EglDisplay : EglResource
     {
-        public static EglDisplay ForCurrentApp()
+        public static EglDisplay ForApp(AppHost appHost)
         {
-            var appHost = AppHost.CurrentOrGlobal;
             return appHost.Services.GetOrAddService(s =>
             {
-                var device = EglDevice.ForCurrentApp();
+                var device = EglDevice.ForApp(appHost);
                 return FromDevice(device);
             }, allowToAskParent: false);
         }

@@ -5,14 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Core.Import;
+using VL.Lib;
+
+[assembly: ImportType(typeof(ManageProcess<,>), Name = "ManageProcess (1 Output)", Category = "Primitive.Obsolete")]
+[assembly: ImportType(typeof(ManageProcess2<,,>), Name = "ManageProcess (2 Outputs)", Category = "Primitive.Obsolete")]
 
 namespace VL.Lib
 {
+    [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
     public class ManageProcess<TState, TOutput> : IDisposable
     {
         TState FState;
         TOutput FLastOutput;
 
+        [Fragment]
+        public ManageProcess() { }
+
+        [Fragment]
         public TOutput Update(Func<TState> create, Func<TState, Tuple<TState, TOutput>> update, bool enabled = true, bool reset = false)
         {
             if (FState == null || reset)
@@ -37,6 +47,9 @@ namespace VL.Lib
             DisposeInternalState();
         }
 
+        [Obsolete("Use Dispose() instead. This method will be removed in a future version.")]
+        public void Destroy() => Dispose();
+
         private void DisposeInternalState()
         {
             try
@@ -50,6 +63,7 @@ namespace VL.Lib
         }
     }
 
+    [ProcessNode]
     public class ManageProcess2<TState, TOutput, TOutput2> : IDisposable
     {
         TState FState;

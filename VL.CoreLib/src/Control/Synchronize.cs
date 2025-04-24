@@ -4,8 +4,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reflection;
 using VL.Core;
+using VL.Core.Import;
 using VL.Core.Utils;
 using VL.Lib.Collections;
+using VL.Lib.Control;
+
+[assembly: ImportType(typeof(Synchronizer<,,>), Category = "Control.Experimental")]
+[assembly: ImportType(typeof(SynchronizerInputIsKey<,,>), Name = "Synchronizer (InputIsKey)", Category = "Control.Experimental")]
+[assembly: ImportType(typeof(SynchronizerVLObjectInput<,,>), Name = "Synchronizer (VLObjectInput)", Category = "Control.Experimental")]
 
 namespace VL.Lib.Control
 {
@@ -203,6 +209,7 @@ namespace VL.Lib.Control
             out Spread<TOutput> outputs);
     }
 
+    [ProcessNode]
     public sealed class SynchronizerInputIsKey<TState, TInput, TOutput> : IDisposable, ISwappableGenericType
         where TState : class
         where TInput : notnull
@@ -245,6 +252,7 @@ namespace VL.Lib.Control
         }
     }
 
+    [ProcessNode]
     public sealed class Synchronizer<TState, TInput, TOutput> : IDisposable, ISwappableGenericType
         where TState : class
         where TInput : notnull
@@ -282,6 +290,7 @@ namespace VL.Lib.Control
         }
     }
 
+    [ProcessNode]
     public sealed class SynchronizerVLObjectInput<TState, TInput, TOutput> : IDisposable, ISwappableGenericType
         where TState : class
         where TInput: IVLObject

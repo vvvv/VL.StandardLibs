@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Document xmlns:p="property" xmlns:r="reflection" Id="AeLw27X3UZTPbUKzkJqoag" LanguageVersion="2025.7.0-0311-gf322ef3207" Version="0.128">
   <Patch Id="R1hgnY3rx8dQUrxE9sHqpq">
     <Canvas Id="IZD4vCZBBJGPV5bGjq6SQa" DefaultCategory="Reactive" CanvasType="FullCategory">
@@ -9573,164 +9573,7 @@
             <Link Id="BfVjYcILJ5xP0cP6CgM4F0" Ids="IOhEdTGj6NUNHmWx4j4ssL,Vwo6r4kUHHeLg1pF8pUixj" IsHidden="true" />
           </Patch>
         </Node>
-        <Canvas Id="AZd7VsRp7NnPVuhKVlDnlJ" Name="Experimental" Position="666,152">
-          <!--
-
-    ************************ MultimediaTimer ************************
-
--->
-          <Node Name="MultimediaTimer" Bounds="471,370" Id="RPjn37rOx3TMmWWspWTMqJ" Summary="Observable timer on a backround thread using the windows multimedia timer with about 1ms precision." Remarks="You should only use one multimedia timer at a time!">
-            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
-              <Choice Kind="ContainerDefinition" Name="Process" />
-            </p:NodeReference>
-            <Patch Id="LuXqZW2fZUfLPETYZymiPV">
-              <Canvas Id="Nlfk20yf8p6LfVe8QD19w8" CanvasType="Group">
-                <Node Bounds="365,124,111,22" Id="Or6zw0WNNdaLnoDkqtO5vl">
-                  <p:NodeReference LastCategoryFullName="VL.Lib.Reactive.MultimediaTimerObservable" LastDependency="VL.CoreLib.dll">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <Choice Kind="OperationCallFlag" Name="Create" />
-                    <CategoryReference Kind="AssemblyCategory" Name="MultimediaTimerObservable" NeedsToBeDirectParent="true" />
-                  </p:NodeReference>
-                  <Pin Id="G8sHYOjJf2XMJS50R5vZm8" Name="Output" Kind="StateOutputPin" />
-                </Node>
-                <Pad Id="U1eKPYdoWK5MyDIvStWBDQ" SlotId="Q9xSS21VSnjPpD3jEC8DSi" Bounds="368,241" />
-                <Node Bounds="369,316,111,22" AutoConnect="true" Id="IUvYqhIh4zyO8pSXBR5Ych">
-                  <p:NodeReference LastCategoryFullName="VL.Lib.Reactive.MultimediaTimerObservable" LastDependency="VL.CoreLib.dll">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <Choice Kind="OperationCallFlag" Name="Update" />
-                    <CategoryReference Kind="AssemblyCategory" Name="MultimediaTimerObservable" NeedsToBeDirectParent="true" />
-                  </p:NodeReference>
-                  <Pin Id="DkfZ85EHR0APAKpks24Znp" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="FljgfaRQ97BO4jsdvKQdJc" Name="Period" Kind="InputPin" />
-                  <Pin Id="FEKvGMf2mo5Pv2l6RBh4SE" Name="Mode" Kind="InputPin" />
-                  <Pin Id="MpyuKtUAtOLQWhr9NPsKHb" Name="Reset Counter" Kind="InputPin" />
-                  <Pin Id="Rzbbi3QxxgmNQjbA5EMtlO" Name="Enabled" Kind="InputPin" />
-                  <Pin Id="CLNp7zLQBFEQZ1Eu40pqSg" Name="Output" Kind="StateOutputPin" />
-                  <Pin Id="Kq6aCuk4aruMwKoaYoK2C9" Name="Result" Kind="OutputPin" />
-                  <Pin Id="TZH2FolT2vWPQgk1AKC8To" Name="Last Period" Kind="OutputPin" />
-                </Node>
-                <Pad Id="HXakkc7nhLpO8WrUeaI8aV" SlotId="Q9xSS21VSnjPpD3jEC8DSi" Bounds="371,427" />
-                <Node Bounds="370,507" Id="UE9ky3xyMUaOZCBPnAfBiU">
-                  <p:NodeReference LastCategoryFullName="VL.Lib.Reactive.MultimediaTimerObservable" LastDependency="VL.CoreLib.dll">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <CategoryReference Kind="AssemblyCategory" Name="MultimediaTimerObservable" />
-                    <Choice Kind="OperationCallFlag" Name="Dispose" />
-                  </p:NodeReference>
-                  <Pin Id="IHpGe4AdsQfO3HgGHefnve" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="H1uGiIKJgD2NWAwY0GhbPM" Name="Output" Kind="StateOutputPin" />
-                </Node>
-              </Canvas>
-              <Patch Id="DPZdWgTWdeNNdtmC5yEQbA" Name="Create" ParticipatingElements="Or6zw0WNNdaLnoDkqtO5vl" />
-              <Patch Id="GKGmrbnyKklMnSwZt8xAoT" Name="Update">
-                <Pin Id="ECoiOI2ePEiO1ajOEeVUir" Name="Period" Kind="InputPin" />
-                <Pin Id="RlVVVOvNbNyNQDzGMSfu1i" Name="Mode" Kind="InputPin" />
-                <Pin Id="Kk9PsSRDHctML23jgQvYEs" Name="Reset Counter" Kind="InputPin" />
-                <Pin Id="K5PC8hAm5wQOsQzZlyVyk9" Name="Enabled" Kind="InputPin" />
-                <Pin Id="Kc0ZD09Q2WOO8xAP8tcQqA" Name="Result" Kind="OutputPin" />
-                <Pin Id="DjfNU6kfHjqPsfot73JNZj" Name="Last Period" Kind="OutputPin" />
-              </Patch>
-              <ProcessDefinition Id="TgFJHcGo5jIPahOzfqlVvq">
-                <Fragment Id="VdMvwYreirPLNfP9MhD6b8" Patch="DPZdWgTWdeNNdtmC5yEQbA" Enabled="true" />
-                <Fragment Id="FK49QcR2PsJLRIdEVNG3iw" Patch="GKGmrbnyKklMnSwZt8xAoT" Enabled="true" />
-              </ProcessDefinition>
-              <Slot Id="Q9xSS21VSnjPpD3jEC8DSi" Name="Timer" />
-              <Link Id="C8A1kfjAiMAP9fpDGTyLST" Ids="G8sHYOjJf2XMJS50R5vZm8,U1eKPYdoWK5MyDIvStWBDQ" />
-              <Link Id="UtL1TQsv90wObkuo1CZN5V" Ids="U1eKPYdoWK5MyDIvStWBDQ,DkfZ85EHR0APAKpks24Znp" />
-              <Link Id="Qu4fryt7FueNmvrJzIKDBk" Ids="CLNp7zLQBFEQZ1Eu40pqSg,HXakkc7nhLpO8WrUeaI8aV" />
-              <Link Id="P5CW2Yhfm6EMyyE5XrS7PB" Ids="HXakkc7nhLpO8WrUeaI8aV,IHpGe4AdsQfO3HgGHefnve" />
-              <Patch Id="MS7uqqvDU9hNhpEUMMRTNN" Name="Dispose" ParticipatingElements="UE9ky3xyMUaOZCBPnAfBiU" />
-            </Patch>
-          </Node>
-          <!--
-
-    ************************ BusyWaitTimer ************************
-
--->
-          <Node Name="BusyWaitTimer" Bounds="473,414" Id="Oiuupkv6usHNXRlLQ4SAwb">
-            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
-              <Choice Kind="ContainerDefinition" Name="Process" />
-            </p:NodeReference>
-            <Patch Id="HF0bqVVeFzSMd7ExtRYuUk" IsGeneric="true">
-              <Canvas Id="SEZzMQlbYlANH6YIPZolpV" CanvasType="Group">
-                <Node Bounds="221,171,39,13" Id="LGR8F4aUzJHOA80ULQ6khl">
-                  <p:NodeReference LastCategoryFullName="VL.Lib.Reactive.BusyWaitTimerObservable" LastDependency="VL.CoreLib.dll">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <CategoryReference Kind="AssemblyCategory" Name="BusyWaitTimerObservable" />
-                    <Choice Kind="OperationCallFlag" Name="Create" />
-                  </p:NodeReference>
-                  <Pin Id="JBKARMw4tCSONKz4otIF4I" Name="Output" Kind="StateOutputPin" />
-                </Node>
-                <Pad Id="ScWGZGu6TzRQBmU44vbuLG" SlotId="QW4xH5PBnO7MEWc4ULTm58" Bounds="224,262" />
-                <Node Bounds="223,326,105,22" AutoConnect="true" Id="JYMhaK2CElxOJc5UaSVlKV">
-                  <p:NodeReference LastCategoryFullName="VL.Lib.Reactive.BusyWaitTimerObservable" LastDependency="VL.CoreLib.dll">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <Choice Kind="OperationCallFlag" Name="Update" />
-                    <CategoryReference Kind="AssemblyCategory" Name="BusyWaitTimerObservable" NeedsToBeDirectParent="true" />
-                  </p:NodeReference>
-                  <Pin Id="LMK4cgoygP4MvZMCl3QVAD" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="Db8SSTUYxcdN8dL08T7i6m" Name="Period" Kind="InputPin" />
-                  <Pin Id="BoDgx4mSpnjNygXzwPxWwM" Name="Wait Accuracy" Kind="InputPin" />
-                  <Pin Id="TLZvwwvfqyKNDsvd95TG0w" Name="Mode" Kind="InputPin" />
-                  <Pin Id="Ff9djb5uXH1QcY7jVxoKCr" Name="Thread Apartment State" Kind="InputPin" />
-                  <Pin Id="FdK0pXnL6o0N3HTMpYjYZr" Name="Reset Counter" Kind="InputPin" />
-                  <Pin Id="OO2kFvmpN4JQOR5PLS68hI" Name="Enabled" Kind="InputPin" />
-                  <Pin Id="UF8lolvFPu4LydtOMoDWFl" Name="Output" Kind="StateOutputPin" />
-                  <Pin Id="DV9xaqSFaZXLWtVNei6HLH" Name="Result" Kind="OutputPin" />
-                  <Pin Id="PY4waIPIrq5LBAEcC3i7oZ" Name="Last Period" Kind="OutputPin" />
-                </Node>
-                <Pad Id="HtQUtC3HwV3LHx6NBfE7YQ" SlotId="QW4xH5PBnO7MEWc4ULTm58" Bounds="227,406" />
-                <Node Bounds="225,469" Id="PxOQguYy8IxOu9deePk8DL">
-                  <p:NodeReference LastCategoryFullName="VL.Lib.Reactive.BusyWaitTimerObservable" LastDependency="VL.CoreLib.dll">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <CategoryReference Kind="AssemblyCategory" Name="BusyWaitTimerObservable" />
-                    <Choice Kind="OperationCallFlag" Name="Dispose" />
-                  </p:NodeReference>
-                  <Pin Id="BsapkhYDmDpMfQJ9uxlPza" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="HEdMCs8eoYCNf7AjJ1JGk6" Name="Output" Kind="StateOutputPin" />
-                </Node>
-              </Canvas>
-              <ProcessDefinition Id="Pm8AhNG8sGBQFsgXlbPbDm">
-                <Fragment Id="Re9IYWc5fv5PXK65UPC5oM" Patch="RaNSlpuAHI4PR6FUDgbrJ7" Enabled="true" />
-                <Fragment Id="VVT2ZHKt8HUMu7TQWpv0p6" Patch="DV4YBJxsoHhMUbSV369CY8" Enabled="true" />
-              </ProcessDefinition>
-              <Slot Id="QW4xH5PBnO7MEWc4ULTm58" Name="Timer" />
-              <Link Id="TlQG7clKUsJO9HzfIN8CaR" Ids="JBKARMw4tCSONKz4otIF4I,ScWGZGu6TzRQBmU44vbuLG" />
-              <Link Id="PzEOWV1fj71LT9vYQXGTx2" Ids="ScWGZGu6TzRQBmU44vbuLG,LMK4cgoygP4MvZMCl3QVAD" />
-              <Link Id="RiHVb5sDGJ6LtjFHWbuE0I" Ids="UF8lolvFPu4LydtOMoDWFl,HtQUtC3HwV3LHx6NBfE7YQ" />
-              <Link Id="Vgm1C5crVfoLFZc6JVTpNT" Ids="HtQUtC3HwV3LHx6NBfE7YQ,BsapkhYDmDpMfQJ9uxlPza" />
-              <Patch Id="RaNSlpuAHI4PR6FUDgbrJ7" Name="Create" ParticipatingElements="LGR8F4aUzJHOA80ULQ6khl" />
-              <Patch Id="DV4YBJxsoHhMUbSV369CY8" Name="Update">
-                <Pin Id="D5eQ7kPQxkfL14QzlUwBIL" Name="Period" Kind="InputPin" />
-                <Pin Id="F1rlJixeHzyMiOJqM15Z23" Name="Wait Accuracy" Kind="InputPin" />
-                <Pin Id="CPKtw9ShkLYNkNWKqzwXqN" Name="Mode" Kind="InputPin" />
-                <Pin Id="RuWul4nzlbVOYkhFuRhrDv" Name="Thread Apartment State" Kind="InputPin" />
-                <Pin Id="SOmn168UPF2Lhe4BJ8obOC" Name="Reset Counter" Kind="InputPin" />
-                <Pin Id="HJCiN25uFGgMhzD9wVnffV" Name="Enabled" Kind="InputPin" />
-                <Pin Id="B4CgSn15JUcNbqeFXX1Oa6" Name="Result" Kind="OutputPin" />
-                <Pin Id="I1E0Nstug0XOL3WU5z3C0a" Name="Last Period" Kind="OutputPin" />
-              </Patch>
-              <Patch Id="AoPvu2OwFGmLxW5btzkFZh" Name="Dispose" ParticipatingElements="PxOQguYy8IxOu9deePk8DL" />
-            </Patch>
-          </Node>
-          <!--
-
-    ************************ TimerClock ************************
-
--->
-          <Node Name="TimerClock" Bounds="480,466" Id="QRyBarLDHILL9kAd3bTKlP">
-            <p:NodeReference>
-              <Choice Kind="ForwardDefinition" Name="Forward" />
-              <FullNameCategoryReference ID="Primitive" />
-            </p:NodeReference>
-            <p:TypeAnnotation LastCategoryFullName="VL.Lib.Reactive" LastDependency="VL.CoreLib.Experimental.dll">
-              <Choice Kind="TypeFlag" Name="TimerClock" />
-            </p:TypeAnnotation>
-            <Patch Id="HrDWcgEQLy8NxKYpGgBnML">
-              <Canvas Id="VlRDqBNb1XQM6JVMTmDbIl" CanvasType="Group" />
-              <ProcessDefinition Id="FaPNpbbzCsfPM32hsaO4S8" IsHidden="true" />
-            </Patch>
-          </Node>
-        </Canvas>
+        <Canvas Id="AZd7VsRp7NnPVuhKVlDnlJ" Name="Experimental" Position="666,152" />
         <!--
 
     ************************ DelaySubscription ************************
@@ -13178,7 +13021,7 @@
                         </Patch>
                         <Pin Id="AV83wgFiZuGNDYpA3HOPrZ" Name="Node Context" Kind="InputPin" IsHidden="true" />
                         <Pin Id="N0nafyphmGxOa4IUDj1E3b" Name="Input" Kind="InputPin" />
-                        <Pin Id="CeQ6JQCeqdxNq67DuOgKT6" Name="Output" Kind="OutputPin" IsHidden="true" />
+                        <Pin Id="C4q05WZMVuZQJ4iwSjDrNo" Name="Result" Kind="OutputPin" />
                         <Pin Id="HUMf1ird1AtPWqYwB47af9" Name="Outputs" Kind="OutputPin" />
                       </Node>
                     </Patch>
@@ -19533,7 +19376,7 @@
                 </p:NodeReference>
                 <Pin Id="ClZHAinV7qoOfYC8SjeByv" Name="Node Context" Kind="InputPin" IsHidden="true" />
                 <Pin Id="GJ9565cbrLrL3HdsU7NVXE" Name="Input" Kind="InputPin" />
-                <Pin Id="IqJ3yi6FvV5LFk9FVcAueY" Name="Output" Kind="OutputPin" IsHidden="true" />
+                <Pin Id="IrdPUYwZghWLU8qsTd1nsM" Name="Result" Kind="OutputPin" />
                 <Pin Id="TlhfhOH4BnbO8n04qC8T4A" Name="Outputs" Kind="OutputPin" />
                 <Patch Id="KSH5JcN6sFjN3WgLfdTd3J" ManuallySortedPins="true">
                   <Patch Id="DmWkB0ydrr5Ny7BOcrSn2B" Name="Create" ManuallySortedPins="true">

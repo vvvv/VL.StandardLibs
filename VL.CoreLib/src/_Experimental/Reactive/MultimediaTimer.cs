@@ -11,13 +11,21 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Core.Import;
 using VL.Lib.Animation;
+using VL.Lib.Reactive;
+
+[assembly: ImportType(typeof(MultimediaTimerObservable), Name = "MultimediaTimer", Category = "Reactive.Advanced.Experimental")]
 
 namespace VL.Lib.Reactive
 {
     /// <summary>
-    /// Timer using the systems multimedia timer with millisecond accuracy on a high proiority thread. Experimental, you should only create one if it...
+    /// Observable timer on a backround thread using the windows multimedia timer with about 1ms precision.
     /// </summary>
+    /// <remarks>
+    /// You should only use one multimedia timer at a time!
+    /// </remarks>
+    [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
     public class MultimediaTimerObservable
     {
         readonly Subject<TimerClock> FSubject;
@@ -34,6 +42,7 @@ namespace VL.Lib.Reactive
         /// <param name="enabled">If set to <c>true</c> the timer runs.</param>
         /// <param name="lastPeriod">Last measured period time in milliseconds.</param>
         /// <returns>Observable of a TimerClock that can be used as frame clock input for animation nodes.</returns>
+        [Fragment]
         public IObservable<TimerClock> Update(out float lastPeriod, int period = 100, TimerMode mode = TimerMode.Periodic, bool resetCounter = false, bool enabled = true)
         {
             this.Mode = mode;
@@ -146,6 +155,7 @@ namespace VL.Lib.Reactive
         /// <summary>
         /// Initializes a new instance of the Timer class.
         /// </summary>
+        [Fragment]
         public MultimediaTimerObservable()
         {
 

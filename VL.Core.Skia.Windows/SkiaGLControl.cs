@@ -5,11 +5,13 @@ using System.Windows.Forms;
 using SkiaSharp;
 using VL.Skia.Egl;
 using Stride.Core.Mathematics;
+using VL.Core;
 
 namespace VL.Skia
 {
     public class SkiaGLControl : SkiaControlBase
     {
+        private readonly AppHost appHost;
         private RenderContext? renderContext;
         private EglSurface? eglSurface;
         private SKSurface? surface;
@@ -17,8 +19,9 @@ namespace VL.Skia
         private SKCanvas? canvas;
         private bool? lastSetVSync;
 
-        public SkiaGLControl()
+        public SkiaGLControl(AppHost appHost)
         {
+            this.appHost = appHost;
             SetStyle(ControlStyles.Opaque, true);
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
@@ -29,7 +32,7 @@ namespace VL.Skia
         protected override void OnHandleCreated(EventArgs e)
         {
             // Retrieve the render context. Doing so in the constructor can lead to crashes when running unit tests with headless machines.
-            renderContext = RenderContext.ForCurrentApp();
+            renderContext = RenderContext.ForApp(appHost);
 
             lastSetVSync = default;
 
