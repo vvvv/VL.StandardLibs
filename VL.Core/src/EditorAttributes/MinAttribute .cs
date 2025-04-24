@@ -22,7 +22,15 @@ namespace VL.Core.EditorAttributes
 
         public string EncodedValue { get; }
 
-        public T GetValue<T>() => AttributeHelpers.DecodeValueFromAttribute<T>(EncodedValue).Value;
+        public T GetValue<T>() => (T)GetValue(typeof(T));
+
+        public object GetValue(Type type)
+        {
+            var optional = AttributeHelpers.DecodeValueFromAttribute(EncodedValue, type);
+            if (optional.HasValue)
+                return optional.Value;
+            return default;
+        }
 
         public override string ToString()
         {

@@ -123,7 +123,7 @@ namespace VL.ImGui.Editors
                     //    return typeInfo.IsImmutable && typeInfo.AllProperties.All(p => p.Type.IsImmutable || HasEditor(context, p.Type));
                     var type = typeInfo.ClrType;
                     if (context.PrimitiveOnly)
-                        return type.IsPrimitive || type == typeof(string) || type == typeof(object);
+                        return type.IsPrimitive || type == typeof(string) || type == typeof(object) || type.IsAssignableTo(typeof(IOptional));
                     else
                         return true;
                 }
