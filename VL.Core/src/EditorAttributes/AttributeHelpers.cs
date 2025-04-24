@@ -164,38 +164,55 @@ namespace VL.Core.EditorAttributes
             return new Optional<string>();
         }
 
+        static T[] parse<T>(string encodedValue, Func<string, T> parseCore)
+        {
+            var values = encodedValue.Split(',')
+                .Select(x => parseCore(x))
+                .ToArray();
+
+            var firstSlice = values.Length > 0 ? values[0] : default;
+            return
+                new[] { 0, 1, 2, 3 }
+                .Select(i => values.Length > i ? values[i] : firstSlice)
+                .ToArray();
+        }
+
         public static Optional<object> DecodeValueFromAttribute(string encodedValue, Type targetType)
         {
             try
             {
                 if (targetType == typeof(int))
-                    return int.Parse(encodedValue);
-
-                if (targetType == typeof(float))
-                    return float.Parse(encodedValue);
-
+                    return parse(encodedValue, int.Parse)[0];
                 if (targetType == typeof(double))
-                    return double.Parse(encodedValue);
+                    return parse(encodedValue, double.Parse)[0];
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    var floats = parse(encodedValue, float.Parse);
+                    if (targetType == typeof(int))
+                        return (int)floats[0];
+                    if (targetType == typeof(double))
+                        return (double)floats[0];
+                }
+                catch (Exception)
+                {
+                    return new Optional<object>();
+                }
+            }
 
-                var values = encodedValue.Split(',')
-                    .Select(x => DecodeValueFromAttribute<float>(x).TryGetValue(0))
-                    .ToArray();
-
-                var firstSlice = values.Length > 0 ? values[0] : default;
-
-                var resampledValues =
-                    new[] { 0, 1, 2, 3 }
-                    .Select(i => values.Length > i ? values[i] : firstSlice)
-                    .ToArray();
-
+            try
+            {
+                var floats = parse(encodedValue, float.Parse);
+                if (targetType == typeof(float))
+                    return floats[0];
                 if (targetType == typeof(Vector2))
-                    return new Vector2(resampledValues[0], resampledValues[1]);
-
+                    return new Vector2(floats[0], floats[1]);
                 if (targetType == typeof(Vector3))
-                    return new Vector3(resampledValues[0], resampledValues[1], resampledValues[2]);
-
+                    return new Vector3(floats[0], floats[1], floats[2]);
                 if (targetType == typeof(Color4))
-                    return new Color4(resampledValues[0], resampledValues[1], resampledValues[2], resampledValues[3]);
+                    return new Color4(floats[0], floats[1], floats[2], floats[3]);
 
                 return new Optional<object>();
             }
