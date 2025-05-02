@@ -19,7 +19,7 @@ namespace VL.IO.Redis
         private readonly SerialDisposable _subscription = new();
         private readonly ILogger _logger;
 
-        private (RedisClient? client, string? redisChannel, IObservable<T>? value, SerializationFormat? format) _config;
+        private (RedisClient? client, ConnectionMultiplexer? Multiplexer, string? redisChannel, IObservable<T>? value, SerializationFormat? format) _config;
 
         // TODO: For unit testing it would be nice to take the logger directly!
         public Publish([Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext)
@@ -45,21 +45,21 @@ namespace VL.IO.Redis
             IObservable<T>? input, 
             Optional<SerializationFormat> serializationFormat = default)
         {
-            var config = (client, channel, input, format: serializationFormat.ToNullable());
+            var config = (client, client?.InternalRedisClient?.Multiplexer, channel, input, format: serializationFormat.ToNullable());
             if (config == _config)
                 return;
 
             _config = config;
             _subscription.Disposable = null;
 
-            if (client is null || string.IsNullOrEmpty(channel) || input is null)
+            if (client?.InternalRedisClient is null || string.IsNullOrEmpty(channel) || input is null)
                 return;
 
             _subscription.Disposable = input.Subscribe(v =>
             {
                 try
                 {
-                    var subscriber = client.GetSubscriber();
+                    var subscriber = client.InternalRedisClient.GetSubscriber();
                     var redisChannel = new RedisChannel(channel, RedisChannel.PatternMode.Literal);
                     var value = client.Serialize(v, config.format);
                     subscriber.Publish(redisChannel, value, CommandFlags.FireAndForget);

@@ -66,7 +66,7 @@ namespace VL.IO.Redis
             if (client is null || string.IsNullOrEmpty(config.Channel))
                 return;
 
-            var subscriber = client.GetSubscriber();
+            var subscriber = client.InternalRedisClient?.GetSubscriber();
             var channel = new RedisChannel(config.Channel, RedisChannel.PatternMode.Literal);
 
             if (config.ProcessMessagesConcurrently)

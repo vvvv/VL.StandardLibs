@@ -18,10 +18,10 @@ namespace VL.IO.Redis
         {
             success = false;
 
-            if (!apply || client is null || string.IsNullOrEmpty(key))
+            if (!apply || client?.InternalRedisClient is null || string.IsNullOrEmpty(key))
                 return client;
 
-            success = client.GetDatabase().KeyDelete(key);
+            success = client.InternalRedisClient.GetDatabase().KeyDelete(key);
 
             return client;
         }
@@ -37,11 +37,11 @@ namespace VL.IO.Redis
             if (!apply || client is null)
                 return client;
 
-            var server = client.GetServer();
+            var server = client.InternalRedisClient?.GetServer();
             if (server is null)
                 return client;
 
-            server.FlushDatabase(client.Database);
+            server.FlushDatabase(client.InternalRedisClient!.Database);
 
             return client;
         }
@@ -51,18 +51,18 @@ namespace VL.IO.Redis
         [ProcessNode(Name = "Scan")]
         public class ScanNode
         {
-            private RedisClient? _client;
+            private RedisClientInternal? _client;
             private string? _pattern;
             private Spread<string> _keys = Spread<string>.Empty;
 
             [return: Pin(Name = "Client")]
             public RedisClient? Update(RedisClient? client, string? pattern, bool force, out Spread<string> keys)
             {
-                if (force || client != _client || pattern != _pattern)
+                if (force || client?.InternalRedisClient != _client || pattern != _pattern)
                 {
-                    _client = client;
+                    _client = client?.InternalRedisClient;
                     _pattern = pattern;
-                    _keys = Scan(client, pattern);
+                    _keys = Scan(client?.InternalRedisClient, pattern);
                 }
 
                 keys = _keys;
@@ -70,7 +70,7 @@ namespace VL.IO.Redis
                 return client;
             }
 
-            private Spread<string> Scan(RedisClient? client, string? pattern)
+            private Spread<string> Scan(RedisClientInternal? client, string? pattern)
             {
                 if (client is null)
                     return Spread<string>.Empty;

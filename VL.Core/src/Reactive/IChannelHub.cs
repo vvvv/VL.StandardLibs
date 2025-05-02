@@ -1,6 +1,8 @@
 ﻿using Stride.Core.Mathematics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading;
 using VL.Lib.Reactive;
 
@@ -134,7 +136,6 @@ namespace VL.Core.Reactive
         }   
     }
 
-
     public interface IModule
     {
         string Name { get; }
@@ -142,6 +143,39 @@ namespace VL.Core.Reactive
         string Description { get; }
 
         bool SupportsType(Type type);
+
+        /// <summary>
+        /// Called by UI when user toggles a binding on or off. Implementation should update its internal model accordingly.
+        /// </summary>
+        void OnAddOrRemoveBinding(IChannel channel, bool add);
+    }
+
+    public static class ModuleExtensions
+    {
+        public static bool TryGetBinding(this IModule module, IChannel channel, [NotNullWhen(true)] out IBinding? binding)
+        {
+            foreach (var c in channel.Components)
+            {
+                if (c is IBinding b && b.Module == module)
+                {
+                    binding = b;
+                    return true;
+                }
+            }
+            binding = null;
+            return false;
+        }
+    }
+
+    public interface IBinding : IDisposable
+    {
+        IModule Module { get; }
+
+        string ShortLabel => Module?.Name ?? GetType().Name;
+
+        string? Description { get; }
+
+        bool GotCreatedViaNode { get; }
     }
 }
 

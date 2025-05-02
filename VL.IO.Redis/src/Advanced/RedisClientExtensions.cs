@@ -24,7 +24,11 @@ namespace VL.IO.Redis.Advanced
         {
             if (client is null) throw new ArgumentNullException(nameof(client));
 
-            var db = client.GetDatabase();
+            var internalClient = client.InternalRedisClient;
+            if (internalClient is null)
+                return defaultValue;
+
+            var db = internalClient.GetDatabase();
             if (db is null)
                 return defaultValue;
 
@@ -52,7 +56,11 @@ namespace VL.IO.Redis.Advanced
         {
             if (client is null) throw new ArgumentNullException(nameof(client));
 
-            var db = client.GetDatabase();
+            var internalClient = client.InternalRedisClient;
+            if (internalClient is null)
+                return defaultValue;
+
+            var db = internalClient.GetDatabase();
             if (db is null)
                 return defaultValue;
 
@@ -73,7 +81,11 @@ namespace VL.IO.Redis.Advanced
         {
             if (client is null) throw new ArgumentNullException(nameof(client));
 
-            var db = client.GetDatabase();
+            var internalClient = client.InternalRedisClient;
+            if (internalClient is null)
+                return false;
+
+            var db = internalClient.GetDatabase();
             if (db is null)
                 return false;
 
@@ -91,7 +103,11 @@ namespace VL.IO.Redis.Advanced
         {
             if (client is null) throw new ArgumentNullException(nameof(client));
 
-            var db = client.GetDatabase();
+            var internalClient = client.InternalRedisClient;
+            if (internalClient is null)
+                return false;
+
+            var db = internalClient.GetDatabase();
             if (db is null)
                 return false;
 

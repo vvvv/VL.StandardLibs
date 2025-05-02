@@ -63,7 +63,7 @@ namespace VL.IO.Redis
             var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat.ToNullable(), expiry.ToNullable(), when);
             try
             {
-                _current.Disposable = client.AddBinding(model, input, logger: _logger);
+                _current.Disposable = client.AddBinding(model, input, gotCreatedViaNode: true, logger: _logger);
             }
             catch (Exception e)
             {

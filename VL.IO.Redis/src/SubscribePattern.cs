@@ -20,7 +20,7 @@ namespace VL.IO.Redis
         private readonly Subject<ChannelMessage<T?>> _subject = new();
         private readonly ILogger _logger;
 
-        record struct Config(RedisClient? Client, string? Pattern, SerializationFormat? Format, bool ProcessMessagesConcurrently);
+        record struct Config(RedisClient? Client, ConnectionMultiplexer? Multiplexer, string? Pattern, SerializationFormat? Format, bool ProcessMessagesConcurrently);
 
         private Config _config;
 
@@ -41,7 +41,7 @@ namespace VL.IO.Redis
             string? pattern = null,
             Optional<SerializationFormat> serializationFormat = default)
         {
-            var config = new Config(client, pattern, serializationFormat.ToNullable(), ProcessMessagesConcurrently: false);
+            var config = new Config(client, client?.InternalRedisClient?.Multiplexer, pattern, serializationFormat.ToNullable(), ProcessMessagesConcurrently: false);
             if (config != _config)
             {
                 _config = config;
@@ -56,10 +56,10 @@ namespace VL.IO.Redis
             _subscription.Disposable = null;
 
             var client = config.Client;
-            if (client is null || string.IsNullOrEmpty(config.Pattern))
+            if (client is null || config.Multiplexer is null || string.IsNullOrEmpty(config.Pattern))
                 return;
 
-            var subscriber = client.GetSubscriber();
+            var subscriber = config.Multiplexer.GetSubscriber();
             var channel = new RedisChannel(config.Pattern, RedisChannel.PatternMode.Pattern);
 
             if (config.ProcessMessagesConcurrently)

@@ -22,26 +22,25 @@ namespace VL.IO.Redis.Internal
         private readonly ILogger? _logger;
         private readonly IChannel<T> _channel;
         private readonly BindingModel _bindingModel;
-        private readonly Experimental.RedisModule? _module;
         private readonly string? _channelName;
 
         private bool _initialized;
         private bool _weHaveNewData;
         private bool _othersHaveNewData;
 
-        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel, Experimental.RedisModule? module, ILogger? logger, string? channelName = null)
+        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel, bool gotCreatedViaNode, ILogger? logger, string? channelName = null)
         {
             _client = client;
             _logger = logger;
             _channel = channel;
             _bindingModel = bindingModel;
-            _module = module;
             _channelName = channelName;
+            GotCreatedViaNode = gotCreatedViaNode;
 
             _initialized = bindingModel.Initialization == Initialization.None;
             _authorId = GetHashCode().ToString();
 
-            _clientSubscription.Disposable = client.Subscribe(this);
+            _clientSubscription.Disposable = client.Manager.Subscribe(this);
             _channelSubscription.Disposable = channel.Subscribe(v =>
             {
                 if (_channel.LatestAuthor != _authorId)
@@ -71,7 +70,7 @@ namespace VL.IO.Redis.Internal
                 _othersHaveNewData = true;
         }
 
-        void IParticipant.BuildUp(TransactionBuilder builder)
+        void IParticipant.BuildUp(RedisClientInternal redisClientInternal, TransactionBuilder builder)
         {
             var needToReadFromDb = NeedToReadFromDb();
             var needToWriteToDb = NeedToWriteToDb();
@@ -132,7 +131,7 @@ namespace VL.IO.Redis.Internal
                             return;
                         }
 
-                        await _client.NetworkSync.Take(1);
+                        await redisClientInternal.NetworkSync.Take(1);
 
                         _channel.SetValueAndAuthor(value, author: _authorId);
                     }
@@ -159,28 +158,12 @@ namespace VL.IO.Redis.Internal
             }
         }
 
-        IModule? IBinding.Module => _module;
+        IModule IBinding.Module => _client;
 
         string IBinding.ShortLabel => "Redis";
 
         string? IBinding.Description => _bindingModel.Key;
 
-        BindingType IBinding.BindingType
-        {
-            get
-            {
-                switch (_bindingModel.BindingType)
-                {
-                    case BindingDirection.In:
-                        return BindingType.Receive;
-                    case BindingDirection.Out:
-                        return BindingType.Send;
-                    case BindingDirection.InOut:
-                        return BindingType.SendAndReceive;
-                    default:
-                        return BindingType.None;
-                }
-            }
-        }
+        public bool GotCreatedViaNode { get; }
     }
 }
