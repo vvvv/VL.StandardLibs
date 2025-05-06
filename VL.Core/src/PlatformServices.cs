@@ -8,6 +8,8 @@
     public interface IPlatformServices
     {
         IClipboard Clipboard { get; }
+        Optional<string> ShowFileDialog(string initialDirectory, string filter = "All files (*.*)|*.*");
+        Optional<string> ShowDirectoryDialog(string initialDirectory, string selectedPath);
     }
 
     public interface IClipboard
