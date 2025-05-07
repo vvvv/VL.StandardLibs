@@ -11,7 +11,7 @@ namespace VL.ImGui.Widgets
 
     [GenerateNode(Name = "Input (Path)", Category = "ImGui.Widgets", Tags = "edit")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputPath : ChannelWidget<Path>, IHasInputTextFlags
+    internal partial class InputPath : ChannelWidget<Path>
     {
         private readonly IsDirectoryValueSelector isDirectoryValueSelector = new ();
         private readonly FilterValueSelector filterValueSelector = new();
@@ -27,32 +27,49 @@ namespace VL.ImGui.Widgets
 
         public Optional<string> Filter { get => default; set => filterValueSelector.SetPinValue(value); }
 
-        public ImGuiInputTextFlags Flags { get; set; }
-
         Path? lastframeValue;
 
         internal override void UpdateCore(Context context)
         {
-            var value = Update() ?? Path.Default;
-            var s = value.ToString();
-            if (ImGui.InputText(textLabel.Update(null), ref s, ushort.MaxValue, Flags))
-                SetValueIfChanged(lastframeValue, value = new Path(s), Flags);
+            ImGui.BeginGroup();
 
-            ImGui.SameLine();
-
-            if (ImGui.Button(widgetLabel.Update(label.Value)))
+            try
             {
-                var filter = filterValueSelector.Value;
-                var isDirectory = isDirectoryValueSelector.Value;
-                var initialDirectory = value.IsDirectory ? value : value.Parent;
-                var result = isDirectory ? 
-                    PlatformServices.Default.ShowDirectoryDialog(initialDirectory, value) : 
-                    PlatformServices.Default.ShowFileDialog(initialDirectory, filter);
-                if (result.HasValue)
-                    SetValueIfChanged(lastframeValue, value = new Path(result.Value), Flags);
-            }
 
-            lastframeValue = value;
+                var l = label.HasValue ? label.Value : "...";
+                var padding = ImGui.GetStyle().FramePadding;
+                var width = ImGui.CalcItemWidth() - (padding.Y * 2 + ImGui.GetStyle().ItemInnerSpacing.X + ImGui.CalcTextSize(l).X);
+                ImGui.SetNextItemWidth(width);
+
+                var value = Update() ?? Path.Default;
+                var s = value.ToString();
+                if (ImGui.InputText(textLabel.Update(null), ref s, ushort.MaxValue))
+                    SetValueIfChanged(lastframeValue, value = new Path(s), default);
+
+                ImGui.SameLine(0, ImGui.GetStyle().ItemInnerSpacing.X);
+
+                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new System.Numerics.Vector2(padding.Y, padding.Y));
+
+                if (ImGui.Button(widgetLabel.Update(l)))
+                {
+                    var filter = filterValueSelector.Value;
+                    var isDirectory = isDirectoryValueSelector.Value;
+                    var initialDirectory = value.IsDirectory ? value : value.Parent;
+                    var result = isDirectory ? 
+                        PlatformServices.Default.ShowDirectoryDialog(initialDirectory, value) : 
+                        PlatformServices.Default.ShowFileDialog(initialDirectory, filter);
+                    if (result.HasValue)
+                        SetValueIfChanged(lastframeValue, value = new Path(result.Value), default);
+                }
+
+                ImGui.PopStyleVar();
+
+                lastframeValue = value;
+            } 
+            finally
+            { 
+                ImGui.EndGroup(); 
+            }
         }
 
         sealed class IsDirectoryValueSelector : ValueSelector<bool>
