@@ -60,10 +60,10 @@ namespace VL.IO.Redis
             if (client is null || input is null || string.IsNullOrWhiteSpace(key))
                 return;
 
-            var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat.ToNullable(), expiry.ToNullable(), when);
+            var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat.ToNullable(), expiry.ToNullable(), when, CreatedViaNode: true);
             try
             {
-                _current.Disposable = client.AddBinding(model, input, logger: _logger);
+                _current.Disposable = client.AddBinding(model, input, client._module, logger: _logger);
             }
             catch (Exception e)
             {

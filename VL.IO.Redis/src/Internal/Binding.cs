@@ -182,5 +182,7 @@ namespace VL.IO.Redis.Internal
                 }
             }
         }
+
+        bool IBinding.GotCreatedViaNode => Model.CreatedViaNode;
     }
 }

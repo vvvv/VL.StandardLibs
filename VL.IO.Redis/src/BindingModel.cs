@@ -20,5 +20,6 @@ namespace VL.IO.Redis
         CollisionHandling CollisionHandling = default, 
         SerializationFormat? SerializationFormat = default,
         TimeSpan? Expiry = null,
-        When When = When.Always);
+        When When = When.Always,
+        bool CreatedViaNode = false);
 }

@@ -19,7 +19,7 @@ namespace VL.IO.Redis.Experimental
     // Patch calls AddBinding and later RemoveBinding.
     // Both methods will subsequently push a new model.
     // Internally we only need to keep the model in sync with what bindings we have at runtime.
-    [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
+    [ProcessNode(Name = "RedisClient", FragmentSelection = FragmentSelection.Explicit)]
     public sealed class RedisModule : IModule, IDisposable
     {
         private readonly ILogger _logger;
@@ -76,7 +76,7 @@ namespace VL.IO.Redis.Experimental
         [Fragment]
         public void Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, int database = -1, SerializationFormat serializationFormat = SerializationFormat.MessagePack, bool connectAsync = true)
         {
-            var client = _redisClientManager.Update(configuration, configure, database, serializationFormat, connectAsync);
+            var client = _redisClientManager.Update(configuration, configure, database, serializationFormat, connectAsync, this);
             if (client != _redisClient)
             {
                 _redisClient = client;
@@ -126,7 +126,7 @@ namespace VL.IO.Redis.Experimental
             var obsoleteBindings = new List<IRedisBinding>();
             foreach (var binding in _redisClient.Bindings)
             {
-                if (binding.Module != this)
+                if (binding.Module != this || binding.GotCreatedViaNode)
                     continue;
 
                 var key = binding.Model.Key;

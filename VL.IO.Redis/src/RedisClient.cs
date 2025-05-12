@@ -13,6 +13,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using VL.Core;
 using VL.Core.Import;
+using VL.IO.Redis.Experimental;
 using VL.IO.Redis.Internal;
 using VL.Lib.Animation;
 using VL.Lib.Collections;
@@ -33,16 +34,17 @@ namespace VL.IO.Redis
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly Subject<Unit> _networkSync = new Subject<Unit>();
         private readonly AppHost _appHost;
-
+        internal readonly RedisModule _module;
         private ImmutableArray<IParticipant> _participants = ImmutableArray<IParticipant>.Empty;
 
         private Task? _lastTransaction;
 
-        public RedisClient(AppHost appHost, ConnectionMultiplexer multiplexer, ILogger logger)
+        public RedisClient(AppHost appHost, ConnectionMultiplexer multiplexer, ILogger logger, RedisModule module)
         {
             _appHost = appHost;
             _multiplexer = multiplexer;
             _logger = logger;
+            _module = module;
 
             // This opens a Pub/Sub connection internally
             var subscriber = multiplexer.GetSubscriber();
