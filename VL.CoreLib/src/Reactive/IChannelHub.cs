@@ -45,6 +45,8 @@ namespace VL.Core.Reactive
     public interface IPlainProcessNode
     {
         void Update();
+
+        void Ok();
     }
 
 
