@@ -6,10 +6,12 @@ using System.Linq;
 using VL.Core;
 using VL.Lib.Collections;
 using VL.Core.Utils;
+using System.Runtime.Serialization;
 
 namespace VL.Lib.IO
 {
     [Serializable]
+    [DataContract]
     public partial class Path : IEquatable<Path>
     {
         public static readonly Path Default = new Path(string.Empty);
@@ -27,6 +29,9 @@ namespace VL.Lib.IO
 
         [NonSerialized]
         private Spread<Path> _children;
+
+        [DataMember(Order = 0)]
+        public string Value => _path;
         
         public Path(string path)
         {

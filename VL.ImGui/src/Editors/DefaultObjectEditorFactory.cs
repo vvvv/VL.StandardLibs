@@ -71,7 +71,7 @@ namespace VL.ImGui.Editors
 
         private static WidgetType GetDefaultWidgetType(Type type)
         {
-            if (IsNumericType(type) || IsVectorType(type))
+            if (IsNumericType(type) || IsVectorType(type) || type == typeof(TimeSpan))
                 return WidgetType.Drag;
 
             if (type == typeof(string))

@@ -4,6 +4,7 @@ using VL.Core;
 using VL.Core.CompilerServices;
 using VL.Lib.IO.Ports;
 using VL.TestFramework;
+using Path = VL.Lib.IO.Path;
 
 namespace VL.Serialization.MessagePack.Tests
 {
@@ -86,6 +87,15 @@ namespace VL.Serialization.MessagePack.Tests
             Assert.AreEqual("\"Foo\"", content);
             var result = MessagePackSerialization.DeserializeJson<ComPort>(content);
             Assert.AreEqual(comPort, result);
+        }
+
+        [Test]
+        public void PathSerialization()
+        {
+            var path = new Path("Foo");
+            var content = MessagePackSerialization.Serialize(path);
+            var result = MessagePackSerialization.Deserialize<Path>((IEnumerable<byte>)content);
+            Assert.AreEqual(path, result);
         }
 
         [MessagePackObject]

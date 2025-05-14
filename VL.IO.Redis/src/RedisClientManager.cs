@@ -3,6 +3,7 @@ using StackExchange.Redis;
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using VL.Core;
@@ -92,6 +93,13 @@ namespace VL.IO.Redis
             if (configure != null)
                 options.Apply(configure);
 
+            ref var abortOnConnectFail = ref GetAbortOnConnectFail(options);
+            if (!abortOnConnectFail.HasValue)
+                options.AbortOnConnectFail = false;
+            ref var connectRetry = ref GetConnectRetry(options);
+            if (!connectRetry.HasValue)
+                options.ConnectRetry = int.MaxValue;
+
             options.LoggerFactory ??= _nodeContext.AppHost.LoggerFactory;
             options.Protocol = RedisProtocol.Resp2;
             // Attach our unique id so we can identify our pub/sub connection later (see below)
@@ -114,6 +122,12 @@ namespace VL.IO.Redis
             {
                 _logger.LogError(e, $"Failed to connect");
             }
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "abortOnConnectFail")]
+            extern static ref bool? GetAbortOnConnectFail(ConfigurationOptions c);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "connectRetry")]
+            extern static ref int? GetConnectRetry(ConfigurationOptions c);
         }
 
         private void WriteIntoGlobalChannels(SubFrameMessage message)
