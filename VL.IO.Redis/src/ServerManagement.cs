@@ -1,4 +1,9 @@
-﻿using VL.Core.Import;
+﻿using System;
+using System.ComponentModel;
+using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using VL.Core.Import;
 using VL.Core.Utils;
 using VL.Lib.Collections;
 
@@ -49,6 +54,7 @@ namespace VL.IO.Redis
         /// Returns keys available in the database
         /// </summary>
         [ProcessNode(Name = "Scan")]
+        [Obsolete("Use ScanAsync instead")]
         public class ScanNode
         {
             private RedisClient? _client;
@@ -83,6 +89,51 @@ namespace VL.IO.Redis
                 foreach (var key in server.Keys(client.Database, pattern))
                     builder.Add(key.ToString());
                 return builder.Commit();
+            }
+        }
+
+        [ProcessNode(Name = "ScanAsync")]
+        public class ScanAsyncNode
+        {
+            private RedisClient? _client;
+            private string? _pattern;
+            private IObservable<Spread<string>> _keys = Observable.Empty<Spread<string>>();
+            private Spread<string> _keysCache = Spread<string>.Empty;
+
+            [return: Pin(Name = "Client")]
+            public IObservable<Spread<string>> Update(RedisClient? client, string? pattern, [DefaultValue(1f)] float period)
+            {
+                if (client != _client || pattern != _pattern)
+                {
+                    _client = client;
+                    _pattern = pattern;
+                    _keys = Observable.FromAsync(token => ScanAsync(client, pattern, token))
+                        .RepeatWhen(s => s.Delay(TimeSpan.FromSeconds(period)));
+                }
+
+                return _keys;
+            }
+
+            private async Task<Spread<string>> ScanAsync(RedisClient? client, string? pattern, CancellationToken cancellationToken)
+            {
+                if (client is null)
+                    return Spread<string>.Empty;
+
+                var server = client.GetServer();
+                if (server is null)
+                    return Spread<string>.Empty;
+
+                try
+                {
+                    var builder = CollectionBuilders.GetBuilder(_keysCache, 0);
+                    await foreach (var key in server.KeysAsync(client.Database, pattern).WithCancellation(cancellationToken).ConfigureAwait(false))
+                        builder.Add(key.ToString());
+                    return _keysCache = builder.Commit();
+                }
+                catch (Exception)
+                {
+                    return Spread<string>.Empty;
+                }
             }
         }
     }
