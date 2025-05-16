@@ -113,14 +113,14 @@ namespace VL.IO.Redis
 
         internal bool TryGetBinding(string key, [NotNullWhen(true)] out IRedisBinding? binding) => _bindings.TryGetValue(key, out binding);
 
-        internal IRedisBinding AddBinding(BindingModel model, IChannel channel, Experimental.RedisModule? module = null, ILogger? logger = null, string? channelName = null)
+        internal IRedisBinding AddBinding(ResolvedBindingModel model, IChannel channel, Experimental.RedisModule? module = null, ILogger? logger = null)
         {
             if (_bindings.ContainsKey(model.Key))
                 throw new InvalidOperationException($"The Redis key \"{model.Key}\" is already bound to a different channel.");
 
             var binding = (IRedisBinding)Activator.CreateInstance(
                 type: typeof(Binding<>).MakeGenericType(channel.ClrTypeOfValues),
-                args: [this, channel, model, module, logger, channelName])!;
+                args: [this, channel, model, module, logger])!;
             _bindings[model.Key] = binding;
             return binding;
         }

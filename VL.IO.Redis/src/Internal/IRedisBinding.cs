@@ -7,7 +7,6 @@ namespace VL.IO.Redis.Internal
     /// </summary>
     public interface IRedisBinding : IBinding
     {
-        public string? ChannelName { get; }
-        public BindingModel Model { get; }
+        public ResolvedBindingModel Model { get; }
     }
 }

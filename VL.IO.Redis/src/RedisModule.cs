@@ -74,8 +74,21 @@ namespace VL.IO.Redis.Experimental
         }
 
         [Fragment]
-        public void Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, int database = -1, SerializationFormat serializationFormat = SerializationFormat.MessagePack, bool connectAsync = true)
+        public void Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, int database = -1,
+            Initialization initialization = Initialization.Redis,
+            BindingDirection bindingType = BindingDirection.InOut,
+            [Pin(Visibility = PinVisibility.Optional)] CollisionHandling collisionHandling = CollisionHandling.None,
+            SerializationFormat serializationFormat = SerializationFormat.MessagePack,
+            [Pin(Visibility = PinVisibility.Optional)] Optional<TimeSpan> expiry = default,
+            [Pin(Visibility = PinVisibility.Optional)] When when = When.Always,
+            bool connectAsync = true)
         {
+            Initialization = initialization;
+            BindingType = bindingType;
+            CollisionHandling = collisionHandling;
+            SerializationFormat = serializationFormat;
+            Expiry = expiry.ToNullable();
+            When = when;
             var client = _redisClientManager.Update(configuration, configure, database, serializationFormat, connectAsync, this);
             if (client != _redisClient)
             {
@@ -84,6 +97,14 @@ namespace VL.IO.Redis.Experimental
                     UpdateBindingsFromModel(_modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty);
             }
         }
+
+        public Initialization Initialization { get; internal set; } = Initialization.Redis;
+        public BindingDirection BindingType { get; internal set; } = BindingDirection.InOut;
+        public CollisionHandling CollisionHandling { get; internal set; } = CollisionHandling.None;
+        public SerializationFormat SerializationFormat { get; internal set; } = SerializationFormat.MessagePack;
+        public TimeSpan? Expiry { get; internal set; }
+        public When When { get; internal set; } = When.Always;
+
 
         [Fragment]
         public RedisClient? Client => _redisClient;
@@ -95,20 +116,20 @@ namespace VL.IO.Redis.Experimental
         public string ClientName => _redisClientManager.ClientName;
 
         // Called from patched ModuleView
-        public void AddBinding(string channelPath, IChannel channel, BindingModel bindingModel)
+        public void AddBinding(IChannel channel, BindingModel bindingModel)
         {
             // Save in our pin - this will trigger a sync
             var model = _modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty;
-            _modelStream.Value = model.SetItem(channelPath, bindingModel);
+            _modelStream.Value = model.SetItem(channel.Path!, bindingModel);
         }
 
         // Called from patched ModuleView
         public void RemoveBinding(IRedisBinding binding)
         {
             var model = _modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty;
-            if (binding.ChannelName != null)
+            if (binding.Model.PublicChannelPath != null)
             {
-                var updatedModel = model.Remove(binding.ChannelName);
+                var updatedModel = model.Remove(binding.Model.PublicChannelPath);
                 if (updatedModel != model)
                     _modelStream.Value = updatedModel;
             }
@@ -133,7 +154,7 @@ namespace VL.IO.Redis.Experimental
                 if (model.TryGetValue(key, out var bindingModel))
                 {
                     // Did the model change?
-                    if (binding.Model != bindingModel)
+                    if (binding.Model.Model != bindingModel)
                         obsoleteBindings.Add(binding);
                 }
                 else
@@ -167,7 +188,7 @@ namespace VL.IO.Redis.Experimental
 
                 try
                 {
-                    _redisClient.AddBinding(bindingModel, channel, this, channelName: channelName);
+                    _redisClient.AddBinding(bindingModel.Resolve(_redisClient._module, channel), channel, this);
                 }
                 catch (Exception e)
                 {
