@@ -635,10 +635,39 @@ namespace System.Reflection
             }
         }
 
+        public static bool HasAttribute<TAttribute>(this MemberInfo memberInfo)
+            where TAttribute : Attribute
+        {
+            return memberInfo.IsDefined(typeof(TAttribute));
+        }
+
         public static bool TryGetCloneMethodOfRecord(this Type type, [NotNullWhen(true)] out MethodInfo? cloneMethod)
         {
             cloneMethod = s_cloneMethods.GetValue(type, static type => type.GetMethod("<Clone>$"));
             return cloneMethod is not null;
+        }
+
+        private static ConditionalWeakTable<Type, Result> s_isRecord = new();
+
+        public static bool IsRecord(this Type type) => s_isRecord.GetValue(type, t => Result.From(t)).Value;
+
+        private record Result(bool Value)
+        {
+            public static Result From(Type type)
+            {
+                if (type.IsValueType)
+                    return new Result(HasDeconstructMethod(type));
+
+                return new Result(type.TryGetCloneMethodOfRecord(out _));
+
+                static bool HasDeconstructMethod(Type type)
+                {
+                    var m = type.GetMethod("Deconstruct");
+                    if (m is null)
+                        return false;
+                    return m.HasAttribute<CompilerGeneratedAttribute>();
+                }
+            }
         }
     }
 }

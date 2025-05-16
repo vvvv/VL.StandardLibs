@@ -176,6 +176,7 @@ namespace VL.Core
         IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
 
+#nullable enable
     /// <summary>
     /// Interface to interact with VL properties.
     /// </summary>
@@ -228,7 +229,7 @@ namespace VL.Core
         /// </summary>
         /// <param name="instance">The instance to get the value from.</param>
         /// <returns>The value of the property.</returns>
-        object GetValue(IVLObject instance);
+        object? GetValue(object instance);
 
         /// <summary>
         /// Sets the property value of the given instance.
@@ -236,10 +237,11 @@ namespace VL.Core
         /// <param name="instance">The instance to set the value on.</param>
         /// <param name="value">The value to set.</param>
         /// <returns>The instance with the newly set value.</returns>
-        IVLObject WithValue(IVLObject instance, object value);
+        object WithValue(object instance, object? value);
 
         new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
+#nullable restore
 
     public struct ObjectGraphNode
     {
@@ -285,6 +287,8 @@ namespace VL.Core
             : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
+
+        public override string ToString() => Path;
     }
 
     public static class VLFactoryExtensions
@@ -1161,36 +1165,17 @@ namespace VL.Core
         /// <param name="value">The value to set.</param>
         /// <param name="pathExists">The path exists.</param>
         /// <returns>The new root instance (if it is a record) with the updated spine.</returns>
-
         public static TInstance WithValueByPath<TInstance, TValue>(this TInstance instance, string path, TValue value, out bool pathExists)
-            where TInstance : class
+            => (TInstance)WithValueByPathCore(instance, path, value, out pathExists);
+
+        private static object WithValueByPathCore(this object instance, string path, object value, out bool pathExists)
         {
             pathExists = false;
 
             if (path == "")
             {
                 pathExists = true;
-                return value as TInstance;
-            }
-
-            if (instance is IVLObject vlObj)
-            {
-                var match = FPropertyRegex.Match(path);
-                if (match.Success)
-                {
-                    var property = match.Groups[1].Value;
-                    var rest = match.Groups[2].Value;
-                    if (vlObj.TryGetValue(property, default(object), out var o, out pathExists))
-                    {
-                        o = o.WithValueByPath(rest, value, out pathExists);
-                        return vlObj.WithValue(property, o) as TInstance;
-                    }
-                    if (pathExists && rest == "")
-                    {
-                        return vlObj.WithValue(property, value) as TInstance;
-                    }
-                }
-                return instance;
+                return value;
             }
 
             if (instance is ISpread spread)
@@ -1204,8 +1189,8 @@ namespace VL.Core
                         {
                             var rest = match.Groups[2].Value;
                             var o = spread.GetItem(index);
-                            o = o.WithValueByPath(rest, value, out pathExists);
-                            return spread.SetItem(index, o) as TInstance;
+                            o = o.WithValueByPathCore(rest, value, out pathExists);
+                            return spread.SetItem(index, o);
                         }
                     }
                 }
@@ -1222,8 +1207,8 @@ namespace VL.Core
                     if (dict.Contains(key))
                     {
                         var o = dict[key];
-                        o = o.WithValueByPath(rest, value, out pathExists);
-                        return SetItem(dict, key, o) as TInstance;
+                        o = o.WithValueByPathCore(rest, value, out pathExists);
+                        return SetItem(dict, key, o);
                     }
                 }
                 return instance;
@@ -1240,36 +1225,33 @@ namespace VL.Core
                         {
                             var rest = match.Groups[2].Value;
                             var o = list[index];
-                            o = o.WithValueByPath(rest, value, out pathExists);
-                            return SetItem(list, index, o) as TInstance;
+                            o = o.WithValueByPathCore(rest, value, out pathExists);
+                            return SetItem(list, index, o);
                         }
                     }
                 }
                 return instance;
             }
 
+            if (instance is not null)
             {
                 var match = FPropertyRegex.Match(path);
                 if (match.Success)
                 { 
-                    var type = instance.GetType();
+                    var type = instance.GetVLTypeInfo();
                     var propertyName = match.Groups[1].Value;
                     var rest = match.Groups[2].Value;
                     var property = type.GetProperty(propertyName);
                     if (property != null)
                     {
                         var o = property.GetValue(instance);
-                        o = o.WithValueByPath(rest, value, out pathExists);
-                        if (property.SetMethod != null)
-                        {
-                            if (type.TryGetCloneMethodOfRecord(out var cloneMethod))
-                                instance = (TInstance)cloneMethod.Invoke(instance, null);
-                            property.SetValue(instance, o);
-                        }
+                        o = o.WithValueByPathCore(rest, value, out pathExists);
+                        return property.WithValue(instance, o);
                     }
                 }
-                return instance;
             }
+
+            return instance;
         }
 
         static IDictionary SetItem(IDictionary dict, object key, object value)
@@ -1319,8 +1301,8 @@ namespace VL.Core
             public bool ShouldBeSerialized => false;
             public IVLTypeInfo Type => VLObjectExtensions.Default.Type;
             public object DefaultValue => null;
-            public object GetValue(IVLObject instance) => null;
-            public IVLObject WithValue(IVLObject instance, object value) => instance;
+            public object GetValue(object instance) => null;
+            public object WithValue(object instance, object value) => instance;
             public Spread<Attribute> Attributes => Spread<Attribute>.Empty;
         }
 

@@ -95,25 +95,6 @@ namespace VL.ImGui
 
                 //ImGui.EndCombo();
             }
-            else if (value is IVLObject vObject)
-            {
-                var properties = vObject.Type.Properties;
-                if (properties.Count > 0)
-                {
-                    ImGui.BeginGroup();
-                    foreach (var p in properties)
-                    {
-                        var v = p.GetValue(vObject);
-                        if (InputObject(p.OriginalName, ref v))
-                        {
-                            isModified = true;
-                            vObject = p.WithValue(vObject, v);
-                        }
-                    }
-                    value = vObject;
-                    ImGui.EndGroup();
-                }
-            }
             else if (value is ISpread spread)
             {
                 if (ImGui.BeginListBox(label))
@@ -164,6 +145,24 @@ namespace VL.ImGui
                     value = dict;
 
                     ImGui.EndTable();
+                }
+            }
+            else if (value is not null)
+            {
+                var properties = value.GetVLTypeInfo().Properties;
+                if (properties.Count > 0)
+                {
+                    ImGui.BeginGroup();
+                    foreach (var p in properties)
+                    {
+                        var v = p.GetValue(value);
+                        if (InputObject(p.OriginalName, ref v))
+                        {
+                            isModified = true;
+                            value = p.WithValue(value, v);
+                        }
+                    }
+                    ImGui.EndGroup();
                 }
             }
             else

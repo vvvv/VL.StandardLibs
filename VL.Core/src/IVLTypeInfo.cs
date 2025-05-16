@@ -88,8 +88,9 @@ namespace VL.Core
         /// If there's no default constructor registered for this type it will fallback to the default value.
         /// </summary>
         /// <param name="context">The node context to use. Used by patched types.</param>
+        /// <param name="arguments">The arguments to use for the constructor.</param>
         /// <returns>The new instance.</returns>
-        object? CreateInstance(NodeContext context);
+        object? CreateInstance(NodeContext context, IReadOnlyDictionary<string, object?>? arguments = null);
 
         /// <summary>
         /// Retrieves the default value of this type. 
