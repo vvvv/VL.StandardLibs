@@ -123,7 +123,8 @@ namespace VL.ImGui.Editors.Implementations
                     SameLine();
                 }
 
-                SetNextItemWidth(-1f);
+                var x = GetCursorPosX() - GetStyle().ItemSpacing.X;
+                SetNextItemWidth(CalcItemWidth() - x);
 
                 if (hasValue)
                 {
@@ -131,7 +132,10 @@ namespace VL.ImGui.Editors.Implementations
                 }
                 else
                 {
-                    LabelText(textLabel, "Not set");
+                    var s = "";
+                    BeginDisabled();
+                    InputTextWithHint(editorContext.LabelForImGUI, "Not set", ref s, 100);
+                    EndDisabled();
                 }
             }
             finally
