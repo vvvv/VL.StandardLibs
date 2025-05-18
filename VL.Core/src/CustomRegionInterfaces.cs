@@ -56,10 +56,12 @@ namespace VL.Core.PublicAPI
         /// If the context is immutable it will return a new instance of the type when necessary
         /// </summary>
         /// <param name="inputs">The inputs from the inside perspective</param>
-        /// <param name="incomingLinks">The values traveling along the links that cross the region boundaries. If you don't connect anything it will autoconnect to CustomRegion.IncomingLinkValues.</param>
         /// <param name="outputs">The outputs from the inside perspective</param>
+        /// <param name="patchInputs">The inputs as defined by the delegate type</param>
+        /// <param name="patchOutputs">The outputs as defined by the delegate type</param>
+        /// <param name="incomingLinks">The values traveling along the links that cross the region boundaries. If you don't connect anything it will autoconnect to CustomRegion.IncomingLinkValues.</param>
         /// <returns></returns>
-        public ICustomRegionPatch Update(IReadOnlyList<object> inputs, out Spread<object> outputs, IReadOnlyList<object> incomingLinks);
+        public ICustomRegionPatch Update(IReadOnlyList<object> inputs, out Spread<object> outputs, IReadOnlyList<object> patchInputs, out Spread<object> patchOutputs, IReadOnlyList<object> incomingLinks);
     }
 
     /// <summary>
