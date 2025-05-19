@@ -92,7 +92,7 @@ namespace VL.Lib.Reactive
                 return;
             }
 
-            var channelHub = AppHost.Current.Services.GetRequiredService<IChannelHub>();
+            var channelHub = AppHost.Current.Services.GetRequiredService<IChannelHub>() as ChannelHub;
             var parent = main as IChannel<object>;
             IChannel<object> channel = null;
             var handleOnSomeSyncs = new CompositeDisposable();
@@ -100,10 +100,10 @@ namespace VL.Lib.Reactive
             foreach (var n in yieldPathToNode(node.Value).Skip(1))
             {
                 var globalPath = main.Path + n.Path;
-                channel = channelHub.TryGetChannel(globalPath);
+                channel = channelHub.TryGetAnonymousChannelsChannel(globalPath);
                 if (channel == null)
                 {
-                    channel = channelHub.TryAddChannel(globalPath, typeof(object));
+                    channel = channelHub.TryAddAnonymousChannelsChannel(globalPath, typeof(object));
                     ChannelHelpers.InitSubChannel(channel, n);
                 }
 
