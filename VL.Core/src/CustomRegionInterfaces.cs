@@ -52,6 +52,21 @@ namespace VL.Core.PublicAPI
     public interface ICustomRegionPatch
     {
         /// <summary>
+        /// The inputs the user placed on the region border from the inside perspective.
+        /// </summary>
+        public IReadOnlyList<object> Inputs { set; }
+
+        /// <summary>
+        /// The values traveling along the links that cross the region boundaries. Defaults to CustomRegion.IncomingLinkValues.
+        /// </summary>
+        public IReadOnlyList<object> IncomingLinks { set; }
+
+        /// <summary>
+        /// The outputs the user placed on the region border from the inside perspective.
+        /// </summary>
+        public Spread<object> Outputs { get; }
+
+        /// <summary>
         /// Updates the patch state by calling what the user patched
         /// If the context is immutable it will return a new instance of the type when necessary
         /// </summary>
@@ -113,5 +128,11 @@ namespace VL.Core.PublicAPI
         /// Happens when users are patching or on fresh start
         /// </summary>
         public bool PatchHasChanged { get; }
+    }
+
+    public interface ICustomRegion<out TPatch> : ICustomRegion
+        where TPatch : ICustomRegionPatch
+    {
+        public new TPatch CreateRegionPatch(NodeContext Context, IReadOnlyList<object> initialInputs, out Spread<object> initialOutputs);
     }
 }
