@@ -44,12 +44,18 @@ namespace VL.Core.PublicAPI
         }
     }
 
+    internal sealed class IgnoreMemberAttribute : Attribute
+    {
+        public IgnoreMemberAttribute()
+        {
+        }
+    }
 
     /// <summary>
     /// This represents the user patch inside the region
     /// You may create and manage several patch states by calling CreateRegionPatch
     /// </summary>
-    public interface ICustomRegionPatch
+    public interface ICustomRegionPatchBase
     {
         /// <summary>
         /// The inputs the user placed on the region border from the inside perspective.
@@ -65,6 +71,11 @@ namespace VL.Core.PublicAPI
         /// The outputs the user placed on the region border from the inside perspective.
         /// </summary>
         public Spread<object> Outputs { get; }
+    }
+
+    public interface ICustomRegionPatch : ICustomRegionPatchBase
+    {
+        public void Update();
 
         /// <summary>
         /// Updates the patch state by calling what the user patched
@@ -74,14 +85,27 @@ namespace VL.Core.PublicAPI
         /// <param name="incomingLinks">The values traveling along the links that cross the region boundaries. If you don't connect anything it will autoconnect to CustomRegion.IncomingLinkValues.</param>
         /// <param name="outputs">The outputs from the inside perspective</param>
         /// <returns></returns>
+        [IgnoreMember]
         public ICustomRegionPatch Update(IReadOnlyList<object> inputs, out Spread<object> outputs, IReadOnlyList<object> incomingLinks);
+
+        /// <inheritdoc cref="ICustomRegionPatchBase.Inputs" />
+        [IgnoreMember]
+        public new IReadOnlyList<object> Inputs { set; }
+
+        /// <inheritdoc cref="ICustomRegionPatchBase.IncomingLinks" />
+        [IgnoreMember]
+        public new IReadOnlyList<object> IncomingLinks { set; }
+
+        /// <inheritdoc cref="ICustomRegionPatchBase.Outputs" />
+        [IgnoreMember]
+        public new Spread<object> Outputs { get; }
     }
 
     /// <summary>
     /// Represents the application of your region by the user, the values that flow into the region and outof. 
     /// It also allows you to instanciate what's inside: the patch of the user. 
     /// </summary>
-    public interface ICustomRegion
+    public interface ICustomRegion<out TPatch> where TPatch : ICustomRegionPatchBase
     {
         /// <summary>
         /// The inputs from an outside perspective
@@ -122,7 +146,7 @@ namespace VL.Core.PublicAPI
         /// <param name="initialInputs"></param>
         /// <param name="initialOutputs"></param>
         /// <returns></returns>
-        public ICustomRegionPatch CreateRegionPatch(NodeContext Context, IReadOnlyList<object> initialInputs, out Spread<object> initialOutputs);
+        public TPatch CreateRegionPatch(NodeContext Context, IReadOnlyList<object> initialInputs, out Spread<object> initialOutputs);
 
         /// <summary>
         /// Happens when users are patching or on fresh start
@@ -130,9 +154,31 @@ namespace VL.Core.PublicAPI
         public bool PatchHasChanged { get; }
     }
 
-    public interface ICustomRegion<out TPatch> : ICustomRegion
-        where TPatch : ICustomRegionPatch
+    // For backward compatibility
+    public interface ICustomRegion : ICustomRegion<ICustomRegionPatch>
     {
-        public new TPatch CreateRegionPatch(NodeContext Context, IReadOnlyList<object> initialInputs, out Spread<object> initialOutputs);
+        /// <inheritdoc cref="ICustomRegion{TPatch}.Inputs" />
+        public new Spread<BorderControlPointDescription> Inputs { get; }
+
+        /// <inheritdoc cref="ICustomRegion{TPatch}.Outputs" />
+        public new Spread<BorderControlPointDescription> Outputs { get; }
+
+        /// <inheritdoc cref="ICustomRegion{TPatch}.IncomingLinks" />
+        public new Spread<IncomingLinkDescription> IncomingLinks { get; }
+
+        /// <inheritdoc cref="ICustomRegion{TPatch}.InputValues" />
+        public new Spread<object> InputValues { get; }
+
+        /// <inheritdoc cref="ICustomRegion{TPatch}.OutputValues" />
+        public new IReadOnlyList<object> OutputValues { set; }
+
+        /// <inheritdoc cref="ICustomRegion{TPatch}.IncomingLinkValues" />
+        public new Spread<object> IncomingLinkValues { get; }
+
+        /// <inheritdoc cref="ICustomRegion{TPatch}.CreateRegionPatch(NodeContext, IReadOnlyList{object}, out Spread{object})" />/>
+        public new ICustomRegionPatch CreateRegionPatch(NodeContext Context, IReadOnlyList<object> initialInputs, out Spread<object> initialOutputs);
+
+        /// <inheritdoc cref="ICustomRegion{TPatch}.PatchHasChanged" />/>
+        public new bool PatchHasChanged { get; }
     }
 }
