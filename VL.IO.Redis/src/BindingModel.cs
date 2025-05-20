@@ -19,7 +19,7 @@ namespace VL.IO.Redis
     /// <param name="Expiry">Allows to make this key expire (and vanish) from the Redis database. The channel will persist and will pick up values as soon as the key in the Db exists again.</param>
     /// <param name="When">Which condition to set the value under (defaults to always).</param>
     public record struct BindingModel(
-        string? Key,
+        Optional<string> Key = default,
         Optional<Initialization> Initialization = default, //Initialization.Redis
         Optional<BindingDirection> BindingType = default, //BindingDirection.InOut
         Optional<CollisionHandling> CollisionHandling = default,
@@ -28,7 +28,18 @@ namespace VL.IO.Redis
         Optional<When> When = default, //When.Always,
         bool CreatedViaNode = false)
     {
-        public string ResolveKey(IChannel channel) => !string.IsNullOrEmpty(Key) ? Key : channel.Path ?? "";
+        public string ResolveKey(IChannel channel) => ResolveKey(channel.Path);
+        public string ResolveKey(string? channelName)
+        {
+            var newSchool = Key.TryGetValue(channelName ?? "");
+            
+            if (!newSchool.IsNullOrEmpty())
+                return newSchool;
+
+            // old model probably stored key = "". We still want to resolve channelName
+            return channelName ?? "";
+        }
+
         Initialization ResolvedInitialization(RedisModule m) => Initialization.TryGetValue(m.Initialization);
         BindingDirection ResolvedBindingType(RedisModule m) => BindingType.TryGetValue(m.BindingType);
         CollisionHandling ResolvedCollisionHandling(RedisModule m) => CollisionHandling.TryGetValue(m.CollisionHandling);
@@ -55,7 +66,7 @@ namespace VL.IO.Redis
         {
             var b = new StringBuilder();
 
-            if (!string.IsNullOrEmpty(Key))
+            if (Key.HasValue)
                 b.Append($"Key: {Key}, ");
             if (Initialization.HasValue)
                 b.Append($"Initialization: {Initialization}, ");
@@ -94,15 +105,15 @@ namespace VL.IO.Redis
     {
         public override string ToString()
         {
+            var e = Expiry.HasValue ? Expiry.Value.ToString() : "not expiring";
             return
-                $"Public Channel: {PublicChannelPath}, " +
-                $"Redis Key: {Key}, " +
-                $"Initialization: {Initialization}, " +
-                $"BindingType: {BindingType}, " +
-                $"CollisionHandling: {CollisionHandling}, " +
-                $"SerializationFormat: {SerializationFormat}, " +
-                $"Expiry: {Expiry}, " +
-                $"When: {When}";
+$@"Redis Key: {Key},
+Initialization: {Initialization}, 
+BindingType: {BindingType}, 
+CollisionHandling: {CollisionHandling}, 
+SerializationFormat: {SerializationFormat}, 
+Expiry: {e}, 
+When: {When}";
         }
     }
 }

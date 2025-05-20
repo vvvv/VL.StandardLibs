@@ -20,7 +20,7 @@ namespace VL.IO.Redis
         private readonly NodeContext _nodeContext;
         private readonly ILogger _logger;
 
-        private (RedisClient? client, IChannel? input, string? key, Optional<Initialization> initialization,
+        private (RedisClient? client, IChannel? input, Optional<string> key, Optional<Initialization> initialization,
             Optional<BindingDirection> bindingType, Optional<CollisionHandling> collisionHandling, Optional<SerializationFormat> serializationFormat,
             Optional<TimeSpan> expiry, Optional<When> when) _config;
 
@@ -42,7 +42,7 @@ namespace VL.IO.Redis
         public void Update(
             RedisClient? client, 
             IChannel? input, 
-            string? key,
+            Optional<string> key,
             Optional<BindingDirection> bindingDirection = default,
             Optional<Initialization> initialization = default,
             [Pin(Visibility = PinVisibility.Optional)] Optional<CollisionHandling> collisionHandling = default,

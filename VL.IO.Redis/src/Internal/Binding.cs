@@ -13,7 +13,7 @@ namespace VL.IO.Redis.Internal
     /// <summary>
     /// Represents a binding of a channel to a Redis key.
     /// </summary>
-    internal class Binding<T> : IParticipant, IDisposable, IRedisBinding
+    internal class Binding<T> : IParticipant, IDisposable, IBinding
     {
         private readonly SerialDisposable _clientSubscription = new();
         private readonly SerialDisposable _channelSubscription = new();
@@ -187,5 +187,7 @@ namespace VL.IO.Redis.Internal
         }
 
         bool IBinding.GotCreatedViaNode => Model.CreatedViaNode;
+
+        object IBinding.ResolvedModel => Model;
     }
 }

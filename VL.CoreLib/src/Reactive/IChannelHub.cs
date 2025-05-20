@@ -70,6 +70,8 @@ namespace VL.Core.Reactive
         BindingType BindingType { get; }
 
         bool GotCreatedViaNode => Module == null;
+
+        object ResolvedModel { get; }
     }
 
 

@@ -36,7 +36,9 @@ namespace VL.IO.Redis.Experimental
             [Pin(Visibility = PinVisibility.Hidden)]   AppHost appHost,
             [Pin(Visibility = PinVisibility.Hidden)]   IFrameClock frameClock,
             [Pin(Visibility = PinVisibility.Hidden)]   IChannelHub channelHub,
-            [Pin(Visibility = PinVisibility.Optional)] IChannel<ImmutableDictionary<string, BindingModel>> model)
+            [Pin(Visibility = PinVisibility.Optional)] IChannel<ImmutableDictionary<string, BindingModel>> model,
+            [Pin(Visibility = PinVisibility.Optional)] bool showBindingColumn = true
+            )
         {
             _nodeContext = nodeContext;
             _logger = nodeContext.GetLogger();
@@ -51,7 +53,9 @@ namespace VL.IO.Redis.Experimental
 
             _channelHub = channelHub ?? appHost.Services.GetRequiredService<IChannelHub>();
             _redisClientManager = new RedisClientManager(nodeContext, frameClock);
-            _channelHub.RegisterModule(this);
+
+            if (showBindingColumn)
+                _channelHub.RegisterModule(this);
 
             _modelSubscription = _modelStream
                 .ObserveOn(appHost.SynchronizationContext)
@@ -124,13 +128,14 @@ namespace VL.IO.Redis.Experimental
         }
 
         // Called from patched ModuleView
-        public void RemoveBinding(IRedisBinding binding)
+        public void RemoveBinding(IBinding binding)
         {
-            var model = _modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty;
-            if (binding.Model.PublicChannelPath != null)
+            var models = _modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty;
+            var resolvedBindingModel = (ResolvedBindingModel)binding.ResolvedModel;
+            if (resolvedBindingModel.PublicChannelPath != null)
             {
-                var updatedModel = model.Remove(binding.Model.PublicChannelPath);
-                if (updatedModel != model)
+                var updatedModel = models.Remove(resolvedBindingModel.PublicChannelPath);
+                if (updatedModel != models)
                     _modelStream.Value = updatedModel;
             }
         }
@@ -144,17 +149,18 @@ namespace VL.IO.Redis.Experimental
             }
 
             // Cleanup
-            var obsoleteBindings = new List<IRedisBinding>();
+            var obsoleteBindings = new List<IBinding>();
             foreach (var binding in _redisClient.Bindings)
             {
                 if (binding.Module != this || binding.GotCreatedViaNode)
                     continue;
 
-                var key = binding.Model.Key;
+                var resolvedBindingModel = (ResolvedBindingModel)binding.ResolvedModel;
+                var key = resolvedBindingModel.Key;
                 if (model.TryGetValue(key, out var bindingModel))
                 {
                     // Did the model change?
-                    if (binding.Model.Model != bindingModel)
+                    if (resolvedBindingModel.Model != bindingModel)
                         obsoleteBindings.Add(binding);
                 }
                 else
@@ -177,7 +183,8 @@ namespace VL.IO.Redis.Experimental
                     continue;
                 }
 
-                if (_redisClient.TryGetBinding(bindingModel.Key, out var existingBinding))
+                var key = bindingModel.ResolveKey(channelName);
+                if (_redisClient.TryGetBinding(key, out var existingBinding))
                 {
                     if (existingBinding.Module is null || existingBinding.Module != this)
                     {
