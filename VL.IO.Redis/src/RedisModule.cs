@@ -217,8 +217,10 @@ namespace VL.IO.Redis.Experimental
 
         bool IModule.SupportsType(Type type) => true;
 
-        string IModule.ConfigHint => _redisClientManager.Options.ToString();
+        string IModule.ConfigHint => _redisClientManager.Options?.ToString();
 
         string IModule.Nickname => _nickname;
+
+        NodeContext IModule.NodeContext => _nodeContext;
     }
 }

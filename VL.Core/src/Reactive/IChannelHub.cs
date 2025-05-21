@@ -164,6 +164,11 @@ namespace VL.Core.Reactive
         /// If a type of a channel is not supported by this module, the cell shouldn't show a checkobox.
         /// </summary>
         bool SupportsType(Type type);
+
+        /// <summary>
+        /// So that we can jump to the module node.
+        /// </summary>
+        NodeContext NodeContext { get; }
     }
 }
 
