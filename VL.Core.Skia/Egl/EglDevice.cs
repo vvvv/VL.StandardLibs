@@ -8,43 +8,74 @@ using static VL.Skia.Egl.NativeEgl;
 using VL.Core;
 using VL.Lib.Basics.Video;
 using Microsoft.Extensions.DependencyInjection;
+using Windows.Win32.Foundation;
 
 namespace VL.Skia.Egl
 {
-    public unsafe sealed class EglDevice : EglResource
+    sealed class EglDeviceProvider : IDisposable
     {
-        public static EglDevice ForApp(AppHost appHost)
+        public static EglDeviceProvider ForApp(AppHost appHost)
         {
-            return appHost.Services.GetOrAddService(s =>
+            return appHost.Services.GetOrAddService(s => new EglDeviceProvider(s), allowToAskParent: false);
+        }
+
+        private readonly IServiceProvider serviceProvider;
+        private EglDevice? device;
+
+        public EglDeviceProvider(IServiceProvider serviceProvider)
+        {
+            this.serviceProvider = serviceProvider;
+        }
+
+        public EglDevice GetDevice()
+        {
+            if (device != null && device.IsLost)
             {
-                if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+                device.Dispose();
+                device = null;
+            }
+
+            return device ??= CreateDevice(serviceProvider);
+        }
+
+        public void Dispose()
+        {
+            device?.Dispose();
+            device = null;
+        }
+
+        private EglDevice CreateDevice(IServiceProvider s)
+        {
+            if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+            {
+                EglDevice device;
+                // TODO: Hmm, because of extensions assemblies being part of service scope we always create a Stride game this way - ideas?
+                if (s.GetService<IGraphicsDeviceProvider>() is IGraphicsDeviceProvider graphicsDeviceProvider &&
+                    graphicsDeviceProvider.Type == GraphicsDeviceType.Direct3D11)
                 {
-                    EglDevice device;
-                    // TODO: Hmm, because of extensions assemblies being part of service scope we always create a Stride game this way - ideas?
-                    if (s.GetService<IGraphicsDeviceProvider>() is IGraphicsDeviceProvider graphicsDeviceProvider &&
-                        graphicsDeviceProvider.Type == GraphicsDeviceType.Direct3D11)
-                    {
-                        device = FromD3D11(graphicsDeviceProvider.NativePointer, graphicsDeviceProvider);
-                    }
-                    else
-                    {
-                        device = NewD3D11();
-                    }
-                    return device;
+                    device = EglDevice.FromD3D11(graphicsDeviceProvider.NativePointer, graphicsDeviceProvider);
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    device = EglDevice.NewD3D11();
                 }
-            }, allowToAskParent: false);
+                return device;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
+    }
 
+    public unsafe sealed class EglDevice : EglResource
+    {
         public static EglDevice FromD3D11(IntPtr d3dDevice, IGraphicsDeviceProvider? graphicsDeviceProvider = null)
         {
             var angleDevice = eglCreateDeviceANGLE(EGL_D3D11_DEVICE_ANGLE, d3dDevice, null);
             if (angleDevice == default)
-                throw new Exception("Failed to create EGL device");
-            return new EglDevice(angleDevice, d3dDevice, graphicsDeviceProvider: graphicsDeviceProvider);
+                throw new EglException("Failed to create EGL device");
+            return new EglDevice(angleDevice, (ID3D11Device*)d3dDevice, graphicsDeviceProvider: graphicsDeviceProvider);
         }
 
         [SupportedOSPlatform("windows6.1")]
@@ -69,9 +100,9 @@ namespace VL.Skia.Egl
             {
                 var angleDevice = eglCreateDeviceANGLE(EGL_D3D11_DEVICE_ANGLE, (nint)device, null);
                 if (angleDevice == default)
-                    throw new Exception("Failed to create EGL device");
+                    throw new EglException("Failed to create EGL device");
 
-                return new EglDevice(angleDevice, (nint)device);
+                return new EglDevice(angleDevice, device);
             }
             finally
             {
@@ -81,18 +112,29 @@ namespace VL.Skia.Egl
         }
 
         private readonly IGraphicsDeviceProvider? graphicsDeviceProvider;
+        private readonly ID3D11Device* nativeDevice;
 
-        private EglDevice(EGLDeviceEXT angleDevice, nint? nativeDevice = default, nint contextState = default, IGraphicsDeviceProvider? graphicsDeviceProvider = null)
+        private EglDevice(EGLDeviceEXT angleDevice, ID3D11Device* nativeDevice, nint contextState = default, IGraphicsDeviceProvider? graphicsDeviceProvider = null)
             : base(angleDevice)
         {
             ContextState = contextState;
             this.graphicsDeviceProvider = graphicsDeviceProvider;
-            //this.nativeDevice = nativeDevice;
+            this.nativeDevice = nativeDevice;
         }
 
         public nint ContextState { get; }
 
         public bool UseLinearColorspace => graphicsDeviceProvider?.UseLinearColorspace ?? false;
+
+        public bool IsLost
+        {
+            get
+            {
+                if (OperatingSystem.IsWindowsVersionAtLeast(6, 1) && !nativeDevice->GetDeviceRemovedReason().Succeeded)
+                    return true;
+                return false;
+            }
+        }
 
         protected override bool ReleaseHandle()
         {
@@ -113,7 +155,6 @@ namespace VL.Skia.Egl
                 return -1;
             }
         }
-        private nint? nativeDevice;
         */
     }
 }

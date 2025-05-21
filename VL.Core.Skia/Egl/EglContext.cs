@@ -15,14 +15,45 @@ using Windows.Win32.Graphics.Direct3D;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
-using SkiaSharp;
-using System.Drawing;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using VL.Core;
 
 namespace VL.Skia.Egl
 {
+    sealed class EglContextProvider : IDisposable
+    {
+        public static EglContextProvider ForApp(AppHost appHost)
+        {
+            return appHost.Services.GetOrAddService(s => new EglContextProvider(EglDisplayProvider.ForApp(appHost)), allowToAskParent: false);
+        }
+
+        private readonly EglDisplayProvider displayProvider;
+        private EglContext? context;
+        public EglContextProvider(EglDisplayProvider displayProvider)
+        {
+            this.displayProvider = displayProvider;
+        }
+        public EglContext GetContext(int sampleCount = 0)
+        {
+            var display = displayProvider.GetDisplay();
+            if (context?.Display != display)
+            {
+                context?.Dispose();
+                context = null;
+            }
+            return context ??= EglContext.New(display, sampleCount);
+        }
+        public void Dispose()
+        {
+            context?.Dispose();
+            context = null;
+        }
+    }
+
     public sealed class EglContext : EglResource
     {
-        public static EglContext New(EglDisplay display, int sampleCount = 0, EglContext shareContext = null)
+        public static EglContext New(EglDisplay display, int sampleCount = 0, EglContext? shareContext = null)
         {
             int[] configAttributes =
             [
@@ -46,14 +77,14 @@ namespace VL.Skia.Egl
             EGLDisplay[] configs = new EGLDisplay[1];
             if ((!eglChooseConfig(display, configAttributes, configs, configs.Length, out int numConfigs)) || (numConfigs == 0))
             {
-                throw new Exception($"Failed to choose first EGLConfig. {GetLastError()}");
+                throw new EglException($"Failed to choose first EGLConfig.");
             }
             var config = configs[0];
 
             var context = eglCreateContext(display, config, share_context: shareContext, contextAttributes);
             if (context == default)
             {
-                throw new Exception($"Failed to create EGL context. {GetLastError()}");
+                throw new EglException($"Failed to create EGL context.");
             }
 
             return new EglContext(display, context, config, shareContext, sampleCount);
@@ -61,9 +92,9 @@ namespace VL.Skia.Egl
 
         private readonly EglDisplay display;
         private readonly EGLConfig config;
-        private readonly EglContext shareContext;
+        private readonly EglContext? shareContext;
 
-        private EglContext(EglDisplay display, EGLContext context, EGLConfig config, EglContext shareContext, int sampleCount)
+        private EglContext(EglDisplay display, EGLContext context, EGLConfig config, EglContext? shareContext, int sampleCount)
             : base(context)
         {
             this.display = display;
@@ -89,6 +120,10 @@ namespace VL.Skia.Egl
 
         public int SampleCount { get; }
 
+        public EglContext? ShareContext => shareContext;
+
+        public bool IsLost => display.IsLost;
+
         public EglSurface CreatePlatformWindowSurface(nint nativeWindow, bool directComposition = false)
         {
             if (nativeWindow == default)
@@ -97,7 +132,7 @@ namespace VL.Skia.Egl
             var surfaceAttributes = GetAttributes().ToArray();
             var surface = eglCreatePlatformWindowSurface(display, config, nativeWindow, surfaceAttributes);
             if (surface == default)
-                throw new Exception($"Failed to create EGL surface. {GetLastError()}");
+                Throw($"Failed to create EGL surface.");
 
             return new EglSurface(display, surface);
 
@@ -120,7 +155,7 @@ namespace VL.Skia.Egl
             var surfaceAttributes = GetAttributes().ToArray();
             var surface = eglCreatePlatformWindowSurface(display, config, nativeWindow, surfaceAttributes);
             if (surface == default)
-                throw new Exception($"Failed to create EGL surface. {GetLastError()}");
+                Throw($"Failed to create EGL surface.");
 
             return new EglSurface(display, surface);
 
@@ -149,7 +184,7 @@ namespace VL.Skia.Egl
 
             var surface = eglCreatePbufferSurface(display, config, surfaceAttributes);
             if (surface == default)
-                throw new Exception($"Failed to create EGL surface. {GetLastError()}");
+                Throw($"Failed to create EGL surface.");
 
             return new EglSurface(display, surface);
         }
@@ -166,7 +201,7 @@ namespace VL.Skia.Egl
 
             var surface = eglCreatePbufferFromClientBuffer(display, EGL_D3D_TEXTURE_ANGLE, buffer, config, surfaceAttributes);
             if (surface == default)
-                throw new Exception($"Failed to create EGL surface. {GetLastError()}");
+                Throw($"Failed to create EGL surface.");
 
             return new EglSurface(display, surface);
         }
@@ -185,7 +220,7 @@ namespace VL.Skia.Egl
             EGLSurface surface = eglCreatePbufferFromClientBuffer(display, EGL_D3D_TEXTURE_2D_SHARE_HANDLE_ANGLE, handle, config, surfaceAttributes);
             if (surface == EGL_NO_SURFACE)
             {
-                throw new Exception($"Failed to create EGL surface. {GetLastError()}");
+                Throw($"Failed to create EGL surface.");
             }
 
             return new EglSurface(display, surface);
@@ -232,7 +267,7 @@ namespace VL.Skia.Egl
 
             if (!eglMakeCurrent(Display, surface, surface, this))
             {
-                throw new Exception($"Failed to make EGLContext current. {GetLastError()}");
+                Throw($"Failed to make EGLContext current.");
             }
         }
 
@@ -251,7 +286,7 @@ namespace VL.Skia.Egl
 
             if (!eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT))
             {
-                throw new Exception($"Failed to release current context. {GetLastError()}");
+                Throw($"Failed to release current context.");
             }
         }
 
@@ -299,7 +334,7 @@ namespace VL.Skia.Egl
 
                 if (!eglMakeCurrent(eglContext.Display, surface, surface, eglContext))
                 {
-                    throw new Exception($"Failed to make EGLContext current. {GetLastError()}");
+                    eglContext.Throw($"Failed to make EGLContext current.");
                 }
             }
 
@@ -314,7 +349,7 @@ namespace VL.Skia.Egl
                     {
                         if (!eglMakeCurrent(previousContext.Display, previousSurface, previousSurface, previousContext))
                         {
-                            throw new Exception($"Failed to restore previous EGLContext. {GetLastError()}");
+                            previousContext.Throw($"Failed to restore previous EGLContext.");
                         }
                     }
                     else
@@ -322,9 +357,13 @@ namespace VL.Skia.Egl
                         Debug.Assert(currentContext != null);
                         if (!eglMakeCurrent(currentContext.Display, default, default, default))
                         {
-                            throw new Exception($"Failed to release EGLContext. {GetLastError()}");
+                            currentContext.Throw($"Failed to release EGLContext.");
                         }
                     }
+                }
+                catch (EglContextLostException)
+                {
+                    // Yeah well
                 }
                 finally
                 {
@@ -332,6 +371,20 @@ namespace VL.Skia.Egl
                         deviceContextScope.Dispose();
                 }
             }
+        }
+
+        [DoesNotReturn]
+        [StackTraceHidden]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void Throw(string? message = null)
+        {
+            var errorCode = eglGetError();
+            var errorText = GetErrorText(errorCode);
+            var errorMessage = message != null ? $"{message} {errorText}" : errorText;
+            if (errorCode == EGL_CONTEXT_LOST)
+                throw new EglContextLostException(errorMessage);
+            else
+                throw new EglException(errorMessage);
         }
     }
 }

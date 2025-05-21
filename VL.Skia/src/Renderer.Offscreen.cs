@@ -11,7 +11,7 @@ namespace VL.Skia
 {
     public sealed class OffScreenRenderer : IDisposable
     {
-        private readonly RenderContext renderContext;
+        private readonly RenderContextProvider renderContextProvider;
         private readonly IDisposable appHostSubscription;
 
         private readonly Producing<SKImage> output = new Producing<SKImage>();
@@ -21,8 +21,8 @@ namespace VL.Skia
 
         public OffScreenRenderer()
         {
-            renderContext = RenderContext.ForCurrentApp();
-            appHostSubscription = renderContext.OnDispose.Subscribe(_ => ReleaseGraphicsResources());
+            renderContextProvider = AppHost.Current.GetRenderContextProvider();
+            appHostSubscription = renderContextProvider.OnDeviceLost.Subscribe(_ => ReleaseGraphicsResources());
         }
 
         public ILayer Layer { get; set; }
@@ -71,7 +71,10 @@ namespace VL.Skia
         {
             var canvas = surface?.Canvas;
             if (canvas != null)
+            {
+                var renderContext = renderContextProvider.GetRenderContext();
                 Layer?.Notify(n, CallerInfo.InRenderer(Size.X, Size.Y, canvas, renderContext.SkiaContext));
+            }
         }
 
         public SKImage Update(ILayer layer, IMouse mouse, IKeyboard keyboard, int width = 400, int height = 300)
@@ -86,6 +89,8 @@ namespace VL.Skia
 
         SKImage Render()
         {
+            var renderContext = renderContextProvider.GetRenderContext();
+
             // Make our render context the current one
             using var _ = renderContext.MakeCurrent(forRendering: true);
 
@@ -122,8 +127,9 @@ namespace VL.Skia
             FMouseSubscription?.Dispose();
             FKeyboardSubscription?.Dispose();
 
-            if (!renderContext.IsDisposed)
+            if (!renderContextProvider.IsDisposed)
             {
+                var renderContext = renderContextProvider.GetRenderContext();
                 using var _ = renderContext.MakeCurrent(forRendering: false);
                 ReleaseGraphicsResources();
             }

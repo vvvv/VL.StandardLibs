@@ -6,22 +6,23 @@ using SkiaSharp;
 using VL.Skia.Egl;
 using Stride.Core.Mathematics;
 using VL.Core;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace VL.Skia
 {
     public class SkiaGLControl : SkiaControlBase
     {
-        private readonly AppHost appHost;
-        private RenderContext? renderContext;
+        private RenderContext? lastRenderContext;
         private EglSurface? eglSurface;
         private SKSurface? surface;
         private Int2 surfaceSize;
         private SKCanvas? canvas;
         private bool? lastSetVSync;
 
-        public SkiaGLControl(AppHost appHost)
+        public SkiaGLControl()
         {
-            this.appHost = appHost;
             SetStyle(ControlStyles.Opaque, true);
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
@@ -29,11 +30,10 @@ namespace VL.Skia
             ResizeRedraw = true;
         }
 
+        public required RenderContextProvider RenderContextProvider { get; init; }
+
         protected override void OnHandleCreated(EventArgs e)
         {
-            // Retrieve the render context. Doing so in the constructor can lead to crashes when running unit tests with headless machines.
-            renderContext = RenderContext.ForApp(appHost);
-
             lastSetVSync = default;
 
             base.OnHandleCreated(e);
@@ -46,11 +46,46 @@ namespace VL.Skia
             DestroySurface();
         }
 
+        private void DestroyResource<T>(ref T? resource) where T : class, IDisposable
+        {
+            try
+            {
+                Interlocked.Exchange(ref resource, null)?.Dispose();
+            }
+            catch (Exception e)
+            {
+                AppHost.CurrentOrGlobal?.DefaultLogger.LogError(e, "Failed to destroy resource");
+            }
+        }
+
+        private void DestroySurface()
+        {
+            DestroyResource(ref surface);
+            DestroyResource(ref eglSurface);
+        }
+
         protected override sealed void OnPaintCore(PaintEventArgs e)
         {
-            if (renderContext is null)
-                return;
+            var renderContext = RenderContextProvider.GetRenderContext();
+            if (renderContext != lastRenderContext)
+            {
+                DestroySurface();
+                lastRenderContext = renderContext;
+            }
 
+            try
+            {
+                PaintCore(renderContext);
+            }
+            catch (EglException)
+            {
+                DestroySurface();
+                Invalidate();
+            }
+        }
+
+        private void PaintCore(RenderContext renderContext)
+        {
             // Ensure our GL context is current on current thread
             var eglContext = renderContext.EglContext;
 
@@ -118,19 +153,6 @@ namespace VL.Skia
                 glInfo: glInfo);
 
             return SKSurface.Create(renderContext.SkiaContext, renderTarget, GRSurfaceOrigin.BottomLeft, colorType);
-        }
-
-        private void DestroySurface()
-        {
-            if (renderContext is null)
-                return;
-
-            using var _ = renderContext.MakeCurrent(forRendering: false);
-            surface?.Dispose();
-            surface = null;
-
-            eglSurface?.Dispose();
-            eglSurface = default;
         }
     }
 }
