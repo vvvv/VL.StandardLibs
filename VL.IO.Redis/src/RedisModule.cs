@@ -13,6 +13,7 @@ using VL.Lib.Animation;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
 using VL.IO.Redis.Internal;
+using Stride.Core.Extensions;
 
 namespace VL.IO.Redis.Experimental
 {
@@ -29,6 +30,7 @@ namespace VL.IO.Redis.Experimental
         private readonly IChannelHub _channelHub;
         private readonly RedisClientManager _redisClientManager;
         private RedisClient? _redisClient;
+        private string _nickname;
 
         [Fragment]
         public RedisModule(
@@ -78,7 +80,11 @@ namespace VL.IO.Redis.Experimental
         }
 
         [Fragment]
-        public void Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, int database = -1,
+        public void Update(
+            string? configuration = "localhost:6379", 
+            Optional<string> nickname = default,
+            Action<ConfigurationOptions>? configure = null, 
+            int database = -1,
             Initialization initialization = Initialization.Redis,
             BindingDirection bindingType = BindingDirection.InOut,
             [Pin(Visibility = PinVisibility.Optional)] CollisionHandling collisionHandling = CollisionHandling.None,
@@ -87,6 +93,7 @@ namespace VL.IO.Redis.Experimental
             [Pin(Visibility = PinVisibility.Optional)] When when = When.Always,
             bool connectAsync = true)
         {
+            _nickname = nickname.TryGetValue(configuration.IsNullOrEmpty() ? "" : configuration.Substring(0, configuration.IndexOf(':')));
             Initialization = initialization;
             BindingType = bindingType;
             CollisionHandling = collisionHandling;
@@ -131,7 +138,7 @@ namespace VL.IO.Redis.Experimental
         public void RemoveBinding(IBinding binding)
         {
             var models = _modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty;
-            var resolvedBindingModel = (ResolvedBindingModel)binding.ResolvedModel;
+            var resolvedBindingModel = binding.GetResolvedModel<ResolvedBindingModel>();
             if (resolvedBindingModel.PublicChannelPath != null)
             {
                 var updatedModel = models.Remove(resolvedBindingModel.PublicChannelPath);
@@ -155,7 +162,7 @@ namespace VL.IO.Redis.Experimental
                 if (binding.Module != this || binding.GotCreatedViaNode)
                     continue;
 
-                var resolvedBindingModel = (ResolvedBindingModel)binding.ResolvedModel;
+                var resolvedBindingModel = binding.GetResolvedModel<ResolvedBindingModel>();
                 var key = resolvedBindingModel.Key;
                 if (model.TryGetValue(key, out var bindingModel))
                 {
@@ -209,5 +216,9 @@ namespace VL.IO.Redis.Experimental
         string IModule.Description => "This module binds a channel to a Redis key";
 
         bool IModule.SupportsType(Type type) => true;
+
+        string IModule.ConfigHint => _redisClientManager.Options.ToString();
+
+        string IModule.Nickname => _nickname;
     }
 }

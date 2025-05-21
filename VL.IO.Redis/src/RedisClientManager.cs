@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using System;
 using System.Reactive.Disposables;
@@ -85,6 +86,8 @@ namespace VL.IO.Redis
 
         public string ClientName => _redisClient?.ClientName ?? string.Empty;
 
+        public ConfigurationOptions Options { get; set; }
+
         private async Task Reconnect(string? configuration, Action<ConfigurationOptions>? configure, bool connectAsync, RedisModule module)
         {
             var options = new ConfigurationOptions();
@@ -122,6 +125,8 @@ namespace VL.IO.Redis
             {
                 _logger.LogError(e, $"Failed to connect");
             }
+
+            Options = options;
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "abortOnConnectFail")]
             extern static ref bool? GetAbortOnConnectFail(ConfigurationOptions c);

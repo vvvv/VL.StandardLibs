@@ -137,10 +137,32 @@ namespace VL.Core.Reactive
 
     public interface IModule
     {
+        /// <summary>
+        /// A short name of the module. Shown in the browser in the top of row of the column header. (Or a corresponding icon)
+        /// </summary>
         string Name { get; }
 
+        /// <summary>
+        /// Describes what the user can expect from this module.
+        /// </summary>
         string Description { get; }
 
+        /// <summary>
+        /// A short name for the module, used in the editor. 
+        /// Might stem from the name and some of the more prominent conifguration options.
+        /// Might be set by the user of the node.
+        /// </summary>
+        string Nickname { get; }
+
+        /// <summary>
+        /// A thorough description of the configuration of this module. 
+        /// For a short info see NickName.
+        /// </summary>
+        string ConfigHint { get; }
+
+        /// <summary>
+        /// If a type of a channel is not supported by this module, the cell shouldn't show a checkobox.
+        /// </summary>
         bool SupportsType(Type type);
     }
 }

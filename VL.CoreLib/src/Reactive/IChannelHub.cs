@@ -74,7 +74,16 @@ namespace VL.Core.Reactive
         object ResolvedModel { get; }
     }
 
+    public static class BindingHelpers
+    {
 
+        public static T GetResolvedModel<T>(this IBinding binding)
+        {
+            if (binding?.ResolvedModel is T t)
+                return t;
+            return default!;
+        }
+    }
 
 
 
