@@ -101,7 +101,6 @@ namespace VL.Core.PublicAPI
     /// It also allows you to instanciate what's inside: the patch of the user. 
     /// </summary>
     public interface ICustomRegion<out TRegionPatch>
-        where TRegionPatch : class, IRegionPatch
     {
         /// <summary>
         /// The inputs from an outside perspective
