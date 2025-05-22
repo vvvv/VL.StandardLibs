@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -17,6 +18,15 @@ using VL.Lib.Collections;
 
 namespace VL.Lib.Reactive
 {
+    public class AccessorNodes
+    {
+        public AccessorNodes()
+        {
+            Nodes = Channel.Create(new ConcurrentDictionary<UniqueId, NodePath>());
+        }
+        public IChannel<ConcurrentDictionary<UniqueId, NodePath>> Nodes { get; }
+    }
+
     public interface IChannel : IHasAttributes, IDisposable
     {
         Type ClrTypeOfValues { get; }
@@ -30,6 +40,7 @@ namespace VL.Lib.Reactive
         IDisposable BeginChange();
         string? Path { get; }
         internal int Revision { get; }
+        AccessorNodes AccessorNodes { get; }
     }
 
     [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
@@ -51,6 +62,7 @@ namespace VL.Lib.Reactive
         protected int revisionOnLockTaken = 0;
 
         private IChannel<Spread<Attribute>>? attributesChannel;
+        private AccessorNodes? accessorNodesChannel;
         private TagsCache? tagsCache;
 
         public ImmutableArray<object> Components { get; set; } = ImmutableArray<object>.Empty;
@@ -203,14 +215,16 @@ namespace VL.Lib.Reactive
             if (lockCount == 0 && revisionOnLockTaken != revision)
                 SetValueAndAuthor(this.Value, LatestAuthor);
         }
+        Spread<string> IHasAttributes.Tags => (tagsCache ??= new(GetAttributesChannel())).Tags;
 
         Spread<Attribute> IHasAttributes.Attributes => GetAttributesChannel().Value ?? Spread<Attribute>.Empty;
 
-        Spread<string> IHasAttributes.Tags => (tagsCache ??= new(GetAttributesChannel())).Tags;
-
         IChannel<Spread<Attribute>> GetAttributesChannel() => attributesChannel ??= this.Attributes();
 
+        AccessorNodes IChannel.AccessorNodes => accessorNodesChannel ??= this.TryGetComponent<AccessorNodes>() ?? this.EnsureSingleComponentOfType(() => new AccessorNodes(), false);
+
         T? IMonadicValue<T>.Value => Value;
+
 
         IMonadicValue<T> IMonadicValue<T>.SetValue(T? value)
         {
@@ -439,6 +453,8 @@ namespace VL.Lib.Reactive
         public bool AcceptsValue => original.AcceptsValue;
 
         int IChannel.Revision => original.Revision;
+
+        public AccessorNodes AccessorNodes => original.AccessorNodes;
 
         public IDisposable BeginChange() => original.BeginChange();
 
