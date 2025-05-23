@@ -147,12 +147,13 @@ namespace VL.Stride.Rendering
             pin = pins.OfType<TPin>().FirstOrDefault(p => p.Name == description.Name);
         }
 
-        public static string GetPinName(this ParameterKey key, HashSet<string> usedNames)
+        public static string GetPinName(this ParameterKey key, HashSet<string> usedNames, string? nodeInstanceId = null)
         {
             var variableName = key.GetVariableName();
             var shaderName = key.GetShaderName();
             var camelCasedName = FCamelCasePattern.Replace(variableName, match => $"{match.Value[0]} {match.Value[1]}");
             var result = char.ToUpper(camelCasedName[0]) + camelCasedName.Substring(1);
+            // Do NOT append nodeInstanceId to the user-facing name
             if (usedNames.Add(result))
                 return result;
             return $"{shaderName} {result}";
@@ -794,5 +795,29 @@ namespace VL.Stride.Rendering
         Texture7TexelSize,
         Texture8TexelSize,
         Texture9TexelSize
+    }
+
+    static class ParameterKeyExtensions
+    {
+        public static ParameterKey WithUniqueInstance(this ParameterKey key, string nodeInstanceId)
+        {
+            // Only change the key name for uniqueness, keep all other properties
+            var uniqueName = $"{key.Name}__{nodeInstanceId}";
+            var keyType = key.GetType();
+            // Try to create a new key of the same type with the unique name
+            if (keyType.IsGenericType)
+            {
+                var genericDef = keyType.GetGenericTypeDefinition();
+                var arg = keyType.GetGenericArguments()[0];
+                if (genericDef == typeof(ValueParameterKey<>))
+                    return (ParameterKey)Activator.CreateInstance(typeof(ValueParameterKey<>).MakeGenericType(arg), uniqueName, key.DefaultValueMetadata);
+                if (genericDef == typeof(PermutationParameterKey<>))
+                    return (ParameterKey)Activator.CreateInstance(typeof(PermutationParameterKey<>).MakeGenericType(arg), uniqueName, key.DefaultValueMetadata);
+                if (genericDef == typeof(ObjectParameterKey<>))
+                    return (ParameterKey)Activator.CreateInstance(typeof(ObjectParameterKey<>).MakeGenericType(arg), uniqueName, key.DefaultValueMetadata);
+            }
+            // fallback: just return the original key
+            return key;
+        }
     }
 }
