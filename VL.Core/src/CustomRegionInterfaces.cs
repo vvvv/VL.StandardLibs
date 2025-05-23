@@ -49,7 +49,7 @@ namespace VL.Core.PublicAPI
     /// This represents the user patch inside the region
     /// You may create and manage several patch states by calling CreateRegionPatch
     /// </summary>
-    public interface ICustomRegionPatch
+    public interface ICustomRegionPatch : ICustomRegionPatch<IPatchWithUpdate>
     {
         /// <summary>
         /// Updates the patch state by calling what the user patched
@@ -59,11 +59,14 @@ namespace VL.Core.PublicAPI
         /// <param name="incomingLinks">The values traveling along the links that cross the region boundaries. If you don't connect anything it will autoconnect to CustomRegion.IncomingLinkValues.</param>
         /// <param name="outputs">The outputs from the inside perspective</param>
         /// <returns></returns>
-        public ICustomRegionPatch Update(IReadOnlyList<object> inputs, out Spread<object> outputs, IReadOnlyList<object> incomingLinks);
+        ICustomRegionPatch Update(IReadOnlyList<object> inputs, out Spread<object> outputs, IReadOnlyList<object> incomingLinks)
+        {
+            return (ICustomRegionPatch)Update(inputs, out outputs, incomingLinks, Spread<object>.Empty, p => p.Update());
+        }
     }
 
     // For backward compatibility
-    public interface IPatchWithUpdate : ICustomRegionPatch, IRegionPatch
+    public interface IPatchWithUpdate
     {
         void Update();
     }
@@ -100,7 +103,7 @@ namespace VL.Core.PublicAPI
     /// Represents the application of your region by the user, the values that flow into the region and outof. 
     /// It also allows you to instanciate what's inside: the patch of the user. 
     /// </summary>
-    public interface ICustomRegion<out TRegionPatch>
+    public interface ICustomRegion<T>
     {
         /// <summary>
         /// The inputs from an outside perspective
@@ -141,7 +144,7 @@ namespace VL.Core.PublicAPI
         /// <param name="initialInputs"></param>
         /// <param name="initialOutputs"></param>
         /// <returns></returns>
-        TRegionPatch CreateRegionPatch(NodeContext Context, IReadOnlyList<object> initialInputs, out Spread<object> initialOutputs);
+        ICustomRegionPatch<T> CreateRegionPatch(NodeContext Context, IReadOnlyList<object> initialInputs, out Spread<object> initialOutputs);
 
         /// <summary>
         /// Happens when users are patching or on fresh start
@@ -149,10 +152,8 @@ namespace VL.Core.PublicAPI
         bool PatchHasChanged { get; }
     }
 
-    public interface IRegionPatch
+    public interface ICustomRegionPatch<T> : IDisposable
     {
-        IReadOnlyList<object> Inputs { set; }
-        IReadOnlyList<object> IncomingLinks { set; }
-        Spread<object> Outputs { get; }
+        public ICustomRegionPatch<T> Update(IReadOnlyList<object> inputs, out Spread<object> outputs, IReadOnlyList<object> incomingLinks, Spread<object> initialOutputs, Action<T> action);
     }
 }
