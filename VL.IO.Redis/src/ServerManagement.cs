@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -99,41 +100,45 @@ namespace VL.IO.Redis
             private string? _pattern;
             private IObservable<Spread<string>> _keys = Observable.Empty<Spread<string>>();
             private Spread<string> _keysCache = Spread<string>.Empty;
+            private bool _stopPollingOnceConnected;
 
             [return: Pin(Name = "Client")]
-            public IObservable<Spread<string>> Update(RedisClient? client, string? pattern, [DefaultValue(1f)] float period)
+            public IObservable<Spread<string>> Update(RedisClient? client, string? pattern, [DefaultValue(1f)] float period, bool stopPollingOnceConnected, bool force)
             {
-                if (client != _client || pattern != _pattern)
+                if (client != _client || pattern != _pattern || stopPollingOnceConnected != _stopPollingOnceConnected || force)
                 {
                     _client = client;
                     _pattern = pattern;
-                    _keys = Observable.FromAsync(token => ScanAsync(client, pattern, token))
-                        .RepeatWhen(s => s.Delay(TimeSpan.FromSeconds(period)));
+                    _stopPollingOnceConnected = stopPollingOnceConnected;
+                    _keys = Observable.Create<Spread<string>>(async (observer, token) =>
+                    {
+                        while (!token.IsCancellationRequested)
+                        {
+                            var server = client?.GetServer();
+                            if (client != null && server != null)
+                            {
+                                try
+                                {
+                                    var builder = CollectionBuilders.GetBuilder(_keysCache, 0);
+                                    await foreach (var key in server.KeysAsync(client.Database, pattern).WithCancellation(token))
+                                        builder.Add(key.ToString());
+                                    observer.OnNext(_keysCache = builder.Commit());
+
+                                    while (stopPollingOnceConnected && !token.IsCancellationRequested && client.Multiplexer.IsConnected)
+                                    {
+                                        await Task.Delay(TimeSpan.FromSeconds(period), token);
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                }
+                            }
+                            await Task.Delay(TimeSpan.FromSeconds(period), token);
+                        }
+                    }).SubscribeOn(Scheduler.Default);
                 }
 
                 return _keys;
-            }
-
-            private async Task<Spread<string>> ScanAsync(RedisClient? client, string? pattern, CancellationToken cancellationToken)
-            {
-                if (client is null)
-                    return Spread<string>.Empty;
-
-                var server = client.GetServer();
-                if (server is null)
-                    return Spread<string>.Empty;
-
-                try
-                {
-                    var builder = CollectionBuilders.GetBuilder(_keysCache, 0);
-                    await foreach (var key in server.KeysAsync(client.Database, pattern).WithCancellation(cancellationToken).ConfigureAwait(false))
-                        builder.Add(key.ToString());
-                    return _keysCache = builder.Commit();
-                }
-                catch (Exception)
-                {
-                    return Spread<string>.Empty;
-                }
             }
         }
     }
