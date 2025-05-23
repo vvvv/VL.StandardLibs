@@ -83,7 +83,38 @@ namespace VL.Stride.Rendering
                         }
                     }
 
-                    // Deduplicate _inputs
+                    // Group pins by variable name
+                    var pinsByVarName = new Dictionary<string, List<ParameterPinDescription>>();
+                    foreach (var input in _inputs)
+                    {
+                        if (input is ParameterPinDescription paramDesc)
+                        {
+                            var varName = paramDesc.Key.GetVariableName();
+                            if (!pinsByVarName.TryGetValue(varName, out var list))
+                                pinsByVarName[varName] = list = new List<ParameterPinDescription>();
+                            list.Add(paramDesc);
+                        }
+                    }
+
+                    // Set pin names: simple if unique, long if ambiguous
+                    foreach (var pair in pinsByVarName)
+                    {
+                        var list = pair.Value;
+                        if (list.Count == 1)
+                        {
+                            // Use simple name
+                            list[0].Name = pair.Key;
+                        }
+                        else
+                        {
+                            // Use long name (already set by default)
+                            // Optionally, could forcefully set to paramDesc.Key.Name for clarity
+                            foreach (var pin in list)
+                                pin.Name = pin.Key.Name;
+                        }
+                    }
+
+                    // Deduplicate _inputs (with stage variable logic)
                     var uniqueInputs = new Dictionary<string, IVLPinDescription>();
                     var stagePins = new HashSet<string>();
                     foreach (var input in _inputs)
