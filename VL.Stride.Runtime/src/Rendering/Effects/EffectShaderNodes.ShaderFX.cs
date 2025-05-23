@@ -135,12 +135,13 @@ namespace VL.Stride.Rendering
                             else
                             {
                                 // Allow multiple pins for non-stage variables (by keyName)
+                                // Prefer pins with longer names for better clarity and disambiguation in case of conflicts
                                 if (!uniqueInputs.TryGetValue(keyName, out var existing) || (existing.Name.Length < paramDesc.Name.Length))
                                     uniqueInputs[keyName] = paramDesc;
                             }
                         }
                         else
-                        {
+                            uniqueInputs[input.Name ?? input.GetType().FullName ?? Guid.NewGuid().ToString()] = input;
                             uniqueInputs[Guid.NewGuid().ToString()] = input;
                         }
                     }
