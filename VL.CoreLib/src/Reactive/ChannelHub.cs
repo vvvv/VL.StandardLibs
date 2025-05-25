@@ -64,7 +64,7 @@ namespace VL.Core.Reactive
             }
         }
 
-        internal ConcurrentDictionary<string, IChannel<object>> Channels = new(); 
+        internal ConcurrentDictionary<string, IChannel<object>> Channels = new();
         internal ConcurrentDictionary<string, IChannel<object>> AnonymousChannels = new();
 
         internal ConcurrentBag<IModule> Modules = new();
@@ -96,11 +96,12 @@ namespace VL.Core.Reactive
                 return default;
 
             using var _ = BeginChange();
-            var c = Channels.GetOrAdd(key, _ =>
-            {
-                var c = ChannelHelpers.CreateChannelOfType(typeOfValues);
+            var c = Channels.GetOrAdd(key, _ => 
+            { 
+                var c = ChannelHelpers.CreateChannelOfType(typeOfValues); 
                 ((IInternalChannel)c).SetPath(key);
-                return c;
+                if (!c.IsAnonymous()) revision++; 
+                return c; 
             });
             if (c.ClrTypeOfValues != typeOfValues)
                 return default;
@@ -144,6 +145,7 @@ namespace VL.Core.Reactive
             var gotRemoved = Channels.TryRemove(key, out var c);
             if (c != null)
             {
+                if (!c.IsAnonymous()) revision++;
                 c.Dispose();
             }
             return gotRemoved;
@@ -156,6 +158,7 @@ namespace VL.Core.Reactive
             if (c != null)
             {
                 var o = c.Object;
+                if (!c.IsAnonymous()) revision++;
                 c.Dispose();
                 c = TryAddChannel(newKey, c.ClrTypeOfValues);
                 if (c != null && o != null && c.ClrTypeOfValues.IsAssignableFrom(o.GetType()))
@@ -172,6 +175,7 @@ namespace VL.Core.Reactive
             if (c != null)
             {
                 var o = c.Object;
+                if (!c.IsAnonymous()) revision++;
                 c.Dispose();
                 c = TryAddChannel(key, typeOfValues);
                 if (c != null && o != null && typeOfValues.IsAssignableFrom(o.GetType()))
