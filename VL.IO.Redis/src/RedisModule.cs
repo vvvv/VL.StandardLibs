@@ -222,5 +222,7 @@ namespace VL.IO.Redis.Experimental
         string IModule.Nickname => _nickname;
 
         NodeContext IModule.NodeContext => _nodeContext;
+
+        float IModule.InterfaceVersion => 2;
     }
 }

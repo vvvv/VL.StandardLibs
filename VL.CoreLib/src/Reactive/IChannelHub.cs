@@ -39,8 +39,6 @@ namespace VL.Core.Reactive
         IPlainProcessNode CreateAddBindingDialog(string channelPath, IChannel channel, IChannel<Action> responeChannel, IBinding? initialBinding, Vector2 expectedSize);
 
         void RemoveBinding(IBinding binding);
-
-        int InterfaceVersion { get; }
     }
 
     public interface IPlainProcessNode

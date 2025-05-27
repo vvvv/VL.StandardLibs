@@ -152,13 +152,13 @@ namespace VL.Core.Reactive
         /// Might stem from the name and some of the more prominent conifguration options.
         /// Might be set by the user of the node.
         /// </summary>
-        string Nickname { get; }
+        string Nickname => ""; // default implementation makes 1.0 modules still work as they still implement the new enahanced IModule
 
         /// <summary>
         /// A thorough description of the configuration of this module. 
         /// For a short info see NickName.
         /// </summary>
-        string ConfigHint { get; }
+        string ConfigHint => ""; // default implementation makes 1.0 modules still work as they still implement the new enahanced IModule
 
         /// <summary>
         /// If a type of a channel is not supported by this module, the cell shouldn't show a checkobox.
@@ -168,7 +168,12 @@ namespace VL.Core.Reactive
         /// <summary>
         /// So that we can jump to the module node.
         /// </summary>
-        NodeContext NodeContext { get; }
+        NodeContext NodeContext => null; // default implementation makes 1.0 modules still work as they still implement the new enahanced IModule
+
+        /// <summary>
+        /// Interface version of this module. If not implemented it's probably 1.0
+        /// </summary>
+        float InterfaceVersion => 1.0f; // default implementation makes 1.0 modules still work as they still implement the new enahanced IModule
     }
 }
 
