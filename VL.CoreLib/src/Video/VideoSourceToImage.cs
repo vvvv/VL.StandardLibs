@@ -46,11 +46,12 @@ namespace VL.Lib.Video
                 this.changeTicket = videoSource?.GetChangedTicket();
 
                 var ctx = GetVideoPlaybackContext(preferGpu);
+                var logger = ctx.Logger;
                 if (preferPush)
                 {
                     streamSubscription.Disposable = videoSource?.GetPushBasedStream(ctx)
                         .Finally(() => imageSubscription.Disposable = null)
-                        .Subscribe(v => OnPush(v, mipmapped), onError: e => Context.Logger.LogError(e, "Error in video stream."));
+                        .Subscribe(v => OnPush(v, mipmapped), onError: e => logger.LogError(e, "Error in video stream."));
                 }
                 else
                 {

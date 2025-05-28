@@ -7,24 +7,48 @@ using VL.Core;
 
 namespace VL.Skia.Egl
 {
-    public sealed class EglDisplay : EglResource
+    sealed class EglDisplayProvider : IDisposable
     {
-        public static EglDisplay ForApp(AppHost appHost)
+        public static EglDisplayProvider ForApp(AppHost appHost)
         {
-            return appHost.Services.GetOrAddService(s =>
-            {
-                var device = EglDevice.ForApp(appHost);
-                return FromDevice(device);
-            }, allowToAskParent: false);
+            return appHost.Services.GetOrAddService(s => new EglDisplayProvider(EglDeviceProvider.ForApp(appHost)), allowToAskParent: false);
         }
 
+        private readonly EglDeviceProvider deviceProvider;
+        private EglDisplay? display;
+
+        public EglDisplayProvider(EglDeviceProvider deviceProvider)
+        {
+            this.deviceProvider = deviceProvider;
+        }
+
+        public EglDisplay GetDisplay()
+        {
+            var device = deviceProvider.GetDevice();
+            if (device != display?.Device)
+            {
+                display?.Dispose();
+                display = null;
+            }
+            return display ??= EglDisplay.FromDevice(device);
+        }
+
+        public void Dispose()
+        {
+            display?.Dispose();
+            display = null;
+        }
+    }
+
+    public sealed class EglDisplay : EglResource
+    {
         public static EglDisplay FromDevice(EglDevice angleDevice)
         {
             var display = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, angleDevice, null);
             if (display == default)
-                throw new Exception("Failed to get EGL display from device");
+                throw new EglException("Failed to get EGL display from device");
             if (!eglInitialize(display, out int major, out int minor))
-                throw new Exception("Failed to initialize EGL display from device");
+                throw new EglException("Failed to initialize EGL display from device");
             return new EglDisplay(angleDevice, display);
         }
 
@@ -38,7 +62,11 @@ namespace VL.Skia.Egl
             device.DangerousAddRef(ref success);
         }
 
+        public EglDevice Device => device;
+
         public bool UseLinearColorspace => device.UseLinearColorspace;
+
+        public bool IsLost => device.IsLost;
 
         public bool TryGetD3D11Device(out IntPtr d3dDevice)
         {
@@ -57,13 +85,13 @@ namespace VL.Skia.Egl
         public void BindTexImage(EglSurface surface)
         {
             if (!eglBindTexImage(NativePointer, surface, EGL_BACK_BUFFER))
-                throw new Exception("Failed to bind texture image");
+                throw new EglException("Failed to bind texture image");
         }
 
         public void ReleaseTexImage(EglSurface surface)
         {
             if (!eglReleaseTexImage(NativePointer, surface, EGL_BACK_BUFFER))
-                throw new Exception("Failed to release texture image");
+                throw new EglException("Failed to release texture image");
         }
 
         protected override bool ReleaseHandle()

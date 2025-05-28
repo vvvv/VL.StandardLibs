@@ -28,10 +28,11 @@ namespace VL.Skia.Video
         private readonly Queue<(Texture2D texture, string metadata)> textureDownloads = new Queue<(Texture2D texture, string metadata)>();
         private readonly Subject<IResourceProvider<VideoFrame>> frames = new Subject<IResourceProvider<VideoFrame>>();
         private readonly SerialDisposable texturePoolSubscription = new SerialDisposable();
-        private readonly RenderContext renderContext;
+        private readonly RenderContextProvider renderContextProvider;
         private readonly VideoStream videoStream;
 
         // Nullable
+        private RenderContext previousRenderContext;
         private Device device;
         private Texture2D renderTarget;
         private EglSurface eglSurface;
@@ -39,10 +40,7 @@ namespace VL.Skia.Video
 
         public SKImageToVideoStream()
         {
-            renderContext = RenderContext.ForCurrentApp();
-            var eglContext = renderContext.EglContext;
-            if (eglContext.Display.TryGetD3D11Device(out var devicePtr))
-                device = new Device(devicePtr);
+            renderContextProvider = AppHost.Current.GetRenderContextProvider();
             videoStream = new VideoStream(frames);
         }
 
@@ -51,16 +49,25 @@ namespace VL.Skia.Video
             if (image is null)
                 return null;
 
+            var renderContext = renderContextProvider.GetRenderContext();
+            if (renderContext != previousRenderContext)
+            {
+                previousRenderContext = renderContext;
+
+                if (renderContext.EglContext.Display.TryGetD3D11Device(out var devicePtr))
+                    device = new Device(devicePtr);
+            }
+
             using var _ = renderContext.MakeCurrent(forRendering: false);
             if (device != null)
-                DownloadWithStagingTexture(image, metadata);
+                DownloadWithStagingTexture(renderContext, image, metadata);
             else
                 DownloadWithRasterImage(image, metadata);
 
             return videoStream;
         }
 
-        private void DownloadWithStagingTexture(SKImage skImage, string metadata)
+        private void DownloadWithStagingTexture(RenderContext renderContext, SKImage skImage, string metadata)
         {
             // Fast path
             // - Create render texture
@@ -248,6 +255,7 @@ namespace VL.Skia.Video
             while (textureDownloads.Count > 0)
                 textureDownloads.Dequeue().texture.Dispose();
 
+            var renderContext = renderContextProvider.GetRenderContext();
             using var _ = renderContext.MakeCurrent(forRendering: false);
             surface?.Dispose();
             eglSurface?.Dispose();

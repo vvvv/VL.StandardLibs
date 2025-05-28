@@ -52,10 +52,10 @@ namespace VL.Stride
 
             // Fetch the skia render context (uses ANGLE -> DirectX11)
             var skiaRenderContext = SkiaRenderContext.ForCurrentApp();
-            if (msaaAwareEglContext is null || msaaAwareEglContext.SampleCount != sampleCount)
+            var shareContext = skiaRenderContext.EglContext;
+            if (msaaAwareEglContext is null || msaaAwareEglContext.SampleCount != sampleCount || msaaAwareEglContext.ShareContext != shareContext)
             {
                 msaaAwareEglContext?.Dispose();
-                var shareContext = skiaRenderContext.EglContext;
                 msaaAwareEglContext = EglContext.New(shareContext.Display, sampleCount, shareContext);
             }
 

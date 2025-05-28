@@ -36,10 +36,7 @@ namespace VL.Video.MF
             activate->GetStringLength(in guid, out var length);
 
             Span<char> buffer = stackalloc char[(int)length + 1];
-            fixed (char* c = buffer)
-            {
-                activate->GetString(in guid, new PWSTR(c), (uint)buffer.Length, &length);
-            }
+            activate->GetString(in guid, buffer, &length);
 
             return buffer.Slice(0, (int)length).ToString();
         }

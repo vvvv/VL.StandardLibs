@@ -65,6 +65,7 @@ namespace VL.Core.Reactive
         }
 
         internal ConcurrentDictionary<string, IChannel<object>> Channels = new();
+        internal ConcurrentDictionary<string, IChannel<object>> AnonymousChannels = new();
 
         internal ConcurrentBag<IModule> Modules = new();
 
@@ -112,6 +113,29 @@ namespace VL.Core.Reactive
         public IChannel<object>? TryGetChannel(string key)
         {
             Channels.TryGetValue(key, out var c);
+            return c;
+        }
+
+        public IChannel<object>? TryAddAnonymousChannelsChannel(string key, Type typeOfValues)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return default;
+
+            var c = AnonymousChannels.GetOrAdd(key, _ =>
+            {
+                var c = ChannelHelpers.CreateChannelOfType(typeOfValues);
+                ((IInternalChannel)c).SetPath(key);
+                return c;
+            });
+            if (c.ClrTypeOfValues != typeOfValues)
+                return default;
+
+            return c;
+        }
+
+        public IChannel<object>? TryGetAnonymousChannelsChannel(string key)
+        {
+            AnonymousChannels.TryGetValue(key, out var c);
             return c;
         }
 

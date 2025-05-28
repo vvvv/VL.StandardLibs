@@ -8,18 +8,20 @@ namespace VL.Lib.Basics.Video
 {
     public sealed class VideoPlaybackContext
     {
+        private readonly Func<IntPtr>? graphicsDeviceFactory;
+
         // 6.0 compatibility
         public VideoPlaybackContext(IFrameClock frameClock, IntPtr graphicsDevice = default, GraphicsDeviceType deviceType = default, bool usesLinearColorspace = false)
-            : this(frameClock, AppHost.Current.LoggerFactory.CreateLogger<VideoPlaybackContext>(), graphicsDevice, deviceType, usesLinearColorspace)
+            : this(frameClock, AppHost.Current.LoggerFactory.CreateLogger<VideoPlaybackContext>(), graphicsDevice != default ? () => graphicsDevice : default, deviceType, usesLinearColorspace)
         {
 
         }
 
-        public VideoPlaybackContext(IFrameClock frameClock, ILogger logger, IntPtr graphicsDevice = default, GraphicsDeviceType deviceType = default, bool usesLinearColorspace = false)
+        public VideoPlaybackContext(IFrameClock frameClock, ILogger logger, Func<IntPtr>? graphicsDeviceFactory = default, GraphicsDeviceType deviceType = default, bool usesLinearColorspace = false)
         {
             FrameClock = frameClock;
             Logger = logger;
-            GraphicsDevice = graphicsDevice;
+            this.graphicsDeviceFactory = graphicsDeviceFactory;
             GraphicsDeviceType = deviceType;
             UsesLinearColorspace = usesLinearColorspace;
         }
@@ -27,7 +29,7 @@ namespace VL.Lib.Basics.Video
         public IFrameClock FrameClock { get; }
         public ILogger Logger { get; }
 
-        public IntPtr GraphicsDevice { get; }
+        public IntPtr GraphicsDevice => graphicsDeviceFactory != null ? graphicsDeviceFactory.Invoke() : IntPtr.Zero;
 
         public GraphicsDeviceType GraphicsDeviceType { get; }
 
