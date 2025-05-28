@@ -94,12 +94,17 @@ namespace VL.IO.Redis.Experimental
             bool connectAsync = true)
         {
             _nickname = nickname.TryGetValue(configuration.IsNullOrEmpty() ? "" : configuration.Substring(0, configuration.IndexOf(':')));
-            Initialization = initialization;
-            BindingType = bindingType;
-            CollisionHandling = collisionHandling;
-            SerializationFormat = serializationFormat;
-            Expiry = expiry.ToNullable();
-            When = when;
+
+            Model = Model with
+            { 
+                Initialization = initialization,
+                BindingType = bindingType,
+                CollisionHandling = collisionHandling,
+                SerializationFormat = serializationFormat,
+                Expiry = expiry.ToNullable(),
+                When = when
+            };
+
             var client = _redisClientManager.Update(configuration, configure, database, serializationFormat, connectAsync, this);
             if (client != _redisClient)
             {
@@ -109,12 +114,8 @@ namespace VL.IO.Redis.Experimental
             }
         }
 
-        public Initialization Initialization { get; internal set; } = Initialization.Redis;
-        public BindingDirection BindingType { get; internal set; } = BindingDirection.InOut;
-        public CollisionHandling CollisionHandling { get; internal set; } = CollisionHandling.None;
-        public SerializationFormat SerializationFormat { get; internal set; } = SerializationFormat.MessagePack;
-        public TimeSpan? Expiry { get; internal set; }
-        public When When { get; internal set; } = When.Always;
+
+        public ResolvedBindingModel Model = new ResolvedBindingModel(Model: default, Key: default, PublicChannelPath: default);
 
 
         [Fragment]
@@ -147,6 +148,8 @@ namespace VL.IO.Redis.Experimental
             }
         }
 
+        ResolvedBindingModel _latestUpdateModel;
+
         private void UpdateBindingsFromModel(ImmutableDictionary<string, BindingModel> model)
         {
             if (_redisClient is null)
@@ -154,6 +157,9 @@ namespace VL.IO.Redis.Experimental
                 _logger.LogWarning("No active Redis client. Can't sync bindings.");
                 return;
             }
+
+            var allBindingsPotentiallyChanged = _latestUpdateModel != Model;
+            _latestUpdateModel = Model;
 
             // Cleanup
             var obsoleteBindings = new List<IBinding>();
@@ -167,7 +173,7 @@ namespace VL.IO.Redis.Experimental
                 if (model.TryGetValue(key, out var bindingModel))
                 {
                     // Did the model change?
-                    if (resolvedBindingModel.Model != bindingModel)
+                    if (allBindingsPotentiallyChanged || resolvedBindingModel.Model != bindingModel)
                         obsoleteBindings.Add(binding);
                 }
                 else

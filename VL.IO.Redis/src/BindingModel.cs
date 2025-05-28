@@ -18,7 +18,7 @@ namespace VL.IO.Redis
     /// <param name="SerializationFormat">The serialization format to used for this binding. If not specified the one from the <see cref="RedisClient"/> is used.</param>
     /// <param name="Expiry">Allows to make this key expire (and vanish) from the Redis database. The channel will persist and will pick up values as soon as the key in the Db exists again.</param>
     /// <param name="When">Which condition to set the value under (defaults to always).</param>
-    public record struct BindingModel(
+    public readonly record struct BindingModel(
         Optional<string> Key = default,
         Optional<Initialization> Initialization = default, //Initialization.Redis
         Optional<BindingDirection> BindingType = default, //BindingDirection.InOut
@@ -40,25 +40,26 @@ namespace VL.IO.Redis
             return channelName ?? "";
         }
 
-        Initialization ResolvedInitialization(RedisModule m) => Initialization.TryGetValue(m.Initialization);
-        BindingDirection ResolvedBindingType(RedisModule m) => BindingType.TryGetValue(m.BindingType);
-        CollisionHandling ResolvedCollisionHandling(RedisModule m) => CollisionHandling.TryGetValue(m.CollisionHandling);
-        SerializationFormat ResolvedSerializationFormat(RedisModule m) => SerializationFormat.TryGetValue(m.SerializationFormat);
-        TimeSpan? ResolvedExpiry(RedisModule m) => Expiry.HasValue ? Expiry.Value : m.Expiry;
-        When ResolvedWhen(RedisModule m) => When.TryGetValue(m.When);
+        Initialization ResolvedInitialization(ResolvedBindingModel m) => Initialization.TryGetValue(m.Initialization);
+        BindingDirection ResolvedBindingType(ResolvedBindingModel m) => BindingType.TryGetValue(m.BindingType);
+        CollisionHandling ResolvedCollisionHandling(ResolvedBindingModel m) => CollisionHandling.TryGetValue(m.CollisionHandling);
+        SerializationFormat ResolvedSerializationFormat(ResolvedBindingModel m) => SerializationFormat.TryGetValue(m.SerializationFormat);
+        TimeSpan? ResolvedExpiry(ResolvedBindingModel m) => Expiry.HasValue ? Expiry.Value : m.Expiry;
+        When ResolvedWhen(ResolvedBindingModel m) => When.TryGetValue(m.When);
 
         public ResolvedBindingModel Resolve(RedisModule m, IChannel channel)
         {
+            var model = m.Model;
             return new ResolvedBindingModel(
                 this,
                 Key: ResolveKey(channel),
                 PublicChannelPath: channel.Path,
-                Initialization: ResolvedInitialization(m),
-                BindingType: ResolvedBindingType(m),
-                CollisionHandling: ResolvedCollisionHandling(m),
-                SerializationFormat: ResolvedSerializationFormat(m),
-                Expiry: ResolvedExpiry(m),
-                When: ResolvedWhen(m),
+                Initialization: ResolvedInitialization(model),
+                BindingType: ResolvedBindingType(model),
+                CollisionHandling: ResolvedCollisionHandling(model),
+                SerializationFormat: ResolvedSerializationFormat(model),
+                Expiry: ResolvedExpiry(model),
+                When: ResolvedWhen(model),
                 CreatedViaNode: CreatedViaNode);
         }
 
@@ -91,10 +92,10 @@ namespace VL.IO.Redis
         }
     }
 
-    public record struct ResolvedBindingModel(
+    public readonly record struct ResolvedBindingModel(
         BindingModel Model,
         string? PublicChannelPath,
-        string Key,
+        string? Key,
         Initialization Initialization = Initialization.Redis,
         BindingDirection BindingType = BindingDirection.InOut,
         CollisionHandling CollisionHandling = default,
