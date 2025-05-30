@@ -3,17 +3,11 @@ using System;
 
 using EGLDisplay = System.IntPtr;
 using static VL.Skia.Egl.NativeEgl;
-using VL.Core;
 
 namespace VL.Skia.Egl
 {
     sealed class EglDisplayProvider : IDisposable
     {
-        public static EglDisplayProvider ForApp(AppHost appHost)
-        {
-            return appHost.Services.GetOrAddService(s => new EglDisplayProvider(EglDeviceProvider.ForApp(appHost)), allowToAskParent: false);
-        }
-
         private readonly EglDeviceProvider deviceProvider;
         private EglDisplay? display;
 

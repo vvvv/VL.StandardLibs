@@ -7,24 +7,17 @@ using EGLDeviceEXT = System.IntPtr;
 using static VL.Skia.Egl.NativeEgl;
 using VL.Core;
 using VL.Lib.Basics.Video;
-using Microsoft.Extensions.DependencyInjection;
-using Windows.Win32.Foundation;
 
 namespace VL.Skia.Egl
 {
     sealed class EglDeviceProvider : IDisposable
     {
-        public static EglDeviceProvider ForApp(AppHost appHost)
-        {
-            return appHost.Services.GetOrAddService(s => new EglDeviceProvider(s), allowToAskParent: false);
-        }
-
-        private readonly IServiceProvider serviceProvider;
+        private readonly IGraphicsDeviceProvider? graphicsDeviceProvider;
         private EglDevice? device;
 
-        public EglDeviceProvider(IServiceProvider serviceProvider)
+        public EglDeviceProvider(IGraphicsDeviceProvider? graphicsDeviceProvider = null)
         {
-            this.serviceProvider = serviceProvider;
+            this.graphicsDeviceProvider = graphicsDeviceProvider;
         }
 
         public EglDevice GetDevice()
@@ -35,7 +28,7 @@ namespace VL.Skia.Egl
                 device = null;
             }
 
-            return device ??= CreateDevice(serviceProvider);
+            return device ??= CreateDevice();
         }
 
         public void Dispose()
@@ -44,16 +37,15 @@ namespace VL.Skia.Egl
             device = null;
         }
 
-        private EglDevice CreateDevice(IServiceProvider s)
+        private EglDevice CreateDevice()
         {
             if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
             {
                 EglDevice device;
                 // TODO: Hmm, because of extensions assemblies being part of service scope we always create a Stride game this way - ideas?
-                if (s.GetService<IGraphicsDeviceProvider>() is IGraphicsDeviceProvider graphicsDeviceProvider &&
-                    graphicsDeviceProvider.Type == GraphicsDeviceType.Direct3D11)
+                if (graphicsDeviceProvider?.Type == GraphicsDeviceType.Direct3D11)
                 {
-                    device = EglDevice.FromD3D11(graphicsDeviceProvider.NativePointer, graphicsDeviceProvider);
+                    device = EglDevice.FromD3D11(graphicsDeviceProvider.NativePointer, graphicsDeviceProvider.UseLinearColorspace);
                 }
                 else
                 {
@@ -70,12 +62,12 @@ namespace VL.Skia.Egl
 
     public unsafe sealed class EglDevice : EglResource
     {
-        public static EglDevice FromD3D11(IntPtr d3dDevice, IGraphicsDeviceProvider? graphicsDeviceProvider = null)
+        public static EglDevice FromD3D11(IntPtr d3dDevice, bool useLinearColorSpace = false)
         {
             var angleDevice = eglCreateDeviceANGLE(EGL_D3D11_DEVICE_ANGLE, d3dDevice, null);
             if (angleDevice == default)
                 throw new EglException("Failed to create EGL device");
-            return new EglDevice(angleDevice, (ID3D11Device*)d3dDevice, graphicsDeviceProvider: graphicsDeviceProvider);
+            return new EglDevice(angleDevice, (ID3D11Device*)d3dDevice, useLinearColorSpace: useLinearColorSpace);
         }
 
         [SupportedOSPlatform("windows6.1")]
@@ -111,20 +103,19 @@ namespace VL.Skia.Egl
             }
         }
 
-        private readonly IGraphicsDeviceProvider? graphicsDeviceProvider;
         private readonly ID3D11Device* nativeDevice;
 
-        private EglDevice(EGLDeviceEXT angleDevice, ID3D11Device* nativeDevice, nint contextState = default, IGraphicsDeviceProvider? graphicsDeviceProvider = null)
+        private EglDevice(EGLDeviceEXT angleDevice, ID3D11Device* nativeDevice, nint contextState = default, bool useLinearColorSpace = false)
             : base(angleDevice)
         {
             ContextState = contextState;
-            this.graphicsDeviceProvider = graphicsDeviceProvider;
+            UseLinearColorspace = useLinearColorSpace;
             this.nativeDevice = nativeDevice;
         }
 
         public nint ContextState { get; }
 
-        public bool UseLinearColorspace => graphicsDeviceProvider?.UseLinearColorspace ?? false;
+        public bool UseLinearColorspace { get; }
 
         public bool IsLost
         {

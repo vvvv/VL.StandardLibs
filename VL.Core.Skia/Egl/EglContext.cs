@@ -17,17 +17,11 @@ using System.Threading;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using VL.Core;
 
 namespace VL.Skia.Egl
 {
     sealed class EglContextProvider : IDisposable
     {
-        public static EglContextProvider ForApp(AppHost appHost)
-        {
-            return appHost.Services.GetOrAddService(s => new EglContextProvider(EglDisplayProvider.ForApp(appHost)), allowToAskParent: false);
-        }
-
         private readonly EglDisplayProvider displayProvider;
         private EglContext? context;
         public EglContextProvider(EglDisplayProvider displayProvider)
