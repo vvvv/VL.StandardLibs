@@ -17,7 +17,13 @@ namespace VL.Skia
     {
         public static RenderContextProvider GetRenderContextProvider(this AppHost appHost)
         {
-            var threadLocal = appHost.Services.GetOrAddService(s =>
+            var threadLocal = appHost.GetThreadLocalRenderContextProvider();
+            return threadLocal.Value!;
+        }
+
+        public static ThreadLocal<RenderContextProvider> GetThreadLocalRenderContextProvider(this AppHost appHost)
+        {
+            return appHost.Services.GetOrAddService(s =>
             {
                 // Keep a render context provider per thread
                 return new ThreadLocal<RenderContextProvider>(() =>
@@ -41,7 +47,6 @@ namespace VL.Skia
                     return renderContextProvider;
                 });
             }, allowToAskParent: false);
-            return threadLocal.Value!;
         }
     }
 

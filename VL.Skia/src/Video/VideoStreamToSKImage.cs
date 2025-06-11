@@ -22,9 +22,9 @@ namespace VL.Skia.Video
         private VideoStream? videoStream;
         private IResourceProvider<SKImage?>? current, latest;
 
-        public VideoStreamToSKImage(NodeContext nodeContext)
+        public VideoStreamToSKImage()
         {
-            renderContextProvider = nodeContext.AppHost.GetRenderContextProvider();
+            renderContextProvider = AppHost.Current.GetRenderContextProvider();
         }
 
         public unsafe VideoStream? VideoStream 

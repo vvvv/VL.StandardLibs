@@ -18,7 +18,7 @@ namespace VL.Skia.Video
 
         public VideoSourceToSKImage(NodeContext nodeContext)
         {
-            var appHost = nodeContext.AppHost;
+            var appHost = AppHost.Current;
             renderContextProvider = appHost.GetRenderContextProvider();
 
             var frameClock = appHost.Services.GetRequiredService<IFrameClock>();

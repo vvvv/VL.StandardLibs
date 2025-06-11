@@ -223,6 +223,8 @@ namespace VL.Skia.Egl
         public EglImage CreateImageFromD3D11Texture(nint texture)
         {
             var image = eglCreateImageKHR(display, default, EGL_D3D11_TEXTURE_ANGLE, texture, null);
+            if (image == default)
+                Throw("Failed to create EGL image.");
             return new EglImage(display, image);
         }
 
