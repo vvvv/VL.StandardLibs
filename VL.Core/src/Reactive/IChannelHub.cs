@@ -88,9 +88,11 @@ namespace VL.Core.Reactive
         
         IChannel<object>? TryAddChannel(string key, Type typeOfValues);
 
-        bool TryRemoveChannel(string key);
+        bool TryRemoveChannel(string key, bool dispose = false);
 
         IChannel<object>? TryRenameChannel(string key, string newKey);
+
+        bool TryRegisterChannel(string key, IChannel<object> channel);
 
         IChannel<object>? TryChangeType(string key, Type typeOfValues);        
 

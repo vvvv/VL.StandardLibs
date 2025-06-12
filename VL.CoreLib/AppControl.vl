@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="NdfSuUoimRdNn7HA9H1DF5" LanguageVersion="2025.7.0-0382-g04d73d334b" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="NdfSuUoimRdNn7HA9H1DF5" LanguageVersion="2025.7.0-0396-g5e80567c00" Version="0.128">
   <Patch Id="RaGjC5RM7sfP19PNjX94It">
     <Canvas Id="R0sbd7hO8N2O1uYsIzGhwC" CanvasType="FullCategory">
       <Canvas Id="QMiyB9eyPZGMC3b8zSEuWa" Name="Reactive.Experimental" Position="451,397">
@@ -327,7 +327,7 @@
     ************************ TryRemoveChannel ************************
 
 -->
-              <Node Name="TryRemoveChannel" Bounds="1167,482,193,182" Id="OuCNAyouRsGOsheLQ3VPX0">
+              <Node Name="TryRemoveChannel" Bounds="1167,482,236,182" Id="OuCNAyouRsGOsheLQ3VPX0">
                 <p:NodeReference>
                   <Choice Kind="OperationDefinition" Name="Operation" />
                   <CategoryReference Kind="Category" Name="Primitive" />
@@ -343,6 +343,7 @@
                     <Pin Id="LbyNDDRXToMPvWrmRZrqPp" Name="Key" Kind="InputPin" />
                     <Pin Id="NcJAFXvZZzGPafcBTjVtku" Name="Output" Kind="StateOutputPin" />
                     <Pin Id="Abo07maZ9WlQT4xWc1AOVk" Name="Result" Kind="OutputPin" />
+                    <Pin Id="SU3hLvEuripM4IvmC0I0Yl" Name="Dispose" Kind="InputPin" />
                   </Node>
                   <Node Bounds="1179,517,84,26" AutoConnect="true" Id="HVOS2WYIdPwNZHZXdP9GNL">
                     <p:NodeReference LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.Reactive.vl">
@@ -365,6 +366,10 @@
                   <ControlPoint Id="RtKM9qxp4rvNzWOZJAj1hO" Bounds="1290,647" />
                   <Link Id="AxX6CKjxBmoOTrzpZkulk6" Ids="RtKM9qxp4rvNzWOZJAj1hO,VkatxlhjzF0PeaGjuPWHii" IsHidden="true" />
                   <Link Id="AF6NSJP0xmlNlh2jQdKWTr" Ids="Abo07maZ9WlQT4xWc1AOVk,RtKM9qxp4rvNzWOZJAj1hO" />
+                  <ControlPoint Id="LXvd7h6gxgKMDf9gQJswTd" Bounds="1343,550" />
+                  <Link Id="OVT8U469LimO6qpxT2c4RP" Ids="LXvd7h6gxgKMDf9gQJswTd,SU3hLvEuripM4IvmC0I0Yl" />
+                  <Pin Id="I3zhxBLpgHLLcIEGeN844A" Name="Dispose" Kind="InputPin" />
+                  <Link Id="VCJfNB4vvtDOdMl9JJFgp7" Ids="I3zhxBLpgHLLcIEGeN844A,LXvd7h6gxgKMDf9gQJswTd" IsHidden="true" />
                 </Patch>
               </Node>
               <!--
@@ -817,6 +822,48 @@
                   <Link Id="Q4KJ8ZPLtjpL3uB99AEhXi" Ids="Qg5853WLO0LPuHJI99tssr,UQa8WADenkyNk7JzOeC1Kr" />
                 </Patch>
               </Node>
+              <!--
+
+    ************************ TryRegisterChannel ************************
+
+-->
+              <Node Name="TryRegisterChannel" Bounds="1429,360,129,150" Id="TKdd7259VwmLdttfHQktij">
+                <p:NodeReference>
+                  <Choice Kind="OperationDefinition" Name="Operation" />
+                  <CategoryReference Kind="Category" Name="Primitive" />
+                </p:NodeReference>
+                <p:HideCategory p:Type="Boolean">false</p:HideCategory>
+                <Patch Id="LZHcVLYF1ZwQHL9rBiuKUu">
+                  <Node Bounds="1441,464,105,26" AutoConnect="true" Id="Vc22pGG8ZxIOpzYYTiXfdK">
+                    <p:NodeReference LastCategoryFullName="VL.Core.Reactive.IChannelHub" LastDependency="VL.Core.dll">
+                      <Choice Kind="OperationNode" Name="TryRegisterChannel" />
+                      <FullNameCategoryReference ID="VL.Core.Reactive.IChannelHub" />
+                    </p:NodeReference>
+                    <Pin Id="OHbCmWB2HphNWmWnrjADBg" Name="Input" Kind="StateInputPin" />
+                    <Pin Id="EF6NQ947HPHPRlv8FknESG" Name="Key" Kind="InputPin" />
+                    <Pin Id="Tka0cGrv1pRM5dEXdcWyiC" Name="Channel" Kind="InputPin" />
+                    <Pin Id="AX6BM821tklNNbS6jS27Dm" Name="Output" Kind="StateOutputPin" />
+                    <Pin Id="L65XOUIaR9KNBiQnsPMEzH" Name="Result" Kind="OutputPin" />
+                  </Node>
+                  <Node Bounds="1441,395,84,26" AutoConnect="true" Id="FlpXy7gjCXrPFORB0VQy49">
+                    <p:NodeReference LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.Reactive.vl">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <Choice Kind="OperationCallFlag" Name="HubForAppOpt" />
+                    </p:NodeReference>
+                    <Pin Id="UniG2zJdZ2LQMoIhCs4dVe" Name="Channel Hub" Kind="InputPin" />
+                    <Pin Id="OlzCJGC8WdpM44vNdADTrU" Name="Output" Kind="OutputPin" />
+                  </Node>
+                  <ControlPoint Id="PsU5v6ROYFNL8hqBJKKTWn" Bounds="1443,378" />
+                  <Pin Id="FXdlPUXOvwsQR4VCpuOtRD" Name="Key" Kind="InputPin" />
+                  <Pin Id="VLbDt8UyLp2Li0W2Al2CTD" Name="Channel Hub" Kind="InputPin" Visibility="Optional" />
+                  <Link Id="N4ktaZMfATJNgZZcuTReYn" Ids="VLbDt8UyLp2Li0W2Al2CTD,PsU5v6ROYFNL8hqBJKKTWn" IsHidden="true" />
+                  <Link Id="MG1qHtnUs8eLvvQg4neM01" Ids="PsU5v6ROYFNL8hqBJKKTWn,UniG2zJdZ2LQMoIhCs4dVe" />
+                  <Pin Id="Lmzdu3SruwJOgvuOOOyKXy" Name="Channel" Kind="InputPin" />
+                  <Pin Id="IpPgWZvJd07QayJQ5yq83k" Name="Output" Kind="OutputPin" />
+                  <Pin Id="UyzYZc5Qv0jQEUFLeTx3ER" Name="Result" Kind="OutputPin" />
+                  <Link Id="E8phrqdj0TmLCPaVUsCYlF" Ids="OlzCJGC8WdpM44vNdADTrU,OHbCmWB2HphNWmWnrjADBg" />
+                </Patch>
+              </Node>
             </Canvas>
             <ProcessDefinition Id="FCFBoc44aVCMuwgricDjus" IsHidden="true">
               <Fragment Id="DYHLbzs99fbLImhXNEIcNX" Patch="D2AKUeZJBkJPSUm7BFcnjC" />
@@ -835,6 +882,7 @@
               <Fragment Id="OYjBsr39xYQNmkuhceleUo" Patch="NqUflQNk9P9LvYuATxxZFd" />
               <Fragment Id="FqcKfWfrr1yOVzjwe31kDO" Patch="CQxZBEmw3BRLoGDjwH606K" />
               <Fragment Id="U6e9lwgy6I5PtrptfIwVcp" Patch="TVz6mlncvIvM4fhTtg3GE5" />
+              <Fragment Id="CaJrSDBEaeQPyvwu0h6nwL" Patch="TKdd7259VwmLdttfHQktij" />
             </ProcessDefinition>
             <Patch Id="IG4SfCrxgyANdBViEqPrHA" Name="Update" />
           </Patch>

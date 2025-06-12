@@ -90,6 +90,18 @@ namespace VL.Core.Reactive
                 OnChannelsChanged.Value = this;
         }
 
+        public bool TryRegisterChannel(string key, IChannel<object> channel)
+        {
+            using var _ = BeginChange();
+            var c = Channels.GetOrAdd(key, _ =>
+            {
+                ((IInternalChannel)channel).SetPath(key);
+                if (!channel.IsAnonymous()) revision++;
+                return channel;
+            });
+            return c == channel;
+        }
+
         public IChannel<object>? TryAddChannel(string key, Type typeOfValues)
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -139,14 +151,15 @@ namespace VL.Core.Reactive
             return c;
         }
 
-        public bool TryRemoveChannel(string key)
+        public bool TryRemoveChannel(string key, bool dispose = false)
         {
             using var _ = BeginChange();
             var gotRemoved = Channels.TryRemove(key, out var c);
             if (c != null)
             {
                 if (!c.IsAnonymous()) revision++;
-                c.Dispose();
+                if (dispose)
+                    c.Dispose();
             }
             return gotRemoved;
         }
