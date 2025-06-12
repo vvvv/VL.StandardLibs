@@ -8,7 +8,7 @@
     ************************ SceneA ************************
 
 -->
-      <Node Name="SceneA" Bounds="277,354" Id="EOS1xI5Zdy1Qa5UbhxUIH2">
+      <Node Name="SceneA" Bounds="254,320" Id="EOS1xI5Zdy1Qa5UbhxUIH2">
         <p:NodeReference>
           <Choice Kind="ClassDefinition" Name="Class" />
           <CategoryReference Kind="Category" Name="Primitive" />
@@ -481,7 +481,7 @@
     ************************ Spot ************************
 
 -->
-      <Node Name="Spot" Bounds="296,419" Id="OFDF7sEsb6wMOEzpdnyva2">
+      <Node Name="Spot" Bounds="273,385" Id="OFDF7sEsb6wMOEzpdnyva2">
         <p:NodeReference>
           <Choice Kind="ClassDefinition" />
         </p:NodeReference>
@@ -662,6 +662,123 @@
           <Link Id="OySJLJUDS4jM6OLjDfuLG0" Ids="BcE229jlf5bO6GiHqMNBIk,RWpGpYgPpghLDNVIWvmbZn" />
         </Patch>
       </Node>
+      <!--
+
+    ************************ MyStartup ************************
+
+-->
+      <Node Name="MyStartup" Bounds="552,400" Id="P5Yl3eOuvGlLyMy3O5aWxI">
+        <p:NodeReference>
+          <Choice Kind="ClassDefinition" />
+        </p:NodeReference>
+        <p:Interfaces>
+          <TypeReference LastCategoryFullName="System.Application" LastDependency="VL.CoreLib.vl">
+            <Choice Kind="MutableInterfaceType" Name="IStartup" />
+          </TypeReference>
+        </p:Interfaces>
+        <Patch Id="NWbKS8A6qSVOPGoiQ5AypT">
+          <Canvas Id="BwIbdlVbGvwOOECdhtNdVJ" CanvasType="Group">
+            <ControlPoint Id="H2eexhbYVgkLPTiSZN6SxI" Bounds="684,290" />
+            <Node Bounds="682,510,109,26" Id="ACPBS2K25uUMzFQEWPN7Yk">
+              <p:NodeReference LastCategoryFullName="Microsoft.Extensions.Configuration.ChainedBuilderExtensions" LastDependency="Microsoft.Extensions.Configuration.dll">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <FullNameCategoryReference ID="Microsoft.Extensions.Configuration.ChainedBuilderExtensions" />
+                <Choice Kind="OperationCallFlag" Name="AddConfiguration" />
+              </p:NodeReference>
+              <Pin Id="EEFQOgqxr1oNSPokwwClAL" Name="Input" Kind="StateInputPin" />
+              <Pin Id="C5D2UkpCLIzL0oYeU7nxtm" Name="Config" Kind="InputPin" />
+              <Pin Id="Jhay5MzRp2kMEb66KzwS2o" Name="Output" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="786,380,96,26" Id="Mm7DtEXhykfM2aTrgPF76L">
+              <p:NodeReference LastCategoryFullName="Microsoft.Extensions.Configuration.ConfigurationManager" LastDependency="Microsoft.Extensions.Configuration.dll">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <FullNameCategoryReference ID="Microsoft.Extensions.Configuration.ConfigurationManager" />
+                <Choice Kind="OperationCallFlag" Name="Create" />
+              </p:NodeReference>
+              <Pin Id="T6UBYgudfeLMEQ1RtTFGLI" Name="Output" Kind="StateOutputPin" />
+            </Node>
+            <Node Bounds="786,431,96,26" Id="NakcmpoGbAzNnj7LTR8ZZP">
+              <p:NodeReference LastCategoryFullName="Microsoft.Extensions.Configuration.ConfigurationManager" LastDependency="Microsoft.Extensions.Configuration.dll">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <FullNameCategoryReference ID="Microsoft.Extensions.Configuration.ConfigurationManager" />
+                <Choice Kind="OperationCallFlag" Name="SetItem" />
+              </p:NodeReference>
+              <Pin Id="GE9He08yJGALUb3z70ye23" Name="Input" Kind="StateInputPin" />
+              <Pin Id="F8GK1VGrihcQI7WYqheNyP" Name="Key" Kind="InputPin" DefaultValue="Presets:Folder" />
+              <Pin Id="NjsdcO4EwJ1L8M22YvCuK4" Name="Value" Kind="InputPin" DefaultValue="C:\dev\vvvv\VL.StandardLibs\VL.Stride\help\Misc" />
+              <Pin Id="QrjhHE7xQEjQB8Pfm2D1YQ" Name="Output" Kind="StateOutputPin" />
+            </Node>
+            <Pad Id="SZyrnklRwxlQW8nudbYvhU" Comment="Key" Bounds="834,330,72,15" ShowValueBox="true" isIOBox="true" Value="Presets:Folder">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="String" />
+              </p:TypeAnnotation>
+            </Pad>
+            <Node Bounds="953,350,75,26" Id="GtzwoT6rtPOP8FZ9OvSIz6">
+              <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="CoreLibBasics.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="OperationCallFlag" Name="AppBasePath" />
+              </p:NodeReference>
+              <Pin Id="TFXgt2HJ8TZQYuJ40SkEjI" Name="Input" Kind="StateInputPin" />
+              <Pin Id="Ny6sfJBDjl0M9I3pjQmtl6" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="DwSfKIkHDA0NmM7YBGm5IO" Name="App Base Path" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="1023,394,25,19" Id="SK6htpbpgoVPft0YbQLUZ0">
+              <p:NodeReference LastCategoryFullName="Math" LastDependency="CoreLibBasics.vl">
+                <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                <Choice Kind="OperationCallFlag" Name="+" />
+              </p:NodeReference>
+              <Pin Id="LTnN408Uz3DOTkW6a6dGHd" Name="Input" Kind="InputPin" />
+              <Pin Id="CNifREGa2GsLsmuxKjrjuC" Name="Input 2" Kind="InputPin" DefaultValue="\presets" />
+              <Pin Id="VxetnJIh3HiLnaQ8pUjdNm" Name="Output" Kind="OutputPin" />
+            </Node>
+            <Pad Id="TTTJ6WYLeFvLJ21x0Et2F7" Comment="" Bounds="1045,360,64,15" ShowValueBox="true" isIOBox="true" Value="\presets_">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="String" />
+              </p:TypeAnnotation>
+            </Pad>
+            <Pad Id="VenNHl96ktyMbyL1l7Yx1d" Bounds="834,500,380,19" ShowValueBox="true" isIOBox="true" Value="The configuration will be read when the preset system starts up">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="String" />
+              </p:TypeAnnotation>
+              <p:ValueBoxSettings>
+                <p:fontsize p:Type="Int32">9</p:fontsize>
+                <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+              </p:ValueBoxSettings>
+            </Pad>
+          </Canvas>
+          <Patch Id="CnkZyceCuqUNC6K05QHV4z" Name="Create" />
+          <!--
+
+    ************************  ************************
+
+-->
+          <ProcessDefinition Id="AdprXZDFkXEOQ2Eitewlgp" IsHidden="true">
+            <Fragment Id="GJuDr4JFSiXNHH033kQ1s2" Patch="CnkZyceCuqUNC6K05QHV4z" Enabled="true" />
+            <Fragment Id="VowKDG5pyqMMAnsdykB31Q" Patch="K2hIkzE0efPP8yCmOp8Fwe" />
+          </ProcessDefinition>
+          <Patch Id="K2hIkzE0efPP8yCmOp8Fwe" Name="SetupConfiguration">
+            <Pin Id="NKqyhqpgTWfQXy7VZeGtw8" Name="App Host" Kind="InputPin" />
+            <Pin Id="AJN1iCBCy0mPufvkPE0v7M" Name="Configuration Builder" Kind="InputPin" />
+          </Patch>
+          <Link Id="UEmr6L6lL50NQDQbuUmoeK" Ids="AJN1iCBCy0mPufvkPE0v7M,H2eexhbYVgkLPTiSZN6SxI" IsHidden="true" />
+          <Link Id="U6UD6Y64zK0QbUeievaG9I" Ids="H2eexhbYVgkLPTiSZN6SxI,EEFQOgqxr1oNSPokwwClAL" />
+          <Link Id="SOk56pWB8hdLe8YEr85z50" Ids="T6UBYgudfeLMEQ1RtTFGLI,GE9He08yJGALUb3z70ye23" />
+          <Link Id="GIH66M8v2E3MJvDs0aB7xP" Ids="QrjhHE7xQEjQB8Pfm2D1YQ,C5D2UkpCLIzL0oYeU7nxtm" />
+          <Link Id="GOwE9nLBqfcLl6NRqcqPeQ" Ids="SZyrnklRwxlQW8nudbYvhU,F8GK1VGrihcQI7WYqheNyP" />
+          <Link Id="JN2oDvhrCTPN8RcGM2DEkQ" Ids="DwSfKIkHDA0NmM7YBGm5IO,LTnN408Uz3DOTkW6a6dGHd" />
+          <Link Id="O98e5zswKUrPtqDukxjBjV" Ids="TTTJ6WYLeFvLJ21x0Et2F7,CNifREGa2GsLsmuxKjrjuC" />
+          <Link Id="PnvUh1HUAL0NJmYemvEaEt" Ids="VxetnJIh3HiLnaQ8pUjdNm,NjsdcO4EwJ1L8M22YvCuK4" />
+        </Patch>
+      </Node>
+      <Pad Id="Uiiyja5sFe9NCmHEo5yQ3i" Bounds="536,273,333,89" ShowValueBox="true" isIOBox="true" Value="Allows to configure services before application starts.&#xD;&#xA;&#xD;&#xA;We use it to set the preset folder before presets get loaded.">
+        <p:TypeAnnotation>
+          <Choice Kind="TypeFlag" Name="String" />
+        </p:TypeAnnotation>
+        <p:ValueBoxSettings>
+          <p:fontsize p:Type="Int32">9</p:fontsize>
+          <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+        </p:ValueBoxSettings>
+      </Pad>
     </Canvas>
     <!--
 
@@ -871,4 +988,5 @@
     </Node>
   </Patch>
   <NugetDependency Id="N3QuYeOHThUMg8JyZ3Et5F" Location="VL.Stride" Version="2024.6.7-0136-ga34ff89f71" />
+  <NugetDependency Id="Rdv2RquHSu5P76yqJnh2NQ" Location="Microsoft.Extensions.Configuration" Version="8.0.0" />
 </Document>
