@@ -1,5 +1,6 @@
 ﻿using Stride.Core.Mathematics;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reflection;
 using VL.Core;
 using VL.Core.EditorAttributes;
@@ -54,6 +55,27 @@ namespace VL.ImGui.Editors
                 if (staticType.GetGenericTypeDefinition() == typeof(Spread<>))
                     return Activator.CreateInstance(typeof(SpreadEditor<>).MakeGenericType(staticType.GenericTypeArguments), new object[] { channel, context }) as IObjectEditor;
                 // More collections
+            }
+
+            // Can we use type conversion to create an editor?
+            if (IsNumericType(staticType))
+            {
+                var channelView = new ChannelView<int>(channel)
+                {
+                    AsT = v => (int)Convert.ChangeType(v, typeof(int))!,
+                    ToObject = v =>
+                    {
+                        try
+                        {
+                            return Convert.ChangeType(v, staticType);
+                        }
+                        catch
+                        {
+                            return default;
+                        }
+                    }
+                };
+                return context.Factory.CreateObjectEditor(channelView, context);
             }
 
             var typeInfo = context.AppHost.TypeRegistry.GetTypeInfo(staticType);

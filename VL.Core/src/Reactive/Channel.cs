@@ -360,11 +360,11 @@ namespace VL.Lib.Reactive
 
     internal abstract class ChannelView_<T> : IChannel<T>
     {
-        static T asT(object? value)
+        static T? asT(object? value)
         {
             if (value is T t)
                 return t;
-            return default!;
+            return default;
         }
 
         protected readonly IChannel<object> original;
@@ -374,10 +374,18 @@ namespace VL.Lib.Reactive
             this.original = original.ChannelOfObject;
         }
 
+        public Func<object?, T?> AsT { get; init; } = asT;
+        public Func<T?, Optional<object?>> ToObject { get; init; } = v => v;
+
         public T? Value
         {
-            get => asT(original.Object);
-            set => original.Object = value;
+            get => AsT(original.Object);
+            set
+            {
+                var o = ToObject(value);
+                if (o.HasValue)
+                    original.Object = o.Value;
+            }
         }
 
         public Func<T?, Optional<T?>>? Validator
@@ -391,7 +399,7 @@ namespace VL.Lib.Reactive
                 }
                 original.Validator = v =>
                 {
-                    var opt = value(asT(v));
+                    var opt = value(AsT(v));
                     if (opt.HasValue)
                         return opt.Value;
                     return new Optional<object?>();
@@ -465,16 +473,18 @@ namespace VL.Lib.Reactive
 
         public IDisposable Subscribe(IObserver<T?> observer)
         {
-            return original.Subscribe(new ObserverWrapper(observer));
+            return original.Subscribe(new ObserverWrapper(observer, AsT));
         }
 
         private struct ObserverWrapper : IObserver<object?>
         {
             private readonly IObserver<T?> observer;
+            private readonly Func<object?, T?> asT;
 
-            public ObserverWrapper(IObserver<T?> observer)
+            public ObserverWrapper(IObserver<T?> observer, Func<object?, T?> asT)
             {
                 this.observer = observer;
+                this.asT = asT;
             }
 
             public void OnCompleted()
@@ -540,7 +550,7 @@ namespace VL.Lib.Reactive
 
         public static implicit operator T?(ChannelView<T> c) => c.Value;
 
-        public override string ToString() => original.ToString();
+        public override string? ToString() => original.ToString();
 
     }
 
