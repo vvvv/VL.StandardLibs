@@ -32,6 +32,8 @@ namespace VL.ImGui.Editors.Implementations
         private static MonadicEditor<TMonad, TValue>? Create_Generic<TMonad, TValue>(IChannel<TMonad> channel, ObjectEditorContext context)
         {
             var innerChannel = ChannelHelpers.CreateChannelOfType<TValue>();
+            foreach (var c in channel.Components)
+                innerChannel.AddComponent(c);
             var innerEditor = context.Factory.CreateObjectEditor(innerChannel, context);
             if (innerEditor is null)
                 return null;
