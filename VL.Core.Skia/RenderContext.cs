@@ -17,32 +17,52 @@ namespace VL.Skia
     {
         public static RenderContextProvider GetRenderContextProvider(this AppHost appHost)
         {
-            return appHost.Services.GetOrAddService(s => new RenderContextProvider(appHost), allowToAskParent: false);
+            var threadLocal = appHost.GetThreadLocalRenderContextProvider();
+            return threadLocal.Value!;
+        }
+
+        public static ThreadLocal<RenderContextProvider> GetThreadLocalRenderContextProvider(this AppHost appHost)
+        {
+            return appHost.Services.GetOrAddService(s =>
+            {
+                // Keep a render context provider per thread
+                return new ThreadLocal<RenderContextProvider>(() =>
+                {
+                    // Access external device on main thread only
+                    var isOnMainThread = SynchronizationContext.Current == appHost.SynchronizationContext;
+                    var externalDeviceProvider = isOnMainThread ? s.GetService<IGraphicsDeviceProvider>() : null;
+                    var deviceProvider = new EglDeviceProvider(externalDeviceProvider).DisposeBy(appHost);
+                    var displayProvider = new EglDisplayProvider(deviceProvider).DisposeBy(appHost);
+                    var eglContextProvider = new EglContextProvider(displayProvider).DisposeBy(appHost);
+                    var renderContextProvider = new RenderContextProvider(eglContextProvider, s).DisposeBy(appHost);
+
+                    if (isOnMainThread)
+                    {
+                        // Make sure the context is current whenever a new frame starts to ensure nodes that for example "download" pixel data (like Pipet) work.
+                        var frameclock = s.GetService<IFrameClock>();
+                        if (frameclock is not null)
+                            frameclock.GetTicks().Subscribe(_ => renderContextProvider.GetRenderContext().MakeCurrent()).DisposeBy(appHost);
+                    }
+
+                    return renderContextProvider;
+                });
+            }, allowToAskParent: false);
         }
     }
 
     public sealed class RenderContextProvider : IDisposable
     {
         private readonly EglContextProvider eglContextProvider;
-        private readonly IGraphicsDeviceProvider? graphicsDeviceProvider;
         private readonly IDisposable? clockSubscription;
         private readonly Subject<Unit> onDeviceLost = new();
         private RenderContext? renderContext;
 
-        public RenderContextProvider(AppHost appHost)
+        internal RenderContextProvider(EglContextProvider eglContextProvider, IServiceProvider services)
         {
-            eglContextProvider = EglContextProvider.ForApp(appHost);
-            graphicsDeviceProvider = appHost.Services.GetService<IGraphicsDeviceProvider>();
-
-            // Make sure the context is current whenever a new frame starts to ensure nodes that for example "download" pixel data (like Pipet) work.
-            var frameclock = appHost.Services.GetService<IFrameClock>();
-            if (frameclock is not null)
-                clockSubscription = frameclock.GetTicks().Subscribe(_ => GetRenderContext().MakeCurrent());
+            this.eglContextProvider = eglContextProvider;
         }
 
         public bool IsDisposed => onDeviceLost.IsDisposed;
-
-        public bool UseLinearColorspace => graphicsDeviceProvider != null ? graphicsDeviceProvider.UseLinearColorspace : false;
 
         public IObservable<Unit> OnDeviceLost => onDeviceLost;
 

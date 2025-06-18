@@ -17,17 +17,11 @@ using System.Threading;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using VL.Core;
 
 namespace VL.Skia.Egl
 {
     sealed class EglContextProvider : IDisposable
     {
-        public static EglContextProvider ForApp(AppHost appHost)
-        {
-            return appHost.Services.GetOrAddService(s => new EglContextProvider(EglDisplayProvider.ForApp(appHost)), allowToAskParent: false);
-        }
-
         private readonly EglDisplayProvider displayProvider;
         private EglContext? context;
         public EglContextProvider(EglDisplayProvider displayProvider)
@@ -229,6 +223,8 @@ namespace VL.Skia.Egl
         public EglImage CreateImageFromD3D11Texture(nint texture)
         {
             var image = eglCreateImageKHR(display, default, EGL_D3D11_TEXTURE_ANGLE, texture, null);
+            if (image == default)
+                Throw("Failed to create EGL image.");
             return new EglImage(display, image);
         }
 

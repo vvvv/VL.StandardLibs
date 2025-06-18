@@ -54,7 +54,9 @@ namespace VL.Stride.Textures
                 var image = texture.Tags.Get(SKImageView);
                 if (image is null)
                 {
-                    image = D3D11Utils.TextureToSKImage(renderContextProvider, nativeTexture.NativePointer).DisposeBy(texture);
+                    var renderContext = renderContextProvider.GetRenderContext();
+                    using var _ = renderContext.MakeCurrent(forRendering: false);
+                    image = D3D11Utils.TextureToSKImage(renderContext, nativeTexture.NativePointer).DisposeBy(texture);
                     texture.Tags.Set(SKImageView, image);
                 }
                 return image;

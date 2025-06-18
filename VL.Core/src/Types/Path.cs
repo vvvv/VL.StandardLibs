@@ -19,16 +19,7 @@ namespace VL.Lib.IO
         private readonly string _path;
 
         [NonSerialized]
-        private Lazy<FileSystemInfo> _info;
-
-        [NonSerialized]
-        private long? _size;
-
-        [NonSerialized]
-        private Lazy<Path> _parent;
-
-        [NonSerialized]
-        private Spread<Path> _children;
+        private FileSystemInfo _info;
 
         [DataMember(Order = 0)]
         public string Value => _path;
@@ -48,9 +39,7 @@ namespace VL.Lib.IO
         public Path(Path parent, FileSystemInfo info)
         {
             _path = info.FullName;
-            if (parent != null)
-                _parent = new Lazy<Path>(() => parent);
-            _info = new Lazy<FileSystemInfo>(() => info);
+            _info = info;
         }
 
         public static Path FilePath(string input)
@@ -66,7 +55,7 @@ namespace VL.Lib.IO
         public static implicit operator string(Path p) => p?._path;
         public static explicit operator Path(string s) => s != null ? new Path(s) : null;
 
-        internal FileSystemInfo Info => LazyHelpers.Cache(ref _info, GetInfo);
+        internal FileSystemInfo Info => _info ??= GetInfo();
 
         FileSystemInfo GetInfo()
         {
@@ -133,22 +122,32 @@ namespace VL.Lib.IO
         /// <summary>
         /// Returns the size of a file or all the files in a folder
         /// </summary>
-        public long Size => LazyHelpers.Cache(ref _size, () => IsFile ? GetFileSize() : GetDirectorySize());
+        public long Size => Info switch
+        {
+            FileInfo fi => fi.Length,
+            DirectoryInfo di => GetDirectorySize(di),
+            _ => 0L
+        };
 
-        long GetFileSize() => FileInfo?.Length ?? 0L;
-
-        long GetDirectorySize()
+        long GetDirectorySize(DirectoryInfo d)
         {
             var result = 0L;
-            foreach (var path in Children)
-                result += path.Size;
+            foreach (var f in d.EnumerateFiles())
+                result += f.Length;
+            // Recurse into subdirectories
+            foreach (var subDir in d.EnumerateDirectories())
+                result += GetDirectorySize(subDir);
             return result;
         }
 
         /// <summary>
         /// Returns whether file or folder exists
         /// </summary>
-        public bool Exists => Info?.Exists ?? false;
+        public bool Exists => FileExists || DirectoryExists;
+
+        public bool FileExists => File.Exists(_path);
+
+        public bool DirectoryExists => Directory.Exists(_path);
 
         /// <summary>
         /// Updates all properties of the path
@@ -159,19 +158,14 @@ namespace VL.Lib.IO
         /// <summary>
         /// For a directory returns its parent directory. For a file returns the directory the file is in
         /// </summary>
-        public Path Parent => LazyHelpers.Cache(ref _parent, GetParent);
-
-        Path GetParent()
+        public Path Parent => Info switch
         {
-            if (FileInfo != null)
-                return new Path(null, FileInfo.Directory);
-            else if (DirectoryInfo != null)
-                return new Path(null, DirectoryInfo.Parent);
-            else
-                return new Path(NetPath.Combine(_path, ".."));
-        }
+            FileInfo fi => new Path(null, fi.Directory),
+            DirectoryInfo di => new Path(null, di.Parent),
+            _ => new Path(NetPath.Combine(_path, ".."))
+        };
 
-        public Spread<Path> Children => LazyHelpers.Cache(ref _children, () => GetDescendants(includeSubdirectories: true));
+        public Spread<Path> Children => GetDescendants(includeSubdirectories: true);
 
         /// <summary>
         /// Returns all files and folders contained withinin a directory
@@ -361,15 +355,10 @@ namespace VL.Lib.IO
         {
             try
             {
-                if (Info == null)
-                    _info = new Lazy<FileSystemInfo>(() => new DirectoryInfo(_path));
-                if (DirectoryInfo != null)
-                {
-                    DirectoryInfo.Create();
-                    success = true;
-                }
-                else
-                    success = false;
+                Directory.CreateDirectory(_path);
+                // Update the info to the newly created directory
+                _info = new DirectoryInfo(_path);
+                success = true;
             }
             catch
             {

@@ -18,13 +18,13 @@ namespace VL.Skia.Video
 
         public VideoSourceToSKImage(NodeContext nodeContext)
         {
-            var appHost = nodeContext.AppHost;
+            var appHost = AppHost.Current;
             renderContextProvider = appHost.GetRenderContextProvider();
 
             var frameClock = appHost.Services.GetRequiredService<IFrameClock>();
             var renderContext = renderContextProvider.GetRenderContext();
             if (renderContext.EglContext.Display.TryGetD3D11Device(out var d3dDevice))
-                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger(), GetGraphicsDevice, GraphicsDeviceType.Direct3D11, renderContextProvider.UseLinearColorspace);
+                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger(), GetGraphicsDevice, GraphicsDeviceType.Direct3D11, renderContext.UseLinearColorspace);
             else
                 ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger());
 
