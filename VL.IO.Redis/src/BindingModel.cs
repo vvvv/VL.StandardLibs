@@ -40,27 +40,66 @@ namespace VL.IO.Redis
             return channelName ?? "";
         }
 
-        Initialization ResolvedInitialization(ResolvedBindingModel m) => Initialization.TryGetValue(m.Initialization);
-        BindingDirection ResolvedBindingType(ResolvedBindingModel m) => BindingType.TryGetValue(m.BindingType);
-        CollisionHandling ResolvedCollisionHandling(ResolvedBindingModel m) => CollisionHandling.TryGetValue(m.CollisionHandling);
-        SerializationFormat ResolvedSerializationFormat(ResolvedBindingModel m) => SerializationFormat.TryGetValue(m.SerializationFormat);
-        TimeSpan? ResolvedExpiry(ResolvedBindingModel m) => Expiry.HasValue ? Expiry.Value : m.Expiry;
-        When ResolvedWhen(ResolvedBindingModel m) => When.TryGetValue(m.When);
+        Initialization ResolvedInitialization(ResolvedBindingModel m, ref bool changed)
+        {
+            Initialization.Incorporate(m.Initialization, out var value, out var isDefault, out _);
+            if (!isDefault)
+                changed = true;
+            return value;
+        }
+
+        BindingDirection ResolvedBindingType(ResolvedBindingModel m, ref bool changed)
+        {
+            BindingType.Incorporate(m.BindingType, out var value, out var isDefault, out _);
+            if (!isDefault)
+                changed = true;
+            return value;
+        }
+        CollisionHandling ResolvedCollisionHandling(ResolvedBindingModel m, ref bool changed)
+        {
+            CollisionHandling.Incorporate(m.CollisionHandling, out var value, out var isDefault, out _);
+            if (!isDefault)
+                changed = true;
+            return value;
+        }
+        SerializationFormat ResolvedSerializationFormat(ResolvedBindingModel m, ref bool changed)
+        {
+            SerializationFormat.Incorporate(m.SerializationFormat, out var value, out var isDefault, out _);
+            if (!isDefault)
+                changed = true;
+            return value;
+        }
+        TimeSpan? ResolvedExpiry(ResolvedBindingModel m, ref bool changed)
+        {
+            var value = Expiry.HasValue? Expiry.Value: m.Expiry;
+            if (value != m.Expiry)
+                changed = true;
+            return value;
+        }
+        When ResolvedWhen(ResolvedBindingModel m, ref bool changed)
+        {
+            When.Incorporate(m.When, out var value, out var isDefault, out _);
+            if (!isDefault)
+                changed = true;
+            return value;
+        }
 
         public ResolvedBindingModel Resolve(RedisModule m, IChannel channel)
         {
             var model = m.Model;
+            bool changed = false;
             return new ResolvedBindingModel(
                 this,
                 Key: ResolveKey(channel),
                 PublicChannelPath: channel.Path,
-                Initialization: ResolvedInitialization(model),
-                BindingType: ResolvedBindingType(model),
-                CollisionHandling: ResolvedCollisionHandling(model),
-                SerializationFormat: ResolvedSerializationFormat(model),
-                Expiry: ResolvedExpiry(model),
-                When: ResolvedWhen(model),
-                CreatedViaNode: CreatedViaNode);
+                Initialization: ResolvedInitialization(model, ref changed),
+                BindingType: ResolvedBindingType(model, ref changed),
+                CollisionHandling: ResolvedCollisionHandling(model, ref changed),
+                SerializationFormat: ResolvedSerializationFormat(model, ref changed),
+                Expiry: ResolvedExpiry(model, ref changed),
+                When: ResolvedWhen(model, ref changed),
+                CreatedViaNode: CreatedViaNode,
+                IsDefault: !changed);
         }
 
         override public string ToString()
@@ -68,24 +107,22 @@ namespace VL.IO.Redis
             var b = new StringBuilder();
 
             if (Key.HasValue)
-                b.Append($"Key: {Key}, ");
+                b.AppendLine($"Redis Key: {Key}");
             if (Initialization.HasValue)
-                b.Append($"Initialization: {Initialization}, ");
+                b.AppendLine($"Initialization: {Initialization}");
             if (BindingType.HasValue)
-                b.Append($"BindingType: {BindingType}, ");
+                b.AppendLine($"BindingType: {BindingType}");
             if (CollisionHandling.HasValue)
-                b.Append($"CollisionHandling: {CollisionHandling}, ");
+                b.AppendLine($"CollisionHandling: {CollisionHandling}");
             if (SerializationFormat.HasValue)
-                b.Append($"SerializationFormat: {SerializationFormat}, ");
+                b.AppendLine($"SerializationFormat: {SerializationFormat}");
             if (Expiry.HasValue)
-                b.Append($"Expiry: {Expiry}, ");
+                b.AppendLine($"Expiry: {Expiry}");
             if (When.HasValue)
-                b.Append($"When: {When}, ");
+                b.AppendLine($"When: {When}");
 
             var s = b.ToString();
-            if (!s.IsNullOrEmpty())
-                s = s.Remove(s.Length - 2, 2); // remove last ", "
-            else
+            if (s.IsNullOrEmpty())
                 s = "Enabled, not tweaked";
 
             return s;
@@ -102,18 +139,20 @@ namespace VL.IO.Redis
         SerializationFormat SerializationFormat = SerializationFormat.MessagePack,
         TimeSpan? Expiry = default,
         When When = When.Always,
-        bool CreatedViaNode = false)
+        bool CreatedViaNode = false,
+        bool IsDefault = false)
     {
+
         public override string ToString()
         {
             var e = Expiry.HasValue ? Expiry.Value.ToString() : "not expiring";
             return
-$@"Redis Key: {Key},
-Initialization: {Initialization}, 
-BindingType: {BindingType}, 
-CollisionHandling: {CollisionHandling}, 
-SerializationFormat: {SerializationFormat}, 
-Expiry: {e}, 
+$@"Redis Key: {Key}
+Initialization: {Initialization}
+BindingType: {BindingType}
+CollisionHandling: {CollisionHandling}
+SerializationFormat: {SerializationFormat}
+Expiry: {e}
 When: {When}";
         }
     }

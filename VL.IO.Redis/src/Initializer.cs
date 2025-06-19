@@ -29,10 +29,10 @@ namespace _VL_.IO.Redis
 
             public object Serialize(SerializationContext context, BindingModel value)
             {
-                var properties = new List<object>
-                {
-                    context.Serialize(nameof(BindingModel.Key), value.Key)
-                };
+                var properties = new List<object>();
+
+                if (value.Key.HasValue)
+                    properties.Add(context.Serialize(nameof(BindingModel.Key), value.Key));
 
                 if (value.Initialization.HasValue)
                     properties.Add(context.Serialize(nameof(BindingModel.Initialization), value.Initialization));
@@ -58,7 +58,7 @@ namespace _VL_.IO.Redis
             public BindingModel Deserialize(SerializationContext context, object content, Type type)
             {
                 return new BindingModel(
-                    context.Deserialize<string>(content, nameof(BindingModel.Key)),
+                    context.Deserialize<Optional<string>>(content, nameof(BindingModel.Key)),
                     context.Deserialize<Optional<Initialization>>(content, nameof(BindingModel.Initialization)),
                     context.Deserialize<Optional<BindingDirection>>(content, nameof(BindingModel.BindingType)),
                     context.Deserialize<Optional<CollisionHandling>>(content, nameof(BindingModel.CollisionHandling)),

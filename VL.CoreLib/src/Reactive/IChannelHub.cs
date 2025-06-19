@@ -70,6 +70,8 @@ namespace VL.Core.Reactive
         bool GotCreatedViaNode => Module == null;
 
         object ResolvedModel { get; }
+
+        bool IsTweaked => true;
     }
 
     public static class BindingHelpers

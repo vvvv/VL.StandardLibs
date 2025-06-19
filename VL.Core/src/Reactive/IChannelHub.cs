@@ -113,6 +113,8 @@ namespace VL.Core.Reactive
         /// </summary>
         /// <param name="module"></param>
         void RegisterModule(IModule module);
+
+        void UnregisterModule(IModule module);
     }
 
 

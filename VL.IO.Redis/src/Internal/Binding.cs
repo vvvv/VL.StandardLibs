@@ -189,5 +189,7 @@ namespace VL.IO.Redis.Internal
         bool IBinding.GotCreatedViaNode => Model.CreatedViaNode;
 
         object IBinding.ResolvedModel => Model;
+
+        bool IBinding.IsTweaked => !Model.IsDefault;
     }
 }

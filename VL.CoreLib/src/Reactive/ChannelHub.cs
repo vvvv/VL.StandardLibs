@@ -67,12 +67,12 @@ namespace VL.Core.Reactive
         internal ConcurrentDictionary<string, IChannel<object>> Channels = new();
         internal ConcurrentDictionary<string, IChannel<object>> AnonymousChannels = new();
 
-        internal ConcurrentBag<IModule> Modules = new();
+        internal ConcurrentDictionary<IModule, IModule> Modules = new();
 
 
         IDictionary<string, IChannel<object>> IChannelHub.Channels => Channels;
 
-        IEnumerable<IModule> IChannelHub.Modules => Modules.OrderBy(m => m.Name);
+        IEnumerable<IModule> IChannelHub.Modules => Modules.Keys.OrderBy(m => m.Name);
 
 
         public IDisposable BeginChange()
@@ -190,7 +190,12 @@ namespace VL.Core.Reactive
 
         public void RegisterModule(IModule module)
         {
-            Modules.Add(module);
+            Modules.TryAdd(module, module);
+        }
+
+        public void UnregisterModule(IModule module)
+        {
+            Modules.TryRemove(new KeyValuePair<IModule, IModule>(module, module));
         }
 
 

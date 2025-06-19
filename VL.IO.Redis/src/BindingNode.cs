@@ -19,10 +19,7 @@ namespace VL.IO.Redis
         private readonly SerialDisposable _current = new();
         private readonly NodeContext _nodeContext;
         private readonly ILogger _logger;
-
-        private (RedisClient? client, IChannel? input, Optional<string> key, Optional<Initialization> initialization,
-            Optional<BindingDirection> bindingType, Optional<CollisionHandling> collisionHandling, Optional<SerializationFormat> serializationFormat,
-            Optional<TimeSpan> expiry, Optional<When> when) _config;
+        private ResolvedBindingModel _latestResolvedModel;
 
         public BindingNode([Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext)
         {
@@ -50,18 +47,17 @@ namespace VL.IO.Redis
             Optional<TimeSpan> expiry = default,
             Optional<When> when = default)
         {
-            var config = (client, input, key, initialization, bindingDirection, collisionHandling, serializationFormat, expiry, when);
-            if (config == _config)
-                return;
-
-            _config = config;
-            _current.Disposable = null;
-
             if (client is null || input is null)
                 return;
 
             var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat, expiry, when, CreatedViaNode: true);
             var resolvedBindingModel = model.Resolve(client._module, input);
+            if (resolvedBindingModel == _latestResolvedModel)
+                return;
+            _latestResolvedModel = resolvedBindingModel;
+
+            _current.Disposable = null;
+
             try
             {
                 _current.Disposable = client.AddBinding(resolvedBindingModel, input, client._module, logger: _logger);

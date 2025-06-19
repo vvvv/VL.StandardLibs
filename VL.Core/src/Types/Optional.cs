@@ -113,6 +113,13 @@ namespace VL.Core
             return fallbackValue;
         }
 
+        public void Incorporate(T @default, out T value, out bool isDefault, out bool valueIsSet)
+        {
+            value = HasValue ? Value : @default;
+            isDefault = value.Equals(@default);
+            valueIsSet = HasValue;
+        }
+
         public static implicit operator Optional<T>(T value) => new Optional<T>(value);
 
         public static bool operator ==(Optional<T> left, Optional<T> right) => left.Equals(right);

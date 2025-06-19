@@ -14,6 +14,7 @@ using VL.Lib.Collections;
 using VL.Lib.Reactive;
 using VL.IO.Redis.Internal;
 using Stride.Core.Extensions;
+using System.Reactive;
 
 namespace VL.IO.Redis.Experimental
 {
@@ -31,6 +32,7 @@ namespace VL.IO.Redis.Experimental
         private readonly RedisClientManager _redisClientManager;
         private RedisClient? _redisClient;
         private string _nickname;
+        private IChannel<Unit> _onModuleModelChanged = ChannelHelpers.CreateChannelOfType<Unit>();
 
         [Fragment]
         public RedisModule(
@@ -61,8 +63,11 @@ namespace VL.IO.Redis.Experimental
 
             _modelSubscription = _modelStream
                 .ObserveOn(appHost.SynchronizationContext)
-                .Subscribe(m =>
+                .Merge(_channelHub.OnChannelsChanged)
+                .Merge((IObservable<object>)_onModuleModelChanged)
+                .Subscribe(_ =>
                 {
+                    var m = _modelStream.Value;
                     UpdateBindingsFromModel(m ?? ImmutableDictionary<string, BindingModel>.Empty);
 
                     var solution = IDevSession.Current?.CurrentSolution
@@ -77,6 +82,8 @@ namespace VL.IO.Redis.Experimental
             //_channelHub.UNREGISTER(this);
             _modelSubscription?.Dispose();
             _redisClientManager.Dispose();
+
+            _channelHub.UnregisterModule(this);
         }
 
         [Fragment]
@@ -95,7 +102,7 @@ namespace VL.IO.Redis.Experimental
         {
             _nickname = nickname.TryGetValue(configuration.IsNullOrEmpty() ? "" : configuration.Substring(0, configuration.IndexOf(':')));
 
-            Model = Model with
+            var newmodel = Model with
             { 
                 Initialization = initialization,
                 BindingType = bindingType,
@@ -104,6 +111,11 @@ namespace VL.IO.Redis.Experimental
                 Expiry = expiry.ToNullable(),
                 When = when
             };
+
+            var changed = Model != newmodel;
+            Model = newmodel;
+            if (changed)
+                _onModuleModelChanged.SetValueAndAuthor(Unit.Default, null);
 
             var client = _redisClientManager.Update(configuration, configure, database, serializationFormat, connectAsync, this);
             if (client != _redisClient)
@@ -149,6 +161,7 @@ namespace VL.IO.Redis.Experimental
         }
 
         ResolvedBindingModel _latestUpdateModel;
+        ImmutableDictionary<string, ResolvedBindingModel> _latestResolvedModels = ImmutableDictionary<string, ResolvedBindingModel>.Empty;
 
         private void UpdateBindingsFromModel(ImmutableDictionary<string, BindingModel> model)
         {
@@ -160,6 +173,16 @@ namespace VL.IO.Redis.Experimental
 
             var allBindingsPotentiallyChanged = _latestUpdateModel != Model;
             _latestUpdateModel = Model;
+
+            var newResolvedModels = ImmutableDictionary<string, ResolvedBindingModel>.Empty.ToBuilder();
+            foreach (var binding in _redisClient.Bindings)
+            {
+                if (binding.Module != this || binding.GotCreatedViaNode)
+                    continue;
+
+                var resolvedBindingModel = binding.GetResolvedModel<ResolvedBindingModel>();
+                newResolvedModels.Add(resolvedBindingModel.Key, resolvedBindingModel);
+            }
 
             // Cleanup
             var obsoleteBindings = new List<IBinding>();
