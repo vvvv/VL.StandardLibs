@@ -15,7 +15,7 @@ namespace VL.Core.EditorAttributes
             EncodedValue = encodedValue;
         }
 
-        public MaxAttribute(float value)
+        public MaxAttribute(object value)
         {
             EncodedValue = AttributeHelpers.EncodeValueForAttribute(value).Value;
         }

@@ -15,7 +15,7 @@ namespace VL.Core.EditorAttributes
             EncodedValue = encodedValue;
         }
 
-        public MinAttribute(float value)
+        public MinAttribute(object value)
         {
             EncodedValue = AttributeHelpers.EncodeValueForAttribute(value).Value;
         }
