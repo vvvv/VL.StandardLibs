@@ -169,13 +169,13 @@ namespace VL.Core.EditorAttributes
             try
             {
                 if (targetType == typeof(int))
-                    return int.Parse(encodedValue);
+                    return int.Parse(GetFirstEncodedValue(encodedValue));
 
                 if (targetType == typeof(float))
-                    return float.Parse(encodedValue);
+                    return float.Parse(GetFirstEncodedValue(encodedValue));
 
                 if (targetType == typeof(double))
-                    return double.Parse(encodedValue);
+                    return double.Parse(GetFirstEncodedValue(encodedValue));
 
                 var values = encodedValue.Split(',')
                     .Select(x => DecodeValueFromAttribute<float>(x).TryGetValue(0))
@@ -202,6 +202,15 @@ namespace VL.Core.EditorAttributes
             catch (Exception)
             {
                 return new Optional<object>();
+            }
+
+            static ReadOnlySpan<char> GetFirstEncodedValue(ReadOnlySpan<char> s)
+            {
+                var i = s.IndexOf(',');
+                if (i <= 0)
+                    return s;
+
+                return s.Slice(0, i);
             }
         }
 
