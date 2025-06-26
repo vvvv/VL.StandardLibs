@@ -16,7 +16,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = Update() ?? string.Empty;
-            if (ImGuiNET.ImGui.InputText(widgetLabel.Update(label.Value), ref value, (uint)MaxLength, Flags))
+            if (ImGuiUtils.InputText(widgetLabel.Update(label.Value), ref value, (uint)MaxLength, Flags))
                 SetValueIfChanged(lastframeValue, value, Flags);
             lastframeValue = value;
         }

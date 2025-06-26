@@ -19,7 +19,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = Update();
-            if (ImGuiNET.ImGui.InputInt(widgetLabel.Update(label.Value), ref value, Step, StepFast, Flags))
+            if (ImGuiUtils.InputInt(widgetLabel.Update(label.Value), ref value, Step, StepFast, Flags))
                 value = SetClampedValueIfChanged(value);
             lastframeValue = value;
         }

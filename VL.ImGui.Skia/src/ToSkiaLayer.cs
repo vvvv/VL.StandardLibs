@@ -68,6 +68,8 @@ namespace VL.ImGui
 
         public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig?> fonts, bool fullscreenWindow, IStyle? Style)
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
             if (_lastCallerInfo is null)
                 return this;
 
@@ -156,6 +158,8 @@ namespace VL.ImGui
 
         public unsafe void Render(CallerInfo caller)
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
             if (caller.IsTooltip)
             {
                 if (_readyToBeDrawn && _lastCallerInfo != null)
@@ -337,6 +341,8 @@ namespace VL.ImGui
 
         public bool Notify(INotification notification, CallerInfo caller)
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
             using (_context.MakeCurrent())
             {
                 _io.HandleNotification(notification);

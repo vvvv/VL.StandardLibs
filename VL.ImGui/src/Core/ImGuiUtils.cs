@@ -192,17 +192,80 @@ namespace VL.ImGui
             }
         }
 
+        public static bool InputText(string label, ref string value, uint maxLength, ImGuiInputTextFlags flags)
+        {
+            if (ImGui.InputText(label, ref value, maxLength, flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputText(string label, ref string value, uint maxLength, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback)
+        {
+            if (ImGui.InputText(label, ref value, maxLength, flags.ToNative(), callback))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputTextWithHint(string label, string hint, ref string value, uint maxLength, ImGuiInputTextFlags flags)
+        {
+            if (ImGui.InputTextWithHint(label, hint, ref value, maxLength, flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputTextMultiline(string label, ref string value, uint maxLength, Vector2 size, ImGuiInputTextFlags flags)
+        {
+            if (ImGui.InputTextMultiline(label, ref value, maxLength, size.FromHectoToImGui(), flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
         public static unsafe bool InputDouble(string label, ref double value, double step, double stepFast, string? format, ImGuiInputTextFlags flags)
         {
-            return ImGui.InputScalar(label, ImGuiDataType.Double, new IntPtr(Unsafe.AsPointer(ref value)), new IntPtr(Unsafe.AsPointer(ref step)), new IntPtr(Unsafe.AsPointer(ref stepFast)), format, flags);
+            if (ImGui.InputScalar(label, ImGuiDataType.Double, new IntPtr(Unsafe.AsPointer(ref value)), new IntPtr(Unsafe.AsPointer(ref step)), new IntPtr(Unsafe.AsPointer(ref stepFast)), format, flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputFloat(string label, ref float value, float step, float step_fast, string? format, ImGuiInputTextFlags flags)
+        {
+            if (ImGui.InputFloat(label, ref value, step, step_fast, format, flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
         }
 
         public static bool InputFloat2(string label, ref Vector2 value, string? format, ImGuiInputTextFlags flags)
         {
             var v = value.ToImGui();
-            if (ImGui.InputFloat2(label, ref v, format, flags))
+            if (ImGui.InputFloat2(label, ref v, format, flags.ToNative()))
             {
                 value = v.ToVL();
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;
@@ -211,9 +274,11 @@ namespace VL.ImGui
         public static bool InputFloat3(string label, ref Vector3 value, string? format, ImGuiInputTextFlags flags)
         {
             var v = value.ToImGui();
-            if (ImGui.InputFloat3(label, ref v, format, flags))
+            if (ImGui.InputFloat3(label, ref v, format, flags.ToNative()))
             {
                 value = v.ToVL();
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;
@@ -222,9 +287,22 @@ namespace VL.ImGui
         public static bool InputFloat4(string label, ref Vector4 value, string? format, ImGuiInputTextFlags flags)
         {
             var v = value.ToImGui();
-            if (ImGui.InputFloat4(label, ref v, format, flags))
+            if (ImGui.InputFloat4(label, ref v, format, flags.ToNative()))
             {
                 value = v.ToVL();
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputInt(string label, ref int value, int step, int step_fast, ImGuiInputTextFlags flags)
+        {
+            if (ImGui.InputInt(label, ref value, step, step_fast, flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;
@@ -233,9 +311,11 @@ namespace VL.ImGui
         public static bool InputInt2(string label, ref Int2 value, ImGuiInputTextFlags flags)
         {
             ref var x = ref value.X;
-            if (ImGui.InputInt2(label, ref x, flags))
+            if (ImGui.InputInt2(label, ref x, flags.ToNative()))
             {
                 value = Unsafe.As<int, Int2>(ref x);
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;
@@ -244,9 +324,11 @@ namespace VL.ImGui
         public static bool InputInt3(string label, ref Int3 value, ImGuiInputTextFlags flags)
         {
             ref var x = ref value.X;
-            if (ImGui.InputInt3(label, ref x, flags))
+            if (ImGui.InputInt3(label, ref x, flags.ToNative()))
             {
                 value = Unsafe.As<int, Int3>(ref x);
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;
@@ -255,9 +337,11 @@ namespace VL.ImGui
         public static bool InputInt4(string label, ref Int4 value, ImGuiInputTextFlags flags)
         {
             ref var x = ref value.X;
-            if (ImGui.InputInt4(label, ref x, flags))
+            if (ImGui.InputInt4(label, ref x, flags.ToNative()))
             {
                 value = Unsafe.As<int, Int4>(ref x);
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;

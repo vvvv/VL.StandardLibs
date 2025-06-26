@@ -6,13 +6,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Core.Import;
 using VL.Lib.Animation;
 using VL.Lib.Collections;
+using VL.Lib.Primitive;
 using VL.Lib.Text;
+
+[assembly: ImportType(typeof(StringNodes))]
 
 namespace VL.Lib.Primitive
 {
     delegate bool TryParseDelegate<T>(string value, NumberStyles numberStyle, IFormatProvider format, out T result);
+
+    public static class StringNodes
+    {
+        [Category("Primitive.String")]
+        public static string Format(string format, [Pin(PinGroupKind = Model.PinGroupKind.Collection, PinGroupDefaultCount = 1)] object[] input)
+        {
+            return string.Format(CultureInfo.InvariantCulture, format, args: input);
+        }
+    }
 
     public static class StringExtensions
     {
@@ -48,29 +61,10 @@ namespace VL.Lib.Primitive
         {
             return quotes + text + quotes;
         }
-        
-        public static string Format<T>(string format, T input, T input2, T input3, T input4)
-        {
-            try
-            {
-                return string.Format(CultureInfo.InvariantCulture, format, input, input2, input3, input4);
-            }
-            catch (FormatException e)
-            {
-                return e.Message;
-            }
-        }
 
         public static string FormatSequence<T>(string format, IEnumerable<T> inputs)
         {
-            try
-            {
-                return string.Format(CultureInfo.InvariantCulture, format, inputs.Cast<object>().ToArray());
-            }
-            catch (FormatException e)
-            {
-                return e.Message;
-            }
+            return string.Format(CultureInfo.InvariantCulture, format, inputs.Cast<object>().ToArray());
         }
 
         public static unsafe string FromBytes(IEnumerable<byte> input, Encodings encoding)

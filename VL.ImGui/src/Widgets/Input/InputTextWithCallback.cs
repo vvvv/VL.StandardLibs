@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using VL.Core.EditorAttributes;
+using NativeImGuiInputTextFlags = ImGuiNET.ImGuiInputTextFlags;
 
 namespace VL.ImGui.Widgets
 {
@@ -24,7 +25,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = base.Update() ?? string.Empty;
-            if (ImGuiNET.ImGui.InputText(widgetLabel.Update(label.Value), ref value, (uint)MaxLength, Flags, TextCallback))
+            if (ImGuiUtils.InputText(widgetLabel.Update(label.Value), ref value, (uint)MaxLength, Flags, TextCallback))
                 SetValueIfChanged(lastframeValue, value, Flags);
             lastframeValue = value;
         }
@@ -47,13 +48,13 @@ namespace VL.ImGui.Widgets
 
             switch (data->EventFlag)
             {
-                case ImGuiInputTextFlags.CallbackCompletion:
+                case NativeImGuiInputTextFlags.CallbackCompletion:
                     Completion?.Invoke(state, new InputTextCallbackData(data), out state);
                     break;
-                case ImGuiInputTextFlags.CallbackHistory:
+                case NativeImGuiInputTextFlags.CallbackHistory:
                     History?.Invoke(state, new InputTextCallbackData(data), out state);
                     break;
-                case ImGuiInputTextFlags.CallbackCharFilter:
+                case NativeImGuiInputTextFlags.CallbackCharFilter:
                     if (Filter != null)
                     {
                         var allowCharacter = false;
@@ -61,12 +62,12 @@ namespace VL.ImGui.Widgets
                         return allowCharacter ? 0 : 1;
                     }
                     break;
-                case ImGuiInputTextFlags.CallbackAlways:
+                case NativeImGuiInputTextFlags.CallbackAlways:
                     Always?.Invoke(state, new InputTextCallbackData(data), out state);
                     break;
-                case ImGuiInputTextFlags.CallbackResize:
+                case NativeImGuiInputTextFlags.CallbackResize:
                     break;
-                case ImGuiInputTextFlags.CallbackEdit:
+                case NativeImGuiInputTextFlags.CallbackEdit:
                     Edit?.Invoke(state, new InputTextCallbackData(data), out state);
                     break;
             }
