@@ -75,7 +75,7 @@ namespace VL.ImGui.Widgets
 
         protected void SetValueIfChanged(T? oldValue, T newValue, ImGuiInputTextFlags flags)
         {
-            if (flags.HasFlag(ImGuiInputTextFlags.EnterReturnsTrue))
+            if (flags.HasFlag(ImGuiInputTextFlags.EnterReturnsTrue) || flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
                 Value = newValue;
             else if (!EqualityComparer<T>.Default.Equals(oldValue, newValue))
                 Value = newValue;

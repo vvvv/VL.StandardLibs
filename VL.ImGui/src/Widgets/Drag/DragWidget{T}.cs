@@ -32,6 +32,7 @@ namespace VL.ImGui.Widgets
 
         internal override sealed void UpdateCore(Context context)
         {
+            var previousValue = Value;
             var value = Update();
             if (NotifyWhileTyping)
             {
@@ -53,6 +54,11 @@ namespace VL.ImGui.Widgets
                         wasDragging = false;
                         SetValueWithoutNotifiying(value);
                     }
+                }
+                else if (ImGuiNET.ImGui.IsItemDeactivatedAfterEdit() && !ImGuiNET.ImGui.IsKeyDown(ImGuiNET.ImGuiKey.Escape))
+                {
+                    // In case we TAB out of the widget, ImGui reports false and gives us the initial value which is not what we want.
+                    value = previousValue;
                 }
 
                 if (ImGuiNET.ImGui.IsItemDeactivatedAfterEdit() && !wasDragging)
