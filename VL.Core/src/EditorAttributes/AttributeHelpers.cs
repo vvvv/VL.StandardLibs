@@ -138,7 +138,7 @@ namespace VL.Core.EditorAttributes
         /// of types common in the VL eco system are stored in an attribute. 
         /// We want to protect the user from the need to guess how to deserialize. 
         /// Furthermore we expect that you know what type the value should have on deserialize.
-        /// For now only a handful of types are supported: int, float, double, Vector2, Vector3, RGBA
+        /// For now only a handful of types are supported: number types, Vector2, Vector3, RGBA, Int2, Int3
         /// more primitive types might get added later on.
         /// JSON serialization might be added for other types later on. (The first character being a {)
         /// </summary>
@@ -149,7 +149,20 @@ namespace VL.Core.EditorAttributes
 
             if (value is int ||
                 value is float ||
-                value is double)
+                value is double ||
+
+                value is byte ||
+                value is sbyte ||
+                
+                value is ushort ||
+                value is short ||
+
+                value is uint ||
+                
+                value is ulong ||
+                value is long ||
+                
+                value is decimal)
                 return value.ToString();
 
             if (value is Vector2 v2)
@@ -160,6 +173,12 @@ namespace VL.Core.EditorAttributes
 
             if (value is Color4 c4)
                 return $"{c4.R}, {c4.G}, {c4.B}, {c4.A}";
+
+            if (value is Int2 iv2)
+                return $"{iv2.X}, {iv2.Y}";
+
+            if (value is Int3 iv3)
+                return $"{iv3.X}, {iv3.Y}, {iv3.Z}";
 
             return new Optional<string>();
         }
@@ -176,6 +195,30 @@ namespace VL.Core.EditorAttributes
 
                 if (targetType == typeof(double))
                     return double.Parse(GetFirstEncodedValue(encodedValue));
+
+                if (targetType == typeof(byte))
+                    return byte.Parse(GetFirstEncodedValue(encodedValue));
+
+                if (targetType == typeof(sbyte))
+                    return sbyte.Parse(GetFirstEncodedValue(encodedValue));
+
+                if (targetType == typeof(ushort))
+                    return ushort.Parse(GetFirstEncodedValue(encodedValue));
+
+                if (targetType == typeof(short))
+                    return short.Parse(GetFirstEncodedValue(encodedValue));
+
+                if (targetType == typeof(uint))
+                    return uint.Parse(GetFirstEncodedValue(encodedValue));
+
+                if (targetType == typeof(ulong))
+                    return ulong.Parse(GetFirstEncodedValue(encodedValue));
+
+                if (targetType == typeof(long))
+                    return long.Parse(GetFirstEncodedValue(encodedValue));
+
+                if (targetType == typeof(decimal))
+                    return decimal.Parse(GetFirstEncodedValue(encodedValue));
 
                 var values = encodedValue.Split(',')
                     .Select(x => DecodeValueFromAttribute<float>(x).TryGetValue(0))
@@ -197,6 +240,12 @@ namespace VL.Core.EditorAttributes
                 if (targetType == typeof(Color4))
                     return new Color4(resampledValues[0], resampledValues[1], resampledValues[2], resampledValues[3]);
 
+                if (targetType == typeof(Int2))
+                    return new Int2((int)resampledValues[0], (int)resampledValues[1]);
+
+                if (targetType == typeof(Int3))
+                    return new Int3((int)resampledValues[0], (int)resampledValues[1], (int)resampledValues[2]);
+                
                 return new Optional<object>();
             }
             catch (Exception)

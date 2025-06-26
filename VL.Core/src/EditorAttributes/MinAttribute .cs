@@ -4,7 +4,7 @@ namespace VL.Core.EditorAttributes
 {
 
     /// <summary>
-    /// Current supported types: int, float, double, Vector2, Vector3, RGBA 
+    /// Current supported types: number types, Vector2, Vector3, RGBA, Int2, Int3
     /// You may feed a single value for vectors and colors, which will then be used for all dimensions
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
