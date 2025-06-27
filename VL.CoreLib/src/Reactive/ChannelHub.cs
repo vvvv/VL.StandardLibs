@@ -41,7 +41,7 @@ namespace VL.Core.Reactive
         public override string? ToString() => AppHost.AppBasePath;
 
         IDisposable? MustHaveDescriptiveSubscription;
-        public IObservable<IEnumerable<ChannelBuildDescription>> MustHaveDescriptive
+        public IObservable<IEnumerable<PublicChannelDescription>> MustHaveDescriptive
         {
             set
             {
@@ -56,7 +56,7 @@ namespace VL.Core.Reactive
                         foreach (var d in descriptions)
                         {
                             var name = d.Name;
-                            var type = d.GetRuntimeType(AppHost);
+                            var type = d.GetRuntimeType(AppHost.TypeRegistry);
                             TryAddChannel(name, type);
                         }
                     });

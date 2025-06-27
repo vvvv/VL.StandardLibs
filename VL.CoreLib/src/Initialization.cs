@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Stride.Core.Mathematics;
+using Stride.Core.Serialization;
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -31,14 +32,16 @@ namespace VL.Lib
         public override void Configure(AppHost appHost)
         {
             Mathematics.Serialization.RegisterSerializers(appHost.Factory);
+            appHost.Factory.RegisterSerializer<PublicChannelDescription, PublicChannelDescriptionSerializer>();
 
             appHost.Services.RegisterService<IChannelHub>(_ =>
             {
                 var channelHub = new ChannelHub(appHost);
                 // make sure all channels of config exist in app-channelhub.
-                var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(appHost.AppBasePath);
+                var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(appHost);
+                channelHub.MustHaveDescriptive = watcher.Descriptions;
                 channelHub.OnChannelsChanged
-                    .Throttle(new TimeSpan(0, 0, 3))
+                    .Throttle(TimeSpan.FromMilliseconds(500))
                     .Subscribe(_ =>
                 {
                     try
@@ -47,14 +50,13 @@ namespace VL.Lib
                             .Where(c => !c.Value.IsAnonymous())
                            .OrderBy(_ => _.Key)
                            .Select(_ =>
-                           new ChannelBuildDescription(_.Key, appHost.TypeRegistry.GetTypeInfo( _.Value.ClrTypeOfValues).FullName, appHost.TypeRegistry)).ToArray());
+                           new PublicChannelDescription(_.Key, appHost.TypeRegistry.GetTypeInfo(_.Value.ClrTypeOfValues).FullName)).ToArray());
                     }
                     catch (Exception)
                     {
-                        appHost.DefaultLogger.LogWarning($"writing {ChannelHubConfigWatcher.GetConfigFilePath(appHost.AppBasePath)} failed.");
+                        appHost.DefaultLogger.LogWarning($"writing {ChannelHubConfigWatcher.GetConfigFilePath(appHost)} failed.");
                     }
                 });
-                channelHub.MustHaveDescriptive = watcher.Descriptions;
 
                 return channelHub;
             });
