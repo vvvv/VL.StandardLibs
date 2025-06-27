@@ -5,7 +5,7 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Drag (TimeSpan)", Category = "ImGui.Widgets.Advanced")]
     [WidgetType(WidgetType.Drag)]
-    internal partial class DragTimeSpan : DragWidget<TimeSpan, TimeSpan>
+    internal partial class DragTimeSpan : DragWidget_Weak<TimeSpan, TimeSpan>
     {
         public DragTimeSpan() 
         {

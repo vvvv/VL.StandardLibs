@@ -5,7 +5,7 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (TimeSpan)", Category = "ImGui.Widgets.Advanced")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputTimeSpan : InputWidget<TimeSpan>, IHasInputTextFlags
+    internal partial class InputTimeSpan : InputWidget_Weak<TimeSpan>, IHasInputTextFlags
     {
         public double Step { private get; set; } = 0.1d;
 

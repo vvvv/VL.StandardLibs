@@ -2,17 +2,15 @@
 
 namespace VL.ImGui.Widgets
 {
-    internal abstract class DragWidget<T, TComponent> : ChannelWidget<T>
+    internal abstract class DragWidgetBase<T, TComponent> : ChannelWidget<T>
         where T : unmanaged
         where TComponent : unmanaged
     {
-        protected readonly MinValueSelector<TComponent> min;
-        protected readonly MaxValueSelector<TComponent> max;
+        protected ValueSelector<TComponent> min;
+        protected ValueSelector<TComponent> max;
 
-        public DragWidget()
+        public DragWidgetBase()
         {
-            AddValueSelector(this.min = new(default));
-            AddValueSelector(this.max = new(default));
         }
 
         public float Speed { protected get; set; } = typeof(TComponent) == typeof(float) || typeof(TComponent) == typeof(double) ? 0.01f : 1f;
@@ -69,5 +67,35 @@ namespace VL.ImGui.Widgets
         private bool wasDragging;
 
         protected abstract bool Drag(string label, ref T value, float speed, TComponent min, TComponent max, string? format, ImGuiNET.ImGuiSliderFlags flags);
+    }
+
+
+    internal abstract class DragWidget<T, TComponent> : DragWidgetBase<T, TComponent>
+        where T : unmanaged
+        where TComponent : unmanaged, System.Numerics.IMinMaxValue<TComponent>
+    {
+        public DragWidget()
+        {
+            var minSelect = new MinValueSelector<TComponent>(default);
+            var maxSelect = new MaxValueSelector<TComponent>(default);
+            minSelect.Max = maxSelect;
+            maxSelect.Min = minSelect;
+            AddValueSelector(this.min = minSelect);
+            AddValueSelector(this.max = maxSelect);
+        }
+    }
+
+    internal abstract class DragWidget_Weak<T, TComponent> : DragWidgetBase<T, TComponent>
+        where T : unmanaged
+        where TComponent : unmanaged
+    {
+
+        public DragWidget_Weak()
+        {
+            var minSelect = new MinValueSelector_Weak<TComponent>(default);
+            var maxSelect = new MaxValueSelector_Weak<TComponent>(default);
+            AddValueSelector(this.min = minSelect);
+            AddValueSelector(this.max = maxSelect);
+        }
     }
 }

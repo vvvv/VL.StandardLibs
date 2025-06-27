@@ -5,6 +5,7 @@ using VL.Core;
 namespace VL.ImGui.Widgets
 {
     internal abstract class VerticalSliderWidget<T, TComponent> : ChannelWidget<T>
+        where TComponent : System.Numerics.IMinMaxValue<TComponent>
     {
         protected readonly MinValueSelector<TComponent> min;
         protected readonly MaxValueSelector<TComponent> max;
@@ -13,6 +14,8 @@ namespace VL.ImGui.Widgets
         {
             AddValueSelector(this.min = new(min));
             AddValueSelector(this.max = new(max));
+            this.min.Max = this.max;
+            this.max.Min = this.min;
             Size = size;
         }
 
