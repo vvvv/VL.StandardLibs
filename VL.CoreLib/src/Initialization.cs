@@ -44,9 +44,10 @@ namespace VL.Lib
                     try
                     {
                         watcher.Save(channelHub.Channels
+                            .Where(c => !c.Value.IsAnonymous())
                            .OrderBy(_ => _.Key)
                            .Select(_ =>
-                           new ChannelBuildDescription(_.Key, _.Value.ClrTypeOfValues.FullName, appHost.TypeRegistry)).ToArray());
+                           new ChannelBuildDescription(_.Key, appHost.TypeRegistry.GetTypeInfo( _.Value.ClrTypeOfValues).FullName, appHost.TypeRegistry)).ToArray());
                     }
                     catch (Exception)
                     {

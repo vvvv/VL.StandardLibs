@@ -91,7 +91,7 @@ namespace VL.Core.Reactive
         public void Save(IEnumerable<ChannelBuildDescription> descriptions)
         {
             if (descriptions.Any())
-                File.WriteAllLines(filePath, descriptions.Select(d => $"{d.Name}:{d.CompileTimeType.FullName}"));
+                File.WriteAllLines(filePath, descriptions.Select(d => $"{d.Name}:{d.TypeName}"));
             else
                 File.Delete(filePath);
         }

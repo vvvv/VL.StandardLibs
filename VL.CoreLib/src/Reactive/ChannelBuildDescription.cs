@@ -14,9 +14,13 @@ namespace VL.Core.Reactive
             get
             {
                 var type = TypeRegistry.GetTypeByName(TypeName)?.ClrType ?? typeof(object);
-                // Is Patched?
-                if (type.CustomAttributes.Any(c => c.AttributeType.Name == "ElementAttribute"))
-                    return typeof(object);
+                
+                
+                //// Is Patched? TODO: if nodes get activated again for each public channel: reactivate this logic so that it only applies to the nodes, not the channels themselves.
+                //if (type.CustomAttributes.Any(c => c.AttributeType.Name == "ElementAttribute"))
+                //    return typeof(object);
+
+
                 return type;
             }
         }
