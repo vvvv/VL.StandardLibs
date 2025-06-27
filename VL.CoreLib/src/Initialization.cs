@@ -1,11 +1,15 @@
-﻿using Stride.Core.Mathematics;
+﻿using Microsoft.Extensions.Logging;
+using Stride.Core.Mathematics;
 using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using VL.Core;
 using VL.Core.CompilerServices;
 using VL.Core.Reactive;
+using VL.Lib.Reactive;
 using TypeDescriptor = System.ComponentModel.TypeDescriptor;
 
 [assembly: AssemblyInitializer(typeof(VL.Lib.VL_CoreLib_Initializer))]
@@ -33,8 +37,24 @@ namespace VL.Lib
                 var channelHub = new ChannelHub(appHost);
                 // make sure all channels of config exist in app-channelhub.
                 var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(appHost.AppBasePath);
-                if (watcher != null)
-                    channelHub.MustHaveDescriptive = watcher.Descriptions;
+                channelHub.OnChannelsChanged
+                    .Throttle(new TimeSpan(0, 0, 3))
+                    .Subscribe(_ =>
+                {
+                    try
+                    {
+                        watcher.Save(channelHub.Channels
+                           .OrderBy(_ => _.Key)
+                           .Select(_ =>
+                           new ChannelBuildDescription(_.Key, _.Value.ClrTypeOfValues.FullName, appHost.TypeRegistry)).ToArray());
+                    }
+                    catch (Exception)
+                    {
+                        appHost.DefaultLogger.LogWarning($"writing {ChannelHubConfigWatcher.GetConfigFilePath(appHost.AppBasePath)} failed.");
+                    }
+                });
+                channelHub.MustHaveDescriptive = watcher.Descriptions;
+
                 return channelHub;
             });
 

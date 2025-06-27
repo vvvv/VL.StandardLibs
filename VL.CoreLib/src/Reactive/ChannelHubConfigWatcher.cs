@@ -52,6 +52,9 @@ namespace VL.Core.Reactive
 
         IEnumerable<ChannelBuildDescription> GetChannelBuildDescriptions()
         {
+            if (!File.Exists(filePath))
+                yield break;
+
             var lines = File.ReadLines(filePath).ToArray();
             foreach (var l in lines)
             {
@@ -78,9 +81,19 @@ namespace VL.Core.Reactive
         internal static ChannelHubConfigWatcher FromApplicationBasePath(string p)
         {
             var path = GetConfigFilePath(p);
-            if (!File.Exists(path))
-                return null;
+            //if (!File.Exists(path))
+            //{
+            //    File.Create(path);
+            //}
             return GetWatcherForPath(path);
+        }
+
+        public void Save(IEnumerable<ChannelBuildDescription> descriptions)
+        {
+            if (descriptions.Any())
+                File.WriteAllLines(filePath, descriptions.Select(d => $"{d.Name}:{d.CompileTimeType.FullName}"));
+            else
+                File.Delete(filePath);
         }
     }
 }
