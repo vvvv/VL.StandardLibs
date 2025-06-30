@@ -5,9 +5,10 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Drag (TimeSpan)", Category = "ImGui.Widgets.Advanced")]
     [WidgetType(WidgetType.Drag)]
-    internal partial class DragTimeSpan : DragWidget_Weak<TimeSpan, TimeSpan>
+    internal partial class DragTimeSpan : DragWidget_Simple<TimeSpan, TimeSpan>
     {
-        public DragTimeSpan() 
+        public DragTimeSpan()
+            : base(min: TimeSpan.Zero /*should that be 0 or -inf? Do users want to specify negative timespans? */, max: TimeSpan.MaxValue)
         {
             Format = "%.3f s";
         }

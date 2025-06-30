@@ -162,7 +162,9 @@ namespace VL.Core.EditorAttributes
                 value is ulong ||
                 value is long ||
                 
-                value is decimal)
+                value is decimal ||
+                
+                value is TimeSpan)
                 return value.ToString();
 
             if (value is Vector2 v2)
@@ -220,6 +222,13 @@ namespace VL.Core.EditorAttributes
                 if (targetType == typeof(decimal))
                     return decimal.Parse(GetFirstEncodedValue(encodedValue));
 
+                if (targetType == typeof(TimeSpan))
+                {
+                    if (!TimeSpan.TryParse(encodedValue, out var result))
+                        result = TimeSpan.FromSeconds(double.Parse(encodedValue));
+                    return result;
+                }
+
                 var values = encodedValue.Split(',')
                     .Select(x => DecodeValueFromAttribute<float>(x).TryGetValue(0))
                     .ToArray();
@@ -245,7 +254,7 @@ namespace VL.Core.EditorAttributes
 
                 if (targetType == typeof(Int3))
                     return new Int3((int)resampledValues[0], (int)resampledValues[1], (int)resampledValues[2]);
-                
+               
                 return new Optional<object>();
             }
             catch (Exception)

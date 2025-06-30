@@ -17,16 +17,16 @@ namespace VL.ImGui.Widgets
         }
     }
 
-    internal abstract class InputWidget_Weak<T> : ChannelWidget<T>
+    internal abstract class InputWidget_Simple<T> : ChannelWidget<T>
         where T : unmanaged
     {
-        protected readonly MinValueSelector_Weak<T> min;
-        protected readonly MaxValueSelector_Weak<T> max;
+        protected readonly MinValueSelector_Simple<T> min;
+        protected readonly MaxValueSelector_Simple<T> max;
 
-        public InputWidget_Weak()
+        public InputWidget_Simple(T min, T max)
         {
-            AddValueSelector(this.min = new(default));
-            AddValueSelector(this.max = new(default));
+            AddValueSelector(this.min = new(min));
+            AddValueSelector(this.max = new(max));
         }
 
         public Optional<T> Min { protected get => default; set => min.SetPinValue(value); }

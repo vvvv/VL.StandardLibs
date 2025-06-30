@@ -16,16 +16,16 @@ namespace VL.ImGui.Widgets
             SetAttributeValue(default);
 
             foreach (var a in attributes)
-                if (a is MaxAttribute min)
-                    SetAttributeValue(min.GetValue<T>());
+                if (a is MaxAttribute max)
+                    SetAttributeValue(max.GetValue<T>());
         }
 
         public override T Value => HasValue ? base.Value : T.MaxValue;
     }
 
-    sealed class MaxValueSelector_Weak<T> : ValueSelector<T>
+    sealed class MaxValueSelector_Simple<T> : ValueSelector<T>
     {
-        public MaxValueSelector_Weak(T fallback) : base(fallback)
+        public MaxValueSelector_Simple(T fallback) : base(fallback)
         {
         }
 
@@ -34,8 +34,9 @@ namespace VL.ImGui.Widgets
             SetAttributeValue(default);
 
             foreach (var a in attributes)
-                if (a is MaxAttribute min)
-                    SetAttributeValue(min.GetValue<T>());
+                if (a is MaxAttribute max)
+                    SetAttributeValue(max.GetValue<T>());
         }
+        public override T Value => HasValue ? base.Value : fallback;
     }
 }

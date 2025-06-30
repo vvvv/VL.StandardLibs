@@ -23,9 +23,9 @@ namespace VL.ImGui.Widgets
         public override T Value => HasValue ? base.Value : T.MinValue;
     }
 
-    sealed class MinValueSelector_Weak<T> : ValueSelector<T>
+    sealed class MinValueSelector_Simple<T> : ValueSelector<T>
     {
-        public MinValueSelector_Weak(T fallback) : base(fallback)
+        public MinValueSelector_Simple(T fallback) : base(fallback)
         {
         }
 
@@ -37,5 +37,7 @@ namespace VL.ImGui.Widgets
                 if (a is MinAttribute min)
                     SetAttributeValue(min.GetValue<T>());
         }
+
+        public override T Value => HasValue ? base.Value : fallback;
     }
 }

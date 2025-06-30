@@ -76,24 +76,20 @@ namespace VL.ImGui.Widgets
     {
         public DragWidget()
         {
-            var minSelect = new MinValueSelector<TComponent>(default);
-            var maxSelect = new MaxValueSelector<TComponent>(default);
-            AddValueSelector(this.min = minSelect);
-            AddValueSelector(this.max = maxSelect);
+            AddValueSelector(this.min = new MinValueSelector<TComponent>(default));
+            AddValueSelector(this.max = new MaxValueSelector<TComponent>(default));
         }
     }
 
-    internal abstract class DragWidget_Weak<T, TComponent> : DragWidgetBase<T, TComponent>
+    internal abstract class DragWidget_Simple<T, TComponent> : DragWidgetBase<T, TComponent>
         where T : unmanaged
         where TComponent : unmanaged
     {
 
-        public DragWidget_Weak()
+        public DragWidget_Simple(TComponent min, TComponent max)
         {
-            var minSelect = new MinValueSelector_Weak<TComponent>(default);
-            var maxSelect = new MaxValueSelector_Weak<TComponent>(default);
-            AddValueSelector(this.min = minSelect);
-            AddValueSelector(this.max = maxSelect);
+            AddValueSelector(this.min = new MinValueSelector_Simple<TComponent>(min));
+            AddValueSelector(this.max = new MaxValueSelector_Simple<TComponent>(max));
         }
     }
 }
