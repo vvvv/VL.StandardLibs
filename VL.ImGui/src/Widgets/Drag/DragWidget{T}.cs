@@ -78,8 +78,6 @@ namespace VL.ImGui.Widgets
         {
             var minSelect = new MinValueSelector<TComponent>(default);
             var maxSelect = new MaxValueSelector<TComponent>(default);
-            minSelect.Max = maxSelect;
-            maxSelect.Min = minSelect;
             AddValueSelector(this.min = minSelect);
             AddValueSelector(this.max = maxSelect);
         }

@@ -20,9 +20,7 @@ namespace VL.ImGui.Widgets
                     SetAttributeValue(min.GetValue<T>());
         }
 
-        public MaxValueSelector<T> Max { get; set; }
-
-        public override T Value => Max.HasValue ? T.MinValue : base.Value;
+        public override T Value => HasValue ? base.Value : T.MinValue;
     }
 
     sealed class MinValueSelector_Weak<T> : ValueSelector<T>

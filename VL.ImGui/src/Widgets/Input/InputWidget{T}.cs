@@ -14,8 +14,6 @@ namespace VL.ImGui.Widgets
         {
             AddValueSelector(this.min = new(default));
             AddValueSelector(this.max = new(default));
-            this.min.Max = this.max;
-            this.max.Min = this.min;
         }
     }
 

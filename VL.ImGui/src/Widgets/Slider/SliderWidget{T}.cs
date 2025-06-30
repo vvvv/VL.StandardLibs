@@ -13,8 +13,6 @@ namespace VL.ImGui.Widgets
         {
             AddValueSelector(this.min = new(min));
             AddValueSelector(this.max = new(max)); 
-            this.min.Max = this.max;
-            this.max.Min = this.min;
         }
 
         public Optional<TComponent> Min { protected get => default; set => min.SetPinValue(value); }
