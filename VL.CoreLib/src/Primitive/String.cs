@@ -62,9 +62,28 @@ namespace VL.Lib.Primitive
             return quotes + text + quotes;
         }
 
+        public static string Format<T>(string format, T input, T input2, T input3, T input4)
+        {
+            try
+            {
+                return string.Format(CultureInfo.InvariantCulture, format, input, input2, input3, input4);
+            }
+            catch (FormatException e)
+            {
+                return e.Message;
+            }
+        }
+
         public static string FormatSequence<T>(string format, IEnumerable<T> inputs)
         {
-            return string.Format(CultureInfo.InvariantCulture, format, inputs.Cast<object>().ToArray());
+            try
+            {
+                return string.Format(CultureInfo.InvariantCulture, format, inputs.Cast<object>().ToArray());
+            }
+            catch (FormatException e)
+            {
+                return e.Message;
+            }
         }
 
         public static unsafe string FromBytes(IEnumerable<byte> input, Encodings encoding)
