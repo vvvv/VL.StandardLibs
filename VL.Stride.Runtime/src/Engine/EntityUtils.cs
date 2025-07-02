@@ -110,6 +110,8 @@ namespace VL.Stride.Engine
         {
             void AddPatchedEntity(IPatchedEntity patchedEntity);
             void RemovePatchedEntity(IPatchedEntity patchedEntity);
+
+            bool Enabled { get; set; }
         }
 
 
