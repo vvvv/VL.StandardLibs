@@ -114,4 +114,21 @@ namespace VL.Core.PublicAPI
         /// </summary>
         public bool PatchHasChanged { get; }
     }
+
+
+    /// <summary>
+    /// Implemented by the region designer. <typeparamref name="TInterface"/> is the interface that the user provides.
+    /// </summary>
+    public interface IRegion<TInterface>
+    {
+        void SetPatchInlayFactory(Func<TInterface> patchInlayFactory);
+
+        void AcknowledgeInput(in BorderControlPointDescription description, object outerValue);
+        void AcknowledgeIncomingLink(in IncomingLinkDescription description, object outerValue);
+        void RetrieveOutput(in BorderControlPointDescription description, out object outerValue);
+
+        void RetrieveInput(in BorderControlPointDescription description, TInterface patchInstance, out object innerValue);
+        void RetrieveIncomingLink(in IncomingLinkDescription description, TInterface patchInstance, out object innerValue);
+        void AcknowledgeOutput(in BorderControlPointDescription description, TInterface patchInstance, object innerValue);
+    }
 }
