@@ -115,7 +115,6 @@ namespace VL.Core.PublicAPI
         public bool PatchHasChanged { get; }
     }
 
-
     /// <summary>
     /// Implemented by the region designer. <typeparamref name="TInterface"/> is the interface that the user provides.
     /// </summary>
@@ -123,12 +122,15 @@ namespace VL.Core.PublicAPI
     {
         void SetPatchInlayFactory(Func<TInterface> patchInlayFactory);
 
-        void AcknowledgeInput(in BorderControlPointDescription description, object outerValue);
-        void AcknowledgeIncomingLink(in IncomingLinkDescription description, object outerValue);
-        void RetrieveOutput(in BorderControlPointDescription description, out object outerValue);
+        // Outside
+        void AcknowledgeInput(in InputDescription description, object outerValue);
+        void RetrieveOutput(in OutputDescription description, out object outerValue);
 
-        void RetrieveInput(in BorderControlPointDescription description, TInterface patchInstance, out object innerValue);
-        void RetrieveIncomingLink(in IncomingLinkDescription description, TInterface patchInstance, out object innerValue);
-        void AcknowledgeOutput(in BorderControlPointDescription description, TInterface patchInstance, object innerValue);
+        // Inside
+        void RetrieveInput(in InputDescription description, TInterface patchInstance, out object innerValue);
+        void AcknowledgeOutput(in OutputDescription description, TInterface patchInstance, object innerValue);
     }
+
+    public record struct InputDescription(string Id, Type Type, string Name = null, bool IsLink = false, bool IsSplicer = false, bool IsAccumulator = false);
+    public record struct OutputDescription(string Id, Type Type, string Name = null, bool IsSplicer = false, bool IsAccumulator = false);
 }
