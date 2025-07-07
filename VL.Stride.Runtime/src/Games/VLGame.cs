@@ -193,7 +193,7 @@ namespace VL.Stride.Games
                 foreach (var r in PendingPresentCalls)
                     r.Present();
 
-                base.EndDraw(present: false);
+                base.EndDraw(present: PendingPresentCalls.Count == 0 /* Do present if no one else did to ensure command queue gets flushed */);
             }
             finally
             {
