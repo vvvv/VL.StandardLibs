@@ -229,6 +229,9 @@ namespace VL.Core.EditorAttributes
                     return result;
                 }
 
+                if (targetType.IsEnum)
+                    return Enum.Parse(targetType, GetFirstEncodedValue(encodedValue), ignoreCase: true); 
+
                 var values = encodedValue.Split(',')
                     .Select(x => DecodeValueFromAttribute<float>(x).TryGetValue(0))
                     .ToArray();
