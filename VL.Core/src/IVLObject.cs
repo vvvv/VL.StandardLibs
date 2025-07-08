@@ -925,12 +925,7 @@ namespace VL.Core
         {
             var instance = parent.Value;
             if (path == "")
-            {
-                if (instance != null)
-                    return parent; 
-
-                return default;
-            }
+                return parent; 
 
             if (instance is IVLObject vlObj)
             {
