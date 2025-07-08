@@ -120,6 +120,12 @@ namespace VL.Core.PublicAPI
     /// <summary>
     /// Implemented by the region designer. <typeparamref name="TInlay"/> defines how the patch inlay looks like and will be implemented by the user.
     /// </summary>
+    /// <remarks>
+    /// We currently assume that the class implementing this interface has an operation called "Update".
+    /// In its current state input control points are assumed to operate on the "Update" operation 
+    /// while output control points other than splicers and accumulators can be used from multiple moments.
+    /// This restriction might be lifted in the future.
+    /// </remarks>
     public interface IRegion<TInlay>
     {
         /// <summary>
