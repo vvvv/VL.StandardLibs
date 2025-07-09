@@ -114,4 +114,89 @@ namespace VL.Core.PublicAPI
         /// </summary>
         public bool PatchHasChanged { get; }
     }
+
+#nullable enable
+
+    /// <summary>
+    /// Implemented by the region designer. <typeparamref name="TInlay"/> defines how the patch inlay looks like and will be implemented by the user.
+    /// </summary>
+    /// <remarks>
+    /// We currently assume that the class implementing this interface has an operation called "Update".
+    /// In its current state input control points are assumed to operate on the "Update" operation 
+    /// while output control points other than splicers and accumulators can be used from multiple moments.
+    /// This restriction might be lifted in the future.
+    /// </remarks>
+    public interface IRegion<TInlay>
+    {
+        /// <summary>
+        /// Sets the factory method used to create instances of user patched <typeparamref name="TInlay"/>.
+        /// </summary>
+        /// <param name="patchInlayFactory">A function that returns a new instance of <typeparamref name="TInlay"/>.</param>
+        void SetPatchInlayFactory(Func<TInlay> patchInlayFactory);
+
+        /// <summary>
+        /// Called for each input (including links) that is connected to the region from the outside.
+        /// </summary>
+        /// <param name="description">The control point or link for which a value is passed.</param>
+        /// <param name="outerValue">The value passed to the region.</param>
+        void AcknowledgeInput(in InputDescription description, object outerValue);
+
+        /// <summary>
+        /// Called for each output that is connected to the region from the outside.
+        /// </summary>
+        /// <param name="description">The control point for which a value is needed.</param>
+        /// <param name="outerValue">The value retrieved from the region.</param>
+        void RetrieveOutput(in OutputDescription description, out object outerValue);
+
+        /// <summary>
+        /// Called from within the patch inlay to retrieve the inner value for a given control point or link.
+        /// </summary>
+        /// <param name="description">The control point or link for which a value is requested.</param>
+        /// <param name="patchInlay">The patch inlay which asks for the value.</param>
+        /// <param name="innerValue">The value which shall be passed to the inlay.</param>
+        void RetrieveInput(in InputDescription description, TInlay patchInlay, out object innerValue);
+
+        /// <summary>
+        /// Called from within the patch inlay to acknowledge the output value for a given output description.
+        /// </summary>
+        /// <param name="description">The control point for which a value is to be acknowledged.</param>
+        /// <param name="patchInlay">The patch inlay which writes the value.</param>
+        /// <param name="innerValue">The value the patch inlay produced.</param>
+        void AcknowledgeOutput(in OutputDescription description, TInlay patchInlay, object innerValue);
+    }
+
+    /// <summary>
+    /// Describes an input to a region passed either via a control point or a link.
+    /// </summary>
+    /// <param name="Id">The unique identifier for the input.</param>
+    /// <param name="OuterType">The type as seen from the outside of the region.</param>
+    /// <param name="InnerType">The inner as seen from inside the region.</param>
+    /// <param name="Name">The optional name of the input. Defaults to <see langword="null"/> if not specified.</param>
+    /// <param name="IsLink">Whether or not this input is passed to the region via a link.</param>
+    /// <param name="IsSplicer">Whether or not this input is a splicer thereby having different in- and output types.</param>
+    /// <param name="AccumulatorId">If set this input refers to an accumulator.</param>
+    public record struct InputDescription(string Id, Type OuterType, Type InnerType, string? Name = null, bool IsLink = false, bool IsSplicer = false, string? AccumulatorId = null)
+    {
+        /// <summary>
+        /// Whether or not this control point is an accumulator.
+        /// </summary>
+        public bool IsAccumulator => AccumulatorId != null;
+    }
+
+    /// <summary>
+    /// Describes an output from a region retrieved a via a control point.
+    /// </summary>
+    /// <param name="Id">The unique identifier for the output.</param>
+    /// <param name="OuterType">The type as seen from outside of the region.</param>
+    /// <param name="InnerType">The type as seen from inside the region.</param>
+    /// <param name="Name">The optional name of the output. Defaults to <see langword="null"/> if not specified.</param>
+    /// <param name="IsSplicer">Whether or not the output is a splicer thereby having different in- and output types.</param>
+    /// <param name="AccumulatorId">If set this output refers to an accumulator.</param>
+    public record struct OutputDescription(string Id, Type OuterType, Type InnerType, string? Name = null, bool IsSplicer = false, string? AccumulatorId = null)
+    {
+        /// <summary>
+        /// Whether or not this control point is an accumulator.
+        /// </summary>
+        public bool IsAccumulator => AccumulatorId != null;
+    }
 }
