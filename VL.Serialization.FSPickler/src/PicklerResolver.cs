@@ -27,16 +27,6 @@ namespace VL.Serialization.FSPickler
 
         public CustomPicklerRegistration GetRegistration(Type type)
         {
-            if (IHotswapSpecificNodes.Impl.TryGetStateType(type, out var stateType))
-            {
-                var method = typeof(PicklerResolver)
-                    .GetMethod(nameof(PicklerResolver.CreateWrapPickler), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
-                    !.MakeGenericMethod(type, stateType);
-
-                Func<IPicklerResolver, Pickler> x = resolver => (Pickler)method.Invoke(null, new object[] { resolver })!;
-                return CustomPicklerRegistration.NewCustomPickler(x.ToFSharpFunc());
-            }
-
             return CustomPicklerRegistration.UnRegistered;
         }
 
@@ -56,15 +46,5 @@ namespace VL.Serialization.FSPickler
         }
 
         public Pickler<T> Resolve<T>() => (Pickler<T>)Resolve(typeof(T));
-
-        static Pickler<TObject> CreateWrapPickler<TObject, TState>(IPicklerResolver resolver)
-            where TObject : new()
-            where TState : class
-        {
-            return PicklerFactory.CreateWrapPickler(
-                recover: state => IHotswapSpecificNodes.Impl.FromStateObject<TObject, TState>(state),
-                convert: obj => IHotswapSpecificNodes.Impl.GetStateObject<TObject, TState>(obj),
-                resolver.Resolve<TState>());
-        }
     }
 }

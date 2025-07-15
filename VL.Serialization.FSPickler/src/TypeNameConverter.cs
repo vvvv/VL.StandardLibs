@@ -15,12 +15,7 @@ namespace VL.Serialization.FSPickler
 
         public TypeInfo OfSerializedType(TypeInfo value)
         {
-            const string proxySuffix = "+Proxy";
-
             var name = value.Name;
-            if (name.EndsWith(proxySuffix))
-                name = name.Substring(0, name.Length - proxySuffix.Length);
-
             foreach (var typeInfo in typeRegistry.RegisteredTypes)
             {
                 if (typeInfo.ClrType.FullName == name)
