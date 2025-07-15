@@ -37,7 +37,7 @@ namespace VL.Core.Reactive
                         var watcher = ChannelHubConfigWatcher.GetWatcherForPath(appHost, path);
                         return NodeBuilding.NewFactoryImpl(
                             nodes:       watcher.Descriptions.Value.Select(cd => GetNodeDescription(descfactory, cd, invalidateChannelNode: default, watcher)).ToImmutableArray(), 
-                            invalidated: watcher.Descriptions.Skip(1));
+                            invalidated: ((IObservable<PublicChannelDescription[]>)watcher.Descriptions).Skip(1));
                     };
                 });
             }));
