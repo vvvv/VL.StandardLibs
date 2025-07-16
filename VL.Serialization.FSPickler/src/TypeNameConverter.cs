@@ -15,13 +15,19 @@ namespace VL.Serialization.FSPickler
 
         public TypeInfo OfSerializedType(TypeInfo value)
         {
-            var name = value.Name;
-            foreach (var typeInfo in typeRegistry.RegisteredTypes)
-            {
-                if (typeInfo.ClrType.FullName == name)
-                    return new TypeInfo(ToFullName(typeInfo), assemblyInfo: value.AssemblyInfo);
-            }
-            return value;
+            var assembly = System.Reflection.Assembly.Load(value.AssemblyInfo.ToAssemblyName());
+            if (assembly is null)
+                return value;
+
+            var type = assembly.GetType(value.Name);
+            if (type is null)
+                return value;
+
+            var typeInfo = typeRegistry.GetTypeInfo(type);
+            if (typeInfo is null)
+                return value;
+
+            return new TypeInfo(ToFullName(typeInfo), assemblyInfo: value.AssemblyInfo);
         }
 
         public TypeInfo ToDeserializedType(TypeInfo value)
