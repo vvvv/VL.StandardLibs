@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -270,6 +271,30 @@ namespace VL.Lib.Reactive
             return false;
         }
 
+        public static void SetAttribute<TAttribute>(this IChannel channel, TAttribute attribute) where TAttribute : Attribute
+        {
+            var attributes = channel.Attributes.ToBuilder();
+            for (int i = 0; i < attributes.Count; i++)
+            {
+                if (attributes[i].GetType() == typeof(TAttribute))
+                {
+                    attributes[i] = attribute;
+                    goto end;
+                }
+            }
+            attributes.Add(attribute);
+
+        end:
+            channel.Attributes().Value = attributes.ToSpread();
+        }
+
+        public static void RemoveAttribute<TAttribute>(this IChannel channel)
+        {
+            var attributes = channel.Attributes.ToBuilder();
+            attributes.RemoveAll(a => a is TAttribute);
+            channel.Attributes().EnsureValue(attributes.ToSpread());
+        }
+
         public static TAttribute? GetAttribute<TAttribute>(this IChannel channel)
             where TAttribute : Attribute
         {
@@ -277,7 +302,6 @@ namespace VL.Lib.Reactive
                 return result;
             return default;
         }
-
 
         public static void AddAccessorNode(this IChannel channel, NodeContext node)
         {
