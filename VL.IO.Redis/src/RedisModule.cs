@@ -31,7 +31,7 @@ namespace VL.IO.Redis.Experimental
         private readonly IChannelHub _channelHub;
         private readonly RedisClientManager _redisClientManager;
         private RedisClient? _redisClient;
-        private string _nickname;
+        private string _nickname = string.Empty;
         private IChannel<Unit> _onModuleModelChanged = ChannelHelpers.CreateChannelOfType<Unit>();
 
         [Fragment]
@@ -100,7 +100,7 @@ namespace VL.IO.Redis.Experimental
             [Pin(Visibility = PinVisibility.Optional)] When when = When.Always,
             bool connectAsync = true)
         {
-            _nickname = nickname.TryGetValue(configuration.IsNullOrEmpty() ? "" : configuration.Substring(0, configuration.IndexOf(':')));
+            _nickname = nickname.TryGetValue(string.IsNullOrEmpty(configuration) ? "" : configuration.Substring(0, configuration.IndexOf(':')));
 
             var newmodel = Model with
             { 
@@ -246,7 +246,7 @@ namespace VL.IO.Redis.Experimental
 
         bool IModule.SupportsType(Type type) => true;
 
-        string IModule.ConfigHint => _redisClientManager.Options?.ToString();
+        string IModule.ConfigHint => _redisClientManager.Options?.ToString() ?? string.Empty;
 
         string IModule.Nickname => _nickname;
 

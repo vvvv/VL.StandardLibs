@@ -170,7 +170,7 @@ namespace VL.Core.Reactive
         /// <summary>
         /// So that we can jump to the module node.
         /// </summary>
-        NodeContext NodeContext => null; // default implementation makes 1.0 modules still work as they still implement the new enahanced IModule
+        NodeContext? NodeContext => null; // default implementation makes 1.0 modules still work as they still implement the new enahanced IModule
 
         /// <summary>
         /// Interface version of this module. If not implemented it's probably 1.0
