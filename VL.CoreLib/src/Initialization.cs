@@ -47,7 +47,7 @@ namespace VL.Lib
                     try
                     {
                         watcher.Save(channelHub.Channels
-                            .Where(c => !c.Value.IsAnonymous())
+                            .Where(c => !c.Value.IsAnonymous() && c.Value.IsPersistent)
                            .OrderBy(_ => _.Key)
                            .Select(_ =>
                            new PublicChannelDescription(_.Key, appHost.TypeRegistry.GetTypeInfo(_.Value.ClrTypeOfValues).FullName)).ToArray());

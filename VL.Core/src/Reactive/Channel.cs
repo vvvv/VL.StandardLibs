@@ -43,6 +43,7 @@ namespace VL.Lib.Reactive
         AccessorNodes AccessorNodes { get; }
 
         bool IsInitialized => Revision > 0;
+        bool IsPersistent { get; set; }
     }
 
     [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
@@ -227,6 +228,7 @@ namespace VL.Lib.Reactive
 
         T? IMonadicValue<T>.Value => Value;
 
+        public bool IsPersistent { get; set; } = true;
 
         IMonadicValue<T> IMonadicValue<T>.SetValue(T? value)
         {
@@ -465,6 +467,8 @@ namespace VL.Lib.Reactive
         int IChannel.Revision => original.Revision;
 
         public AccessorNodes AccessorNodes => original.AccessorNodes;
+
+        public bool IsPersistent { get => original.IsPersistent; set => original.IsPersistent = value; }
 
         public IDisposable BeginChange() => original.BeginChange();
 
