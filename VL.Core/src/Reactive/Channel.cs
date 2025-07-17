@@ -39,8 +39,10 @@ namespace VL.Lib.Reactive
         void SetObjectAndAuthor(object? @object, string? author);
         IDisposable BeginChange();
         string? Path { get; }
-        internal int Revision { get; }
+        int Revision { get; }
         AccessorNodes AccessorNodes { get; }
+
+        bool IsInitialized => Revision > 0;
     }
 
     [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]

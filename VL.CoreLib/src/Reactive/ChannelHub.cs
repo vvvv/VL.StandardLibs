@@ -41,28 +41,32 @@ namespace VL.Core.Reactive
         public override string? ToString() => AppHost.AppBasePath;
 
         IDisposable? MustHaveDescriptiveSubscription;
-        public IObservable<IEnumerable<PublicChannelDescription>> MustHaveDescriptive
+        public Channel<PublicChannelDescription[]> MustHaveDescriptive
         {
             set
             {
                 MustHaveDescriptiveSubscription?.Dispose();
-                MustHaveDescriptiveSubscription = value.Subscribe(descriptions =>
-                {
-                    ((IChannelHub)this).BatchUpdate(_ =>
-                    {
-                        // make sure all channels of the descriptive configuration exist.
-                        // we don't delete channels that are not listed as the user might have added some more programmatically.
-                        // the config only describes those that shall be there on startup.
-                        foreach (var d in descriptions)
-                        {
-                            var name = d.Name;
-                            var type = d.GetRuntimeType(AppHost.TypeRegistry);
-                            TryAddChannel(name, type);
-                        }
-                    });
-                });
+                recreateChannels(value.Value);
+                MustHaveDescriptiveSubscription = ((IObservable<PublicChannelDescription[]>)value).Subscribe(recreateChannels);
             }
         }
+
+        void recreateChannels(PublicChannelDescription[] descriptions)
+        {
+            ((IChannelHub)this).BatchUpdate(_ =>
+            {
+                // make sure all channels of the descriptive configuration exist.
+                // we don't delete channels that are not listed as the user might have added some more programmatically.
+                // the config only describes those that shall be there on startup.
+                foreach (var d in descriptions)
+                {
+                    var name = d.Name;
+                    var type = d.GetRuntimeType(AppHost.TypeRegistry);
+                    TryAddChannel(name, type);
+                }
+            });
+        }
+
 
         internal ConcurrentDictionary<string, IChannel<object>> Channels = new();
         internal ConcurrentDictionary<string, IChannel<object>> AnonymousChannels = new();
@@ -100,7 +104,12 @@ namespace VL.Core.Reactive
             { 
                 var c = ChannelHelpers.CreateChannelOfType(typeOfValues); 
                 ((IInternalChannel)c).SetPath(key);
-                if (!c.IsAnonymous()) revision++; 
+                if (!c.IsAnonymous()) revision++;
+
+                //var typeInfo = AppHost.TypeRegistry.GetTypeInfo(typeOfValues);
+                //if (typeInfo != null && !typeInfo.IsPatched)
+                //    c.Value = AppHost.TypeRegistry.GetTypeInfo(typeOfValues).GetDefaultValue();
+
                 return c; 
             });
             if (c.ClrTypeOfValues != typeOfValues)
@@ -203,7 +212,7 @@ namespace VL.Core.Reactive
         public void Dispose()
         {
             {
-                using var _ = BeginChange();
+                //using var _ = BeginChange(); //don't report
                 revision++;
                 foreach (var c in Channels.Values)
                     c.Dispose();

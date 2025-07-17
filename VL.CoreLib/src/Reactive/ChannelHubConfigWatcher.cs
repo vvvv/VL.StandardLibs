@@ -14,6 +14,7 @@ using System.Xml;
 using System.Xml.Linq;
 using VL.Lib.Collections;
 using VL.Lib.Mathematics;
+using VL.Lib.Reactive;
 
 namespace VL.Core.Reactive
 {
@@ -23,7 +24,7 @@ namespace VL.Core.Reactive
         readonly AppHost appHost;
         readonly FileSystemWatcher watcher;
 
-        public BehaviorSubject<PublicChannelDescription[]> Descriptions;
+        public Channel<PublicChannelDescription[]> Descriptions;
 
         public ChannelHubConfigWatcher(AppHost appHost, string filePath)
         {
@@ -34,9 +35,11 @@ namespace VL.Core.Reactive
             watcher.Filter = Path.GetFileName(filePath);
             watcher.EnableRaisingEvents = true;
 
-            Descriptions = new BehaviorSubject<PublicChannelDescription[]>(GetChannelBuildDescriptions().ToArray());
+            Descriptions = new Channel<PublicChannelDescription[]>();
+            PushChannelBuildDescriptions();
 
             Observable.FromEventPattern<FileSystemEventArgs>(watcher, "Changed", scheduler: Scheduler.CurrentThread)
+                .Where(_ => DateTime.UtcNow > lastSave + TimeSpan.FromSeconds(10))
                 .Do(_ => appHost.DefaultLogger.LogDebug($"{filePath} changed"))
                 .Throttle(TimeSpan.FromSeconds(1))
                 .Subscribe(_ => PushChannelBuildDescriptions());
@@ -48,7 +51,9 @@ namespace VL.Core.Reactive
         {
             try
             {
-                Descriptions.OnNext(GetChannelBuildDescriptions().ToArray());
+                var c = GetChannelBuildDescriptions().ToArray();
+                Descriptions.SetValueAndAuthor(c, author: "file");
+                appHost.DefaultLogger.LogInformation($"recreated {c.Length} channels via {filePath}.");
             }
             catch (Exception)
             {
@@ -124,8 +129,13 @@ namespace VL.Core.Reactive
             return GetWatcherForPath(appHost, path);
         }
 
+        DateTime lastSave = DateTime.MinValue;
+
         public void Save(IEnumerable<PublicChannelDescription> descriptions)
         {
+            if (descriptions.SequenceEqual(Descriptions.Value))
+                return;
+
             if (descriptions.Any())
             {
                 XElement rootElement = new XElement("PublicChannels",
@@ -134,10 +144,16 @@ namespace VL.Core.Reactive
                         new XAttribute("Type", d.TypeName))));
                 //Serialization.Serialize(NodeContext.CurrentRoot, descriptions.ToSpread());
                 var document = new XDocument(rootElement);
+                lastSave = DateTime.UtcNow;
                 document.Save(filePath, SaveOptions.None);
+                var c = descriptions.ToSpread();
+                appHost.DefaultLogger.LogInformation($"saved {c.Count} channels to {filePath}.");
             }
             else
+            {
                 File.Delete(filePath);
+                appHost.DefaultLogger.LogInformation($"deleted {filePath}.");
+            }
         }
     }
 }
