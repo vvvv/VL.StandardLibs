@@ -941,6 +941,7 @@ namespace VL.Stride.Games
                                     presenter.Description.RefreshRate = presentationParameters.RefreshRate;
 
                                     // Workaround for issue in Stride - SwapChainGraphicsPresenter.DestroyChildrenTextures doesn't take lock
+                                    // Remove once https://github.com/stride3d/stride/pull/2842 is merged
                                     lock (GetResources(GraphicsDevice))
                                     {
                                         presenter.Resize(newWidth, newHeight, newFormat);
