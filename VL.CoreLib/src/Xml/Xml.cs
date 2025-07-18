@@ -24,6 +24,15 @@ namespace VL.Lib.Xml
         Schema
     }
 
+    public enum JsonPropertyNamingPolicy
+    {
+        CamelCase,
+        KebabCaseLower,
+        KebabCaseUpper,
+        SnakeCaseLower,
+        SnakeCaseUpper
+    }
+
     public static class XmlNodes
     {
         /// <summary>
