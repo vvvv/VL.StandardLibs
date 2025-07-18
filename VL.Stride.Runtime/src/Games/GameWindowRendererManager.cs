@@ -2,15 +2,16 @@
 // This class should be kept internal
 // There's a PR trying to solve the code duplication https://github.com/stride3d/stride/pull/923
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Stride.Core;
 using Stride.Core.Diagnostics;
 using Stride.Core.Mathematics;
 using Stride.Games;
 using Stride.Graphics;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace VL.Stride.Games
 {
@@ -938,7 +939,12 @@ namespace VL.Stride.Games
 
                                     presenter.Description.PreferredFullScreenOutputIndex = newOutputIndex;
                                     presenter.Description.RefreshRate = presentationParameters.RefreshRate;
-                                    presenter.Resize(newWidth, newHeight, newFormat);
+
+                                    // Workaround for issue in Stride - SwapChainGraphicsPresenter.DestroyChildrenTextures doesn't take lock
+                                    lock (GetResources(GraphicsDevice))
+                                    {
+                                        presenter.Resize(newWidth, newHeight, newFormat);
+                                    }
 
                                     // Change full screen if needed
                                     presenter.IsFullScreen = presentationParameters.IsFullScreen && !window.FullscreenIsBorderlessWindow;
@@ -996,6 +1002,9 @@ namespace VL.Stride.Games
                     }
                 }
             }
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "Resources")]
+            extern static ref HashSet<GraphicsResourceBase> GetResources(GraphicsDevice c);
         }
     }
 }
