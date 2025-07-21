@@ -139,14 +139,14 @@ namespace VL.Core.PublicAPI
         /// </summary>
         /// <param name="description">The control point or link for which a value is passed.</param>
         /// <param name="outerValue">The value passed to the region.</param>
-        void AcknowledgeInput(in InputDescription description, object outerValue);
+        void AcknowledgeInput(in InputDescription description, object? outerValue);
 
         /// <summary>
         /// Called for each output that is connected to the region from the outside.
         /// </summary>
         /// <param name="description">The control point for which a value is needed.</param>
         /// <param name="outerValue">The value retrieved from the region.</param>
-        void RetrieveOutput(in OutputDescription description, out object outerValue);
+        void RetrieveOutput(in OutputDescription description, out object? outerValue);
 
         /// <summary>
         /// Called from within the patch inlay to retrieve the inner value for a given control point or link.
@@ -154,7 +154,7 @@ namespace VL.Core.PublicAPI
         /// <param name="description">The control point or link for which a value is requested.</param>
         /// <param name="patchInlay">The patch inlay which asks for the value.</param>
         /// <param name="innerValue">The value which shall be passed to the inlay.</param>
-        void RetrieveInput(in InputDescription description, TInlay patchInlay, out object innerValue);
+        void RetrieveInput(in InputDescription description, TInlay patchInlay, out object? innerValue);
 
         /// <summary>
         /// Called from within the patch inlay to acknowledge the output value for a given output description.
@@ -162,7 +162,7 @@ namespace VL.Core.PublicAPI
         /// <param name="description">The control point for which a value is to be acknowledged.</param>
         /// <param name="patchInlay">The patch inlay which writes the value.</param>
         /// <param name="innerValue">The value the patch inlay produced.</param>
-        void AcknowledgeOutput(in OutputDescription description, TInlay patchInlay, object innerValue);
+        void AcknowledgeOutput(in OutputDescription description, TInlay patchInlay, object? innerValue);
     }
 
     /// <summary>
@@ -199,4 +199,28 @@ namespace VL.Core.PublicAPI
         /// </summary>
         public bool IsAccumulator => AccumulatorId != null;
     }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class RegionAttribute : Attribute
+    {
+        /// <summary>
+        /// What control points the region shall support.
+        /// </summary>
+        public ControlPointType SupportedBorderControlPoints { get; init; }
+
+        /// <summary>
+        /// The type constraint to apply on the control points. 
+        /// In case of splicers the system will try to align the inner type (e.g. float) with the inner most argument (and also right most) of the outer (e.g. Spread{float} or Dictionary{string, float}).
+        /// </summary>
+        public string? TypeConstraint { get; init; }
+    }
+
+    [Flags]
+    public enum ControlPointType
+    {
+        None = 0,
+        Border = 1 << 1,
+        Accumulator = 1 << 2,
+        Splicer = 1 << 3,
+    };
 }
