@@ -122,6 +122,8 @@ namespace VL.Core.Reactive
         public IChannel<object>? TryGetChannel(string key)
         {
             Channels.TryGetValue(key, out var c);
+            if (c is IInternalChannel ic)
+                ic.Request(); // mark channel as asked for, so that it can be used in the UI
             return c;
         }
 

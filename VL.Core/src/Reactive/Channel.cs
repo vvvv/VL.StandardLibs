@@ -43,6 +43,11 @@ namespace VL.Lib.Reactive
         AccessorNodes AccessorNodes { get; }
 
         bool IsInitialized => Revision > 0;
+
+        /// <summary>
+        /// Is true for the rest of the application lifetime once the channel has been requested.
+        /// </summary>
+        bool HasBeenRequested { get; }
     }
 
     [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
@@ -122,6 +127,8 @@ namespace VL.Lib.Reactive
         }
 
         object? IChannel.Object { get => Value; set => Value = (T?)value; }
+
+        public bool HasBeenRequested { get; internal set; }
 
         int IChannel.Revision => revision;
 
@@ -354,11 +361,17 @@ namespace VL.Lib.Reactive
         {
             Path = path;
         }
+
+        void IInternalChannel.Request()
+        {
+            HasBeenRequested = true;
+        }
     }
 
     internal interface IInternalChannel
     {
         void SetPath(string path);
+        void Request();
     }
 
 
@@ -463,6 +476,8 @@ namespace VL.Lib.Reactive
         public bool AcceptsValue => original.AcceptsValue;
 
         int IChannel.Revision => original.Revision;
+
+        public bool HasBeenRequested { get; internal set; }
 
         public AccessorNodes AccessorNodes => original.AccessorNodes;
 
