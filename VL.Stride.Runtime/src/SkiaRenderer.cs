@@ -54,6 +54,8 @@ namespace VL.Stride
             var skiaRenderContext = SkiaRenderContext.ForCurrentApp();
             if (sampleCount > 1)
             {
+                throw new NotSupportedException("MSAA not supported.");
+
                 var shareContext = skiaRenderContext.EglContext;
                 if (msaaAwareEglContext is null || msaaAwareEglContext.SampleCount != sampleCount || msaaAwareEglContext.ShareContext != shareContext)
                 {
