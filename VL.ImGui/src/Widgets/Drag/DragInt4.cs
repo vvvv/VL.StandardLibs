@@ -9,6 +9,11 @@ namespace VL.ImGui.Widgets
     [WidgetType(WidgetType.Drag)]
     internal partial class DragInt4 : DragWidget<Int4, int>
     {
+        public DragInt4()
+            : base(int.MinValue, int.MaxValue)
+        {
+        }
+
         protected override bool Drag(string label, ref Int4 value, float speed, int min, int max, string? format, ImGuiSliderFlags flags)
         {
             ref var x = ref value.X;

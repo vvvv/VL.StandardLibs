@@ -7,6 +7,11 @@ namespace VL.ImGui.Widgets
     [WidgetType(WidgetType.Input)]
     internal partial class InputFloat : InputWidget<float>, IHasInputTextFlags
     {
+        public InputFloat()
+            : base(float.MinValue, float.MaxValue)
+        {
+        }
+
         public float Step { private get; set; } = 0.1f;
 
         public float StepFast { private get; set; } = 10f;

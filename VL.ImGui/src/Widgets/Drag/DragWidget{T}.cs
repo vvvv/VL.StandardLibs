@@ -72,24 +72,12 @@ namespace VL.ImGui.Widgets
 
     internal abstract class DragWidget<T, TComponent> : DragWidgetBase<T, TComponent>
         where T : unmanaged
-        where TComponent : unmanaged, System.Numerics.IMinMaxValue<TComponent>
-    {
-        public DragWidget()
-        {
-            AddValueSelector(this.min = new MinValueSelector<TComponent>(default));
-            AddValueSelector(this.max = new MaxValueSelector<TComponent>(default));
-        }
-    }
-
-    internal abstract class DragWidget_Simple<T, TComponent> : DragWidgetBase<T, TComponent>
-        where T : unmanaged
         where TComponent : unmanaged
     {
-
-        public DragWidget_Simple(TComponent min, TComponent max)
+        public DragWidget(TComponent min, TComponent max)
         {
-            AddValueSelector(this.min = new MinValueSelector_Simple<TComponent>(min));
-            AddValueSelector(this.max = new MaxValueSelector_Simple<TComponent>(max));
+            AddValueSelector(this.min = new MinValueSelector<TComponent>(min));
+            AddValueSelector(this.max = new MaxValueSelector<TComponent>(max));
         }
     }
 }

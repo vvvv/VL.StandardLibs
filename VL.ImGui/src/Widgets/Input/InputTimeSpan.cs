@@ -5,7 +5,7 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (TimeSpan)", Category = "ImGui.Widgets.Advanced")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputTimeSpan : InputWidget_Simple<TimeSpan>, IHasInputTextFlags            
+    internal partial class InputTimeSpan : InputWidget<TimeSpan>, IHasInputTextFlags            
     {
         public InputTimeSpan()
             : base(min: TimeSpan.Zero /*should that be 0 or -inf? Do users want to specify negative timespans? */, max: TimeSpan.MaxValue)

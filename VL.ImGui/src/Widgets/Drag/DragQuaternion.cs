@@ -8,6 +8,11 @@ namespace VL.ImGui.Widgets
     [WidgetType(WidgetType.Drag)]
     internal partial class DragQuaternion : DragWidget<Quaternion, float>
     {
+        public DragQuaternion()
+            : base(float.MinValue, float.MaxValue)
+        {
+        }
+
         protected override bool Drag(string label, ref Quaternion value, float speed, float min, float max, string? format, ImGuiSliderFlags flags)
         {
             var yawPitchRoll = value.YawPitchRoll;
