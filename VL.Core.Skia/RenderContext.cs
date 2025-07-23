@@ -34,7 +34,7 @@ namespace VL.Skia
                     var deviceProvider = new EglDeviceProvider(externalDeviceProvider).DisposeBy(appHost);
                     var displayProvider = new EglDisplayProvider(deviceProvider).DisposeBy(appHost);
                     var eglContextProvider = new EglContextProvider(displayProvider).DisposeBy(appHost);
-                    var renderContextProvider = new RenderContextProvider(eglContextProvider, s).DisposeBy(appHost);
+                    var renderContextProvider = new RenderContextProvider(eglContextProvider).DisposeBy(appHost);
 
                     if (isOnMainThread)
                     {
@@ -57,7 +57,7 @@ namespace VL.Skia
         private readonly Subject<Unit> onDeviceLost = new();
         private RenderContext? renderContext;
 
-        internal RenderContextProvider(EglContextProvider eglContextProvider, IServiceProvider services)
+        internal RenderContextProvider(EglContextProvider eglContextProvider)
         {
             this.eglContextProvider = eglContextProvider;
         }
