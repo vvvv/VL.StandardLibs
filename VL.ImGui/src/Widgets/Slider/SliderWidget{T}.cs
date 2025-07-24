@@ -3,8 +3,8 @@ using VL.Core;
 
 namespace VL.ImGui.Widgets
 {
-    internal abstract class SliderWidget<T, TComponent> : ChannelWidget<T>
-        where TComponent : unmanaged
+    internal abstract class SliderWidget<T, TComponent> : ChannelWidget<T> 
+        where TComponent : unmanaged, System.Numerics.IMinMaxValue<TComponent>
     {
         protected readonly MinValueSelector<TComponent> min;
         protected readonly MaxValueSelector<TComponent> max;
@@ -12,7 +12,7 @@ namespace VL.ImGui.Widgets
         public SliderWidget(TComponent min, TComponent max)
         {
             AddValueSelector(this.min = new(min));
-            AddValueSelector(this.max = new(max));
+            AddValueSelector(this.max = new(max)); 
         }
 
         public Optional<TComponent> Min { protected get => default; set => min.SetPinValue(value); }

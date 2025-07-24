@@ -13,6 +13,8 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using VL.Core;
 using VL.Core.Import;
+using VL.Core.Reactive;
+using VL.IO.Redis.Experimental;
 using VL.IO.Redis.Internal;
 using VL.Lib.Animation;
 using VL.Lib.Collections;
@@ -29,20 +31,21 @@ namespace VL.IO.Redis
     {
         private readonly TransactionBuilder _transactionBuilder = new();
         private readonly ILogger _logger;
-        private readonly Dictionary<string, IRedisBinding> _bindings = new();
+        private readonly Dictionary<string, IBinding> _bindings = new();
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly Subject<Unit> _networkSync = new Subject<Unit>();
         private readonly AppHost _appHost;
-
+        internal readonly RedisModule _module;
         private ImmutableArray<IParticipant> _participants = ImmutableArray<IParticipant>.Empty;
 
         private Task? _lastTransaction;
 
-        public RedisClient(AppHost appHost, ConnectionMultiplexer multiplexer, ILogger logger)
+        public RedisClient(AppHost appHost, ConnectionMultiplexer multiplexer, ILogger logger, RedisModule module)
         {
             _appHost = appHost;
             _multiplexer = multiplexer;
             _logger = logger;
+            _module = module;
 
             // This opens a Pub/Sub connection internally
             var subscriber = multiplexer.GetSubscriber();
@@ -99,7 +102,7 @@ namespace VL.IO.Redis
 
         internal ConnectionMultiplexer Multiplexer => _multiplexer;
 
-        internal IEnumerable<IRedisBinding> Bindings => _bindings.Values;
+        internal IEnumerable<IBinding> Bindings => _bindings.Values;
 
         internal IDisposable Subscribe(IParticipant participant)
         {
@@ -109,16 +112,16 @@ namespace VL.IO.Redis
 
         internal ISubscriber GetSubscriber() => _multiplexer.GetSubscriber();
 
-        internal bool TryGetBinding(string key, [NotNullWhen(true)] out IRedisBinding? binding) => _bindings.TryGetValue(key, out binding);
+        internal bool TryGetBinding(string key, [NotNullWhen(true)] out IBinding? binding) => _bindings.TryGetValue(key, out binding);
 
-        internal IRedisBinding AddBinding(BindingModel model, IChannel channel, Experimental.RedisModule? module = null, ILogger? logger = null, string? channelName = null)
+        internal IBinding AddBinding(ResolvedBindingModel model, IChannel channel, Experimental.RedisModule? module = null, ILogger? logger = null)
         {
             if (_bindings.ContainsKey(model.Key))
                 throw new InvalidOperationException($"The Redis key \"{model.Key}\" is already bound to a different channel.");
 
-            var binding = (IRedisBinding)Activator.CreateInstance(
+            var binding = (IBinding)Activator.CreateInstance(
                 type: typeof(Binding<>).MakeGenericType(channel.ClrTypeOfValues),
-                args: [this, channel, model, module, logger, channelName])!;
+                args: [this, channel, model, module, logger])!;
             _bindings[model.Key] = binding;
             return binding;
         }

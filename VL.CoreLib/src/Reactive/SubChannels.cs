@@ -53,7 +53,7 @@ namespace VL.Lib.Reactive
         static IEnumerable<ObjectGraphNode> yieldPathToNode(ObjectGraphNode node)
         {
             if (node.Parent != null)
-                foreach (var n in yieldPathToNode(node.Parent))
+                foreach (var n in yieldPathToNode(node.Parent.Value))
                     yield return n;
             yield return node;
         }

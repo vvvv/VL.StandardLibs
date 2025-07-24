@@ -13,16 +13,13 @@ namespace VL.IO.Redis
     /// <summary>
     /// Binds a Channel to a key in a Redis database
     /// </summary>
-    [ProcessNode(Name = "Binding")]
+    [ProcessNode(Name = "BindToRedis")]
     public class BindingNode : IDisposable
     {
         private readonly SerialDisposable _current = new();
         private readonly NodeContext _nodeContext;
         private readonly ILogger _logger;
-
-        private (RedisClient? client, IChannel? input, string? key, Initialization initialization, 
-            BindingDirection bindingType, CollisionHandling collisionHandling, Optional<SerializationFormat> serializationFormat,
-            Optional<TimeSpan> expiry, When when) _config;
+        private ResolvedBindingModel _latestResolvedModel;
 
         public BindingNode([Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext)
         {
@@ -41,29 +38,29 @@ namespace VL.IO.Redis
         /// <param name="when">Which condition to set the value under (defaults to always).</param>
         public void Update(
             RedisClient? client, 
-            string? key,
             IChannel? input, 
-            BindingDirection bindingDirection = BindingDirection.InOut,
-            Initialization initialization = Initialization.Redis,
-            CollisionHandling collisionHandling = default,
+            Optional<string> key,
+            Optional<BindingDirection> bindingDirection = default,
+            Optional<Initialization> initialization = default,
+            [Pin(Visibility = PinVisibility.Optional)] Optional<CollisionHandling> collisionHandling = default,
             Optional<SerializationFormat> serializationFormat = default,
             Optional<TimeSpan> expiry = default,
-            When when = When.Always)
+            Optional<When> when = default)
         {
-            var config = (client, input, key, initialization, bindingDirection, collisionHandling, serializationFormat, expiry, when);
-            if (config == _config)
+            if (client is null || input is null)
                 return;
 
-            _config = config;
+            var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat, expiry, when, CreatedViaNode: true);
+            var resolvedBindingModel = model.Resolve(client._module, input);
+            if (resolvedBindingModel == _latestResolvedModel)
+                return;
+            _latestResolvedModel = resolvedBindingModel;
+
             _current.Disposable = null;
 
-            if (client is null || input is null || string.IsNullOrWhiteSpace(key))
-                return;
-
-            var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat.ToNullable(), expiry.ToNullable(), when);
             try
             {
-                _current.Disposable = client.AddBinding(model, input, logger: _logger);
+                _current.Disposable = client.AddBinding(resolvedBindingModel, input, client._module, logger: _logger);
             }
             catch (Exception e)
             {

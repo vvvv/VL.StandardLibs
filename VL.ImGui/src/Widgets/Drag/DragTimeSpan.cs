@@ -7,7 +7,8 @@ namespace VL.ImGui.Widgets
     [WidgetType(WidgetType.Drag)]
     internal partial class DragTimeSpan : DragWidget<TimeSpan, TimeSpan>
     {
-        public DragTimeSpan() 
+        public DragTimeSpan()
+            : base(min: TimeSpan.Zero /*should that be 0 or -inf? Do users want to specify negative timespans? */, max: TimeSpan.MaxValue)
         {
             Format = "%.3f s";
         }

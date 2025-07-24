@@ -176,6 +176,7 @@ namespace VL.Core
         IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
 
+#nullable enable
     /// <summary>
     /// Interface to interact with VL properties.
     /// </summary>
@@ -228,7 +229,7 @@ namespace VL.Core
         /// </summary>
         /// <param name="instance">The instance to get the value from.</param>
         /// <returns>The value of the property.</returns>
-        object GetValue(IVLObject instance);
+        object? GetValue(object instance);
 
         /// <summary>
         /// Sets the property value of the given instance.
@@ -236,12 +237,13 @@ namespace VL.Core
         /// <param name="instance">The instance to set the value on.</param>
         /// <param name="value">The value to set.</param>
         /// <returns>The instance with the newly set value.</returns>
-        IVLObject WithValue(IVLObject instance, object value);
+        object WithValue(object instance, object? value);
 
         new IEnumerable<TAttribute> GetAttributes<TAttribute>() where TAttribute : Attribute => Attributes.OfType<TAttribute>();
     }
+#nullable restore
 
-    public class ObjectGraphNode
+    public struct ObjectGraphNode
     {
         public string Path { get; }
         public object Value { get; }
@@ -252,37 +254,41 @@ namespace VL.Core
         /// </summary>
         public object AccessedViaKey { get; }
         public string AccessedViaKeyPath { get; }
-        public ObjectGraphNode Parent { get; }
 
-        private ObjectGraphNode(string path, object value, Type type, object accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+        object parent;
+        public ObjectGraphNode? Parent => (ObjectGraphNode?)parent;
+
+        private ObjectGraphNode(string path, object value, Type type, object accessedViaKey, object parent, string accessedViaKeyPath)
         {
             Path = path;
             Value = value;
             Type = type;
             AccessedViaKey = accessedViaKey;
-            Parent = parent;
+            this.parent = parent;
             AccessedViaKeyPath = accessedViaKeyPath;
         }
 
-        public ObjectGraphNode(string path, object value, Type type, IVLPropertyInfo accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+        public ObjectGraphNode(string path, object value, Type type, IVLPropertyInfo accessedViaKey, object parent, string accessedViaKeyPath)
             : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
 
-        public ObjectGraphNode(string path, object value, Type type, string accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+        public ObjectGraphNode(string path, object value, Type type, string accessedViaKey, object parent, string accessedViaKeyPath)
             : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
 
-        public ObjectGraphNode(string path, object value, Type type, int accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+        public ObjectGraphNode(string path, object value, Type type, int accessedViaKey, object parent, string accessedViaKeyPath)
             : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
 
-        public ObjectGraphNode(string path, object value, Type type, PropertyInfo accessedViaKey, ObjectGraphNode parent, string accessedViaKeyPath)
+        public ObjectGraphNode(string path, object value, Type type, PropertyInfo accessedViaKey, object parent, string accessedViaKeyPath)
             : this(path, value, type, (object)accessedViaKey, parent, accessedViaKeyPath)
         {
         }
+
+        public override string ToString() => Path;
     }
 
     public static class VLFactoryExtensions
@@ -600,6 +606,8 @@ namespace VL.Core
                 Count++;
                 return Count <= MaxCount;
             }
+
+            public static DefaultCrawlObjectGraphFilter Instance = new DefaultCrawlObjectGraphFilter();
         }
 
         public static Spread<ObjectGraphNode> CrawlObjectGraph(object instance, string rootPath, ICrawlObjectGraphFilter filter, bool includeRoot, Type type = default)
@@ -612,7 +620,7 @@ namespace VL.Core
                 if (!instance.GetType().IsAssignableTo(type))
                     throw new ArgumentException($"{instance.GetType()} is not of specified type {type}");
             if (filter == null)
-                filter = new DefaultCrawlObjectGraphFilter();
+                filter = DefaultCrawlObjectGraphFilter.Instance;
             filter.Reset();
             var collection = new SpreadBuilder<ObjectGraphNode>();
 
@@ -630,6 +638,22 @@ namespace VL.Core
             ActOnChildren(filter, -1, root, action);
 
             return collection.ToSpread();
+        }
+
+        public static void IterateChildren(object instance, string rootPath, ICrawlObjectGraphFilter filter, 
+            Action<ObjectGraphNode, int> action, Type type = default)
+        {
+            if (type is null)
+                type = instance.GetType();
+            else
+                if (!instance.GetType().IsAssignableTo(type))
+                    throw new ArgumentException($"{instance.GetType()} is not of specified type {type}");
+            if (filter == null)
+                filter = DefaultCrawlObjectGraphFilter.Instance;
+            filter.Reset();
+
+            var root = new ObjectGraphNode(rootPath, instance, type, 0, null, "");
+            ActOnChildren(filter, -1, root, action);
         }
 
         static void ActOnChildren(ICrawlObjectGraphFilter filter, int parentDepth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
@@ -681,7 +705,7 @@ namespace VL.Core
         static void ActOnChildren(IVLObject instance, ICrawlObjectGraphFilter filter, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
         {
             var typeInfo = filter.CrawlOnTypeLevel ? 
-                (node?.Type != null ? instance.AppHost.TypeRegistry.GetTypeInfo(node.Type) : instance.Type) : 
+                (node.Type != null ? instance.AppHost.TypeRegistry.GetTypeInfo(node.Type) : instance.Type) : 
                 instance.Type;
 
             var properties = filter.CrawlAllProperties ? typeInfo.AllProperties : typeInfo.Properties;
@@ -1136,36 +1160,17 @@ namespace VL.Core
         /// <param name="value">The value to set.</param>
         /// <param name="pathExists">The path exists.</param>
         /// <returns>The new root instance (if it is a record) with the updated spine.</returns>
-
         public static TInstance WithValueByPath<TInstance, TValue>(this TInstance instance, string path, TValue value, out bool pathExists)
-            where TInstance : class
+            => (TInstance)WithValueByPathCore(instance, path, value, out pathExists);
+
+        private static object WithValueByPathCore(this object instance, string path, object value, out bool pathExists)
         {
             pathExists = false;
 
             if (path == "")
             {
                 pathExists = true;
-                return value as TInstance;
-            }
-
-            if (instance is IVLObject vlObj)
-            {
-                var match = FPropertyRegex.Match(path);
-                if (match.Success)
-                {
-                    var property = match.Groups[1].Value;
-                    var rest = match.Groups[2].Value;
-                    if (vlObj.TryGetValue(property, default(object), out var o, out pathExists))
-                    {
-                        o = o.WithValueByPath(rest, value, out pathExists);
-                        return vlObj.WithValue(property, o) as TInstance;
-                    }
-                    if (pathExists && rest == "")
-                    {
-                        return vlObj.WithValue(property, value) as TInstance;
-                    }
-                }
-                return instance;
+                return value;
             }
 
             if (instance is ISpread spread)
@@ -1179,8 +1184,8 @@ namespace VL.Core
                         {
                             var rest = match.Groups[2].Value;
                             var o = spread.GetItem(index);
-                            o = o.WithValueByPath(rest, value, out pathExists);
-                            return spread.SetItem(index, o) as TInstance;
+                            o = o.WithValueByPathCore(rest, value, out pathExists);
+                            return spread.SetItem(index, o);
                         }
                     }
                 }
@@ -1197,8 +1202,8 @@ namespace VL.Core
                     if (dict.Contains(key))
                     {
                         var o = dict[key];
-                        o = o.WithValueByPath(rest, value, out pathExists);
-                        return SetItem(dict, key, o) as TInstance;
+                        o = o.WithValueByPathCore(rest, value, out pathExists);
+                        return SetItem(dict, key, o);
                     }
                 }
                 return instance;
@@ -1215,36 +1220,33 @@ namespace VL.Core
                         {
                             var rest = match.Groups[2].Value;
                             var o = list[index];
-                            o = o.WithValueByPath(rest, value, out pathExists);
-                            return SetItem(list, index, o) as TInstance;
+                            o = o.WithValueByPathCore(rest, value, out pathExists);
+                            return SetItem(list, index, o);
                         }
                     }
                 }
                 return instance;
             }
 
+            if (instance is not null)
             {
                 var match = FPropertyRegex.Match(path);
                 if (match.Success)
                 { 
-                    var type = instance.GetType();
+                    var type = instance.GetVLTypeInfo();
                     var propertyName = match.Groups[1].Value;
                     var rest = match.Groups[2].Value;
                     var property = type.GetProperty(propertyName);
                     if (property != null)
                     {
                         var o = property.GetValue(instance);
-                        o = o.WithValueByPath(rest, value, out pathExists);
-                        if (property.SetMethod != null)
-                        {
-                            if (type.TryGetCloneMethodOfRecord(out var cloneMethod))
-                                instance = (TInstance)cloneMethod.Invoke(instance, null);
-                            property.SetValue(instance, o);
-                        }
+                        o = o.WithValueByPathCore(rest, value, out pathExists);
+                        return property.WithValue(instance, o);
                     }
                 }
-                return instance;
             }
+
+            return instance;
         }
 
         static IDictionary SetItem(IDictionary dict, object key, object value)
@@ -1294,8 +1296,8 @@ namespace VL.Core
             public bool ShouldBeSerialized => false;
             public IVLTypeInfo Type => VLObjectExtensions.Default.Type;
             public object DefaultValue => null;
-            public object GetValue(IVLObject instance) => null;
-            public IVLObject WithValue(IVLObject instance, object value) => instance;
+            public object GetValue(object instance) => null;
+            public object WithValue(object instance, object value) => instance;
             public Spread<Attribute> Attributes => Spread<Attribute>.Empty;
         }
 

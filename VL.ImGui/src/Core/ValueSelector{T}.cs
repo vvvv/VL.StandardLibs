@@ -4,7 +4,7 @@ namespace VL.ImGui.Widgets
 {
     abstract class ValueSelector<T> : ValueSelector
     {
-        private readonly T fallback;
+        protected readonly T fallback;
         private Optional<T> attributeValue;
         private Optional<T> pinValue;
 
@@ -13,7 +13,8 @@ namespace VL.ImGui.Widgets
             this.fallback = fallback;
         }
 
-        public T Value => pinValue.HasValue ? pinValue.Value : attributeValue.HasValue ? attributeValue.Value : fallback;
+        public virtual T Value => pinValue.HasValue ? pinValue.Value : attributeValue.HasValue ? attributeValue.Value : fallback;
+        public Optional<T> OptionalValue => pinValue.HasValue ? pinValue : attributeValue.HasValue ? attributeValue : default;
 
         public void SetPinValue(Optional<T> value) => pinValue = value;
 

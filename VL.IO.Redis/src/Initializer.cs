@@ -29,32 +29,42 @@ namespace _VL_.IO.Redis
 
             public object Serialize(SerializationContext context, BindingModel value)
             {
-                var properties = new List<object>()
-                {
-                    context.Serialize(nameof(BindingModel.Key), value.Key),
-                    context.Serialize(nameof(BindingModel.Initialization), value.Initialization),
-                    context.Serialize(nameof(BindingModel.BindingType), value.BindingType),
-                    context.Serialize(nameof(BindingModel.CollisionHandling), value.CollisionHandling)
-                };
+                var properties = new List<object>();
+
+                if (value.Key.HasValue)
+                    properties.Add(context.Serialize(nameof(BindingModel.Key), value.Key));
+
+                if (value.Initialization.HasValue)
+                    properties.Add(context.Serialize(nameof(BindingModel.Initialization), value.Initialization));
+
+                if (value.BindingType.HasValue)
+                    properties.Add(context.Serialize(nameof(BindingModel.BindingType), value.BindingType));
+                
+                if (value.CollisionHandling.HasValue)
+                    properties.Add(context.Serialize(nameof(BindingModel.CollisionHandling), value.CollisionHandling));
+                
                 if (value.SerializationFormat.HasValue)
                     properties.Add(context.Serialize(nameof(BindingModel.SerializationFormat), value.SerializationFormat));
+                
                 if (value.Expiry.HasValue)
                     properties.Add(context.Serialize(nameof(BindingModel.Expiry), value.Expiry));
-                if (value.When != default)
+                
+                if (value.When.HasValue)
                     properties.Add(context.Serialize(nameof(BindingModel.When), value.When));
+                
                 return properties.ToArray();
             }
 
             public BindingModel Deserialize(SerializationContext context, object content, Type type)
             {
                 return new BindingModel(
-                    context.Deserialize<string>(content, nameof(BindingModel.Key)),
-                    context.Deserialize<Initialization>(content, nameof(BindingModel.Initialization)),
-                    context.Deserialize<BindingDirection>(content, nameof(BindingModel.BindingType)),
-                    context.Deserialize<CollisionHandling>(content, nameof(BindingModel.CollisionHandling)),
-                    context.Deserialize<SerializationFormat?>(content, nameof(BindingModel.SerializationFormat)),
-                    context.Deserialize<TimeSpan?>(content, nameof(BindingModel.Expiry)),
-                    context.Deserialize<When>(content, nameof(BindingModel.When)));
+                    context.Deserialize<Optional<string>>(content, nameof(BindingModel.Key)),
+                    context.Deserialize<Optional<Initialization>>(content, nameof(BindingModel.Initialization)),
+                    context.Deserialize<Optional<BindingDirection>>(content, nameof(BindingModel.BindingType)),
+                    context.Deserialize<Optional<CollisionHandling>>(content, nameof(BindingModel.CollisionHandling)),
+                    context.Deserialize<Optional<SerializationFormat>>(content, nameof(BindingModel.SerializationFormat)),
+                    context.Deserialize<Optional<TimeSpan>>(content, nameof(BindingModel.Expiry)),
+                    context.Deserialize<Optional<When>>(content, nameof(BindingModel.When)));
             }
         }
     }

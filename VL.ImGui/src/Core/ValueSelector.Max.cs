@@ -1,4 +1,5 @@
-﻿using VL.Core.EditorAttributes;
+﻿using System.Numerics;
+using VL.Core.EditorAttributes;
 using VL.Lib.Collections;
 
 namespace VL.ImGui.Widgets
@@ -14,8 +15,10 @@ namespace VL.ImGui.Widgets
             SetAttributeValue(default);
 
             foreach (var a in attributes)
-                if (a is MaxAttribute min)
-                    SetAttributeValue(min.GetValue<T>());
+                if (a is MaxAttribute max)
+                    SetAttributeValue(max.GetValue<T>());
         }
+
+        public override T Value => HasValue ? base.Value : fallback;
     }
 }

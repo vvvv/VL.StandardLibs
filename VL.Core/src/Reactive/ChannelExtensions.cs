@@ -278,5 +278,20 @@ namespace VL.Lib.Reactive
             return default;
         }
 
+
+        public static void AddAccessorNode(this IChannel channel, NodeContext node)
+        {
+            var an = channel.AccessorNodes.Nodes;
+            an.Value[node.Path.Stack.Peek()] = node.Path;
+            an.SetValue(an.Value);
+        }
+
+        public static void RemoveAccessorNode(this IChannel channel, NodeContext node)
+        {
+            var an = channel.AccessorNodes.Nodes;
+            if (an.Value[node.Path.Stack.Peek()] == node.Path)
+                if (an.Value.TryRemove(node.Path.Stack.Peek(), out _))
+                    an.SetValue(an.Value);
+        }
     }
 }

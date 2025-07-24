@@ -2,17 +2,15 @@
 
 namespace VL.ImGui.Widgets
 {
-    internal abstract class DragWidget<T, TComponent> : ChannelWidget<T>
+    internal abstract class DragWidgetBase<T, TComponent> : ChannelWidget<T>
         where T : unmanaged
         where TComponent : unmanaged
     {
-        protected readonly MinValueSelector<TComponent> min;
-        protected readonly MaxValueSelector<TComponent> max;
+        protected ValueSelector<TComponent> min;
+        protected ValueSelector<TComponent> max;
 
-        public DragWidget()
+        public DragWidgetBase()
         {
-            AddValueSelector(this.min = new(default));
-            AddValueSelector(this.max = new(default));
         }
 
         public float Speed { protected get; set; } = typeof(TComponent) == typeof(float) || typeof(TComponent) == typeof(double) ? 0.01f : 1f;
@@ -69,5 +67,17 @@ namespace VL.ImGui.Widgets
         private bool wasDragging;
 
         protected abstract bool Drag(string label, ref T value, float speed, TComponent min, TComponent max, string? format, ImGuiNET.ImGuiSliderFlags flags);
+    }
+
+
+    internal abstract class DragWidget<T, TComponent> : DragWidgetBase<T, TComponent>
+        where T : unmanaged
+        where TComponent : unmanaged
+    {
+        public DragWidget(TComponent min, TComponent max)
+        {
+            AddValueSelector(this.min = new MinValueSelector<TComponent>(min));
+            AddValueSelector(this.max = new MaxValueSelector<TComponent>(max));
+        }
     }
 }

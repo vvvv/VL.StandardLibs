@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Reactive.Disposables;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Core.EditorAttributes;
 using VL.Lib.Reactive;
 using static ImGuiNET.ImGui;
 
@@ -32,6 +34,8 @@ namespace VL.ImGui.Editors.Implementations
         private static MonadicEditor<TMonad, TValue>? Create_Generic<TMonad, TValue>(IChannel<TMonad> channel, ObjectEditorContext context)
         {
             var innerChannel = ChannelHelpers.CreateChannelOfType<TValue>();
+            foreach (var c in channel.Components)
+                innerChannel.AddComponent(c);
             var innerEditor = context.Factory.CreateObjectEditor(innerChannel, context);
             if (innerEditor is null)
                 return null;
@@ -105,11 +109,13 @@ namespace VL.ImGui.Editors.Implementations
                     if (editorContext.ViewOnly)
                         BeginDisabled();
 
-                    if (Checkbox(checkboxLabel, ref hasValue))
+                    if (Checkbox(checkboxLabel, ref hasValue)) // only executes in the moment when checkbox gets turned on or offf
                     {
                         if (hasValue)
                         {
-                            channel.Value = monadicValueEditor.Create(AppHost.Current.GetDefaultValue<TValue>()!);
+                            TValue defaultValue = channel.GetDefault<TValue>().TryGetValue(AppHost.Current.GetDefaultValue<TValue>()!);
+                            defaultValue = MonadicEditorExtensions.TryConstrain(defaultValue, channel.GetMin<TValue>(), channel.GetMax<TValue>());
+                            channel.Value = monadicValueEditor.Create(defaultValue);
                         }
                         else
                         {
@@ -142,6 +148,44 @@ namespace VL.ImGui.Editors.Implementations
             {
                 EndGroup();
             }
+        }
+    }
+
+    static class MonadicEditorExtensions
+    {
+        public static TValue TryConstrain<TValue>(TValue value, Optional<TValue> min, Optional<TValue> max)
+        {
+            if (value is null)
+                return value;
+
+            // Check if TValue implements INumber<TValue>
+            var inumberInterface = typeof(TValue)
+                .GetInterfaces()
+                .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(System.Numerics.INumber<>));
+
+            if (inumberInterface != null)
+            {
+                // Call the generic method via reflection
+                var method = typeof(MonadicEditorExtensions)
+                    .GetMethod(nameof(TryConstrainNumber), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
+                    .MakeGenericMethod(typeof(TValue));
+                return (TValue)method.Invoke(null, new object[] { value, min, max })!;
+            }
+
+            // Not a number, just return the value
+            return value;
+        }
+
+        private static TValue TryConstrainNumber<TValue>(TValue value, Optional<TValue> min, Optional<TValue> max)
+            where TValue : System.Numerics.INumber<TValue>
+        {
+            if (min.HasValue && max.HasValue)
+                return TValue.Clamp(value, min.Value, max.Value);
+            else if (min.HasValue)
+                return TValue.Max(value, min.Value);
+            else if (max.HasValue)
+                return TValue.Min(value, max.Value);
+            return value;
         }
     }
 }

@@ -8,6 +8,11 @@ namespace VL.ImGui.Widgets
     [WidgetType(WidgetType.Input)]
     internal partial class InputInt : InputWidget<int>, IHasInputTextFlags
     {
+        public InputInt()
+            : base(int.MinValue, int.MaxValue)
+        {
+        }
+
         public int Step { private get; set; } = 1;
 
         public int StepFast { private get; set; } = 100;

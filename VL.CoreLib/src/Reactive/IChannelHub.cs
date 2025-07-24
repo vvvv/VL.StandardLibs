@@ -41,12 +41,12 @@ namespace VL.Core.Reactive
         void RemoveBinding(IBinding binding);
     }
 
-
     public interface IPlainProcessNode
     {
         void Update();
-    }
 
+        void Ok();
+    }
 
     public enum BindingType
     {
@@ -68,9 +68,22 @@ namespace VL.Core.Reactive
         BindingType BindingType { get; }
 
         bool GotCreatedViaNode => Module == null;
+
+        object ResolvedModel { get; }
+
+        bool IsTweaked => true;
     }
 
+    public static class BindingHelpers
+    {
 
+        public static T GetResolvedModel<T>(this IBinding binding)
+        {
+            if (binding?.ResolvedModel is T t)
+                return t;
+            return default!;
+        }
+    }
 
 
 

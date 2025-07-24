@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="Kk7iyhAfuEoLVUmPbZqqpP" LanguageVersion="2024.6.0-0261-g38f7059b02" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="Kk7iyhAfuEoLVUmPbZqqpP" LanguageVersion="2025.7.0-0420-gfa71002a1a" Version="0.128">
   <NugetDependency Id="VAfHYlLhO8AMV1lqIWCZOE" Location="VL.CoreLib" Version="2022.5.0-0696-g73767f5671" />
   <Patch Id="JLHZ1cVYh5tPSBf9kOUon9">
     <Canvas Id="Gv6AOC6DJebQLJLEAg2IuZ" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -15,7 +15,7 @@
       </p:NodeReference>
       <Patch Id="NPrUYr3Vn65OhJGgmHk8kP">
         <Canvas Id="GKBMbDDvoCROlCfLe71JUT" CanvasType="Group">
-          <Pad Id="L0ZY5ZFH5AuL2WbX60HQsM" Bounds="270,154,423,193" ShowValueBox="true" isIOBox="true" Value="Open Global Channels window.&#xD;&#xA;&#xD;&#xA;Click the small arow on Channel d to expand it. &#xD;&#xA;&#xD;&#xA;These global channels got created by the SubChannelsModule. They are bound to the main Channel d. &#xD;&#xA;&#xD;&#xA;Whenever you change &#xD;&#xA;* those properties, the main channel (d) will adapt&#xD;&#xA;* the main channel, the properties will adapt.">
+          <Pad Id="L0ZY5ZFH5AuL2WbX60HQsM" Bounds="270,154,423,193" ShowValueBox="true" isIOBox="true" Value="Open Channel Browser.&#xD;&#xA;&#xD;&#xA;Click the small arow on Channel d to expand it. &#xD;&#xA;&#xD;&#xA;These public channels got created by the SubChannelsModule. They are bound to the main Channel d. &#xD;&#xA;&#xD;&#xA;Whenever you change &#xD;&#xA;* those properties, the main channel (d) will adapt&#xD;&#xA;* the main channel, the properties will adapt.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -27,28 +27,20 @@
           <Overlay Id="JFLgfjxvg5DNLhCn99pSVc" Name="Setup" Bounds="233,70,520,279">
             <p:ColorIndex p:Type="Int32">3</p:ColorIndex>
           </Overlay>
-          <Node Bounds="503,611,82,19" Id="PzwDOh6cqlQLS5JY1qZ2Go">
+          <Node Bounds="427,517,82,19" Id="PzwDOh6cqlQLS5JY1qZ2Go">
             <p:NodeReference LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="GlobalChannel" />
+              <Choice Kind="ProcessAppFlag" Name="PublicChannel" />
             </p:NodeReference>
             <Pin Id="HjZFAiDo9M8OHEPmC2Uvn1" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="Pa6fPIggLcONVJprYPIJ05" Name="Path" Kind="InputPin" DefaultValue="d" />
             <Pin Id="S2nG8BeqGkOPNuaVuEHYpk" Name="Value" Kind="InputPin" />
-            <Pin Id="C4N4ryJ9SHrNaUtJCimmZj" Name="Channel" Kind="OutputPin" />
-            <Pin Id="FcPltaClsVGLecICsAYN1T" Name="Value" Kind="OutputPin" />
+            <Pin Id="C4N4ryJ9SHrNaUtJCimmZj" Name="Output" Kind="OutputPin" />
             <Pin Id="JttbK7Cbpj8Nech4ZBjlWm" Name="Path" Kind="OutputPin" IsHidden="true" />
+            <Pin Id="Be2HwaHDwMDMgJyUgZC2IT" Name="Author" Kind="InputPin" IsHidden="true" />
+            <Pin Id="FcPltaClsVGLecICsAYN1T" Name="Value" Kind="OutputPin" />
           </Node>
-          <Node Bounds="283,598,25,19" Id="MEpPsRI5Pg0M3DJL9QFz20">
-            <p:NodeReference LastCategoryFullName="Reactive.GlobalChannels" LastDependency="VL.CoreLib.GlobalsChannels (C:\dev\vvvv\VL.StandardLibs\VL.CoreLib\help\Reactive)">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessNode" Name="d" />
-            </p:NodeReference>
-            <Pin Id="MOHhE8DcYOyPIaRywMh9Q3" Name="Value" Kind="InputPin" />
-            <Pin Id="ARpPEjXj5xLMYkrVZ0T6Cl" Name="Channel" Kind="OutputPin" />
-            <Pin Id="FBpneQlmgn2Llw1yg9sd8W" Name="Value" Kind="OutputPin" />
-          </Node>
-          <Node Bounds="580,644,59,26" Id="FUsdunEUhQlOpXrdrsgMWR">
+          <Node Bounds="504,550,59,26" Id="FUsdunEUhQlOpXrdrsgMWR">
             <p:NodeReference LastCategoryFullName="Main.MyRecord" LastDependency="HowTo Global Channel of own Datatype.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="RecordType" Name="MyRecord" NeedsToBeDirectParent="true" />
@@ -59,19 +51,8 @@
             <Pin Id="JpXBIJ6vUvSQJ0EAL8CMqb" Name="Name" Kind="OutputPin" />
             <Pin Id="NGVnzINh6JlMKUIjkrfklh" Name="Age" Kind="OutputPin" />
           </Node>
-          <Pad Id="UT4SckZUCgTO3GSo3U5MZX" Comment="Name" Bounds="557,693,35,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="TLJkAFNSGbIMtPec13lXAm" Comment="Age" Bounds="649,693,35,15" ShowValueBox="true" isIOBox="true" />
-          <Node Bounds="303,674,59,26" Id="KM0aJCNxrBSOWyjF3kSPrN">
-            <p:NodeReference LastCategoryFullName="Main.MyRecord" LastDependency="HowTo Global Channel of own Datatype.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <CategoryReference Kind="RecordType" Name="MyRecord" NeedsToBeDirectParent="true" />
-              <Choice Kind="OperationCallFlag" Name="Split" />
-            </p:NodeReference>
-            <Pin Id="NXmm9Sno52fNO6TSwCOydN" Name="Input" Kind="StateInputPin" />
-            <Pin Id="Uiv4zCsUJjJO9u54OMakry" Name="Output" Kind="OutputPin" IsHidden="true" />
-            <Pin Id="M7Xv8pVhLWnMsQv31GzkKf" Name="Name" Kind="OutputPin" />
-            <Pin Id="NomGBV1n68bMnqRRxQZ3N5" Name="Age" Kind="OutputPin" />
-          </Node>
+          <Pad Id="UT4SckZUCgTO3GSo3U5MZX" Comment="Name" Bounds="481,599,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="TLJkAFNSGbIMtPec13lXAm" Comment="Age" Bounds="573,599,35,15" ShowValueBox="true" isIOBox="true" />
           <!--
 
     ************************ MyRecord ************************
@@ -124,16 +105,6 @@
               </ProcessDefinition>
             </Patch>
           </Node>
-          <Node Bounds="303,638,58,19" Id="DgucaoLQgZHLfs3ulMWLOz">
-            <p:NodeReference LastCategoryFullName="Primitive.Object" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="OperationCallFlag" Name="HardCast" />
-            </p:NodeReference>
-            <Pin Id="S3u4p7Bq1gVOPYnq70kcB0" Name="Input" Kind="StateInputPin" />
-            <Pin Id="MtR2yi3lyYgL8IrdrjuOUl" Name="Result" Kind="OutputPin" />
-          </Node>
-          <Pad Id="NqFWoWjheJ6NS5Xt0W7Bpi" Comment="Name" Bounds="275,735,35,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="JVz1y4QJXJKOx9QVG49fkL" Comment="Age" Bounds="378,735,35,15" ShowValueBox="true" isIOBox="true" />
           <Node Bounds="366,104,108,19" Id="HoNXeG1HUbYOQhunxn2Cs7">
             <p:NodeReference LastCategoryFullName="Reactive.ChannelHub.Modules.SubChannels" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -146,20 +117,22 @@
             </Pin>
             <Pin Id="KRfexlfZArSMSBaliiPi3Z" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="UQzkgHGC1IOPxveKEfq5kL" Name="Update" Kind="ApplyPin" />
+            <Pin Id="FKQ9L241IcBNV2qJJzrYsi" Name="Output" Kind="OutputPin" IsHidden="true" />
           </Node>
-          <Node Bounds="461,462,82,19" Id="QkuqXqkb8vVQbYo2RwLQAH">
+          <Node Bounds="427,450,82,19" Id="QkuqXqkb8vVQbYo2RwLQAH">
             <p:NodeReference LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="GlobalChannel" />
+              <Choice Kind="ProcessAppFlag" Name="PublicChannel" />
             </p:NodeReference>
             <Pin Id="IprorKyfFGaM90KvJhKiN1" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="TMdgVSV2SicPImWLsWKRIX" Name="Path" Kind="InputPin" DefaultValue="d" />
             <Pin Id="SWVwLQKJsnUL8V771ZMkFY" Name="Value" Kind="InputPin" />
-            <Pin Id="Oikewo9t5xgNMRhla2AtNP" Name="Channel" Kind="OutputPin" />
-            <Pin Id="L52jvLubzjTOaeLGOO9MuG" Name="Value" Kind="OutputPin" />
+            <Pin Id="Oikewo9t5xgNMRhla2AtNP" Name="Output" Kind="OutputPin" />
             <Pin Id="UojGjyOEyVsML6uiAm7dPi" Name="Path" Kind="OutputPin" IsHidden="true" />
+            <Pin Id="ApsVBO4LSPwPTKOzx8xoQa" Name="Author" Kind="InputPin" IsHidden="true" />
+            <Pin Id="L52jvLubzjTOaeLGOO9MuG" Name="Value" Kind="OutputPin" />
           </Node>
-          <Node Bounds="538,420,70,26" Id="UAdApEbKNcvPHnXN02HnGi">
+          <Node Bounds="504,408,70,26" Id="UAdApEbKNcvPHnXN02HnGi">
             <p:NodeReference LastCategoryFullName="Main.MyRecord" LastDependency="HowTo Global Channel of own Datatype.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="RecordType" Name="MyRecord" NeedsToBeDirectParent="true" />
@@ -170,7 +143,7 @@
             <Pin Id="OTJ0d7QYtF3QUYaQBB1a1b" Name="Age" Kind="InputPin" DefaultValue="14" />
             <Pin Id="Rd1AixC8AXcNyXTnr9vPHM" Name="Output" Kind="StateOutputPin" />
           </Node>
-          <Pad Id="GSx212RKOonN78Wk4yO8U0" Bounds="545,470,169,25" ShowValueBox="true" isIOBox="true" Value="Initialize main Channel">
+          <Pad Id="GSx212RKOonN78Wk4yO8U0" Bounds="547,458,169,25" ShowValueBox="true" isIOBox="true" Value="Initialize main Channel">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -179,31 +152,31 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Overlay Id="R7ao4wgNvYcO6yyF3Beu8b" Name="Two ways how to access the main channel" Bounds="225,528,529,238" />
-          <Node Bounds="365,890,82,19" Id="O7z4x5jxpP9QGYLOvgkJFy">
+          <Node Bounds="370,740,82,19" Id="O7z4x5jxpP9QGYLOvgkJFy">
             <p:NodeReference LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="GlobalChannel" />
+              <Choice Kind="ProcessAppFlag" Name="PublicChannel" />
             </p:NodeReference>
             <Pin Id="B5tn6EmVPgPNAr1IL2OS14" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="T7JANYVye9EOO3wWFUnkfw" Name="Path" Kind="InputPin" />
             <Pin Id="O9iJ2uaHG35Qd1mfeVoC8r" Name="Value" Kind="InputPin" />
-            <Pin Id="DeMaTKgbFGcOza7ABYKuF9" Name="Channel" Kind="OutputPin" />
-            <Pin Id="K6RNZX7ZoUKM9e3CEK8BS0" Name="Value" Kind="OutputPin" />
+            <Pin Id="DeMaTKgbFGcOza7ABYKuF9" Name="Output" Kind="OutputPin" />
             <Pin Id="C1UfQ2kqHCDO3koEdsXLl7" Name="Path" Kind="OutputPin" IsHidden="true" />
+            <Pin Id="TWNAK0BySznO8EnqaaNJKh" Name="Author" Kind="InputPin" IsHidden="true" />
+            <Pin Id="K6RNZX7ZoUKM9e3CEK8BS0" Name="Value" Kind="OutputPin" />
           </Node>
-          <Pad Id="KKKiUCxo7X3M1qLuKRJYsG" Bounds="367,866,35,15" ShowValueBox="true" isIOBox="true" Value="d.Age">
+          <Pad Id="KKKiUCxo7X3M1qLuKRJYsG" Bounds="372,716,35,15" ShowValueBox="true" isIOBox="true" Value="d.Age">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="ImmutableTypeFlag" Name="String" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="C5mIfsqALuSMV0z8sfdOhG" Comment="" Bounds="424,935,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+          <Pad Id="C5mIfsqALuSMV0z8sfdOhG" Comment="" Bounds="429,785,35,15" ShowValueBox="true" isIOBox="true" Value="0">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="ImmutableTypeFlag" Name="Integer32" />
             </p:TypeAnnotation>
           </Pad>
-          <Overlay Id="IgjDpzsxYZ7OxV69BjvdJq" Name="Access the properties directly" Bounds="226,789,528,214" />
-          <Pad Id="AEsSP15fNSBMF6gI4E5l2s" Bounds="513,879,175,81" ShowValueBox="true" isIOBox="true" Value="After clicking Save in the Global Channel Browser you also get &quot;Age&quot; and &quot;Name&quot; as nodes.">
+          <Overlay Id="IgjDpzsxYZ7OxV69BjvdJq" Name="Access the properties directly" Bounds="231,639,528,214" />
+          <Pad Id="AEsSP15fNSBMF6gI4E5l2s" Bounds="518,729,175,81" ShowValueBox="true" isIOBox="true" Value="After clicking Save in the Channel Browser you also get &quot;Age&quot; and &quot;Name&quot; as nodes.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -212,10 +185,10 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Overlay Id="MGpzV73mYd6QZWOFQ14XXO" Name="Disclaimer" Bounds="347,1020,260,122">
+          <Overlay Id="MGpzV73mYd6QZWOFQ14XXO" Name="Disclaimer" Bounds="776,70,260,122">
             <p:ColorIndex p:Type="Int32">7</p:ColorIndex>
           </Overlay>
-          <Pad Id="JIW5XRNTpBNPSiuryqcbxw" Bounds="352,1074,247,48" ShowValueBox="true" isIOBox="true" Value="This part is actively worked on. There may be design changes.">
+          <Pad Id="JIW5XRNTpBNPSiuryqcbxw" Bounds="781,124,247,48" ShowValueBox="true" isIOBox="true" Value="This part is actively worked on. There may be design changes.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -224,8 +197,13 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
+          <Pad Id="SFMn2X1D8EHNLE3WH8Fa2Z" Comment="Path" Bounds="429,390,35,15" ShowValueBox="true" isIOBox="true" Value="d">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
         </Canvas>
-        <Patch Id="CPjqaGO113jPocorJ7hdE9" Name="Create" ParticipatingElements="MFDY1eJn9OfQD3SM86tJiY" />
+        <Patch Id="CPjqaGO113jPocorJ7hdE9" Name="Create" ParticipatingElements="MFDY1eJn9OfQD3SM86tJiY,Ns4c37hJ3mLO1fAoj1UfBd" />
         <Patch Id="F4CiIuwbKLVQCMVruCdLWc" Name="Update" />
         <ProcessDefinition Id="EG3N2dQHUonNw5pLFX4lrM">
           <Fragment Id="QnPcOd9JcelQYXBWyDr9LW" Patch="CPjqaGO113jPocorJ7hdE9" Enabled="true" />
@@ -234,13 +212,10 @@
         <Link Id="OXZZaUtAmJ5LQ37TtLX9lB" Ids="FcPltaClsVGLecICsAYN1T,TZJOubagmxROmfQ8gDdUWD" />
         <Link Id="KTK7JTLhEI4P3VfFSqJC5r" Ids="JpXBIJ6vUvSQJ0EAL8CMqb,UT4SckZUCgTO3GSo3U5MZX" />
         <Link Id="NQVB32m4nW3LaBY7zrFH7r" Ids="NGVnzINh6JlMKUIjkrfklh,TLJkAFNSGbIMtPec13lXAm" />
-        <Link Id="Ex3jUlbl6YlOlICUd2rWZq" Ids="FBpneQlmgn2Llw1yg9sd8W,S3u4p7Bq1gVOPYnq70kcB0" />
-        <Link Id="CaL4PzXA3r3PeGkktSFJxB" Ids="MtR2yi3lyYgL8IrdrjuOUl,NXmm9Sno52fNO6TSwCOydN" />
-        <Link Id="IyL6yUr9gpQNZQNh8fdeJj" Ids="M7Xv8pVhLWnMsQv31GzkKf,NqFWoWjheJ6NS5Xt0W7Bpi" />
-        <Link Id="SYZ0op4anEqMqvQu58bVMh" Ids="NomGBV1n68bMnqRRxQZ3N5,JVz1y4QJXJKOx9QVG49fkL" />
         <Link Id="MFDY1eJn9OfQD3SM86tJiY" Ids="Rd1AixC8AXcNyXTnr9vPHM,SWVwLQKJsnUL8V771ZMkFY" />
         <Link Id="ETxQC9fCNNzOu15SLrK0gz" Ids="KKKiUCxo7X3M1qLuKRJYsG,T7JANYVye9EOO3wWFUnkfw" />
         <Link Id="UEGeuVtaSVMLGo4PQw0zvy" Ids="K6RNZX7ZoUKM9e3CEK8BS0,C5mIfsqALuSMV0z8sfdOhG" />
+        <Link Id="Ns4c37hJ3mLO1fAoj1UfBd" Ids="SFMn2X1D8EHNLE3WH8Fa2Z,TMdgVSV2SicPImWLsWKRIX" />
       </Patch>
     </Node>
   </Patch>

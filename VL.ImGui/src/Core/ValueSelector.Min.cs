@@ -1,4 +1,5 @@
-﻿using VL.Core.EditorAttributes;
+﻿using System.Numerics;
+using VL.Core.EditorAttributes;
 using VL.Lib.Collections;
 
 namespace VL.ImGui.Widgets
@@ -17,5 +18,7 @@ namespace VL.ImGui.Widgets
                 if (a is MinAttribute min)
                     SetAttributeValue(min.GetValue<T>());
         }
+
+        public override T Value => HasValue ? base.Value : fallback;
     }
 }

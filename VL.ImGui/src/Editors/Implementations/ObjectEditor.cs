@@ -64,7 +64,7 @@ namespace VL.ImGui.Editors
                 return;
 
             var typeInfo = this.typeInfo;
-            if (channel.Value is IVLObject instance)
+            if (channel.Value is not null)
             {
                 foreach (var property in typeInfo.Properties)
                 {
@@ -79,12 +79,12 @@ namespace VL.ImGui.Editors
                             // Setup channel
                             var propertyChannel = ChannelHelpers.CreateChannelOfType(property.Type);
                             propertyChannel.Attributes().Value = property.Attributes;
-                            
+
                             subscriptions.Add(
                                 channel.ChannelOfObject.Merge(
                                     propertyChannel.ChannelOfObject,
-                                    (object? v) => property.GetValue((IVLObject)channel.Value),
-                                    v => (T)property.WithValue((IVLObject)channel.Value, v),
+                                    (object? v) => property.GetValue(channel.Value),
+                                    v => (T)property.WithValue(channel.Value, v),
                                     initialization: ChannelMergeInitialization.UseA,
                                     pushEagerlyTo: ChannelSelection.Both));
                             // this channel is private. So it should be fine to spam it (ChannelSelection.Both).
@@ -94,7 +94,7 @@ namespace VL.ImGui.Editors
                                 propertyChannel.GetLabel().ValueOrDefault_ForReferenceType(property.OriginalName)!;
 
                             var contextForProperty = parentContext.CreateSubContext(label);
-                            editor = editors[property] = 
+                            editor = editors[property] =
                                 (factory.CreateObjectEditor(propertyChannel, contextForProperty),
                                 label, propertyChannel);
                         }
@@ -106,11 +106,11 @@ namespace VL.ImGui.Editors
                 }
 
                 foreach (var (property, (editor, label, propertyChannel)) in editors)
-                { 
+                {
                     if (editor != null)
                     {
                         //this is needed as long as we don't have a proper way to react on property changes of a mutable parent object
-                        propertyChannel.EnsureObject(property.GetValue((IVLObject)channel.Value));
+                        propertyChannel.EnsureObject(property.GetValue(channel.Value));
                         if (editor.NeedsMoreThanOneLine)
                         {
                             if (ImGui.TreeNode(label))
@@ -126,7 +126,7 @@ namespace VL.ImGui.Editors
                                 }
                             }
                             else
-                                DrawTooltip(propertyChannel); 
+                                DrawTooltip(propertyChannel);
                         }
                         else
                         {
@@ -135,11 +135,6 @@ namespace VL.ImGui.Editors
                         }
                     }
                 }
-            }
-            else if (channel.Value is not null)
-            {
-                // TODO: General case
-                ImGui.TextUnformatted(channel.Value.ToString());
             }
             else
             {
