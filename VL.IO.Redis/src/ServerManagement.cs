@@ -112,6 +112,7 @@ namespace VL.IO.Redis
                     _stopPollingOnceConnected = stopPollingOnceConnected;
                     _keys = Observable.Create<Spread<string>>(async (observer, token) =>
                     {
+                        var delay = TimeSpan.FromSeconds(Math.Max(period, 0.1));
                         while (!token.IsCancellationRequested)
                         {
                             var server = client?.GetServer();
@@ -126,14 +127,14 @@ namespace VL.IO.Redis
 
                                     while (stopPollingOnceConnected && !token.IsCancellationRequested && client.Multiplexer.IsConnected)
                                     {
-                                        await Task.Delay(TimeSpan.FromSeconds(period), token);
+                                        await Task.Delay(delay, token);
                                     }
                                 }
                                 catch (Exception)
                                 {
                                 }
                             }
-                            await Task.Delay(TimeSpan.FromSeconds(period), token);
+                            await Task.Delay(delay, token);
                         }
                     }).SubscribeOn(Scheduler.Default);
                 }
