@@ -1,5 +1,4 @@
-﻿using SixLabors.Fonts;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using VL.Lib.Mathematics;
 using VL.Lib.Text;
 using VL.Lib.Collections;

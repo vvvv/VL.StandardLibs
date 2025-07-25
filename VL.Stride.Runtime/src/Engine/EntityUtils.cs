@@ -1,5 +1,4 @@
-﻿using SharpFont.Cache;
-using Stride.Core;
+﻿using Stride.Core;
 using Stride.Engine;
 using System;
 using System.Collections.Generic;

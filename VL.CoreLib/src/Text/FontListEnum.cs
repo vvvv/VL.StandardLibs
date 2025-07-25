@@ -4,7 +4,6 @@ using VL.Lib.Collections;
 using Microsoft.Win32;
 using System.Reactive.Linq;
 using System.Linq;
-using SixLabors.Fonts;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
@@ -43,8 +42,6 @@ namespace VL.Lib.Text
                 GetFonts_DirectWrite(fonts);
             else if (OperatingSystem.IsWindowsVersionAtLeast(5))
                 GetFonts_Gdi32(fonts);
-            else
-                GetFonts_Directory(fonts);
 
             foreach (var family in fonts)
                 fontFaces[family] = family;
@@ -126,26 +123,6 @@ namespace VL.Lib.Text
             {
                 localizedStrings.GetString(index, c, length + 1);
                 return new string(c);
-            }
-        }
-
-        private static void GetFonts_Directory(List<string> fonts)
-        {
-            foreach (var family in SystemFonts.Families.OrderBy(x => x.Name))
-            {
-                if (IsStyle(family.Name))
-                    continue;
-
-                fonts.Add(family.Name);
-            }
-
-            static bool IsStyle(string name)
-            {
-                return name.EndsWith(" Light")
-                    || name.EndsWith(" Medium")
-                    || name.EndsWith(" Semilight")
-                    || name.EndsWith(" Semibold")
-                    || name.EndsWith(" Bold");
             }
         }
 
