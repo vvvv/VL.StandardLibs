@@ -178,7 +178,9 @@ namespace VL.Lib.Text
         [SupportedOSPlatform("windows6.1")]
         private static unsafe FontPath GetFontPathDirectWrite(string familyName, FontStyle fontStyle)
         {
-            PInvoke.DWriteCreateFactory(DWRITE_FACTORY_TYPE.DWRITE_FACTORY_TYPE_SHARED, typeof(IDWriteFactory).GUID, out var unknown)
+            // SHARED was causing issues on some systems. Call would randomly fail by returning an instance not implementing IDWriteFactory.
+            // Probably due to a third party library using DWriteCreateFactory with SHARED.
+            PInvoke.DWriteCreateFactory(DWRITE_FACTORY_TYPE.DWRITE_FACTORY_TYPE_ISOLATED, typeof(IDWriteFactory).GUID, out var unknown)
                 .ThrowOnFailure();
 
             if (unknown is not IDWriteFactory factory)
