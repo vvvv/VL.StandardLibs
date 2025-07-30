@@ -40,24 +40,26 @@ namespace VL.Lib
                 // make sure all channels of config exist in app-channelhub.
                 var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(appHost);
                 channelHub.MustHaveDescriptive = watcher.Descriptions;
-                channelHub.OnChannelsChanged
+                if (!appHost.IsExported)
+                {
+                    channelHub.OnChannelsChanged
                     .Throttle(TimeSpan.FromMilliseconds(500))
                     .Subscribe(_ =>
-                {
-                    try
                     {
-                        watcher.Save(channelHub.Channels
-                            .Where(c => !c.Value.IsAnonymous())
-                           .OrderBy(_ => _.Key)
-                           .Select(_ =>
-                           new PublicChannelDescription(_.Key, appHost.TypeRegistry.GetTypeInfo(_.Value.ClrTypeOfValues).FullName)).ToArray());
-                    }
-                    catch (Exception)
-                    {
-                        appHost.DefaultLogger.LogWarning($"writing {ChannelHubConfigWatcher.GetConfigFilePath(appHost)} failed.");
-                    }
-                });
-
+                        try
+                        {
+                            watcher.Save(channelHub.Channels
+                                .Where(c => !c.Value.IsAnonymous())
+                                .OrderBy(_ => _.Key)
+                                .Select(_ =>
+                                new PublicChannelDescription(_.Key, appHost.TypeRegistry.GetTypeInfo(_.Value.ClrTypeOfValues).FullName)).ToArray());
+                        }
+                        catch (Exception)
+                        {
+                            appHost.DefaultLogger.LogWarning($"writing {ChannelHubConfigWatcher.GetConfigFilePath(appHost)} failed.");
+                        }
+                    });
+                }
                 return channelHub;
             });
 
