@@ -1,11 +1,14 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using VL.Core;
 using VL.Core.Import;
+using VL.Lang;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Collections;
 using VL.Lib.IO.Socket;
@@ -27,6 +30,17 @@ namespace VL.Lib.IO.Socket
         CancellationTokenSource FCancellation = new CancellationTokenSource();
         IResourceProvider<NetSocket> FLocalSocketProvider;
         Task FCurrentTask;
+
+        private readonly NodeContext FNodeContext;
+        private readonly ILogger FLogger;
+        private readonly IVLRuntime FRuntime;
+
+        public DatagramReceiver(NodeContext nodeContext)
+        {
+            FRuntime = IVLRuntime.Current;
+            FNodeContext = nodeContext;
+            FLogger = nodeContext.GetLogger();
+        }
 
         /// <summary>
         /// The observable sequence of datagrams. The datagrams will be pushed on the network thread.
@@ -88,8 +102,9 @@ namespace VL.Lib.IO.Socket
                                 }
                             }
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
+                            Warn($"Error receiving datagram: {e.Message}");
                             if (!token.IsCancellationRequested)
                                 // Try again
                                 await Task.Delay(100);
@@ -109,6 +124,23 @@ namespace VL.Lib.IO.Socket
         void IDisposable.Dispose()
         {
             Stop(1);
+        }
+
+        private void Warn(string message)
+        {
+            ResourceProvider.NewPooledSystemWide(FNodeContext.Path,
+                _ =>
+                {
+                    var messages = new CompositeDisposable();
+                    foreach (var id in FNodeContext.Path.Stack)
+                    {
+                        FRuntime.AddPersistentMessage(new Message(id, MessageSeverity.Warning, message))
+                            .DisposeBy(messages);
+                    }
+                    return messages;
+                }, delayDisposalInMilliseconds: 1000)
+                .GetHandle()
+                .Dispose(); // messages will stick for some seconds
         }
     }
 }
