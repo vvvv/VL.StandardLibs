@@ -879,7 +879,7 @@ namespace VL.Core
                 return false;
             }
 
-            if (instance is IDictionary dict)
+            if (instance is IDictionary dict && dict.Keys is IEnumerable<string>)
             {
                 var match = FStringIndexerRegex.Match(path);
                 if (match.Success)
@@ -1192,7 +1192,7 @@ namespace VL.Core
                 return instance;
             }
 
-            if (instance is IDictionary dict)
+            if (instance is IDictionary dict && dict.Keys is IEnumerable<string>)
             {
                 var match = FStringIndexerRegex.Match(path);
                 if (match.Success)
