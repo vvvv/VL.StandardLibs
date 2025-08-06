@@ -95,41 +95,40 @@ namespace VL.Lib.Reactive
             var channelHub = AppHost.Current.Services.GetRequiredService<IChannelHub>() as ChannelHub;
             var parent = main as IChannel<object>;
             IChannel<object> channel = null;
-            var handleOnSomeSyncs = new CompositeDisposable();
 
             foreach (var n in yieldPathToNode(node.Value).Skip(1))
             {
                 var globalPath = main.Path + n.Path;
-                channel = channelHub.TryGetAnonymousChannelsChannel(globalPath);
+                channel = channelHub.TryGetAnonymousChannel(globalPath);
                 if (channel == null)
                 {
-                    channel = channelHub.TryAddAnonymousChannelsChannel(globalPath, typeof(object));
+                    channel = channelHub.TryAddAnonymousChannel(globalPath);
                     ChannelHelpers.InitSubChannel(channel, n);
                 }
 
-                IResourceProvider<UpLink> subSync = GetUpLinkProvider(parent, channel, n);
+                IResourceProvider<UpLink> subSync = GetUpLinkProvider(parent, channel, n, channelHub);
 
-                handleOnSomeSyncs.Add(subSync.GetHandle()); 
+                disposables.Add(subSync.GetHandle()); 
                 parent = channel;
             }
 
             subChannel = new ChannelView<B>(channel);
         }
 
-        private static IResourceProvider<UpLink> GetUpLinkProvider(IChannel<object> parent, IChannel<object> channel, ObjectGraphNode n)
+        private static IResourceProvider<UpLink> GetUpLinkProvider(IChannel<object> parent, IChannel<object> channel, ObjectGraphNode n, ChannelHub channelHub)
         {
             IResourceProvider<UpLink> provider = null;
 
             provider = channel.EnsureSingleComponentOfType(() =>
                 ResourceProvider.New(
-                    () => CreateUpLink(parent, channel, n.AccessedViaKeyPath),
+                    () => CreateUpLink(parent, channel, n.AccessedViaKeyPath, channelHub),
                     _ => channel.RemoveComponent(provider))
                 .ShareInParallel());
 
             return provider;
         }
 
-        private static UpLink CreateUpLink<A, B>(IChannel<A> main, IChannel<B> sub, string relativePath)
+        private static UpLink CreateUpLink<A, B>(IChannel<A> main, IChannel<B> sub, string relativePath, ChannelHub channelHub)
             where A : class
         {
             static void takeFromMainAndEnsureOnSub(IChannel<A> main, IChannel<B> sub, string relativePath, string author)
@@ -147,12 +146,12 @@ namespace VL.Lib.Reactive
             if (!main.IsValid() || !sub.IsValid())
                 return new UpLink(Disposable.Empty);
 
-            var subscription = new CompositeDisposable();
+            var disposable = new CompositeDisposable();
 
             takeFromMainAndEnsureOnSub(main, sub, relativePath, "SubChannelSyncer.Init");
 
             var isBusy = false;
-            subscription.Add(main.Subscribe(v =>
+            disposable.Add(main.Subscribe(v =>
             {
                 if (!isBusy)
                 {
@@ -167,7 +166,7 @@ namespace VL.Lib.Reactive
                     }
                 }
             }));
-            subscription.Add(sub.Subscribe(v =>
+            disposable.Add(sub.Subscribe(v =>
             {
                 if (!isBusy)
                 {
@@ -188,9 +187,13 @@ namespace VL.Lib.Reactive
                 }
             }));
 
-            return new UpLink(subscription);
+            disposable.Add(Disposable.Create(() =>
+            {
+                channelHub.RemoveAnonymousChannel(sub.Path);
+                sub.Dispose();
+            }));
 
-
+            return new UpLink(disposable);
         }
     }
 }

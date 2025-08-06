@@ -127,27 +127,30 @@ namespace VL.Core.Reactive
             return c;
         }
 
-        public IChannel<object>? TryAddAnonymousChannelsChannel(string key, Type typeOfValues)
+        public IChannel<object>? TryAddAnonymousChannel(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
                 return default;
 
             var c = AnonymousChannels.GetOrAdd(key, _ =>
             {
-                var c = ChannelHelpers.CreateChannelOfType(typeOfValues);
+                var c = ChannelHelpers.CreateChannelOfType(typeof(object));
                 ((IInternalChannel)c).SetPath(key);
                 return c;
             });
-            if (c.ClrTypeOfValues != typeOfValues)
-                return default;
 
             return c;
         }
 
-        public IChannel<object>? TryGetAnonymousChannelsChannel(string key)
+        public IChannel<object>? TryGetAnonymousChannel(string key)
         {
             AnonymousChannels.TryGetValue(key, out var c);
             return c;
+        }
+
+        public void RemoveAnonymousChannel(string key)
+        {
+            AnonymousChannels.TryRemove(key, out var c);
         }
 
         public bool TryRemoveChannel(string key)
