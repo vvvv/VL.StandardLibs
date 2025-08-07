@@ -18,13 +18,65 @@ using VL.Lib.Collections;
 
 namespace VL.Lib.Reactive
 {
-    public class AccessorNodes
+    public class AccessorNodes : IDisposable
     {
-        public AccessorNodes()
+        public class AccessorNode
         {
-            Nodes = Channel.Create(new ConcurrentDictionary<UniqueId, NodePath>());
+            public NodePath Path { get; private set; }
+
+            public UniqueId ID => Path.Stack.Peek();
+
+            private int refCount;
+
+            public AccessorNode(NodePath path)
+            {
+                Path = path;
+            }
+
+            public void AddRef()
+            {
+                Interlocked.Increment(ref refCount);
+            }
+
+            public void Release()
+            {
+                Interlocked.Decrement(ref refCount);
+            }
+
+            public bool IsAlive => refCount > 0;
         }
-        public IChannel<ConcurrentDictionary<UniqueId, NodePath>> Nodes { get; }
+
+        readonly IChannel<ConcurrentDictionary<UniqueId, AccessorNode>> nodes 
+            = Channel.Create(new ConcurrentDictionary<UniqueId, AccessorNode>());
+
+        public IChannel<ConcurrentDictionary<UniqueId, AccessorNode>> Nodes => nodes;
+
+        public void AddAccessorNode(NodeContext node)
+        {
+            var nodepath = node.Path;
+            var accessorNode = nodes.Value.GetOrAdd(nodepath.Stack.Peek(), _ => new AccessorNode(nodepath));
+            accessorNode.AddRef();
+            nodes.SetValue(nodes.Value);
+        }
+
+        public void RemoveAccessorNode(NodeContext node)
+        {
+            if (!nodes.Enabled)
+                return;
+            var uniqueId = node.Path.Stack.Peek();
+            if (nodes.Value.TryGetValue(uniqueId, out var accessorNode))
+            {
+                accessorNode.Release();
+                if (!accessorNode.IsAlive)
+                    nodes.Value.TryRemove(uniqueId, out _);
+                nodes.SetValue(nodes.Value);
+            }
+        }
+
+        public void Dispose()
+        {
+            nodes.Dispose();
+        }
     }
 
     public interface IChannel : IHasAttributes, IDisposable
@@ -69,7 +121,7 @@ namespace VL.Lib.Reactive
         protected int revisionOnLockTaken = 0;
 
         private IChannel<Spread<Attribute>>? attributesChannel;
-        private AccessorNodes? accessorNodesChannel;
+        private AccessorNodes? accessorNodes;
         private TagsCache? tagsCache;
 
         public ImmutableArray<object> Components { get; set; } = ImmutableArray<object>.Empty;
@@ -230,7 +282,7 @@ namespace VL.Lib.Reactive
 
         IChannel<Spread<Attribute>> GetAttributesChannel() => attributesChannel ??= this.Attributes();
 
-        AccessorNodes IChannel.AccessorNodes => accessorNodesChannel ??= this.TryGetComponent<AccessorNodes>() ?? this.EnsureSingleComponentOfType(() => new AccessorNodes(), false);
+        AccessorNodes IChannel.AccessorNodes => accessorNodes ??= this.EnsureSingleComponentOfType(() => new AccessorNodes(), false);
 
         T? IMonadicValue<T>.Value => Value;
 
