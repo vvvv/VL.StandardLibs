@@ -54,15 +54,23 @@ namespace VL.Core
         [ThreadStatic]
         private static AppHost? current;
 
+        private IDisposable? globalSubscription;
+
         public AppHost()
         {
-            MakeGlobalIfNone().DisposeBy(this);
+            globalSubscription = MakeGlobalIfNone();
 
             IDisposable MakeGlobalIfNone()
             {
                 var original = Interlocked.CompareExchange(ref global, this, null);
                 return Disposable.Create(() => Interlocked.CompareExchange(ref global, original, this));
             }
+        }
+
+        protected internal void Shutdown()
+        {
+            var s = Interlocked.Exchange(ref globalSubscription, null);
+            s?.Dispose();
         }
 
         /// <summary>
