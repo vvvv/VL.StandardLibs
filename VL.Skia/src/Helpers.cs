@@ -162,4 +162,12 @@ namespace VL.Skia
             return image.ToRasterImage(ensurePixelData);
         }
     }
+
+    static class ConversionUtils
+    {
+        public static System.Drawing.Color ToDrawingColor(this Stride.Core.Mathematics.Color4 c)
+        {
+            return System.Drawing.Color.FromArgb((byte)(c.A * 255f), (byte)(c.R * 255f), (byte)(c.G * 255f), (byte)(c.B * 255f));
+        }
+    }
 }
