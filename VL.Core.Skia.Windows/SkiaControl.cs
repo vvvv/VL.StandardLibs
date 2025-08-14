@@ -1,89 +1,123 @@
 ﻿#nullable enable
 
 using System;
+using VL.Lib.IO;
+using VL.Lib.IO.Notifications;
 using System.Windows.Forms;
-using SkiaSharp;
-using System.Drawing.Imaging;
-using System.Drawing;
-using Rectangle = System.Drawing.Rectangle;
+using Vector2 = Stride.Core.Mathematics.Vector2;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using Keys = System.Windows.Forms.Keys;
+using VL.Skia.Egl;
 
 namespace VL.Skia
 {
-    public class SkiaControl : SkiaControlBase
+    public partial class SkiaControl : Control, IProjectionSpace, IWorldSpace2d
     {
-        private Bitmap? bitmap;
+        private SkiaInputDevices? inputDevices;
+        private readonly Subject<TouchNotification> touchNotifications = new();
+        private ISkiaRenderer? renderer;
 
         public SkiaControl()
         {
             SetStyle(ControlStyles.Opaque, true);
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-            DoubleBuffered = true;
             ResizeRedraw = true;
+        }
+
+        public CallerInfo CallerInfo { get; protected set; } =  CallerInfo.Default;
+        public event Action<CallerInfo>? OnRender;
+        public float RenderTime => renderer?.RenderTime ?? 0;
+        public bool VSync { get; set; }
+        public RenderContextProvider? RenderContextProvider { get; init; }
+        public bool DirectCompositionEnabled { get; init; }
+        public bool TreatAllKeysAsInputKeys { get; init; }
+
+        public Mouse Mouse => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Mouse;
+        public Keyboard Keyboard => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Keyboard;
+        public TouchDevice TouchDevice => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).TouchDevice;
+        public IObservable<TouchNotification> TouchNotifications => touchNotifications;
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var createParams = base.CreateParams;
+                if (DirectCompositionEnabled)
+                    createParams.ExStyle |= (int)Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE.WS_EX_NOREDIRECTIONBITMAP;
+                return createParams;
+            }
         }
 
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
+            if (RenderContextProvider != null)
+            {
+                renderer = new EglSkiaRenderer(RenderContextProvider);
+                DoubleBuffered = false;
+            }
+            else
+            {
+                renderer = new SoftwareSkiaRenderer();
+                DoubleBuffered = true;
+            }
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
             base.OnHandleDestroyed(e);
-
-            FreeBitmap();
+            renderer?.Dispose();
+            renderer = null;
         }
 
-        protected override sealed void OnPaintCore(PaintEventArgs e)
+        protected override sealed void OnPaint(PaintEventArgs e)
         {
-            // get the bitmap
-            var info = CreateBitmap();
+            base.OnPaint(e);
+            if (!Visible || Handle == 0)
+                return;
+            DoRender(e);
+        }
 
-            if (bitmap is null)
+        void DoRender(PaintEventArgs e)
+        {
+            var r = renderer;
+            if (r is null)
                 return;
 
-            var data = bitmap.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
-
-            // create the surface
-            using (var surface = SKSurface.Create(info, data.Scan0, data.Stride))
+            try
             {
-                var canvas = surface.Canvas;
-                CallerInfo = CallerInfo.InRenderer(info.Width, info.Height, canvas, null);
-                // start drawing
-                using (new SKAutoCanvasRestore(canvas, true))
+                r.Render(Handle, Width, Height, VSync, ci =>
                 {
-                    OnPaint(CallerInfo);
-                }
-                canvas.Flush();
+                    CallerInfo = ci;
+                    OnPaint(ci);
+                }, e.Graphics);
             }
-
-            // write the bitmap to the graphics
-            bitmap.UnlockBits(data);
-            e.Graphics.DrawImage(bitmap, 0, 0);
+            catch (Exception ex) when (ex is EglException)
+            {
+                Invalidate();
+            }
         }
 
-        private SKImageInfo CreateBitmap()
+        protected virtual void OnPaint(CallerInfo callerInfo) => OnRender?.Invoke(CallerInfo);
+
+        public void MapFromPixels(INotificationWithPosition notification, out Vector2 inNormalizedProjection, out Vector2 inProjection)
+            => SpaceHelpers.DoMapFromPixels(notification.Position, notification.ClientArea, out inNormalizedProjection, out inProjection);
+
+        public Vector2 MapFromPixels(INotificationWithPosition notification) => notification.Position;
+
+        protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
         {
-            var info = new SKImageInfo(Width, Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
-
-            if (bitmap == null || bitmap.Width != info.Width || bitmap.Height != info.Height)
-            {
-                FreeBitmap();
-
-                if (info.Width != 0 && info.Height != 0)
-                    bitmap = new Bitmap(info.Width, info.Height, PixelFormat.Format32bppPArgb);
-            }
-
-            return info;
+            if (TreatAllKeysAsInputKeys)
+                e.IsInputKey = true;
         }
 
-        private void FreeBitmap()
+        protected override void WndProc(ref Message m)
         {
-            if (bitmap != null)
-            {
-                bitmap.Dispose();
-                bitmap = null;
-            }
+            if (OperatingSystem.IsWindowsVersionAtLeast(8) && TouchMessageProcessor.TryHandle(ref m, this, touchNotifications))
+                return;
+            base.WndProc(ref m);
         }
     }
 }

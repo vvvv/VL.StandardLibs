@@ -1,39 +1,88 @@
 ﻿#nullable enable
 
 using System;
-using System.ComponentModel;
 using System.Data;
 using Stride.Core.Mathematics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using VL.Core;
 using VL.UI.Core;
 using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
-using VL.Model;
-using VL.Lang.PublicAPI;
 using VL.Core.Commands;
 using System.Reactive.Disposables;
 using VL.Core.Utils;
 using System.Reactive;
+using VL.Skia.Egl;
 
 namespace VL.Skia
 {
-    public partial class SkiaRenderer : Form, IDisposable
+    public partial class SkiaRenderer : Form, IDisposable, IProjectionSpace, IWorldSpace2d
     {
         private readonly AppHost FAppHost;
-        private readonly SkiaGLControl FControl;
         private readonly SerialDisposable FDarkModeSubscription = new();
+        private readonly Subject<TouchNotification> touchNotifications = new();
+        private SkiaInputDevices? inputDevices;
+        private ISkiaRenderer? renderer;
 
         bool HasValidLayer;
         ILayer? Layer;
+        bool FFirstRenderCall = true;
+
+        public SkiaRenderer() : this(null) { }
+
+        public SkiaRenderer(Action<SkiaRenderer>? layout)
+        {
+            FAppHost = AppHost.Current;
+
+            SuspendLayout();
+
+            Icon = Properties.Resources.QuadIcon;
+            StartPosition = FormStartPosition.Manual;
+
+            SetStyle(ControlStyles.Opaque, true);
+            SetStyle(ControlStyles.UserPaint, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            ResizeRedraw = true;
+            DoubleBuffered = false;
+
+            BoundsChanged = new BehaviorSubject<System.Drawing.Rectangle>(new System.Drawing.Rectangle());
+            FBoundsStream = new BehaviorSubject<RectangleF>(new RectangleF());
+
+            var lostfocus = Observable.Never<EventPattern<EventArgs>>()
+                .Merge(Observable.FromEventPattern<EventArgs>(this, nameof(MouseLeave)))
+                .Merge(Observable.FromEventPattern<EventArgs>(this, nameof(LostFocus)))
+                .Select(p => p.EventArgs.ToLostFocusNotification(this, this));
+            var gotfocus = Observable.Never<EventPattern<EventArgs>>()
+                .Merge(Observable.FromEventPattern<EventArgs>(this, nameof(MouseEnter)))
+                .Merge(Observable.FromEventPattern<EventArgs>(this, nameof(GotFocus)))
+                .Select(p => p.EventArgs.ToGotFocusNotification(this, this));
+
+            Observable.Merge(new IObservable<INotification>[] {
+                Mouse.Notifications,
+                Keyboard.Notifications,
+                TouchDevice.Notifications,
+                FBoundsStream.Select(r => new NotificationWithClientArea(r.Size.ToVector2(), ModifierKeys.ToOurs(), this)),
+                lostfocus,
+                gotfocus
+            })
+            .Subscribe(OnNotification);
+
+            var size = DIPHelpers.DIPToPixel(new System.Drawing.Size(600, 400));
+            var bounds = GetCenteredBoundsInPixel(size.Width, size.Height);
+            var boundsF = Conversions.ToRectangleF(ref bounds);
+            SetBounds(boundsF, setClientSize: true);
+
+            layout?.Invoke(this);
+
+            ResumeLayout();
+        }
 
         public ILayer? Input
         {
-            get { return Layer; }
+            get => Layer;
             set
             {
                 HasValidLayer = true;
@@ -50,13 +99,51 @@ namespace VL.Skia
         public IObservable<RectangleF> BoundsStream => FBoundsStream;
         public BehaviorSubject<System.Drawing.Rectangle> BoundsChanged { get; } // obsolete
 
-        /// <summary>
-        /// The time to evaluate and draw the layer input in μs.
-        /// </summary>
-        public float RenderTime => FControl.RenderTime;
+        public float RenderTime => renderer?.RenderTime ?? 0;
+        public bool VSync { get; set; } = true;
+        public RenderContextProvider RenderContextProvider => FAppHost.GetRenderContextProvider();
+        public Mouse Mouse => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Mouse;
+        public Keyboard Keyboard => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Keyboard;
+        public TouchDevice TouchDevice => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).TouchDevice;
+        public ICommandList? CommandList { get; set; }
 
-        [Obsolete]
-        public void SetSize(System.Drawing.Rectangle boundsInDIP) //obsolete
+        System.Drawing.Rectangle FWindowedBoundsInPix;
+        FormBorderStyle FWindowedBorderStyle;
+        bool FFullScreen;
+        public bool FullScreen
+        {
+            get => FFullScreen;
+            set
+            {
+                if (FFullScreen != value)
+                {
+                    SuspendLayout();
+                    try
+                    {
+                        FFullScreen = value;
+                        if (value)
+                        {
+                            FWindowedBoundsInPix = Bounds;
+                            FWindowedBorderStyle = FormBorderStyle;
+                            FormBorderStyle = FormBorderStyle.None;
+                            WindowState = FormWindowState.Maximized;
+                        }
+                        else
+                        {
+                            FormBorderStyle = FWindowedBorderStyle;
+                            WindowState = FormWindowState.Normal;
+                        }
+                    }
+                    finally
+                    {
+                        ResumeLayout();
+                    }
+                }
+            }
+        }
+
+        // Called from patch
+        public void SetSize(System.Drawing.Rectangle boundsInDIP)
         {
             SetBounds(new RectangleF(boundsInDIP.X, boundsInDIP.Y, boundsInDIP.Width, boundsInDIP.Height), inDIP: true);
         }
@@ -93,239 +180,37 @@ namespace VL.Skia
             }
         }
 
-
-        System.Drawing.Rectangle FWindowedBoundsInPix;
-        FormBorderStyle FWindowedBorderStyle;
-        bool FFullScreen;
-        public bool FullScreen
-        {
-            get => FFullScreen;
-            set
-            {
-                if (FFullScreen != value)
-                {
-                    SuspendLayout();
-                    try
-                    {
-                        FFullScreen = value;
-                        if (value)
-                        {
-                            FWindowedBoundsInPix = Bounds;
-                            //var b = ComputeFullScreenBounds();
-                            //if (b.HasValue)
-                            //    Bounds = b.Value;
-                            FWindowedBorderStyle = FormBorderStyle;
-                            FormBorderStyle = FormBorderStyle.None;
-
-                            // it's important to do this after changing the border style. otherwise it will be too big
-                            WindowState = FormWindowState.Maximized;
-                        }
-                        else
-                        {
-                            //Bounds = FWindowedBoundsInPix;
-                            FormBorderStyle = FWindowedBorderStyle;
-                            WindowState = FormWindowState.Normal;
-                        }
-                    }
-                    finally
-                    {
-                        ResumeLayout();
-                    }
-                }
-            }
-        }
-
-        private System.Drawing.Rectangle? ComputeFullScreenBounds()
-        {
-            var maxIntersection = -1;
-            Screen? bestScreen = null;
-            foreach (Screen screen in Screen.AllScreens)
-            {
-                var intersection = Bounds;
-                intersection.Intersect(screen.Bounds);
-                var intersectionSize = intersection.Width * intersection.Height;
-                if (intersectionSize > maxIntersection)
-                {
-                    bestScreen = screen;
-                    maxIntersection = intersectionSize;
-                }
-            }
-
-            if (bestScreen != null)
-                return bestScreen.Bounds;
-            return null;
-        }
-
-        [DllImport("User32.dll")]
-        public static extern Int32 SetForegroundWindow(int hWnd);
-
-        public SkiaRenderer()
-            : this(null)
-        {
-            
-        }
-
-        public SkiaRenderer(Action<SkiaRenderer>? layout)
-        {
-            FAppHost = AppHost.Current;
-
-            this.SuspendLayout();
-
-            Icon = Properties.Resources.QuadIcon;
-            StartPosition = FormStartPosition.Manual;
-
-            FControl = new SkiaGLControl()
-            {
-                RenderContextProvider = FAppHost.GetRenderContextProvider(),
-                DirectCompositionEnabled = false /* Rendering works but GPU is still at 20%, so keep it disabled for now */,
-                TreatAllKeysAsInputKeys = true,
-            };
-            FControl.Dock = DockStyle.Fill;
-            FControl.OnRender += FControl_OnRender;
-            Controls.Add(FControl);
-
-            BoundsChanged = new BehaviorSubject<System.Drawing.Rectangle>(new System.Drawing.Rectangle());
-            FBoundsStream = new BehaviorSubject<RectangleF>(new RectangleF());
-            var lostfocus = Observable.Never<EventPattern<EventArgs>>()
-                .Merge(Observable.FromEventPattern<EventArgs>(FControl, nameof(MouseLeave))) // leave with mouse
-                .Merge(Observable.FromEventPattern<EventArgs>(FControl, nameof(LostFocus))) // alt-tab away from window
-                //.Merge(Observable.FromEventPattern<EventArgs>(this, nameof(Leave)))
-                //.Merge(Observable.FromEventPattern<EventArgs>(this, nameof(DragLeave)))
-                .Select(p => p.EventArgs.ToLostFocusNotification(this, this));
-            var gotfocus = Observable.Never<EventPattern<EventArgs>>()
-                .Merge(Observable.FromEventPattern<EventArgs>(FControl, nameof(MouseEnter))) // enter with mouse
-                .Merge(Observable.FromEventPattern<EventArgs>(FControl, nameof(GotFocus))) // alt-tab into window
-                .Select(p => p.EventArgs.ToGotFocusNotification(this, this));
-            Observable.Merge(new IObservable<INotification>[] {
-                Mouse.Notifications,
-                Keyboard.Notifications,
-                TouchDevice.Notifications,
-                BoundsStream.Select(r => new NotificationWithClientArea(r.Size.ToVector2(), ModifierKeys.ToOurs(), this)),
-                lostfocus,
-                gotfocus
-                })
-            .Subscribe(OnNotification);
-
-            var size = DIPHelpers.DIPToPixel(new System.Drawing.Size(600, 400));
-            var bounds = GetCenteredBoundsInPixel(size.Width, size.Height);
-            var boundsF = Conversions.ToRectangleF(ref bounds);
-            SetBounds(boundsF, inDIP: false, setClientSize: true);
-
-            layout?.Invoke(this);
-
-            this.ResumeLayout();
-        }
-
-        private static System.Drawing.Rectangle GetCenteredBoundsInPixel(int width = 600, int height = 400)
+        static System.Drawing.Rectangle GetCenteredBoundsInPixel(int width = 600, int height = 400)
         {
             var area = Screen.PrimaryScreen?.WorkingArea ?? System.Drawing.Rectangle.Empty;
             var centerX = (area.Right + area.Left) / 2;
             var centerY = (area.Top + area.Bottom) / 2;
-            var center = new Point(centerX, centerY);
+            var center = new System.Drawing.Point(centerX, centerY);
             return new System.Drawing.Rectangle(center.X - width / 2, center.Y - height / 2, width, height);
         }
 
-        bool FFirstRenderCall = true;
-
-        protected override void WndProc(ref Message m)
+        public new void Update()
         {
-            try
+            if (Visible)
             {
-                base.WndProc(ref m);
-            }
-            catch (Exception e)
-            {
-                if (IDevSession.Current != null)
-                {
-                    // this is only the fallback catch for any message. 
-                    // for rendering or input notifications we actually want to catch the exceptions differently
-                    // and inform the user via pink nodes. Not some tty output...
-                    IDevSession.Current.ReportException(e);
-                }
-                else
-                {
-                    // when running standalone there is no session, let the hosting environment deal with it
-                    throw;
-                }
-            }
-        }
-
-        private void FControl_OnRender(CallerInfo callerInfo)
-        {
-            using var _ = FAppHost?.MakeCurrentIfNone();
-
-            try
-            {
-                if (!FFirstRenderCall && Visible && HasValidLayer)
-                    Input?.Render(callerInfo);
-                FFirstRenderCall = false;
-            }
-            catch (Exception exception)
-            {
-                RuntimeGraph.ReportException(exception);
-            }
-        }
-
-        private void OnNotification(INotification n)
-        {
-            // Don't propagate notifications while we are disposing (lost focus event for example)
-            if (Disposing)
-                return;
-
-            using var _ = FAppHost?.MakeCurrentIfNone();
-
-            try
-            {
-                if (CommandList != null && CommandList.TryExecute(n))
-                {
-                    n.Handled = true;
-                }
-                else if (Visible && HasValidLayer && Input != null)
-                {
-                    n.Handled = Input.Notify(n, FControl.CallerInfo);
-                }
-            }
-            catch (Exception exception)
-            {
-                RuntimeGraph.ReportException(exception);
+                base.Update();
+                Invalidate();
             }
         }
 
         protected override void OnHandleCreated(EventArgs e)
         {
             FDarkModeSubscription.Disposable = DarkTitleBarClass.Install(Handle);
-
             base.OnHandleCreated(e);
+            renderer = new EglSkiaRenderer(RenderContextProvider);
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
             FDarkModeSubscription.Disposable = null;
-
             base.OnHandleDestroyed(e);
-        }
-
-        public new void Update() 
-        {
-            if (Visible)
-            {
-                FControl.Update();
-                FControl.Invalidate();
-            }
-        }
-
-        public Mouse Mouse => FControl.Mouse;
-
-        public Keyboard Keyboard => FControl.Keyboard;
-
-        public TouchDevice TouchDevice => FControl.TouchDevice;
-
-        public ICommandList? CommandList { get; set; }
-
-        public bool VSync
-        {
-            get => FControl.VSync;
-            set => FControl.VSync = value;
+            renderer?.Dispose();
+            renderer = null;
         }
 
         protected override void OnResize(EventArgs e)
@@ -348,21 +233,83 @@ namespace VL.Skia
             boundsF = DIPHelpers.DIP(boundsF);
             FBoundsStream?.OnNext(boundsF);
         }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            if (!Visible || Handle == 0 || renderer is null)
+                return;
+
+            try
+            {
+                renderer.Render(Handle, ClientSize.Width, ClientSize.Height, VSync, callerInfo =>
+                {
+                    using var _ = FAppHost?.MakeCurrentIfNone();
+                    try
+                    {
+                        if (!FFirstRenderCall && Visible && HasValidLayer)
+                            Input?.Render(callerInfo);
+                        FFirstRenderCall = false;
+                    }
+                    catch (Exception exception)
+                    {
+                        RuntimeGraph.ReportException(exception);
+                    }
+                }, e.Graphics);
+            }
+            catch (EglException)
+            {
+                Invalidate();
+            }
+        }
+
+        private void OnNotification(INotification n)
+        {
+            if (Disposing)
+                return;
+
+            using var _ = FAppHost?.MakeCurrentIfNone();
+
+            try
+            {
+                if (CommandList != null && CommandList.TryExecute(n))
+                {
+                    n.Handled = true;
+                }
+                else if (Visible && HasValidLayer && Input != null && renderer is not null)
+                {
+                    var callerInfo = CallerInfo.InRenderer(Width, Height, canvas: null, context: null);
+                    n.Handled = Input.Notify(n, callerInfo);
+                }
+            }
+            catch (Exception exception)
+            {
+                RuntimeGraph.ReportException(exception);
+            }
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (OperatingSystem.IsWindowsVersionAtLeast(8) && TouchMessageProcessor.TryHandle(ref m, this, touchNotifications))
+                return;
+            base.WndProc(ref m);
+        }
+
+        public void MapFromPixels(INotificationWithPosition notification, out Vector2 inNormalizedProjection, out Vector2 inProjection)
+            => SpaceHelpers.DoMapFromPixels(notification.Position, notification.ClientArea, out inNormalizedProjection, out inProjection);
+
+        public Vector2 MapFromPixels(INotificationWithPosition notification) => notification.Position;
     }
 
-    //taken from: https://stackoverflow.com/a/10727337
-    public class SkiaRendererTopMost: SkiaRenderer
+    public class SkiaRendererTopMost : SkiaRenderer
     {
-        protected override bool ShowWithoutActivation { get { return true; } }
-
+        protected override bool ShowWithoutActivation => true;
         protected override CreateParams CreateParams
         {
             get
             {
-                //make sure Top Most property on form is set to false
-                //otherwise this doesn't work
-                int WS_EX_TOPMOST = 0x00000008;
-                CreateParams cp = base.CreateParams;
+                const int WS_EX_TOPMOST = 0x00000008;
+                var cp = base.CreateParams;
                 cp.ExStyle |= WS_EX_TOPMOST;
                 return cp;
             }
