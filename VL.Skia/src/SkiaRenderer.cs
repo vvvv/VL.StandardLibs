@@ -277,8 +277,7 @@ namespace VL.Skia
                 }
                 else if (Visible && HasValidLayer && Input != null && renderer is not null)
                 {
-                    var callerInfo = CallerInfo.InRenderer(Width, Height, canvas: null, context: null);
-                    n.Handled = Input.Notify(n, callerInfo);
+                    n.Handled = Input.Notify(n, renderer.CallerInfo);
                 }
             }
             catch (Exception exception)
