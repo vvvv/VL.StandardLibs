@@ -98,5 +98,21 @@ namespace VL.IO.Redis.Advanced
             var redisValue = client.Serialize(value, format.ToNullable());
             return await db.StringSetAsync(key, redisValue, expiry.ToNullable(), when: when).ConfigureAwait(false);
         }
+
+        /// <inheritdoc cref="IDatabase.Publish(RedisChannel, RedisValue, CommandFlags)"/>
+        public static void Publish<T>(this RedisClient client, 
+            string channel, 
+            T message, 
+            Optional<SerializationFormat> format = default)
+        {
+            if (client is null) throw new ArgumentNullException(nameof(client));
+
+            var db = client.GetDatabase();
+            if (db is null)
+                return;
+
+            var redisValue = client.Serialize(message, format.ToNullable());
+            db.Publish(RedisChannel.Literal(channel), redisValue, CommandFlags.FireAndForget);
+        }
     }
 }
