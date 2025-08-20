@@ -201,6 +201,10 @@ namespace VL.Stride.Engine
                         // Report the exceptions but continue drawing the next renderer. Otherwise one failing renderer can cause the whole app to fail.
                         foreach (var renderer in renderers)
                         {
+                            // Skip disposed renderers. They could've been scheduled in Update and disposed right after before Draw.
+                            if (renderer is DisposeBase d && d.IsDisposed)
+                                continue;
+
                             try
                             {
                                 renderer?.Draw(renderDrawContext);
