@@ -52,11 +52,21 @@ namespace VL.Stride
 
             // Fetch the skia render context (uses ANGLE -> DirectX11)
             var skiaRenderContext = SkiaRenderContext.ForCurrentApp();
-            var shareContext = skiaRenderContext.EglContext;
-            if (msaaAwareEglContext is null || msaaAwareEglContext.SampleCount != sampleCount || msaaAwareEglContext.ShareContext != shareContext)
+            if (sampleCount > 1)
+            {
+                throw new NotSupportedException("MSAA not supported.");
+
+                var shareContext = skiaRenderContext.EglContext;
+                if (msaaAwareEglContext is null || msaaAwareEglContext.SampleCount != sampleCount || msaaAwareEglContext.ShareContext != shareContext)
+                {
+                    msaaAwareEglContext?.Dispose();
+                    msaaAwareEglContext = EglContext.New(shareContext.Display, sampleCount, shareContext);
+                }
+            }
+            else
             {
                 msaaAwareEglContext?.Dispose();
-                msaaAwareEglContext = EglContext.New(shareContext.Display, sampleCount, shareContext);
+                msaaAwareEglContext = null;
             }
 
             // Subscribe to input events - in case we have many sinks we assume that there's only one input source active
@@ -71,10 +81,11 @@ namespace VL.Stride
 
             // Make current on current thread for resource creation
             EglSurface eglSurface;
-            using (msaaAwareEglContext.MakeCurrent(forRendering: false))
+            var eglContext = msaaAwareEglContext ?? skiaRenderContext.EglContext;
+            using (eglContext.MakeCurrent(forRendering: false))
             {
                 var nativeTempRenderTarget = SharpDXInterop.GetNativeResource(renderTarget) as Texture2D;
-                eglSurface = msaaAwareEglContext.CreateSurfaceFromClientBuffer(nativeTempRenderTarget.NativePointer);
+                eglSurface = eglContext.CreateSurfaceFromClientBuffer(nativeTempRenderTarget.NativePointer);
             }
             // Make the surface current (becomes default FBO)
             using (eglSurface)
