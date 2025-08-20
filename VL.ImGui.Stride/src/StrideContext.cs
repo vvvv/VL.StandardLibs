@@ -1,6 +1,7 @@
 ﻿using Stride.Graphics;
 using Stride.Input;
 using System.Reactive.Linq;
+using VL.Core;
 using VL.ImGui.Widgets;
 using VL.Lib.Basics.Resources;
 using VL.Skia;
@@ -16,8 +17,11 @@ namespace VL.ImGui
 
     internal class StrideContext : Context, IContextWithSkia, IContextWithRenderer
     {
-        public StrideContext() : base()
+        private readonly NodeContext nodeContext;
+
+        public StrideContext(NodeContext nodeContext) : base()
         {
+            this.nodeContext = nodeContext;
         }
 
         private readonly List<RenderLayerWithViewPort> Renderers = new List<RenderLayerWithViewPort>();
@@ -33,7 +37,7 @@ namespace VL.ImGui
             }
             else
             {
-                var skiaRenderer = new SkiaRendererWithOffset(layer)
+                var skiaRenderer = new SkiaRendererWithOffset(nodeContext, layer)
                 {
                     Space = CommonSpace.DIPTopLeft,
                 };

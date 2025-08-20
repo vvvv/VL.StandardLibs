@@ -56,7 +56,7 @@ namespace VL.ImGui
         // Flag to detect redundant calls
         private bool disposed = false;
 
-        public unsafe StrideDeviceContext(NodeContext nodeContext) : base()
+        public unsafe StrideDeviceContext(NodeContext nodeContext) : base(nodeContext)
         {
             this.nodeContext = nodeContext;
 

@@ -1,6 +1,7 @@
 ﻿using VL.Skia;
 using SkiaSharp;
 using Stride.Core.Mathematics;
+using VL.Core;
 
 namespace VL.ImGui
 {
@@ -11,7 +12,7 @@ namespace VL.ImGui
         public ILayer beforeTransformLayer { get; private set; }
         readonly TransformUpstream transformUpstream;
 
-        public SkiaRendererWithOffset(ILayer layer) : base()
+        public SkiaRendererWithOffset(NodeContext nodeContext, ILayer layer) : base(nodeContext)
         {
             beforeTransformLayer = layer;
             transformUpstream = new TransformUpstream();
