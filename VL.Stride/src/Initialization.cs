@@ -72,8 +72,11 @@ namespace VL.Stride.Lib
                 var gameStartedHandler = default(EventHandler);
                 gameStartedHandler = (s, e) =>
                 {
-                    game.Script.Add(assetBuildService);
-                    Game.GameStarted -= gameStartedHandler;
+                    if (s == game)
+                    {
+                        game.Script.Add(assetBuildService);
+                        Game.GameStarted -= gameStartedHandler;                        
+                    }
                 };
                 Game.GameStarted += gameStartedHandler;
 
