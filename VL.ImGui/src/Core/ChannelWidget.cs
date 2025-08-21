@@ -40,7 +40,7 @@ namespace VL.ImGui.Widgets
         {
         }
 
-        public Optional<string> Label { get => default /* Only accessed by generated code*/; set => label.SetPinValue(value!); }
+        public string? Label { get => default /* Only accessed by generated code*/; set => label.SetPinValue(string.IsNullOrEmpty(value) ? default : value); }
 
         public bool Bang 
         { 
