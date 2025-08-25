@@ -104,7 +104,7 @@ namespace VL.Lib.IO.Socket
                         }
                         catch (Exception e)
                         {
-                            Warn($"Error receiving datagram: {e.Message}");
+                            //Warn($"Error receiving datagram: {e.Message}");
                             if (!token.IsCancellationRequested)
                                 // Try again
                                 await Task.Delay(100);
