@@ -422,7 +422,7 @@ namespace VL.Lib.Control
             }
         }
 
-        private IDictionary CreateOutput(OutputDescription ospl)
+        private OutputSplicer CreateOutput(OutputDescription ospl)
         {
             if (!_outputSplicers.TryGetValue(ospl, out var outer))
                 outer = _outputSplicers[ospl] = createDictionary(ospl.OuterType);
@@ -434,7 +434,7 @@ namespace VL.Lib.Control
             return ImmutableDictionary<TKey, TValue>.Empty.ToBuilder();
         }
 
-        private IDictionary? createDictionary(Type outerType)
+        private OutputSplicer createDictionary(Type outerType)
         {
             if (outerType.IsGenericType && outerType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>))
             {
@@ -443,13 +443,13 @@ namespace VL.Lib.Control
                     .GetMethod(nameof(createImmutableDictionary), BindingFlags.NonPublic | BindingFlags.Static);
                 method = method?
                     .MakeGenericMethod(genericArgs);
-                return method?.Invoke(null, null) as IDictionary;
+                return new OutputSplicer(method?.Invoke(null, null) as IDictionary, true); // immutable dictionary builder created
             }
 
             if (outerType.IsSealed)
-                return Activator.CreateInstance(outerType) as IDictionary;
+                return new OutputSplicer(Activator.CreateInstance(outerType) as IDictionary, false); // some dictionary created
 
-            return Activator.CreateInstance(findDictionaryType(outerType)) as IDictionary;
+            return new OutputSplicer(Activator.CreateInstance(findDictionaryType(outerType)) as IDictionary, false); // standard mutable dictionary created
         }
 
         Type findDictionaryType(Type outerType)
@@ -467,7 +467,21 @@ namespace VL.Lib.Control
 
 
         private readonly Dictionary<InputDescription, IDictionary> _inputSplicers = new();
-        private readonly Dictionary<OutputDescription, IDictionary> _outputSplicers = new();
+        private readonly Dictionary<OutputDescription, OutputSplicer> _outputSplicers = new();
+        private readonly Dictionary<InputDescription, object?> _links = new();
+
+        class OutputSplicer
+        {
+            public IDictionary? Dictionary;
+            public bool IsImmutable;
+
+            public OutputSplicer(IDictionary? dictionary, bool isImmutable)
+            {
+                Dictionary = dictionary;
+                IsImmutable = isImmutable;
+            }
+        }
+
         void IRegion<IInlay>.SetPatchInlayFactory(Func<IInlay> patchInlayFactory)
         {
             _inlayFactory = patchInlayFactory;
@@ -475,6 +489,12 @@ namespace VL.Lib.Control
 
         void IRegion<IInlay>.AcknowledgeInput(in InputDescription cp, object? outerValue)
         {
+            if (cp.IsLink)
+            {
+                _links[cp] = outerValue;
+                return;
+            }
+
             if (outerValue is IDictionary dictionary)
                 _inputSplicers[cp] = dictionary;
             else
@@ -486,6 +506,12 @@ namespace VL.Lib.Control
 
         void IRegion<IInlay>.RetrieveInput(in InputDescription cp, IInlay patchInstance, out object? innerValue)
         {
+            if (cp.IsLink)
+            {
+                innerValue = _links[cp];
+                return;
+            }
+
             if (!_inputSplicers.TryGetValue(cp, out var dictionary))
                 throw new Exception($"Input Splicer {cp} doesn't hold dictionary");
 
@@ -494,21 +520,21 @@ namespace VL.Lib.Control
 
         void IRegion<IInlay>.AcknowledgeOutput(in OutputDescription cp, IInlay patchInstance, object? innerValue)
         {
-            if (!_outputSplicers.TryGetValue(cp, out var dictionary))
-                dictionary = CreateOutput(cp);
+            if (!_outputSplicers.TryGetValue(cp, out var splicer))
+                splicer = CreateOutput(cp);
 
-            dictionary[_currentkey] = innerValue;
+            splicer.Dictionary[_currentkey] = innerValue;
         }
 
         void IRegion<IInlay>.RetrieveOutput(in OutputDescription cp, out object? outerValue)
         {
-            if (_outputSplicers.TryGetValue(cp, out var outerValueD))
+            if (_outputSplicers.TryGetValue(cp, out var splicer))
             {
                 var outerType = cp.OuterType;
-                if (outerType.IsGenericType && outerType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>))
-                    outerValue = (outerValueD as dynamic).ToImmutable();
+                if (splicer.IsImmutable)
+                    outerValue = (splicer.Dictionary as dynamic).ToImmutable();
                 else
-                    outerValue = outerValueD;
+                    outerValue = splicer.Dictionary;
             }
             else
             {
