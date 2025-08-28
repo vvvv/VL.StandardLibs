@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using VL.Core;
 using VL.Core.Import;
@@ -12,10 +13,12 @@ using VL.Core.PublicAPI;
 using VL.Core.Utils;
 using VL.Lib.Collections;
 using VL.Lib.Control;
+using VL.Lib.IO;
 
 [assembly: ImportType(typeof(Synchronizer<,,>), Category = "Control.Experimental")]
 [assembly: ImportType(typeof(SynchronizerInputIsKey<,,>), Name = "Synchronizer (InputIsKey)", Category = "Control.Experimental")]
 [assembly: ImportType(typeof(SynchronizerVLObjectInput<,,>), Name = "Synchronizer (VLObjectInput)", Category = "Control.Experimental")]
+[assembly: ImportType(typeof(ForEachKey), Name = "ForEach (Key)", Category = "Control.Experimental")]
 
 namespace VL.Lib.Control
 {
@@ -334,8 +337,8 @@ namespace VL.Lib.Control
 
 
     [ProcessNode]
-    [Region(SupportedBorderControlPoints = ControlPointType.Splicer, TypeConstraint = "IReadOnlyDictionary<object, TValue>")]
-    public class ForEachKeyValuePair : IRegion<ForEachKeyValuePair.IInlay>, IDisposable
+    [Region(SupportedBorderControlPoints = ControlPointType.Splicer, TypeConstraint = "IReadOnlyDictionary", TypeConstraintIsBaseType = true)]
+    public class ForEachKey : IRegion<ForEachKey.IInlay>, IDisposable
     {
         public interface IInlay
         {
@@ -358,30 +361,7 @@ namespace VL.Lib.Control
             }
 
             public IInlay Inlay;
-            public readonly Dictionary<InputDescription, object?> InputSplicers = new();
-            public readonly Dictionary<OutputDescription, object?> OutputSplicers = new();
-
             public bool MarkedForRemoval;
-
-            public void AcknowledgeSplicerInput(in InputDescription cp, object? outerValue)
-            {
-                InputSplicers[cp] = outerValue;
-            }
-
-            public void RetrieveSplicerInput(in InputDescription cp, out object? innerValue)
-            {
-                InputSplicers.TryGetValue(cp, out innerValue);
-            }
-
-            public void AcknowledgeSplicerOutput(in OutputDescription cp, object? innerValue)
-            {
-                OutputSplicers[cp] = innerValue;
-            }
-
-            public void RetrieveSplicerOutput(in OutputDescription cp, out object? outerValue)
-            {
-                OutputSplicers.TryGetValue(cp, out outerValue);
-            }
         }
 
         public void Dispose()
@@ -391,7 +371,7 @@ namespace VL.Lib.Control
             _patches.Clear();
         }
 
-        PatchWithBorders? _current;
+        object _currentkey;
 
         public void Update(IEnumerable keys)
         {
@@ -414,14 +394,22 @@ namespace VL.Lib.Control
                 {
                     // Yes, this is ok to remove while iterating see https://github.com/dotnet/runtime/issues/26314
                     _patches.Remove(k);
+                    _currentkey = k;
                     p.Dispose();
                 }
+            }
+
+            foreach (var (ospl, innerval) in _outputSplicers)
+            {
+                CreateOutput(ospl);
             }
 
             foreach (var key in keys)
             {
                 if (key == null)
                     throw new InvalidOperationException("Null keys are not supported");
+
+                _currentkey = key;
 
                 PatchWithBorders? patch;
                 if (!_patches.TryGetValue(key, out patch))
@@ -430,22 +418,51 @@ namespace VL.Lib.Control
                 if (patch == null)
                     throw new InvalidOperationException("Patch creation failed");
 
-                foreach (var (ispl, outerval) in patch.InputSplicers)
-                    patch.AcknowledgeSplicerInput(ispl, readDynamic((dynamic)_inputSplicers[ispl], (dynamic)key));
-
                 patch.Inlay.Update(key);
-                // we don't need to retieve output. this is done on the fly when requested
-
-                foreach (var (ospl, innerval) in patch.OutputSplicers)
-                {
-                    if (!_outputSplicers.TryGetValue(ospl, out var outer))
-                       outer = _outputSplicers[ospl] = 
-                            Activator.CreateInstance(
-                                typeof(Dictionary<,>).MakeGenericType(typeof(object), ospl.InnerType)) as IDictionary;
-
-                    writeDynamic((dynamic)outer, (dynamic)key, (dynamic)innerval);
-                }
             }
+        }
+
+        private IDictionary CreateOutput(OutputDescription ospl)
+        {
+            if (!_outputSplicers.TryGetValue(ospl, out var outer))
+                outer = _outputSplicers[ospl] = createDictionary(ospl.OuterType);
+            return outer;
+        }
+
+        static private IDictionary? createImmutableDictionary<TKey, TValue>()
+        {
+            return ImmutableDictionary<TKey, TValue>.Empty.ToBuilder();
+        }
+
+        private IDictionary? createDictionary(Type outerType)
+        {
+            if (outerType.IsGenericType && outerType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>))
+            {
+                var genericArgs = outerType.GetGenericArguments();
+                var method = typeof(ForEachKey)
+                    .GetMethod(nameof(createImmutableDictionary), BindingFlags.NonPublic | BindingFlags.Static);
+                method = method?
+                    .MakeGenericMethod(genericArgs);
+                return method?.Invoke(null, null) as IDictionary;
+            }
+
+            if (outerType.IsSealed)
+                return Activator.CreateInstance(outerType) as IDictionary;
+
+            return Activator.CreateInstance(findDictionaryType(outerType)) as IDictionary;
+        }
+
+        Type findDictionaryType(Type outerType)
+        {
+            var dictType = outerType.YieldReturn().Concat(outerType.GetInterfaces()).FirstOrDefault(i => 
+                i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>));
+
+            if (dictType == null)
+                throw new Exception("Can't find dictionary");
+
+            return typeof(Dictionary<,>).MakeGenericType(
+                                dictType.GenericTypeArguments[0],
+                                dictType.GenericTypeArguments[1]);
         }
 
 
@@ -469,44 +486,29 @@ namespace VL.Lib.Control
 
         void IRegion<IInlay>.RetrieveInput(in InputDescription cp, IInlay patchInstance, out object? innerValue)
         {
-            Debug.Assert(patchInstance == _current?.Inlay);
+            if (!_inputSplicers.TryGetValue(cp, out var dictionary))
+                throw new Exception($"Input Splicer {cp} doesn't hold dictionary");
 
-            _current.RetrieveSplicerInput(cp, out innerValue);
-        }
-
-        dynamic readDynamic(IReadOnlyDictionary<object, dynamic> input, object key)
-        {
-            return input[key];
-        }
-
-        object readDynamic(object input, object key)
-        {
-            throw new InvalidOperationException($"Cannot read key {key} from input of type {input.GetType()}");
-        }
-
-        void writeDynamic(Dictionary<object, dynamic> input, object key, dynamic value)
-        {
-            input[key] = value;
-        }
-
-        void writeDynamic(object input, object key, object value)
-        {
-            throw new InvalidOperationException($"Cannot write key {key} with {value} on {input}");
+            innerValue = dictionary[_currentkey];
         }
 
         void IRegion<IInlay>.AcknowledgeOutput(in OutputDescription cp, IInlay patchInstance, object? innerValue)
         {
-            Debug.Assert(patchInstance == _current?.Inlay);
+            if (!_outputSplicers.TryGetValue(cp, out var dictionary))
+                dictionary = CreateOutput(cp);
 
-            _current.AcknowledgeSplicerOutput(cp, innerValue);
+            dictionary[_currentkey] = innerValue;
         }
 
         void IRegion<IInlay>.RetrieveOutput(in OutputDescription cp, out object? outerValue)
         {
             if (_outputSplicers.TryGetValue(cp, out var outerValueD))
             {
-                // Successfully retrieved the outer value
-                outerValue = outerValueD;
+                var outerType = cp.OuterType;
+                if (outerType.IsGenericType && outerType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>))
+                    outerValue = (outerValueD as dynamic).ToImmutable();
+                else
+                    outerValue = outerValueD;
             }
             else
             {

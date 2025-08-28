@@ -213,6 +213,11 @@ namespace VL.Core.PublicAPI
         /// In case of splicers the system will try to align the inner type (e.g. float) with the inner most argument (and also right most) of the outer (e.g. Spread{float} or Dictionary{string, float}).
         /// </summary>
         public string? TypeConstraint { get; init; }
+
+        /// <summary>
+        /// Whether or not the type constraint is a base type.
+        /// </summary>
+        public bool TypeConstraintIsBaseType { get; init; } = false;
     }
 
     [Flags]
