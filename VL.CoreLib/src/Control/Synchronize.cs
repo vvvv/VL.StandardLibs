@@ -399,9 +399,10 @@ namespace VL.Lib.Control
                 }
             }
 
-            foreach (var (ospl, innerval) in _outputSplicers)
+            foreach (var (ospl, splicer) in _outputSplicers)
             {
-                CreateOutput(ospl);
+                EnsureOutputSplicer(ospl);
+                splicer.Dictionary.Clear();
             }
 
             foreach (var key in keys)
@@ -422,25 +423,21 @@ namespace VL.Lib.Control
             }
         }
 
-        private OutputSplicer CreateOutput(OutputDescription ospl)
+        private OutputSplicer EnsureOutputSplicer(OutputDescription ospl)
         {
-            if (!_outputSplicers.TryGetValue(ospl, out var outer))
-                outer = _outputSplicers[ospl] = createDictionary(ospl.OuterType);
-            return outer;
+            if (!_outputSplicers.TryGetValue(ospl, out var outputSplicer))
+                outputSplicer = _outputSplicers[ospl] = createDictionary(ospl.OuterType);
+            return outputSplicer;
         }
 
-        static private IDictionary? createImmutableDictionary<TKey, TValue>()
-        {
-            return ImmutableDictionary<TKey, TValue>.Empty.ToBuilder();
-        }
 
         private OutputSplicer createDictionary(Type outerType)
         {
             if (outerType.IsGenericType && outerType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>))
             {
                 var genericArgs = outerType.GetGenericArguments();
-                var method = typeof(ForEachKey)
-                    .GetMethod(nameof(createImmutableDictionary), BindingFlags.NonPublic | BindingFlags.Static);
+                var method = typeof(ForEachKeyHelper)
+                    .GetMethod(nameof(ForEachKeyHelper.CreateImmutableDictionary), BindingFlags.NonPublic | BindingFlags.Static);
                 method = method?
                     .MakeGenericMethod(genericArgs);
                 return new OutputSplicer(method?.Invoke(null, null) as IDictionary, true); // immutable dictionary builder created
@@ -499,9 +496,6 @@ namespace VL.Lib.Control
                 _inputSplicers[cp] = dictionary;
             else
                 throw new InvalidOperationException("Input splicers must be of type IReadOnlyDictionary<TKey, TValue>");
-
-            // we store them here in order to postpone patch creation until Update is called
-            // we also want to dispose old patches before creating new ones.
         }
 
         void IRegion<IInlay>.RetrieveInput(in InputDescription cp, IInlay patchInstance, out object? innerValue)
@@ -520,8 +514,7 @@ namespace VL.Lib.Control
 
         void IRegion<IInlay>.AcknowledgeOutput(in OutputDescription cp, IInlay patchInstance, object? innerValue)
         {
-            if (!_outputSplicers.TryGetValue(cp, out var splicer))
-                splicer = CreateOutput(cp);
+            var splicer = EnsureOutputSplicer(cp);
 
             splicer.Dictionary[_currentkey] = innerValue;
         }
@@ -542,5 +535,13 @@ namespace VL.Lib.Control
             }
         }
 
+    }
+
+    internal static class ForEachKeyHelper
+    {
+        internal static IDictionary? CreateImmutableDictionary<TKey, TValue>()
+        {
+            return ImmutableDictionary<TKey, TValue>.Empty.ToBuilder();
+        }
     }
 }
