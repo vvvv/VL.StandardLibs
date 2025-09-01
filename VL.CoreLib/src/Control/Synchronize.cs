@@ -18,7 +18,7 @@ using VL.Lib.IO;
 [assembly: ImportType(typeof(Synchronizer<,,>), Category = "Control.Experimental")]
 [assembly: ImportType(typeof(SynchronizerInputIsKey<,,>), Name = "Synchronizer (InputIsKey)", Category = "Control.Experimental")]
 [assembly: ImportType(typeof(SynchronizerVLObjectInput<,,>), Name = "Synchronizer (VLObjectInput)", Category = "Control.Experimental")]
-[assembly: ImportType(typeof(ForEachKey), Name = "ForEach (Key)", Category = "Control.Experimental")]
+[assembly: ImportType(typeof(ForEachKey<>), Name = "ForEach (Key)", Category = "Control.Experimental")]
 
 namespace VL.Lib.Control
 {
@@ -335,22 +335,21 @@ namespace VL.Lib.Control
     }
 
 
+    public interface IInlay_ForEachKey<TKey>
+    {
+        void Update(TKey key);
+    }
 
     [ProcessNode]
     [Region(SupportedBorderControlPoints = ControlPointType.Splicer, TypeConstraint = "IReadOnlyDictionary", TypeConstraintIsBaseType = true)]
-    public class ForEachKey : IRegion<ForEachKey.IInlay>, IDisposable
+    public class ForEachKey<TKey> : IRegion<IInlay_ForEachKey<TKey>>, IDisposable
     {
-        public interface IInlay
-        {
-            void Update(object key);
-        }
-
-        private readonly Dictionary<object, PatchWithBorders> _patches = new();
-        private Func<IInlay>? _inlayFactory;
+        private readonly Dictionary<TKey, PatchWithBorders> _patches = new();
+        private Func<IInlay_ForEachKey<TKey>>? _inlayFactory;
 
         class PatchWithBorders : IDisposable
         {
-            public PatchWithBorders(IInlay inlay)
+            public PatchWithBorders(IInlay_ForEachKey<TKey> inlay)
             {
                 Inlay = inlay;
             }
@@ -360,7 +359,7 @@ namespace VL.Lib.Control
                     disposable.Dispose();
             }
 
-            public IInlay Inlay;
+            public IInlay_ForEachKey<TKey> Inlay;
             public bool MarkedForRemoval;
         }
 
@@ -373,7 +372,7 @@ namespace VL.Lib.Control
 
         object _currentkey;
 
-        public void Update(IEnumerable keys)
+        public void Update(IEnumerable<TKey> keys)
         {
             if (keys == null)
                 throw new ArgumentNullException(nameof(keys)); 
@@ -479,12 +478,12 @@ namespace VL.Lib.Control
             }
         }
 
-        void IRegion<IInlay>.SetPatchInlayFactory(Func<IInlay> patchInlayFactory)
+        public void SetPatchInlayFactory(Func<IInlay_ForEachKey<TKey>> patchInlayFactory)
         {
             _inlayFactory = patchInlayFactory;
         }
 
-        void IRegion<IInlay>.AcknowledgeInput(in InputDescription cp, object? outerValue)
+        public void AcknowledgeInput(in InputDescription cp, object? outerValue)
         {
             if (cp.IsLink)
             {
@@ -498,7 +497,7 @@ namespace VL.Lib.Control
                 throw new InvalidOperationException("Input splicers must be of type IReadOnlyDictionary<TKey, TValue>");
         }
 
-        void IRegion<IInlay>.RetrieveInput(in InputDescription cp, IInlay patchInstance, out object? innerValue)
+        public void RetrieveInput(in InputDescription cp, IInlay_ForEachKey<TKey> patchInstance, out object? innerValue)
         {
             if (cp.IsLink)
             {
@@ -512,14 +511,14 @@ namespace VL.Lib.Control
             innerValue = dictionary[_currentkey];
         }
 
-        void IRegion<IInlay>.AcknowledgeOutput(in OutputDescription cp, IInlay patchInstance, object? innerValue)
+        public void AcknowledgeOutput(in OutputDescription cp, IInlay_ForEachKey<TKey> patchInstance, object? innerValue)
         {
             var splicer = EnsureOutputSplicer(cp);
 
             splicer.Dictionary[_currentkey] = innerValue;
         }
 
-        void IRegion<IInlay>.RetrieveOutput(in OutputDescription cp, out object? outerValue)
+        public void RetrieveOutput(in OutputDescription cp, out object? outerValue)
         {
             if (_outputSplicers.TryGetValue(cp, out var splicer))
             {
@@ -534,7 +533,6 @@ namespace VL.Lib.Control
                 outerValue = null;
             }
         }
-
     }
 
     internal static class ForEachKeyHelper
