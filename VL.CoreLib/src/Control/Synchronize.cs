@@ -1,17 +1,24 @@
 ﻿#nullable enable
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using VL.Core;
 using VL.Core.Import;
+using VL.Core.PublicAPI;
 using VL.Core.Utils;
 using VL.Lib.Collections;
 using VL.Lib.Control;
+using VL.Lib.IO;
 
 [assembly: ImportType(typeof(Synchronizer<,,>), Category = "Control.Experimental")]
 [assembly: ImportType(typeof(SynchronizerInputIsKey<,,>), Name = "Synchronizer (InputIsKey)", Category = "Control.Experimental")]
 [assembly: ImportType(typeof(SynchronizerVLObjectInput<,,>), Name = "Synchronizer (VLObjectInput)", Category = "Control.Experimental")]
+[assembly: ImportType(typeof(ForEachKey<>), Name = "ForEach (Key)", Category = "Control.Experimental")]
 
 namespace VL.Lib.Control
 {
@@ -21,20 +28,20 @@ namespace VL.Lib.Control
         where TKey : notnull
     {
         private sealed class State : ISwappableGenericType, IDisposable
-        { 
+        {
             public State(TState s) => S = s;
 
-            public TState S; 
+            public TState S;
             public bool MarkedForRemoval;
 
             public object Swap(Type newType, Swapper swapObject)
             {
-                return Activator.CreateInstance(newType, [ swapObject(S, newType.GenericTypeArguments[1])])!;
+                return Activator.CreateInstance(newType, [swapObject(S, newType.GenericTypeArguments[1])])!;
             }
 
             public void Dispose()
             {
-                if (S is IDisposable disposable) 
+                if (S is IDisposable disposable)
                     disposable.Dispose();
             }
         }
@@ -227,8 +234,8 @@ namespace VL.Lib.Control
         }
 
         public SynchronizerInputIsKey<TState, TInput, TOutput> Update(
-            IEnumerable<TInput> input, 
-            Func<TInput, TState> create, 
+            IEnumerable<TInput> input,
+            Func<TInput, TState> create,
             Func<TState, TInput, Tuple<TState, TOutput>> updator,
             out Spread<TOutput> outputs)
         {
@@ -260,16 +267,16 @@ namespace VL.Lib.Control
         private readonly ISynchronizer<object, TState, TInput, TOutput> impl;
 
         public Synchronizer(NodeContext nodeContext)
-            : this(nodeContext.IsImmutable ? new ImmutableSynchronizer<object, TState, TInput, TOutput>() : new MutableSynchronizer<object, TState, TInput, TOutput>()) 
+            : this(nodeContext.IsImmutable ? new ImmutableSynchronizer<object, TState, TInput, TOutput>() : new MutableSynchronizer<object, TState, TInput, TOutput>())
         {
         }
 
         private Synchronizer(ISynchronizer<object, TState, TInput, TOutput> impl) => this.impl = impl;
 
         public Synchronizer<TState, TInput, TOutput> Update(
-            IEnumerable<TInput> input, 
-            Func<TInput, object> keySelector, 
-            Func<TInput, TState> create, 
+            IEnumerable<TInput> input,
+            Func<TInput, object> keySelector,
+            Func<TInput, TState> create,
             Func<TState, TInput, Tuple<TState, TOutput>> updator,
             out Spread<TOutput> outputs)
         {
@@ -293,15 +300,15 @@ namespace VL.Lib.Control
     [ProcessNode]
     public sealed class SynchronizerVLObjectInput<TState, TInput, TOutput> : IDisposable, ISwappableGenericType
         where TState : class
-        where TInput: IVLObject
+        where TInput : IVLObject
     {
         private readonly ISynchronizer<uint, TState, TInput, TOutput> impl;
 
         private SynchronizerVLObjectInput(ISynchronizer<uint, TState, TInput, TOutput> impl) => this.impl = impl;
 
-        public SynchronizerVLObjectInput(NodeContext nodeContext) 
+        public SynchronizerVLObjectInput(NodeContext nodeContext)
             : this(nodeContext.IsImmutable ? new ImmutableSynchronizer<uint, TState, TInput, TOutput>() : new MutableSynchronizer<uint, TState, TInput, TOutput>())
-        { 
+        {
         }
 
         public SynchronizerVLObjectInput<TState, TInput, TOutput> Update(
@@ -324,6 +331,215 @@ namespace VL.Lib.Control
             var newImplType = impl.GetType().GetGenericTypeDefinition().MakeGenericType(typeof(uint), args[0], args[1], args[2]);
             var newimpl = swapObject(this.impl, newImplType);
             return Activator.CreateInstance(newType, binder: null, bindingAttr: BindingFlags.Instance | BindingFlags.NonPublic, args: [newimpl], culture: null);
+        }
+    }
+
+
+    public interface IInlay_ForEachKey<TKey>
+    {
+        void Update(TKey key);
+    }
+
+    [ProcessNode]
+    [Region(SupportedBorderControlPoints = ControlPointType.Splicer, TypeConstraint = "IReadOnlyDictionary", TypeConstraintIsBaseType = true)]
+    public class ForEachKey<TKey> : IRegion<IInlay_ForEachKey<TKey>>, IDisposable
+    {
+        private readonly Dictionary<TKey, PatchWithBorders> _patches = new();
+        private Func<IInlay_ForEachKey<TKey>>? _inlayFactory;
+
+        class PatchWithBorders : IDisposable
+        {
+            public PatchWithBorders(IInlay_ForEachKey<TKey> inlay)
+            {
+                Inlay = inlay;
+            }
+            public void Dispose()
+            {
+                if (Inlay is IDisposable disposable)
+                    disposable.Dispose();
+            }
+
+            public IInlay_ForEachKey<TKey> Inlay;
+            public bool MarkedForRemoval;
+        }
+
+        public void Dispose()
+        {
+            foreach (var p in _patches.Values)
+                p.Dispose();
+            _patches.Clear();
+        }
+
+        object _currentkey;
+
+        public void Update(IEnumerable<TKey> keys)
+        {
+            if (keys == null)
+                throw new ArgumentNullException(nameof(keys)); 
+                
+            if (_inlayFactory == null)
+                throw new InvalidOperationException("Patch Inlay Factory not set");
+
+            foreach (var p in _patches)
+                p.Value.MarkedForRemoval = true;
+
+            foreach (var key in keys)
+                if (_patches.TryGetValue(key, out var p))
+                    p.MarkedForRemoval = false;
+
+            foreach (var (k, p) in _patches)
+            {
+                if (p.MarkedForRemoval)
+                {
+                    // Yes, this is ok to remove while iterating see https://github.com/dotnet/runtime/issues/26314
+                    _patches.Remove(k);
+                    _currentkey = k;
+                    p.Dispose();
+                }
+            }
+
+            foreach (var (ospl, splicer) in _outputSplicers)
+            {
+                EnsureOutputSplicer(ospl);
+                splicer.Dictionary.Clear();
+            }
+
+            foreach (var key in keys)
+            {
+                if (key == null)
+                    throw new InvalidOperationException("Null keys are not supported");
+
+                _currentkey = key;
+
+                PatchWithBorders? patch;
+                if (!_patches.TryGetValue(key, out patch))
+                    _patches[key] = patch = new PatchWithBorders(_inlayFactory());
+
+                if (patch == null)
+                    throw new InvalidOperationException("Patch creation failed");
+
+                patch.Inlay.Update(key);
+            }
+        }
+
+        private OutputSplicer EnsureOutputSplicer(OutputDescription ospl)
+        {
+            if (!_outputSplicers.TryGetValue(ospl, out var outputSplicer))
+                outputSplicer = _outputSplicers[ospl] = createDictionary(ospl.OuterType);
+            return outputSplicer;
+        }
+
+
+        private OutputSplicer createDictionary(Type outerType)
+        {
+            if (outerType.IsGenericType && outerType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>))
+            {
+                var genericArgs = outerType.GetGenericArguments();
+                var method = typeof(ForEachKeyHelper)
+                    .GetMethod(nameof(ForEachKeyHelper.CreateImmutableDictionary), BindingFlags.NonPublic | BindingFlags.Static);
+                method = method?
+                    .MakeGenericMethod(genericArgs);
+                return new OutputSplicer(method?.Invoke(null, null) as IDictionary, true); // immutable dictionary builder created
+            }
+
+            if (outerType.IsSealed)
+                return new OutputSplicer(Activator.CreateInstance(outerType) as IDictionary, false); // some dictionary created
+
+            return new OutputSplicer(Activator.CreateInstance(findDictionaryType(outerType)) as IDictionary, false); // standard mutable dictionary created
+        }
+
+        Type findDictionaryType(Type outerType)
+        {
+            var dictType = outerType.YieldReturn().Concat(outerType.GetInterfaces()).FirstOrDefault(i => 
+                i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>));
+
+            if (dictType == null)
+                throw new Exception("Can't find dictionary");
+
+            return typeof(Dictionary<,>).MakeGenericType(
+                                dictType.GenericTypeArguments[0],
+                                dictType.GenericTypeArguments[1]);
+        }
+
+
+        private readonly Dictionary<InputDescription, IDictionary> _inputSplicers = new();
+        private readonly Dictionary<OutputDescription, OutputSplicer> _outputSplicers = new();
+        private readonly Dictionary<InputDescription, object?> _links = new();
+
+        class OutputSplicer
+        {
+            public IDictionary? Dictionary;
+            public bool IsImmutable;
+
+            public OutputSplicer(IDictionary? dictionary, bool isImmutable)
+            {
+                Dictionary = dictionary;
+                IsImmutable = isImmutable;
+            }
+        }
+
+        public void SetPatchInlayFactory(Func<IInlay_ForEachKey<TKey>> patchInlayFactory)
+        {
+            _inlayFactory = patchInlayFactory;
+        }
+
+        public void AcknowledgeInput(in InputDescription cp, object? outerValue)
+        {
+            if (cp.IsLink)
+            {
+                _links[cp] = outerValue;
+                return;
+            }
+
+            if (outerValue is IDictionary dictionary)
+                _inputSplicers[cp] = dictionary;
+            else
+                throw new InvalidOperationException("Input splicers must be of type IReadOnlyDictionary<TKey, TValue>");
+        }
+
+        public void RetrieveInput(in InputDescription cp, IInlay_ForEachKey<TKey> patchInstance, out object? innerValue)
+        {
+            if (cp.IsLink)
+            {
+                innerValue = _links[cp];
+                return;
+            }
+
+            if (!_inputSplicers.TryGetValue(cp, out var dictionary))
+                throw new Exception($"Input Splicer {cp} doesn't hold dictionary");
+
+            innerValue = dictionary[_currentkey];
+        }
+
+        public void AcknowledgeOutput(in OutputDescription cp, IInlay_ForEachKey<TKey> patchInstance, object? innerValue)
+        {
+            var splicer = EnsureOutputSplicer(cp);
+
+            splicer.Dictionary[_currentkey] = innerValue;
+        }
+
+        public void RetrieveOutput(in OutputDescription cp, out object? outerValue)
+        {
+            if (_outputSplicers.TryGetValue(cp, out var splicer))
+            {
+                var outerType = cp.OuterType;
+                if (splicer.IsImmutable)
+                    outerValue = (splicer.Dictionary as dynamic).ToImmutable();
+                else
+                    outerValue = splicer.Dictionary;
+            }
+            else
+            {
+                outerValue = null;
+            }
+        }
+    }
+
+    internal static class ForEachKeyHelper
+    {
+        internal static IDictionary? CreateImmutableDictionary<TKey, TValue>()
+        {
+            return ImmutableDictionary<TKey, TValue>.Empty.ToBuilder();
         }
     }
 }
