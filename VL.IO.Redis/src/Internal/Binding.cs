@@ -74,6 +74,7 @@ namespace VL.IO.Redis.Internal
         {
             var needToReadFromDb = NeedToReadFromDb();
             var needToWriteToDb = NeedToWriteToDb();
+            var initializing = !_initialized;
 
             // Consider this binding to be initialized from now on
             _initialized = true;
@@ -110,9 +111,20 @@ namespace VL.IO.Redis.Internal
                         _logger.LogError(ex, "Error while serializing");
                         return;
                     }
+
+                    // During initialization we override the When setting so that
+                    // a local initialization always creates the key on redis and
+                    // a redis initialization creates it if it doesn't exist yet
+                    var when = _resolvedBindingModel.Initialization switch
+                    {
+                        Initialization.Local when initializing => When.Always,
+                        Initialization.Redis when initializing => When.NotExists,
+                        _ => _resolvedBindingModel.When
+                    };
+
                     _ = transaction.StringSetAsync(key, redisValue, flags: CommandFlags.FireAndForget, 
                         expiry: _resolvedBindingModel.Expiry, 
-                        when: _resolvedBindingModel.When);
+                        when: when);
                 }
                 if (needToReadFromDb)
                 {
@@ -157,7 +169,7 @@ namespace VL.IO.Redis.Internal
                     return false;
                 if (_initialized)
                     return _weHaveNewData;
-                return _resolvedBindingModel.Initialization == Initialization.Local;
+                return _resolvedBindingModel.Initialization != Initialization.None;
             }
         }
 
