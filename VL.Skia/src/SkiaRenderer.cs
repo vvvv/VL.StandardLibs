@@ -79,7 +79,7 @@ namespace VL.Skia
             var size = DIPHelpers.DIPToPixel(new System.Drawing.Size(600, 400));
             var bounds = GetCenteredBoundsInPixel(size.Width, size.Height);
             var boundsF = Conversions.ToRectangleF(ref bounds);
-            SetBounds(boundsF, setClientSize: true);
+            SetBounds(boundsF, inDIP: false, setClientSize: true);
         }
 
         public ILayer? Input
