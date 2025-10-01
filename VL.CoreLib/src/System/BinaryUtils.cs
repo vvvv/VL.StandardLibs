@@ -20,21 +20,21 @@ namespace VL.Lib.Primitive
         {
             var s = input.AsSpan().Slice(startIndex);
             var x = inputIsBigEndian ? BinaryPrimitives.ReadUInt16BigEndian(s) : BinaryPrimitives.ReadUInt16LittleEndian(s);
-            return Unsafe.As<ushort, char>(ref x);
+            return Unsafe.BitCast<ushort, char>(x);
         }
 
         public static float ToFloat32(Spread<byte> input, int startIndex, bool inputIsBigEndian)
         {
             var s = input.AsSpan().Slice(startIndex);
             var x = inputIsBigEndian ? BinaryPrimitives.ReadUInt32BigEndian(s) : BinaryPrimitives.ReadUInt32LittleEndian(s);
-            return Unsafe.As<uint, float>(ref x);
+            return Unsafe.BitCast<uint, float>(x);
         }
 
         public static double ToFloat64(Spread<byte> input, int startIndex, bool inputIsBigEndian)
         {
             var s = input.AsSpan().Slice(startIndex);
             var x = inputIsBigEndian ? BinaryPrimitives.ReadUInt64BigEndian(s) : BinaryPrimitives.ReadUInt64LittleEndian(s);
-            return Unsafe.As<ulong, double>(ref x);
+            return Unsafe.BitCast<ulong, double>(x);
         }
 
         public static short ToInt16(Spread<byte> input, int startIndex, bool inputIsBigEndian)

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VL.Core;
+using System.Runtime.CompilerServices;
 
 namespace VL.Lib.Primitive
 {
@@ -22,6 +23,7 @@ namespace VL.Lib.Primitive
         /// <param name="z"></param>
         /// <param name="input2"></param>
         /// <returns>Remainder of division z / d.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ZMOD(this double z, double input2 = 1d)
         {
             if (z >= input2)
@@ -35,23 +37,27 @@ namespace VL.Lib.Primitive
                 return z;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Lerp(double input, double input2, float scalar)
         {
             return input + (input2 - input) * scalar;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Round(this double input)
         {
             return input > 0 ? (int)(input + 0.5) : (int)(input - 0.5);
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Frac(this double input, out int wholePart, out double fractionalPart)
         {
             wholePart = (int)input;
             fractionalPart = input - wholePart;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void FracSawtooth(this double input, out int wholePart, out double fractionalPart)
         {
             wholePart = (int)input;
@@ -64,12 +70,14 @@ namespace VL.Lib.Primitive
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void FracFloat(this double input, out double wholePart, out double fractionalPart)
         {
             wholePart = (int)input;
             fractionalPart = input - wholePart;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void FracFloatSawtooth(this double input, out double wholePart, out double fractionalPart)
         {
             wholePart = (int)input;
@@ -83,6 +91,7 @@ namespace VL.Lib.Primitive
         }
 
         //2x faster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Floor(this double input)
         {
             var integer = (int)input;
@@ -91,6 +100,7 @@ namespace VL.Lib.Primitive
         }
 
         //2x faster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Ceil(this double input)
         {
             var integer = (int)input;
@@ -98,12 +108,14 @@ namespace VL.Lib.Primitive
             return integer;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double RoundFloat(this double input)
         {
             return input > 0 ? (int)(input + 0.5f) : (int)(input - 0.5f);
         }
 
         //2x faster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double FloorFloat(this double input)
         {
             var integer = (int)input;
@@ -112,6 +124,7 @@ namespace VL.Lib.Primitive
         }
 
         //2x faster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double CeilFloat(this double input)
         {
             var integer = (int)input;
@@ -119,16 +132,19 @@ namespace VL.Lib.Primitive
             return integer;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Length(this double input)
         {
             return (float)Math.Abs(input);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float LengthSquared(this double input)
         {
             return (float)(input*input);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Normalize(this double input)
         {
             return Math.Sign(input);
@@ -140,31 +156,37 @@ namespace VL.Lib.Primitive
         internal const double RadiansToCycles64 = 1d / TwoPI;
         internal const double DegreeToCycles64 = 1d / 360.0;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double CyclesToRadians(this double cycles)
         {
             return CyclesToRadians64 * cycles;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double RadiansToCycles(this double radian)
         {
             return RadiansToCycles64 * radian;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double CyclesToDegree(this double degree)
         {
             return degree * 360;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double DegreeToCycles(this double degree)
         {
             return degree * DegreeToCycles64;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Scale(double input, float scalar)
         {
             return input * scalar;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double DivideScale(double input, float scalar = 1f)
         {
             return input / scalar;
@@ -179,6 +201,7 @@ namespace VL.Lib.Primitive
         /// <param name="value4">The fourth position in the interpolation.</param>
         /// <param name="amount">Weighting factor.</param>
         /// <returns>The result of the Catmull-Rom interpolation.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double CatmullRom(double value1, double value2, double value3, double value4, float amount)
         {
             double squared = amount * amount;

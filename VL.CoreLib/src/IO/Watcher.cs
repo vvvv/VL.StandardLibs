@@ -3,6 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using VL.Core;
+using VL.Core.Import;
+using VL.Lib.IO;
+
+[assembly: ImportType(typeof(Watcher), Name = "FileWatcher", Category = "IO.Experimental")]
 
 namespace VL.Lib.IO
 {
@@ -26,6 +30,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Monitors a folder and its files for creation, change, deletion and renaming
     /// </summary>
+    [ProcessNode]
     public class Watcher : IDisposable
     {
         private FileSystemWatcher FWatcher;
@@ -33,43 +38,51 @@ namespace VL.Lib.IO
         private string FFilter;
         private bool FIncludeSubDirs;
 
-        public IObservable<Path> Created { get; private set; } = Observable.Empty<Path>();
-        public IObservable<Path> Changed { get; private set; } = Observable.Empty<Path>();
-        public IObservable<Path> Deleted { get; private set; } = Observable.Empty<Path>();
-        public IObservable<RenamedEventArgs> Renamed { get; private set; } = Observable.Empty<RenamedEventArgs>();
-
-        public Watcher()
-        {}
-
-        public void Dispose()
-        {
-            FWatcher?.Dispose();
-            FWatcher = null;
-        }
-
         public void Update(string path, string filter, bool includeSubdirectories)
         {
             if (FPath != path || FFilter != filter || FIncludeSubDirs != includeSubdirectories)
             {
-                if (string.IsNullOrEmpty(path))
+                FPath = path;
+                FFilter = filter;
+                FIncludeSubDirs = includeSubdirectories;
+
+                Dispose();
+
+                if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+                {
                     FWatcher = null;
+
+                    Changed = Observable.Empty<Path>();
+                    Created = Observable.Empty<Path>();
+                    Deleted = Observable.Empty<Path>();
+                    Renamed = Observable.Empty<RenamedEventArgs>();
+                }
                 else
                 {
-                    Dispose();
-
                     FWatcher = new FileSystemWatcher();
-                    FWatcher.Path = FPath = path;
-                    FWatcher.Filter = FFilter = filter;
-                    FWatcher.IncludeSubdirectories = FIncludeSubDirs = includeSubdirectories;
+                    FWatcher.Path = path;
+                    FWatcher.Filter = filter;
+                    FWatcher.IncludeSubdirectories = includeSubdirectories;
 
                     Changed = Observable.FromEventPattern<FileSystemEventArgs>(FWatcher, "Changed").Select(e => new Path(e.EventArgs.FullPath));
                     Created = Observable.FromEventPattern<FileSystemEventArgs>(FWatcher, "Created").Select(e => new Path(e.EventArgs.FullPath));
                     Deleted = Observable.FromEventPattern<FileSystemEventArgs>(FWatcher, "Deleted").Select(e => new Path(e.EventArgs.FullPath));
                     Renamed = Observable.FromEventPattern<RenamedEventArgs>(FWatcher, "Renamed").Select(e => e.EventArgs);
-                   
+
                     FWatcher.EnableRaisingEvents = true;
                 }
             }
+        }
+
+        public IObservable<Path> Changed { get; private set; } = Observable.Empty<Path>();
+        public IObservable<Path> Created { get; private set; } = Observable.Empty<Path>();
+        public IObservable<Path> Deleted { get; private set; } = Observable.Empty<Path>();
+        public IObservable<RenamedEventArgs> Renamed { get; private set; } = Observable.Empty<RenamedEventArgs>();
+
+        public void Dispose()
+        {
+            FWatcher?.Dispose();
+            FWatcher = null;
         }
     }
 }

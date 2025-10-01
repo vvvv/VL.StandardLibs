@@ -8,7 +8,7 @@ namespace VL.Core.Import
     /// Process nodes can be defined with the <see cref="ProcessNodeAttribute"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-    public sealed class ImportAsIsAttribute : Attribute
+    public sealed class ImportAsIsAttribute : ImportAttribute
     {
         /// <summary>
         /// Defines the namespace from which types are getting picked up. The namespace will be stripped on VL side.
@@ -32,31 +32,31 @@ namespace VL.Core.Import
             return ns.StartsWith(Namespace);
         }
 
-        public string? GetCategory(string? ns)
+        public override bool IsMatch(Type type) => IsMatch(type.Namespace);
+
+        public override string? GetCategory(string? ns)
         {
-            if (Namespace is null)
-                return ns;
-
             if (!IsMatch(ns))
-                return ns;
+                return null;
 
-            if (ns is null)
-                return Category;
+            var root = Category ?? string.Empty;
+            if (string.IsNullOrEmpty(ns))
+                return root;
 
             string cat;
-            if (ns.Length > Namespace.Length)
+            if (string.IsNullOrEmpty(Namespace))
+                cat = ns;
+            else if (ns.Length > Namespace.Length)
                 cat = ns.Substring(Namespace.Length + 1);
             else
-                cat = Namespace;
-
-            if (Category is null)
-                return cat;
+                cat = string.Empty;
 
             if (string.IsNullOrEmpty(cat))
-                return Category;
-
-            return $"{Category}.{cat}";
-
+                return root;
+            else if (string.IsNullOrEmpty(root))
+                return cat;
+            else
+                return $"{root}.{cat}";
         }
     }
 }

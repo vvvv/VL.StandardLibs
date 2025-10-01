@@ -224,6 +224,11 @@ namespace VL.Lib.Collections
         {
             _array.CopyTo(sourceIndex, destination, destinationIndex, length);
         }
+
+        public override string ToString()
+        {
+            return $"[{Count}]";
+        }
     }
 
     /// <summary>

@@ -10,12 +10,22 @@ using VL.Lib.Reactive;
 using VL.Lib.Text;
 using System.Threading;
 using System.Collections.Generic;
+using VL.Core.Import;
+using VL.Lib.IO;
+
+[assembly: ImportType(typeof(ByteWriter), Category = "IO.Advanced")]
+[assembly: ImportType(typeof(AsyncByteWriter), Name = $"{nameof(ByteWriter)} (Reactive)", Category = "IO.Advanced")]
+[assembly: ImportType(typeof(CharWriter), Category = "IO.Advanced")]
+[assembly: ImportType(typeof(AsyncCharWriter), Name = $"{nameof(CharWriter)} (Reactive)", Category = "IO.Advanced")]
+[assembly: ImportType(typeof(XDocumentWriter), Category = "System.XML.Advanced")]
+[assembly: ImportType(typeof(AsyncXDocumentWriter), Name = $"{nameof(XDocumentWriter)} (Reactive)", Category = "System.XML.Advanced")]
 
 namespace VL.Lib.IO
 {
     /// <summary>
     /// Writes the incoming chunks of bytes to the given stream.
     /// </summary>
+    [ProcessNode]
     public class ByteWriter
     {
         public ByteWriter(NodeContext nodeContext)
@@ -45,6 +55,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Writes the incoming chunks of characters to the given stream.
     /// </summary>
+    [ProcessNode]
     public class CharWriter
     {
         public CharWriter(NodeContext nodeContext)
@@ -78,6 +89,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Writes the <see cref="XDocument"/> to the given stream.
     /// </summary>
+    [ProcessNode]
     public class XDocumentWriter
     {
         public XDocumentWriter(NodeContext nodeContext)
@@ -102,6 +114,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Returns an observable sequence which will write the incoming chunks of bytes to the given stream on subscription.
     /// </summary>
+    [ProcessNode]
     public class AsyncByteWriter
     {
         IObservable<IObservable<Chunk<byte>>> FOutput = ObservableNodes.Never<IObservable<Chunk<byte>>>();
@@ -153,6 +166,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Returns an observable sequence which will write the incoming chunks of characters to the given stream on subscription.
     /// </summary>
+    [ProcessNode]
     public class AsyncCharWriter
     {
         IObservable<IObservable<Chunk<char>>> FOutput = ObservableNodes.Never<IObservable<Chunk<char>>>();
@@ -212,6 +226,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Returns an observable sequence which will start writing the document to the given stream on subscription.
     /// </summary>
+    [ProcessNode]
     public class AsyncXDocumentWriter
     {
         IObservable<XDocument> FOutput = ObservableNodes.Never<XDocument>();

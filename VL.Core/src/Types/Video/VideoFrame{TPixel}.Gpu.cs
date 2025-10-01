@@ -24,7 +24,7 @@ namespace VL.Lib.Basics.Video
             return false;
         }
 
-        public override bool TryGetTexture([NotNullWhen(true)] out VideoTexture? texture)
+        public override bool TryGetTexture([NotNullWhen(true)] out VideoTexture texture)
         {
             texture = Texture;
             return true;

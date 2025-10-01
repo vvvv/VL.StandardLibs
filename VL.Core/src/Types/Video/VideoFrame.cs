@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using VL.Lib.Basics.Imaging;
 
@@ -20,7 +19,7 @@ namespace VL.Lib.Basics.Video
 
         public int LengthInBytes => RowLengthInBytes * Height;
 
-        public bool IsTextureBacked => TryGetTexture(out var texture) && texture != null;
+        public bool IsTextureBacked => TryGetTexture(out var texture);
 
         /// <summary>
         /// Tries to get a <see cref="ReadOnlyMemory{T}"/> instance, if the underlying buffer is contiguous.
@@ -29,9 +28,9 @@ namespace VL.Lib.Basics.Video
         /// <returns>Whether or not <paramref name="memory"/> was correctly assigned.</returns>
         public abstract bool TryGetMemory(out ReadOnlyMemory<byte> memory);
 
-        public virtual bool TryGetTexture([NotNullWhen(true)] out VideoTexture? texture)
+        public virtual bool TryGetTexture(out VideoTexture texture)
         {
-            texture = null;
+            texture = default;
             return false;
         }
 

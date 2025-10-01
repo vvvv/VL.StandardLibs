@@ -10,10 +10,12 @@ namespace VL.Core
     {
         private static char[] separators = new char[] { ' ', ',' };
 
-        public static ImmutableArray<string> ParseTags(string? tags)
+        public static ImmutableArray<string> ParseTags(string? tags) => ParseTags(tags, ImmutableArray<string>.Empty);
+
+        public static ImmutableArray<string> ParseTags(string? tags, ImmutableArray<string> fallback)
         {
             if (string.IsNullOrWhiteSpace(tags))
-                return ImmutableArray<string>.Empty;
+                return fallback;
 
             return tags.Split(separators, StringSplitOptions.RemoveEmptyEntries).ToImmutableArray();
         }

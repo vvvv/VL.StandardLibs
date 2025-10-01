@@ -8,6 +8,11 @@ namespace VL.ImGui.Widgets
     [WidgetType(WidgetType.Drag)]
     internal partial class DragFloatRange2 : DragWidget<Range<float>, float>
     {
+        public DragFloatRange2()
+            : base(float.MinValue, float.MaxValue)
+        {
+        }
+
         protected override bool Drag(string label, ref Range<float> value, float speed, float min, float max, string? format, ImGuiSliderFlags flags)
         {
             value.Split(out float from, out float to);

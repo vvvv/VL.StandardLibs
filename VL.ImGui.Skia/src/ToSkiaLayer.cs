@@ -37,11 +37,8 @@ namespace VL.ImGui
 
         readonly ImGuiIOPtr _io;
 
-        public bool DefaultWindow = true;
-
         // OpenGLES rendering (https://github.com/dotnet/Silk.NET/tree/v2.15.0/src/OpenGL/Extensions/Silk.NET.OpenGL.Extensions.ImGui)
         private readonly SkiaContext _context;
-        private readonly RenderContext _renderContext;
         private readonly Handle<SKPaint> _fontPaint;
 
         private bool _disposed;
@@ -62,8 +59,6 @@ namespace VL.ImGui
                 _io = ImGui.GetIO();
                 _io.NativePtr->IniFilename = null;
 
-                _renderContext = RenderContext.ForCurrentThread();
-
                 _fontPaint = new Handle<SKPaint>(new SKPaint());
 
                 var scaling = VL.UI.Core.DIPHelpers.DIPFactor();
@@ -71,8 +66,10 @@ namespace VL.ImGui
             }
         }
 
-        public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig?> fonts, IStyle? Style)
+        public ILayer Update(Widget widget, bool dockingEnabled, Spread<FontConfig?> fonts, bool fullscreenWindow, IStyle? Style)
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
             if (_lastCallerInfo is null)
                 return this;
 
@@ -94,12 +91,14 @@ namespace VL.ImGui
                 else
                     _io.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
+                var onlySomeStyles = _context.ApplyStyle(Style, beforeNewFrame: true);
+
                 _context.NewFrame();
                 try
                 {
                     using var _ = _context.ApplyStyle(Style);
 
-                    if (DefaultWindow)
+                    if (fullscreenWindow)
                     {
                         var viewPort = ImGui.GetMainViewport();
                         if (dockingEnabled)
@@ -120,12 +119,13 @@ namespace VL.ImGui
                     }
 
                     _context.SetDrawList(DrawList.Foreground);
-                    // ImGui.ShowDemoWindow();
                     _context.Update(widget);
                 }
                 finally
                 {
-                    if (DefaultWindow && !dockingEnabled)
+                    onlySomeStyles.Dispose();
+
+                    if (fullscreenWindow && !dockingEnabled)
                     {
                         ImGui.End();
                     }
@@ -158,6 +158,8 @@ namespace VL.ImGui
 
         public unsafe void Render(CallerInfo caller)
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
             if (caller.IsTooltip)
             {
                 if (_readyToBeDrawn && _lastCallerInfo != null)
@@ -339,9 +341,11 @@ namespace VL.ImGui
 
         public bool Notify(INotification notification, CallerInfo caller)
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
             using (_context.MakeCurrent())
             {
-                _io.HandleNotification(notification, useWorldSpace: true);
+                _io.HandleNotification(notification);
 
                 foreach (var layer in _context.Layers)
                 {
@@ -371,7 +375,6 @@ namespace VL.ImGui
                 return;
 
             _disposed = true;
-            _renderContext.Dispose();
             _context.Dispose();
         }
     }

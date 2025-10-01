@@ -14,37 +14,44 @@ namespace VL.Stride.Video
 {
     public sealed class VideoSourceToTexture : VideoSourceToImage<Texture>
     {
-        private readonly IResourceHandle<RenderContext> renderContextHandle;
+        private readonly AppHost appHost;
+        private readonly RenderContext renderContext;
         private readonly VideoPlaybackContext ctx;
 
-        public VideoSourceToTexture()
+        public VideoSourceToTexture(NodeContext nodeContext)
         {
-            renderContextHandle = AppHost.Current.Services.GetGameProvider()
-                .Bind(g => RenderContext.GetShared(g.Services))
-                .GetHandle() ?? throw new ServiceNotFoundException(typeof(IResourceProvider<Game>));
+            appHost = AppHost.Current;
+            renderContext = RenderContext.GetShared(appHost.Services.GetRequiredService<Game>().Services);
 
-            var graphicsDevice = renderContextHandle.Resource.GraphicsDevice;
+            var graphicsDevice = renderContext.GraphicsDevice;
             var frameClock = AppHost.Current.Services.GetRequiredService<IFrameClock>();
             if (SharpDXInterop.GetNativeDevice(graphicsDevice) is SharpDX.Direct3D11.Device device)
-                ctx = new VideoPlaybackContext(frameClock, device.NativePointer, GraphicsDeviceType.Direct3D11, graphicsDevice.ColorSpace == ColorSpace.Linear);
+                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger(), GetGraphicsDevice, GraphicsDeviceType.Direct3D11, graphicsDevice.ColorSpace == ColorSpace.Linear);
             else
-                ctx = new VideoPlaybackContext(frameClock);
+                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger());
+
+            IntPtr GetGraphicsDevice()
+            {
+                var graphicsDevice = renderContext.GraphicsDevice;
+                if (SharpDXInterop.GetNativeDevice(graphicsDevice) is SharpDX.Direct3D11.Device device)
+                    return device.NativePointer;
+                return IntPtr.Zero;
+            }
         }
 
         protected override VideoPlaybackContext Context => ctx;
 
         protected override void OnPush(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped)
         {
-            var renderDrawContext = renderContextHandle.Resource.GetThreadContext();
-            var handle = videoFrameProvider?.ToTexture(renderDrawContext).GetHandle();
+            using var _ = appHost.MakeCurrent();
+            var handle = videoFrameProvider?.ToTexture(renderContext).GetHandle();
             if (handle != null && !resultQueue.TryAddSafe(handle, millisecondsTimeout: 10))
                 handle.Dispose();
         }
 
         protected override void OnPull(IResourceProvider<VideoFrame>? videoFrameProvider, bool mipmapped)
         {
-            var renderDrawContext = renderContextHandle.Resource.GetThreadContext();
-            var handle = videoFrameProvider?.ToTexture(renderDrawContext).GetHandle();
+            var handle = videoFrameProvider?.ToTexture(renderContext).GetHandle();
             if (handle != null && !resultQueue.TryAddSafe(handle, millisecondsTimeout: 10))
                 handle.Dispose();
         }
@@ -52,8 +59,6 @@ namespace VL.Stride.Video
         public override void Dispose()
         {
             base.Dispose();
-
-            renderContextHandle.Dispose();
         }
     }
 }

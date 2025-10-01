@@ -44,7 +44,7 @@ public class AsyncActionBlockNode<T> : BlockNode<ActionBlock<T>, ExecutionDatafl
                     _update(lease.State, x, out lease.State, out var asyncAction);
                     await asyncAction;
                 }
-                catch (Exception e)
+                catch (Exception e) when (e is not OperationCanceledException)
                 {
                     RuntimeGraph.ReportException(e, AppHost);
                     throw;

@@ -1,34 +1,39 @@
 ﻿#nullable enable
+using System;
 using SkiaSharp;
-using System.Threading;
 using VL.Core;
 using VL.Core.Utils;
 using VL.Lib.Animation;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
 using VL.Lib.Video;
+using VL.Skia.Egl;
 
 namespace VL.Skia.Video
 {
     public sealed class VideoSourceToSKImage : VideoSourceToImage<SKImage>
     {
-        private readonly RenderContext renderContext;
+        private readonly RenderContextProvider renderContextProvider;
         private readonly VideoPlaybackContext ctx;
-        private readonly Thread? mainThread;
 
-        public VideoSourceToSKImage()
+        public VideoSourceToSKImage(NodeContext nodeContext)
         {
-            renderContext = RenderContext.ForCurrentThread();
+            var appHost = AppHost.Current;
+            renderContextProvider = appHost.GetRenderContextProvider();
 
-            var frameClock = AppHost.Current.Services.GetRequiredService<IFrameClock>();
-            if (renderContext.EglContext.Dislpay.TryGetD3D11Device(out var d3dDevice))
-            {
-                ctx = new VideoPlaybackContext(frameClock, d3dDevice, GraphicsDeviceType.Direct3D11, renderContext.UseLinearColorspace);
-                mainThread = Thread.CurrentThread;
-            }
+            var frameClock = appHost.Services.GetRequiredService<IFrameClock>();
+            var renderContext = renderContextProvider.GetRenderContext();
+            if (renderContext.EglContext.Display.TryGetD3D11Device(out var d3dDevice))
+                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger(), GetGraphicsDevice, GraphicsDeviceType.Direct3D11, renderContext.UseLinearColorspace);
             else
+                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger());
+
+            IntPtr GetGraphicsDevice()
             {
-                ctx = new VideoPlaybackContext(frameClock);
+                var renderContext = renderContextProvider.GetRenderContext();
+                if (renderContext.EglContext.Display.TryGetD3D11Device(out var d3dDevice))
+                    return d3dDevice;
+                return IntPtr.Zero;
             }
         }
 
@@ -36,31 +41,14 @@ namespace VL.Skia.Video
 
         protected override void OnPush(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped)
         {
-            var handle = videoFrameProvider.GetHandle();
-            var videoFrame = handle.Resource;
-            if (videoFrame.IsTextureBacked && !videoFrame.HasAttachedSkImage() && ctx != null && Thread.CurrentThread != mainThread)
-            {
-                // Wrapping needs to happen on the main thread
-                if (!workQueueForMainThread.TryAddSafe(() => ProduceImage(handle, mipmapped), millisecondsTimeout: 10))
-                    handle.Dispose();
-            }
-            else
-            {
-                // Video source pushed a memory backed frame
-                ProduceImage(handle, mipmapped);
-            }
-
-            void ProduceImage(IResourceHandle<VideoFrame> handle, bool mipmapped)
-            {
-                var imageHandle = handle.ToSkImage(renderContext, mipmapped).GetHandle();
-                if (!resultQueue.TryAddSafe(imageHandle, millisecondsTimeout: 10))
-                    imageHandle.Dispose();
-            }
+            var handle = videoFrameProvider?.GetHandle().ToSkImage(renderContextProvider, mipmapped).GetHandle();
+            if (handle != null && !resultQueue.TryAddSafe(handle, millisecondsTimeout: 10))
+                handle.Dispose();
         }
 
         protected override void OnPull(IResourceProvider<VideoFrame>? videoFrameProvider, bool mipmapped)
         {
-            var handle = videoFrameProvider?.GetHandle().ToSkImage(renderContext, mipmapped).GetHandle();
+            var handle = videoFrameProvider?.GetHandle().ToSkImage(renderContextProvider, mipmapped).GetHandle();
             if (handle != null && !resultQueue.TryAddSafe(handle))
                 handle.Dispose();
         }
@@ -68,8 +56,6 @@ namespace VL.Skia.Video
         public override void Dispose()
         {
             base.Dispose();
-
-            renderContext.Dispose();
         }
     }
 }

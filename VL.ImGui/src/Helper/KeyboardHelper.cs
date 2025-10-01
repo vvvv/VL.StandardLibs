@@ -10,6 +10,25 @@ namespace VL.ImGui
 {
     internal static class KeyboardHelper
     {
+        private static readonly Dictionary<ImGuiKey, Keys> s_reverseMap = new Dictionary<ImGuiKey, Keys>();
+
+        static KeyboardHelper()
+        {
+            foreach (Keys key in Enum.GetValues(typeof(Keys)))
+            {
+                var imguiKey = key.ToImGuiKey();
+                if (imguiKey != ImGuiKey.None)
+                    s_reverseMap[imguiKey] = key;
+            }
+        }
+
+        public static Keys ToKeys(this ImGuiKey key)
+        {
+            if (s_reverseMap.TryGetValue(key, out var keys))
+                return keys;
+            return Keys.None;
+        }
+
         public static ImGuiKey ToImGuiKey(this VL.Lib.IO.Keys key)
         {
             switch (key)

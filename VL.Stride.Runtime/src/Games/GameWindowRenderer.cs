@@ -11,6 +11,11 @@ using VL.Core.Utils;
 
 namespace VL.Stride.Games
 {
+    public interface IPresentCallIntercept
+    {
+        void Present(GraphicsPresenter presenter);
+    }
+
     /// <summary>
     /// A GameSystem that allows to draw to another window or control. Currently only valid on desktop with Windows.Forms.
     /// </summary>
@@ -59,6 +64,11 @@ namespace VL.Stride.Games
         /// </value>
         public GameWindowRendererManager WindowManager { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the present call intercept. Can be set to manage the present call on your own.
+        /// </summary>
+        public IPresentCallIntercept PresentCallIntercept { get; set; }
+
         public override void Initialize()
         {
             var gamePlatform = Services.GetService<IGamePlatform>();
@@ -73,6 +83,11 @@ namespace VL.Stride.Games
 
 
             base.Initialize();
+        }
+
+        public void Close()
+        {
+            Destroy();
         }
 
         protected override void Destroy()
@@ -182,7 +197,10 @@ namespace VL.Stride.Games
 
                 try
                 {
-                    Presenter.Present();
+                    if (PresentCallIntercept is null)
+                        Presenter.Present();
+                    else
+                        PresentCallIntercept.Present(Presenter);
                 }
                 catch (GraphicsException ex)
                 {

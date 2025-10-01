@@ -29,6 +29,11 @@ namespace System.Windows.Forms
             return new MouseLostNotification(new Stride.Core.Mathematics.Vector2(-100000, -100000), relativeTo.ClientSize.ToVector2(), Control.ModifierKeys.ToOurs(), sender);
         }
 
+        public static GotFocusNotification ToGotFocusNotification(this EventArgs args, Control relativeTo, object sender = null)
+        {
+            return new GotFocusNotification(sender, Control.ModifierKeys.ToOurs());
+        }
+
         public static LostFocusNotification ToLostFocusNotification(this EventArgs args, Control relativeTo, object sender = null)
         {
             return new LostFocusNotification(sender, Control.ModifierKeys.ToOurs());

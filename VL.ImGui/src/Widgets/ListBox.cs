@@ -3,11 +3,8 @@
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Widgets")]
-    internal partial class ListBox : ChannelWidget<string>, IHasLabel
+    internal partial class ListBox : ChannelWidget<string>
     {
-
-        public string? Label { get; set; }
-
         public Vector2 Size { get; set; } = Vector2.Zero;
 
         public IEnumerable<string> Items { get; set; } = Enumerable.Empty<string>();
@@ -19,7 +16,7 @@ namespace VL.ImGui.Widgets
             var count = Items.Count();
             if (count > 0)
             {
-                if (ImGuiNET.ImGui.BeginListBox(widgetLabel.Update(Label), Size.FromHectoToImGui()))
+                if (ImGuiNET.ImGui.BeginListBox(widgetLabel.Update(label.Value), Size.FromHectoToImGui()))
                 {
                     try
                     {

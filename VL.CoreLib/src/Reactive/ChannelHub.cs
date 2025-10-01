@@ -41,37 +41,42 @@ namespace VL.Core.Reactive
         public override string? ToString() => AppHost.AppBasePath;
 
         IDisposable? MustHaveDescriptiveSubscription;
-        public IObservable<IEnumerable<ChannelBuildDescription>> MustHaveDescriptive
+        public Channel<PublicChannelDescription[]> MustHaveDescriptive
         {
             set
             {
                 MustHaveDescriptiveSubscription?.Dispose();
-                MustHaveDescriptiveSubscription = value.Subscribe(descriptions =>
-                {
-                    ((IChannelHub)this).BatchUpdate(_ =>
-                    {
-                        // make sure all channels of the descriptive configuration exist.
-                        // we don't delete channels that are not listed as the user might have added some more programmatically.
-                        // the config only describes those that shall be there on startup.
-                        foreach (var d in descriptions)
-                        {
-                            var name = d.Name;
-                            var type = d.GetRuntimeType(AppHost);
-                            TryAddChannel(name, type);
-                        }
-                    });
-                });
+                recreateChannels(value.Value);
+                MustHaveDescriptiveSubscription = ((IObservable<PublicChannelDescription[]>)value).Subscribe(recreateChannels);
             }
         }
 
-        internal ConcurrentDictionary<string, IChannel<object>> Channels = new();
+        void recreateChannels(PublicChannelDescription[] descriptions)
+        {
+            ((IChannelHub)this).BatchUpdate(_ =>
+            {
+                // make sure all channels of the descriptive configuration exist.
+                // we don't delete channels that are not listed as the user might have added some more programmatically.
+                // the config only describes those that shall be there on startup.
+                foreach (var d in descriptions)
+                {
+                    var name = d.Name;
+                    var type = d.GetRuntimeType(AppHost.TypeRegistry);
+                    TryAddChannel(name, type);
+                }
+            });
+        }
 
-        internal ConcurrentBag<IModule> Modules = new();
+
+        internal ConcurrentDictionary<string, IChannel<object>> Channels = new();
+        internal ConcurrentDictionary<string, IChannel<object>> AnonymousChannels = new();
+
+        internal ConcurrentDictionary<IModule, IModule> Modules = new();
 
 
         IDictionary<string, IChannel<object>> IChannelHub.Channels => Channels;
 
-        IEnumerable<IModule> IChannelHub.Modules => Modules.OrderBy(m => m.Name);
+        IEnumerable<IModule> IChannelHub.Modules => Modules.Keys.OrderBy(m => m.Name);
 
 
         public IDisposable BeginChange()
@@ -98,7 +103,13 @@ namespace VL.Core.Reactive
             var c = Channels.GetOrAdd(key, _ => 
             { 
                 var c = ChannelHelpers.CreateChannelOfType(typeOfValues); 
-                revision++; 
+                ((IInternalChannel)c).SetPath(key);
+                if (!c.IsAnonymous()) revision++;
+
+                //var typeInfo = AppHost.TypeRegistry.GetTypeInfo(typeOfValues);
+                //if (typeInfo != null && !typeInfo.IsPatched)
+                //    c.Value = AppHost.TypeRegistry.GetTypeInfo(typeOfValues).GetDefaultValue();
+
                 return c; 
             });
             if (c.ClrTypeOfValues != typeOfValues)
@@ -111,7 +122,35 @@ namespace VL.Core.Reactive
         public IChannel<object>? TryGetChannel(string key)
         {
             Channels.TryGetValue(key, out var c);
+            if (c is IInternalChannel ic)
+                ic.Request(); // mark channel as asked for, so that it can be used in the UI
             return c;
+        }
+
+        public IChannel<object>? TryAddAnonymousChannel(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return default;
+
+            var c = AnonymousChannels.GetOrAdd(key, _ =>
+            {
+                var c = ChannelHelpers.CreateChannelOfType(typeof(object));
+                ((IInternalChannel)c).SetPath(key);
+                return c;
+            });
+
+            return c;
+        }
+
+        public IChannel<object>? TryGetAnonymousChannel(string key)
+        {
+            AnonymousChannels.TryGetValue(key, out var c);
+            return c;
+        }
+
+        public void RemoveAnonymousChannel(string key)
+        {
+            AnonymousChannels.TryRemove(key, out var c);
         }
 
         public bool TryRemoveChannel(string key)
@@ -120,7 +159,7 @@ namespace VL.Core.Reactive
             var gotRemoved = Channels.TryRemove(key, out var c);
             if (c != null)
             {
-                revision++;
+                if (!c.IsAnonymous()) revision++;
                 c.Dispose();
             }
             return gotRemoved;
@@ -133,7 +172,7 @@ namespace VL.Core.Reactive
             if (c != null)
             {
                 var o = c.Object;
-                revision++;
+                if (!c.IsAnonymous()) revision++;
                 c.Dispose();
                 c = TryAddChannel(newKey, c.ClrTypeOfValues);
                 if (c != null && o != null && c.ClrTypeOfValues.IsAssignableFrom(o.GetType()))
@@ -150,7 +189,7 @@ namespace VL.Core.Reactive
             if (c != null)
             {
                 var o = c.Object;
-                revision++;
+                if (!c.IsAnonymous()) revision++;
                 c.Dispose();
                 c = TryAddChannel(key, typeOfValues);
                 if (c != null && o != null && typeOfValues.IsAssignableFrom(o.GetType()))
@@ -165,7 +204,12 @@ namespace VL.Core.Reactive
 
         public void RegisterModule(IModule module)
         {
-            Modules.Add(module);
+            Modules.TryAdd(module, module);
+        }
+
+        public void UnregisterModule(IModule module)
+        {
+            Modules.TryRemove(new KeyValuePair<IModule, IModule>(module, module));
         }
 
 
@@ -173,7 +217,7 @@ namespace VL.Core.Reactive
         public void Dispose()
         {
             {
-                using var _ = BeginChange();
+                //using var _ = BeginChange(); //don't report
                 revision++;
                 foreach (var c in Channels.Values)
                     c.Dispose();

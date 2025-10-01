@@ -13,7 +13,8 @@ namespace VL.Core.EditorAttributes
         Slider,
         VerticalSlider,
         Drag,
-        Multiline
+        Multiline,
+        Bang
         //Rotary
     }
 }

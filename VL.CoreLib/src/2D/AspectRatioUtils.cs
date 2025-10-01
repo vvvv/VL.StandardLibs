@@ -70,5 +70,42 @@ namespace VL.Lib.Mathematics
             size = FixAspectRatio(size, referenceSize, mode);
             RectangleNodes.Join(ref position, ref size, anchor, out output);
         }
+
+        // Used by TextureViewer - shall we make this public?
+        public static Vector2 ClampSizePreservingAspectRatio(Vector2 input, Vector2 maxSize)
+        {
+            float width = input.X;
+            float height = input.Y;
+            float maxWidth = maxSize.X;
+            float maxHeight = maxSize.Y;
+
+            // Early exit if already within bounds
+            if (width <= maxWidth && height <= maxHeight)
+                return new Vector2(width, height);
+
+            float aspect = width / height;
+
+            // Scale down to fit within max bounds while preserving aspect ratio
+            float widthRatio = maxWidth / width;
+            float heightRatio = maxHeight / height;
+            float scale = Math.Min(widthRatio, heightRatio);
+
+            float clampedWidth = width * scale;
+            float clampedHeight = clampedWidth / aspect;
+
+            // Ensure after scaling that we don't exceed max bounds
+            if (clampedWidth > maxWidth)
+            {
+                clampedWidth = maxWidth;
+                clampedHeight = clampedWidth / aspect;
+            }
+            if (clampedHeight > maxHeight)
+            {
+                clampedHeight = maxHeight;
+                clampedWidth = clampedHeight * aspect;
+            }
+
+            return new Vector2(clampedWidth, clampedHeight);
+        }
     }
 }

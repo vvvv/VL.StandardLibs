@@ -17,6 +17,9 @@ using ServiceRegistry = VL.Core.ServiceRegistry;
 using VL.Stride.Core;
 using Stride.Core.Diagnostics;
 using System.Threading;
+using VL.Stride.Input;
+using Microsoft.Extensions.DependencyInjection;
+using VL.Lib.Basics.Video;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Lib.Initialization))]
 
@@ -54,12 +57,13 @@ namespace VL.Stride.Lib
                 GlobalLogger.GlobalMessageLogged += new LogBridge(loggerFactory, defaultLogger);
             }
 
-            var services = appHost.Services.RegisterService<IResourceProvider<Game>>(_ =>
+            var services = appHost.Services.RegisterService<VLGame>(_ =>
             {
-                var game = new VLGame(appHost.NodeFactoryRegistry).DisposeBy(appHost);
+                var game = new VLGame(appHost.NodeFactoryRegistry);
 
-			    if (Array.Exists(Environment.GetCommandLineArgs(), argument => argument == "--debug-gpu"))
-                	game.GraphicsDeviceManager.DeviceCreationFlags |= DeviceCreationFlags.Debug;
+                // Check for --debug-gpu commandline flag to load debug graphics device
+                if (Array.Exists(Environment.GetCommandLineArgs(), argument => argument == "--debug-gpu"))
+                    game.GraphicsDeviceManager.DeviceCreationFlags |= DeviceCreationFlags.Debug;
 
                 var assetBuildService = new AssetBuilderServiceScript();
                 game.Services.AddService(assetBuildService);
@@ -68,14 +72,17 @@ namespace VL.Stride.Lib
                 var gameStartedHandler = default(EventHandler);
                 gameStartedHandler = (s, e) =>
                 {
-                    game.Script.Add(assetBuildService);
-                    Game.GameStarted -= gameStartedHandler;
+                    if (s == game)
+                    {
+                        game.Script.Add(assetBuildService);
+                        Game.GameStarted -= gameStartedHandler;                        
+                    }
                 };
                 Game.GameStarted += gameStartedHandler;
 
                 MessageFilter messageFilter = default;
                 GameContext gameContext;
-                if (UseSDL)
+                if (UseSDL && appHost.IsUser /* SDL assumes one main thread, so let's not use it when game is created inside of editor */)
                 {
                     gameContext = new GameContextSDL(null, 0, 0, isUserManagingRun: true);
                     // SDL_PumpEvents shall not run the message loop (Translate/Dispatch) - already done by windows forms
@@ -99,6 +106,10 @@ namespace VL.Stride.Lib
 
                 // Make sure the main window doesn't block the main loop
                 game.GraphicsDevice.Presenter.PresentInterval = PresentInterval.Immediate;
+
+                // Give input devices of default window lowest priority so that the input manager prefers the ones from our windows
+                foreach (var s in game.Input.Sources)
+                    s.SetPriority(int.MinValue);
 
                 var frameClock = Clocks.FrameClock;
                 frameClock.GetFrameFinished().Subscribe(ffm =>
@@ -128,14 +139,17 @@ namespace VL.Stride.Lib
                     if (messageFilter != null)
                         Application.RemoveMessageFilter(messageFilter);
 
-					game.Services.GetService<RenderDocManager>()?.RemoveHooks();
+                    game.Services.GetService<RenderDocManager>()?.RemoveHooks();
                 };
 
-
-                return ResourceProvider.Return<Game>(game);
+                return game;
             });
+            appHost.Services.RegisterService<Game>(s => s.GetRequiredService<VLGame>());
+            if (appHost.IsUser)
+                appHost.Services.RegisterService<IGraphicsDeviceProvider>(s => s.GetRequiredService<VLGame>());
 
             // Older code paths (like CEF) use obsolete IVLFactory.CreateService(NodeContext => IResourceProvider<Game>)
+            appHost.Services.RegisterService<IResourceProvider<Game>>(s => ResourceProvider.Return(s.GetRequiredService<Game>()));
             appHost.Factory.RegisterService<NodeContext, IResourceProvider<Game>>(ctx => services.GetGameProvider());
 
             services.RegisterProvider(game =>

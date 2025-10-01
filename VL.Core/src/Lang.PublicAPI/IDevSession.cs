@@ -32,7 +32,7 @@ namespace VL.Lang.PublicAPI
     ///// </summary>
     public interface IDevSession
     {
-        public static IDevSession? Current => AppHost.CurrentOrGlobal.Services.GetService<IDevSession>();
+        public static IDevSession? Current => AppHost.CurrentOrGlobalOrNull?.Services.GetService<IDevSession>();
 
         void Paste(string modelSnippet, PointF location);
 
@@ -54,10 +54,32 @@ namespace VL.Lang.PublicAPI
 
         ISolution CloseDocumentOfNode(UniqueId nodeID, bool showDialogIfChanged = true);
 
+        /// <inheritdoc cref="ShowPatchOfNode(UniqueId, bool)"/>
         [Obsolete("Please use the overload with the unique id")]
         void ShowPatchOfNode(uint nodeID);
 
-        void ShowPatchOfNode(UniqueId nodeID);
+        /// <summary>
+        /// Shows the patch of the node in the editor.
+        /// </summary>
+        /// <param name="nodeID">Refers to a node application or a node definition</param>
+        /// <param name="toDefinition">
+        /// If false, the patch where the node resides in will be shown.
+        /// If true, it depends on the node type:
+        /// - for a node application, the patch of its definition will be shown
+        /// - for a node definition, its patch will be shown
+        /// </param>
+        void ShowPatchOfNode(UniqueId nodeID, bool toDefinition = false);
+
+        /// <inheritdoc cref="ShowPatchOfNode(UniqueId, bool)"/>
+        void ShowPatchOfNode(NodePath nodePath, bool toDefinition = false);
+
+        /// <summary>
+        /// Registers a node with the session. This allows the editor to interact with it.
+        /// The node can populate its context menu by implementing the <see cref="IHasCommands"/> interface.
+        /// </summary>
+        /// <param name="node">The node to register.</param>
+        /// <returns>A disposable to remove the registration.</returns>
+        IDisposable RegisterNode(IVLObject node);
 
         // HACK: Used by Renderer [Skia] node only, we should be able to get rid of it once we have some sort of unified view over our windows
         Keys OneUp { get; }

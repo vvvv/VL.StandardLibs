@@ -4,6 +4,7 @@ using VL.Core;
 using VL.Core.CompilerServices;
 using VL.Lib.IO.Ports;
 using VL.TestFramework;
+using Path = VL.Lib.IO.Path;
 
 namespace VL.Serialization.MessagePack.Tests
 {
@@ -52,6 +53,24 @@ namespace VL.Serialization.MessagePack.Tests
         }
 
         [Test]
+        public void OptionalSerialization()
+        {
+            var myClass = new MyClass6() { Value = 1 };
+            var content = MessagePackSerialization.Serialize(myClass);
+            var result = MessagePackSerialization.Deserialize<MyClass6>((IEnumerable<byte>)content);
+            Assert.AreEqual(myClass.Value.Value, result.Value.Value);
+        }
+
+        [Test]
+        public void OptionalNoneSerialization()
+        {
+            var myClass = new MyClass6() { Value = default };
+            var content = MessagePackSerialization.Serialize(myClass);
+            var result = MessagePackSerialization.Deserialize<MyClass6>((IEnumerable<byte>)content);
+            Assert.IsTrue(result.Value.HasNoValue);
+        }
+
+        [Test]
         public void DynamicEnumSerialization()
         {
             var comPort = new ComPort("Foo");
@@ -68,6 +87,15 @@ namespace VL.Serialization.MessagePack.Tests
             Assert.AreEqual("\"Foo\"", content);
             var result = MessagePackSerialization.DeserializeJson<ComPort>(content);
             Assert.AreEqual(comPort, result);
+        }
+
+        [Test]
+        public void PathSerialization()
+        {
+            var path = new Path("Foo");
+            var content = MessagePackSerialization.Serialize(path);
+            var result = MessagePackSerialization.Deserialize<Path>((IEnumerable<byte>)content);
+            Assert.AreEqual(path, result);
         }
 
         [MessagePackObject]
@@ -111,6 +139,13 @@ namespace VL.Serialization.MessagePack.Tests
         {
             [Key(0)]
             public IMyInterface2? NestedProperty { get; set; }
+        }
+
+        [MessagePackObject]
+        public class MyClass6
+        {
+            [Key(0)]
+            public Optional<float> Value { get; set; }
         }
 
         public interface IMyInterface { }

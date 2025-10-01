@@ -5,10 +5,12 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (Float64)", Category = "ImGui.Widgets.Advanced", Tags = "number, updown")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputFloat64 : ChannelWidget<double>, IHasLabel, IHasInputTextFlags
+    internal partial class InputFloat64 : InputWidget<double>, IHasInputTextFlags
     {
-
-        public string? Label { get; set; }
+        public InputFloat64()
+            : base(double.MinValue, double.MaxValue)
+        {
+        }
 
         public double Step { private get; set; } = 0.1d;
 
@@ -26,9 +28,21 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = Update();
-            if (ImGuiUtils.InputDouble(widgetLabel.Update(Label), ref value, Step, StepFast, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
-                SetValueIfChanged(lastframeValue, value, Flags);
+            if (ImGuiUtils.InputDouble(widgetLabel.Update(label.Value), ref value, Step, StepFast, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+                value = SetClampedValueIfChanged(value);
             lastframeValue = value;
+        }
+
+        private double SetClampedValueIfChanged(double value)
+        {
+            if (min.HasValue)
+                value = Math.Max(value, min.Value);
+
+            if (max.HasValue)
+                value = Math.Min(value, max.Value);
+
+            SetValueIfChanged(lastframeValue, value, Flags);
+            return value;
         }
     }
 }

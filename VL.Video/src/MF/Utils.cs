@@ -1,12 +1,14 @@
 ﻿using Stride.Core.Mathematics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using VL.Core;
+using VL.Lib.Basics.Video;
 using VL.Video.CaptureControl;
 using VL.Video.MF;
 using Windows.Win32.Foundation;
@@ -34,10 +36,7 @@ namespace VL.Video.MF
             activate->GetStringLength(in guid, out var length);
 
             Span<char> buffer = stackalloc char[(int)length + 1];
-            fixed (char* c = buffer)
-            {
-                activate->GetString(in guid, new PWSTR(c), (uint)buffer.Length, &length);
-            }
+            activate->GetString(in guid, buffer, &length);
 
             return buffer.Slice(0, (int)length).ToString();
         }
@@ -342,6 +341,12 @@ namespace VL.Video.MF
                     videoControl->Release();
                 }
             });
+        }
+
+        public static uint GetRefCount(this VideoTexture texture)
+        {
+            ((Windows.Win32.Graphics.Direct3D11.ID3D11Texture2D*)texture.NativePointer)->AddRef();
+            return ((Windows.Win32.Graphics.Direct3D11.ID3D11Texture2D*)texture.NativePointer)->Release();
         }
     }
 }

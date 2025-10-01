@@ -18,6 +18,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("VL.Core.Tests")]
 [assembly: InternalsVisibleTo("VL.Lang.Tests")]
 [assembly: InternalsVisibleTo("VL.CoreLib")]
+[assembly: InternalsVisibleTo("VL.Core.Skia")]
 [assembly: InternalsVisibleTo("VL.Skia")]
 [assembly: InternalsVisibleTo("VL.ImGui")]
 [assembly: InternalsVisibleTo("VL.Stride.Runtime")]

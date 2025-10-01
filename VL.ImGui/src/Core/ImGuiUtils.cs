@@ -95,25 +95,6 @@ namespace VL.ImGui
 
                 //ImGui.EndCombo();
             }
-            else if (value is IVLObject vObject)
-            {
-                var properties = vObject.Type.Properties;
-                if (properties.Count > 0)
-                {
-                    ImGui.BeginGroup();
-                    foreach (var p in properties)
-                    {
-                        var v = p.GetValue(vObject);
-                        if (InputObject(p.OriginalName, ref v))
-                        {
-                            isModified = true;
-                            vObject = p.WithValue(vObject, v);
-                        }
-                    }
-                    value = vObject;
-                    ImGui.EndGroup();
-                }
-            }
             else if (value is ISpread spread)
             {
                 if (ImGui.BeginListBox(label))
@@ -166,6 +147,24 @@ namespace VL.ImGui
                     ImGui.EndTable();
                 }
             }
+            else if (value is not null)
+            {
+                var properties = value.GetVLTypeInfo().Properties;
+                if (properties.Count > 0)
+                {
+                    ImGui.BeginGroup();
+                    foreach (var p in properties)
+                    {
+                        var v = p.GetValue(value);
+                        if (InputObject(p.OriginalName, ref v))
+                        {
+                            isModified = true;
+                            value = p.WithValue(value, v);
+                        }
+                    }
+                    ImGui.EndGroup();
+                }
+            }
             else
                 ImGui.TextUnformatted(value?.ToString() ?? "NULL");
 
@@ -193,17 +192,80 @@ namespace VL.ImGui
             }
         }
 
+        public static bool InputText(string label, ref string value, uint maxLength, ImGuiInputTextFlags flags)
+        {
+            if (ImGui.InputText(label, ref value, maxLength, flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputText(string label, ref string value, uint maxLength, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback)
+        {
+            if (ImGui.InputText(label, ref value, maxLength, flags.ToNative(), callback))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputTextWithHint(string label, string hint, ref string value, uint maxLength, ImGuiInputTextFlags flags)
+        {
+            if (ImGui.InputTextWithHint(label, hint, ref value, maxLength, flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputTextMultiline(string label, ref string value, uint maxLength, Vector2 size, ImGuiInputTextFlags flags)
+        {
+            if (ImGui.InputTextMultiline(label, ref value, maxLength, size.FromHectoToImGui(), flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
         public static unsafe bool InputDouble(string label, ref double value, double step, double stepFast, string? format, ImGuiInputTextFlags flags)
         {
-            return ImGui.InputScalar(label, ImGuiDataType.Double, new IntPtr(Unsafe.AsPointer(ref value)), new IntPtr(Unsafe.AsPointer(ref step)), new IntPtr(Unsafe.AsPointer(ref stepFast)), format, flags);
+            if (ImGui.InputScalar(label, ImGuiDataType.Double, new IntPtr(Unsafe.AsPointer(ref value)), new IntPtr(Unsafe.AsPointer(ref step)), new IntPtr(Unsafe.AsPointer(ref stepFast)), format, flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputFloat(string label, ref float value, float step, float step_fast, string? format, ImGuiInputTextFlags flags)
+        {
+            if (ImGui.InputFloat(label, ref value, step, step_fast, format, flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
         }
 
         public static bool InputFloat2(string label, ref Vector2 value, string? format, ImGuiInputTextFlags flags)
         {
             var v = value.ToImGui();
-            if (ImGui.InputFloat2(label, ref v, format, flags))
+            if (ImGui.InputFloat2(label, ref v, format, flags.ToNative()))
             {
                 value = v.ToVL();
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;
@@ -212,9 +274,11 @@ namespace VL.ImGui
         public static bool InputFloat3(string label, ref Vector3 value, string? format, ImGuiInputTextFlags flags)
         {
             var v = value.ToImGui();
-            if (ImGui.InputFloat3(label, ref v, format, flags))
+            if (ImGui.InputFloat3(label, ref v, format, flags.ToNative()))
             {
                 value = v.ToVL();
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;
@@ -223,9 +287,22 @@ namespace VL.ImGui
         public static bool InputFloat4(string label, ref Vector4 value, string? format, ImGuiInputTextFlags flags)
         {
             var v = value.ToImGui();
-            if (ImGui.InputFloat4(label, ref v, format, flags))
+            if (ImGui.InputFloat4(label, ref v, format, flags.ToNative()))
             {
                 value = v.ToVL();
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool InputInt(string label, ref int value, int step, int step_fast, ImGuiInputTextFlags flags)
+        {
+            if (ImGui.InputInt(label, ref value, step, step_fast, flags.ToNative()))
+            {
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;
@@ -234,9 +311,11 @@ namespace VL.ImGui
         public static bool InputInt2(string label, ref Int2 value, ImGuiInputTextFlags flags)
         {
             ref var x = ref value.X;
-            if (ImGui.InputInt2(label, ref x, flags))
+            if (ImGui.InputInt2(label, ref x, flags.ToNative()))
             {
                 value = Unsafe.As<int, Int2>(ref x);
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;
@@ -245,9 +324,11 @@ namespace VL.ImGui
         public static bool InputInt3(string label, ref Int3 value, ImGuiInputTextFlags flags)
         {
             ref var x = ref value.X;
-            if (ImGui.InputInt3(label, ref x, flags))
+            if (ImGui.InputInt3(label, ref x, flags.ToNative()))
             {
                 value = Unsafe.As<int, Int3>(ref x);
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;
@@ -256,9 +337,11 @@ namespace VL.ImGui
         public static bool InputInt4(string label, ref Int4 value, ImGuiInputTextFlags flags)
         {
             ref var x = ref value.X;
-            if (ImGui.InputInt4(label, ref x, flags))
+            if (ImGui.InputInt4(label, ref x, flags.ToNative()))
             {
                 value = Unsafe.As<int, Int4>(ref x);
+                if (flags.HasFlag(ImGuiInputTextFlags.ItemDeactivationReturnsTrue))
+                    return ImGui.IsItemDeactivatedAfterEdit();
                 return true;
             }
             return false;
@@ -288,39 +371,39 @@ namespace VL.ImGui
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static System.Numerics.Vector4 ToImGui(this Color4 v)
         {
-            return Unsafe.As<Color4, System.Numerics.Vector4>(ref v);
+            return Unsafe.BitCast<Color4, System.Numerics.Vector4>(v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static System.Numerics.Vector2 ToImGui(this Vector2 v)
         {
-            return Unsafe.As<Vector2, System.Numerics.Vector2>(ref v);
+            return Unsafe.BitCast<Vector2, System.Numerics.Vector2>(v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static System.Numerics.Vector2 FromHectoToImGui(this Vector2 v)
         {
             v = new Vector2(v.X * ToImGuiScaling, v.Y * ToImGuiScaling);
-            return Unsafe.As<Vector2, System.Numerics.Vector2>(ref v);
+            return Unsafe.BitCast<Vector2, System.Numerics.Vector2>(v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static System.Numerics.Vector3 ToImGui(this Vector3 v)
         {
-            return Unsafe.As<Vector3, System.Numerics.Vector3>(ref v);
+            return Unsafe.BitCast<Vector3, System.Numerics.Vector3>(v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static System.Numerics.Vector4 ToImGui(this Vector4 v)
         {
-            return Unsafe.As<Vector4, System.Numerics.Vector4>(ref v);
+            return Unsafe.BitCast<Vector4, System.Numerics.Vector4>(v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static System.Numerics.Vector2 FromHectoToImGui(this Size2F v)
         {
             v = new Size2F(v.Width * ToImGuiScaling, v.Height * ToImGuiScaling);
-            return Unsafe.As<Size2F, System.Numerics.Vector2>(ref v);
+            return Unsafe.BitCast<Size2F, System.Numerics.Vector2>(v);
         }
 
         public static float FromHectoToImGui(this float v) => v * ToImGuiScaling;
@@ -334,31 +417,31 @@ namespace VL.ImGui
         public static Vector2 ToVLHecto(this System.Numerics.Vector2 v)
         {
             v = new System.Numerics.Vector2(v.X * FromImGuiScaling, v.Y * FromImGuiScaling);
-            return Unsafe.As<System.Numerics.Vector2, Vector2>(ref v);
+            return Unsafe.BitCast<System.Numerics.Vector2, Vector2>(v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 ToVL(this System.Numerics.Vector2 v)
         {
-            return Unsafe.As<System.Numerics.Vector2, Vector2>(ref v);
+            return Unsafe.BitCast<System.Numerics.Vector2, Vector2>(v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 ToVL(this System.Numerics.Vector3 v)
         {
-            return Unsafe.As<System.Numerics.Vector3, Vector3>(ref v);
+            return Unsafe.BitCast<System.Numerics.Vector3, Vector3>(v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 ToVL(this System.Numerics.Vector4 v)
         {
-            return Unsafe.As<System.Numerics.Vector4, Vector4>(ref v);
+            return Unsafe.BitCast<System.Numerics.Vector4, Vector4>(v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Color4 ToVLColor4(this System.Numerics.Vector4 v)
         {
-            return Unsafe.As<System.Numerics.Vector4, Color4>(ref v);
+            return Unsafe.BitCast<System.Numerics.Vector4, Color4>(v);
         }
 
         public static IEnumerable<TOut> Select<T, TOut>(this RangeAccessor<T> range, Func<T, TOut> selector) where T : struct

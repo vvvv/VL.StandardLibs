@@ -1,39 +1,34 @@
 ﻿
-
-
-
 // Do not modify, this is generated code!
 
 using System;
 using System.Diagnostics;
 using VL.Core;
+using VL.Core.Import;
 
 namespace VL.Lib.Control
 {
-
 
 
     /// ---------------------------------------------------------------------------------------------------------
     /// TRY 2
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch and returns whether it has been successful or not. Supports 2 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch and returns whether it has been successful or not. Supports 2 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryStateful2<TState> : TryStateful<TState>
         where TState : class
     {
         public void Update< TOutput1, TOutput2 >(
             Func<TState> create,
             Func<TState, Tuple<TState, TOutput1, TOutput2>> @try,
-
             TOutput1 defaultOutput1,
             out TOutput1 output1,
-
             TOutput2 defaultOutput2,
             out TOutput2 output2,
-
-            bool reInitialize,
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out bool success,
             out string errorMessage)
         {
@@ -41,24 +36,17 @@ namespace VL.Lib.Control
             {
                 var unpackedTry = @try(state);
                 return Tuple.Create(unpackedTry.Item1, Tuple.Create(
-
                 unpackedTry.Item2,
-
                 unpackedTry.Item3
                 ));
             };
             var output = base.Update(create, packedTry, Tuple.Create(
-
                 defaultOutput1,
-
                 defaultOutput2
             ), reInitialize, out success, out errorMessage);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
         }
     }
 
@@ -66,9 +54,10 @@ namespace VL.Lib.Control
     /// TRYCATCH 2
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports 2 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch, runs catch instead if it has been unsuccessful. Supports 2 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryCatchStateful2<TState> : TryCatchStateful<TState>
         where TState : class
     {
@@ -76,10 +65,8 @@ namespace VL.Lib.Control
             Func<TState> create,
             Func<TState, Tuple<TState, TOutput1, TOutput2>> @try,
             Func<TState, Exception, Tuple<TState, TOutput1, TOutput2>> @catch,
-            bool reInitialize,
-
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out TOutput1 output1,
-
             out TOutput2 output2
             )
         {
@@ -89,7 +76,6 @@ namespace VL.Lib.Control
                 return Tuple.Create(unpackedUpdate.Item1, Tuple.Create(
  
                 unpackedUpdate.Item2,
-
                 unpackedUpdate.Item3
 
                 ));
@@ -101,7 +87,6 @@ namespace VL.Lib.Control
                 return Tuple.Create(unpackedUpdate.Item1, Tuple.Create(
  
                 unpackedUpdate.Item2,
-
                 unpackedUpdate.Item3
 
                 ));
@@ -109,11 +94,8 @@ namespace VL.Lib.Control
 
             var output = base.Update(create, packedTry, packedCatch, reInitialize);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
         }
     }
 
@@ -121,9 +103,10 @@ namespace VL.Lib.Control
     /// TRYCATCHFINALLY 2
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports 2 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch, runs catch instead if it has been unsuccessful. Supports 2 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryCatchFinallyStateful2<TState> : TryCatchFinallyStateful<TState>
         where TState : class
     {
@@ -132,10 +115,8 @@ namespace VL.Lib.Control
             Func<TState, Tuple<TState, TData1, TData2>> @try,
             Func<TState, Exception, Tuple<TState, TData1, TData2>> @catch,
             Func<TState, TData1, TData2, Tuple<TState, TOutput1, TOutput2 >> @finally,
-            bool reInitialize,
-
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out TOutput1 output1,
-
             out TOutput2 output2
             )
         {
@@ -145,7 +126,6 @@ namespace VL.Lib.Control
                 return Tuple.Create(unpackedTry.Item1, Tuple.Create(
  
                 unpackedTry.Item2,
-
                 unpackedTry.Item3
 
                 ));
@@ -157,7 +137,6 @@ namespace VL.Lib.Control
                 return Tuple.Create(unpackedCatch.Item1, Tuple.Create(
  
                 unpackedCatch.Item2,
-
                 unpackedCatch.Item3
 
                 ));
@@ -171,7 +150,6 @@ namespace VL.Lib.Control
                 return Tuple.Create(unpackedFinally.Item1, Tuple.Create(
  
                 unpackedFinally.Item2,
-
                 unpackedFinally.Item3
 
                 ));
@@ -179,14 +157,10 @@ namespace VL.Lib.Control
 
             var output = base.Update(create, packedTry, packedCatch, packedFinally, reInitialize);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
         }
     }
-
 
 
 
@@ -194,26 +168,23 @@ namespace VL.Lib.Control
     /// TRY 3
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch and returns whether it has been successful or not. Supports 3 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch and returns whether it has been successful or not. Supports 3 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryStateful3<TState> : TryStateful<TState>
         where TState : class
     {
         public void Update< TOutput1, TOutput2, TOutput3 >(
             Func<TState> create,
             Func<TState, Tuple<TState, TOutput1, TOutput2, TOutput3>> @try,
-
             TOutput1 defaultOutput1,
             out TOutput1 output1,
-
             TOutput2 defaultOutput2,
             out TOutput2 output2,
-
             TOutput3 defaultOutput3,
             out TOutput3 output3,
-
-            bool reInitialize,
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out bool success,
             out string errorMessage)
         {
@@ -221,30 +192,20 @@ namespace VL.Lib.Control
             {
                 var unpackedTry = @try(state);
                 return Tuple.Create(unpackedTry.Item1, Tuple.Create(
-
                 unpackedTry.Item2,
-
                 unpackedTry.Item3,
-
                 unpackedTry.Item4
                 ));
             };
             var output = base.Update(create, packedTry, Tuple.Create(
-
                 defaultOutput1,
-
                 defaultOutput2,
-
                 defaultOutput3
             ), reInitialize, out success, out errorMessage);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
             output3=output.Item3; 
-
         }
     }
 
@@ -252,9 +213,10 @@ namespace VL.Lib.Control
     /// TRYCATCH 3
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports 3 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch, runs catch instead if it has been unsuccessful. Supports 3 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryCatchStateful3<TState> : TryCatchStateful<TState>
         where TState : class
     {
@@ -262,12 +224,9 @@ namespace VL.Lib.Control
             Func<TState> create,
             Func<TState, Tuple<TState, TOutput1, TOutput2, TOutput3>> @try,
             Func<TState, Exception, Tuple<TState, TOutput1, TOutput2, TOutput3>> @catch,
-            bool reInitialize,
-
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out TOutput1 output1,
-
             out TOutput2 output2,
-
             out TOutput3 output3
             )
         {
@@ -279,7 +238,6 @@ namespace VL.Lib.Control
                 unpackedUpdate.Item2,
  
                 unpackedUpdate.Item3,
-
                 unpackedUpdate.Item4
 
                 ));
@@ -293,7 +251,6 @@ namespace VL.Lib.Control
                 unpackedUpdate.Item2,
  
                 unpackedUpdate.Item3,
-
                 unpackedUpdate.Item4
 
                 ));
@@ -301,13 +258,9 @@ namespace VL.Lib.Control
 
             var output = base.Update(create, packedTry, packedCatch, reInitialize);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
             output3=output.Item3; 
-
         }
     }
 
@@ -315,9 +268,10 @@ namespace VL.Lib.Control
     /// TRYCATCHFINALLY 3
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports 3 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch, runs catch instead if it has been unsuccessful. Supports 3 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryCatchFinallyStateful3<TState> : TryCatchFinallyStateful<TState>
         where TState : class
     {
@@ -326,12 +280,9 @@ namespace VL.Lib.Control
             Func<TState, Tuple<TState, TData1, TData2, TData3>> @try,
             Func<TState, Exception, Tuple<TState, TData1, TData2, TData3>> @catch,
             Func<TState, TData1, TData2, TData3, Tuple<TState, TOutput1, TOutput2, TOutput3 >> @finally,
-            bool reInitialize,
-
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out TOutput1 output1,
-
             out TOutput2 output2,
-
             out TOutput3 output3
             )
         {
@@ -343,7 +294,6 @@ namespace VL.Lib.Control
                 unpackedTry.Item2,
  
                 unpackedTry.Item3,
-
                 unpackedTry.Item4
 
                 ));
@@ -357,7 +307,6 @@ namespace VL.Lib.Control
                 unpackedCatch.Item2,
  
                 unpackedCatch.Item3,
-
                 unpackedCatch.Item4
 
                 ));
@@ -373,7 +322,6 @@ namespace VL.Lib.Control
                 unpackedFinally.Item2,
  
                 unpackedFinally.Item3,
-
                 unpackedFinally.Item4
 
                 ));
@@ -381,16 +329,11 @@ namespace VL.Lib.Control
 
             var output = base.Update(create, packedTry, packedCatch, packedFinally, reInitialize);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
             output3=output.Item3; 
-
         }
     }
-
 
 
 
@@ -398,29 +341,25 @@ namespace VL.Lib.Control
     /// TRY 4
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch and returns whether it has been successful or not. Supports 4 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch and returns whether it has been successful or not. Supports 4 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryStateful4<TState> : TryStateful<TState>
         where TState : class
     {
         public void Update< TOutput1, TOutput2, TOutput3, TOutput4 >(
             Func<TState> create,
             Func<TState, Tuple<TState, TOutput1, TOutput2, TOutput3, TOutput4>> @try,
-
             TOutput1 defaultOutput1,
             out TOutput1 output1,
-
             TOutput2 defaultOutput2,
             out TOutput2 output2,
-
             TOutput3 defaultOutput3,
             out TOutput3 output3,
-
             TOutput4 defaultOutput4,
             out TOutput4 output4,
-
-            bool reInitialize,
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out bool success,
             out string errorMessage)
         {
@@ -428,36 +367,23 @@ namespace VL.Lib.Control
             {
                 var unpackedTry = @try(state);
                 return Tuple.Create(unpackedTry.Item1, Tuple.Create(
-
                 unpackedTry.Item2,
-
                 unpackedTry.Item3,
-
                 unpackedTry.Item4,
-
                 unpackedTry.Item5
                 ));
             };
             var output = base.Update(create, packedTry, Tuple.Create(
-
                 defaultOutput1,
-
                 defaultOutput2,
-
                 defaultOutput3,
-
                 defaultOutput4
             ), reInitialize, out success, out errorMessage);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
             output3=output.Item3; 
-
             output4=output.Item4; 
-
         }
     }
 
@@ -465,9 +391,10 @@ namespace VL.Lib.Control
     /// TRYCATCH 4
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports 4 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch, runs catch instead if it has been unsuccessful. Supports 4 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryCatchStateful4<TState> : TryCatchStateful<TState>
         where TState : class
     {
@@ -475,14 +402,10 @@ namespace VL.Lib.Control
             Func<TState> create,
             Func<TState, Tuple<TState, TOutput1, TOutput2, TOutput3, TOutput4>> @try,
             Func<TState, Exception, Tuple<TState, TOutput1, TOutput2, TOutput3, TOutput4>> @catch,
-            bool reInitialize,
-
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out TOutput1 output1,
-
             out TOutput2 output2,
-
             out TOutput3 output3,
-
             out TOutput4 output4
             )
         {
@@ -496,7 +419,6 @@ namespace VL.Lib.Control
                 unpackedUpdate.Item3,
  
                 unpackedUpdate.Item4,
-
                 unpackedUpdate.Item5
 
                 ));
@@ -512,7 +434,6 @@ namespace VL.Lib.Control
                 unpackedUpdate.Item3,
  
                 unpackedUpdate.Item4,
-
                 unpackedUpdate.Item5
 
                 ));
@@ -520,15 +441,10 @@ namespace VL.Lib.Control
 
             var output = base.Update(create, packedTry, packedCatch, reInitialize);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
             output3=output.Item3; 
-
             output4=output.Item4; 
-
         }
     }
 
@@ -536,9 +452,10 @@ namespace VL.Lib.Control
     /// TRYCATCHFINALLY 4
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports 4 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch, runs catch instead if it has been unsuccessful. Supports 4 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryCatchFinallyStateful4<TState> : TryCatchFinallyStateful<TState>
         where TState : class
     {
@@ -547,14 +464,10 @@ namespace VL.Lib.Control
             Func<TState, Tuple<TState, TData1, TData2, TData3, TData4>> @try,
             Func<TState, Exception, Tuple<TState, TData1, TData2, TData3, TData4>> @catch,
             Func<TState, TData1, TData2, TData3, TData4, Tuple<TState, TOutput1, TOutput2, TOutput3, TOutput4 >> @finally,
-            bool reInitialize,
-
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out TOutput1 output1,
-
             out TOutput2 output2,
-
             out TOutput3 output3,
-
             out TOutput4 output4
             )
         {
@@ -568,7 +481,6 @@ namespace VL.Lib.Control
                 unpackedTry.Item3,
  
                 unpackedTry.Item4,
-
                 unpackedTry.Item5
 
                 ));
@@ -584,7 +496,6 @@ namespace VL.Lib.Control
                 unpackedCatch.Item3,
  
                 unpackedCatch.Item4,
-
                 unpackedCatch.Item5
 
                 ));
@@ -602,7 +513,6 @@ namespace VL.Lib.Control
                 unpackedFinally.Item3,
  
                 unpackedFinally.Item4,
-
                 unpackedFinally.Item5
 
                 ));
@@ -610,18 +520,12 @@ namespace VL.Lib.Control
 
             var output = base.Update(create, packedTry, packedCatch, packedFinally, reInitialize);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
             output3=output.Item3; 
-
             output4=output.Item4; 
-
         }
     }
-
 
 
 
@@ -629,32 +533,27 @@ namespace VL.Lib.Control
     /// TRY 5
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch and returns whether it has been successful or not. Supports 5 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch and returns whether it has been successful or not. Supports 5 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryStateful5<TState> : TryStateful<TState>
         where TState : class
     {
         public void Update< TOutput1, TOutput2, TOutput3, TOutput4, TOutput5 >(
             Func<TState> create,
             Func<TState, Tuple<TState, TOutput1, TOutput2, TOutput3, TOutput4, TOutput5>> @try,
-
             TOutput1 defaultOutput1,
             out TOutput1 output1,
-
             TOutput2 defaultOutput2,
             out TOutput2 output2,
-
             TOutput3 defaultOutput3,
             out TOutput3 output3,
-
             TOutput4 defaultOutput4,
             out TOutput4 output4,
-
             TOutput5 defaultOutput5,
             out TOutput5 output5,
-
-            bool reInitialize,
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out bool success,
             out string errorMessage)
         {
@@ -662,42 +561,26 @@ namespace VL.Lib.Control
             {
                 var unpackedTry = @try(state);
                 return Tuple.Create(unpackedTry.Item1, Tuple.Create(
-
                 unpackedTry.Item2,
-
                 unpackedTry.Item3,
-
                 unpackedTry.Item4,
-
                 unpackedTry.Item5,
-
                 unpackedTry.Item6
                 ));
             };
             var output = base.Update(create, packedTry, Tuple.Create(
-
                 defaultOutput1,
-
                 defaultOutput2,
-
                 defaultOutput3,
-
                 defaultOutput4,
-
                 defaultOutput5
             ), reInitialize, out success, out errorMessage);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
             output3=output.Item3; 
-
             output4=output.Item4; 
-
             output5=output.Item5; 
-
         }
     }
 
@@ -705,9 +588,10 @@ namespace VL.Lib.Control
     /// TRYCATCH 5
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports 5 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch, runs catch instead if it has been unsuccessful. Supports 5 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryCatchStateful5<TState> : TryCatchStateful<TState>
         where TState : class
     {
@@ -715,16 +599,11 @@ namespace VL.Lib.Control
             Func<TState> create,
             Func<TState, Tuple<TState, TOutput1, TOutput2, TOutput3, TOutput4, TOutput5>> @try,
             Func<TState, Exception, Tuple<TState, TOutput1, TOutput2, TOutput3, TOutput4, TOutput5>> @catch,
-            bool reInitialize,
-
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out TOutput1 output1,
-
             out TOutput2 output2,
-
             out TOutput3 output3,
-
             out TOutput4 output4,
-
             out TOutput5 output5
             )
         {
@@ -740,7 +619,6 @@ namespace VL.Lib.Control
                 unpackedUpdate.Item4,
  
                 unpackedUpdate.Item5,
-
                 unpackedUpdate.Item6
 
                 ));
@@ -758,7 +636,6 @@ namespace VL.Lib.Control
                 unpackedUpdate.Item4,
  
                 unpackedUpdate.Item5,
-
                 unpackedUpdate.Item6
 
                 ));
@@ -766,17 +643,11 @@ namespace VL.Lib.Control
 
             var output = base.Update(create, packedTry, packedCatch, reInitialize);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
             output3=output.Item3; 
-
             output4=output.Item4; 
-
             output5=output.Item5; 
-
         }
     }
 
@@ -784,9 +655,10 @@ namespace VL.Lib.Control
     /// TRYCATCHFINALLY 5
     /// ---------------------------------------------------------------------------------------------------------
 
-	///<summary>
-	///Runs the given patch, runs catch instead if it has been unsuccessful. Supports 5 regular output pins
-	///</summary>
+	/// <summary>
+	/// Runs the given patch, runs catch instead if it has been unsuccessful. Supports 5 regular output pins
+	/// </summary>
+    [ProcessNode]
     public class TryCatchFinallyStateful5<TState> : TryCatchFinallyStateful<TState>
         where TState : class
     {
@@ -795,16 +667,11 @@ namespace VL.Lib.Control
             Func<TState, Tuple<TState, TData1, TData2, TData3, TData4, TData5>> @try,
             Func<TState, Exception, Tuple<TState, TData1, TData2, TData3, TData4, TData5>> @catch,
             Func<TState, TData1, TData2, TData3, TData4, TData5, Tuple<TState, TOutput1, TOutput2, TOutput3, TOutput4, TOutput5 >> @finally,
-            bool reInitialize,
-
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out TOutput1 output1,
-
             out TOutput2 output2,
-
             out TOutput3 output3,
-
             out TOutput4 output4,
-
             out TOutput5 output5
             )
         {
@@ -820,7 +687,6 @@ namespace VL.Lib.Control
                 unpackedTry.Item4,
  
                 unpackedTry.Item5,
-
                 unpackedTry.Item6
 
                 ));
@@ -838,7 +704,6 @@ namespace VL.Lib.Control
                 unpackedCatch.Item4,
  
                 unpackedCatch.Item5,
-
                 unpackedCatch.Item6
 
                 ));
@@ -858,7 +723,6 @@ namespace VL.Lib.Control
                 unpackedFinally.Item4,
  
                 unpackedFinally.Item5,
-
                 unpackedFinally.Item6
 
                 ));
@@ -866,20 +730,13 @@ namespace VL.Lib.Control
 
             var output = base.Update(create, packedTry, packedCatch, packedFinally, reInitialize);
 
-
             output1=output.Item1; 
-
             output2=output.Item2; 
-
             output3=output.Item3; 
-
             output4=output.Item4; 
-
             output5=output.Item5; 
-
         }
     }
-
 
 
 }

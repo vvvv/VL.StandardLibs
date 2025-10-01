@@ -44,7 +44,7 @@ public class CloningWriteOnceBlockNode<T> : BlockNode<WriteOnceBlock<T>, Dataflo
                     _update(lease.State, x, out lease.State, out var output);
                     return output;
                 }
-                catch (Exception e)
+                catch (Exception e) when (e is not OperationCanceledException)
                 {
                     RuntimeGraph.ReportException(e, AppHost);
                     throw;

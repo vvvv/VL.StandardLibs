@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
 using System.Reactive.Linq;
+using VL.Core.Import;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Collections;
+using SerialPort = VL.Lib.IO.Ports.SerialPort;
 using NetSerialPort = System.IO.Ports.SerialPort;
+using System.ComponentModel;
+
+[assembly: ImportType(typeof(SerialPort), Category = "IO.Ports")]
 
 namespace VL.Lib.IO.Ports
 {
@@ -56,6 +61,7 @@ namespace VL.Lib.IO.Ports
     /// <summary>
     /// Manages a serialport provider.
     /// </summary>
+    [ProcessNode]
     public class SerialPort
     {
         ResourceProviderMonitor<NetSerialPort> FCurrentProvider;
@@ -70,15 +76,10 @@ namespace VL.Lib.IO.Ports
         bool FBreakState;
 
         /// <summary>
-        /// Whether or not the serialport is connected.
-        /// </summary>
-        public bool IsOpen => FCurrentProvider?.ResourcesUsedBySinks.FirstOrDefault()?.IsOpen ?? false;
-
-        /// <summary>
         /// Configures the internally managed serialport provider.
         /// </summary>
         /// <returns>A serialport provider which can be used by multiple threads in parallel.</returns>
-        public IResourceProvider<NetSerialPort> Update(ComPort portName, int baudrate, int dataBits, StopBits stopBits, Parity parity, Handshake handshake, bool dtrEnable, bool rtsEnable, bool breakState, bool open)
+        public IResourceProvider<NetSerialPort> Update(ComPort portName, [DefaultValue(115200)] int baudrate, [DefaultValue(8)] int dataBits, [DefaultValue(StopBits.One)] StopBits stopBits, Parity parity, Handshake handshake, bool dtrEnable, bool rtsEnable, bool breakState, bool open)
         {
             if (portName.Value != FPortName || baudrate != FBaudRate || dataBits != FDataBits || stopBits != FStopBits || parity != FParity || handshake != FHandshake || dtrEnable != FDtrEnable || rtsEnable != FRtsEnable || breakState != FBreakState)
             {
@@ -124,5 +125,10 @@ namespace VL.Lib.IO.Ports
                 return FCurrentProvider;
             return null;
         }
+
+        /// <summary>
+        /// Whether or not the serialport is connected.
+        /// </summary>
+        public bool IsOpen => FCurrentProvider?.ResourcesUsedBySinks.FirstOrDefault()?.IsOpen ?? false;
     }
 }

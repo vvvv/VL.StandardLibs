@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive.Concurrency;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using VL.Core;
 
 namespace VL.Lib.Basics.Resources
@@ -77,8 +76,7 @@ namespace VL.Lib.Basics.Resources
         {
             if (factory is null) throw new ArgumentNullException(nameof(factory));
 
-            var upstream = new Lazy<IResourceProvider<T>>(factory, isThreadSafe: true);
-            return new Provider<T>(() => upstream.Value.GetHandle());
+            return new Provider<T>(() => new LazyHandle<T>(() => factory().GetHandle()));
         }
 
         /// <summary>
@@ -403,8 +401,10 @@ namespace VL.Lib.Basics.Resources
                     var innerProvider = providerSelector(upHandle.Resource);
                     var innerHandle = innerProvider.GetHandle();
 
-                    return new Handle<TOut>(
-                        resource: innerHandle.Resource,
+                    // Note: Using special implementation here to allow combinding Bind with Defer.
+                    // The regular Handle class would force us to access the inner Resource even though there's no need to do so yet.
+                    return new BindHandle<TOut>(
+                        innerHandle: innerHandle,
                         disposeAction: () =>
                         {
                             //Binding two functions in succession is the same as binding one function that can be determined from them:
@@ -923,6 +923,74 @@ namespace VL.Lib.Basics.Resources
         public TResource Resource { get; }
         public void Dispose() => FDisposable.Dispose();
     }
+    
+    sealed class BindHandle<T> : IResourceHandle<T>
+    {
+        readonly IResourceHandle<T> innerHandle;
+        readonly IDisposable disposable;
+
+        public BindHandle(IResourceHandle<T> innerHandle, Action disposeAction)
+        {
+            this.innerHandle = innerHandle;
+            this.disposable = Disposable.Create(disposeAction); // makes sure that dispose only gets called once
+        }
+
+        public T Resource => innerHandle.Resource;
+        public void Dispose() => disposable.Dispose();
+    }
+
+#nullable enable
+    [DebuggerDisplay("IsResourceCreated = {IsResourceCreated}, IsDisposed = {IsDisposed}, Resource = {ResourceForDebugDisplay}")]
+    sealed class LazyHandle<TResource> : IResourceHandle<TResource>
+    {
+        private Func<IResourceHandle<TResource>>? factory;
+        private IResourceHandle<TResource>? handle;
+
+        public LazyHandle(Func<IResourceHandle<TResource>> factory)
+        {
+            this.factory = factory;
+        }
+
+        public TResource Resource
+        {
+            get
+            {
+                lock (this)
+                {
+                    if (IsDisposed)
+                        throw new ObjectDisposedException("Handle");
+
+                    if (handle is null)
+                        handle = factory();
+
+                    return handle.Resource;
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            lock (this)
+            {
+                if (IsDisposed)
+                    return;
+
+                factory = null;
+
+                if (IsResourceCreated)
+                    handle.Dispose();
+            }
+        }
+
+        [MemberNotNullWhen(returnValue: false, nameof(factory))]
+        internal bool IsDisposed => factory is null;
+
+        [MemberNotNullWhen(returnValue: true, nameof(handle))]
+        internal bool IsResourceCreated => handle != null;
+
+        internal TResource? ResourceForDebugDisplay => IsResourceCreated ? handle.Resource : default;
+    }
+#nullable restore
 
     /// <summary>
     /// Generic implementation that can be used for any on the fly implementation. 

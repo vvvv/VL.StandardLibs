@@ -11,9 +11,6 @@ namespace VL.ImGui.Widgets
     [GenerateNode(Category = "ImGui.Widgets")]
     internal partial class ProgressBar : Widget
     {
-
-        public string? Label { get; set; }
-
         public float Fraction { get; set; }
 
         public string OverlayText { get; set; } = String.Empty;

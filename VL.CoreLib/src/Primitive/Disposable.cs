@@ -58,6 +58,7 @@ namespace VL.Lib.Primitive
             success = false;
             if (input != null)
             {
+                success = true;
                 foreach (var item in input)
                 {
                     bool itemSuccess;

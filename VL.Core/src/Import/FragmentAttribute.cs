@@ -18,5 +18,10 @@ namespace VL.Core.Import
         /// Whether or not the fragment shall be hidden. Useful when the fragment selection is set to <see cref="FragmentSelection.Implicit"/> and certain members shall not be part of the process.
         /// </summary>
         public bool IsHidden { get; set; }
+
+        /// <summary>
+        /// If set to true, this fragment will be assigned to the default moment if not assigned otherwise.
+        /// </summary>
+        public bool IsDefault { get; set; }
     }
 }

@@ -22,7 +22,20 @@ namespace VL.Core.Logging
 
         public string Category => LogEntry.Category;
 
-        public NodePath NodePath => LogEntry.NodePath;
+        public NodePath NodePath
+        {
+            get
+            {
+                var nodePath = LogEntry.NodePath;
+                if (nodePath.IsDefault)
+                {
+                    var exception = LogEntry.Exception;
+                    if (exception is not null && IVLRuntime.Current is not null && IVLRuntime.Current.TryGetLocation(exception, out var id))
+                        nodePath = new NodePath([id]);
+                }
+                return nodePath;
+            }
+        }
 
         public LogLevel LogLevel => LogEntry.LogLevel;
 
@@ -30,7 +43,7 @@ namespace VL.Core.Logging
 
         public string Message => LogEntry.Message;
 
-        public string? Exception => LogEntry.Exception;
+        public string? Exception => LogEntry.Exception?.ToString();
 
         public DateTime Timestamp { get; private set; }
 
@@ -107,5 +120,5 @@ namespace VL.Core.Logging
         LogLevel LogLevel,
         EventId EventId,
         string Message,
-        string? Exception);
+        Exception? Exception);
 }

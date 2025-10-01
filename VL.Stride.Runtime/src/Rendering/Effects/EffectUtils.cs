@@ -116,7 +116,10 @@ namespace VL.Stride.Rendering
 
         internal static void RegisterFilePath(this ShaderSourceManager shaderSourceManager, ShaderMetadata shaderMetadata)
         {
-            shaderSourceManager.UrlToFilePath[shaderMetadata.Url] = shaderMetadata.FilePath;
+            lock (shaderSourceManager.GetLocker())
+            {
+                shaderSourceManager.UrlToFilePath[shaderMetadata.Url] = shaderMetadata.FilePath;
+            }
         }
 
         static readonly Dictionary<string, string> LocalShaderFilePaths = GetShaders();
@@ -388,6 +391,14 @@ namespace VL.Stride.Rendering
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "compiler")]
             extern static ref EffectCompilerBase GetCompiler(EffectCompilerChain compilerChain);
+        }
+
+        private static object GetLocker(this ShaderSourceManager shaderSourceManager)
+        {
+            return GetLocker(shaderSourceManager);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "locker")]
+            extern static ref object GetLocker(ShaderSourceManager compilerChain);
         }
     }
 

@@ -6,6 +6,7 @@
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeReferencedAssembliesInPackage</TargetsForTfmSpecificBuildOutput>
     
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>true</ImplicitUsings>
     
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     
@@ -52,7 +53,7 @@
     <PackageReference Include="Stride.UI" />
     <PackageReference Include="Stride.Video" />
     <PackageReference Include="Stride.VirtualReality" />
-    <PackageReference Include="Stride.Graphics.RenderDocPlugin" />
+	<PackageReference Include="Stride.Graphics.RenderDocPlugin" />
   </ItemGroup>
   <Target Name="IncludeStridePackageContent" BeforeTargets="InferPackageContents" DependsOnTargets="_StridePrepareAssetsForPack">
     <Message Importance="high" Text="Called Stride package targets" />
@@ -95,6 +96,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Effects\Common\WireframeShader.sdsl.cs">
+      <DependentUpon>WireframeShader.sdsl</DependentUpon>
+    </Compile>
     <Compile Update="Effects\ComputeFX\ComputeFXEffect.sdfx.cs">
       <DesignTime>True</DesignTime>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -225,6 +229,11 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Update="Rendering\PostFX\CustomColorTransform.sdfx.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Update="Effects\ComputeFX\ComputeFXEffect.sdfx">
@@ -301,6 +310,9 @@
     </None>
     <None Update="Rendering\Materials\FallbackMaterial\StrideEditorForwardShadingEffect.sdfx">
       <LastGenOutput>StrideEditorForwardShadingEffect.sdfx.cs</LastGenOutput>
+    </None>
+    <None Update="Rendering\PostFX\CustomColorTransform.sdfx">
+      <LastGenOutput>CustomColorTransform.sdfx.cs</LastGenOutput>
     </None>
   </ItemGroup>
 </Project>

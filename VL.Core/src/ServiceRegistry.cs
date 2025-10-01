@@ -74,16 +74,19 @@ namespace VL.Core
             return registrations.ValueOrDefault(serviceType).LazyService?.Value ?? parent?.GetService(serviceType);
         }
 
-        public T GetOrAddService<T>(Func<IServiceProvider, T> serviceFactory) where T : class
+        public T GetOrAddService<T>(Func<IServiceProvider, T> serviceFactory, bool allowToAskParent = true) where T : class
         {
             if (serviceFactory is null)
                 throw new ArgumentNullException(nameof(serviceFactory));
 
             var registration = registrations.GetOrAdd(typeof(T), (type, factory) =>
             {
-                var service = parent?.GetService(type);
-                if (service != null)
-                    return new Registration(new Lazy<object>(service));
+                if (allowToAskParent)
+                {
+                    var service = parent?.GetService(type);
+                    if (service != null)
+                        return new Registration(new Lazy<object>(service));
+                }
 
                 return CreateRegistration(factory);
             }, serviceFactory);

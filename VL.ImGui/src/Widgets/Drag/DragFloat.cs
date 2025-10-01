@@ -7,6 +7,11 @@ namespace VL.ImGui.Widgets
     [WidgetType(WidgetType.Drag)]
     internal partial class DragFloat : DragWidget<float, float>
     {
+        public DragFloat()
+            : base(float.MinValue, float.MaxValue)
+        {
+        }
+
         protected override bool Drag(string label, ref float value, float speed, float min, float max, string? format, ImGuiSliderFlags flags)
         {
             return ImGuiNET.ImGui.DragFloat(label, ref value, speed, min, max, format, flags);

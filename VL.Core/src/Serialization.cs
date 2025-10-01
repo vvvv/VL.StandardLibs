@@ -1,5 +1,10 @@
-﻿using System;
+﻿using CommunityToolkit.HighPerformance;
+using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 using VL.Lib.Collections;
 
@@ -115,5 +120,56 @@ namespace VL.Core
                 return (T)serialization.Deserialize(nodeContext, content, typeof(T), pathsAreRelativeToDocument: false, out errorMessages);
             }
         }
+
+#nullable enable
+
+        private static char BOM = char.ConvertFromUtf32(0xFEFF)[0];
+
+        private static bool StartsWithBOM(string content)
+        {
+            return content.Length > 1 && content[0] == BOM;
+        }
+
+        internal static string? Encode(string? content)
+        {
+            if (content is null)
+                return null;
+
+            if (StartsWithBOM(content))
+                goto encode;
+
+            try
+            {
+                return XmlConvert.VerifyXmlChars(content);
+            }
+            catch
+            {
+                goto encode;
+            }
+
+            encode:
+            var bytes = content.AsSpan().AsBytes();
+            return BOM + Convert.ToBase64String(bytes);
+        }
+
+        internal static string? Decode(string? content)
+        {
+            if (content is null)
+                return null;
+
+            if (StartsWithBOM(content))
+            {
+                // Remove the flag
+                var encodedString = content.AsSpan(1);
+                var bytes = ArrayPool<byte>.Shared.Rent(encodedString.AsBytes().Length);
+                Convert.TryFromBase64Chars(encodedString, bytes, out var bytesWritten);
+                return new string(bytes.AsSpan(0, bytesWritten).Cast<byte, char>());
+            }
+            else
+            {
+                return content;
+            }
+        }
+#nullable restore
     }
 }

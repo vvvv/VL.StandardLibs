@@ -44,8 +44,8 @@ namespace VL.Stride.Input
                     else
                         component.InputSource = null;
                 }
-
             }
+
             base.Draw(context);
         }
 

@@ -41,7 +41,6 @@ namespace VL.ImGui
 
         // OpenGLES rendering (https://github.com/dotnet/Silk.NET/tree/v2.15.0/src/OpenGL/Extensions/Silk.NET.OpenGL.Extensions.ImGui)
         private readonly SkiaContext _context;
-        private readonly RenderContext _renderContext;
         private readonly Handle<SKPaint> _fontPaint;
 
         private bool _disposed;
@@ -61,8 +60,6 @@ namespace VL.ImGui
             {
                 _io = ImGui.GetIO();
                 _io.NativePtr->IniFilename = null;
-
-                _renderContext = RenderContext.ForCurrentThread();
 
                 _fontPaint = new Handle<SKPaint>(new SKPaint());
 
@@ -344,7 +341,7 @@ namespace VL.ImGui
         {
             using (_context.MakeCurrent())
             {
-                _io.HandleNotification(notification, useWorldSpace: true);
+                _io.HandleNotification(notification);
 
                 foreach (var layer in _context.Layers)
                 {
@@ -374,7 +371,6 @@ namespace VL.ImGui
                 return;
 
             _disposed = true;
-            _renderContext.Dispose();
             _context.Dispose();
         }
     }

@@ -10,7 +10,7 @@ namespace VL.Lib.Primitive.Object
 {
     public static class ObjectHelpers
     {
-        public static T NULL<T>()
+        public static T NULL<T>() // why no class constraint?
         {
             var result = default(T);
             if (result != null)
@@ -18,6 +18,11 @@ namespace VL.Lib.Primitive.Object
 
             return result;
         }
+
+        /// <summary>
+        /// NULL in case of reference type, unitialized in case of value type, e.g. (0,0,0,0) for a vector4 
+        /// </summary>
+        public static T NULL_OR_DEFAULT<T>() => default;
 
         /// <summary>
         /// Whether or not the value is null
@@ -44,6 +49,16 @@ namespace VL.Lib.Primitive.Object
         }
 
         /// <summary>
+        /// If the Input is NULL the fallbackValue will be returned
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T AvoidNULL<T>(T input, T fallbackValue)
+        {
+            return input != null ? input : fallbackValue;
+        }
+
+        /// <summary>
         /// Casts the input value to the downstream connected type. Will throw a InvalidCastException if the cast fails
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -66,6 +81,18 @@ namespace VL.Lib.Primitive.Object
         public static void CastAs<T>(object input, T @default, out T result, out bool success)
         {
             IHotswapSpecificNodes.Impl.CastAs(input, @default, out result, out success);
+        }
+
+        /// <summary>
+        /// Casts the input value to the downstream connected type. In case the cast fails the result will be unassigned or unitialized in case of a value type 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <param name="result"></param>
+        /// <param name="success"></param>
+        public static void CastAs_Slim<T>(object input, out T result, out bool success)
+        {
+            IHotswapSpecificNodes.Impl.CastAs(input, default, out result, out success);
         }
 
         /// <summary>

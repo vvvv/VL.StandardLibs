@@ -19,7 +19,7 @@ namespace VL.ImGui.Editors
                 hasLabel.Label = context.Label;
 
             if (widget is IHasInputTextFlags hasInputTextFlags)
-                hasInputTextFlags.Flags = ImGuiInputTextFlags.EnterReturnsTrue;
+                hasInputTextFlags.Flags = ImGuiInputTextFlags.ItemDeactivationReturnsTrue;
         }
 
         public void Draw(Context? context)

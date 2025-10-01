@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Threading;
 using VL.Lib.Basics.Imaging;
@@ -65,7 +66,9 @@ namespace VL.Video.MF
             lock (pool)
             {
                 foreach (var t in pool)
+                {
                     ((ID3D11Texture2D*)t.NativePointer)->Release();
+                }
                 pool.Clear();
             }
         }

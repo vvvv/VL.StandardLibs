@@ -2,6 +2,26 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using VL.Core;
+using VL.Core.Import;
+using VL.Lib.Control;
+
+[assembly: ImportType(typeof(TryStateful<>), Name = "Try (1 Output)", Category = "Experimental.Control.Obsolete")]
+[assembly: ImportType(typeof(TryStateful2<>), Name = "Try (2Outputs)", Category = "Experimental.Control.Obsolete")]
+[assembly: ImportType(typeof(TryStateful3<>), Name = "Try (3Outputs)", Category = "Experimental.Control.Obsolete")]
+[assembly: ImportType(typeof(TryStateful4<>), Name = "Try (4Outputs)", Category = "Experimental.Control.Obsolete")]
+[assembly: ImportType(typeof(TryStateful5<>), Name = "Try (5Outputs)", Category = "Experimental.Control.Obsolete")]
+
+[assembly: ImportType(typeof(TryCatchStateful<>), Name = "TryCatch", Category = "Experimental.Control")]
+[assembly: ImportType(typeof(TryCatchStateful2<>), Name = "TryCatch (2Outputs)", Category = "Experimental.Control")]
+[assembly: ImportType(typeof(TryCatchStateful3<>), Name = "TryCatch (3Outputs)", Category = "Experimental.Control")]
+[assembly: ImportType(typeof(TryCatchStateful4<>), Name = "TryCatch (4Outputs)", Category = "Experimental.Control")]
+[assembly: ImportType(typeof(TryCatchStateful5<>), Name = "TryCatch (5Outputs)", Category = "Experimental.Control")]
+
+[assembly: ImportType(typeof(TryCatchFinallyStateful<>), Name = "TryCatchFinally", Category = "Experimental.Control")]
+[assembly: ImportType(typeof(TryCatchFinallyStateful2<>), Name = "TryCatchFinally (2Outputs)", Category = "Experimental.Control")]
+[assembly: ImportType(typeof(TryCatchFinallyStateful3<>), Name = "TryCatchFinally (3Outputs)", Category = "Experimental.Control")]
+[assembly: ImportType(typeof(TryCatchFinallyStateful4<>), Name = "TryCatchFinally (4Outputs)", Category = "Experimental.Control")]
+[assembly: ImportType(typeof(TryCatchFinallyStateful5<>), Name = "TryCatchFinally (5Outputs)", Category = "Experimental.Control")]
 
 namespace VL.Lib.Control
 {
@@ -134,7 +154,7 @@ namespace VL.Lib.Control
     /// <summary>
     /// Runs the given patch and returns whether it has been successful or not
     /// </summary>
-    /// <typeparam name="TState"></typeparam>
+    [ProcessNode]
     public class TryStateful<TState> : IDisposable
         where TState : class
     {
@@ -144,7 +164,7 @@ namespace VL.Lib.Control
             Func<TState> create,
             Func<TState, Tuple<TState, TOutput>> @try,
             TOutput defaultOutput,
-            bool reInitialize,
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize,
             out bool success,
             out string errorMessage
             )
@@ -178,7 +198,7 @@ namespace VL.Lib.Control
     /// <summary>
     /// Runs the given patch, runs catch instead if it has been unsuccessful
     /// </summary>
-    /// <typeparam name="TState"></typeparam>
+    [ProcessNode]
     public class TryCatchStateful<TState> : IDisposable
         where TState : class
     {
@@ -188,7 +208,7 @@ namespace VL.Lib.Control
             Func<TState> create,
             Func<TState, Tuple<TState, TOutput>> @try,
             Func<TState, Exception, Tuple<TState, TOutput>> @catch,
-            bool reInitialize)
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize)
         {
             Tuple<TState, TOutput> t;
             TOutput output;
@@ -213,7 +233,7 @@ namespace VL.Lib.Control
     /// <summary>
     /// Runs the given patch, runs catch instead if it has been unsuccessful. Guarantees to run Finally afterwards
     /// </summary>
-    /// <typeparam name="TState"></typeparam>
+    [ProcessNode]
     public class TryCatchFinallyStateful<TState> : IDisposable
         where TState : class
     {
@@ -224,7 +244,7 @@ namespace VL.Lib.Control
             Func<TState, Tuple<TState, TData>> @try,
             Func<TState, Exception, Tuple<TState, TData>> @catch,
             Func<TState, TData, Tuple<TState, TOutput>> @finally,
-            bool reInitialize)
+            [Pin(Visibility = Model.PinVisibility.Optional)] bool reInitialize)
         {
             Tuple<TState, TData> inter = null;
             Tuple<TState, TOutput> output;

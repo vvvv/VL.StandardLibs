@@ -9,13 +9,15 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using VL.Core;
+using VL.Lib.Basics.Video;
 using VL.Stride.Core;
 using VL.Stride.Engine;
 using VL.Stride.Rendering;
+using DeviceCreationFlags = Stride.Graphics.DeviceCreationFlags;
 
 namespace VL.Stride.Games
 {
-    public class VLGame : Game
+    public class VLGame : Game, IGraphicsDeviceProvider
     {
         private readonly TimeSpan maximumElapsedTime = TimeSpan.FromMilliseconds(2000.0);
         private TimeSpan accumulatedElapsedGameTime;
@@ -42,6 +44,12 @@ namespace VL.Stride.Games
             // as we'd need to either recreate all textures and swapchains in that moment or make sure that these weren't created yet.
             GraphicsDeviceManager.PreferredColorSpace = ColorSpace.Linear;
         }
+
+        GraphicsDeviceType IGraphicsDeviceProvider.Type => GraphicsDevice.Platform == GraphicsPlatform.Direct3D11 ? GraphicsDeviceType.Direct3D11 : GraphicsDeviceType.None;
+
+        nint IGraphicsDeviceProvider.NativePointer => SharpDXInterop.GetNativeDevice(GraphicsDevice) is SharpDX.Direct3D11.Device d3d11 ? d3d11.NativePointer : default;
+
+        bool IGraphicsDeviceProvider.UseLinearColorspace => GraphicsDevice.ColorSpace == ColorSpace.Linear;
 
         protected override LogListener GetLogListener()
         {
@@ -165,15 +173,15 @@ namespace VL.Stride.Games
 
         protected override void Update(GameTime gameTime)
         {
+            // Ensure all the paths referenced by VL are visible to the effect system
+            UpdateShaderPaths(NodeFactoryRegistry);
+
             if (CaptureFrame)
             {
                 CaptureFrame = false;
                 RenderDocConnector.RenderDocManager?.StartFrameCapture(GraphicsDevice, IntPtr.Zero);
                 captureInProgress = true;
             }
-
-            // Ensure all the paths referenced by VL are visible to the effect system
-            UpdateShaderPaths(NodeFactoryRegistry);
 
             base.Update(gameTime);
         }
@@ -185,11 +193,12 @@ namespace VL.Stride.Games
                 foreach (var r in PendingPresentCalls)
                     r.Present();
 
-                base.EndDraw(present: false);
+                base.EndDraw(present: PendingPresentCalls.Count == 0 /* Do present if no one else did to ensure command queue gets flushed */);
             }
             finally
             {
                 PendingPresentCalls.Clear();
+
                 if (captureInProgress)
                 {
                     captureInProgress = false;

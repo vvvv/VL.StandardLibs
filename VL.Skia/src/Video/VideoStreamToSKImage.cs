@@ -17,21 +17,14 @@ namespace VL.Skia.Video
         private readonly SerialDisposable latestSubscription = new SerialDisposable();
         private readonly SerialDisposable currentSubscription = new SerialDisposable();
 
-        private readonly RenderContext renderContext;
-        private readonly VideoPlaybackContext ctx;
+        private readonly RenderContextProvider renderContextProvider;
 
         private VideoStream? videoStream;
-        private IResourceProvider<SKImage>? current, latest;
+        private IResourceProvider<SKImage?>? current, latest;
 
         public VideoStreamToSKImage()
         {
-            renderContext = RenderContext.ForCurrentThread();
-
-            var frameClock = AppHost.Current.Services.GetRequiredService<IFrameClock>();
-            if (renderContext.EglContext.Dislpay.TryGetD3D11Device(out var d3dDevice))
-                ctx = new VideoPlaybackContext(frameClock, d3dDevice, GraphicsDeviceType.Direct3D11, renderContext.UseLinearColorspace);
-            else
-                ctx = new VideoPlaybackContext(frameClock);
+            renderContextProvider = AppHost.Current.GetRenderContextProvider();
         }
 
         public unsafe VideoStream? VideoStream 
@@ -47,7 +40,7 @@ namespace VL.Skia.Video
                         ?.Do(provider =>
                         {
                             var skImageProvider = provider
-                                .ToSkImage(renderContext, mipmapped: false)
+                                .ToSkImage(renderContextProvider, mipmapped: false)
                                 .ShareInParallel();
 
                             var handle = skImageProvider.GetHandle(); // Upload the texture
@@ -72,7 +65,7 @@ namespace VL.Skia.Video
             }
         }
 
-        public IResourceProvider<SKImage>? Provider
+        public IResourceProvider<SKImage?>? Provider
         {
             get
             {
@@ -94,7 +87,6 @@ namespace VL.Skia.Video
             latestSubscription.Dispose();
             currentSubscription.Dispose();
             imageStreamSubscription.Dispose();
-            renderContext.Dispose();
         }
     }
 }

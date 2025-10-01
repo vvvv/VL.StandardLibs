@@ -25,13 +25,40 @@ namespace VL.Core.Import
         /// The name of the process. Leave empty to use the class name.
         /// </summary>
         public string? Name { get; set; }
+
+        /// <summary>
+        /// The category of the process. Leave empty to use the one from the class.
+        /// </summary>
+        public string? Category { get; set; }
+
         /// <summary>
         /// Whether or not the process shall have a state output. If true, the class its members will also be available as individual nodes.
         /// </summary>
         public bool HasStateOutput { get; set; }
+
         /// <summary>
         /// Controls how fragments get selected. By default all public members will be included.
         /// </summary>
         public FragmentSelection FragmentSelection { get; set; }
+
+        /// <summary>
+        /// Indicates whether the state output is not visible by default.
+        /// </summary>
+        public bool StateOutputNotVisibleByDefault { get; set; }
+
+        /// <summary>
+        /// A brief summary of the node.
+        /// </summary>
+        public string? Summary { get; set; }
+
+        /// <summary>
+        /// Additional remarks about the node.
+        /// </summary>
+        public string? Remarks { get; set; }
+
+        /// <summary>
+        /// Tags associated with the node.
+        /// </summary>
+        public string? Tags { get; set; }
     }
 }

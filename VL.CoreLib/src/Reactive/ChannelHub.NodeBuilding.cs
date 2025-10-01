@@ -22,7 +22,7 @@ namespace VL.Core.Reactive
             // * or a channel being described by an element in the document (with serializedID) instead of via config file
             // * or access to a global channel hub (not per entry-point) + subscribing to an actual rename event at that live channelhub.
 
-            var descriptions = new List<ChannelBuildDescription>();
+            var descriptions = new List<PublicChannelDescription>();
             appHost.NodeFactoryRegistry.RegisterNodeFactory(appHost.NodeFactoryCache.GetOrAdd("VL.CoreLib.GlobalsChannels", descfactory =>
             {
                 var nodes = descriptions.Select(d => GetNodeDescription(descfactory, d, invalidateChannelNode: default, null)).ToImmutableArray();
@@ -34,17 +34,17 @@ namespace VL.Core.Reactive
 
                     return _ =>
                     {
-                        var watcher = ChannelHubConfigWatcher.GetWatcherForPath(path);
+                        var watcher = ChannelHubConfigWatcher.GetWatcherForPath(appHost, path);
                         return NodeBuilding.NewFactoryImpl(
                             nodes:       watcher.Descriptions.Value.Select(cd => GetNodeDescription(descfactory, cd, invalidateChannelNode: default, watcher)).ToImmutableArray(), 
-                            invalidated: watcher.Descriptions.Skip(1));
+                            invalidated: ((IObservable<PublicChannelDescription[]>)watcher.Descriptions).Skip(1));
                     };
                 });
             }));
         }
 
         internal static IVLNodeDescription GetNodeDescription(IVLNodeDescriptionFactory descfactory, 
-            ChannelBuildDescription channelBuildDescription, IObservable<object> invalidateChannelNode, ChannelHubConfigWatcher watcher)
+            PublicChannelDescription channelBuildDescription, IObservable<object> invalidateChannelNode, ChannelHubConfigWatcher watcher)
         {
             var parts = channelBuildDescription.Name.Split('.');
             var nodeName = parts.Last();
@@ -57,7 +57,7 @@ namespace VL.Core.Reactive
                 invalidated: invalidateChannelNode, 
                 init: context =>
             {
-                var type = channelBuildDescription.CompileTimeType;
+                var type = channelBuildDescription.GetCompileTimeType(AppHost.Global.TypeRegistry);
                 var _inputs = new IVLPinDescription[]
                 {                   
                     context.Pin("Value", type),
@@ -70,7 +70,7 @@ namespace VL.Core.Reactive
 
                 return context.Node(_inputs, _outputs, buildcontext =>
                 {
-                    var channelType = channelBuildDescription.GetRuntimeType(AppHost.Current);
+                    var channelType = channelBuildDescription.GetRuntimeType(AppHost.Global.TypeRegistry);
                     var c = IChannelHub.HubForApp.TryAddChannel(channelBuildDescription.Name, channelType);
 
                     bool refetched()

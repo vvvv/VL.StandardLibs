@@ -31,13 +31,6 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
-        protected override void Dispose(bool disposing)
-        {
-            PositionFlange.Dispose();
-            VisibleFlange.Dispose();
-            base.Dispose(disposing);
-        }
-
         internal override void UpdateCore(Context context)
         {
             var position = PositionFlange.Update(Position, out bool positionChanged);
@@ -53,15 +46,15 @@ namespace VL.ImGui.Widgets
                     ImGui.CloseCurrentPopup();
             }
 
-            if (positionChanged || visibilityChanged)
-            {
-                ImGui.SetNextWindowPos(position.FromHectoToImGui());
-            }
-
             if (visible)
             {
 
-                ContentIsVisible = ImGui.BeginPopup(label);
+                if (positionChanged)
+                {
+                    ImGui.SetNextWindowPos(position.FromHectoToImGui());
+                }
+
+                ContentIsVisible = ImGui.BeginPopup(label, Flags);
                 VisibleFlange.Value = ContentIsVisible;
 
                 if (ContentIsVisible)

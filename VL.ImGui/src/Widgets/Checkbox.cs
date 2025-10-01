@@ -4,15 +4,12 @@ namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Widgets", Tags = "toggle")]
     [WidgetType(WidgetType.Default)]
-    internal partial class Checkbox : ChannelWidget<bool>, IHasLabel
+    internal partial class Checkbox : ChannelWidget<bool>
     {
-
-        public string? Label { get; set; }
-
         internal override void UpdateCore(Context context)
         {
             var value = Update();
-            if (ImGuiNET.ImGui.Checkbox(widgetLabel.Update(Label), ref value))
+            if (ImGuiNET.ImGui.Checkbox(widgetLabel.Update(label.Value), ref value))
                 Value = value;
         }
     }

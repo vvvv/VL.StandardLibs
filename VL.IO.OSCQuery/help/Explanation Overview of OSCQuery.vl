@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="MWDNVxpgP5SNUazM2xssrT" LanguageVersion="2025.7.0-0420-gfa71002a1a" Version="0.128">
+  <NugetDependency Id="SKxaHpkDACDOeMS1VMa62t" Location="VL.CoreLib" Version="2023.5.2" />
+  <Patch Id="J8pKYuHqoBHQFH8vEHFASg">
+    <Canvas Id="PXrhVqQYssrPxMm9QW4h77" DefaultCategory="Main" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="C7SeO5QWdl1OUsqwf3uT3O">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="CQV3qJ7BzcuPWhKPEJOno0">
+        <Canvas Id="OvbAyprTMGkNFxTHGH6C7m" CanvasType="Group">
+          <Node Bounds="115,525,105,19" Id="K9lXmQqlMGuN8mYQ3tNh36">
+            <p:NodeReference LastCategoryFullName="Main" LastDependency="VL.IO.OSCQuery.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OSCQueryServer" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="P4072LGsfyTL3raabiuMcL" Name="Show Binding Column" Kind="InputPin" IsHidden="true" />
+            <Pin Id="BP74gJQlFrOPGRwCx3ZxBm" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="QGs6JAg90AhMTgHoi2qFsP" Name="Model" Kind="InputPin" IsHidden="true">
+              <p:DefaultValue r:Type="Spread [Collections]&lt;BindingModel [IO.OSCQuery]&gt;" xmlns:r="reflection" r:Version="2" />
+            </Pin>
+            <Pin Id="S9UlBaDlZFeM0cvQZ02SrE" Name="Service Name" Kind="InputPin" />
+            <Pin Id="DQSjx3OguoiO4jW0VXNMFE" Name="HTTP IP" Kind="InputPin" />
+            <Pin Id="CKU8FzDzdimOP5hEHSODzq" Name="HTTP Port" Kind="InputPin" />
+            <Pin Id="CiAirw10SjUPdH00EKErjr" Name="OSC IP" Kind="InputPin" IsHidden="true" />
+            <Pin Id="OSjBO98J7CDQAAFaI6U81w" Name="OSC Port" Kind="InputPin" />
+            <Pin Id="GXxyR8NfHz4MdMSsyhuB11" Name="Websocket IP" Kind="InputPin" IsHidden="true" />
+            <Pin Id="JCSISMXya5qPhGpGaNiC4A" Name="WebSocket Port" Kind="InputPin" />
+            <Pin Id="At4Fxyx8o9vMIILBtfmWIR" Name="Output" Kind="StateOutputPin" />
+            <Pin Id="FqXe1uajgwfMbOS8Lvk2h6" Name="Access" Kind="InputPin" />
+          </Node>
+          <Pad Id="PDROxLx3PLiNSKby7FqCCi" Comment="Service Name" Bounds="117,241,76,15" ShowValueBox="true" isIOBox="true" Value="vvvv">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="LAqmP4y1leyQas0yHxcHo6" Bounds="339,475,410,19" ShowValueBox="true" isIOBox="true" Value="netsh http add urlacl url=http://IP:PORT/ user=everyone listen=yes">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="DKlLWx4Oqj2Nbki75CQeMN" Bounds="323,300,368,170" ShowValueBox="true" isIOBox="true" Value="&lt; In case you want the server to be accessible from outside of localhost, you have to:&#xD;&#xA;- Make sure your firewall allows this&#xD;&#xA;&#xD;&#xA;and then:&#xD;&#xA;- Run vvvv (or your exported app) as admin&#xD;&#xA;- Or add a urlacl on the desired ip/port:&#xD;&#xA;Run this command in an elevated (admin) commandline on the PC running vvvv (or your exported app): ">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="HueI5BwevaNLj9xzPCov52" Comment="HTTP IP" Bounds="137,303,53,15" ShowValueBox="true" isIOBox="true" Value="127.0.0.1">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="SjMJ6PJbFibPLrqXHV26fP" Comment="HTTP Port" Bounds="157,323,35,15" ShowValueBox="true" isIOBox="true" Value="5678">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="OfpdPpgrPmSOmS4yjAB6I4" Comment="OSC Port" Bounds="177,374,35,15" ShowValueBox="true" isIOBox="true" Value="9000">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="GTxRnbAqayvOJFq1FkTIpY" Comment="WebSocket Port" Bounds="197,394,35,15" ShowValueBox="true" isIOBox="true" Value="6666">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="DxbfRg8hgqhMSfqTpwxtwp" Bounds="323,236,305,21" ShowValueBox="true" isIOBox="true" Value="&lt; Identifier of your app in an OSCQuery client app">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="PYPy8l2nVF0NLdgmJqWnd7" Bounds="117,140,200,19" ShowValueBox="true" isIOBox="true" Value="OSCQuery Protocol specification:">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="JQQ7G8gUlTyPQCAYE89dun" Bounds="117,165,285,19" ShowValueBox="true" isIOBox="true" Value="https://github.com/Vidvox/OSCQueryProposal">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Link</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="FuwFpk8mm1ML8FbrcsoUoR" Name="Create" />
+        <Patch Id="KgsrusFOx2IOaiurwIgKk2" Name="Update" />
+        <ProcessDefinition Id="IdJoFoaAE3JO8Wjy1V8NsW">
+          <Fragment Id="EKUz02xqbu8OEmyJAZXTHj" Patch="FuwFpk8mm1ML8FbrcsoUoR" Enabled="true" />
+          <Fragment Id="AOEYoJGaSXBQCG6errtk8L" Patch="KgsrusFOx2IOaiurwIgKk2" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="QXSMHbjENwGORg99MD9IVM" Ids="HueI5BwevaNLj9xzPCov52,DQSjx3OguoiO4jW0VXNMFE" />
+        <Link Id="V3dXKwpHqRoMc9E6yJQvBO" Ids="SjMJ6PJbFibPLrqXHV26fP,CKU8FzDzdimOP5hEHSODzq" />
+        <Link Id="Sk7c9ofhDImM3AqykVcE9S" Ids="OfpdPpgrPmSOmS4yjAB6I4,OSjBO98J7CDQAAFaI6U81w" />
+        <Link Id="GGHNwI2tJbmOXiFs9HOJ4a" Ids="GTxRnbAqayvOJFq1FkTIpY,JCSISMXya5qPhGpGaNiC4A" />
+        <Link Id="HM53hsvMPNTLxQFtBzOywd" Ids="PDROxLx3PLiNSKby7FqCCi,S9UlBaDlZFeM0cvQZ02SrE" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="CRl68pbTeUDO84n4oHNtzS" Location="VL.IO.OSCQuery" Version="0.0.0" />
+</Document>

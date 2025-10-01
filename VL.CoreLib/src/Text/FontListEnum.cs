@@ -4,7 +4,6 @@ using VL.Lib.Collections;
 using Microsoft.Win32;
 using System.Reactive.Linq;
 using System.Linq;
-using SixLabors.Fonts;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
@@ -43,8 +42,6 @@ namespace VL.Lib.Text
                 GetFonts_DirectWrite(fonts);
             else if (OperatingSystem.IsWindowsVersionAtLeast(5))
                 GetFonts_Gdi32(fonts);
-            else
-                GetFonts_Directory(fonts);
 
             foreach (var family in fonts)
                 fontFaces[family] = family;
@@ -58,7 +55,7 @@ namespace VL.Lib.Text
         private static unsafe void GetFonts_Gdi32(List<string> fonts)
         {
             var hdc = PInvoke.GetDC(default);
-            if (hdc.Value == 0)
+            if (hdc.IsNull)
                 return;
 
             try
@@ -113,34 +110,19 @@ namespace VL.Lib.Text
             {
                 fontCollection.GetFontFamily(i, out var fontFamily);
                 fontFamily.GetFamilyNames(out var names);
-                names.GetStringLength(0, out var length);
-                fixed (char* c = new char[length + 1])
-                {
-                    names.GetString(0, new PWSTR(c), length + 1);
-                    fonts.Add(new string(c));
-                }
+                var fontFamilyName = GetString(0, names);
+                fonts.Add(fontFamilyName);
             }
-
-            Marshal.ReleaseComObject(factory);
         }
 
-        private static void GetFonts_Directory(List<string> fonts)
+        [SupportedOSPlatform("windows6.1")]
+        static unsafe string GetString(uint index, IDWriteLocalizedStrings localizedStrings)
         {
-            foreach (var family in SystemFonts.Families.OrderBy(x => x.Name))
+            localizedStrings.GetStringLength(index, out var length);
+            fixed (char* c = stackalloc char[(int)length + 1])
             {
-                if (IsStyle(family.Name))
-                    continue;
-
-                fonts.Add(family.Name);
-            }
-
-            static bool IsStyle(string name)
-            {
-                return name.EndsWith(" Light")
-                    || name.EndsWith(" Medium")
-                    || name.EndsWith(" Semilight")
-                    || name.EndsWith(" Semibold")
-                    || name.EndsWith(" Bold");
+                localizedStrings.GetString(index, c, length + 1);
+                return new string(c);
             }
         }
 
@@ -157,6 +139,85 @@ namespace VL.Lib.Text
 #pragma warning restore CA1416 // Validate platform compatibility
             }
             return Observable.Empty<object>();
+        }
+
+        public static FontPath GetFontPath(string familyName, FontStyle fontStyle)
+        {
+            if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+                return GetFontPathDirectWrite(familyName, fontStyle);
+            else if (OperatingSystem.IsWindowsVersionAtLeast(5))
+                return default;
+            else
+                return default;
+        }
+
+
+        [SupportedOSPlatform("windows6.1")]
+        private static unsafe FontPath GetFontPathDirectWrite(string familyName, FontStyle fontStyle)
+        {
+            // SHARED was causing issues on some systems. Call would randomly fail by returning an instance not implementing IDWriteFactory.
+            // Probably due to a third party library using DWriteCreateFactory with SHARED.
+            PInvoke.DWriteCreateFactory(DWRITE_FACTORY_TYPE.DWRITE_FACTORY_TYPE_ISOLATED, typeof(IDWriteFactory).GUID, out var unknown)
+                .ThrowOnFailure();
+
+            if (unknown is not IDWriteFactory factory)
+                throw new InvalidCastException($"Returned interface {unknown} does not implement {nameof(IDWriteFactory)}");
+
+            factory.GetSystemFontCollection(out var fontCollection, checkForUpdates: true);
+
+            fontCollection.FindFamilyName(familyName, out var index, out var exists);
+            if (!exists)
+                return default;
+
+            fontCollection.GetFontFamily(index, out var fontFamily);
+            var (weight, stretch, style) = GetTriplet(fontStyle);
+            fontFamily.GetMatchingFonts(weight, stretch, style, out var matchingFonts);
+
+            matchingFonts.GetFont(0, out var font);
+            font.CreateFontFace(out var fontFace);
+
+            uint numberOfFiles = 0;
+            fontFace.GetFiles(ref numberOfFiles, null);
+            if (numberOfFiles != 1)
+                return default;
+
+            var fontFiles = new IDWriteFontFile[numberOfFiles];
+            fontFace.GetFiles(ref numberOfFiles, fontFiles);
+            fontFiles[0].GetReferenceKey(out var fontFileReferenceKey, out var fontFileReferenceKeySize);
+
+            fontFiles[0].GetLoader(out var loader);
+
+            if (loader is IDWriteLocalFontFileLoader localLoader)
+            {
+                localLoader.GetFilePathLengthFromKey(fontFileReferenceKey, fontFileReferenceKeySize, out var filePathLength);
+                char* c = stackalloc char[(int)filePathLength + 1];
+                localLoader.GetFilePathFromKey(fontFileReferenceKey, fontFileReferenceKeySize, c, filePathLength + 1);
+                return new FontPath(new string(c), (int)fontFace.GetIndex());
+            }
+
+            return default;
+        }
+
+        static (DWRITE_FONT_WEIGHT weight, DWRITE_FONT_STRETCH stretch, DWRITE_FONT_STYLE style) GetTriplet(FontStyle fontStyle)
+        {
+            switch (fontStyle)
+            {
+                case FontStyle.Regular:
+                    return (DWRITE_FONT_WEIGHT.DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STRETCH.DWRITE_FONT_STRETCH_NORMAL, DWRITE_FONT_STYLE.DWRITE_FONT_STYLE_NORMAL);
+                case FontStyle.Bold:
+                    return (DWRITE_FONT_WEIGHT.DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STRETCH.DWRITE_FONT_STRETCH_NORMAL, DWRITE_FONT_STYLE.DWRITE_FONT_STYLE_NORMAL);
+                case FontStyle.Italic:
+                    return (DWRITE_FONT_WEIGHT.DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STRETCH.DWRITE_FONT_STRETCH_NORMAL, DWRITE_FONT_STYLE.DWRITE_FONT_STYLE_ITALIC);
+                case FontStyle.BoldItalic:
+                    return (DWRITE_FONT_WEIGHT.DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STRETCH.DWRITE_FONT_STRETCH_NORMAL, DWRITE_FONT_STYLE.DWRITE_FONT_STYLE_ITALIC);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public record struct FontPath(string Path, int Index)
+        {
+            public bool IsDefault => Path is null;
         }
     }
 }

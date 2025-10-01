@@ -3,27 +3,27 @@ using System.IO.Ports;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using VL.Core.Import;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Collections;
+using VL.Lib.IO.Ports;
 using VL.Lib.Threading;
 using NetSerialPort = System.IO.Ports.SerialPort;
+
+[assembly: ImportType(typeof(Receiver), Category = "IO.Ports")]
 
 namespace VL.Lib.IO.Ports
 {
     /// <summary>
     /// Receives bytes from a SerialPort.
     /// </summary>
+    [ProcessNode]
     public class Receiver : IDisposable
     {
         IResourceProvider<NetSerialPort> FSerialPortProvider;
         Task FCurrentTask;
         CancellationTokenSource FCancellation = new CancellationTokenSource();
         readonly Subject<Spread<byte>> FOutput = new Subject<Spread<byte>>();
-
-        /// <summary>
-        /// The observable sequence of bytes. The bytes will be pushed on the network thread.
-        /// </summary>
-        public IObservable<Spread<byte>> Data => FOutput;
 
         /// <summary>
         /// Configures the receiver.
@@ -39,6 +39,11 @@ namespace VL.Lib.IO.Ports
                     Start(port);
             }
         }
+
+        /// <summary>
+        /// The observable sequence of bytes. The bytes will be pushed on the network thread.
+        /// </summary>
+        public IObservable<Spread<byte>> Data => FOutput;
 
         void Start(IResourceProvider<NetSerialPort> provider)
         {

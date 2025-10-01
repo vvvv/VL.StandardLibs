@@ -8,6 +8,11 @@ namespace VL.ImGui.Widgets
     [WidgetType(WidgetType.Drag)]
     internal partial class DragVector3 : DragWidget<Vector3, float>
     {
+        public DragVector3()
+            : base(float.MinValue, float.MaxValue)
+        {
+        }
+
         protected override bool Drag(string label, ref Vector3 value, float speed, float min, float max, string? format, ImGuiSliderFlags flags)
         {
             var x = value.ToImGui();

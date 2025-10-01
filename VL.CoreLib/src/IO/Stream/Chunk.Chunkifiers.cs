@@ -4,14 +4,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using VL.Core.Import;
 using VL.Lib.Collections;
+using VL.Lib.IO;
 using VL.Lib.Reactive;
+
+[assembly: ImportType(typeof(ByteChunkifier), Category = "IO.Advanced")]
+[assembly: ImportType(typeof(AsyncByteChunkifier), Name = $"{nameof(ByteChunkifier)} (Reactive)", Category = "IO.Advanced")]
+[assembly: ImportType(typeof(CharChunkifier), Category = "IO.Advanced")]
+[assembly: ImportType(typeof(AsyncCharChunkifier), Name = $"{nameof(CharChunkifier)} (Reactive)", Category = "IO.Advanced")]
 
 namespace VL.Lib.IO
 {
     /// <summary>
     /// Chunkifies the input spread.
     /// </summary>
+    [ProcessNode]
     public class ByteChunkifier
     {
         Spread<byte> FInput;
@@ -53,6 +61,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Chunkifies the input string.
     /// </summary>
+    [ProcessNode]
     public class CharChunkifier
     {
         string FInput;
@@ -94,6 +103,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Chunkifies the incoming spreads.
     /// </summary>
+    [ProcessNode]
     public class AsyncByteChunkifier
     {
         object FInput;
@@ -136,6 +146,7 @@ namespace VL.Lib.IO
     /// <summary>
     /// Chunkifies the incoming strings.
     /// </summary>
+    [ProcessNode]
     public class AsyncCharChunkifier
     {
         object FInput;

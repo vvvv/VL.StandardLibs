@@ -19,5 +19,6 @@ namespace VL.ImGui.Stride.Effects
     internal static partial class ImGuiEffectShaderKeys
     {
         public static readonly ValueParameterKey<Matrix> proj = ParameterKeys.NewValue<Matrix>();
+        public static readonly ValueParameterKey<Vector2> offset = ParameterKeys.NewValue<Vector2>();
     }
 }

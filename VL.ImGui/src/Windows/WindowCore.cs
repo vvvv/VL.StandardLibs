@@ -3,22 +3,48 @@ using ImGuiNET;
 using VL.Lib.Reactive;
 using System.Reactive;
 using System.Reflection.Emit;
+using VL.Core;
 
 namespace VL.ImGui.Windows
 {
     using ImGui = ImGuiNET.ImGui;
 
+
+    // Use Codegeneration 
     [GenerateNode(Category = "ImGui.Widgets.Internal", GenerateRetained = false)]
     internal sealed partial class WindowCore : Widget
     {
-        public Widget? Content { get; set; }
+        // UniqueId is used for Uniqe Name, so Menu Layout can be saved
+        private readonly UniqueId UniqueId;
 
-        public string? Name { get; set; }
+        // if you use a Constructor with NodeContext
+        // and that is the only option the CodeGen gives you
+        // than you need also a empty Constructor 
+        public WindowCore(NodeContext nodeContext)
+        {
+            // ?? why Pop().Peek(), Peek() always the same
+            UniqueId = nodeContext.Path.Stack.Pop().Peek();
+        }
+
+        // empty Constructor
+        public WindowCore()
+        {
+            UniqueId = new UniqueId();
+        }
+   
+        public Widget? Content { get; set; }
+ 
+        string? name; 
+        public string? Name 
+        {
+            get {return name + "##" + UniqueId; }
+            set { name = value; } 
+        }
 
         /// <summary>
         /// If set the window will have a close button which will push to the channel once clicked.
         /// </summary>
-        public IChannel<Unit> Closing { get; set; } = ChannelHelpers.Dummy<Unit>();
+        public Optional<IChannel<Unit>> Closing { get; set; }
 
         /// <summary>
         /// Bounds of the Window.
@@ -53,13 +79,6 @@ namespace VL.ImGui.Windows
 
         public ImGuiWindowFlags Flags { get; set; }
 
-        protected override void Dispose(bool disposing)
-        {
-            VisibleFlange.Dispose();
-            CollapsedFlange.Dispose();
-            base.Dispose(disposing);
-        }
-
         internal override void UpdateCore(Context context)
         {
             var visible = VisibleFlange.Update(Visible);
@@ -79,13 +98,13 @@ namespace VL.ImGui.Windows
 
                 ImGui.SetNextWindowCollapsed(collapsed);
 
-                if (Closing.IsValid())
+                if (Closing.HasValue)
                 {
                     var isVisible = true;
                     ContentIsVisible = ImGui.Begin(widgetLabel.Update(Name), ref isVisible, Flags);
                     if (!isVisible)
                     {
-                        Closing.Value = default;
+                        Closing.Value.Value = default;
                         CloseClicked = true;
                     }
                         

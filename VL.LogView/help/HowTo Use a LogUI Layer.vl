@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="Npia9MlpehQLAJDgTz1Zs6" LanguageVersion="2023.5.3-0417-gcbce5a4ac7" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="Npia9MlpehQLAJDgTz1Zs6" LanguageVersion="2024.6.7-0268-gc04357df46" Version="0.128">
   <NugetDependency Id="ClYA5o6yKPqOq6sSseD69e" Location="VL.CoreLib" Version="2022.5.0" />
   <Patch Id="BqoUNqUZVnFM0JjTIpw81h">
     <Canvas Id="ITmboDOwavFPxr6JeOTxjC" DefaultCategory="Main" CanvasType="FullCategory" />
@@ -41,11 +41,13 @@
             <Pin Id="Gjd4mzvYVr8OC3Q1v837Z3" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="GN7wjihRrbPLrkwtV3e6YI" Name="Dialog If Document Changed" Kind="InputPin" IsHidden="true" />
             <Pin Id="Br5hLhYMGpGLER4Txh25h2" Name="Input" Kind="InputPin" />
+            <Pin Id="NcauPVlj1RAL6eXa5V61u6" Name="Title" Kind="InputPin" />
             <Pin Id="THJSl9XGUloNFYcQpqpTC9" Name="Color" Kind="InputPin" />
             <Pin Id="IVhjV3VGhLTP3EcqynlakU" Name="Clear" Kind="InputPin" />
             <Pin Id="SZD7vNqxLzDPEdoXVbCrSJ" Name="Space" Kind="InputPin" />
             <Pin Id="QUPGTc1YF7VNEQpQn3u7XW" Name="Show Cursor" Kind="InputPin" />
             <Pin Id="Q3baLw0yFb5MUsxBpwpbbh" Name="VSync" Kind="InputPin" DefaultValue="False" />
+            <Pin Id="V8kFak3V91vO84ieeADVOt" Name="Commands" Kind="InputPin" IsHidden="true" />
             <Pin Id="L0JKCKnKh7cQIp5Va2Gz5v" Name="Enable Keyboard Shortcuts" Kind="InputPin" IsHidden="true" />
             <Pin Id="HnYJwZoVC1tNhm2QF3Mg74" Name="Enabled" Kind="InputPin" DefaultValue="True" />
             <Pin Id="JUbT69GJ35jOwINnNMwqBn" Name="Form Bounds Notifications" Kind="OutputPin" IsHidden="true" />
@@ -59,7 +61,6 @@
               <Choice Kind="ProcessAppFlag" Name="DefaultDarkTheme" />
             </p:NodeReference>
             <Pin Id="BAl4OKCUngkLi2PpQ8KQjc" Name="Node Context" Kind="InputPin" IsHidden="true" />
-            <Pin Id="GrJjjE65Pi5PEeDXWEq6hb" Name="Update" Kind="InputPin" />
             <Pin Id="VKIxYCFJcfILXY4v4UBLKu" Name="Output" Kind="OutputPin" />
           </Node>
           <Node Bounds="509,350,70,26" Id="J1gygAc92fTPttf8wSYIDL">
@@ -120,29 +121,12 @@
               <PinReference Kind="InputPin" Name="Apply" />
             </p:NodeReference>
             <Pin Id="JZsqxMJlNMHO5kb6ryZn1f" Name="Node Context" Kind="InputPin" IsHidden="true" />
-            <Pin Id="UoSjVy0FiyMN0reCukIIAH" Name="Category" Kind="InputPin" />
+            <Pin Id="AthmPrkrkOQL5IeGbgMgbP" Name="Message" Kind="InputPin" />
             <Pin Id="PDsbB2LHuZRLZPkPuZVDy2" Name="Log Level" Kind="InputPin" />
             <Pin Id="DH1hMgyuszHMsTF7UbxUQB" Name="Event Id" Kind="InputPin" />
-            <Pin Id="AthmPrkrkOQL5IeGbgMgbP" Name="Message" Kind="InputPin" />
+            <Pin Id="UoSjVy0FiyMN0reCukIIAH" Name="Category" Kind="InputPin" />
             <Pin Id="KGOGJIgXgZ0LlYamIhHrd7" Name="Exception" Kind="InputPin" />
             <Pin Id="GMf4cLQNCZBQd9JLBP6soq" Name="Apply" Kind="InputPin" />
-          </Node>
-          <Pad Id="MxcClnhCjzBPquUtWCNccv" Comment="Update" Bounds="511,162,35,35" ShowValueBox="true" isIOBox="true" Value="False">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
-            </p:TypeAnnotation>
-            <p:ValueBoxSettings>
-              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
-            </p:ValueBoxSettings>
-          </Pad>
-          <Node Bounds="509,216,54,19" Id="CrcmldISZuwNdkrkjmf1GB">
-            <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="OnOpen" />
-            </p:NodeReference>
-            <Pin Id="ErhjLDa9VaXLfYJTjIsxbt" Name="Node Context" Kind="InputPin" IsHidden="true" />
-            <Pin Id="GgHpy067crfPQoWKOzjBJz" Name="Simulate" Kind="InputPin" />
-            <Pin Id="TQrzb3Yw2dPQGXI2WuZofn" Name="Output" Kind="OutputPin" />
           </Node>
           <Node Bounds="385,250,86,19" Id="NurxC6oQPNhMxrO9VJ2RCR">
             <p:NodeReference LastCategoryFullName="System.Logging.LoggerFactory" LastDependency="VL.CoreLib.vl">
@@ -163,8 +147,6 @@
         <Link Id="DrTL4gBofe4L6MpRSQqeIW" Ids="BAo721bFn84LLo0dTI8tXG,Br5hLhYMGpGLER4Txh25h2" />
         <Link Id="J8EpHjXq5FtMMq0huagEQa" Ids="TKISnGvyQj1Lywii88r2Yp,BFgzmLESTwJL06lYi44uSF" />
         <Link Id="FJiT6nttHXPPz9HJLjnKI4" Ids="B926xCYMYkMLD5q9ITsOO9,KcWszNGBrlwMGdUqf5R5hP" />
-        <Link Id="EePUSXLrBRrPfuqiIBn9dF" Ids="MxcClnhCjzBPquUtWCNccv,GgHpy067crfPQoWKOzjBJz" />
-        <Link Id="RaDcTztlePnQLzl8yKGiMx" Ids="TQrzb3Yw2dPQGXI2WuZofn,GrJjjE65Pi5PEeDXWEq6hb" />
         <Link Id="VRtmwdyk7xcOJAwQHbuUEG" Ids="VKIxYCFJcfILXY4v4UBLKu,HD7HK3P1iJsLC6UnphnRVx" />
         <Link Id="EyXd9N3UHFAQGwBfov4ZsV" Ids="RZwdHclTJTPPgVVif3o7Te,OE2fGnYsVfxNR1xbXfcoZt" />
       </Patch>

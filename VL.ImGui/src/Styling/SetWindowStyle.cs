@@ -63,8 +63,26 @@ namespace VL.ImGui.Styling
         /// </summary>
         public Optional<float> BorderSize { private get; set; }
 
+        internal override bool CanDoStuffBeforeFrame => true;
+
         internal override void SetCore(Context context)
         {
+            if (TitleBackground.HasValue)
+            {
+                colorCount++;
+                ImGui.PushStyleColor(ImGuiCol.TitleBg, TitleBackground.Value.ToImGui());
+            }
+            if (TitleBackgroundActive.HasValue)
+            {
+                colorCount++;
+                ImGui.PushStyleColor(ImGuiCol.TitleBgActive, TitleBackgroundActive.Value.ToImGui()); ;
+            }
+            if (TitleBackgroundCollapsed.HasValue)
+            {
+                colorCount++;
+                ImGui.PushStyleColor(ImGuiCol.TitleBgCollapsed, TitleBackgroundCollapsed.Value.ToImGui());
+            }
+
             if (Background.HasValue)
             {
                 colorCount++;
@@ -89,21 +107,6 @@ namespace VL.ImGui.Styling
             {
                 colorCount++;
                 ImGui.PushStyleColor(ImGuiCol.ResizeGripActive, ResizeGripActive.Value.ToImGui());
-            }
-            if (TitleBackground.HasValue)
-            {
-                colorCount++;
-                ImGui.PushStyleColor(ImGuiCol.TitleBg, TitleBackground.Value.ToImGui());
-            }
-            if (TitleBackgroundActive.HasValue)
-            {
-                colorCount++;
-                ImGui.PushStyleColor(ImGuiCol.TitleBgActive, TitleBackgroundActive.Value.ToImGui()); ;
-            }
-            if (TitleBackgroundCollapsed.HasValue)
-            {
-                colorCount++;
-                ImGui.PushStyleColor(ImGuiCol.TitleBgCollapsed, TitleBackgroundCollapsed.Value.ToImGui());
             }
             if (MinSize.HasValue)
             {

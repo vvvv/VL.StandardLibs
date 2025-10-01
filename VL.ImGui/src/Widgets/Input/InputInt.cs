@@ -1,14 +1,17 @@
 ﻿using ImGuiNET;
+using VL.Core;
 using VL.Core.EditorAttributes;
 
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Name = "Input (Int)", Category = "ImGui.Widgets", Tags = "number, updown")]
     [WidgetType(WidgetType.Input)]
-    internal partial class InputInt : ChannelWidget<int>, IHasLabel, IHasInputTextFlags
+    internal partial class InputInt : InputWidget<int>, IHasInputTextFlags
     {
-
-        public string? Label { get; set; }
+        public InputInt()
+            : base(int.MinValue, int.MaxValue)
+        {
+        }
 
         public int Step { private get; set; } = 1;
 
@@ -21,9 +24,21 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = Update();
-            if (ImGuiNET.ImGui.InputInt(widgetLabel.Update(Label), ref value, Step, StepFast, Flags))
-                SetValueIfChanged(lastframeValue, value, Flags);
+            if (ImGuiUtils.InputInt(widgetLabel.Update(label.Value), ref value, Step, StepFast, Flags))
+                value = SetClampedValueIfChanged(value);
             lastframeValue = value;
+        }
+
+        private int SetClampedValueIfChanged(int value)
+        {
+            if (min.HasValue)
+                value = Math.Max(value, min.Value);
+
+            if (max.HasValue)
+                value = Math.Min(value, max.Value);
+
+            SetValueIfChanged(lastframeValue, value, Flags);
+            return value;
         }
     }
 }

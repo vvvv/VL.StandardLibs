@@ -1,6 +1,7 @@
 ﻿using Stride.Core.Mathematics;
 using VL.Lib.Reactive;
 using System.Reactive;
+using VL.Core;
 
 namespace VL.ImGui.Widgets
 {
@@ -20,7 +21,7 @@ namespace VL.ImGui.Widgets
         /// <summary>
         /// If set the Popup will have a close button which will push to the channel once clicked.
         /// </summary>
-        public IChannel<Unit> Closing { get; set; } = ChannelHelpers.Dummy<Unit>();
+        public Optional<IChannel<Unit>> Closing { get; set; }
 
         /// <summary>
         /// Bounds of the Window.
@@ -46,13 +47,6 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiWindowFlags Flags { private get; set; }
 
-        protected override void Dispose(bool disposing)
-        {
-            VisibleFlange.Dispose();
-            BoundsFlange.Dispose();
-            base.Dispose(disposing);
-        }
-
         internal override void UpdateCore(Context context)
         {
             var visible = VisibleFlange.Update(Visible, out bool visibilityChanged);
@@ -69,15 +63,16 @@ namespace VL.ImGui.Widgets
                     ImGui.CloseCurrentPopup();
             }
 
-            if (boundsChanged || visibilityChanged)
-            {
-                ImGui.SetNextWindowPos(bounds.TopLeft.FromHectoToImGui());
-                ImGui.SetNextWindowSize(bounds.Size.FromHectoToImGui());
-            }
-
             if (visible)
             {
-                if (Closing.IsValid())
+
+                if (boundsChanged)
+                {
+                    ImGui.SetNextWindowPos(bounds.TopLeft.FromHectoToImGui());
+                    ImGui.SetNextWindowSize(bounds.Size.FromHectoToImGui());
+                }
+
+                if (Closing.HasValue)
                 {
                     // From Imgui Demo:
                     // ...Also demonstrate passing a bool* to BeginPopupModal(), this will create a regular close button which
@@ -89,7 +84,7 @@ namespace VL.ImGui.Widgets
                     ContentIsVisible = ImGui.BeginPopupModal(label, ref isVisible, Flags);
                     if (!isVisible)
                     {
-                        Closing.Value = default;
+                        Closing.Value.Value = default;
                         CloseClicked = true;
                     }
                         

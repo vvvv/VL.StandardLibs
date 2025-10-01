@@ -1,24 +1,24 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using VL.Core.Import;
 using VL.Lib.Basics.Resources;
+using VL.Lib.IO.Socket;
 using NetSocket = System.Net.Sockets.Socket;
 using NetUtils = VL.Lib.IO.Net.NetUtils;
+
+[assembly: ImportType(typeof(UdpSocket), Category = "IO.Socket.Advanced")]
 
 namespace VL.Lib.IO.Socket
 {
     /// <summary>
     /// Manages a UDP socket provider.
     /// </summary>
-    public class UDPSocket
+    [ProcessNode]
+    public class UdpSocket
     {
         ResourceProviderMonitor<NetSocket> FCurrentProvider;
         IPEndPoint FLocalIPEndPoint;
         bool FBind;
-
-        /// <summary>
-        /// Whether or not the socket is open.
-        /// </summary>
-        public bool IsOpen => FCurrentProvider?.SinkCount > 0;
 
         /// <summary>
         /// Configures the internally managed socket provider.
@@ -47,5 +47,10 @@ namespace VL.Lib.IO.Socket
                 return FCurrentProvider;
             return null;
         }
+
+        /// <summary>
+        /// Whether or not the socket is open.
+        /// </summary>
+        public bool IsOpen => FCurrentProvider?.SinkCount > 0;
     }
 }

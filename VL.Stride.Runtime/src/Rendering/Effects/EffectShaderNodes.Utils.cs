@@ -69,7 +69,7 @@ namespace VL.Stride.Rendering
 
                 effect.UpdateEffect(graphicsDevice);
             }
-            catch (InvalidOperationException e)
+            catch (Exception e)
             {
                 messages = messages.Add(new Message(MessageType.Error, e.Message));
             }

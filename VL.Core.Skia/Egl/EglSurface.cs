@@ -1,5 +1,6 @@
 ﻿using System;
 using Stride.Core.Mathematics;
+using static VL.Skia.Egl.NativeEgl;
 
 namespace VL.Skia.Egl
 {
@@ -17,15 +18,15 @@ namespace VL.Skia.Egl
             get
             {
                 Int2 size;
-                NativeEgl.eglQuerySurface(display, NativePointer, NativeEgl.EGL_WIDTH, out size.X);
-                NativeEgl.eglQuerySurface(display, NativePointer, NativeEgl.EGL_HEIGHT, out size.Y);
+                eglQuerySurface(display, NativePointer, EGL_WIDTH, out size.X);
+                eglQuerySurface(display, NativePointer, EGL_HEIGHT, out size.Y);
                 return size;
             }
         }
 
-        protected override void Destroy()
+        protected override bool ReleaseHandle()
         {
-            NativeEgl.eglDestroySurface(display, NativePointer);
+            return eglDestroySurface(display, handle);
         }
     }
 }

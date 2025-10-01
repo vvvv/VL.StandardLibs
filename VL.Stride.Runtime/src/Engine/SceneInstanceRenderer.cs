@@ -37,6 +37,10 @@ namespace VL.Stride.Engine
 
         protected override void DrawCore(RenderDrawContext renderDrawContext)
         {
+            // Game runs after Patch.Update which in turn could've disposed the system
+            if (IsDisposed)
+                return;
+
             var renderContext = renderDrawContext.RenderContext;
             var sceneInstance = SceneInstance ?? fallbackSceneInstance;
 
@@ -51,22 +55,6 @@ namespace VL.Stride.Engine
             using (renderDrawContext.RenderContext.PushTagAndRestore(SceneInstance.Current, sceneInstance))
             {
                 GraphicsCompositor?.Draw(renderDrawContext);
-            }
-        }
-    }
-
-    // TODO: Get rid of me by making the SceneInstance.Draw method public
-    static class SceneInstanceExt
-    {
-        static MethodInfo drawMethod = typeof(SceneInstance).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault(m => m.Name == "Draw");
-        static object[] arg = new object[1];
-
-        public static void Draw(this SceneInstance sceneInstance, RenderContext renderContext)
-        {
-            if (sceneInstance != null)
-            {
-                arg[0] = renderContext;
-                drawMethod.Invoke(sceneInstance, arg);
             }
         }
     }

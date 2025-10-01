@@ -118,9 +118,9 @@ namespace VL.Lib.Control
 
             try
             {
-                var anonIssues = inputValues
-                     .Where((input, index) => inputs[index].Name.IsNullOrEmpty())
-                     .GroupBy(i => i.GetType())
+                var anonIssues = inputs
+                     .Where(i => i.Name.IsNullOrEmpty())
+                     .GroupBy(i => i.TypeInfo)
                      .Where(x => x.Count() > 1);
                 if (anonIssues.Any())
                 {

@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -12,8 +13,7 @@ namespace VL.Lib.Video
 {
     public abstract class VideoSourceToImage<TImage> : IDisposable
     {
-        protected readonly BlockingCollection<Action> workQueueForMainThread = new(boundedCapacity: 1);
-        protected readonly BlockingCollection<IResourceHandle<TImage>> resultQueue = new(boundedCapacity: 1);
+        protected readonly BlockingCollection<IResourceHandle<TImage?>> resultQueue = new(boundedCapacity: 1);
 
         private readonly SerialDisposable streamSubscription = new SerialDisposable();
         private readonly SerialDisposable imageSubscription = new SerialDisposable();
@@ -25,7 +25,7 @@ namespace VL.Lib.Video
 
         protected abstract VideoPlaybackContext Context { get; }
 
-        private VideoPlaybackContext GetVideoPlaybackContext(bool preferGpu) => preferGpu ? Context : new VideoPlaybackContext(Context.FrameClock);
+        private VideoPlaybackContext GetVideoPlaybackContext(bool preferGpu) => preferGpu ? Context : new VideoPlaybackContext(Context.FrameClock, Context.Logger);
 
         protected abstract void OnPush(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped);
 
@@ -46,11 +46,12 @@ namespace VL.Lib.Video
                 this.changeTicket = videoSource?.GetChangedTicket();
 
                 var ctx = GetVideoPlaybackContext(preferGpu);
+                var logger = ctx.Logger;
                 if (preferPush)
                 {
                     streamSubscription.Disposable = videoSource?.GetPushBasedStream(ctx)
                         .Finally(() => imageSubscription.Disposable = null)
-                        .Subscribe(v => OnPush(v, mipmapped));
+                        .Subscribe(v => OnPush(v, mipmapped), onError: e => logger.LogError(e, "Error in video stream."));
                 }
                 else
                 {
@@ -65,14 +66,11 @@ namespace VL.Lib.Video
             if (streamSubscription.Disposable is IEnumerator enumerator)
                 enumerator.MoveNext();
 
-            if (workQueueForMainThread.TryTake(out var action))
-                action();
-
             if (resultQueue.TryTake(out var newHandle))
                 imageSubscription.Disposable = newHandle;
 
-            if (imageSubscription.Disposable is IResourceHandle<TImage> handle)
-                return handle.Resource;
+            if (imageSubscription.Disposable is IResourceHandle<TImage?> handle)
+                return handle.Resource ?? fallback;
             else
                 return fallback;
         }
@@ -81,10 +79,6 @@ namespace VL.Lib.Video
         {
             imageSubscription.Dispose();
             streamSubscription.Dispose();
-
-            workQueueForMainThread.CompleteAdding();
-            foreach (var action in workQueueForMainThread.GetConsumingEnumerable())
-                action();
 
             resultQueue.CompleteAdding();
             foreach (var remaining in resultQueue.GetConsumingEnumerable())

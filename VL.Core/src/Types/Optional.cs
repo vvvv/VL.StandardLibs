@@ -103,6 +103,23 @@ namespace VL.Core
             return "No value";
         }
 
+        public T TryGetValue (T fallbackValue)
+        {
+            if (HasValue)
+            {
+                return Value;
+            }
+
+            return fallbackValue;
+        }
+
+        public void Incorporate(T @default, out T value, out bool isDefault, out bool valueIsSet)
+        {
+            value = HasValue ? Value : @default;
+            isDefault = value.Equals(@default);
+            valueIsSet = HasValue;
+        }
+
         public static implicit operator Optional<T>(T value) => new Optional<T>(value);
 
         public static bool operator ==(Optional<T> left, Optional<T> right) => left.Equals(right);
@@ -118,6 +135,14 @@ namespace VL.Core
         public static bool operator >=(Optional<T> left, Optional<T> right) => left.CompareTo(right) >= 0;
         
         object IOptional.Object => Value;
+
+        public static Optional<T> Select(object value, Func<object, T> selector)
+        {
+            if (value != null)
+                return new Optional<T>(selector(value));
+            else
+                return new Optional<T>();
+        }
     }
 
 #nullable enable
@@ -142,5 +167,30 @@ namespace VL.Core
         public static TValue? ValueOrDefault_ForReferenceType<TValue>(this Optional<TValue> value, TValue? @default = null)
             where TValue : class
             => value.HasValue ? value.Value : @default;
+
+        public static Optional<B> Project<A, B>(this Optional<A> value, Func<A, B> projection)
+            => value.HasValue ? new Optional<B>(projection(value.Value)) : new Optional<B>();
+
+        public static IOptional CreateOptional(Type t)
+        {
+            var optionalType = typeof(Optional<>).MakeGenericType(t);
+            var optional = Activator.CreateInstance(optionalType);
+            return (IOptional)optional;
+        }
+
+        public static IOptional CreateOptional(object value, Type t)
+        {
+            var optionalType = typeof(Optional<>).MakeGenericType(t);
+            var optional = Activator.CreateInstance(optionalType, value);
+            return (IOptional)optional;
+        }
+
+        public static IOptional Select(object value, Func<object, object> selector, Type type)
+        {
+            if (value != null)
+                return OptionalExtensions.CreateOptional(selector(value), type);
+            else
+                return OptionalExtensions.CreateOptional(type);
+        }
     }
 }

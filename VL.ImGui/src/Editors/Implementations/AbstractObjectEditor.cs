@@ -73,6 +73,8 @@ namespace VL.ImGui.Editors
                 // Build new channel using the runtime type
                 privateChannel?.Dispose();
                 privateChannel = ChannelHelpers.CreateChannelOfType(type);
+                if (publicChannel.Attributes.Any())
+                    privateChannel.Attributes().Value = publicChannel.Attributes;
                 privateChannel.Object = value;
                 privateChannelSubscription.Disposable = privateChannel.Subscribe(v =>
                 {
@@ -133,17 +135,9 @@ namespace VL.ImGui.Editors
             {
                 currentEditor.Draw(context);
             }
-            else if (publicChannel.Object is not null)
-            {
-                var s = publicChannel.Object.ToString();
-                if (!string.IsNullOrEmpty(editorContext.Label))
-                    ImGui.LabelText(editorContext.LabelForImGUI, s);
-                else
-                    ImGui.TextUnformatted(s);
-            }
             else
             {
-                var s = "NULL";
+                var s = publicChannel.Object?.ToString() ?? "NULL";
                 if (!string.IsNullOrEmpty(editorContext.Label))
                     ImGui.LabelText(editorContext.LabelForImGUI, s);
                 else

@@ -19,7 +19,7 @@ namespace VL.Lib.Collections.TreePatching
         protected readonly bool childrenOrderingMatters;
 
         protected readonly Func<TChild, TreeNodeParentManager<TNode, TChild>> parentManagerProvider;
-        protected Spread<TChild> children = Spread<TChild>.Empty;
+        protected IReadOnlyList<TChild> children = Spread<TChild>.Empty;
 
         public TreeNodeChildrenManager(TNode node, bool childrenOrderingMatters, Func<TChild, TreeNodeParentManager<TNode, TChild>> parentManagerProvider)
         {
@@ -54,7 +54,7 @@ namespace VL.Lib.Collections.TreePatching
             }
         }
 
-        public void Update(Spread<TChild> children)
+        public void Update(IReadOnlyList<TChild> children)
         {
             if (children != this.children)
             {

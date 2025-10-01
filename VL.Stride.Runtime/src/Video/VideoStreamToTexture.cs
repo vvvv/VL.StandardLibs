@@ -17,17 +17,15 @@ namespace VL.Stride.Video
         private readonly SerialDisposable imageStreamSubscription = new SerialDisposable();
         private readonly SerialDisposable latestSubscription = new SerialDisposable();
         private readonly SerialDisposable currentSubscription = new SerialDisposable();
-
-        private readonly IResourceHandle<RenderDrawContext> renderDrawContextHandle;
+        private readonly RenderContext renderContext;
 
         private VideoStream? videoStream;
         private IResourceProvider<Texture>? current, latest;
 
         public VideoStreamToTexture()
         {
-            renderDrawContextHandle = AppHost.Current.Services.GetGameProvider()
-                .Bind(g => RenderContext.GetShared(g.Services).GetThreadContext())
-                .GetHandle() ?? throw new ServiceNotFoundException(typeof(IResourceProvider<Game>));
+            var game = AppHost.Current.Services.GetRequiredService<Game>();
+            renderContext = RenderContext.GetShared(game.Services);
         }
 
         public unsafe VideoStream? VideoStream 
@@ -42,7 +40,7 @@ namespace VL.Stride.Video
                     imageStreamSubscription.Disposable = value?.Frames
                         .Do(provider =>
                         {
-                            var textureProvider = provider.ToTexture(renderDrawContextHandle.Resource).ShareInParallel();
+                            var textureProvider = provider.ToTexture(renderContext).ShareInParallel();
                             var handle = textureProvider.GetHandle(); // Upload the texture
 
                             // Exchange provider
@@ -87,7 +85,6 @@ namespace VL.Stride.Video
             imageStreamSubscription.Dispose();
             latestSubscription.Dispose();
             currentSubscription.Dispose();
-            renderDrawContextHandle.Dispose();
         }
     }
 }

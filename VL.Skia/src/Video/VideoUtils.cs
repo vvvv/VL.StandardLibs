@@ -9,24 +9,27 @@ namespace VL.Skia.Video
 {
     static class VideoUtils
     {
-        public static IResourceProvider<SKImage> ToSkImage(this IResourceProvider<VideoFrame> provider, RenderContext renderContext, bool mipmapped)
+        public static IResourceProvider<SKImage?> ToSkImage(this IResourceProvider<VideoFrame> provider, RenderContextProvider renderContextProvider, bool mipmapped)
         {
-            return provider.GetHandle().ToSkImage(renderContext, mipmapped);
+            return provider.GetHandle().ToSkImage(renderContextProvider, mipmapped);
         }
 
-        public static IResourceProvider<SKImage> ToSkImage(this IResourceHandle<VideoFrame> handle, RenderContext renderContext, bool mipmapped)
+        public static IResourceProvider<SKImage?> ToSkImage(this IResourceHandle<VideoFrame> handle, RenderContextProvider renderContextProvider, bool mipmapped)
         {
             var videoFrame = handle.Resource;
             if (videoFrame.TryGetTexture(out var texture))
             {
-                // Tie the lifetime of the Skia image to the texture object (which might be pooled)
-                var image = texture.Get<TextureImage>() ?? texture.Attach(FromTexture(texture, renderContext));
-                // But hold on to the video frame to prevent the texture object from being used for another frame
-                return ResourceProvider.Return(image.Image, handle, handle => handle.Dispose());
+                return ResourceProvider.Return(handle, h => h.Dispose())
+                    .Bind(_ => 
+                        // Defer operator defers access to handle.Resource property so we can assume it will happen on the render thread where we need to be.
+                        ResourceProvider.Defer(() =>
+                            ResourceProvider.NewPooledPerApp(texture,
+                                factory: texture => FromTexture(texture, renderContextProvider),
+                                delayDisposalInMilliseconds: 1000 /* Keep the wrappers in memory for a bit */)));
             }
             else
             {
-                var image = FromMemory(videoFrame, renderContext, mipmapped);
+                var image = FromMemory(videoFrame, mipmapped);
                 return ResourceProvider.Return(image, (image, handle), x =>
                 {
                     x.image?.Dispose();
@@ -35,12 +38,7 @@ namespace VL.Skia.Video
             }
         }
 
-        public static bool HasAttachedSkImage(this VideoFrame videoFrame)
-        {
-            return videoFrame.TryGetTexture(out var videoTexture) && videoTexture.Get<SKImage>() != null;
-        }
-
-        private static unsafe SKImage FromMemory(VideoFrame videoFrame, RenderContext renderContext, bool mipmapped)
+        private static unsafe SKImage FromMemory(VideoFrame videoFrame, bool mipmapped)
         {
             if (!videoFrame.TryGetMemory(out var memory))
                 throw new NotImplementedException();
@@ -54,75 +52,11 @@ namespace VL.Skia.Video
             //return image.ToTextureImage(renderContext.SkiaContext, mipmapped);
         }
 
-        private static TextureImage FromTexture(VideoTexture texture, RenderContext renderContext)
+        private static SKImage FromTexture(VideoTexture texture, RenderContextProvider renderContextProvider)
         {
-            renderContext.MakeCurrent();
-
-            var eglContext = renderContext.EglContext;
-
-            using var eglImage = eglContext.CreateImageFromD3D11Texture(texture.NativePointer);
-
-            uint textureId = 0;
-            NativeGles.glGenTextures(1, ref textureId);
-
-            // We need to restore the currently bound texture (https://github.com/devvvvs/vvvv/issues/5925)
-            NativeGles.glGetIntegerv(NativeGles.GL_TEXTURE_BINDING_2D, out var currentTextureId);
-            NativeGles.glBindTexture(NativeGles.GL_TEXTURE_2D, textureId);
-            NativeGles.glEGLImageTargetTexture2DOES(NativeGles.GL_TEXTURE_2D, eglImage);
-            NativeGles.glBindTexture(NativeGles.GL_TEXTURE_2D, (uint)currentTextureId);
-
-            var colorType = texture.PixelFormat.ToSkColorType();
-            var glInfo = new GRGlTextureInfo(
-                id: textureId,
-                target: NativeGles.GL_TEXTURE_2D,
-                format: colorType.ToGlSizedFormat());
-
-            using var backendTexture = new GRBackendTexture(
-                width: texture.Width,
-                height: texture.Height,
-                mipmapped: false,
-                glInfo: glInfo);
-
-            var result = default(TextureImage);
-
-            var image = SKImage.FromTexture(
-                renderContext.SkiaContext,
-                backendTexture,
-                GRSurfaceOrigin.TopLeft,
-                colorType,
-                SKAlphaType.Premul,
-                // TODO: Check this
-                colorspace: /*renderContext.UseLinearColorspace ? SKColorSpace.CreateSrgbLinear() : */SKColorSpace.CreateSrgb());
-
-            return result = new(image, renderContext, textureId);
-        }
-
-        sealed class TextureImage : IDisposable
-        {
-            private readonly RenderContext renderContext;
-            private uint textureId;
-
-            public TextureImage(SKImage image, RenderContext renderContext, uint textureId)
-            {
-                Image = image;
-                this.renderContext = renderContext;
-                this.textureId = textureId;
-
-                renderContext.AddRef();
-            }
-
-            public SKImage Image { get; }
-
-            public void Dispose()
-            {
-                renderContext.MakeCurrent();
-
-                Image.Dispose();
-
-                NativeGles.glDeleteTextures(1, ref textureId);
-
-                renderContext.Release();
-            }
+            var renderContext = renderContextProvider.GetRenderContext();
+            using var _ = renderContext.MakeCurrent(forRendering: false);
+            return D3D11Utils.TextureToSKImage(renderContext, texture.nativePointer);
         }
     }
 }

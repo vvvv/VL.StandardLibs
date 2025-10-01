@@ -31,6 +31,8 @@ namespace VL.Model
         UpdateUIAndHistory = UpdateUI | AddToHistory,
 
         CommitToValue = UpdateUI | AddToHistory,
-        DragValue = UpdateUI | SkipHistory,
+        DragValue = UpdateUI | SkipHistory | DragValueFlag,
+
+        DragValueFlag = 512,
     }
 }

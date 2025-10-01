@@ -26,7 +26,7 @@ namespace VL.ImGui.Styling
             if (Indent.HasValue)
             {
                 valueCount++;
-                ImGui.PushStyleVar(ImGuiStyleVar.IndentSpacing, Indent.Value);
+                ImGui.PushStyleVar(ImGuiStyleVar.IndentSpacing, Indent.Value.FromHectoToImGui());
             }
         }
     }

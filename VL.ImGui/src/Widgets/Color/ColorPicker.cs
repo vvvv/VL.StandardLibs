@@ -3,10 +3,8 @@
 namespace VL.ImGui.Widgets
 {
     [GenerateNode(Category = "ImGui.Widgets", Tags = "rgba, hsv, hsl")]
-    internal partial class ColorPicker : ChannelWidget<Color4>, IHasLabel
+    internal partial class ColorPicker : ChannelWidget<Color4>
     {
-        public string? Label { get; set; }
-
         public ImGuiNET.ImGuiColorEditFlags Flags { private get; set; }
 
         public ColorPicker()
@@ -17,7 +15,7 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             var value = Update().ToImGui();
-            if (ImGuiNET.ImGui.ColorPicker4(widgetLabel.Update(Label), ref value, Flags))
+            if (ImGuiNET.ImGui.ColorPicker4(widgetLabel.Update(label.Value), ref value, Flags))
                 Value = value.ToVLColor4();
         }
     }

@@ -1,16 +1,23 @@
-﻿namespace VL.ImGui.Widgets
+﻿using VL.Core;
+
+namespace VL.ImGui.Widgets
 {
-    internal abstract class DragWidget<T, TComponent> : ChannelWidget<T>, IHasLabel
+    internal abstract class DragWidgetBase<T, TComponent> : ChannelWidget<T>
         where T : unmanaged
         where TComponent : unmanaged
     {
-        public string? Label { get; set; }
+        protected ValueSelector<TComponent> min;
+        protected ValueSelector<TComponent> max;
+
+        public DragWidgetBase()
+        {
+        }
 
         public float Speed { protected get; set; } = typeof(TComponent) == typeof(float) || typeof(TComponent) == typeof(double) ? 0.01f : 1f;
 
-        public TComponent Min { protected get; set; }
+        public Optional<TComponent> Min { protected get => default; set => min.SetPinValue(value); }
 
-        public TComponent Max { protected get; set; }
+        public Optional<TComponent> Max { protected get => default; set => max.SetPinValue(value); }
 
         /// <summary>
         /// Adjust format string to decorate the value with a prefix, a suffix, or adapt the editing and display precision e.g. "%.3f" -> 1.234; "%5.2f secs" -> 01.23 secs; "Biscuit: % .0f" -> Biscuit: 1; etc.
@@ -23,15 +30,16 @@
 
         internal override sealed void UpdateCore(Context context)
         {
+            var previousValue = Value;
             var value = Update();
             if (NotifyWhileTyping)
             {
-                if (Drag(widgetLabel.Update(Label), ref value, Speed, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+                if (Drag(widgetLabel.Update(label.Value), ref value, Speed, min.Value, max.Value, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
                     Value = value;
             }
             else
             {
-                if (Drag(widgetLabel.Update(Label), ref value, Speed, Min, Max, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
+                if (Drag(widgetLabel.Update(label.Value), ref value, Speed, min.Value, max.Value, string.IsNullOrWhiteSpace(Format) ? null : Format, Flags))
                 {
                     if (ImGuiNET.ImGui.IsMouseDragging(ImGuiNET.ImGuiMouseButton.Left))
                     {
@@ -45,6 +53,11 @@
                         SetValueWithoutNotifiying(value);
                     }
                 }
+                else if (ImGuiNET.ImGui.IsItemDeactivatedAfterEdit() && !ImGuiNET.ImGui.IsKeyDown(ImGuiNET.ImGuiKey.Escape))
+                {
+                    // In case we TAB out of the widget, ImGui reports false and gives us the initial value which is not what we want.
+                    value = previousValue;
+                }
 
                 if (ImGuiNET.ImGui.IsItemDeactivatedAfterEdit() && !wasDragging)
                     Value = value;
@@ -54,5 +67,17 @@
         private bool wasDragging;
 
         protected abstract bool Drag(string label, ref T value, float speed, TComponent min, TComponent max, string? format, ImGuiNET.ImGuiSliderFlags flags);
+    }
+
+
+    internal abstract class DragWidget<T, TComponent> : DragWidgetBase<T, TComponent>
+        where T : unmanaged
+        where TComponent : unmanaged
+    {
+        public DragWidget(TComponent min, TComponent max)
+        {
+            AddValueSelector(this.min = new MinValueSelector<TComponent>(min));
+            AddValueSelector(this.max = new MaxValueSelector<TComponent>(max));
+        }
     }
 }

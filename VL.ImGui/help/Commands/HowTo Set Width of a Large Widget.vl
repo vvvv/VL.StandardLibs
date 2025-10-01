@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="LUausysVhQGQTN2NJ1oVB5" LanguageVersion="2022.5.0-0785-g501a43ba3a" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="LUausysVhQGQTN2NJ1oVB5" LanguageVersion="2024.6.7-0238-g79adbe39f9" Version="0.128">
   <Patch Id="K6jOtX5z4AOM2g6L5teo07">
     <Canvas Id="HuM0Neyl9P0P3djIwL4nYf" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -20,14 +20,21 @@
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
             <Pin Id="HcZs7a62BLoPpXAtmDKTiA" Name="Bounds" Kind="InputPin" DefaultValue="1264, 186, 374, 261" />
+            <Pin Id="SB7puhfleEvLGQmb52cwmt" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
             <Pin Id="I4y2Yu3epUTO4TcD7zCPlg" Name="Bound to Document" Kind="InputPin" DefaultValue="True" />
+            <Pin Id="V7p4Z7eEj2AORcZcz1sfkY" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="MsqtVcuv1LcOC4R9pC3UVb" Name="Dialog If Document Changed" Kind="InputPin" IsHidden="true" />
             <Pin Id="FEmprmZSMXGOZ6BLW3yl3J" Name="Input" Kind="InputPin" />
+            <Pin Id="IDx7kNvEzgSPnnNoWpTZGE" Name="Title" Kind="InputPin" />
             <Pin Id="AjjEgsMjzN1LCY9f64wtrD" Name="Color" Kind="InputPin" />
             <Pin Id="SN9Sy5tUeJRL75k6d5gCaB" Name="Clear" Kind="InputPin" DefaultValue="True" />
             <Pin Id="EOF5QMXbGKtO1Eeh1MzQnf" Name="Space" Kind="InputPin" DefaultValue="Normalized" />
             <Pin Id="Unrsb70U6iePtOM6HMRzfV" Name="Show Cursor" Kind="InputPin" />
             <Pin Id="UA8COiWD2ghPmN4LAZoDDV" Name="VSync" Kind="InputPin" />
+            <Pin Id="UQPLpYSsz92M0eA9nfc692" Name="Commands" Kind="InputPin" IsHidden="true" />
+            <Pin Id="MweNOoECgCaO91jtvnSeAK" Name="Enable Keyboard Shortcuts" Kind="InputPin" IsHidden="true" />
             <Pin Id="BGs1SpulZeMPbcit3peXa1" Name="Enabled" Kind="InputPin" />
+            <Pin Id="ExddQzrdTQxP4EPsUYsUqf" Name="Form Bounds Notifications" Kind="OutputPin" IsHidden="true" />
             <Pin Id="IEolNxvy8ieOHWXoXnUqwO" Name="Form" Kind="OutputPin" />
             <Pin Id="VtCD3TojbCZNIE3ICe23l6" Name="ClientBounds" Kind="OutputPin" />
             <Pin Id="Fi9FymljmNXQYNmU2h76Xz" Name="Render Time" Kind="OutputPin" />
@@ -41,7 +48,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="Az9rM31S2QzNDKpQIjyfYe" Bounds="116,187,201,252" ShowValueBox="true" isIOBox="true" Value="To manually set the width of the &quot;large&quot; widgets (widgets, that have item and label). &#xD;&#xA;Label is not included in the width.&#xD;&#xA;&#xD;&#xA;Works for Widgets, like:&#xD;&#xA;Slider, Input,..&#xD;&#xA;&#xD;&#xA;Doesn't work for:&#xD;&#xA;Text, Button,..&#xD;&#xA;&#xD;&#xA;">
+          <Pad Id="Az9rM31S2QzNDKpQIjyfYe" Bounds="116,187,201,252" ShowValueBox="true" isIOBox="true" Value="To manually set the width of a &quot;large&quot; widget (widget, that has item and label). &#xD;&#xA;&#xD;&#xA;Label is not included in the width!&#xD;&#xA;&#xD;&#xA;Works for Widgets, like:&#xD;&#xA;Slider, Input,..&#xD;&#xA;&#xD;&#xA;Doesn't work for:&#xD;&#xA;Text, Button,..&#xD;&#xA;&#xD;&#xA;">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -55,10 +62,11 @@
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
+            <Pin Id="PzBSrlGPQc8M23XYWHuZTK" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="UlEZ5ARUafsNjaMarAz7XZ" Name="Docking Enabled" Kind="InputPin" />
             <Pin Id="VnKJTRkUo9lMLTp1TjuxHA" Name="Fonts" Kind="InputPin" />
             <Pin Id="RQdqDGSbZ4KLhWwoJXaRlf" Name="Add Fullscreen Window" Kind="InputPin" />
-            <Pin Id="Di57NTz8qxNMAINYm8Itsg" Name="Fullscreen Window Style" Kind="InputPin" />
+            <Pin Id="Di57NTz8qxNMAINYm8Itsg" Name="Style" Kind="InputPin" />
             <Pin Id="Qoe4TKRa18pPmXMFRm4JXv" Name="Use Skia Space" Kind="InputPin" />
             <Pin Id="PC9zduzecGmQPBFnlL9S9q" Name="Output" Kind="OutputPin" />
             <Patch Id="RK4VhZmhsKvOTl8863R3Sy" ManuallySortedPins="true">
@@ -101,6 +109,7 @@
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
               </Pad>
+              <Patch Id="MA1lxGBZT0YMWBdBOpNQS7" Name="Dispose" />
             </Patch>
           </Node>
         </Canvas>

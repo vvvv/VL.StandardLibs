@@ -1,10 +1,11 @@
 ﻿using ImGuiNET;
-using SixLabors.Fonts;
-using System.Numerics;
+using System.Reactive.Disposables;
+using System.Runtime.InteropServices;
 using System.Text;
 using VL.Core;
 using VL.Lib.Collections;
 using VL.Lib.IO.Notifications;
+using VL.Lib.Text;
 
 namespace VL.ImGui
 {
@@ -38,7 +39,7 @@ namespace VL.ImGui
             //style.ScaleAllSizes(scale);
         }
 
-        public static void HandleNotification(this ImGuiIOPtr _io, INotification notification, bool useWorldSpace /* HACK - breaks LayerWidget*/)
+        public static void HandleNotification(this ImGuiIOPtr _io, INotification notification)
         {
             if (notification is KeyNotification keyNotification)
             {
@@ -72,10 +73,15 @@ namespace VL.ImGui
                     };
                 }
 
-                // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
-                var pos = useWorldSpace ? mouseNotification.PositionInWorldSpace.FromHectoToImGui() : mouseNotification.Position.ToImGui();
-                _io.AddMousePosEvent(pos.X, pos.Y);
+                // If viewports are enabled, ImGui expects the mouse in DesktopScreenSpace, this is set in ImGuiWindows/SetPerFrameImGuiData, if not use the old approach
+                var flag = ImGui.GetIO().ConfigFlags;
+                if ((flag & ImGuiConfigFlags.ViewportsEnable) == 0)
+                {
+                    var pos = mouseNotification.PositionInWorldSpace.FromHectoToImGui();
+                    _io.AddMousePosEvent(pos.X, pos.Y);
+                }
 
+                // The up & down event methods don't take the position as an argument. Therefor make sure it's present, or we end up with wrong clicks when using touch devices.
                 switch (mouseNotification.Kind)
                 {
                     case MouseNotificationKind.MouseDown:
@@ -104,6 +110,10 @@ namespace VL.ImGui
             {
                 // ImGui has no touch - we rely on the mouse emulation of the event system
             }
+            else if (notification is GotFocusNotification)
+            {
+                _io.AddFocusEvent(true);
+            }
             else if (notification is LostFocusNotification)
             {
                 _io.ClearInputKeys();
@@ -127,25 +137,22 @@ namespace VL.ImGui
                 if (font is null)
                     continue;
 
+                var fontPath = FontListDefinition.GetFontPath(font.FamilyName.Value, font.FontStyle);
+                if (fontPath.IsDefault)
+                    continue;
+
                 var size = Math.Clamp(font.Size * 100 /* hecto pixel */ * scaling, 1, short.MaxValue);
-
-                var family = SystemFonts.Families.FirstOrDefault(f => f.Name == font.FamilyName.Value);
-                if (family.Name is null)
-                    continue;
-
-                var systemFont = family.CreateFont((float)(size * 0.75f) /* PT */, font.FontStyle);
-                if (!systemFont.TryGetPath(out var path))
-                    continue;
 
                 ImFontConfig cfg = new ImFontConfig()
                 {
                     SizePixels = size,
-                    FontDataOwnedByAtlas = 0,
+                    FontNo = fontPath.Index,
+                    FontDataOwnedByAtlas = 1,
                     EllipsisChar = unchecked((ushort)-1),
                     OversampleH = 2,
                     OversampleV = 1,
                     PixelSnapH = 1,
-                    GlyphOffset = new System.Numerics.Vector2(0, 0),
+                    GlyphOffset = default,
                     GlyphMaxAdvanceX = float.MaxValue,
                     RasterizerMultiply = 1.0f,
                     RasterizerDensity = 1.0f
@@ -158,8 +165,10 @@ namespace VL.ImGui
                     var dst = new Span<byte>(cfg.Name, 40);
                     s.Slice(0, Math.Min(s.Length, dst.Length)).CopyTo(dst);
 
-                    // TODO this caused a Memory leak ... old Font will not disposed?? 
-                    var f = atlas.AddFontFromFileTTF(path, cfg.SizePixels, &cfg, GetGlypthRange(atlas, font.GlyphRange));
+                    var glyphRange = font.CustomGlyphRangePtr;
+                    if (glyphRange == default)
+                        glyphRange = GetGlypthRange(atlas, font.GlyphRange);
+                    var f = atlas.AddFontFromFileTTF(fontPath.Path, cfg.SizePixels, &cfg, glyphRange);
                     anyFontLoaded = true;
                     _context.Fonts[font.Name] = f;
                 }
@@ -169,6 +178,8 @@ namespace VL.ImGui
             {
                 atlas.AddFontDefault();
             }
+
+            atlas.Build();
 
             return atlas;
 

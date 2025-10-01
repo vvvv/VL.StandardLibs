@@ -65,6 +65,8 @@ namespace VL.ImGui.Editors
                         {
                             // Setup channel for item
                             var itemChannel = ChannelHelpers.CreateChannelOfType<T>();
+                            foreach (var c in channel.Components)
+                                itemChannel.AddComponent(c); 
                             var j = i;
 
                             var ownership = new CompositeDisposable

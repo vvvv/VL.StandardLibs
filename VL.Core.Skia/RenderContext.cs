@@ -1,60 +1,125 @@
-﻿using SkiaSharp;
+﻿#nullable enable
+using Microsoft.Extensions.DependencyInjection;
+using SkiaSharp;
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reactive;
+using System.Reactive.Subjects;
 using System.Threading;
 using VL.Core;
+using VL.Lib.Animation;
+using VL.Lib.Basics.Video;
 using VL.Skia.Egl;
 
 namespace VL.Skia
 {
-    public sealed class RenderContext : RefCounted
+    public static class AppHostExtensions
+    {
+        public static RenderContextProvider GetRenderContextProvider(this AppHost appHost)
+        {
+            var threadLocal = appHost.GetThreadLocalRenderContextProvider();
+            return threadLocal.Value!;
+        }
+
+        public static ThreadLocal<RenderContextProvider> GetThreadLocalRenderContextProvider(this AppHost appHost)
+        {
+            return appHost.Services.GetOrAddService(s =>
+            {
+                // Keep a render context provider per thread
+                return new ThreadLocal<RenderContextProvider>(() =>
+                {
+                    // Access external device on main thread only
+                    var isOnMainThread = SynchronizationContext.Current == appHost.SynchronizationContext;
+                    var externalDeviceProvider = isOnMainThread ? s.GetService<IGraphicsDeviceProvider>() : null;
+                    var deviceProvider = new EglDeviceProvider(externalDeviceProvider).DisposeBy(appHost);
+                    var displayProvider = new EglDisplayProvider(deviceProvider).DisposeBy(appHost);
+                    var eglContextProvider = new EglContextProvider(displayProvider).DisposeBy(appHost);
+                    var renderContextProvider = new RenderContextProvider(eglContextProvider).DisposeBy(appHost);
+
+                    if (isOnMainThread)
+                    {
+                        // Make sure the context is current whenever a new frame starts to ensure nodes that for example "download" pixel data (like Pipet) work.
+                        var frameclock = s.GetService<IFrameClock>();
+                        if (frameclock is not null)
+                            frameclock.GetTicks().Subscribe(_ => renderContextProvider.GetRenderContext().MakeCurrent()).DisposeBy(appHost);
+                    }
+
+                    return renderContextProvider;
+                });
+            }, allowToAskParent: false);
+        }
+    }
+
+    public sealed class RenderContextProvider : IDisposable
+    {
+        private readonly EglContextProvider eglContextProvider;
+        private readonly IDisposable? clockSubscription;
+        private readonly Subject<Unit> onDeviceLost = new();
+        private RenderContext? renderContext;
+
+        internal RenderContextProvider(EglContextProvider eglContextProvider)
+        {
+            this.eglContextProvider = eglContextProvider;
+        }
+
+        public bool IsDisposed => onDeviceLost.IsDisposed;
+
+        public IObservable<Unit> OnDeviceLost => onDeviceLost;
+
+        public RenderContext GetRenderContext()
+        {
+            ObjectDisposedException.ThrowIf(IsDisposed, this);
+
+            var context = eglContextProvider.GetContext();
+            if (renderContext != null && renderContext.EglContext != context)
+            {
+                onDeviceLost.OnNext(default);
+                renderContext.DoDispose();
+                renderContext = null;
+            }
+
+            return renderContext ??= CreateRenderContext(context);
+        }
+
+        private RenderContext CreateRenderContext(EglContext context)
+        {
+            var renderContext = RenderContext.New(context);
+            // For compatibility with existing code
+            renderContext.isManagedByAppHost = true;
+            renderContext.MakeCurrent();
+            return renderContext;
+        }
+
+        public void Dispose()
+        {
+            onDeviceLost.Dispose();
+            clockSubscription?.Dispose();
+            renderContext?.DoDispose();
+            renderContext = null;
+        }
+    }
+
+    public unsafe sealed class RenderContext : IDisposable
     {
         public const int ResourceCacheLimit = 512 * 1024 * 1024;
 
-        // Little helper class to be able to access thread local memory from different thread
-        sealed class Ref<T>
-        {
-            public T Value;
-        }
-
-        [ThreadStatic]
-        private static Ref<RenderContext> s_threadContext;
+        [Obsolete("Use ForCurrentApp() instead")]
+        public static RenderContext ForCurrentThread() => ForCurrentApp();
 
         /// <summary>
-        /// Returns the render context for the current thread.
+        /// Returns the render context for the current app.
         /// </summary>
-        /// <returns>The render context for the current thread.</returns>
-        public static RenderContext ForCurrentThread()
+        public static unsafe RenderContext ForCurrentApp() => ForApp(AppHost.CurrentOrGlobal);
+
+        public static unsafe RenderContext ForApp(AppHost appHost)
         {
-            // Keep a render context per thread
-            var rootRef = s_threadContext ??= new Ref<RenderContext>();
-
-            var context = rootRef.Value;
-            if (context != null)
-            {
-                context.AddRef();
-                return context;
-            }
-
-            context = New(EglDisplay.GetPlatformDefault(createNewDevice: true /* We need a device for each thread */), 0, useLinearColorspace: false);
-
-            // The context might get disposed in a different thread (happend on some preview windows of camera devices)
-            // Therefor store the "reference" so we can set it to null once the ref count goes to zero
-            context.ThreadLocalStorage = rootRef;
-
-            return rootRef.Value = context;
+            var renderContextProvider = appHost.GetRenderContextProvider();
+            return renderContextProvider.GetRenderContext();
         }
 
-        public static RenderContext New(EglDevice device, int msaaSamples, bool useLinearColorspace)
+        public static RenderContext New(EglContext context)
         {
-            var display = EglDisplay.FromDevice(device);
-            return New(display, msaaSamples, useLinearColorspace);
-        }
-
-        public static RenderContext New(EglDisplay display, int msaaSamples, bool useLinearColorspace)
-        {
-            var context = EglContext.New(display, msaaSamples);
-            context.MakeCurrent(default);
+            using var _ = context.MakeCurrent(forRendering: false);
             var backendContext = GRGlInterface.CreateAngle();
             if (backendContext is null)
                 throw new Exception("Failed to create ANGLE backend context");
@@ -64,7 +129,7 @@ namespace VL.Skia
 
             // 512MB instead of the default 96MB
             skiaContext.SetResourceCacheLimit(ResourceCacheLimit);
-            return new RenderContext(context, backendContext, skiaContext, useLinearColorspace);
+            return new RenderContext(context, backendContext, skiaContext, sampleCount: 1);
         }
 
         public readonly EglContext EglContext;
@@ -72,43 +137,59 @@ namespace VL.Skia
 
         private readonly GRGlInterface BackendContext;
         private readonly Thread thread;
+        internal bool isManagedByAppHost;
 
-        RenderContext(EglContext eglContext, GRGlInterface backendContext, GRContext skiaContext, bool useLinearColorspace)
+        RenderContext(EglContext eglContext, GRGlInterface backendContext, GRContext skiaContext, int sampleCount)
         {
             EglContext = eglContext ?? throw new ArgumentNullException(nameof(eglContext));
             BackendContext = backendContext ?? throw new ArgumentNullException(nameof(backendContext));
             SkiaContext = skiaContext ?? throw new ArgumentNullException(nameof(skiaContext));
-            UseLinearColorspace = useLinearColorspace;
+            SampleCount = sampleCount;
             thread = Thread.CurrentThread;
         }
 
-        Ref<RenderContext> ThreadLocalStorage { get; set; }
+        public bool UseLinearColorspace => EglContext.Display.UseLinearColorspace;
 
-        public bool UseLinearColorspace { get; }
+        public bool IsOnCorrectThread => Thread.CurrentThread == thread;
 
-        protected override void Destroy()
+        public int SampleCount { get; }
+
+        public bool IsDisposed => EglContext.IsClosed;
+
+        public bool IsLost => EglContext.IsLost;
+
+        public void Dispose()
         {
-            MakeCurrent();
+            if (isManagedByAppHost)
+                return;
 
+            if (IsDisposed)
+                return;
+
+            DoDispose();
+        }
+
+        internal void DoDispose()
+        {
             SkiaContext.Dispose();
             BackendContext.Dispose();
             EglContext.Dispose();
-
-            // Set the reference to null so a new context can be created if needed
-            if (ThreadLocalStorage != null)
-                ThreadLocalStorage.Value = null;
         }
 
-        public void MakeCurrent(EglSurface surface = default)
+        public EglContext.Scope MakeCurrent(bool forRendering, EglSurface? surface = null)
         {
-            CheckThreadAccess();
-            EglContext.MakeCurrent(surface);
-        }
-
-        private void CheckThreadAccess()
-        {
-            if (Thread.CurrentThread != thread)
+            if (!IsOnCorrectThread)
                 throw new InvalidOperationException("MakeCurrent called on the wrong thrad");
+
+            return EglContext.MakeCurrent(forRendering, surface);
+        }
+
+        public void MakeCurrent(EglSurface? surface = null)
+        {
+            if (!IsOnCorrectThread)
+                throw new InvalidOperationException("MakeCurrent called on the wrong thrad");
+
+            EglContext.MakeCurrent(surface);
         }
     }
 }

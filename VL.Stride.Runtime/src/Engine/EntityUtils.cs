@@ -93,5 +93,38 @@ namespace VL.Stride.Engine
         {
             entity.Enable<T>(enabled, applyOnChildren);
         }
+
+
+
+
+
+
+        public interface IPatchedEntity
+        {
+            Entity Entity { get; }
+        }
+
+
+        public interface IEditMode
+        {
+            void AddPatchedEntity(IPatchedEntity patchedEntity);
+            void RemovePatchedEntity(IPatchedEntity patchedEntity);
+
+            bool Enabled { get; set; }
+        }
+
+
+
+        private static readonly PropertyKey<IEditMode> editModeKey = new PropertyKey<IEditMode>("EditMode", typeof(EntityUtils));
+
+        public static Scene WithEditMode(this Scene scene, IEditMode editmode, NodeContext nodeContext)
+        {
+            scene.Tags.Set(editModeKey, editmode);
+            return scene;
+        }
+
+        public static IEditMode GetEditMode(this Scene scene)
+            => scene.Tags.Get(editModeKey);
+
     }
 }
