@@ -136,6 +136,7 @@ namespace VL.Stride.Engine
                 using (Profiler.Begin(drawSystemKey))
                 {
                     foreach (var system in queue)
+                    { 
                         if (system.IsDisposed)
                             continue;
 
