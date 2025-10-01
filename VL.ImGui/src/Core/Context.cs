@@ -134,7 +134,7 @@ namespace VL.ImGui
             // we should look into the drawList.AddCallback(..., ...) method. It should allow us to modify the transformation matrix and clipping rects.
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             ImGui.DestroyContext(_context);
         }

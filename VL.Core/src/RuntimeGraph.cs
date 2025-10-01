@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace VL.Core
@@ -9,9 +8,6 @@ namespace VL.Core
     /// </summary>
     public static class RuntimeGraph
     {
-        [ThreadStatic]
-        private static int s_rethrowExceptions;
-
         static RuntimeGraph()
         {
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
@@ -30,29 +26,6 @@ namespace VL.Core
                 e.SetObserved();
         }
 
-        internal readonly struct Frame : IDisposable
-        {
-            private readonly int _previousState;
-
-            public Frame(int previousState)
-            {
-                this._previousState = previousState;
-            }
-
-            public void Dispose()
-            {
-                s_rethrowExceptions = _previousState;
-            }
-        }
-
-        internal static Frame EnableExceptionRethrow()
-        {
-            var previous = Interlocked.Exchange(ref s_rethrowExceptions, 1);
-            return new Frame(previous);
-        }
-
-        internal static bool RethrowExceptions() => s_rethrowExceptions == 1;
-
         /// <summary>
         /// The exception to throw by the HandleAsyncException call.
         /// </summary>
@@ -69,7 +42,7 @@ namespace VL.Core
         /// <param name="capturedAppHost">The captured service registry.</param>
         public static bool ReportException(Exception exception, AppHost capturedAppHost)
         {
-            var appHost = AppHost.IsCurrent() ? AppHost.Current : capturedAppHost;
+            var appHost = AppHost.IsAnyCurrent() ? AppHost.Current : capturedAppHost;
             var runtime = appHost?.Services.GetService<IVLRuntime>();
             if (runtime != null)
             {

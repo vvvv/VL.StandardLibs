@@ -127,7 +127,7 @@ namespace VL.UI.Core
         {
             if (FDIPFactor == -1)
             {
-                if (OperatingSystem.IsWindows())
+                if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
                 {
                     using (var g = Graphics.FromHwnd(IntPtr.Zero))
                     {

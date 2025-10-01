@@ -1,0 +1,9 @@
+shader MyColorTransformation_ShaderFX : ComputeColor, Math
+{
+    compose ComputeColor ColorIn;
+
+    override float4 Compute()
+    {
+        return Luminance(ColorIn.Compute().xyz);
+    }
+};

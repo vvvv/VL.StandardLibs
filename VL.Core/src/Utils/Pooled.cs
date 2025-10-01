@@ -155,10 +155,6 @@ namespace VL.Core.Utils
         public static ImmutableArray<T> ToImmutableAndFree<T>(this Pooled<ImmutableArray<T>.Builder> pooledBuilder)
         {
             var builder = pooledBuilder.Value;
-
-            if (builder.Count == 0)
-                return ImmutableArray<T>.Empty;
-
             if (builder.Count == builder.Capacity)
                 return builder.MoveToImmutable();
 

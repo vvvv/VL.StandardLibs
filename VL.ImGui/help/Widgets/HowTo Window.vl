@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="KwiQWwUflpDOyFDWgEQOR6" LanguageVersion="2022.5.0-0785-g501a43ba3a" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="KwiQWwUflpDOyFDWgEQOR6" LanguageVersion="2024.6.6-0011-g14ec0ca950" Version="0.128">
   <NugetDependency Id="NNNroVW902LO6c1GIXmOYM" Location="VL.CoreLib" Version="2022.5.0-0252-gcdda516750" />
   <Patch Id="Q5c9gdW1v9pM2JgXWJNjdS">
     <Canvas Id="K42N5JlPcaTLdCWb2KQJxS" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -15,15 +15,16 @@
       </p:NodeReference>
       <Patch Id="HDfEkClskIZQPDzuLQZltP">
         <Canvas Id="HcUbb1dmseNNNxKkxv3dh2" CanvasType="Group">
-          <Node Bounds="337,392,549,438" Id="Fl9VTcSeTENPtntqyH4vIz">
+          <Node Bounds="383,392,503,438" Id="Fl9VTcSeTENPtntqyH4vIz">
             <p:NodeReference LastCategoryFullName="Graphics.Skia.Layer" LastDependency="VL.ImGui.Skia.vl">
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
+            <Pin Id="LjQXs962IaTMO06cBSVhJE" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="QOReaQzGX3aMv4GB6AXltH" Name="Docking Enabled" Kind="InputPin" />
             <Pin Id="DDCWfdZWkLLPEq91dyEArB" Name="Fonts" Kind="InputPin" />
             <Pin Id="IR6atj7AhNKLWWzzemfgbi" Name="Add Fullscreen Window" Kind="InputPin" />
-            <Pin Id="SRVZSLAYgchL15spkaAonf" Name="Fullscreen Window Style" Kind="InputPin" />
+            <Pin Id="SRVZSLAYgchL15spkaAonf" Name="Style" Kind="InputPin" />
             <Pin Id="KZJUnSTB6f3NPKJv938ToD" Name="Use Skia Space" Kind="InputPin" />
             <Pin Id="M65a1SMYaDpQIUgQEia4rG" Name="Output" Kind="OutputPin" />
             <Patch Id="I56gOXbv1CgM9eNdmddnMO" ManuallySortedPins="true">
@@ -55,7 +56,9 @@
                       <Choice Kind="TypeFlag" Name="String" />
                     </p:TypeAnnotation>
                   </Pad>
+                  <Patch Id="AA0sceR7eiiMbTzZQHuqXL" Name="Dispose" />
                 </Patch>
+                <Pin Id="MTaHBFRqWhPNYpDqCLWxBu" Name="Node Context" Kind="InputPin" IsHidden="true" />
                 <Pin Id="HikDlF0gevPLRe1zZXLMWS" Name="Context" Kind="InputPin" />
                 <Pin Id="HT5BcwHtGG7PQs1IQGV67R" Name="Name" Kind="InputPin" />
                 <Pin Id="GJNX2D35wqXPPinzFOzCG7" Name="Visible" Kind="InputPin" />
@@ -67,8 +70,9 @@
                 <Pin Id="TzFuPovXXMINNb8znBJGH5" Name="Context" Kind="OutputPin" />
                 <Pin Id="LUjSIzafFk6NnNJ2KVrtpD" Name="Close Clicked" Kind="OutputPin" />
                 <Pin Id="AvqoOutJAISOVi8bUYXY2j" Name="Content Is Visible" Kind="OutputPin" />
+                <Pin Id="Q68rw4EWb42N0msATvIPuC" Name="Lifespan" Kind="InputPin" />
               </Node>
-              <Pad Id="POBo3qZdZbuNsQY0jkPMqa" Comment="Name" Bounds="353,616,69,15" ShowValueBox="true" isIOBox="true" Value="MyWindow">
+              <Pad Id="POBo3qZdZbuNsQY0jkPMqa" Comment="Name" Bounds="414,501,134,15" ShowValueBox="true" isIOBox="true" Value="MyWindow##HiddenPartID">
                 <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
@@ -128,7 +132,7 @@
                   <Choice Kind="TypeFlag" Name="Vector2" />
                 </p:TypeAnnotation>
               </Pad>
-              <Pad Id="SpBiP73OgN6NRavuSqNZBq" Comment="Collapsed" Bounds="504,578,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+              <Pad Id="SpBiP73OgN6NRavuSqNZBq" Comment="Collapsed" Bounds="496,587,35,35" ShowValueBox="true" isIOBox="true" Value="False">
                 <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
                   <CategoryReference Kind="Category" Name="Primitive" />
@@ -137,7 +141,7 @@
                   <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
                 </p:ValueBoxSettings>
               </Pad>
-              <Pad Id="PfaeXdQjcT0N0nDhc09hEd" Comment="Visible" Bounds="483,524,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+              <Pad Id="PfaeXdQjcT0N0nDhc09hEd" Comment="Visible" Bounds="477,532,35,35" ShowValueBox="true" isIOBox="true" Value="True">
                 <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
                   <CategoryReference Kind="Category" Name="Primitive" />
@@ -148,22 +152,29 @@
               </Pad>
               <Pad Id="U7x2x7e73GWMz0ZKVvsPM4" Comment="Content Is Visible" Bounds="590,781,35,35" ShowValueBox="true" isIOBox="true" />
               <Pad Id="IYZRjYlPbgJOKZW5jZvHLb" Comment="Close Clicked" Bounds="453,782,35,35" ShowValueBox="true" isIOBox="true" />
+              <Patch Id="Ew56NQIK2lMPvzBF5Iuiql" Name="Dispose" />
             </Patch>
           </Node>
-          <Node Bounds="297,892,165,19" Id="SBsCLQEvY7WNI0DDnQYX4V">
+          <Node Bounds="343,865,165,19" Id="SBsCLQEvY7WNI0DDnQYX4V">
             <p:NodeReference LastCategoryFullName="Graphics.Skia" LastDependency="VL.Skia.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
             <Pin Id="SJiFLfKQHbjParXtpVjsW8" Name="Bounds" Kind="InputPin" DefaultValue="1177, 197, 612, 436" />
+            <Pin Id="J5gnX9lFW6iLxth0NdLn3B" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
             <Pin Id="UPpRwSimdjvO8zldX98Res" Name="Bound to Document" Kind="InputPin" DefaultValue="True" />
+            <Pin Id="S4KiV8c945IPlD8Z7K4hS6" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Se0BoGW00UaP0FGhG0wfEq" Name="Dialog If Document Changed" Kind="InputPin" IsHidden="true" />
             <Pin Id="KViqEDtGyuYMyhlMLjKCFn" Name="Input" Kind="InputPin" />
             <Pin Id="IguqyjIpC9jQMBOekTFZEa" Name="Color" Kind="InputPin" />
             <Pin Id="UHGgJDLwaohMb5hjxNhBtI" Name="Clear" Kind="InputPin" />
             <Pin Id="I1dvB7YHwgaNNchLhfHr14" Name="Space" Kind="InputPin" />
             <Pin Id="SW7aEd5F8reNOLXv6rCHdr" Name="Show Cursor" Kind="InputPin" />
             <Pin Id="ABko4jyIuEfMWpRa9nXX1F" Name="VSync" Kind="InputPin" />
+            <Pin Id="CR5CKmHayZPPhl18h2Ke6s" Name="Commands" Kind="InputPin" IsHidden="true" />
+            <Pin Id="DUvFVyrNbEWPTOsrniwN5J" Name="Enable Keyboard Shortcuts" Kind="InputPin" IsHidden="true" />
             <Pin Id="Rw2iags70trQaw0JULvD84" Name="Enabled" Kind="InputPin" />
+            <Pin Id="EZkPO7Un2DRO3UOwULBeir" Name="Form Bounds Notifications" Kind="OutputPin" IsHidden="true" />
             <Pin Id="OHXPWYa77W9LcKhQKJumiT" Name="Form" Kind="OutputPin" />
             <Pin Id="S2n3xnq6LOLMhsr9RiAL17" Name="ClientBounds" Kind="OutputPin" />
             <Pin Id="F7leN2oup6INyfxZbOIANl" Name="Render Time" Kind="OutputPin" />
@@ -203,6 +214,8 @@
               <CategoryReference Kind="Category" Name="Reactive" NeedsToBeDirectParent="true" />
               <Choice Kind="ProcessAppFlag" Name="Channel" />
             </p:NodeReference>
+            <Pin Id="Fves0LSi2oJQBtSwOeYFe8" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="TQyYmpD9ft6QHjHPceNav5" Name="Initial Value" Kind="InputPin" IsHidden="true" />
             <Pin Id="QQkQE9TnDYXLOW8pBp7ZoG" Name="Value" Kind="InputPin" />
             <Pin Id="TioL5cZhrodPex1BvZU0Jk" Name="Output" Kind="OutputPin" />
             <Pin Id="Jwr1ZiSHlqeOCtkecUxmj9" Name="Value" Kind="OutputPin" />
@@ -216,6 +229,7 @@
             <Pin Id="TheJ0WIzbA7PZwn4xB4x3e" Name="Input" Kind="StateInputPin" />
             <Pin Id="UbsWcTVjVEqLLXM7kTNrLS" Name="Value" Kind="InputPin" />
             <Pin Id="BxxJsS4htYNOhpI4lWnPnL" Name="Output" Kind="StateOutputPin" />
+            <Pin Id="TMqbRRzTO5OM4yNT8C1Htd" Name="Author" Kind="InputPin" IsHidden="true" />
             <Pin Id="FUA6cTuNXw7NdwMgS67xcO" Name="Apply" Kind="InputPin" />
           </Node>
           <Pad Id="NxoVZ7pbElkLUC4A7F7WZr" Bounds="527,136,191,19" ShowValueBox="true" isIOBox="true" Value="&lt; Initial Bounds on start.">
@@ -273,7 +287,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="VxKZZSSIqBGLEyppBVJZWy" Bounds="18,500,35,31" ShowValueBox="true" isIOBox="true" Value="1. ">
+          <Pad Id="VxKZZSSIqBGLEyppBVJZWy" Bounds="14,500,35,31" ShowValueBox="true" isIOBox="true" Value="1. ">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -282,7 +296,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="E4qOexBm5hhPOa8woQWnwA" Bounds="15,559,35,31" ShowValueBox="true" isIOBox="true" Value="2. ">
+          <Pad Id="E4qOexBm5hhPOa8woQWnwA" Bounds="14,557,35,31" ShowValueBox="true" isIOBox="true" Value="2. ">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -291,7 +305,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="TAdugaweAB7P3S6Y2tSvpx" Bounds="15,616,35,31" ShowValueBox="true" isIOBox="true" Value="3. ">
+          <Pad Id="TAdugaweAB7P3S6Y2tSvpx" Bounds="14,612,35,31" ShowValueBox="true" isIOBox="true" Value="3. ">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -300,7 +314,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="AfhFajvGxlnNRyCaJPBEDk" Bounds="60,467,210,212" ShowValueBox="true" isIOBox="true" Value="`Bounds` shows how it works:&#xD;&#xA;&#xD;&#xA;Channel is initialized with some Bounds.&#xD;&#xA;&#xD;&#xA;Bounds can be set by pushing new Rectangle to the Channel.&#xD;&#xA;&#xD;&#xA;Current Bounds of the Window, even if the Window is changed by the User in the Renderer.">
+          <Pad Id="AfhFajvGxlnNRyCaJPBEDk" Bounds="47,466,210,212" ShowValueBox="true" isIOBox="true" Value="`Bounds` shows how it works:&#xD;&#xA;&#xD;&#xA;Channel is initialized with some Bounds.&#xD;&#xA;&#xD;&#xA;Bounds can be set by pushing new Rectangle to the Channel.&#xD;&#xA;&#xD;&#xA;Current Bounds of the Window, even if the Window is changed by the User in the Renderer.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -345,7 +359,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="B9PPL13RhRYQDMZukLOMy5" Bounds="40,712,24,41" ShowValueBox="true" isIOBox="true" Value="!">
+          <Pad Id="B9PPL13RhRYQDMZukLOMy5" Bounds="17,803,24,41" ShowValueBox="true" isIOBox="true" Value="!">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -354,12 +368,48 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="IZ5FFkHs8MZNdQqWKDc3Wx" Bounds="67,716,220,91" ShowValueBox="true" isIOBox="true" Value="Closing Button will appear if the Titlebar is not turned off by a Flag AND a Channel is connected to the `Closing` pin.">
+          <Pad Id="IZ5FFkHs8MZNdQqWKDc3Wx" Bounds="44,807,239,91" ShowValueBox="true" isIOBox="true" Value="Closing Button appears if the Titlebar is not turned off by the a Flag AND a Channel is connected to the `Closing` pin.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
               <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="LvvWB6M3Eh4OeEM8xNAeGx" Bounds="47,703,252,99" ShowValueBox="true" isIOBox="true" Value="Prefered way to make a layout persistent is to add a distinct ID to the Window's Name after ##. This part of the name is invisible but ensures stable id.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Jhf7l6W9dw0PyJwvo77Fu6" Bounds="14,678,281,20" ShowValueBox="true" isIOBox="true" Value="---------------------------------------">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="QXACw368kcNL7A3Rwm2BKy" Bounds="14,701,35,31" ShowValueBox="true" isIOBox="true" Value="4. ">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">15</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="VqZHDoBtAFuNdOZvmrVECf" Bounds="404,468,35,31" ShowValueBox="true" isIOBox="true" Value="4. ">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">15</p:fontsize>
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>

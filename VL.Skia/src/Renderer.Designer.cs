@@ -23,6 +23,7 @@ namespace VL.Skia
 
             if (disposing && (components != null))
             {
+                FDarkModeSubscription.Dispose();
                 components.Dispose();
             }
             base.Dispose(disposing);

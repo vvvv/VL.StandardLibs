@@ -11,11 +11,11 @@ shader Electricity_Internal_TextureFX : TextureFX
     float Time;
     Texture3D NoiseTexture;
 
-    [Color]
-    float4 BackgroundColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor BackgroundColor;
     
-    [Color]
-    float4 ElectricityColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor ElectricityColor;
     
     float Height = 0.25f;
     float VertexNoise = 0.5f;
@@ -52,6 +52,6 @@ shader Electricity_Internal_TextureFX : TextureFX
         // Add some ambient glow to get some power in the air feeling
         float ambGlow = AmbientGlow * (1 - uv.x * uv.x) * (1 - AmbientGlowHeightScale * AmbientGlowHeightScale * uv.y * uv.y);
         float s = GlowStrength * glow * glow * 20 + ambGlow * ambGlow;
-        return lerp(BackgroundColor, ElectricityColor, s*s);
+        return lerp(BackgroundColor.Compute(), ElectricityColor.Compute(), s*s);
     }
 };

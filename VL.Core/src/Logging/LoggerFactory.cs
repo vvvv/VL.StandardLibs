@@ -1,26 +1,21 @@
 ﻿#nullable enable
 using Microsoft.Extensions.Logging;
 using System;
-using System.Reactive.Subjects;
 
 namespace VL.Core.Logging
 {
     /// <summary>
-    /// Loggers created by this factory will publish all their messages through the <see cref="Messages"/> property.
+    /// Logged messages get recorded by the <see cref="GlobalRecorder"/>.
+    /// The recorder can be configured with the <see cref="LogRecorderOptions"/> during <see cref="IStartup.SetupConfiguration(AppHost, Microsoft.Extensions.Configuration.IConfigurationBuilder)"/>.
     /// </summary>
     public abstract class LoggerFactory : ILoggerFactory
     {
-        protected static readonly Subject<LogMessage> s_allMessages = new();
+        /// <summary>
+        /// Holds all the log messages from all apps. To configure use <see cref="IStartup.SetupConfiguration(AppHost, Microsoft.Extensions.Configuration.IConfigurationBuilder)"/> and <see cref="LogRecorderOptions"/>.
+        /// </summary>
+        public static LogRecorder GlobalRecorder => AppHost.Global.LoggerFactory.Recorder;
 
-        /// <summary>
-        /// The log messages from loggers created by all factories (from all apps).
-        /// </summary>
-        public static IObservable<LogMessage> AllMessages => s_allMessages;
-        
-        /// <summary>
-        /// The log messages from loggers created by this factory (from this app).
-        /// </summary>
-        public abstract IObservable<LogMessage> Messages { get; }
+        protected abstract LogRecorder Recorder { get; }
 
         public abstract void AddProvider(ILoggerProvider provider);
 

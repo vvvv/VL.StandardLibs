@@ -3,7 +3,7 @@
 namespace VL.IO.Redis
 {
     /// <summary>
-    /// A description of a Redis binding. The <see cref="RedisModule"/> holds one of these per global channel.
+    /// A description of a Redis binding. The <see cref="RedisClientManager"/> holds one of these per global channel.
     /// </summary>
     /// <param name="Key">The Redis key.</param>
     /// <param name="Initialization">What to do on startup.</param>
@@ -14,7 +14,7 @@ namespace VL.IO.Redis
     public record struct BindingModel(
         string Key, 
         Initialization Initialization = Initialization.Redis,
-        RedisBindingType BindingType = RedisBindingType.SendAndReceive, 
+        BindingDirection BindingType = BindingDirection.InOut, 
         CollisionHandling CollisionHandling = default, 
         SerializationFormat? SerializationFormat = default,
         TimeSpan? Expiry = null);

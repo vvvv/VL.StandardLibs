@@ -1,7 +1,4 @@
-﻿using Stride.Core;
-using System;
-using System.Collections;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -17,7 +14,7 @@ using VL.Lib.Collections;
 
 namespace VL.Lib.Reactive
 {
-    public interface IChannel
+    public interface IChannel : IHasAttributes, IDisposable
     {
         Type ClrTypeOfValues { get; }
         ImmutableList<object> Components { get; set; }
@@ -30,15 +27,18 @@ namespace VL.Lib.Reactive
         IDisposable BeginChange();
     }
 
-    [Monadic(typeof(Monadic.ChannelFactory<>))]
-    public interface IChannel<T> : IChannel, ISubject<T?>, IDisposable
+    [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
+    public interface IChannel<T> : IChannel, ISubject<T?>, IMonadicValue<T>
     {
-        public T? Value { get; set; }
+        static IMonadicValue<T> IMonadicValue<T>.Create(NodeContext nodeContext, T? value) => Channel.Create(value!);
+        static bool IMonadicValue<T>.HasCustomDefault => true; // We use DummyChannel as default
+        static IMonadicValue<T> IMonadicValue<T>.Default => DummyChannel<T>.Instance;
+        new T? Value { get; set; }
         void SetValueAndAuthor(T? value, string? author);
         Func<T?, Optional<T?>>? Validator { set; }
     }
 
-    internal abstract class C<T> : IChannel<T>
+    internal abstract class C<T> : IChannel<T>, IMonadicValue<T>
     {
         protected readonly Subject<T?> subject = new();
         protected int lockCount = 0;
@@ -52,7 +52,7 @@ namespace VL.Lib.Reactive
 
         public bool IsBusy => stack > 0;
 
-        T? value = default;
+        protected T? value = default;
         public T? Value
         {
             get
@@ -107,6 +107,10 @@ namespace VL.Lib.Reactive
         }
 
         IChannel<object> IChannel.ChannelOfObject => channelOfObject;
+
+        public bool HasValue => true;
+
+        public virtual bool AcceptsValue => true;
 
         public Type ClrTypeOfValues => typeof(T);
 
@@ -187,10 +191,40 @@ namespace VL.Lib.Reactive
             if (lockCount == 0 && revisionOnLockTaken != revision)
                 SetValueAndAuthor(this.Value, LatestAuthor);
         }
+
+        IEnumerable<TAttribute> IHasAttributes.GetAttributes<TAttribute>() => this.Attributes().Value!.OfType<TAttribute>();
+
+        T? IMonadicValue<T>.Value => Value;
+
+        IMonadicValue<T> IMonadicValue<T>.SetValue(T? value)
+        {
+            SetValueIfChanged(value);
+            return this;
+        }
+
+        protected void SetValueIfChanged(T? value)
+        {
+            if (lastValue.HasNoValue || !EqualityComparer<T>.Default.Equals(value, lastValue.Value))
+            {
+                lastValue = value;
+                Value = value;
+            }
+        }
+        Optional<T?> lastValue;
     }
 
     internal class Channel<T> : C<T>, IChannel<object>
     {
+        object? IMonadicValue<object>.Value => Value;
+
+        object? IMonadicValue.BoxedValue => Value;
+
+        IMonadicValue<object> IMonadicValue<object>.SetValue(object? value)
+        {
+            SetValueIfChanged((T?)value);
+            return this;
+        }
+
         protected override IChannel<object> channelOfObject => this;
 
         object? IChannel<object>.Value { get => Value; set { Value = (T?)value; } }
@@ -249,18 +283,44 @@ namespace VL.Lib.Reactive
         }
 
         public static implicit operator T?(Channel<T> c) => c.Value;
+
+        public override string ToString() => $"{Value}";
     }
 
     interface IDummyChannel { }
 
-    internal sealed class DummyChannel<T> : Channel<T>, IDummyChannel
+    interface ISystemGeneratedChannel { }
+
+    internal sealed class DummyChannel<T> : Channel<T>, IDummyChannel, ISystemGeneratedChannel
     {
         public static readonly IChannel<T> Instance = new DummyChannel<T>();
 
-        private DummyChannel()
+        public DummyChannel() 
+            : this(default(T)) // We do not want the VL default, T could be the whole user application stored in an unmanaged static reference -> disaster
         {
-            Value = AppHost.CurrentOrGlobal.GetDefaultValue<T>();
+        }
+
+        public DummyChannel(T? value)
+        {
+            this.value = value;
             Enabled = false;
+        }
+
+        public override bool AcceptsValue => false;
+    }
+
+    internal sealed class SystemGeneratedChannel<T> : Channel<T>, ISystemGeneratedChannel
+    {
+
+    }
+
+    public static class Channel
+    {
+        public static IChannel<T> Create<T>(T value)
+        {
+            var channel = ChannelHelpers.CreateChannelOfType<T>();
+            channel.Value = value;
+            return channel;
         }
     }
 
@@ -348,6 +408,14 @@ namespace VL.Lib.Reactive
             return false;
         }
 
+        public static TAttribute? GetAttribute<TAttribute>(this IChannel channel)
+            where TAttribute : Attribute
+        {
+            if (channel.TryGetAttribute(out TAttribute? result))
+                return result;
+            return default;
+        }
+
         public static IChannel<T> CreateChannelOfType<T>()
         {
             return new Channel<T>();
@@ -363,8 +431,12 @@ namespace VL.Lib.Reactive
 
         public static IChannel<T> Dummy<T>() => DummyChannel<T>.Instance;
 
+        public static readonly IChannel<object> DummyNonGeneric = new DummyChannel<object>("ceci n'est pas une pipe");
+
         public static bool IsValid([NotNullWhen(true)] this IChannel? c)
             => c is not null && c is not IDummyChannel;
+
+        public static bool IsSystemGenerated(this IChannel channel) => channel is ISystemGeneratedChannel;
 
         public static void EnsureValue<T>(this IChannel<T> input, T? value, bool force = false, string? author = default)
         {
@@ -500,6 +572,17 @@ namespace VL.Lib.Reactive
             }));
 
             return subscription;
+        }
+    }
+
+    sealed class ChannelMonadicTypeFilter : IMonadicTypeFilter
+    {
+        public bool Accepts(TypeDescriptor typeDescriptor)
+        {
+            if (typeDescriptor.ClrType == null)
+                return true; // let's not restrict generic patches with explicit type arguments. Auto-lifting shall work with the idea that the type might be ok.
+
+            return !typeDescriptor.ClrType.IsAssignableTo(typeof(IChannel)); // T shall not be a channel itself - at least not when auto lifting. explicit usage ok.
         }
     }
 

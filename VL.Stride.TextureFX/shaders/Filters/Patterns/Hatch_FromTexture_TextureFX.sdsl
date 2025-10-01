@@ -5,8 +5,8 @@
 [Summary("")]
 shader Hatch_FromTexture_TextureFX : FilterBase
 {
-    [Color]
-    float4 Color = float4(0.5f, 0.5f, 0.5f, 1.0f);
+    [Default(0.5, 0.5, 0.5, 1)]
+    compose ComputeColor Color;
 
     [Default(2.5)]
     compose ComputeFloat Brightness;
@@ -54,7 +54,7 @@ shader Hatch_FromTexture_TextureFX : FilterBase
     
         g = 1 - g;
   
-        col = float4( g, g, g, col.a ) * Color;
+        col = float4( g, g, g, col.a ) * Color.Compute();
     
         return col;
     }

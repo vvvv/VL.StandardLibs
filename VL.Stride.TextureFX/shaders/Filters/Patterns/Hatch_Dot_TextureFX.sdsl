@@ -5,11 +5,11 @@
 [Summary("")]
 shader Hatch_Dot_TextureFX : FilterBase
 {
-    [Color]
-    float4 BackgroundColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor BackgroundColor;
 
-    [Color]
-    float4 HatchColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor HatchColor;
 
     [Default(10)]
     compose ComputeFloat Threshold;
@@ -24,6 +24,6 @@ shader Hatch_Dot_TextureFX : FilterBase
         float4 col = Texture0.SampleLevel(Sampler0, uv, 0);
         col.rgb = sqrt(col.rgb);
 
-        return lerp(HatchColor, BackgroundColor, any(((x.x*5.0 + x.y) % Density < col.b * Threshold.Compute())) * float4(1, 1, 1, col.a));
+        return lerp(HatchColor.Compute(), BackgroundColor.Compute(), any(((x.x*5.0 + x.y) % Density < col.b * Threshold.Compute())) * float4(1, 1, 1, col.a));
     }
 };

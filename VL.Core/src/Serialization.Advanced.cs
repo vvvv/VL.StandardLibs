@@ -1,13 +1,21 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Xml.Linq;
 
 namespace VL.Core
 {
+    public interface IBoxedSerializer
+    {
+        object SerializeBoxed(SerializationContext context, object value);
+        object DeserializeBoxed(SerializationContext context, object content, Type type);
+        bool IsDefaultImplementationBoxed(object value);
+    }
+
     /// <summary>
     /// The serializer interface.
     /// </summary>
     /// <typeparam name="T">The type of the value to serialize.</typeparam>
-    public interface ISerializer<T>
+    public interface ISerializer<T> : IBoxedSerializer
     {
         /// <summary>
         /// Serializes the given value to a string, object[] or XElement.
@@ -25,6 +33,12 @@ namespace VL.Core
         /// <param name="type">The type of the deserialized value.</param>
         /// <returns>The deserialized value.</returns>
         T Deserialize(SerializationContext context, object content, Type type);
+
+        bool IsDefaultImplementation(T value) => false;
+
+        object IBoxedSerializer.SerializeBoxed(SerializationContext context, object value) => Serialize(context, (T)value);
+        object IBoxedSerializer.DeserializeBoxed(SerializationContext context, object content, Type type) => Deserialize(context, content, type);
+        bool IBoxedSerializer.IsDefaultImplementationBoxed(object value) => IsDefaultImplementation((T)value);
     }
 
     /// <summary>
@@ -36,6 +50,16 @@ namespace VL.Core
         /// The current app host.
         /// </summary>
         public abstract AppHost AppHost { get; }
+
+        /// <summary>
+        /// The logger to use in case something goes wrong.
+        /// </summary>
+        public abstract ILogger Logger { get; }
+
+        /// <summary>
+        /// Whether or not the current deserialization is stemming from a system call.
+        /// </summary>
+        internal abstract bool IsSystem { get; }
 
         /// <summary>
         /// Serializes the given value and if a name is provided wraps the serialized content into an <see cref="XElement"/> or <see cref="XAttribute"/>. 

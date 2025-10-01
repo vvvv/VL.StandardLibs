@@ -307,7 +307,7 @@ namespace VL.Video.MF
                     {
                         if (device != null)
                         {
-                            texturePool = TexturePool.Get(device, new()
+                            texturePool = new TexturePool(device, new()
                             {
                                 Width = (uint)renderTargetSize.Width,
                                 Height = (uint)renderTargetSize.Height,

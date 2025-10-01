@@ -1,4 +1,5 @@
-﻿using Stride.Core.IO;
+﻿#nullable enable
+using Stride.Core.IO;
 using Stride.Core.Serialization.Contents;
 using Stride.Graphics;
 using Stride.Rendering;
@@ -20,6 +21,21 @@ namespace VL.Stride.Rendering
 {
     static partial class EffectShaderNodes
     {
+        const string sdslFileFilter = "*.sdsl";
+        const string drawFXSuffix = "_DrawFX";
+        const string computeFXSuffix = "_ComputeFX";
+        const string textureFXSuffix = "_TextureFX";
+        const string shaderFXSuffix = "_ShaderFX";
+
+        static string? GetSuffix(string effectName)
+        {
+            if (effectName.EndsWith(drawFXSuffix)) return drawFXSuffix;
+            if (effectName.EndsWith(computeFXSuffix)) return computeFXSuffix;
+            if (effectName.EndsWith(textureFXSuffix)) return textureFXSuffix;
+            if (effectName.EndsWith(shaderFXSuffix))  return shaderFXSuffix;
+            return null;
+        }
+
         public static NodeBuilding.FactoryImpl Init(ServiceRegistry serviceRegistry, IVLNodeDescriptionFactory factory)
         {
             ShaderMetadata.RegisterAdditionalShaderAttributes();
@@ -52,7 +68,7 @@ namespace VL.Stride.Rendering
                                     Directory.CreateDirectory(assetsFolder);
                                     foreach (var f in Directory.EnumerateFiles(shadersPath, "*", SearchOption.AllDirectories))
                                     {
-                                        if (string.Equals(Path.GetExtension(f), ".sdsl", StringComparison.OrdinalIgnoreCase) || string.Equals(Path.GetExtension(f), ".sdfx", StringComparison.OrdinalIgnoreCase))
+                                        if (IsShaderFile(f))
                                         {
                                             var fileName = Path.GetFileName(f);
                                             var shaderExportedKey = (typeof(EffectShaderNodes), fileName);
@@ -74,9 +90,16 @@ namespace VL.Stride.Rendering
                 // Just watch for changes
                 return NodeBuilding.NewFactoryImpl(invalidated: invalidated);
             });
+
+            static bool IsShaderFile(string fileName)
+            {
+                return fileName.EndsWith(".sdsl", StringComparison.OrdinalIgnoreCase)
+                    || fileName.EndsWith(".sdfx", StringComparison.OrdinalIgnoreCase)
+                    || fileName.EndsWith(".hlsl", StringComparison.OrdinalIgnoreCase);
+            }
         }
 
-        static IEnumerable<IVLNodeDescription> GetNodeDescriptions(ServiceRegistry serviceRegistry, IVLNodeDescriptionFactory factory, string path = default, string shadersPath = default)
+        static IEnumerable<IVLNodeDescription> GetNodeDescriptions(ServiceRegistry serviceRegistry, IVLNodeDescriptionFactory factory, string? path = default, string? shadersPath = default)
         {
             var graphicsDeviceService = serviceRegistry.GetService<IGraphicsDeviceService>();
             var graphicsDevice = graphicsDeviceService.GraphicsDevice;
@@ -90,16 +113,10 @@ namespace VL.Stride.Rendering
             // Effect system deals with its internal cache on update, so make sure its called.
             effectSystem.Update(default);
 
-            const string sdslFileFilter = "*.sdsl";
-            const string drawFXSuffix = "_DrawFX";
-            const string computeFXSuffix = "_ComputeFX";
-            const string textureFXSuffix = "_TextureFX";
-            const string shaderFXSuffix = "_ShaderFX";
-
             // Traverse either the "shaders" folder in the database or in the given path (if present)
-            IVirtualFileProvider fileProvider = default;
+            IVirtualFileProvider? fileProvider = default;
             var dbFileProvider = effectSystem.FileProvider; //should include current path
-            var sourceManager = dbFileProvider.GetShaderSourceManager();
+            var sourceManager = effectSystem.GetShaderSourceManager();
             if (path != null)
                 fileProvider = effectSystem.GetFileProviderForSpecificPath(path);
             else
@@ -111,13 +128,17 @@ namespace VL.Stride.Rendering
             foreach (var file in fileProvider.ListFiles(EffectCompilerBase.DefaultSourceShaderFolder, sdslFileFilter, VirtualSearchOption.AllDirectories))
             {
                 var effectName = Path.GetFileNameWithoutExtension(file);
-                if (effectName.EndsWith(drawFXSuffix))
+                var suffix = GetSuffix(effectName);
+                if (suffix is null)
+                    continue;
+
+                var name = GetNodeName(effectName, suffix);
+                var shaderNodeName = new NameAndVersion($"{name.NamePart}Shader", name.VersionPart);
+                var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, file, dbFileProvider, sourceManager);
+
+                if (suffix == drawFXSuffix)
                 {
                     // Shader only for now
-                    var name = GetNodeName(effectName, drawFXSuffix);
-                    var shaderNodeName = new NameAndVersion($"{name.NamePart}Shader", name.VersionPart);
-                    var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, dbFileProvider, sourceManager);
-
                     yield return factory.NewDrawEffectShaderNode(
                         shaderNodeName, 
                         effectName, 
@@ -127,12 +148,8 @@ namespace VL.Stride.Rendering
                         graphicsDevice);
                     //DrawFX node
                 }
-                else if (effectName.EndsWith(textureFXSuffix))
+                else if (suffix == textureFXSuffix)
                 {
-                    var name = GetNodeName(effectName, textureFXSuffix);
-                    var shaderNodeName = new NameAndVersion($"{name.NamePart}Shader", name.VersionPart);
-                    var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, dbFileProvider, sourceManager);
-
                     var shaderNodeDescription = factory.NewImageEffectShaderNode(
                         shaderNodeName, 
                         effectName, 
@@ -145,13 +162,9 @@ namespace VL.Stride.Rendering
 
                     yield return factory.NewTextureFXNode(shaderNodeDescription, name, shaderMetadata);
                 }
-                else if (effectName.EndsWith(computeFXSuffix))
+                else if (suffix == computeFXSuffix)
                 {
                     // Shader only for now
-                    var name = GetNodeName(effectName, computeFXSuffix);
-                    var shaderNodeName = new NameAndVersion($"{name.NamePart}Shader", name.VersionPart);
-                    var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, dbFileProvider, sourceManager);
-
                     yield return factory.NewComputeEffectShaderNode(
                         shaderNodeName, 
                         effectName, 
@@ -161,15 +174,11 @@ namespace VL.Stride.Rendering
                         graphicsDevice);
                     //ComputeFX node
                 }
-                else if (effectName.EndsWith(shaderFXSuffix))
+                else if (suffix == shaderFXSuffix)
                 {
                     // Shader only
-                    var name = GetNodeName(effectName, shaderFXSuffix);
-                    var shaderNodeName = new NameAndVersion($"{name.NamePart}", name.VersionPart);
-                    var shaderMetadata = ShaderMetadata.CreateMetadata(effectName, dbFileProvider, sourceManager);
-
                     yield return factory.NewShaderFXNode( 
-                        shaderNodeName, 
+                        name, 
                         effectName, 
                         shaderMetadata, 
                         TrackChanges(effectName, shaderMetadata), 
@@ -179,7 +188,7 @@ namespace VL.Stride.Rendering
             }
 
             // build an observable to track the file changes, also the files of the base shaders
-            IObservable<object> TrackChanges(string shaderName, ShaderMetadata shaderMetadata)
+            IObservable<object>? TrackChanges(string shaderName, ShaderMetadata shaderMetadata)
             {
                 if (shaderMetadata?.FilePath is null)
                     return null;
@@ -197,9 +206,12 @@ namespace VL.Stride.Rendering
 
                 // Setup our own watcher as Stride doesn't track shaders with errors
                 var shadersPath = Path.GetDirectoryName(shaderMetadata.FilePath);
+                if (shadersPath is null)
+                    return null;
+
                 return NodeBuilding.WatchDir(shadersPath)
-                    .Select(e => Path.GetFileNameWithoutExtension(e.Name))
-                    .Where(n => watchNames.Contains(n))
+                    .Select(e => Path.GetFileNameWithoutExtension(e.Name)!)
+                    .Where(n => n != null && watchNames.Contains(n))
                     .Do(n =>
                     {
                         ((EffectCompilerBase)effectSystem.Compiler).ResetCache(new HashSet<string>() { n });
@@ -211,12 +223,12 @@ namespace VL.Stride.Rendering
             }
         }
 
-        private static ParameterPinDescription CreatePinDescription(in ParameterKeyInfo keyInfo, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string name = null, bool? isOptionalOverride = default)
+        private static ParameterPinDescription CreatePinDescription(in ParameterKeyInfo keyInfo, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string? name = null, bool? isOptionalOverride = default)
         {
             return CreatePinDescription(keyInfo.Key, keyInfo.Count, usedNames, shaderMetadata, name, isOptionalOverride);
         }
 
-        private static ParameterPinDescription CreatePinDescription(ParameterKey key, int count, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string name = null, bool? isOptionalOverride = default)
+        private static ParameterPinDescription CreatePinDescription(ParameterKey key, int count, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string? name = null, bool? isOptionalOverride = default)
         {
             var typeInPatch = shaderMetadata.GetPinType(key, out var runtimeDefaultValue, out var compilationDefaultValue);
             shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);

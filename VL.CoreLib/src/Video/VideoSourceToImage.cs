@@ -36,23 +36,28 @@ namespace VL.Lib.Video
             if (videoSource != this.videoSource || videoSource?.GetChangedTicket() != changeTicket || preferPush != this.preferPush || preferGpu != this.preferGpu)
             {
                 this.videoSource = videoSource;
-                this.changeTicket = videoSource?.GetChangedTicket();
                 this.preferPush = preferPush;
                 this.preferGpu = preferGpu;
 
                 // Kill current stream
                 streamSubscription.Disposable = null;
 
+                // Fetch new ticket after the source has been disposed (it might have incremented it)
+                this.changeTicket = videoSource?.GetChangedTicket();
+
                 var ctx = GetVideoPlaybackContext(preferGpu);
                 if (preferPush)
                 {
                     streamSubscription.Disposable = videoSource?.GetPushBasedStream(ctx)
+                        .Finally(() => imageSubscription.Disposable = null)
                         .Subscribe(v => OnPush(v, mipmapped));
                 }
                 else
                 {
-                    streamSubscription.Disposable = videoSource?.GetPullBasedStream(ctx)
+                    // We run single threaded, we can therefor safe resources by releasing the image before grabbing a new one
+                    streamSubscription.Disposable = videoSource?.GetPullBasedStream(ctx, beforeGrab: () => imageSubscription.Disposable = null)
                         .Do(v => OnPull(v, mipmapped))
+                        .Finally(() => imageSubscription.Disposable = null)
                         .GetEnumerator();
                 }
             }

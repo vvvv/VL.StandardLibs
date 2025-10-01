@@ -10,11 +10,11 @@ shader Halo_Gradient_TextureFX : TextureFX
 
     float OuterRadius = 0.5f;
 
-    [Color]
-    float4 BackgroundColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    [Default(0, 0, 0, 0)]
+    compose ComputeColor BackgroundColor;
 
-    [Color]
-    float4 HaloColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor HaloColor;
 
     float Gamma = 0.5f;
 
@@ -27,7 +27,7 @@ shader Halo_Gradient_TextureFX : TextureFX
         f = GradientTexture.SampleLevel(LinearSampler, float2(f.x, GradientY), 0).x;
         f = sign(f) * pow(abs(f), g);
         
-        return lerp(HaloColor, BackgroundColor, f);
+        return lerp(HaloColor.Compute(), BackgroundColor.Compute(), f);
     }
 
     stage override float4 Shading()

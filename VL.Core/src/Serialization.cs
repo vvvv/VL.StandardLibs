@@ -27,8 +27,14 @@ namespace VL.Core
         /// <returns>The serialized content as an <see cref="XElement"/>.</returns>
         public static XElement Serialize<T>(this NodeContext nodeContext, T value, bool includeDefaults = false)
         {
+            return Serialize(nodeContext, value, typeof(T), includeDefaults);
+        }
+
+        // Non-generic variant for unit tests
+        internal static XElement Serialize(NodeContext nodeContext, object value, Type staticType, bool includeDefaults = false)
+        {
             var serialization = nodeContext.AppHost.SerializationService;
-            return (XElement)serialization.Serialize(nodeContext, value, typeof(T), includeDefaults, pathsAreRelativeToDocument: false, forceElement: true);
+            return (XElement)serialization.Serialize(nodeContext, value, staticType, includeDefaults, pathsAreRelativeToDocument: false, forceElement: true);
         }
 
         /// <summary>
@@ -74,8 +80,14 @@ namespace VL.Core
         /// <returns>The deserialized value.</returns>
         public static T Deserialize<T>(this NodeContext nodeContext, XElement content)
         {
+            return (T)Deserialize(nodeContext, content, typeof(T));
+        }
+
+        // Non-generic variant for unit tests
+        internal static object Deserialize(NodeContext nodeContext, XElement content, Type staticType)
+        {
             var serialization = nodeContext.AppHost.SerializationService;
-            return (T)serialization.Deserialize(nodeContext, content, typeof(T), pathsAreRelativeToDocument: false);
+            return serialization.Deserialize(nodeContext, content, staticType, pathsAreRelativeToDocument: false);
         }
 
         /// <summary>

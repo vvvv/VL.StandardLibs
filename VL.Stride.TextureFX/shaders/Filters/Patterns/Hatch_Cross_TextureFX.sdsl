@@ -5,11 +5,11 @@
 [Summary("")]
 shader Hatch_Cross_TextureFX : FilterBase
 {
-    [Color]
-    float4 BackgroundColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor BackgroundColor;
     
-    [Color]
-    float4 HatchColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor HatchColor;
 
     [Default(0.5)]
     compose ComputeFloat Threshold;
@@ -28,37 +28,39 @@ shader Hatch_Cross_TextureFX : FilterBase
         
         float lum = dot(col.rgb, 0.33);
         
-        float4 tc = BackgroundColor;
+        float4 hc = HatchColor.Compute();
+        float4 bgc = BackgroundColor.Compute();
+        float4 tc = bgc;
         
         if (lum < threshold)
         {
             if ((x.x + x.y)%Density == 0.0)
             {
-                tc = HatchColor;
+                tc = hc;
             }
         }	
         if (lum < (threshold * 0.75))
         {
             if ((x.x - x.y)%Density == 0.0)
             {
-                tc = HatchColor;
+                tc = hc;
             }
         }	
         if (lum < (threshold * 0.5))
         {
             if ((x.x + x.y + (Density/2.0))%Density == 0.0)
             {
-                tc = HatchColor;
+                tc = hc;
             }
         }	
         if (lum < (threshold*0.5))
         {
             if ((x.x - x.y - (Density/2.0))%Density == 0.0)
             {
-                tc = HatchColor;	
+                tc = hc;	
             }
         }	
         
-        return lerp (HatchColor, BackgroundColor, tc);
+        return lerp (hc, bgc, tc);
     }
 };

@@ -49,17 +49,14 @@ namespace VL.Lib.IO.Socket
             var token = FCancellation.Token;
             FCurrentTask = Task.Run(async () =>
             {
+                var buffer = new byte[0x10000];
                 while (!token.IsCancellationRequested)
                 {
                     using (var handle = await provider.GetHandleAsync(token, 100))
-                    using (var args = new SocketAsyncEventArgs())
                     {
                         var socket = handle.Resource;
                         if (socket == null)
                             return;
-
-                        args.SetBuffer(new byte[0x10000], 0, 0x10000);
-                        var awaitable = new SocketAwaitable(args);
 
                         // Return the handle on cancellation
                         token.Register(handle.Dispose);
@@ -69,23 +66,20 @@ namespace VL.Lib.IO.Socket
                         {
                             while (!token.IsCancellationRequested)
                             {
-                                args.RemoteEndPoint = NetUtils.DefaultIPEndPoint;
-                                await socket.ReceiveFromAsync(awaitable);
-                                if (!token.IsCancellationRequested)
+                                var result = await socket.ReceiveFromAsync(buffer, NetUtils.DefaultIPEndPoint, token);
+                                var bytesRead = result.ReceivedBytes;
+                                if (bytesRead > 0)
                                 {
-                                    var bytesRead = args.BytesTransferred;
-                                    if (bytesRead > 0)
-                                    {
-                                        var data = new byte[bytesRead];
-                                        Buffer.BlockCopy(args.Buffer, 0, data, 0, bytesRead);
-                                        var datagram = new Datagram((IPEndPoint)args.RemoteEndPoint, data);
-                                        FOutput.OnNext(datagram);
-                                    }
-                                    else
-                                    {
-                                        // Connection lost
-                                        break;
-                                    }
+                                    var data = new byte[bytesRead];
+                                    Buffer.BlockCopy(buffer, 0, data, 0, bytesRead);
+
+                                    var datagram = new Datagram((IPEndPoint)result.RemoteEndPoint, data);
+                                    FOutput.OnNext(datagram);
+                                }
+                                else
+                                {
+                                    // Connection lost
+                                    break;
                                 }
                             }
                         }

@@ -61,13 +61,7 @@ namespace VL.Stride.Core
             var dataDir = Path.Combine(thisDirectory, "data");
             if (Directory.Exists(dataDir))
                 return dataDir;
-            else
-            {
-                // Are we running as source package?
-                dataDir = Path.Combine(thisDirectory, "..", "..", "..", "VL.Stride", "lib", "net6.0-windows", "data");
-                if (Directory.Exists(dataDir))
-                    return dataDir;
-            }
+
             // Let Stride figure it out
             return null;
         }

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="EfpeNzsUqrzLbmhGuogeHd" LanguageVersion="2021.4.0.615" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="EfpeNzsUqrzLbmhGuogeHd" LanguageVersion="2024.6.0-0314-g35facf5fa7" Version="0.128">
   <NugetDependency Id="OHu1aBNUNIWOPKIUStmN0I" Location="VL.CoreLib" Version="2021.4.0-0608-g2aab7bd231" />
   <Patch Id="Dk8zOWtdyR4PuvTg8VULui">
     <Canvas Id="AbKBWHBaGT8NnHJEuVSj0p" DefaultCategory="Main" CanvasType="FullCategory" />
@@ -16,7 +16,7 @@
       <Patch Id="O2DYd0sda61O6E06m8bYIO">
         <Canvas Id="SwN5bXY0tiXLR4sld73KtQ" CanvasType="Group">
           <Pad Id="Rqh4jUz6zLwQKB6l6Mi55f" Comment="Cancel" Bounds="496,360,35,35" ShowValueBox="true" isIOBox="true" Value="False">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -26,12 +26,12 @@
           <Pad Id="HbIXkFYeNPJOudO0J6JULb" Comment="Progress" Bounds="306,525,35,15" ShowValueBox="true" isIOBox="true" />
           <Pad Id="BByzUQoA0rPPFPDVQyQSYZ" Comment="Completed" Bounds="562,524,35,35" ShowValueBox="true" isIOBox="true" />
           <Pad Id="TG0pZZ4YMwROXQBEeFD0oc" Comment="Remote File Url" Bounds="176,219,357,15" ShowValueBox="true" isIOBox="true" Value="https://vvvv.org/sites/default/files/vvvv_beta_39_x86_setup.exe">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
           </Pad>
           <Pad Id="O74btMsZ4qHMMALONplQ1Y" Comment="Download" Bounds="497,310,35,35" ShowValueBox="true" isIOBox="true" Value="False">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -39,10 +39,13 @@
             </p:ValueBoxSettings>
           </Pad>
           <Node Bounds="560,458,65,19" Id="PjEpHAljLKxMuAXXApJw3x">
-            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+            <p:NodeReference LastCategoryFullName="Control" LastDependency="CoreLibBasics.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="MonoFlop" />
             </p:NodeReference>
+            <Pin Id="KhUpDUrYfdbL54dNJYRByh" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="HwWTYdgErkqPseMVpcIGgv" Name="Clock" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Mjx64tL3RTMMn0UEPeKpsI" Name="New Clock" Kind="InputPin" IsHidden="true" />
             <Pin Id="FGHvcMDf66jMfjPak2D5sc" Name="Set" Kind="InputPin" />
             <Pin Id="IoFIP97yY8aOMg0IMvePa0" Name="Time" Kind="InputPin" />
             <Pin Id="KvF15gEq38xNsC8ujwTLfy" Name="Retriggerable" Kind="InputPin" />
@@ -51,11 +54,13 @@
             <Pin Id="NaNZWJnR98JMs16HmC36Jw" Name="Inverse Output" Kind="OutputPin" />
           </Node>
           <Node Bounds="394,412,86,19" Id="CJeUG5EB2cRO5Qx5htQTzo">
-            <p:NodeReference LastCategoryFullName="IO.HTTP" LastSymbolSource="VL.HTTP.vl">
+            <p:NodeReference LastCategoryFullName="IO.HTTP" LastDependency="VL.HTTP.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="FileDownloader" />
             </p:NodeReference>
             <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="SiO2WZ5SS8QPYOG3mSwYgm" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="J3JFNMV4m5MMZDd7zS6e7M" Name="Http Client" Kind="InputPin" IsHidden="true" />
             <Pin Id="MkTdTQ8VL86MzqoeGOUt7G" Name="Remote File Url" Kind="InputPin" />
             <Pin Id="UdUeAOUdeuTLZFd6Udlt3g" Name="File Path" Kind="InputPin" />
             <Pin Id="LOR9Ow7LajTMjGJRjIuTtL" Name="Download" Kind="InputPin" />
@@ -66,10 +71,13 @@
           </Node>
           <Pad Id="L1vihD3Ne1UOj75XyQ6FrY" Comment="Canceled" Bounds="436,524,35,35" ShowValueBox="true" isIOBox="true" />
           <Node Bounds="434,458,65,19" Id="QjKgZ0anzWBLb5ub7uh4cJ">
-            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+            <p:NodeReference LastCategoryFullName="Control" LastDependency="CoreLibBasics.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="MonoFlop" />
             </p:NodeReference>
+            <Pin Id="VxSEO89PfiyQAbEjgneAD0" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="EA5r7dA4JmNLLXeNomwYe9" Name="Clock" Kind="InputPin" IsHidden="true" />
+            <Pin Id="HdO3nOTO1h4PZmEcb0TxtM" Name="New Clock" Kind="InputPin" IsHidden="true" />
             <Pin Id="MmwC3AtPhfqNquLrPAOOdU" Name="Set" Kind="InputPin" />
             <Pin Id="TcoOz9XCEPQMHwlD5LoCmb" Name="Time" Kind="InputPin" />
             <Pin Id="BdnT3DWV8sbN0ntsZrzL9o" Name="Retriggerable" Kind="InputPin" />
@@ -78,14 +86,15 @@
             <Pin Id="HCAjkQ8gpF1N3NKLy7ZWSh" Name="Inverse Output" Kind="OutputPin" />
           </Node>
           <Node Bounds="421,271,62,19" Id="KK0DevaJeJoL2pbk1luYeE">
-            <p:NodeReference LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+            <p:NodeReference LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="OperationCallFlag" Name="TempPath" />
+              <Choice Kind="ProcessAppFlag" Name="TempPath" />
             </p:NodeReference>
+            <Pin Id="FirPNzmv2EwNVmvsSEoh4M" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="QEzoAtBCC1CMBPV03hmYOc" Name="Result" Kind="OutputPin" />
           </Node>
           <Node Bounds="421,305,25,19" Id="CTuHPtTVjv2LNf8HqRr1nO">
-            <p:NodeReference LastCategoryFullName="Math" LastSymbolSource="CoreLibBasics.vl">
+            <p:NodeReference LastCategoryFullName="Math" LastDependency="CoreLibBasics.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="+" />
             </p:NodeReference>
@@ -94,7 +103,7 @@
             <Pin Id="A2HLdqcTbJFLzrfScB8Ayx" Name="Output" Kind="OutputPin" />
           </Node>
           <Node Bounds="421,337,48,19" Id="UHh6EwOgcg2N4diixkgT7J">
-            <p:NodeReference LastCategoryFullName="IO" LastSymbolSource="CoreLibBasics.vl">
+            <p:NodeReference LastCategoryFullName="IO" LastDependency="CoreLibBasics.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="ToPath" />
             </p:NodeReference>
@@ -102,7 +111,7 @@
             <Pin Id="HbHowIViHxKOyjVLLRseJ1" Name="Result" Kind="OutputPin" />
           </Node>
           <Pad Id="LiRIz6tAdOiPu7Q72hiATb" Comment="" Bounds="501,280,40,15" ShowValueBox="true" isIOBox="true" Value="foo.zip">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
           </Pad>
@@ -123,12 +132,10 @@
         <Link Id="VlbvbUUlWVDNM2lXUdc13Z" Ids="KuKv6eDNhHFM1ZeoI8qcRb,MmwC3AtPhfqNquLrPAOOdU" />
         <Link Id="HUT4ymlkCNqOXt4OxgwEyn" Ids="QEzoAtBCC1CMBPV03hmYOc,RdcSXOwzZCBNjS61ae3ndU" />
         <Link Id="ScNfiYaNasFNa2g9t5UAcJ" Ids="A2HLdqcTbJFLzrfScB8Ayx,E9eT3DwGedTOSLbbUMdlG1" />
-        <Link Id="GFnBsmv9bAUQVdbu2YMcEv" Ids="HbHowIViHxKOyjVLLRseJ1,UdUeAOUdeuTLZFd6Udlt3g" />
         <Link Id="UHrswvh6HX9NVF0nrrv7QQ" Ids="LiRIz6tAdOiPu7Q72hiATb,OALLVLeWlExPpfkUEs3g06" />
+        <Link Id="NO2ivtx81l0LGvbzXFMw4O" Ids="HbHowIViHxKOyjVLLRseJ1,UdUeAOUdeuTLZFd6Udlt3g" />
       </Patch>
     </Node>
   </Patch>
   <NugetDependency Id="LF9ie19KhWOMi72A5Tyhvo" Location="VL.Skia" Version="2021.4.0-0608-g2aab7bd231" />
-  <PlatformDependency Id="AtgyIi5CvNnMuj2B7bew5p" Location="System.Net.Http" />
-  <PlatformDependency Id="BgSeCzFqBAdMt3U27AEkXV" Location="mscorlib" />
 </Document>

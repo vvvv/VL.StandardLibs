@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <OutputPath>..\lib</OutputPath>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeReferencedAssembliesInPackage</TargetsForTfmSpecificBuildOutput>
     
@@ -64,6 +64,7 @@
     </ItemGroup>
   </Target>
   <ItemGroup>
+    <ProjectReference Include="..\..\VL.Core.Commands\src\VL.Core.Commands.csproj" />
     <ProjectReference Include="..\..\VL.Core.Skia\VL.Core.Skia.csproj" />
     <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
     <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
@@ -75,6 +76,11 @@
       <HintPath>..\dependencies\vvvv.geometry3Sharp.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+  
   <ItemGroup>
     <Compile Update="**\*.sdsl.cs">
       <DesignTime>True</DesignTime>
@@ -171,6 +177,11 @@
     <Compile Update="Effects\TextureFX\Utils\Swizzle_Internal_TextureFX.sdsl.cs">
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Update="Effects\TextureFX\TextureFXGraphEffect.sdfx.cs">
+      <DesignTime>True</DesignTime>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+    </Compile>
     <Compile Update="Effects\Utils\CalcDispatchArgs.sdsl.cs">
       <DesignTime>True</DesignTime>
     </Compile>
@@ -195,6 +206,11 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Update="Rendering\Images\AmbientOcclusionWithOrtho\AmbientOcclusionWithOrthoRawAOEffect.sdfx.cs">
+      <DesignTime>True</DesignTime>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Effects\VLEffectMain.sdfx.cs">
       <DesignTime>True</DesignTime>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
@@ -227,6 +243,9 @@
       <LastGenOutput>ShaderFXGraphEffect.sdfx.cs</LastGenOutput>
     </None>
     <None Update="Effects\ShaderFX\TextureFXEffect.sdfx">
+      <LastGenOutput>TextureFXEffect.sdfx.cs</LastGenOutput>
+    </None>
+    <None Update="Effects\TextureFX\TextureFXEffect.sdfx">
       <LastGenOutput>TextureFXEffect.sdfx.cs</LastGenOutput>
     </None>
     <None Update="Effects\TextureFX\TextureFXGraphEffect - Kopie.sdfx">
@@ -270,6 +289,12 @@
     </None>
     <None Update="Rendering\Images\AmbientOcclusionWithOrtho\AmbientOcclusionWithOrthoRawAOEffect.sdfx">
       <LastGenOutput>AmbientOcclusionWithOrthoRawAOEffect.sdfx.cs</LastGenOutput>
+    </None>
+    <None Update="Effects\TextureFX\TextureFXGraphEffect.sdfx">
+      <LastGenOutput>TextureFXGraphEffect.sdfx.cs</LastGenOutput>
+    </None>
+    <None Update="Effects\VLEffectMain.sdfx">
+      <LastGenOutput>VLEffectMain.sdfx.cs</LastGenOutput>
     </None>
     <None Update="Rendering\Materials\FallbackMaterial\SceneEditorParameters.sdfx">
       <LastGenOutput>SceneEditorParameters.sdfx.cs</LastGenOutput>

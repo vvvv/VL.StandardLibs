@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Reactive.Disposables;
 using VL.Core;
+using VL.Core.Commands;
+using VL.Core.Logging;
 using VL.Lib.IO;
 
 namespace VL.Lang.PublicAPI
@@ -15,6 +17,9 @@ namespace VL.Lang.PublicAPI
 
         public static void Paste(string modelSnippet, PointF location) 
             => Current?.Paste(modelSnippet, location);
+
+        public static ICommandList? DevCommands 
+            => Current?.Commands;
 
         public static void ReportException(Exception e)
             => Current?.ReportException(e);
@@ -50,7 +55,7 @@ namespace VL.Lang.PublicAPI
         /// Add a message for one frame. 
         /// </summary>
         public static void AddMessage(UniqueId elementId, string message, MessageSeverity severity = MessageSeverity.Warning)
-            => IVLRuntime.Current?.AddMessage(new Message(elementId, severity, message, source: MessageSource.Runtime));
+            => IVLRuntime.Current?.AddMessage(new Message(elementId, severity, message, source: LogSource.App));
 
         /// <summary>
         /// Add a message for one frame. 

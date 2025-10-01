@@ -17,31 +17,13 @@ namespace VL.Video.MF
     [SupportedOSPlatform("windows6.1")]
     internal sealed unsafe class TexturePool : IDisposable
     {
-        private static readonly Dictionary<(IntPtr, D3D11_TEXTURE2D_DESC), TexturePool> pools = new();
-
-        public static TexturePool Get(ID3D11Device* device, D3D11_TEXTURE2D_DESC description)
-        {
-            lock (pools)
-            {
-                var key = (new IntPtr(device), description);
-                if (!pools.TryGetValue(key, out var pool))
-                {
-                    pool = new TexturePool(device, description);
-                    pools.Add(key, pool);
-                }
-                Interlocked.Increment(ref pool.refCount);
-                return pool;
-            }
-        }
-
         private readonly Stack<VideoTexture> pool = new();
         private readonly ID3D11Device* _device;
         private readonly D3D11_TEXTURE2D_DESC _description;
 
         private bool isDisposed;
-        private int refCount;
 
-        private TexturePool(ID3D11Device* device, D3D11_TEXTURE2D_DESC description)
+        public TexturePool(ID3D11Device* device, D3D11_TEXTURE2D_DESC description)
         {
             _device = device;
             _description = description;
@@ -65,7 +47,7 @@ namespace VL.Video.MF
         {
             lock (pool)
             {
-                if (isDisposed || pool.Count > refCount * 2)
+                if (isDisposed || pool.Count > 16)
                 {
                     ((ID3D11Texture2D*)texture.NativePointer)->Release();
                 }
@@ -90,17 +72,10 @@ namespace VL.Video.MF
 
         public void Dispose()
         {
-            var refCount = Interlocked.Decrement(ref this.refCount);
-            if (refCount == 0)
+            if (!isDisposed)
             {
                 isDisposed = true;
                 Recycle();
-
-                lock (pools)
-                {
-                    pools.Remove((new IntPtr(_device), _description));
-                }
-
                 _device->Release();
             }
         }

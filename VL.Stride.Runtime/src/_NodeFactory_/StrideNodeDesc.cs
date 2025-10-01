@@ -106,14 +106,14 @@ namespace VL.Stride
             return 0;
         }
 
-        static Vector4 GetDefaultColor(object defaultValue)
+        static Color4 GetDefaultColor(object defaultValue)
         {
             if (defaultValue is ComputeTextureColor tc)
                 return tc.FallbackValue.Value;
             else if (defaultValue is ComputeColor f)
                 return f.Value;
 
-            return Vector4.One;
+            return Color4.White;
         }
 
         static Type GetPinDescType(Type propertyType)

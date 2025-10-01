@@ -612,6 +612,7 @@ namespace VL.Lib.Basics.Resources
             var connectionSubscription = new SerialDisposable();
             var timerSubscription = new SerialDisposable();
             var context = default(SynchronizationContext);
+            var appHost = default(AppHost);
             var disposalTriggerSourceInitialized = false;
 
             return new Provider<T>(
@@ -620,6 +621,8 @@ namespace VL.Lib.Basics.Resources
                     IResourceHandle<T> handle;
                     lock (l)
                     {
+                        // Retrieve the app host
+                        appHost = AppHost.CurrentOrGlobal;
                         // Retrieve the sync context
                         context = SynchronizationContext.Current;
                         // Cancel a running disposal
@@ -649,8 +652,7 @@ namespace VL.Lib.Basics.Resources
                                             // We're only interested in one event
                                             disposalTriggerSource = disposalTriggerSource.Take(1);
                                             // Ensure on application exit we're triggered as well
-                                            var appHost = AppHost.CurrentOrGlobal;
-                                            if (appHost != null)
+                                            if (appHost != null && !appHost.IsDisposed)
                                                 disposalTriggerSource = Observable.Merge(disposalTriggerSource, appHost.OnExit.Select(_ => default(U)));
                                             // If a sync context is set make sure it's on that one
                                             if (context != null)

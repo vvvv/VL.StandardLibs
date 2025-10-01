@@ -23,36 +23,7 @@ namespace VL.Lib.Collections
         Type ElementType { get; }
     }
 
-    public class SpreadMonadFactory<T> : IMonadicFactory<T, Spread<T>>
-    {
-        public static readonly SpreadMonadFactory<T> Default = new SpreadMonadFactory<T>();
-
-        public Builder GetMonadBuilder()
-        {
-            return new Builder();
-        }
-
-        IMonadBuilder<T, Spread<T>> IMonadicFactory<T, Spread<T>>.GetMonadBuilder(bool isConstant)
-        {
-            return GetMonadBuilder();
-        }
-
-        public struct Builder : IMonadBuilder<T, Spread<T>>
-        {
-            private Spread<T> spread;
-
-            public Spread<T> Return(T value)
-            {
-                var builder = CollectionBuilders.GetBuilder(spread, 1);
-                builder.Add(value);
-                return spread = builder.Commit();
-            }
-        }
-    }
-
     [Serializable]
-    // TBD: The following line would allow connecting single values to spreads - do we want this? What would be the implications?
-    //[Monadic(typeof(SpreadMonadFactory<>))]
     public sealed class Spread<T> : IReadOnlyList<T>, IHasMemory<T>, ISpread, IList<T> /* LINQ looks for IList and not IReadOnlyList */
     {
         public static readonly Spread<T> Empty = new Spread<T>(ImmutableArray<T>.Empty);

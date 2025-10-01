@@ -40,6 +40,13 @@ namespace VL.ImGui.Widgets
 
         public ImGuiNET.ImGuiTreeNodeFlags Flags { private get; set; }
 
+        protected override void Dispose(bool disposing)
+        {
+            VisibleFlange.Dispose();
+            CollapsedFlange.Dispose();
+            base.Dispose(disposing);
+        }
+
         internal override void UpdateCore(Context context)
         {
             var visible = VisibleFlange.Update(Visible);

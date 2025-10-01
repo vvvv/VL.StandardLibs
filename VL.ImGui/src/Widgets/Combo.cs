@@ -11,6 +11,11 @@
         public string? Format { private get; set; }
 
         public ImGuiNET.ImGuiComboFlags Flags { private get; set; }
+        
+        /// <summary>
+        /// Returns true if content is visible.
+        /// </summary>
+        public bool ContentIsVisible { get; private set; } = false;
 
         internal override void UpdateCore(Context context)
         {
@@ -18,7 +23,9 @@
 
             if (Items != null && Items.Any())
             {
-                if (ImGuiNET.ImGui.BeginCombo(widgetLabel.Update(Label), value, Flags))
+                ContentIsVisible = ImGuiNET.ImGui.BeginCombo(widgetLabel.Update(Label), value, Flags);
+
+                if (ContentIsVisible)
                 {
                     try
                     {

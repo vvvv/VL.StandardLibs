@@ -1,4 +1,5 @@
-﻿using Stride.Core;
+﻿#nullable enable
+using Stride.Core;
 using Stride.Graphics;
 using Stride.Rendering;
 using Stride.Rendering.Materials;
@@ -17,11 +18,11 @@ namespace VL.Stride.Rendering
 {
     static partial class EffectShaderNodes
     {
-        static IVLNodeDescription NewShaderFXNode(this IVLNodeDescriptionFactory factory, NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object> changes, IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
+        static IVLNodeDescription NewShaderFXNode(this IVLNodeDescriptionFactory factory, NameAndVersion name, string shaderName, ShaderMetadata shaderMetadata, IObservable<object>? changes, IServiceRegistry serviceRegistry, GraphicsDevice graphicsDevice)
         {
             return factory.NewNodeDescription(
                 name: name,
-                category: "Stride.Rendering.Experimental.ShaderFX",
+                category: shaderMetadata.GetCategory("Stride.Rendering.Experimental.ShaderFX"),
                 tags: shaderMetadata.Tags,
                 fragmented: true,
                 invalidated: changes,
@@ -83,23 +84,30 @@ namespace VL.Stride.Rendering
                             var gameHandle = AppHost.Current.Services.GetGameHandle();
                             var game = gameHandle.Resource;
 
-                            var context = new ShaderGeneratorContext(game.GraphicsDevice); // only needed for pin construction - parameter updater will later take care of multiple sinks
+                            // Needed by preprocessor (#include "x.hlsl")
+                            if (shaderMetadata != null)
+                                game.EffectSystem.GetShaderSourceManager().RegisterFilePath(shaderMetadata);
+
+                            // Ensure we operate on the proper device
+                            var graphicsDevice = game.GraphicsDevice;
+
+                            var tempParameters = new ParameterCollection(); // only needed for pin construction - parameter updater will later take care of multiple sinks
                             var nodeState = new ShaderFXNodeState(shaderName);
 
                             var inputs = new List<IVLPin>();
                             foreach (var _input in _inputs)
                             {
                                 if (_input is ParameterPinDescription parameterPinDescription)
-                                    inputs.Add(parameterPinDescription.CreatePin(context));
+                                    inputs.Add(parameterPinDescription.CreatePin(game.GraphicsDevice, tempParameters));
                             }
 
-                            var outputMaker = typeof(EffectShaderNodes).GetMethod(nameof(BuildOutput), BindingFlags.Static | BindingFlags.NonPublic);
+                            var outputMaker = typeof(EffectShaderNodes).GetMethod(nameof(BuildOutput), BindingFlags.Static | BindingFlags.NonPublic) ?? throw new MissingMethodException(nameof(EffectShaderNodes), nameof(BuildOutput));
                             outputMaker = outputMaker.MakeGenericMethod(outputType, innerType);
                             outputMaker.Invoke(null, new object[] { nodeBuildContext, nodeState, inputs });
 
                             return nodeBuildContext.Node(
                                 inputs: inputs,
-                                outputs: new[] { nodeState.OutputPin },
+                                outputs: new[] { nodeState.OutputPin! },
                                 update: default,
                                 dispose: () =>
                                 {
@@ -117,7 +125,7 @@ namespace VL.Stride.Rendering
             var compositionPins = inputPins.OfType<ShaderFXPin>().ToList();
             var inputs = inputPins.OfType<ParameterPin>().ToList();
 
-            Func<T> getOutput = () =>
+            Func<T?> getOutput = () =>
             {
                 //check shader fx inputs
                 var shaderChanged = nodeState.CurrentComputeNode == null;
@@ -150,7 +158,7 @@ namespace VL.Stride.Rendering
                         nodeState.CurrentOutputValue = ShaderFXUtils.DeclAndSetVar(nodeState.ShaderName + "Result", newComputeNode);
                 }
 
-                return (T)nodeState.CurrentOutputValue;
+                return (T?)nodeState.CurrentOutputValue;
             };
 
             nodeState.OutputPin = context.Output(getOutput);
@@ -159,9 +167,9 @@ namespace VL.Stride.Rendering
         class ShaderFXNodeState
         {
             public readonly string ShaderName;
-            public IVLPin OutputPin;
-            public object CurrentOutputValue;
-            public object CurrentComputeNode;
+            public IVLPin? OutputPin;
+            public object? CurrentOutputValue;
+            public object? CurrentComputeNode;
 
             public ShaderFXNodeState(string shaderName)
             {

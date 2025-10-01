@@ -1,0 +1,23 @@
+﻿namespace VL.ImGui.Stride.Effects
+{
+    internal shader ImGuiEffectShader<bool TSRgb> : ShaderBase, PositionStream2, ColorBase, Texturing
+    {
+        matrix proj;
+
+        override stage void VSMain() 
+        {
+            streams.ShadingPosition = mul(proj, float4(streams.Position2, 0.0, 1.0f)) + float4(-1.0f, 1.0f, 0.0f, 0.0f);
+
+            if (TSRgb)
+            {
+                streams.Color = ColorUtility.ToLinear(streams.Color);
+            }
+        }
+
+        override stage void PSMain() 
+        {
+            streams.ColorTarget = streams.Color * Texture0.Sample(LinearSampler, streams.TexCoord);
+        }
+
+    };
+}

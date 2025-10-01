@@ -1,10 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
 	  <OutputPath>..\lib</OutputPath>
     <VLPackageBasePath>..\</VLPackageBasePath>
     <Nullable>enable</Nullable>
+	<Description>Redis support for vvvv</Description>
+	<PackageTags>VL, redis</PackageTags>  
+	<PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,10 +16,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\readme.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
     <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
     <ProjectReference Include="..\..\VL.Serialization.MessagePack\src\VL.Serialization.MessagePack.csproj" />
     <ProjectReference Include="..\..\VL.Serialization.Raw\src\VL.Serialization.Raw.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
 
 </Project>

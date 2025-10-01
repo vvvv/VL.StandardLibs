@@ -44,8 +44,8 @@ namespace VL.Lib.IO
         {
             _path = info.FullName;
             if (parent != null)
-                _parent = new Lazy<Path>(() => parent, false);
-            _info = new Lazy<FileSystemInfo>(() => info, false);
+                _parent = new Lazy<Path>(() => parent);
+            _info = new Lazy<FileSystemInfo>(() => info);
         }
 
         public static Path FilePath(string input)
@@ -357,7 +357,7 @@ namespace VL.Lib.IO
             try
             {
                 if (Info == null)
-                    _info = new Lazy<FileSystemInfo>(() => new DirectoryInfo(_path), false);
+                    _info = new Lazy<FileSystemInfo>(() => new DirectoryInfo(_path));
                 if (DirectoryInfo != null)
                 {
                     DirectoryInfo.Create();
@@ -491,9 +491,7 @@ namespace VL.Lib.IO
             if (this == basePath)
                 return new Path("");
 
-            var baseRoot = basePath.Root[0];
-            var thisRoot = Root[0];
-            if (char.IsLetter(baseRoot) && char.IsLetter(thisRoot) && baseRoot != thisRoot)
+            if (NetPath.GetPathRoot(this) != NetPath.GetPathRoot(basePath))
                 return this;
 
             var fromPath = (string)basePath;

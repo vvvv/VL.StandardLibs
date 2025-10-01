@@ -177,18 +177,7 @@ namespace VL.ImGui.Editors
         static bool HasDefaultConstructor(IVLTypeInfo type) => type.ClrType.GetConstructor(Array.Empty<Type>()) != null;
 
         static string GetLabel(IVLTypeInfo typeInfo)
-        {
-            var labelAttribute = typeInfo.ClrType.GetCustomAttribute<LabelAttribute>();
-            if (labelAttribute != null)
-                return labelAttribute.Label;
-            var displayAttribute = typeInfo.ClrType.GetCustomAttribute<Stride.Core.DisplayAttribute>();
-            if (displayAttribute != null)
-                return displayAttribute.Name;
-            var displayAttribute2 = typeInfo.ClrType.GetCustomAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
-            if (displayAttribute2?.Name != null)
-                return displayAttribute2.Name;
-            return typeInfo.ToString()!;
-        }
+            => typeInfo.GetLabel().ValueOrDefault_ForReferenceType(typeInfo.ToString())!;
 
         int GetIndex(object? value)
         {

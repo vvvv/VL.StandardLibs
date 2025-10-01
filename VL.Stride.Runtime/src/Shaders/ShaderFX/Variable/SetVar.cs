@@ -1,9 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Stride.Core;
+using Stride.Core.Mathematics;
+using Stride.Graphics;
 using Stride.Rendering.Materials;
 using Stride.Shaders;
 using VL.Core;
+using VL.Lib.Basics.Resources;
 using static VL.Stride.Shaders.ShaderFX.ShaderFXUtils;
 
 
@@ -14,8 +19,8 @@ namespace VL.Stride.Shaders.ShaderFX
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <seealso cref="IComputeVoid" />
-    [Monadic(typeof(GpuMonadicFactory<>))]
-    public class SetVar<T> : VarBase<T>, IComputeVoid
+    [MonadicTypeFilter(typeof(GpuMonadicTypeFilter))]
+    public class SetVar<T> : VarBase<T>, IComputeVoid, IMonadicValue<T>
     {
         public SetVar(IComputeValue<T> value, DeclVar<T> declaration, bool evaluateChildren = true)
             : base(declaration)
@@ -39,6 +44,24 @@ namespace VL.Stride.Shaders.ShaderFX
         public IComputeValue<T> Value { get; }
 
         public bool EvaluateChildren { get; }
+
+#nullable enable
+        T? IMonadicValue<T>.Value 
+        {
+            get => Value is IInputValue<T> inputValue ? inputValue.Input : default;
+        }
+
+        IMonadicValue<T> IMonadicValue<T>.SetValue(T? value)
+        {
+            if (Value is IInputValue<T> inputValue)
+                inputValue.Input = value!;
+            return this;
+        }
+
+        bool IMonadicValue.HasValue => Value is IInputValue<T> i && i.HasValue;
+
+        bool IMonadicValue.AcceptsValue => Value is IInputValue<T>;
+#nullable restore
 
         public override IEnumerable<IComputeNode> GetChildren(object context = null)
         {
@@ -65,41 +88,41 @@ namespace VL.Stride.Shaders.ShaderFX
 
         public override string ToString()
         {
+            if (Value is IInputValue<T> inputValue) 
+                return inputValue.ToString();
+
             if (Declaration is DeclConstant<T> constant)
                 return string.Format("Constant {0}", constant.VarName);
             else if (Declaration is DeclSemantic<T> semantic)
                 return string.Format("Get Semantic {0}", semantic.SemanticName);
             return string.Format("Assign {0} ", Declaration.VarName);
         }
-    }
 
-    public sealed class GpuMonadicFactory<T> : IMonadicFactory<T, SetVar<T>>
-        where T : unmanaged
-    {
-        public static readonly GpuMonadicFactory<T> Default = new GpuMonadicFactory<T>();
-
-        public IMonadBuilder<T, SetVar<T>> GetMonadBuilder(bool isConstant)
+        static IMonadicValue<T> IMonadicValue<T>.Create(NodeContext nodeContext, T value)
         {
-            return new GpuValueBuilder<T>();
+            if (!typeof(T).IsValueType)
+                throw new InvalidOperationException($"{typeof(T)} must be a value type");
+
+            return Create_Generic((dynamic)value);
+        }
+
+        private static SetVar<TValue> Create_Generic<TValue>(TValue value)
+            where TValue : unmanaged
+        {
+            var inputValue = new InputValue<TValue>(convertToDeviceColorSpace: true)
+            {
+                Input = value,
+                HasValue = true
+            };
+            return DeclAndSetVar("Input", inputValue);
         }
     }
 
-    public sealed class GpuValueBuilder<T> : IMonadBuilder<T, SetVar<T>>
-        where T : unmanaged
+    sealed class GpuMonadicTypeFilter : IMonadicTypeFilter
     {
-        private readonly InputValue<T> inputValue;
-        private readonly SetVar<T> gpuValue;
-
-        public GpuValueBuilder()
+        public bool Accepts(TypeDescriptor typeDescriptor)
         {
-            inputValue = new InputValue<T>();
-            gpuValue = DeclAndSetVar("Input", inputValue);
-        }
-
-        public SetVar<T> Return(T value)
-        {
-            inputValue.Input = value;
-            return gpuValue;
+            return typeDescriptor.IsValueType;
         }
     }
 }

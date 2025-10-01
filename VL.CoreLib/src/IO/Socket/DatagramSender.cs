@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Net.Sockets;
@@ -20,6 +21,7 @@ namespace VL.Lib.IO.Socket
     {
         private readonly SerialDisposable FSubscription = new SerialDisposable();
         private readonly NodeContext FNodeContext;
+        private readonly ILogger FLogger;
 
         object? FLocalSocketProvider;
         object? FDatagrams;
@@ -27,6 +29,7 @@ namespace VL.Lib.IO.Socket
         public DatagramSender(NodeContext nodeContext)
         {
             FNodeContext = nodeContext;
+            FLogger = nodeContext.GetLogger();
         }
 
         /// <summary>
@@ -50,14 +53,14 @@ namespace VL.Lib.IO.Socket
         IDisposable Subscribe(IResourceProvider<NetSocket> provider, IObservable<Datagram> datagrams)
         {
             return Observable.Using(
-                () => new AsyncSocketHelper(provider),
+                () => provider.GetHandle(),
                 x =>
                 {
-                    var args = x.Args;
-                    var awaitable = x.Awaitable;
-                    var socket = x.Socket;
+                    var socket = x.Resource;
                     if (socket is null)
                         return Observable.Empty<Unit>();
+
+                    const int bufferLength = 0x20000;
 
                     return datagrams
                         .ObserveOn(Scheduler.Default)
@@ -69,16 +72,14 @@ namespace VL.Lib.IO.Socket
                                 var data = datagram.PayloadArray;
                                 while (sentBytes < data.Length)
                                 {
-                                    var bytesToSend = Math.Min(args.Buffer!.Length, data.Length - sentBytes);
-                                    Buffer.BlockCopy(data, sentBytes, args.Buffer, 0, bytesToSend);
-                                    args.SetBuffer(0, bytesToSend);
-                                    args.RemoteEndPoint = datagram.RemoteEndPoint;
-                                    await socket.SendToAsync(awaitable);
-                                    if (args.BytesTransferred > 0)
-                                        sentBytes += args.BytesTransferred;
+                                    var bytesToSend = Math.Min(bufferLength, data.Length - sentBytes);
+                                    var buffer = new ArraySegment<byte>(datagram.PayloadArray, sentBytes, bytesToSend);
+                                    var bytesTransferred = await socket.SendToAsync(buffer, datagram.RemoteEndPoint);
+                                    if (bytesTransferred > 0)
+                                        sentBytes += bytesTransferred;
                                     else
                                     {
-                                        Trace.TraceError("Failed to send datagram");
+                                        FLogger.LogError("Failed to send datagram");
                                         break;
                                     }
                                 }
@@ -99,31 +100,6 @@ namespace VL.Lib.IO.Socket
         void IDisposable.Dispose()
         {
             FSubscription.Dispose();
-        }
-
-        sealed class AsyncSocketHelper : IDisposable
-        {
-            private readonly CompositeDisposable disposables = new CompositeDisposable();
-
-            public AsyncSocketHelper(IResourceProvider<NetSocket> provider)
-            {
-                var handle = provider.GetHandle().DisposeBy(disposables);
-                Socket = handle.Resource;
-                Args = new SocketAsyncEventArgs().DisposeBy(disposables);
-                Args.SetBuffer(new byte[0x20000], 0, 0x20000);
-                Awaitable = new SocketAwaitable(Args);
-            }
-
-            public NetSocket Socket { get; }
-
-            public SocketAsyncEventArgs Args { get; }
-
-            public SocketAwaitable Awaitable { get; }
-
-            public void Dispose()
-            {
-                disposables.Dispose();
-            }
         }
     }
 }

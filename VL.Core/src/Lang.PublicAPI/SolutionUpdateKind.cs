@@ -11,6 +11,7 @@ namespace VL.Model
         AffectPatchEditor = 1,
         AffectSession = 2,
         AddToHistory = 4,
+        SkipHistory = 256,
         AffectCompilation = 8,
         AffectRuntime = 16,
         AffectMenu = 32,
@@ -27,6 +28,9 @@ namespace VL.Model
         /// <summary>
         /// To update UI and add change to history for undo, but does not trigger a recompile
         /// </summary>
-        UpdateUIAndHistory = UpdateUI | AddToHistory
+        UpdateUIAndHistory = UpdateUI | AddToHistory,
+
+        CommitToValue = UpdateUI | AddToHistory,
+        DragValue = UpdateUI | SkipHistory,
     }
 }

@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="C9RovNsG5TZM2QqiR185no" LanguageVersion="2024.6.0-0211-ga7213b5ca3" Version="0.128">
+  <NugetDependency Id="E0Ruoyyr69YLEosglyzAuA" Location="VL.CoreLib" Version="2023.5.3-0164-g883a868a2e" />
+  <Patch Id="D0qe4WFgAj3QN2GSaSZhvs">
+    <Canvas Id="ELDkzj4gv8iMFmeQhbqUrW" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="KXViRYi9t6XP5exrRFXfUd">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="ErFmdFf1LqFP2bFFDVhDRS">
+        <Canvas Id="UdGTipf9nPcPPO9j5kyw22" CanvasType="Group">
+          <Node Bounds="110,579,85,19" Id="DmGKLKTcaETMT8OB09KIGe">
+            <p:NodeReference LastCategoryFullName="V.IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="Category" Name="IO" />
+              <CategoryReference Kind="Category" Name="Redis" />
+              <Choice Kind="ProcessAppFlag" Name="RedisClient" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="Al5tAphfVa3OE7lvTXwflf" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="TyIwZxL2DAZQcIttSfBsdX" Name="Frame Clock" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Iq4JvOaFUtVMfOxYbolxLr" Name="Configuration" Kind="InputPin" />
+            <Pin Id="BQv9w6dHV6UO3ZaR7Y1X6U" Name="Configure" Kind="InputPin" />
+            <Pin Id="QJOB8wMacWULqXP8MJdh7W" Name="Database" Kind="InputPin" />
+            <Pin Id="BSS8ghVgH5vPrO8VkgcmLs" Name="Serialization Format" Kind="InputPin" />
+            <Pin Id="AfuViQ63rTeNM3xhl8pkEq" Name="Connect Async" Kind="InputPin" />
+            <Pin Id="SdOkvM5Qp7JMZMY1EkYRc0" Name="Output" Kind="OutputPin" />
+            <Pin Id="VOuNBmnbslDMt3KOWp8JXD" Name="Is Connected" Kind="OutputPin" />
+            <Pin Id="MW9VlHUMBKXP5rK3Ug7BeQ" Name="Client Name" Kind="OutputPin" />
+          </Node>
+          <Pad Id="LkYri927t8kNP8HMqJO6z9" Comment="Configuration" Bounds="112,256,223,15" ShowValueBox="true" isIOBox="true" Value="127.0.0.1:6379">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="C3erQgpvXJoPLKwWQSuRJR" Comment="Is Connected" Bounds="152,665,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="IUaFs7v2ae6LrvRRGVosdb" Comment="Database" Bounds="152,478,35,15" ShowValueBox="true" isIOBox="true" Value="-1">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="FAZgRoJYQMLPEP3iTpLrl9" Comment="Serialization Format" Bounds="172,504,83,15" ShowValueBox="true" isIOBox="true" Value="MessagePack">
+            <p:TypeAnnotation LastCategoryFullName="IO.Redis" LastDependency="VL.IO.Redis.vl">
+              <Choice Kind="TypeFlag" Name="SerializationFormat" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="RJOfdPeK2IQPV5k1gcZ4u5" Comment="Connect Async" Bounds="192,524,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="VdZOn7xW3blQB6vWkrl4YZ" Comment="Client Name" Bounds="192,627,176,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="K16aWKo3MIdNvxnHS1X63q" Bounds="87,108,435,32" ShowValueBox="true" isIOBox="true" Value="Sets up a connection to a database on a Redis server.&#xD;&#xA;&#xD;&#xA;">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">12</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="130,309,102,110" Id="TEVm1HQ6rplLhilAZE15Is">
+            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+              <Choice Kind="RegionFlag" Name="Region (Stateless)" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+              <Choice Kind="ApplicationRegion" Name="Delegate" />
+            </p:NodeReference>
+            <Pin Id="KYK8danBOCvN6wlrZTeNXR" Name="Functionality" Kind="OutputPin" />
+            <Patch Id="O2gZ2tumk4SLkQT0rn9Iar" ManuallySortedPins="true">
+              <Pin Id="S33An69EgbJN2XjfVDlAUU" Name="Obj" Kind="InputPin" />
+              <ControlPoint Id="BwEWdtT84i7NXnNDnvMrkH" Bounds="153,340" />
+            </Patch>
+          </Node>
+          <Pad Id="PJQ59IXhtF7NWs2Tzkyt0K" Bounds="463,364,363,19" ShowValueBox="true" isIOBox="true" Value="Configuration: Apply configuration options as string, see:&#xD;&#xA;">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="BUyXx6nqt9pO9CnaA1PJ3B" Bounds="554,388,329,19" ShowValueBox="true" isIOBox="true" Value="https://stackexchange.github.io/StackExchange.Redis/Configuration">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Link</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="BD9EgIwVumBMu5cRyc3Y6f" Bounds="486,693,35,19" ShowValueBox="true" isIOBox="true" Value="">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Ao2CRSzwrciPLNUowiRnIH" Bounds="463,426,352,304" ShowValueBox="true" isIOBox="true" Value="Configure: Use nodes from the ConfigurationOptions type (found under the Advanced aspect in the Nodebrowser) for fine grained configuration of the connection&#xD;&#xA;&#xD;&#xA;Database: A Redis server can have multiple databases, specify which to connect to by index or -1 for the default database&#xD;&#xA;&#xD;&#xA;Serialization Format: The default serialization format used for all bindings and Pub/Subs if not overwritten on those nodes locally&#xD;&#xA;&#xD;&#xA;Connect Async: If disabled, blocks the execution of the patch until connected">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="D7kSvZvVQdZPz4bnTFIL0K" Bounds="87,166,457,19" ShowValueBox="true" isIOBox="true" Value="https://redis.io/docs/manual/client-side-caching/#broadcasting-mode">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Link</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Mb9kVuvSvbnNNrTGooLqal" Bounds="87,142,402,19" ShowValueBox="true" isIOBox="true" Value="Has &quot;ClientSide Caching&quot; activated in &quot;Broadcasting&quot; mode, see:">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="E9FmPDA2rgkMCqf2w5riEi" Name="Create" />
+        <Patch Id="IlztFaGX1NgMWyi3F4mm0s" Name="Update" />
+        <ProcessDefinition Id="BaukkxjigPtOqrYtjK9TiS">
+          <Fragment Id="SGyk6Lu25x3QP129hrKVOY" Patch="E9FmPDA2rgkMCqf2w5riEi" Enabled="true" />
+          <Fragment Id="MJ4ydTL3LVrPY6Jp3gFKZq" Patch="IlztFaGX1NgMWyi3F4mm0s" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="D5s4XSF1cG8OkAFkuDptES" Ids="LkYri927t8kNP8HMqJO6z9,Iq4JvOaFUtVMfOxYbolxLr" />
+        <Link Id="VW2nMLqbUZBNIlM99aWFwd" Ids="VOuNBmnbslDMt3KOWp8JXD,C3erQgpvXJoPLKwWQSuRJR" />
+        <Link Id="MYF6C74Wxz6O2opSOHllNY" Ids="IUaFs7v2ae6LrvRRGVosdb,QJOB8wMacWULqXP8MJdh7W" />
+        <Link Id="TFXNlTBSFV6LjdzHV6anhf" Ids="FAZgRoJYQMLPEP3iTpLrl9,BSS8ghVgH5vPrO8VkgcmLs" />
+        <Link Id="H9wj9kP4oA0PhB2SSKPbQS" Ids="RJOfdPeK2IQPV5k1gcZ4u5,AfuViQ63rTeNM3xhl8pkEq" />
+        <Link Id="VARRtWa2rjvNTCYNfO2i7s" Ids="MW9VlHUMBKXP5rK3Ug7BeQ,VdZOn7xW3blQB6vWkrl4YZ" />
+        <Link Id="BVjZN1j25cDNVeVtEg4vrI" Ids="S33An69EgbJN2XjfVDlAUU,BwEWdtT84i7NXnNDnvMrkH" IsHidden="true" />
+        <Link Id="J1Wcv8xdqViNJ1cxx5PFrH" Ids="KYK8danBOCvN6wlrZTeNXR,BQv9w6dHV6UO3ZaR7Y1X6U" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="MW3C0bV1NgJP5UxYhp74fn" Location="VL.IO.Redis" Version="0.0.0" />
+</Document>

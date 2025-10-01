@@ -1,47 +1,48 @@
-﻿using ImGuiNET;
-using Stride.Core.Mathematics;
-using System.Runtime.CompilerServices;
-using VL.Lib.IO.Notifications;
-using VL.Skia;
+﻿using VL.ImGui.Widgets;
+
 
 namespace VL.ImGui
 {
-    using ImGui = ImGuiNET.ImGui;
-
-    class EmptyLayer : ILayer
+    internal interface IContextWithSkia
     {
-        public static EmptyLayer Instance = new EmptyLayer();
+        public IntPtr AddLayer(SkiaWidget layer, System.Numerics.Vector2 pos, System.Numerics.Vector2 size);
 
-        public RectangleF? Bounds => default;
-
-        public bool Notify(INotification notification, CallerInfo caller)
-        {
-            return false;
-        }
-
-        public void Render(CallerInfo caller)
-        {
-        }
+        public void RemoveLayer(SkiaWidget layer);
     }
 
-    internal sealed class SkiaContext : Context
+    internal sealed class SkiaContext : Context, IContextWithSkia
     {
-        public readonly List<ILayer> Layers = new List<ILayer>();
+        public readonly List<SkiaWidget> Layers = new List<SkiaWidget>();
 
-        public override void NewFrame()
+        public IntPtr AddLayer(SkiaWidget layer, System.Numerics.Vector2 pos, System.Numerics.Vector2 size)
         {
-            Layers.Clear();
-            Layers.Add(EmptyLayer.Instance);
-            base.NewFrame();
+            if (Layers.Contains(layer))
+            {
+                return Layers.IndexOf(layer) + 1;
+            }
+            else
+            {
+                Layers.Add(layer);
+                return Layers.Count;
+            }
         }
 
-        internal void AddLayer(Vector2 size, ILayer layer)
+        public void RemoveLayer(SkiaWidget layer)
         {
-            var id = Layers.Count;
-            Layers.Add(layer);
-            DrawListPtr.AddImage(new IntPtr(id), default, Unsafe.As<Vector2, System.Numerics.Vector2>(ref size));
-            if (DrawList == DrawList.AtCursor)
-                ImGui.Image(new IntPtr(0), Unsafe.As<Vector2, System.Numerics.Vector2>(ref size));
+            if (Layers.Contains(layer))
+            {
+                Layers.Remove(layer);
+            }
         }
+
+        public SkiaWidget? GetLayer(IntPtr index) 
+        {
+            if (Layers.Count >= index)
+                return Layers.ElementAt((int)index - 1);
+            else
+                return null;
+        }
+
+        
     }
 }

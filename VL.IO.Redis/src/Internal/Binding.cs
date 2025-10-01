@@ -22,19 +22,21 @@ namespace VL.IO.Redis.Internal
         private readonly ILogger? _logger;
         private readonly IChannel<T> _channel;
         private readonly BindingModel _bindingModel;
-        private readonly RedisModule? _module;
+        private readonly Experimental.RedisModule? _module;
+        private readonly string? _channelName;
 
         private bool _initialized;
         private bool _weHaveNewData;
         private bool _othersHaveNewData;
 
-        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel, RedisModule? module, ILogger? logger)
+        public Binding(RedisClient client, IChannel<T> channel, BindingModel bindingModel, Experimental.RedisModule? module, ILogger? logger, string? channelName = null)
         {
             _client = client;
             _logger = logger;
             _channel = channel;
             _bindingModel = bindingModel;
             _module = module;
+            _channelName = channelName;
 
             _initialized = bindingModel.Initialization == Initialization.None;
             _authorId = GetHashCode().ToString();
@@ -56,10 +58,10 @@ namespace VL.IO.Redis.Internal
             _channel.RemoveComponent(this);
             _clientSubscription.Dispose();
             _channelSubscription.Dispose();
-
-            if (_module != null)
-                _module.RemoveBinding(this);
+            _client.RemoveBinding(_bindingModel.Key);
         }
+
+        public string? ChannelName => _channelName;
 
         public BindingModel Model => _bindingModel;
 
@@ -140,9 +142,7 @@ namespace VL.IO.Redis.Internal
             bool NeedToReadFromDb()
             {
                 var bindingType = _bindingModel.BindingType;
-                if (bindingType == RedisBindingType.AlwaysReceive)
-                    return true;
-                if (!bindingType.HasFlag(RedisBindingType.Receive))
+                if (!bindingType.HasFlag(BindingDirection.In))
                     return false;
                 if (_initialized)
                     return _othersHaveNewData;
@@ -151,7 +151,7 @@ namespace VL.IO.Redis.Internal
 
             bool NeedToWriteToDb()
             {
-                if (!_bindingModel.BindingType.HasFlag(RedisBindingType.Send))
+                if (!_bindingModel.BindingType.HasFlag(BindingDirection.Out))
                     return false;
                 if (_initialized)
                     return _weHaveNewData;
@@ -171,16 +171,12 @@ namespace VL.IO.Redis.Internal
             {
                 switch (_bindingModel.BindingType)
                 {
-                    case RedisBindingType.None:
-                        return BindingType.None;
-                    case RedisBindingType.Send:
-                        return BindingType.Send;
-                    case RedisBindingType.Receive:
+                    case BindingDirection.In:
                         return BindingType.Receive;
-                    case RedisBindingType.SendAndReceive:
+                    case BindingDirection.Out:
+                        return BindingType.Send;
+                    case BindingDirection.InOut:
                         return BindingType.SendAndReceive;
-                    case RedisBindingType.AlwaysReceive:
-                        return BindingType.None;
                     default:
                         return BindingType.None;
                 }

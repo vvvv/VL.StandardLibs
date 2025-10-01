@@ -1,0 +1,15 @@
+﻿namespace VL.Stride.Rendering.PostFX
+{
+    params CustomColorTransformKeys
+    {
+        ShaderSource InputGraph;
+    }
+
+    effect CustomColorTransform
+    {
+        using params CustomColorTransformKeys;
+
+        mixin CustomColorTransformShader;
+        mixin compose InputGraph = CustomColorTransformKeys.InputGraph;
+    };
+}

@@ -5,11 +5,11 @@
 [Summary("")]
 shader Hatch_Line_TextureFX : FilterBase
 {
-    [Color]
-    float4 BackgroundColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor BackgroundColor;
     
-    [Color]
-    float4 HatchColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor HatchColor;
 
     [Default(5.0f)]
     compose ComputeFloat Threshold;
@@ -40,6 +40,6 @@ shader Hatch_Line_TextureFX : FilterBase
         float4 col = Texture0.SampleLevel(Sampler0, uv, 0);
         col.rgb = sqrt(col.rgb);
 
-        return lerp(BackgroundColor, HatchColor, any(((r2d(x-ViewSize*.5, rotation) + ViewSize).y) % thickness < col.rgb * threshold)) * float4(1, 1, 1, col.a);
+        return lerp(BackgroundColor.Compute(), HatchColor.Compute(), any(((r2d(x-ViewSize*.5, rotation) + ViewSize).y) % thickness < col.rgb * threshold)) * float4(1, 1, 1, col.a);
     }
 };

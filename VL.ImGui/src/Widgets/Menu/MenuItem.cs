@@ -23,6 +23,12 @@ namespace VL.ImGui.Widgets
         public IChannel<bool>? SelectedChannel { private get; set; }
         ChannelFlange<bool> IsSelectedFlange = new ChannelFlange<bool>(true);
 
+        protected override void Dispose(bool disposing)
+        {
+            IsSelectedFlange.Dispose();
+            base.Dispose(disposing);
+        }
+
         internal override void UpdateCore(Context context)
         {
             var value = Update();

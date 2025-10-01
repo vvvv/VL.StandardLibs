@@ -13,14 +13,14 @@ shader Liquish_TextureFX : TextureFX
     [Default(5, 5)]
     compose ComputeFloat2 Scale;
 
-    [Color] 
-    float4 ColorA  = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    [Default(0, 0, 0, 1)]
+    compose ComputeColor ColorA;
 
-    [Color] 
-    float4 ColorB  = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    [Default(1, 1, 1, 1)]
+    compose ComputeColor ColorB;
 
-    [Color] 
-    float4 ColorC  = float4(0.5f, 0.0f, 0.15f, 1.0f);
+    [Default(0.5, 0, 0.15, 1)]
+    compose ComputeColor ColorC;
     
     float rand(float2 co)
     {
@@ -86,19 +86,22 @@ shader Liquish_TextureFX : TextureFX
         float t = Time.Compute();
         float f = pattern(t, c, q, r);
         
+        float4 cA = ColorA.Compute();
+        float4 cB = ColorB.Compute();
+        float4 cC = ColorC.Compute();
         float3 colors[3];
-        colors[0] = float3 (ColorA.r, ColorA.g, ColorA.b);
-        colors[1] = float3 (ColorB.r, ColorB.g, ColorB.b);
-        colors[2] = float3 (ColorC.r, ColorC.g, ColorC.b);
+        colors[0] = float3 (cA.r, cA.g, cA.b);
+        colors[1] = float3 (cB.r, cB.g, cB.b);
+        colors[2] = float3 (cC.r, cC.g, cC.b);
         
         float3 col = lerp(colors[0], colors[1] ,clamp((f*f)*4.0, 0.0, 1.0));
         col = lerp(col, colors[1], clamp(length(q), 0.0, 1.0));
         col = lerp(col, colors[2], clamp(length(r.x), 0.0, 1.0));
         
         float alphas[3];
-        alphas[0] = float (ColorA.a);
-        alphas[1] = float (ColorB.a);
-        alphas[2] = float (ColorC.a);
+        alphas[0] = float (cA.a);
+        alphas[1] = float (cB.a);
+        alphas[2] = float (cC.a);
         
         float alph = lerp(alphas[0], alphas[1], clamp((f*f)*4.0, 0.0, 1.0));
         alph = lerp(alph, alphas[1], clamp(length(q), 0.0, 1.0));

@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -560,6 +561,8 @@ namespace System.Reflection
 {
     public static class ReflectionExtensions
     {
+        private static ConditionalWeakTable<Type, MethodInfo?> s_cloneMethods = new();
+
         public static T? GetCustomAttributeSafe<T>(this Assembly assembly) where T : Attribute
         {
             try
@@ -630,6 +633,12 @@ namespace System.Reflection
                 // When trying to load Bridge.Html5
                 return Enumerable.Empty<T>();
             }
+        }
+
+        public static bool TryGetCloneMethodOfRecord(this Type type, [NotNullWhen(true)] out MethodInfo? cloneMethod)
+        {
+            cloneMethod = s_cloneMethods.GetValue(type, static type => type.GetMethod("<Clone>$"));
+            return cloneMethod is not null;
         }
     }
 }

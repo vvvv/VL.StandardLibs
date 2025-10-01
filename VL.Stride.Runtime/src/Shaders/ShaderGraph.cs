@@ -172,7 +172,7 @@ namespace VL.Stride.Shaders.ShaderFX
             return effectImageShader;
         }
 
-        public static DynamicEffectInstance ComposeDrawShader(GraphicsDevice graphicsDevice, IComputeValue<Vector4> vertexRoot, IComputeValue<Vector4> pixelRoot)
+        public static DynamicEffectInstance ComposeDrawShader(GraphicsDevice graphicsDevice, IComputeValue<Vector4> vertexRoot, IComputeValue<Color4> pixelRoot)
         {
             var effectImageShader = new DynamicDrawEffectInstance("ShaderFXGraphEffect");
 

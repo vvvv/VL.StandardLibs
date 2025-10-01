@@ -1,0 +1,15 @@
+namespace VL.Stride.Rendering.PostFX
+{
+	shader CustomColorTransformShader : ColorTransformShader
+	{
+		stage stream float4 SourceColor : SOURCECOLOR;
+
+		compose ComputeColor InputGraph;
+
+		override float4 Compute(float4 color)
+		{
+			streams.SourceColor = color;
+			return InputGraph.Compute();
+		}
+	};
+}

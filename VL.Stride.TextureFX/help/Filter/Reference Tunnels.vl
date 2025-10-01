@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="NGnLQ11lEdlLkkgF4ZBpjl" LanguageVersion="2023.5.3-0001-gb649803a1e" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="NGnLQ11lEdlLkkgF4ZBpjl" LanguageVersion="2023.5.3-0359-g76f8ff031b" Version="0.128">
   <Patch Id="CqEjel6vUB0Ls12PE4UVpj">
     <Canvas Id="Ay0GUWPdCD6MmAsWXwzj9S" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -19,6 +19,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="FileTexture" />
             </p:NodeReference>
+            <Pin Id="KWjxWgbivH1NWQ6SdtYkm4" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="UhZ0CZWdOZpQSLG5sWPq5Y" Name="Path" Kind="InputPin" />
             <Pin Id="CUC7sebIp7uOHY3mV34SWl" Name="Generate Mipmaps" Kind="InputPin" DefaultValue="True">
               <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
@@ -48,20 +49,26 @@
             </p:TypeAnnotation>
           </Pad>
           <Node Bounds="253,504,185,19" Id="S27RIS4LDgNQM6Puu9WFtc">
-            <p:NodeReference LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.vl">
+            <p:NodeReference LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.TextureFX.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessNode" Name="Tunnels" />
             </p:NodeReference>
             <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="UR53KvossN3OQyXroy8BV9" Name="Input" Kind="InputPin" />
+            <Pin Id="MLG7cPmDsfoNesZaIO0KoN" Name="Sampler" Kind="InputPin" IsHidden="true" />
+            <Pin Id="RnyAlbxrRKEPbsQnWX88L7" Name="Linear Repeat Sampler" Kind="InputPin" IsHidden="true" />
             <Pin Id="Vy9RwaW4cYuK975f1bD5gb" Name="Type" Kind="InputPin" />
-            <Pin Id="QzB17UwOFYOMg8HZc8H2A1" Name="Fog Color" Kind="InputPin" />
             <Pin Id="KwwJ8SQbLn8Oz1Zftn1MUb" Name="Time" Kind="InputPin" />
             <Pin Id="JytnNwIVWeSOyioorKPF9d" Name="Rotation" Kind="InputPin" />
             <Pin Id="PfmWs7VwfmrLO33NKPxQZy" Name="Distance" Kind="InputPin" />
             <Pin Id="L7F1VsSSwoGOREv2gBpCPq" Name="Offset" Kind="InputPin" />
             <Pin Id="AU2Xr3Lt107QAgraSgmOre" Name="Fog Distance" Kind="InputPin" />
+            <Pin Id="QzB17UwOFYOMg8HZc8H2A1" Name="Fog Color" Kind="InputPin" />
             <Pin Id="JNyVVkZnEwHMNhlOAJKKOi" Name="Control" Kind="InputPin" />
+            <Pin Id="QztcHlmKVXrO0gvvFpNlKK" Name="Output Texture" Kind="InputPin" IsHidden="true" />
+            <Pin Id="MMLCO0ftlRGPQByGFjl5HB" Name="Output Size" Kind="InputPin" IsHidden="true" />
+            <Pin Id="PFfwehtidHENsRm2XOdi9J" Name="Output Format" Kind="InputPin" IsHidden="true" />
+            <Pin Id="KOdcL9zel7EOOK6IBQXKtQ" Name="Render Format" Kind="InputPin" IsHidden="true" />
             <Pin Id="K82S1fAhJ9NMCu75f8XdCj" Name="Apply" Kind="InputPin" />
             <Pin Id="EzWKWNOWp8RONQPpjrtiaC" Name="Output" Kind="OutputPin" />
           </Node>
@@ -70,16 +77,20 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="TextureWindow" />
             </p:NodeReference>
+            <Pin Id="Poeg2KLjRuJPUu7hmMq0QN" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="J46jtVEtZxVO3aZVyzyBON" Name="Bounds" Kind="InputPin" DefaultValue="1043, 87, 442, 432">
               <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="TypeFlag" Name="Rectangle" />
               </p:TypeAnnotation>
             </Pin>
+            <Pin Id="EFHrfvAbzk7O7m1hgwsfox" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
+            <Pin Id="O779Q0hfcoILCxz8Cs0LJ3" Name="Back Buffer Format" Kind="InputPin" IsHidden="true" />
             <Pin Id="LScfnl4cxqYOWy58J9XXhD" Name="Bound to Document" Kind="InputPin" DefaultValue="True">
               <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="TypeFlag" Name="Boolean" />
               </p:TypeAnnotation>
             </Pin>
+            <Pin Id="Q7TYNNGiPpoPDARkmu9ZZa" Name="Dialog If Document Changed" Kind="InputPin" IsHidden="true" />
             <Pin Id="S1pv28afebcL2nBsX3Hd84" Name="Input" Kind="InputPin" />
             <Pin Id="D5EsbosqKUbL1eddtW2tsN" Name="Title" Kind="InputPin" DefaultValue="Tunnels">
               <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
@@ -97,38 +108,39 @@
             <Pin Id="N5djWm4poZeLX7hndzKDX0" Name="Output" Kind="OutputPin" />
             <Pin Id="Q3LhMKLh0z6NHz6AF3QZnH" Name="Client Bounds" Kind="OutputPin" />
             <Pin Id="Ug0id9g8sPxQSkkxLzfnpH" Name="Input Source" Kind="OutputPin" />
+            <Pin Id="F3XfOrOHVbkOEWIz9Bf7Ne" Name="Back Buffer" Kind="OutputPin" IsHidden="true" />
           </Node>
           <Pad Id="CJhMK2EonL8Ob4YOA7frtJ" Comment="Type" Bounds="275,272,66,15" ShowValueBox="true" isIOBox="true" Value="Square">
             <p:TypeAnnotation LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.vl">
               <Choice Kind="TypeFlag" Name="TunnelType" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="N4ZlZyDAKvRLIDft0Mv5r0" Comment="Fog Distance" Bounds="395,476,35,15" ShowValueBox="true" isIOBox="true" Value="0.5">
+          <Pad Id="N4ZlZyDAKvRLIDft0Mv5r0" Comment="Fog Distance" Bounds="375,431,35,15" ShowValueBox="true" isIOBox="true" Value="0.5">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="HWl5DGEfH7VMDdkLuPJRSD" Comment="Fog Color" Bounds="295,326,136,15" ShowValueBox="true" isIOBox="true" Value="0, 0, 0, 1">
+          <Pad Id="HWl5DGEfH7VMDdkLuPJRSD" Comment="Fog Color" Bounds="395,467,136,15" ShowValueBox="true" isIOBox="true" Value="0, 0, 0, 1">
             <p:TypeAnnotation LastCategoryFullName="Color" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="RGBA" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="SF2iOVTAvGNQMUItWHGSDa" Comment="Time" Bounds="315,353,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+          <Pad Id="SF2iOVTAvGNQMUItWHGSDa" Comment="Time" Bounds="295,308,35,15" ShowValueBox="true" isIOBox="true" Value="0">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="CmKt7iUskomMCh3bzVjbSd" Comment="Rotation" Bounds="335,382,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+          <Pad Id="CmKt7iUskomMCh3bzVjbSd" Comment="Rotation" Bounds="315,337,35,15" ShowValueBox="true" isIOBox="true" Value="0">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="UO6fDnK8EyAPPjfUwi0D2O" Comment="Distance" Bounds="355,410,35,15" ShowValueBox="true" isIOBox="true" Value="0.5">
+          <Pad Id="UO6fDnK8EyAPPjfUwi0D2O" Comment="Distance" Bounds="335,365,35,15" ShowValueBox="true" isIOBox="true" Value="0.5">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="FGVjt51sDK4OB7gUhMGIlf" Comment="Offset" Bounds="375,439,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+          <Pad Id="FGVjt51sDK4OB7gUhMGIlf" Comment="Offset" Bounds="355,394,35,15" ShowValueBox="true" isIOBox="true" Value="0">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>

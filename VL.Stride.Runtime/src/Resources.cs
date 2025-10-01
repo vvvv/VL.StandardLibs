@@ -67,7 +67,7 @@ namespace VL.Stride
         // Game
         public static IResourceProvider<Game> GetGameProvider(this IServiceProvider serviceProvider)
         {
-            return serviceProvider.GetService<IResourceProvider<Game>>();
+            return serviceProvider.GetRequiredService<IResourceProvider<Game>>();
         }
 
         public static IResourceHandle<Game> GetGameHandle(this IServiceProvider serviceProvider)

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="VvF9KPKk9bxOtioyNVATbL" LanguageVersion="2022.5.0-0785-g501a43ba3a" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="VvF9KPKk9bxOtioyNVATbL" LanguageVersion="2024.6.6-0011-g14ec0ca950" Version="0.128">
   <Patch Id="K6jOtX5z4AOM2g6L5teo07">
     <Canvas Id="HuM0Neyl9P0P3djIwL4nYf" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -20,14 +20,20 @@
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
             <Pin Id="HcZs7a62BLoPpXAtmDKTiA" Name="Bounds" Kind="InputPin" DefaultValue="1120, 308, 432, 444" />
+            <Pin Id="MwWk1Lv4vSgP8seRJwJg39" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
             <Pin Id="RFO0WCwgClPLtuurXsd6KH" Name="Bound to Document" Kind="InputPin" DefaultValue="True" />
+            <Pin Id="FUa54xlrgisN5n72KpFcCU" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="AqVsiPgjL8KObrHb2Tlhix" Name="Dialog If Document Changed" Kind="InputPin" IsHidden="true" />
             <Pin Id="FEmprmZSMXGOZ6BLW3yl3J" Name="Input" Kind="InputPin" />
             <Pin Id="AjjEgsMjzN1LCY9f64wtrD" Name="Color" Kind="InputPin" />
             <Pin Id="SN9Sy5tUeJRL75k6d5gCaB" Name="Clear" Kind="InputPin" DefaultValue="True" />
             <Pin Id="EOF5QMXbGKtO1Eeh1MzQnf" Name="Space" Kind="InputPin" DefaultValue="Normalized" />
             <Pin Id="Unrsb70U6iePtOM6HMRzfV" Name="Show Cursor" Kind="InputPin" />
             <Pin Id="UA8COiWD2ghPmN4LAZoDDV" Name="VSync" Kind="InputPin" />
+            <Pin Id="TttH4TYhRBpPwxCWYFYr4p" Name="Commands" Kind="InputPin" IsHidden="true" />
+            <Pin Id="G5VPMyeJrsWP5UL9Q50hGt" Name="Enable Keyboard Shortcuts" Kind="InputPin" IsHidden="true" />
             <Pin Id="BGs1SpulZeMPbcit3peXa1" Name="Enabled" Kind="InputPin" />
+            <Pin Id="A2DeSFBmQNdOaxFzoHX2bd" Name="Form Bounds Notifications" Kind="OutputPin" IsHidden="true" />
             <Pin Id="IEolNxvy8ieOHWXoXnUqwO" Name="Form" Kind="OutputPin" />
             <Pin Id="VtCD3TojbCZNIE3ICe23l6" Name="ClientBounds" Kind="OutputPin" />
             <Pin Id="Fi9FymljmNXQYNmU2h76Xz" Name="Render Time" Kind="OutputPin" />
@@ -55,20 +61,22 @@
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImGui" />
             </p:NodeReference>
+            <Pin Id="QcbZZMTsiftQYbazypXOM2" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="OEbyCjeWheuNUfPZrl6grf" Name="Docking Enabled" Kind="InputPin" />
             <Pin Id="Neq5dGEniDAO8MKTCZipgw" Name="Fonts" Kind="InputPin" />
             <Pin Id="QSi2BIPsIBYOJNXcTg13pb" Name="Add Fullscreen Window" Kind="InputPin" />
-            <Pin Id="UBZFIsJLteRMmOAhzGtxLw" Name="Fullscreen Window Style" Kind="InputPin" />
+            <Pin Id="UBZFIsJLteRMmOAhzGtxLw" Name="Style" Kind="InputPin" />
             <Pin Id="QOkoc5AbT9tPW8WJkUFKp3" Name="Use Skia Space" Kind="InputPin" />
             <Pin Id="HeuxRFx6KwiPbsqcr78TQc" Name="Output" Kind="OutputPin" />
             <Patch Id="Rqp7gYe4MalMRZ5jfnaofj" ManuallySortedPins="true">
               <Patch Id="B57CdTxXV4wN8ARqjESQkC" Name="Create" ManuallySortedPins="true" />
-              <Patch Id="QUo9fxCo8mhNPwXXxIeAPY" Name="Update" ManuallySortedPins="true" />
+              <Patch Id="QUo9fxCo8mhNPwXXxIeAPY" Name="Update" ParticipatingElements="GflKhl8CEpBOzkZ54CCqoi" ManuallySortedPins="true" />
               <Node Bounds="217,310,311,293" Id="KQ74gY5GSfhLrZlQ6BHSEc">
                 <p:NodeReference LastCategoryFullName="ImGui" LastDependency="VL.ImGui.vl">
                   <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
                   <Choice Kind="ProcessAppFlag" Name="Window" />
                 </p:NodeReference>
+                <Pin Id="VLXLNs1hEsNPyRIh2lmh3K" Name="Node Context" Kind="InputPin" IsHidden="true" />
                 <Pin Id="DQ620Uh7J3hLo25BVPqwEz" Name="Context" Kind="InputPin" />
                 <Pin Id="CVhExTquGt8P4efarcvaQz" Name="Name" Kind="InputPin" />
                 <Pin Id="TnCrQxdCZLaOCRLd6x1Gcf" Name="Visible" Kind="InputPin" />
@@ -169,7 +177,9 @@
                       <Choice Kind="TypeFlag" Name="Integer32" />
                     </p:TypeAnnotation>
                   </Pad>
+                  <Patch Id="I8lFo73d2slMgeCw0zoLjd" Name="Dispose" />
                 </Patch>
+                <Pin Id="R1GrPDNzZoaOIH7tqDv0L8" Name="Lifespan" Kind="InputPin" />
               </Node>
               <Node Bounds="370,262,61,19" Id="EzZPBeJGC5OOgMkZNcvwU5">
                 <p:NodeReference LastCategoryFullName="2D.Rectangle" LastDependency="VL.CoreLib.vl">
@@ -184,6 +194,12 @@
               <Pad Id="CjR2jbEEzQjMSOLPWwrbpd" Comment="Size" Bounds="400,230,41,28" ShowValueBox="true" isIOBox="true" Value="3, 3">
                 <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="Vector2" />
+                </p:TypeAnnotation>
+              </Pad>
+              <Patch Id="Mrozk045l1pNeaiUl0oeUG" Name="Dispose" />
+              <Pad Id="FDLcCBLxhqPP88vKwDo0cU" Comment="Name" Bounds="257,252,75,15" ShowValueBox="true" isIOBox="true" Value="##MyWindow">
+                <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                  <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>
               </Pad>
             </Patch>
@@ -211,6 +227,7 @@
         <Link Id="UqPfT1jsVbALLdJANjawnm" Ids="RKN0wionA2rOtdKDFLnWgT,PS6BAlMlhiLNdZaagjUYO4" />
         <Link Id="EY8mpuJOmxwPX1YXwX01wP" Ids="OdjlcHVDIBWPEhGcUubpia,JxaLP3zuNg1NOKAin8ekLv" />
         <Link Id="JgB1y7slnnAPFK0xaLX5AN" Ids="HeuxRFx6KwiPbsqcr78TQc,FEmprmZSMXGOZ6BLW3yl3J" />
+        <Link Id="GflKhl8CEpBOzkZ54CCqoi" Ids="FDLcCBLxhqPP88vKwDo0cU,CVhExTquGt8P4efarcvaQz" />
       </Patch>
     </Node>
   </Patch>

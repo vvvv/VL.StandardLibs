@@ -13,7 +13,7 @@ namespace VL.Lib.Color
     {
         public static readonly Color4 One = new Color4(1, 1, 1, 1);
 
-        public static readonly Color4 Zero = new Color4(0, 0, 0, 0);
+        public static readonly Color4 Zero = new Color4(0, 0, 0, 1);
 
         /// <summary>
         /// Joins a color from its components

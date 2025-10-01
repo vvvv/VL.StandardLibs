@@ -9,14 +9,18 @@ using VL.Model;
 
 namespace VL.IO.Redis
 {
-    [ProcessNode(Name = "Subscribe")]
+    /// <summary>
+    /// Subscribe to receive value changes on a specified Redis Channel
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    [ProcessNode]
     public class Subscribe<T> : IDisposable
     {
         private readonly SerialDisposable _subscription = new();
         private readonly Subject<T?> _subject = new();
         private readonly ILogger _logger;
 
-        record struct Config(RedisClient? Client, string? Channel, RedisChannel.PatternMode Pattern, SerializationFormat? Format, bool ProcessMessagesConcurrently);
+        record struct Config(RedisClient? Client, string? Channel, SerializationFormat? Format, bool ProcessMessagesConcurrently);
 
         private Config _config;
 
@@ -31,15 +35,20 @@ namespace VL.IO.Redis
             _subscription.Dispose();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="channel">Name of the Redis channel</param>
+        /// <param name="serializationFormat"></param>
+        /// <returns></returns>
         [return: Pin(Name = "Output")]
         public IObservable<T?> Update(
             RedisClient? client,
-            string? redisChannel,
-            RedisChannel.PatternMode pattern = RedisChannel.PatternMode.Auto,
-            SerializationFormat? serializationFormat = default,
-            bool processMessagesConcurrently = false)
+            string? channel,
+            Optional<SerializationFormat> serializationFormat = default)
         {
-            var config = new Config(client, redisChannel, pattern, serializationFormat, processMessagesConcurrently);
+            var config = new Config(client, channel, serializationFormat.ToNullable(), ProcessMessagesConcurrently: false);
             if (config != _config)
             {
                 _config = config;
@@ -54,11 +63,11 @@ namespace VL.IO.Redis
             _subscription.Disposable = null;
 
             var client = config.Client;
-            if (client is null || config.Channel is null)
+            if (client is null || string.IsNullOrEmpty(config.Channel))
                 return;
 
             var subscriber = client.GetSubscriber();
-            var channel = new RedisChannel(config.Channel, config.Pattern);
+            var channel = new RedisChannel(config.Channel, RedisChannel.PatternMode.Literal);
 
             if (config.ProcessMessagesConcurrently)
             {

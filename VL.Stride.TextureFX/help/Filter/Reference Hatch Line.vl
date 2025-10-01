@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="AEi9ajyJKTINFfN2XNmG0e" LanguageVersion="2023.5.1-0009-gff72e46415" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="AEi9ajyJKTINFfN2XNmG0e" LanguageVersion="2023.5.3-0359-g76f8ff031b" Version="0.128">
   <NugetDependency Id="EX4WQqp7RfDOkpC9NB2i7Y" Location="VL.CoreLib" Version="2021.4.0-0583-gc3c0b6599c" />
   <Patch Id="VsaXdR4Oj6GOzw0tduUk7L">
     <Canvas Id="HQQG7R2X3VVOypmZGDhuu5" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -20,6 +20,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="FileTexture" />
             </p:NodeReference>
+            <Pin Id="HUE5nvabFMgOLrgm32HZlH" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="MVRxck0ECRDOf4GJm7ovBn" Name="Path" Kind="InputPin" />
             <Pin Id="BRlJ1mHVFONQFePEMwJKyp" Name="Generate Mipmaps" Kind="InputPin" DefaultValue="True">
               <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
@@ -41,18 +42,23 @@
             </p:TypeAnnotation>
           </Pad>
           <Node Bounds="260,439,145,19" Id="IYM1nD1zXBWOxUItP9KddZ">
-            <p:NodeReference LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.Rendering.EffectShaderNodes">
+            <p:NodeReference LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.TextureFX.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessNode" Name="Hatch (Line)" />
             </p:NodeReference>
             <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="UsMPRAXjoKiMJRzn2I1JLO" Name="Input" Kind="InputPin" />
+            <Pin Id="LCqQ3Z3JKaJQYMGN8izRUB" Name="Sampler" Kind="InputPin" IsHidden="true" />
             <Pin Id="PNzAJMna9k4OQDbJOfLIpu" Name="Background Color" Kind="InputPin" />
             <Pin Id="BBt3hLZ9vOgQSv3e6fxb40" Name="Hatch Color" Kind="InputPin" />
             <Pin Id="QfDr35jCOssOgxmsGJGJGR" Name="Threshold" Kind="InputPin" />
             <Pin Id="TLUn9VIIj3OQdeewcV67Lf" Name="Thickness" Kind="InputPin" />
             <Pin Id="Ue18OYannLaMgeG3NIt9XR" Name="Rotation" Kind="InputPin" />
             <Pin Id="Q7bxIyqAOdiP64hRppYg6e" Name="Control" Kind="InputPin" />
+            <Pin Id="H0fqfmUuNBIM5mfSra299Y" Name="Output Texture" Kind="InputPin" IsHidden="true" />
+            <Pin Id="CV9lzA7QZnANRTVX9QTDza" Name="Output Size" Kind="InputPin" IsHidden="true" />
+            <Pin Id="C4wQQHuI5CvPLJDmUBE7JR" Name="Output Format" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Sgy01GF727uPbLHteVfj06" Name="Render Format" Kind="InputPin" IsHidden="true" />
             <Pin Id="LRJmJYzvKqCLk05Qlnatrc" Name="Apply" Kind="InputPin" />
             <Pin Id="AiJ67ZCAZdbOo972cm8vwn" Name="Output" Kind="OutputPin" />
           </Node>
@@ -61,12 +67,16 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="TextureWindow" />
             </p:NodeReference>
+            <Pin Id="O0qGkmh34PwQPJ5VjrovWQ" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="CW1UqZ95MLCOGp4KQ3rxzu" Name="Bounds" Kind="InputPin" DefaultValue="1030, 94, 582, 441" />
+            <Pin Id="TmkU8OhiSsdMaflrBwpkhJ" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
+            <Pin Id="IoOR7kVzZSVMMwK3E9tNj5" Name="Back Buffer Format" Kind="InputPin" IsHidden="true" />
             <Pin Id="OuYBOOMMyUOOBWkYyvJyg0" Name="Bound to Document" Kind="InputPin" DefaultValue="True">
               <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="TypeFlag" Name="Boolean" />
               </p:TypeAnnotation>
             </Pin>
+            <Pin Id="Q8S9uWRy4PHNraOd4ZXYOu" Name="Dialog If Document Changed" Kind="InputPin" IsHidden="true" />
             <Pin Id="HIQ8it4g8YnLz6CQTILmPP" Name="Input" Kind="InputPin" />
             <Pin Id="KZD0Mf4uE5yOa4HFYCbkM1" Name="Title" Kind="InputPin" DefaultValue="HatchLine">
               <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
@@ -84,6 +94,7 @@
             <Pin Id="UAjlKQlH3y2PO4Do2dBJGS" Name="Output" Kind="OutputPin" />
             <Pin Id="UC2lrxX1kT5OAQ02kJcAlW" Name="Client Bounds" Kind="OutputPin" />
             <Pin Id="LA3ulWwM33ALcGnOtuxGti" Name="Input Source" Kind="OutputPin" />
+            <Pin Id="Ex3E4xb8V2oLyTSXbNZC2h" Name="Back Buffer" Kind="OutputPin" IsHidden="true" />
           </Node>
           <Pad Id="Lrj7nRldEPVNyGV4QocD9z" Comment="Background Color" Bounds="282,253,20,15" ShowValueBox="true" isIOBox="true" Value="0, 0, 0, 1">
             <p:TypeAnnotation LastCategoryFullName="Color" LastDependency="VL.CoreLib.vl">

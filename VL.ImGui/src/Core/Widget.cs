@@ -2,7 +2,7 @@
 
 namespace VL.ImGui
 {
-    public abstract class Widget
+    public abstract class Widget : IDisposable
     {
         internal virtual void Reset() { }
 
@@ -27,6 +27,15 @@ namespace VL.ImGui
                 using (context.ApplyStyle(Style))
                     UpdateCore(context);
             }
+        }
+
+        void IDisposable.Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
         }
     }
 }
