@@ -1106,41 +1106,6 @@ namespace VL.Stride.Rendering
             return renderTargetTexture;
         }
 
-        private Texture ResolveRenderTargetAsSRV(RenderDrawContext drawContext)
-        {
-            //if (!BindOpaqueAsResourceDuringTransparentRendering)
-            //    return null;
-
-            // Create temporary texture and blit active render target to it
-            var renderTarget = drawContext.CommandList.RenderTargets[0];
-            var renderTargetTexture = Context.Allocator.GetTemporaryTexture2D(renderTarget.Description);
-
-            drawContext.CommandList.Copy(renderTarget, renderTargetTexture);
-
-            // Bind texture as srv in PerView.Opaque
-            var renderView = drawContext.RenderContext.RenderView;
-            foreach (var renderFeature in drawContext.RenderContext.RenderSystem.RenderFeatures)
-            {
-                if (!(renderFeature is RootEffectRenderFeature))
-                    continue;
-
-                var resolvedLogicalKey = ((RootEffectRenderFeature)renderFeature).CreateViewLogicalGroup("Resolved");
-                var viewFeature = renderView.Features[renderFeature.Index];
-
-                foreach (var viewLayout in viewFeature.Layouts)
-                {
-                    var opaqueLogicalRenderGroup = viewLayout.GetLogicalGroup(resolvedLogicalKey);
-                    if (opaqueLogicalRenderGroup.Hash == ObjectId.Empty)
-                        continue;
-
-                    var resourceGroup = viewLayout.Entries[renderView.Index].Resources;
-                    resourceGroup.DescriptorSet.SetShaderResourceView(opaqueLogicalRenderGroup.DescriptorSlotStart, renderTargetTexture);
-                }
-            }
-
-            return renderTargetTexture;
-        }
-
         private void PrepareRenderTargets(RenderDrawContext drawContext, Texture outputRenderTarget, Texture outputDepthStencil)
         {
             if (OpaqueRenderStage == null)
