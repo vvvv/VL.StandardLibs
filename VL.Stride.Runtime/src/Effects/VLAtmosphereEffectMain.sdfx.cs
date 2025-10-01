@@ -39,7 +39,7 @@ namespace VL.Stride.Rendering
                     context.Mixin(mixin, "AtmosphereForwardRender");
             }
 
-            [ModuleInitializer]
+            [System.Runtime.CompilerServices.ModuleInitializer]
             internal static void __Initialize__()
 
             {

@@ -30,7 +30,7 @@ namespace VL.Stride.Effects.TextureFX
                 context.Mixin(mixin, context.GetParam(TextureFXGraphKeys.TextureFXRoot));
             }
 
-            [ModuleInitializer]
+            [System.Runtime.CompilerServices.ModuleInitializer]
             internal static void __Initialize__()
 
             {
