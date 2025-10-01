@@ -1,0 +1,18 @@
+shader ColorFromTrailHead_ShaderFX : ComputeFloat4, ShaderBaseStream, TrailHeadStruct
+{
+    rgroup PerMaterial
+    {
+        stage StructuredBuffer<TrailHead> Heads; // heads
+    }
+
+    cbuffer PerMaterial
+    {
+        stage int TrailCount;
+    }
+
+    override float4 Compute()
+    {
+        uint id = streams.InstanceID / TrailCount;
+        return float4(Heads[id].Col, 1);
+    }
+};

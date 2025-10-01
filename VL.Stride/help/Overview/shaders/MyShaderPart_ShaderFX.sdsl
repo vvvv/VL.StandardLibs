@@ -1,0 +1,25 @@
+[Summary("Multiplies the inputs.")]
+shader MyShaderPart_ShaderFX : ComputeFloat4
+{
+    //input for another ShaderFX node
+    compose ComputeFloat4 ShaderInput;
+
+    cbuffer PerMaterial //when used in materials
+    {
+        [Summary("I could be a composition input.")]
+        stage float4 ScalarInput = float4(1, 2, 3, 4); //just for reference, it is easier to create a ComputeFloat shader input and connect a ValueIn or ValueMap node
+    }
+
+    rgroup PerMaterial //when used in materials
+    {
+        stage RWBuffer<float> MyBuffer;
+    }
+
+    override float4 Compute()
+    {
+        // evaluate that shader graph above this node
+        float4 result = ShaderInput.Compute();
+
+        return result * ScalarInput * MyBuffer[0];
+    }
+};

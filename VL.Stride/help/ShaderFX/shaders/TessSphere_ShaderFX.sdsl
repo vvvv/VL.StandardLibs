@@ -1,0 +1,101 @@
+#ifndef InputControlPointCount
+# define InputControlPointCount 4
+#endif
+
+#ifndef OutputControlPointCount
+# define OutputControlPointCount 4
+#endif
+
+
+shader TessSphere_ShaderFX :   ShaderBase, TransformationBase, TessSphereDomainStream, Transformation, NormalBase, ShaderUtils, Texturing
+{
+    patchstream float tessFactor[4]         : SV_TessFactor;
+    patchstream float insideTessFactor[2]   : SV_InsideTessFactor;
+
+
+    cbuffer PerMaterial
+	{
+        stage float GlobalSize          = 1;
+        stage int   GlobalTessFactor    = 16;
+	}
+
+    override stage void VSMain()
+    {
+        // streams to Domain need to fill here
+        streams.SphereMultiplyer    = GlobalSize;
+        streams.TessFactor          = GlobalTessFactor;
+        base.VSMain();
+    }
+
+    [domain("quad")]
+    [partitioning("integer")]
+    [outputtopology("triangle_ccw")]
+    [outputcontrolpoints(OutputControlPointCount)]
+    [patchconstantfunc("HSConstantMain")]
+    void HSMain(InputPatch<Input, InputControlPointCount> input, out Output output, uint uCPID : SV_OutputControlPointID) 
+    {
+        const uint NextCPID = uCPID < 2 ? uCPID + 1 : 0;
+
+        streams = input[uCPID];
+
+        output = streams;
+    }
+
+    void HSConstantMain(InputPatch<Input, InputControlPointCount> input, const OutputPatch<Input2, OutputControlPointCount> output, out Constants constants) 
+    {
+        constants.tessFactor[0] = output[0].TessFactor;
+        constants.tessFactor[1] = output[0].TessFactor;
+        constants.tessFactor[2] = output[0].TessFactor;
+        constants.tessFactor[3] = output[0].TessFactor;
+        constants.insideTessFactor[0] = output[0].TessFactor;
+        constants.insideTessFactor[1] = output[0].TessFactor;
+    }
+
+    float3 rY(float3 p, float a) 
+    {
+        float c,s;float3 q=p;
+        c = cos(a); s = sin(a);
+        p.x = c * q.x + s * q.z;
+        p.z = -s * q.x + c * q.z;
+        return p;
+    }
+    
+    [domain("quad")]
+    void DSMain(const OutputPatch<Input, OutputControlPointCount> input, out Output output, in Constants constants, float2 uv : SV_DomainLocation) 
+    {    
+
+        float3 halfSphere;
+		halfSphere =  rY(float3(sin(uv.x*Pi),cos(uv.x*Pi),0), (uv.y+1)*Pi*1);
+        halfSphere *= input[0].SphereSize * input[0].SphereMultiplyer;
+        halfSphere = mul(halfSphere, (float3x3)ViewInverse);
+        streams.normalWS   = halfSphere;
+        halfSphere += input[0].SpherePos;
+        streams.PositionWS = mul(float4(halfSphere,1) , World);
+
+        this.BaseTransformDS();
+
+        output = streams;
+    }
+
+     stage override void BaseTransformVS()
+    {
+        this.PreTransformPosition();
+    }
+
+    stage void BaseTransformDS()
+    {
+        this.TransformPosition();
+        this.PostTransformPosition();
+    }
+    
+    stage override void TransformPosition()
+    {
+        base.TransformPosition();
+
+        // Apply tessellation map, etc...
+        TessellateDomain();
+    }
+
+
+    stage void TessellateDomain() {}
+};

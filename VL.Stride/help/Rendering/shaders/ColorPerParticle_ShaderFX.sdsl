@@ -1,0 +1,14 @@
+shader ColorPerParticle_ShaderFX : ComputeFloat4, ParticleStructPos4Vel4, ShaderBaseStream // for InstanceID
+{
+    rgroup PerMaterial
+    {
+        stage StructuredBuffer<ParticlePos4Vel4> ParticlesBuffer;
+    }
+
+    override float4 Compute()
+    {
+        uint id = streams.InstanceID;
+        ParticlePos4Vel4 p = ParticlesBuffer[id];
+        return float4(p.Vel.xyz, 1);
+    }
+};

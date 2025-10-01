@@ -1,0 +1,23 @@
+/// <summary>
+/// Defines streams for BezierTubeSegment in world space position.
+/// </summary>
+shader TessSphereStream :  IStreamInitializer
+{
+    // The tesselation atribute 
+    stage stream int    TessFactor  = 16;
+
+    // Size Multiplyer
+    stage stream float  SphereMultiplyer   = 1;
+
+    // per Sphere Geometry attributes
+    stage stream float3 SpherePos    : SPHEREPOS; 
+    stage stream float  SphereSize   : SPHERESIZE; 
+
+
+    override void ResetStream()
+    {
+        base.ResetStream();
+        streams.TessFactor = 16.0f;
+        streams.SphereSize = 1.0f;
+    }
+};

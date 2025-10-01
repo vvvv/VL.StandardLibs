@@ -1,1 +1,0 @@
-Maybe it's obvious but please keep the example texture naming when changing them to avoid breaking nodes

@@ -136,7 +136,7 @@ namespace VL.Stride.Rendering
                         newNode: nodeBuildContext =>
                         {
                             var gameHandle = AppHost.Current.Services.GetGameHandle();
-                            var effect = new TextureFXEffect("TextureFXEffect") { Name = shaderName };
+                            var effect = new TextureFXEffect("TextureFXEffect", logger: nodeBuildContext.NodeContext.GetLogger()) { Name = shaderName };
 
                             var context = BuildBaseMixin(shaderName, shaderMetadata, graphicsDevice, out var textureFXEffectMixin, effect.Parameters);
 

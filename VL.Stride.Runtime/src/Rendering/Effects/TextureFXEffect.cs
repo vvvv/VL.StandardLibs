@@ -1,10 +1,12 @@
 using System;
 using System.Linq;
 using System.Reactive.Disposables;
+using Microsoft.Extensions.Logging;
 using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Rendering;
 using Stride.Rendering.Images;
+using VL.Core;
 
 namespace VL.Stride.Rendering
 {
@@ -16,9 +18,12 @@ namespace VL.Stride.Rendering
         PerFrameParameters[] perFrameParams;
         PerViewParameters[] perViewParams;
 
-        public TextureFXEffect(string effectName = null, bool delaySetRenderTargets = false)
+        private readonly ILogger logger;
+
+        public TextureFXEffect(string effectName = null, bool delaySetRenderTargets = false, ILogger logger = null)
             : base(effectName, delaySetRenderTargets)
         {
+            this.logger = logger ?? AppHost.Global.DefaultLogger;
             Subscriptions.DisposeBy(this);
         }
 
@@ -77,7 +82,7 @@ namespace VL.Stride.Rendering
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    logger.LogError(e, "Drawing {Name} crashed.", Name);
                     if (time != null)
                         lastExceptionTime = time.Total;
                 }

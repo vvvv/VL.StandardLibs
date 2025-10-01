@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Collections.Concurrent;
 using System.Reactive.Concurrency;
+using Microsoft.Extensions.Logging;
 
 namespace VL.Core.Reactive
 {
@@ -30,7 +31,7 @@ namespace VL.Core.Reactive
             Descriptions = new BehaviorSubject<ChannelBuildDescription[]>(GetChannelBuildDescriptions().ToArray());
 
             Observable.FromEventPattern<FileSystemEventArgs>(watcher, "Changed", scheduler: Scheduler.CurrentThread)
-                .Do(_ => Console.WriteLine($"{filePath} changed"))
+                .Do(_ => appHost.DefaultLogger.LogDebug($"{filePath} changed"))
                 .Throttle(TimeSpan.FromSeconds(1))
                 .Subscribe(_ => PushChannelBuildDescriptions());
 
@@ -45,7 +46,7 @@ namespace VL.Core.Reactive
             }
             catch (Exception)
             {
-                Console.WriteLine($"reading {filePath} failed.");
+                appHost.DefaultLogger.LogWarning($"reading {filePath} failed.");
             }
         }
 

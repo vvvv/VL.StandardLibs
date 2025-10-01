@@ -1,0 +1,38 @@
+[Summary("Generates the instance transformations")]
+shader TrailTransformations_ComputeFX : ComputeShaderBase, TrailHeadStruct, ShaderUtils, TransformUtils, Global, HappyNoise
+{
+    struct Transform //needed put float4x4 into a structured buffer
+    {
+        float4x4 Matrix;
+    };
+
+    int TrailCount;
+    int TrailIndex;
+	StructuredBuffer<TrailHead> Heads; // state
+	RWStructuredBuffer<Transform> InstanceWorld;
+	RWStructuredBuffer<Transform> InstanceWorldInverse;
+
+    override void Compute()
+    {
+        uint index = streams.DispatchThreadId.x;
+        
+        TrailHead p = Heads[index];
+
+        index = index * TrailCount + TrailIndex;
+
+        float4x4 world;
+        float4x4 worldInverse;
+
+        float size = float(TrailIndex) / float(TrailCount - 1);
+        size = sin(size * Pi);
+
+        float size2 = p.Age;
+        size2 = sin(size2 * Pi);
+        
+        size = size * size2;
+        TransformTSWithInverse(p.Pos, size * 0.025, world, worldInverse);
+
+        InstanceWorld[index].Matrix = world;
+        InstanceWorldInverse[index].Matrix = worldInverse;
+    }
+};
