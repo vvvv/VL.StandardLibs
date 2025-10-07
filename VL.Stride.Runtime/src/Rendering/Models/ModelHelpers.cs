@@ -1,12 +1,107 @@
-﻿using System;
+﻿using Stride.Assets.Models;
+using Stride.Core;
+using Stride.Core.BuildEngine;
+using Stride.Core.Diagnostics;
+using Stride.Core.IO;
 using Stride.Core.Mathematics;
+using Stride.Core.Serialization.Contents;
+using Stride.Core.Storage;
+using Stride.Graphics;
 using Stride.Rendering;
+using System;
+using System.Runtime.CompilerServices;
 using StrideModel = Stride.Rendering.Model;
 
 namespace VL.Stride.Rendering
 {
+
     public static class ModelHelpers
     {
+        class CommandContext : ICommandContext
+        {
+            public Command CurrentCommand => throw new NotImplementedException();
+
+            public LoggerResult Logger => null;
+
+            public void AddTag(ObjectUrl url, string tag)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IEnumerable<IReadOnlyDictionary<ObjectUrl, OutputObject>> GetOutputObjectsGroups()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void RegisterCommandLog(IEnumerable<ILogMessage> logMessages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void RegisterInputDependency(ObjectUrl url)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void RegisterOutput(ObjectUrl url, ObjectId hash)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        internal static StrideModel LoadModel(string filePath, float importScale, Vector3 pivotPosition, bool mergeMeshes, IGraphicsDeviceService graphicsDeviceService)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                return null;
+
+            var command = ImportModelCommand.Create(Path.GetExtension(filePath));
+            if (command is null)
+                return null;
+
+            command.Mode = ImportModelCommand.ExportMode.Model;
+            command.SourcePath = filePath;
+            command.ScaleImport = importScale;
+            command.PivotPosition = pivotPosition;
+            command.MaxInputSlots = 32;
+            command.Allow32BitIndex = true;
+            command.Materials = new List<ModelMaterial>();
+            command.MergeMeshes = mergeMeshes;
+            command.DeduplicateMaterials = true;
+            command.Location = new UFile(Guid.NewGuid().ToString());
+
+            using var inMemoryFileProvider = new MemoryFileProvider("/tmp/in-memory-database");
+            using var objectDatabase = new ObjectDatabase(inMemoryFileProvider.RootPath, "temp-index", loadDefaultBundle: false);
+            using var fileProvider = new DatabaseFileProvider(objectDatabase);
+            var services = new ServiceRegistry();
+            services.AddService<IDatabaseFileProviderService>(new DatabaseFileProviderService(fileProvider));
+            services.AddService(graphicsDeviceService);
+            var contentManager = new ContentManager(services);
+
+            var rawModel = command.ExportModel(new CommandContext(), contentManager);
+            // The returned model is not useable for runtime (buffers are not attached to graphics device)
+            // We need to serialize/deserialize for the to get connected
+            contentManager.Save(command.Location, rawModel);
+            return contentManager.Load<StrideModel>(command.Location);
+        }
+
+        [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(ExportModel))]
+        extern static object ExportModel(this ImportModelCommand command, ICommandContext commandContext, ContentManager contentManager);
+
+        internal static void ReleaseGraphicsResources(this StrideModel model)
+        {
+            foreach (var mesh in model.Meshes)
+                mesh.ReleaseGraphicsResources();
+        }
+
+        internal static void ReleaseGraphicsResources(this Mesh mesh)
+        {
+            if (mesh.Draw is null)
+                return;
+
+            mesh.Draw.IndexBuffer?.Buffer?.Dispose();
+            foreach (var v in mesh.Draw.VertexBuffers)
+                v.Buffer?.Dispose();
+        }
 
         public static StrideModel SetMeshParameter<T>(this StrideModel model, PermutationParameterKey<T> permutationParameter, T value)
         {
