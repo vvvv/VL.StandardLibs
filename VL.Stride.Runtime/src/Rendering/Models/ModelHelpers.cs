@@ -11,6 +11,7 @@ using Stride.Rendering;
 using System;
 using System.Runtime.CompilerServices;
 using StrideModel = Stride.Rendering.Model;
+using VL.Stride.Utils;
 
 namespace VL.Stride.Rendering
 {
@@ -59,7 +60,7 @@ namespace VL.Stride.Rendering
                 return null;
 
             command.Mode = ImportModelCommand.ExportMode.Model;
-            command.SourcePath = filePath;
+            command.SourcePath = filePath?.CreateUFile(); // Takes care of network paths
             command.ScaleImport = importScale;
             command.PivotPosition = pivotPosition;
             command.MaxInputSlots = 32;
