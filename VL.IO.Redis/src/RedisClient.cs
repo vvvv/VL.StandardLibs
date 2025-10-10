@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -14,121 +14,265 @@ using System.Threading.Tasks;
 using VL.Core;
 using VL.Core.Import;
 using VL.Core.Reactive;
-using VL.IO.Redis.Experimental;
 using VL.IO.Redis.Internal;
+using VL.Lang.PublicAPI;
 using VL.Lib.Animation;
 using VL.Lib.Collections;
 using VL.Lib.Reactive;
+using VL.Model;
 using VL.Serialization.MessagePack;
 using VL.Serialization.Raw;
 
-[assembly: ImportAsIs(Namespace = "VL")]
-
 namespace VL.IO.Redis
 {
-    // TODO: We want to hide the operations of this class
-    public class RedisClient : IDisposable
+    // Patch calls AddBinding and later RemoveBinding.
+    // Both methods will subsequently push a new model.
+    // Internally we only need to keep the model in sync with what bindings we have at runtime.
+    [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
+    public sealed class RedisClient : IModule, IDisposable
     {
-        private readonly TransactionBuilder _transactionBuilder = new();
         private readonly ILogger _logger;
-        private readonly Dictionary<string, IBinding> _bindings = new();
-        private readonly ConnectionMultiplexer _multiplexer;
-        private readonly Subject<Unit> _networkSync = new Subject<Unit>();
+        private readonly NodeContext _nodeContext;
         private readonly AppHost _appHost;
-        internal readonly RedisModule _module;
-        private ImmutableArray<IParticipant> _participants = ImmutableArray<IParticipant>.Empty;
-
+        private readonly IChannel<ImmutableDictionary<string, BindingModel>> _modelStream;
+        private readonly IDisposable _modelSubscription;
+        private readonly CompositeDisposable _disposables = new();
+        private readonly IChannelHub _channelHub;
+        private readonly RedisConnectionManager _redisConnectionManager;
+        private readonly Subject<Unit> _networkSync = new Subject<Unit>();
+        private readonly TransactionBuilder _transactionBuilder = new();
+        private readonly ConcurrentDictionary<string, IRedisBinding> _bindings = new();
+        private RedisConnection? _redisConnection;
+        private string _nickname = string.Empty;
+        private string? _lastConfiguration;
+        private Optional<string> _lastNickname;
+        private readonly IChannel<Unit> _onModuleModelChanged = ChannelHelpers.CreateChannelOfType<Unit>();
         private Task? _lastTransaction;
 
-        public RedisClient(AppHost appHost, ConnectionMultiplexer multiplexer, ILogger logger, RedisModule module)
+        [Fragment]
+        public RedisClient(
+            [Pin(Visibility = PinVisibility.Hidden)]   NodeContext nodeContext,
+            [Pin(Visibility = PinVisibility.Optional)] IChannel<ImmutableDictionary<string, BindingModel>> model,
+            [Pin(Visibility = PinVisibility.Optional)] bool showBindingColumn = true
+            )
         {
-            _appHost = appHost;
-            _multiplexer = multiplexer;
-            _logger = logger;
-            _module = module;
+            _nodeContext = nodeContext;
+            _appHost = nodeContext.AppHost;
+            _logger = nodeContext.GetLogger();
 
-            // This opens a Pub/Sub connection internally
-            var subscriber = multiplexer.GetSubscriber();
-            var _invalidations = subscriber.Subscribe(RedisChannel.Literal("__redis__:invalidate"));
-            _invalidations.OnMessage(OnInvalidationMessage);
-
-            EnableClientSideTracking();
-            _multiplexer.ConnectionRestored += (s, e) =>
+            if (model.IsValid())
+                _modelStream = model;
+            else
             {
-                // Re-enable client side tracking
-                EnableClientSideTracking();
-            };
+                _modelStream = ChannelHelpers.CreateChannelOfType<ImmutableDictionary<string, BindingModel>>();
+                _modelStream.Value = ImmutableDictionary<string, BindingModel>.Empty;
+            }
+
+            _channelHub = _appHost.Services.GetRequiredService<IChannelHub>();
+            _redisConnectionManager = new RedisConnectionManager(nodeContext);
+
+            if (showBindingColumn)
+                _channelHub.RegisterModule(this);
+
+            _modelSubscription = _modelStream
+                .ObserveOn(_appHost.SynchronizationContext)
+                .Merge(_channelHub.OnChannelsChanged)
+                .Merge((IObservable<object>)_onModuleModelChanged)
+                .Subscribe(_ =>
+                {
+                    var m = _modelStream.Value;
+                    UpdateBindingsFromModel(m ?? ImmutableDictionary<string, BindingModel>.Empty);
+
+                    var solution = IDevSession.Current?.CurrentSolution
+                        .SetPinValue(nodeContext.Path.Stack, "Model", m);
+                    solution?.Confirm();
+                });
+
+            var frameClock = _appHost.Services.GetRequiredService<IFrameClock>();
+            frameClock.GetSubFrameEvent(SubFrameEvents.ModulesWriteGlobalChannels)
+                .Subscribe(WriteIntoGlobalChannels)
+                .DisposeBy(_disposables);
+
+            frameClock.GetSubFrameEvent(SubFrameEvents.ModulesSendingData)
+                .Subscribe(SendData)
+                .DisposeBy(_disposables);
+
+            UpdateBindingsFromModel(_modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty);
         }
 
-        private void EnableClientSideTracking()
+        public void Dispose() 
         {
-            // HACK: It seems the StackExchange API is a little too high level here / doesn't support this yet properly:
-            // 1) CLIENT TRACKING ON without the REDIRECT option requires RESP3, but StackExchange will crash in that case not being able to handle the incoming server message
-            // 2) CLIENT TRACKING ON with the REDIRECT option only seems to work in RESP2, but in RESP2 we need to use a 2nd connection for Pub/Sub.
-            //    However getting the ID of that 2nd connection is not possible in StackExchange (https://stackoverflow.com/questions/66964604/how-do-i-get-the-client-id-for-the-isubscriber-connection)
-            //    we need to ask the server (requires the AllowAdmin option) for the client list and then identify our pub/sub connection.
-            // Hopefully the situation should improve once https://github.com/StackExchange/StackExchange.Redis/tree/server-cache-invalidation is merged back.
-            foreach (var s in _multiplexer.GetServers())
-            {
-                if (!s.IsConnected)
-                    continue;
+            _channelHub.UnregisterModule(this);
 
-                var pubSubClient = s.ClientList().FirstOrDefault(c => c.Name == _multiplexer.ClientName && c.ClientType == ClientType.PubSub);
-                if (pubSubClient != null)
-                {
-                    s.Execute("CLIENT", new object[] { "TRACKING", "ON", "REDIRECT", pubSubClient.Id.ToString(), "BCAST", "NOLOOP" });
-                }
+            _disposables.Dispose();
+            _modelSubscription?.Dispose();
+            _redisConnectionManager.Dispose();
+
+            foreach (var (_, binding) in _bindings)
+                binding.Dispose();
+            _bindings.Clear();
+        }
+
+        [Fragment]
+        public void Update(
+            string? configuration = "localhost:6379", 
+            Optional<string> nickname = default,
+            Action<ConfigurationOptions>? configure = null, 
+            int database = -1,
+            Initialization initialization = Initialization.Redis,
+            BindingDirection bindingType = BindingDirection.InOut,
+            [Pin(Visibility = PinVisibility.Optional)] CollisionHandling collisionHandling = CollisionHandling.None,
+            SerializationFormat serializationFormat = SerializationFormat.MessagePack,
+            [Pin(Visibility = PinVisibility.Optional)] Optional<TimeSpan> expiry = default,
+            [Pin(Visibility = PinVisibility.Optional)] When when = When.Always,
+            bool connectAsync = true)
+        {
+            Format = serializationFormat;
+            Database = database;
+
+            if (configuration != _lastConfiguration || nickname != _lastNickname)
+            {
+                _lastConfiguration = configuration;
+                _lastNickname = nickname;
+                _nickname = nickname.TryGetValue(string.IsNullOrEmpty(configuration) ? "" : configuration.Substring(0, configuration.IndexOf(':')));
+            }
+
+            var newmodel = Model with
+            { 
+                Initialization = initialization,
+                BindingType = bindingType,
+                CollisionHandling = collisionHandling,
+                SerializationFormat = serializationFormat,
+                Expiry = expiry.ToNullable(),
+                When = when
+            };
+
+            var changed = Model != newmodel;
+            Model = newmodel;
+            if (changed)
+                _onModuleModelChanged.SetValueAndAuthor(Unit.Default, null);
+
+            var connection = _redisConnectionManager.Update(configuration, configure, connectAsync, this);
+            if (connection != _redisConnection)
+            {
+                _redisConnection = connection;
+
+                foreach (var (_, binding) in _bindings)
+                    binding.Reset();
+
+                UpdateBindingsFromModel(_modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty);
             }
         }
 
-        public void Dispose()
-        {
-            _multiplexer.Dispose();
-        }
 
-        [DefaultValue(SerializationFormat.MessagePack)]
-        public SerializationFormat Format { private get; set; } = SerializationFormat.MessagePack;
+        public ResolvedBindingModel Model { get; private set; } = new ResolvedBindingModel(Model: default, Key: string.Empty, PublicChannelPath: default);
+
+
+        [Fragment]
+        public RedisClient? Client => this;
+
+        [Fragment]
+        public bool IsConnected => _redisConnectionManager.IsConnected;
+
+        [Fragment]
+        public string ClientName => _redisConnectionManager.ClientName;
 
         [DefaultValue(-1)]
         public int Database { internal get; set; } = -1;
 
-        public string ClientName => _multiplexer.ClientName;
+        [DefaultValue(SerializationFormat.MessagePack)]
+        public SerializationFormat Format { private get; set; } = SerializationFormat.MessagePack;
 
-        internal IObservable<Unit> NetworkSync => _networkSync;
+        internal RedisConnection? CurrentConnection => _redisConnection;
+        internal IObservable<RedisConnection?> ConnectionObservable => _redisConnectionManager.ConnectionObservable;
 
-        internal IDatabase GetDatabase() => _multiplexer.GetDatabase(Database);
+        internal IDatabase? GetDatabase() => _redisConnection?.GetDatabase(Database);
 
-        internal IServer? GetServer() => _multiplexer.GetServers().FirstOrDefault();
+        internal IServer? GetServer() => _redisConnection?.GetServer();
 
-        internal ConnectionMultiplexer Multiplexer => _multiplexer;
-
-        internal IEnumerable<IBinding> Bindings => _bindings.Values;
-
-        internal IDisposable Subscribe(IParticipant participant)
+        // Called from patched ModuleView
+        internal void AddPersistentBinding(IChannel channel, BindingModel bindingModel)
         {
-            _participants = _participants.Add(participant);
-            return Disposable.Create(() => _participants = _participants.Remove(participant));
+            // Save in our pin - this will trigger a sync
+            var model = _modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty;
+            _modelStream.Value = model.SetItem(channel.Path!, bindingModel);
         }
 
-        internal ISubscriber GetSubscriber() => _multiplexer.GetSubscriber();
-
-        internal bool TryGetBinding(string key, [NotNullWhen(true)] out IBinding? binding) => _bindings.TryGetValue(key, out binding);
-
-        internal IBinding AddBinding(ResolvedBindingModel model, IChannel channel, Experimental.RedisModule? module = null, ILogger? logger = null)
+        // Called from patched ModuleView
+        internal void RemovePersistentBinding(IBinding binding)
         {
-            if (_bindings.ContainsKey(model.Key))
-                throw new InvalidOperationException($"The Redis key \"{model.Key}\" is already bound to a different channel.");
-
-            var binding = (IBinding)Activator.CreateInstance(
-                type: typeof(Binding<>).MakeGenericType(channel.ClrTypeOfValues),
-                args: [this, channel, model, module, logger])!;
-            _bindings[model.Key] = binding;
-            return binding;
+            var models = _modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty;
+            var resolvedBindingModel = binding.GetResolvedModel<ResolvedBindingModel>();
+            if (resolvedBindingModel.PublicChannelPath != null)
+            {
+                var updatedModel = models.Remove(resolvedBindingModel.PublicChannelPath);
+                if (updatedModel != models)
+                    _modelStream.Value = updatedModel;
+            }
         }
 
-        internal void RemoveBinding(string key)
+        ResolvedBindingModel _latestUpdateModel;
+        ImmutableDictionary<string, ResolvedBindingModel> _latestResolvedModels = ImmutableDictionary<string, ResolvedBindingModel>.Empty;
+
+        private void UpdateBindingsFromModel(ImmutableDictionary<string, BindingModel> model)
         {
-            _bindings.Remove(key);
+            var allBindingsPotentiallyChanged = _latestUpdateModel != Model;
+            _latestUpdateModel = Model;
+
+            // Cleanup
+            var obsoleteBindings = new List<IBinding>();
+            foreach (var (_, binding) in _bindings)
+            {
+                if (binding.Module != this || binding.GotCreatedViaNode)
+                    continue;
+
+                var resolvedBindingModel = binding.GetResolvedModel<ResolvedBindingModel>();
+                var key = resolvedBindingModel.Key;
+                if (model.TryGetValue(key, out var bindingModel))
+                {
+                    // Did the model change?
+                    if (allBindingsPotentiallyChanged || resolvedBindingModel.Model != bindingModel)
+                        obsoleteBindings.Add(binding);
+                }
+                else
+                {
+                    // Deleted
+                    obsoleteBindings.Add(binding);
+                }
+            }
+
+            foreach (var binding in obsoleteBindings)
+                binding.Dispose();
+
+            // Add new
+            foreach (var (channelName, bindingModel) in model)
+            {
+                var channel = _channelHub.TryGetChannel(channelName);
+                if (channel is null)
+                {
+                    _logger.LogWarning("Couldn't find global channel with name \"{channelName}\"", channelName);
+                    continue;
+                }
+
+                var key = bindingModel.ResolveKey(channelName);
+                if (TryGetBinding(key, out var existingBinding))
+                {
+                    if (existingBinding.Module is null || existingBinding.Module != this)
+                    {
+                        _logger.LogError("Failed to add Redis binding for \"{channelName}\" because it is already bound", channelName);
+                    }
+                    continue;
+                }
+
+                try
+                {
+                    AddBinding(bindingModel.Resolve(this, channel), channel);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Failed to add Redis binding for \"{channelName}\"", channelName);
+                }
+            }
         }
 
         internal RedisValue Serialize<T>(T? value, SerializationFormat? preferredFormat)
@@ -165,7 +309,49 @@ namespace VL.IO.Redis
 
         SerializationFormat GetEffectiveSerializationFormat(SerializationFormat? preferredFormat) => preferredFormat ?? Format;
 
-        private void OnInvalidationMessage(ChannelMessage message)
+        string IModule.Name => "Redis";
+
+        string IModule.Description => "This module binds a channel to a Redis key";
+
+        bool IModule.SupportsType(Type type) => true;
+
+        string IModule.ConfigHint
+        {
+            get
+            {
+                if (!IsConnected)
+                    return "Not connected";
+
+                return _redisConnectionManager.Options?.ToString() ?? string.Empty;
+            }
+        }
+
+        string IModule.Nickname => _nickname;
+
+        NodeContext IModule.NodeContext => _nodeContext;
+
+        float IModule.InterfaceVersion => 2;
+
+        internal bool TryGetBinding(string key, [NotNullWhen(true)] out IRedisBinding? binding) => _bindings.TryGetValue(key, out binding);
+
+        internal IRedisBinding AddBinding(ResolvedBindingModel model, IChannel channel, ILogger? logger = null)
+        {
+            if (_bindings.ContainsKey(model.Key))
+                throw new InvalidOperationException($"The Redis key \"{model.Key}\" is already bound to a different channel.");
+
+            var binding = (IRedisBinding)Activator.CreateInstance(
+                type: typeof(Binding<>).MakeGenericType(channel.ClrTypeOfValues),
+                args: [this, channel, model, logger])!;
+            _bindings[model.Key] = binding;
+            return binding;
+        }
+
+        internal void RemoveBinding(string key)
+        {
+            _bindings.Remove(key, out _);
+        }
+
+        internal void OnInvalidationMessage(ChannelMessage message)
         {
             var key = message.Message.ToString();
             if (key is null)
@@ -174,9 +360,11 @@ namespace VL.IO.Redis
             if (_logger.IsEnabled(LogLevel.Trace))
                 _logger.LogTrace("Redis invalidated {key}", key);
 
-            foreach (var p in _participants)
-                p.Invalidate(key);
+            if (_bindings.TryGetValue(key, out var binding))
+                binding.Invalidate();
         }
+
+        internal IObservable<Unit> NetworkSync => _networkSync;
 
         internal void WriteIntoGlobalChannels(SubFrameMessage _)
         {
@@ -199,22 +387,26 @@ namespace VL.IO.Redis
             _networkSync.OnNext(default);
         }
 
-        internal void SendData(SubFrameMessage _) 
+        internal void SendData(SubFrameMessage _)
         {
+            var connection = _redisConnection;
+            if (connection is null)
+                return;
+
             // Do not build a new transaction while another one is still in progress
             if (_lastTransaction != null)
                 return;
 
             // 1) Collect changes and if necessary build a new transaction
             _transactionBuilder.Clear();
-            foreach (var participant in _participants)
-                participant.BuildUp(_transactionBuilder);
+            foreach (var (_, binding) in _bindings)
+                binding.BuildUp(_transactionBuilder);
 
             if (_transactionBuilder.IsEmpty)
                 return;
 
             // 2) Send the transaction
-            var database = _multiplexer.GetDatabase(Database);
+            var database = connection.GetDatabase(Database);
             _lastTransaction = _transactionBuilder.BuildAndExecuteAsync(database);
         }
     }

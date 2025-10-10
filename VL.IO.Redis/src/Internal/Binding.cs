@@ -13,9 +13,8 @@ namespace VL.IO.Redis.Internal
     /// <summary>
     /// Represents a binding of a channel to a Redis key.
     /// </summary>
-    internal class Binding<T> : IParticipant, IDisposable, IBinding
+    internal class Binding<T> : IRedisBinding, IDisposable
     {
-        private readonly SerialDisposable _clientSubscription = new();
         private readonly SerialDisposable _channelSubscription = new();
         private readonly string _authorId;
         private readonly RedisClient _client;
@@ -23,26 +22,22 @@ namespace VL.IO.Redis.Internal
         private readonly IChannel<T> _channel;
         private readonly BindingModel _bindingModel;
         private readonly ResolvedBindingModel _resolvedBindingModel;
-        private readonly Experimental.RedisModule? _module;
 
         private bool _initialized;
         private bool _weHaveNewData;
         private bool _othersHaveNewData;
 
-        public Binding(RedisClient client, IChannel<T> channel, ResolvedBindingModel resolvedBindingModel, 
-            Experimental.RedisModule? module, ILogger? logger)
+        public Binding(RedisClient client, IChannel<T> channel, ResolvedBindingModel resolvedBindingModel, ILogger? logger)
         {
             _client = client;
             _logger = logger;
             _channel = channel;
             _bindingModel = resolvedBindingModel.Model;
             _resolvedBindingModel = resolvedBindingModel; 
-            _module = module;
 
             _initialized = _resolvedBindingModel.Initialization == Initialization.None;
             _authorId = GetHashCode().ToString();
 
-            _clientSubscription.Disposable = client.Subscribe(this);
             _channelSubscription.Disposable = channel.Subscribe(v =>
             {
                 if (_channel.LatestAuthor != _authorId)
@@ -57,20 +52,25 @@ namespace VL.IO.Redis.Internal
         public void Dispose()
         {
             _channel.RemoveComponent(this);
-            _clientSubscription.Dispose();
             _channelSubscription.Dispose();
-            _client.RemoveBinding(_resolvedBindingModel.Key);
+            _client.RemoveBinding(RedisKey);
         }
 
         public ResolvedBindingModel Model => _resolvedBindingModel;
 
-        void IParticipant.Invalidate(string key)
+        public string RedisKey => _resolvedBindingModel.Key!;
+
+        void IRedisBinding.Reset()
         {
-            if (key == _resolvedBindingModel.Key)
-                _othersHaveNewData = true;
+            _initialized = _resolvedBindingModel.Initialization == Initialization.None;
         }
 
-        void IParticipant.BuildUp(TransactionBuilder builder)
+        void IRedisBinding.Invalidate()
+        {
+             _othersHaveNewData = true;
+        }
+
+        void IRedisBinding.BuildUp(TransactionBuilder builder)
         {
             var needToReadFromDb = NeedToReadFromDb();
             var needToWriteToDb = NeedToWriteToDb();
@@ -173,7 +173,7 @@ namespace VL.IO.Redis.Internal
             }
         }
 
-        IModule? IBinding.Module => _module;
+        IModule? IBinding.Module => _client;
 
         string IBinding.ShortLabel => "Redis";
 

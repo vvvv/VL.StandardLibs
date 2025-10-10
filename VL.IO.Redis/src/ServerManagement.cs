@@ -24,10 +24,14 @@ namespace VL.IO.Redis
         {
             success = false;
 
-            if (!apply || client is null || string.IsNullOrEmpty(key))
+            if (!apply || string.IsNullOrEmpty(key))
                 return client;
 
-            success = client.GetDatabase().KeyDelete(key);
+            var db = client?.GetDatabase();
+            if (db is null)
+                return client;
+
+            success = db.KeyDelete(key);
 
             return client;
         }
@@ -125,7 +129,7 @@ namespace VL.IO.Redis
                                         builder.Add(key.ToString());
                                     observer.OnNext(_keysCache = builder.Commit());
 
-                                    while (stopPollingOnceConnected && !token.IsCancellationRequested && client.Multiplexer.IsConnected)
+                                    while (stopPollingOnceConnected && !token.IsCancellationRequested && client.IsConnected)
                                     {
                                         await Task.Delay(delay, token);
                                     }

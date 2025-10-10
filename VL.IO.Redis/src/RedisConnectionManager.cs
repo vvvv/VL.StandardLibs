@@ -1,27 +1,19 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using System;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using VL.Core;
-using VL.Core.Import;
-using VL.IO.Redis.Experimental;
-using VL.Lib.Animation;
-using VL.Model;
 
 namespace VL.IO.Redis
 {
     /// <summary>
     /// Sets up a connection to a database on a Redis server
     /// </summary>
-    //[ProcessNode(Name = "RedisClient")]
-    public sealed class RedisClientManager : IDisposable
+    internal sealed class RedisConnectionManager : IDisposable
     {
-        private readonly CompositeDisposable _disposables = new();
-
         private readonly NodeContext _nodeContext;
         private readonly ILogger _logger;
 
@@ -30,22 +22,12 @@ namespace VL.IO.Redis
         private bool _disposed;
 
         private string? _configuration;
-        private RedisClient? _redisClient;
+        private readonly BehaviorSubject<RedisConnection?> _redisConnection = new(null);
 
-        public RedisClientManager(
-            [Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext,
-            [Pin(Visibility = PinVisibility.Hidden)] IFrameClock frameClock)
+        public RedisConnectionManager(NodeContext nodeContext)
         {
             _nodeContext = nodeContext;
             _logger = nodeContext.GetLogger();
-
-            frameClock.GetSubFrameEvent(SubFrameEvents.ModulesWriteGlobalChannels)
-                .Subscribe(WriteIntoGlobalChannels)
-                .DisposeBy(_disposables);
-
-            frameClock.GetSubFrameEvent(SubFrameEvents.ModulesSendingData)
-                .Subscribe(SendData)
-                .DisposeBy(_disposables);
         }
 
         public void Dispose()
@@ -56,18 +38,16 @@ namespace VL.IO.Redis
             _connectCancellationTokenSource?.Dispose();
             _connectCancellationTokenSource = null;
 
-            _redisClient?.Dispose();
-            _redisClient = null;
+            _redisConnection.Value?.Dispose();
+            _redisConnection.Dispose();
         }
 
-        [return: Pin(Name = "Output")]
-        public RedisClient? Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, int database = -1, 
-            SerializationFormat serializationFormat = SerializationFormat.MessagePack, bool connectAsync = true, RedisModule module = null! /* No longer used as node, defaults not needed right? */)
+        public RedisConnection? Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, bool connectAsync = true, RedisClient module = null! /* No longer used as node, defaults not needed right? */)
         {
             if (configuration != _configuration)
             {
-                _redisClient?.Dispose();
-                _redisClient = null;
+                _redisConnection.Value?.Dispose();
+                _redisConnection.OnNext(null);
 
                 _configuration = configuration;
 
@@ -81,23 +61,23 @@ namespace VL.IO.Redis
                 _connectTask = Reconnect(configuration, configure, connectAsync, module, _connectCancellationTokenSource.Token, _connectTask);
             }
 
-            if (_redisClient != null)
-            {
-                _redisClient.Database = database;
-                _redisClient.Format = serializationFormat;
-            }
-
-            return _redisClient;
+            return _redisConnection.Value;
         }
 
-        public bool IsConnected => _redisClient != null && _redisClient.Multiplexer.IsConnected;
+        public bool IsConnected => CurrentConnection != null && CurrentConnection.Multiplexer.IsConnected;
 
-        public string ClientName => _redisClient?.ClientName ?? string.Empty;
+        public string ClientName => CurrentConnection?.ClientName ?? string.Empty;
 
         public ConfigurationOptions? Options { get; set; }
 
-        private async Task Reconnect(string? configuration, Action<ConfigurationOptions>? configure, bool connectAsync, RedisModule module, CancellationToken cancellationToken, Task? existingConnectTask)
+        public IObservable<RedisConnection?> ConnectionObservable => _redisConnection;
+        public RedisConnection? CurrentConnection => _redisConnection.Value;
+
+        private async Task Reconnect(string? configuration, Action<ConfigurationOptions>? configure, bool connectAsync, RedisClient client, CancellationToken cancellationToken, Task? existingConnectTask)
         {
+            // Reset options while reconnecting - they are used for display in tooltip
+            Options = default;
+
             var options = new ConfigurationOptions();
             if (configuration != null)
                 options = ConfigurationOptions.Parse(configuration);
@@ -130,7 +110,7 @@ namespace VL.IO.Redis
                         : ConnectionMultiplexer.Connect(options);
 
                     if (!_disposed && !token.IsCancellationRequested)
-                        _redisClient = new RedisClient(_nodeContext.AppHost, multiplexer, _logger, module);
+                        _redisConnection.OnNext(new RedisConnection(_nodeContext.AppHost, multiplexer, _logger, client));
                     else
                         multiplexer.Dispose();
 
@@ -147,16 +127,6 @@ namespace VL.IO.Redis
             }
 
             Options = options;
-        }
-
-        private void WriteIntoGlobalChannels(SubFrameMessage message)
-        {
-            _redisClient?.WriteIntoGlobalChannels(message);
-        }
-
-        private void SendData(SubFrameMessage message)
-        {
-            _redisClient?.SendData(message);
         }
     }
 }

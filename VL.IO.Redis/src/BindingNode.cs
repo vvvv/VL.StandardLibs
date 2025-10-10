@@ -19,7 +19,10 @@ namespace VL.IO.Redis
         private readonly SerialDisposable _current = new();
         private readonly NodeContext _nodeContext;
         private readonly ILogger _logger;
-        private ResolvedBindingModel _latestResolvedModel;
+
+        private RedisClient? _client;
+        private IChannel? _channel;
+        private ResolvedBindingModel _resolvedModel;
 
         public BindingNode([Pin(Visibility = PinVisibility.Hidden)] NodeContext nodeContext)
         {
@@ -47,25 +50,29 @@ namespace VL.IO.Redis
             Optional<TimeSpan> expiry = default,
             Optional<When> when = default)
         {
-            if (client is null || input is null)
-                return;
-
             var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat, expiry, when, CreatedViaNode: true);
-            var resolvedBindingModel = model.Resolve(client._module, input);
-            if (resolvedBindingModel == _latestResolvedModel)
-                return;
-            _latestResolvedModel = resolvedBindingModel;
+            var resolvedModel = model.Resolve(client, input);
 
-            _current.Disposable = null;
+            if (client != _client || input != _channel || resolvedModel != _resolvedModel)
+            {
+                _client = client;
+                _channel = input;
+                _resolvedModel = resolvedModel;
 
-            try
-            {
-                _current.Disposable = client.AddBinding(resolvedBindingModel, input, client._module, logger: _logger);
-            }
-            catch (Exception e)
-            {
-                // TODO: Use logger / add better API which also works in exported apps
-                _current.Disposable = IVLRuntime.Current?.AddException(_nodeContext, e);
+                _current.Disposable = null;
+
+                if (client is null || input is null)
+                    return;
+
+                try
+                {
+                    _current.Disposable = client.AddBinding(resolvedModel, input, logger: _logger);
+                }
+                catch (Exception e)
+                {
+                    // TODO: Use logger / add better API which also works in exported apps
+                    _current.Disposable = IVLRuntime.Current?.AddException(_nodeContext, e);
+                }
             }
         }
 
