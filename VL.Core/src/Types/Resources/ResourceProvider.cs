@@ -649,14 +649,14 @@ namespace VL.Lib.Basics.Resources
                                         if (!disposalTriggerSourceInitialized)
                                         {
                                             disposalTriggerSourceInitialized = true;
-                                            // We're only interested in one event
-                                            disposalTriggerSource = disposalTriggerSource.Take(1);
                                             // Ensure on application exit we're triggered as well
                                             if (appHost != null && !appHost.IsDisposed)
                                                 disposalTriggerSource = Observable.Merge(disposalTriggerSource, appHost.OnExit.Select(_ => default(U)));
                                             // If a sync context is set make sure it's on that one
                                             if (context != null)
                                                 disposalTriggerSource = disposalTriggerSource.ObserveOn(context);
+                                            // We're only interested in one event
+                                            disposalTriggerSource = disposalTriggerSource.Take(1);
                                         }
                                         timerSubscription.Disposable = disposalTriggerSource.Subscribe(_ =>
                                         {
