@@ -771,8 +771,14 @@ namespace VL.Stride.Games
 
         private void Window_ClientSizeChanged(object sender, EventArgs e)
         {
+            EnsureBackBufferHasCorrectSize();
+        }
+
+        public void EnsureBackBufferHasCorrectSize()
+        {
             var clientSize = window.ClientBounds.Size;
-            if (!isChangingDevice && !window.IsFullscreen && ((clientSize.Height != 0) || (clientSize.Width != 0)))
+            var backBufferDescription = windowRenderer.Presenter.Description;
+            if (!isChangingDevice && !window.IsFullscreen && ((clientSize.Height != 0) || (clientSize.Width != 0)) && (clientSize.Width != backBufferDescription.BackBufferWidth || clientSize.Height != backBufferDescription.BackBufferHeight))
             {
                 resizedBackBufferWidth = clientSize.Width;
                 resizedBackBufferHeight = clientSize.Height;
@@ -804,6 +810,8 @@ namespace VL.Stride.Games
             }
         }
 
+        Int2 windowedPostion;
+
         private void Window_FullscreenChanged(object sender, EventArgs eventArgs)
         {
             if (sender is GameWindow window)
@@ -834,11 +842,16 @@ namespace VL.Stride.Games
                         resizedBackBufferHeight = output.CurrentDisplayMode.Height;
                     else
                         resizedBackBufferHeight = ApplyDesktopBoundsFix(output.DesktopBounds).Height;
+
+                    var position = output.DesktopBounds.Location;
+                    windowedPostion = window.Position;
+                    window.Position = new Int2(position.X, position.Y);
                 }
                 else
                 {
                     resizedBackBufferWidth = window.PreferredWindowedSize.X;
                     resizedBackBufferHeight = window.PreferredWindowedSize.Y;
+                    window.Position = windowedPostion;
                 }
 
                 deviceSettingsChanged = true;

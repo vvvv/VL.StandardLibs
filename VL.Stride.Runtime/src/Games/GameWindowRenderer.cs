@@ -1,12 +1,13 @@
 // Modified version of Stride.Games.GameWindowRenderer using GameWindowRendererManager.
 // This class should be kept internal
 
-using System;
-using System.Reactive.Disposables;
 using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Games;
 using Stride.Graphics;
+using Stride.Rendering;
+using System;
+using System.Reactive.Disposables;
 using VL.Core.Utils;
 
 namespace VL.Stride.Games
@@ -137,6 +138,7 @@ namespace VL.Stride.Games
 
                 WindowManager.Initialize(this, GraphicsDevice, Services.GetService<IGraphicsDeviceFactory>());
             }
+            WindowManager.EnsureBackBufferHasCorrectSize();
         }
 
         public override bool BeginDraw()
@@ -170,6 +172,17 @@ namespace VL.Stride.Games
         {
             if (beginDrawOk)
             {
+                if (Window.NativeWindow.NativeWindow is IHasCustomTitleBar customTitleBar)
+                {
+                    var renderContext = RenderContext.GetShared(Services);
+                    var renderDrawContext = renderContext.GetThreadContext();
+                    using (renderDrawContext.PushRenderTargetsAndRestore())
+                    {
+                        renderDrawContext.CommandList.SetRenderTargetAndViewport(null, Presenter.BackBuffer);
+                        customTitleBar.DrawTitleBarButtons(renderDrawContext);
+                    }
+                }
+
                 // We'd like to call Present() here like in the original code, however that would be too early
                 // in case other game systems want to draw into our backbuffer (like GameProfilingSystem).
                 // Present();
