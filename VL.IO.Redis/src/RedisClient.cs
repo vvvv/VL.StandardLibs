@@ -28,7 +28,7 @@ namespace VL.IO.Redis
     // Patch calls AddBinding and later RemoveBinding.
     // Both methods will subsequently push a new model.
     // Internally we only need to keep the model in sync with what bindings we have at runtime.
-    [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
+    [ProcessNode(FragmentSelection = FragmentSelection.Explicit, HasStateOutput = true)]
     public sealed class RedisClient : IModule, IDisposable
     {
         private readonly ILogger _logger;
@@ -165,11 +165,7 @@ namespace VL.IO.Redis
         }
 
 
-        public ResolvedBindingModel Model { get; private set; } = new ResolvedBindingModel(Model: default, Key: string.Empty, PublicChannelPath: default);
-
-
-        [Fragment]
-        public RedisClient? Client => this;
+        internal ResolvedBindingModel Model { get; private set; } = new ResolvedBindingModel(Model: default, Key: string.Empty, PublicChannelPath: default);
 
         [Fragment]
         public bool IsConnected => _redisConnectionManager.IsConnected;
@@ -178,10 +174,10 @@ namespace VL.IO.Redis
         public string ClientName => _redisConnectionManager.ClientName;
 
         [DefaultValue(-1)]
-        public int Database { internal get; set; } = -1;
+        internal int Database { get; set; } = -1;
 
         [DefaultValue(SerializationFormat.MessagePack)]
-        public SerializationFormat Format { private get; set; } = SerializationFormat.MessagePack;
+        internal SerializationFormat Format { private get; set; } = SerializationFormat.MessagePack;
 
         internal RedisConnection? CurrentConnection => _redisConnection;
         internal IObservable<RedisConnection?> ConnectionObservable => _redisConnectionManager.ConnectionObservable;
