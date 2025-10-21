@@ -261,7 +261,38 @@ namespace VL.Core
         internal abstract SerializationService SerializationService { get; }
 
         internal abstract NodeContext RootContext { get; }
+
+        List<PluginInfo> loadedPlugins = new();
+
+        public PluginInfo LoadPlugin(string path)
+        {
+            var plugin = loadedPlugins.Find(p => string.Equals(p.Path, path, StringComparison.OrdinalIgnoreCase));
+            if (plugin != null)
+                return plugin;
+
+            var filename = Path.GetFileNameWithoutExtension(path);
+            var assemblylocation = Path.Combine(path, filename + ".dll");
+
+            var assembly = Assembly.LoadFile(assemblylocation);
+            plugin = new PluginInfo { Assembly = assembly, Path = path, Name = filename };
+            loadedPlugins.Add(plugin);
+
+            PluginLoaded?.Invoke(this, plugin);
+            //NodeFactoryRegistry.RegisterPath(path); ///////////////////////////////// necessary?
+
+            return plugin;
+        }
+
+        public event Action<AppHost, PluginInfo> PluginLoaded;
     }
+
+    public class PluginInfo
+    {
+        public Assembly Assembly;
+        public string Path;
+        public string Name;
+    }
+
 
     //public class NestedApp : IDisposable
     //{

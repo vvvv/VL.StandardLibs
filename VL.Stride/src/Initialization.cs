@@ -111,6 +111,11 @@ namespace VL.Stride.Lib
                 foreach (var s in game.Input.Sources)
                     s.SetPriority(int.MinValue);
 
+                // Load bundles. Probably non yet.
+                // Might be of interest when bundles can be added in develop mode.
+                // Currently bundles only in exported apps.
+                Core.Initialization.LoadBundles(game.Services);
+
                 var frameClock = Clocks.FrameClock;
                 frameClock.GetFrameFinished().Subscribe(ffm =>
                 {

@@ -1,6 +1,7 @@
 using Stride.Core.IO;
 using Stride.Core.Serialization.Contents;
 using Stride.Core.Storage;
+using Stride.Engine;
 using Stride.Games;
 using Stride.Graphics;
 using Stride.Rendering;
@@ -75,8 +76,55 @@ namespace VL.Stride.Core
                 ((FileSystemProvider)VirtualFileSystem.ApplicationData).ChangeBasePath(dataDir);
         }
 
+        static List<PluginInfo> plugins = new();
+
+        private void AppHost_PluginLoaded(AppHost appHost, PluginInfo plugin)
+        {
+            var mountPoint = $"/{plugin.Name}";
+            var bundlesPath = $"{plugin.Path}\\data\\db\\bundles";
+
+            if (!VirtualFileSystem.DirectoryExists(mountPoint)) // or just use RemountFileSystem?
+            {
+                plugins.Add(plugin);
+                VirtualFileSystem.MountFileSystem(mountPoint, bundlesPath);
+            }
+
+            ServiceRegistry services = GetGlobalStrideServices();
+            LoadBundles(services);
+
+            services = appHost.Services.GetRequiredService<Game>().Services;
+            LoadBundles(services);
+        }
+
+        public static void LoadBundles(ServiceRegistry services)
+        {
+            var objDb = services.GetService<IDatabaseFileProviderService>().FileProvider.ObjectDatabase;
+            var bundleBackend = objDb.BundleBackend;
+
+            // TODO: -= should get called? 
+            bundleBackend.BundleResolve += async bundleName =>
+            {
+                foreach (var p in plugins)
+                {
+                    if (bundleName == p.Name)
+                    {
+                        return $"/{p.Name}/default.bundle";
+                    }
+                }
+                return null;
+            };
+
+            foreach (var p in plugins)
+            {
+                var bundleLoadTask = bundleBackend.LoadBundle(p.Name, objDb.ContentIndexMap);
+                bundleLoadTask.Wait();
+            }
+        }
+
         public override void Configure(AppHost appHost)
         {
+            appHost.PluginLoaded += AppHost_PluginLoaded;
+
             var services = appHost.Services;
 
             // Graphics device
