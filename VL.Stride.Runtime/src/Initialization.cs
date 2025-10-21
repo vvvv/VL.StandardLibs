@@ -23,7 +23,7 @@ using VL.Stride.Rendering;
 using VL.Stride.Rendering.Compositing;
 using VL.Stride.Rendering.Lights;
 using VL.Stride.Rendering.Materials;
-
+using static Stride.Core.Storage.BundleOdbBackend;
 using ServiceRegistry = global::Stride.Core.ServiceRegistry;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Core.Initialization))]
@@ -76,48 +76,46 @@ namespace VL.Stride.Core
                 ((FileSystemProvider)VirtualFileSystem.ApplicationData).ChangeBasePath(dataDir);
         }
 
-        static List<PluginInfo> plugins = new();
-
         private void AppHost_PluginLoaded(AppHost appHost, PluginInfo plugin)
         {
+            var servicesUsedByNodeFactories = GetGlobalStrideServices();
+            LoadBundle(servicesUsedByNodeFactories, plugin);
+
+            var services = appHost.Services.GetRequiredService<Game>().Services;
+            LoadBundle(services, plugin);
+        }
+
+        private static void LoadBundle(ServiceRegistry services, PluginInfo plugin)
+        {
+            var objDb = services.GetService<IDatabaseFileProviderService>().FileProvider.ObjectDatabase;
+            var bundleBackend = objDb.BundleBackend;
+
             var mountPoint = $"/{plugin.Name}";
             var bundlesPath = $"{plugin.Path}\\data\\db\\bundles";
 
             if (!VirtualFileSystem.DirectoryExists(mountPoint)) // or just use RemountFileSystem?
             {
-                plugins.Add(plugin);
                 VirtualFileSystem.MountFileSystem(mountPoint, bundlesPath);
             }
 
-            ServiceRegistry services = GetGlobalStrideServices();
-            LoadBundles(services);
-
-            services = appHost.Services.GetRequiredService<Game>().Services;
-            LoadBundles(services);
-        }
-
-        public static void LoadBundles(ServiceRegistry services)
-        {
-            var objDb = services.GetService<IDatabaseFileProviderService>().FileProvider.ObjectDatabase;
-            var bundleBackend = objDb.BundleBackend;
-
-            // TODO: -= should get called? 
-            bundleBackend.BundleResolve += async bundleName =>
+            BundleResolveDelegate resolver = async bundleNmae =>
             {
-                foreach (var p in plugins)
+                if (bundleNmae == plugin.Name)
                 {
-                    if (bundleName == p.Name)
-                    {
-                        return $"/{p.Name}/default.bundle";
-                    }
+                    return $"/{plugin.Name}/default.bundle";
                 }
                 return null;
             };
+            bundleBackend.BundleResolve += resolver;
 
-            foreach (var p in plugins)
+            try
             {
-                var bundleLoadTask = bundleBackend.LoadBundle(p.Name, objDb.ContentIndexMap);
+                var bundleLoadTask = bundleBackend.LoadBundle(plugin.Name, objDb.ContentIndexMap);
                 bundleLoadTask.Wait();
+            }
+            finally
+            {
+                bundleBackend.BundleResolve -= resolver;
             }
         }
 
