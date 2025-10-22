@@ -76,13 +76,14 @@ namespace VL.Stride.Core
                 ((FileSystemProvider)VirtualFileSystem.ApplicationData).ChangeBasePath(dataDir);
         }
 
-        private void AppHost_PluginLoaded(AppHost appHost, PluginInfo plugin)
+        private void AppHost_PluginLoaded(object sender, PluginLoadedEventArgs args)
         {
+            var appHost = args.AppHost;
             var servicesUsedByNodeFactories = GetGlobalStrideServices();
-            LoadBundle(servicesUsedByNodeFactories, plugin);
+            LoadBundle(servicesUsedByNodeFactories, args.PluginInfo);
 
             var services = appHost.Services.GetRequiredService<Game>().Services;
-            LoadBundle(services, plugin);
+            LoadBundle(services, args.PluginInfo);
         }
 
         private static void LoadBundle(ServiceRegistry services, PluginInfo plugin)
@@ -91,16 +92,19 @@ namespace VL.Stride.Core
             var bundleBackend = objDb.BundleBackend;
 
             var mountPoint = $"/{plugin.Name}";
-            var bundlesPath = $"{plugin.Path}\\data\\db\\bundles";
+            var bundlesPath = Path.Combine(plugin.Path, "data", "db", "bundles");
+            var defaultBundlePath = Path.Combine(bundlesPath, "default.bundle");
+            if (!File.Exists(defaultBundlePath))
+                return;
 
             if (!VirtualFileSystem.DirectoryExists(mountPoint)) // or just use RemountFileSystem?
             {
                 VirtualFileSystem.MountFileSystem(mountPoint, bundlesPath);
             }
 
-            BundleResolveDelegate resolver = async bundleNmae =>
+            BundleResolveDelegate resolver = async bundleName =>
             {
-                if (bundleNmae == plugin.Name)
+                if (bundleName == plugin.Name)
                 {
                     return $"/{plugin.Name}/default.bundle";
                 }
@@ -177,6 +181,7 @@ namespace VL.Stride.Core
         {
             lock (serviceCache)
             {
+                // Only needed when running in editor! At runtime we could use the game services directly. This would simplify plugin loading.
                 var strideServices = GetGlobalStrideServices();
                 appHost.NodeFactoryRegistry.RegisterNodeFactory(appHost.NodeFactoryCache.GetOrAdd(name, f => init(strideServices, f)));
             }

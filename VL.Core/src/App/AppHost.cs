@@ -11,8 +11,6 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using VL.Core.CompilerServices;
-using VL.Core.Logging;
 using LoggerFactory = VL.Core.Logging.LoggerFactory;
 
 namespace VL.Core
@@ -262,37 +260,42 @@ namespace VL.Core
 
         internal abstract NodeContext RootContext { get; }
 
-        List<PluginInfo> loadedPlugins = new();
+        /// <summary>
+        /// Loads a plugin from the specified directory. The specified directory should contain the plugin assembly and any of its dependencies.
+        /// </summary>
+        /// <param name="path">The directory of the plugin to load.</param>
+        /// <returns>A <see cref="PluginInfo"/> object containing information about the loaded plugin.</returns>
+        public abstract PluginInfo LoadPlugin(string path);
 
-        public PluginInfo LoadPlugin(string path)
+        /// <summary>
+        /// Occurs when a plugin is successfully loaded.
+        /// </summary>
+        /// <remarks>This event is triggered after a plugin has been loaded into the application. 
+        /// Subscribers can use this event to perform actions such as initializing plugin-specific settings or updating
+        /// the user interface to reflect the newly available plugin functionality.</remarks>
+        public event EventHandler<PluginLoadedEventArgs> PluginLoaded;
+
+        /// <summary>
+        /// Called when a plugin got loaded. Raises the <see cref="PluginLoaded"/> event.
+        /// </summary>
+        protected virtual void OnPluginLoaded(PluginInfo pluginInfo)
         {
-            var plugin = loadedPlugins.Find(p => string.Equals(p.Path, path, StringComparison.OrdinalIgnoreCase));
-            if (plugin != null)
-                return plugin;
-
-            var filename = Path.GetFileNameWithoutExtension(path);
-            var assemblylocation = Path.Combine(path, filename + ".dll");
-
-            var assembly = Assembly.LoadFile(assemblylocation);
-            plugin = new PluginInfo { Assembly = assembly, Path = path, Name = filename };
-            loadedPlugins.Add(plugin);
-
-            PluginLoaded?.Invoke(this, plugin);
-            //NodeFactoryRegistry.RegisterPath(path); ///////////////////////////////// necessary?
-
-            return plugin;
+            PluginLoaded?.Invoke(this, new PluginLoadedEventArgs(this, pluginInfo));
         }
-
-        public event Action<AppHost, PluginInfo> PluginLoaded;
     }
 
-    public class PluginInfo
+    public sealed class PluginLoadedEventArgs : EventArgs
     {
-        public Assembly Assembly;
-        public string Path;
-        public string Name;
+        public AppHost AppHost { get; }
+        public PluginInfo PluginInfo { get; }
+        public PluginLoadedEventArgs(AppHost appHost, PluginInfo pluginInfo)
+        {
+            AppHost = appHost;
+            PluginInfo = pluginInfo;
+        }
     }
 
+    public record PluginInfo(Assembly Assembly, string Path, string Name);
 
     //public class NestedApp : IDisposable
     //{
