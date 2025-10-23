@@ -292,12 +292,12 @@ namespace System.Collections.Generic
             }
             else if (sequence is ImmutableArray<T>.Builder builder)
             {
+                // TODO: In .NET10 we can use ImmutableArrayMarshal (https://github.com/dotnet/runtime/pull/112177)
                 memory = builder.GetInternalArray().AsMemory(0, builder.Count);
                 return true;
             }
             else if (sequence is List<T> list)
             {
-                // TODO: In .NET5 we can use CollectionsMarshal for this
                 memory = list.GetInternalArray().AsMemory(0, list.Count);
                 return true;
             }
@@ -342,6 +342,11 @@ namespace System.Collections.Generic
             else if (sequence is ImmutableArray<T>.Builder builder)
             {
                 span = builder.GetInternalArray().AsSpan(0, builder.Count);
+                return true;
+            }
+            else if (sequence is List<T> list)
+            {
+                span = CollectionsMarshal.AsSpan(list);
                 return true;
             }
             else
@@ -497,7 +502,7 @@ namespace System.Collections.Generic
             }
         }
 
-        // TODO: In .NET 5 we can use https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.collectionsmarshal.asspan?view=net-5.0
+        // TODO: In .NET 10 we can use UnsafeAccessor on generic types
         public static T[] GetInternalArray<T>(this List<T> list)
         {
             return InternalArrayAccessor<T>.GetInternalArray(list);
@@ -730,6 +735,7 @@ namespace System.Collections.Immutable
             }
         }
 
+        // TODO: In .NET 10 we can use UnsafeAccessor on generic types
         public static T[] GetInternalArray<T>(this ImmutableArray<T>.Builder builder)
         {
             return DelegateCache<T>.GetInternalArray(builder);
