@@ -325,7 +325,6 @@ namespace VL.Lib.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] GetInternalArray<T>(this Spread<T> input)     
         {
-            var immutableArray = input._array;
             return ImmutableCollectionsMarshal.AsArray(input._array);
         }
 
