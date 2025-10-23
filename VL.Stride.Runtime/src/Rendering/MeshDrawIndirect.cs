@@ -14,43 +14,8 @@ namespace VL.Stride.Rendering
     {
         public MeshDrawIndirect() :base() {}
 
-        public new PrimitiveType PrimitiveType
-        {
-            get => base.PrimitiveType;
-            set => base.PrimitiveType = value;
-        }
-
-        public new int DrawCount
-        {
-            get => base.DrawCount;
-            set => base.DrawCount = value;
-        }
-
-        public new int StartLocation
-        {
-            get => base.StartLocation;
-            set => base.StartLocation = value;
-        }
-
-        public new VertexBufferBinding[] VertexBuffers
-        {
-            get => base.VertexBuffers;
-            set => base.VertexBuffers = value;
-        }
-
-        public new IndexBufferBinding IndexBuffer
-        {
-            get => base.IndexBuffer;
-            set => base.IndexBuffer = value;
-        }
-
         public Buffer DrawArgs;
 
-        bool drawAuto = false;
-        public bool DrawAuto
-        {
-            get => drawAuto;
-            set => drawAuto = value;
-        }
+        public bool DrawAuto = false;
     }
 }

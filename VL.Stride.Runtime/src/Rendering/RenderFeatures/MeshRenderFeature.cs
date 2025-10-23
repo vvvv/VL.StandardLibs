@@ -159,12 +159,10 @@ namespace VL.Stride.Rendering
                     if ((drawData.VertexBuffers[0].Buffer.Flags & BufferFlags.StreamOutput) != 0 && drawDataIndirect.DrawAuto)
                         commandList.DrawAuto();
                     else
-                        // TODO PR for Stride to fix commandList.DrawInstanced
-                        // https://github.com/stride3d/stride/pull/2482
-                        DrawInstanced(commandList, drawDataIndirect.DrawArgs, 0); 
+                        DrawInstanced(commandList, drawDataIndirect.DrawArgs, drawData.StartLocation);
                 }
                 else
-                    commandList.DrawIndexedInstanced(drawDataIndirect.DrawArgs, 0);
+                    commandList.DrawIndexedInstanced(drawDataIndirect.DrawArgs, drawData.StartLocation);
             }
             else
             {
