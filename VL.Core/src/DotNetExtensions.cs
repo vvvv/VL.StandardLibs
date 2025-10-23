@@ -215,7 +215,7 @@ namespace System.Collections.Generic
             }
             else if (sequence is ImmutableArray<T> immutableArray)
             {
-                array = Unsafe.As<ImmutableArray<T>, T[]>(ref immutableArray);
+                array = ImmutableCollectionsMarshal.AsArray(immutableArray);
                 return true;
             }
             else
@@ -250,7 +250,7 @@ namespace System.Collections.Generic
             }
             else if (sequence is ImmutableArray<T> immutableArray)
             {
-                segment = new ArraySegment<T>(Unsafe.As<ImmutableArray<T>, T[]>(ref immutableArray));
+                segment = new ArraySegment<T>(ImmutableCollectionsMarshal.AsArray(immutableArray)!);
                 return true;
             }
             else

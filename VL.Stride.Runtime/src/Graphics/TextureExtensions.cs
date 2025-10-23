@@ -60,8 +60,7 @@ namespace VL.Stride.Graphics
         public static unsafe Texture SetData<TData>(this Texture texture, CommandList commandList, Spread<TData> fromData, int arraySlice, int mipSlice, ResourceRegion? region)
             where TData : unmanaged
         {
-            var immutableArray = fromData._array;
-            var array = Unsafe.As<ImmutableArray<TData>, TData[]>(ref immutableArray);
+            var array = fromData.GetInternalArray();
             texture.SetData(commandList, array, arraySlice, mipSlice, region);
             return texture;
         }
