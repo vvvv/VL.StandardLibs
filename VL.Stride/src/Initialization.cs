@@ -44,10 +44,12 @@ namespace VL.Stride.Lib
                 // which doesn't go through the resolve event.
                 NativeLibrary.Load("openxr_loader.dll", typeof(Initialization).Assembly, default);
             }
+
+            VLGame.VLGameContextFactory = o => VLGameContextFactory.CreateContext(o.NodeContext, o.AlwaysOnTop, o.ExtendIntoTitleBar, o.AppContextType, o.RequestedWidth, o.RequestedHeight, o.IsUserManagingRun);
         }
 
         // Remove once tested enough
-        bool UseSDL = true;
+        bool UseSDL = false;
 
         public override void Configure(AppHost appHost)
         {
