@@ -185,7 +185,16 @@ namespace VL.Lib.Text
             fontFace.GetFiles(ref numberOfFiles, fontFiles);
             fontFiles[0].GetReferenceKey(out var fontFileReferenceKey, out var fontFileReferenceKeySize);
 
-            fontFiles[0].GetLoader(out var loader);
+            IDWriteFontFileLoader loader = null;
+            try
+            {
+                fontFiles[0].GetLoader(out loader);
+            }
+            catch (Exception)
+            {
+                // Fails on some systems. Need to investigate further. But for now just return default / font is not available.
+                return default;
+            }
 
             if (loader is IDWriteLocalFontFileLoader localLoader)
             {
