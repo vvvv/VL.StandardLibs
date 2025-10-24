@@ -11,7 +11,7 @@ namespace VL.Skia
     {
         public static SKMatrix Identity = SKMatrix.CreateIdentity();
         public static readonly CallerInfo Default = new CallerInfo(null, new SKCanvas(new SKBitmap()),
-            Identity, new SKRect(0, 0, 1920, 1080), null);
+            Identity, new SKRect(0, 0, 1920, 1080), 1f, null);
 
         public GRContext GRContext { get; init; }
         public SKCanvas Canvas { get; init; }
@@ -19,25 +19,32 @@ namespace VL.Skia
         public SKRect ViewportBounds { get; init; }
         public Func<object, object> RenderInfoHack { get; init; }
         public bool IsTooltip { get; init; }
+        public float Scaling { get; init; }
 
-        internal CallerInfo(GRContext context, SKCanvas canvas, SKMatrix transformation, SKRect viewportBounds,
+        internal CallerInfo(GRContext context, SKCanvas canvas, SKMatrix transformation, SKRect viewportBounds, float scaling,
             Func<object, object> renderInfoHack)
         {
             GRContext = context;
             Canvas = canvas;
             Transformation = transformation;
             ViewportBounds = viewportBounds;
+            Scaling = scaling;
             RenderInfoHack = renderInfoHack;
         }
 
-        public static float DIPFactor => DIPHelpers.DIPFactor();
+        /// <inheritdoc cref="InRenderer(float, float, SKCanvas, GRContext, float)" />
+        [Obsolete("Use InRenderer with scale parameter")]
+        public static CallerInfo InRenderer(float width, float height, SKCanvas canvas, GRContext context)
+        {
+            return InRenderer(width, height, canvas, context, DIPHelpers.DIPFactor());
+        }
 
         /// <summary>
         /// Renderers call this to set up the caller info
         /// </summary>
-        public static CallerInfo InRenderer(float width, float height, SKCanvas canvas, GRContext context)
+        public static CallerInfo InRenderer(float width, float height, SKCanvas canvas, GRContext context, float scale)
         {
-            return new CallerInfo(context, canvas, Identity, new SKRect(0, 0, width, height), null);
+            return new CallerInfo(context, canvas, Identity, new SKRect(0, 0, width, height), scale, null);
         }
 
         public CallerInfo WithTransformation(SKMatrix transformation)

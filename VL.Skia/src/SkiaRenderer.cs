@@ -76,7 +76,7 @@ namespace VL.Skia
             })
             .Subscribe(OnNotification);
 
-            var size = DIPHelpers.DIPToPixel(new System.Drawing.Size(600, 400));
+            var size = LogicalToDeviceUnits(new System.Drawing.Size(600, 400));
             var bounds = GetCenteredBoundsInPixel(size.Width, size.Height);
             var boundsF = Conversions.ToRectangleF(ref bounds);
             SetBounds(boundsF, inDIP: false, setClientSize: true);
@@ -156,7 +156,7 @@ namespace VL.Skia
                 return;
 
             var b = Conversions.ToRectangle(ref bounds);
-            SetBounds(inDIP ? DIPHelpers.DIPToPixel(b) : b, setClientSize);
+            SetBounds(inDIP ? this.LogicalToDeviceUnits(b) : b, setClientSize);
         }
 
         private void SetBounds(System.Drawing.Rectangle bounds, bool setClientSize)
@@ -230,12 +230,19 @@ namespace VL.Skia
             OnBoundsChanged();
         }
 
-        protected void OnBoundsChanged()
+        protected override void OnDpiChanged(DpiChangedEventArgs e)
         {
-            BoundsChanged?.OnNext(DIPHelpers.DIP(Bounds));
+            base.OnDpiChanged(e);
+            OnBoundsChanged();
+            UpdateTitleBarButtonRects();
+        }
+
+        private void OnBoundsChanged()
+        {
+            BoundsChanged?.OnNext(this.DeviceToLogicalUnits(Bounds));
             var bounds = Bounds;
             var boundsF = Conversions.ToRectangleF(ref bounds);
-            boundsF = DIPHelpers.DIP(boundsF);
+            boundsF = this.DeviceToLogicalUnits(boundsF);
             FBoundsStream?.OnNext(boundsF);
         }
 
@@ -245,7 +252,7 @@ namespace VL.Skia
             if (!Visible || Handle == 0 || renderer is null)
                 return;
 
-            renderer.Render(Handle, ClientSize.Width, ClientSize.Height, VSync, callerInfo =>
+            renderer.Render(Handle, ClientSize.Width, ClientSize.Height, this.LogicalToDeviceScalingFactor(), VSync, callerInfo =>
             {
                 using var _ = FAppHost?.MakeCurrentIfNone();
                 try

@@ -73,7 +73,7 @@ namespace VL.Skia
             if (canvas != null)
             {
                 var renderContext = renderContextProvider.GetRenderContext();
-                Layer?.Notify(n, CallerInfo.InRenderer(Size.X, Size.Y, canvas, renderContext.SkiaContext));
+                Layer?.Notify(n, CallerInfo.InRenderer(Size.X, Size.Y, canvas, renderContext.SkiaContext, 1f));
             }
         }
 
@@ -112,7 +112,7 @@ namespace VL.Skia
             var canvas = surface.Canvas;
             using (new SKAutoCanvasRestore(canvas, true))
             {
-                Layer?.Render(CallerInfo.InRenderer(size.X, size.Y, canvas, renderContext.SkiaContext));
+                Layer?.Render(CallerInfo.InRenderer(size.X, size.Y, canvas, renderContext.SkiaContext, 1f));
             }
             surface.Flush();
 

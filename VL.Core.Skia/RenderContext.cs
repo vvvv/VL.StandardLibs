@@ -53,7 +53,6 @@ namespace VL.Skia
     public sealed class RenderContextProvider : IDisposable
     {
         private readonly EglContextProvider eglContextProvider;
-        private readonly IDisposable? clockSubscription;
         private readonly Subject<Unit> onDeviceLost = new();
         private RenderContext? renderContext;
 
@@ -93,7 +92,6 @@ namespace VL.Skia
         public void Dispose()
         {
             onDeviceLost.Dispose();
-            clockSubscription?.Dispose();
             renderContext?.DoDispose();
             renderContext = null;
         }

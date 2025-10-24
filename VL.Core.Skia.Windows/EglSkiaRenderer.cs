@@ -22,6 +22,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
     private SKCanvas? canvas;
     private bool? lastSetVSync;
     private bool disposed;
+    private float lastScaling;
 
     public EglSkiaRenderer(RenderContextProvider renderContextProvider)
     {
@@ -32,7 +33,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
 
     public CallerInfo CallerInfo { get; private set; } = CallerInfo.Default;
 
-    public void Render(nint hwnd, int width, int height, bool vsync, Action<CallerInfo> renderAction, Graphics? gdiTarget = null)
+    public void Render(nint hwnd, int width, int height, float scaling, bool vsync, Action<CallerInfo> renderAction, Graphics? gdiTarget = null)
     {
         if (disposed)
             throw new ObjectDisposedException(nameof(EglSkiaRenderer));
@@ -50,7 +51,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
         stopwatch.StartRender();
         try
         {
-            PaintCore(renderContext, hwnd, width, height, vsync, renderAction);
+            PaintCore(renderContext, hwnd, width, height, scaling, vsync, renderAction);
         }
         catch (EglException)
         {
@@ -63,7 +64,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
         }
     }
 
-    private void PaintCore(RenderContext renderContext, nint hwnd, int width, int height, bool vsync, Action<CallerInfo> renderAction)
+    private void PaintCore(RenderContext renderContext, nint hwnd, int width, int height, float scaling, bool vsync, Action<CallerInfo> renderAction)
     {
         var eglContext = renderContext.EglContext;
 
@@ -87,11 +88,17 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
         {
             surface = CreateSkSurface(renderContext, surfaceSize.X, surfaceSize.Y);
             canvas = surface?.Canvas;
-            CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, canvas, renderContext.SkiaContext);
+            CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, canvas, renderContext.SkiaContext, scaling);
         }
 
         if (surface is null)
             return;
+
+        if (scaling != lastScaling)
+        {
+            lastScaling = scaling;
+            CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, canvas, renderContext.SkiaContext, scaling);
+        }
 
         if (!lastSetVSync.HasValue || vsync != lastSetVSync.Value)
         {

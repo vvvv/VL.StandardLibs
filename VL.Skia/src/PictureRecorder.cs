@@ -19,7 +19,7 @@ namespace VL.Skia
         {
             // Render
             using var canvas = pictureRecorder.BeginRecording(new SKRect(left: -LargeNumber, top: -LargeNumber, right: LargeNumber, bottom: LargeNumber));
-            layer?.Render(CallerInfo.InRenderer(2 * LargeNumber, 2 * LargeNumber, canvas, null));
+            layer?.Render(CallerInfo.InRenderer(2 * LargeNumber, 2 * LargeNumber, canvas, null, 1f));
             var picture = output.Resource = pictureRecorder.EndRecording();
 
             return picture;
