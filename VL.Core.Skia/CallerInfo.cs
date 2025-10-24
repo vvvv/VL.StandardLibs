@@ -32,8 +32,8 @@ namespace VL.Skia
             RenderInfoHack = renderInfoHack;
         }
 
+        // Watch out, this is called from VL.Skia.vl - therefor leave it for now using old DIPHelpers to ensure we don't break something
         /// <inheritdoc cref="InRenderer(float, float, SKCanvas, GRContext, float)" />
-        [Obsolete("Use InRenderer with scale parameter")]
         public static CallerInfo InRenderer(float width, float height, SKCanvas canvas, GRContext context)
         {
             return InRenderer(width, height, canvas, context, DIPHelpers.DIPFactor());
@@ -42,9 +42,9 @@ namespace VL.Skia
         /// <summary>
         /// Renderers call this to set up the caller info
         /// </summary>
-        public static CallerInfo InRenderer(float width, float height, SKCanvas canvas, GRContext context, float scale)
+        public static CallerInfo InRenderer(float width, float height, SKCanvas canvas, GRContext context, float scaling)
         {
-            return new CallerInfo(context, canvas, Identity, new SKRect(0, 0, width, height), scale, null);
+            return new CallerInfo(context, canvas, Identity, new SKRect(0, 0, width, height), scaling, null);
         }
 
         public CallerInfo WithTransformation(SKMatrix transformation)
