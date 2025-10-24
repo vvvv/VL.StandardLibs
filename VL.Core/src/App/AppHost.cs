@@ -261,7 +261,7 @@ namespace VL.Core
         internal abstract NodeContext RootContext { get; }
 
         /// <summary>
-        /// Loads a plugin from the specified directory. The specified directory should contain the plugin assembly and any of its dependencies.
+        /// Loads a plugin from the specified directory. The specified directory should contain the plugin dll of the same name. For example myPlugin/myPlugin.dll
         /// </summary>
         /// <param name="path">The directory of the plugin to load.</param>
         /// <returns>A <see cref="PluginInfo"/> object containing information about the loaded plugin.</returns>
