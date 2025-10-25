@@ -1,11 +1,6 @@
-﻿using Stride.Core.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ImGuiNET;
+using Stride.Core.Mathematics;
 using VL.Core;
-using ImGuiNET;
 
 namespace VL.ImGui.Styling
 {
@@ -26,6 +21,11 @@ namespace VL.ImGui.Styling
 
         public string? FontName { private get; set; }
 
+        /// <summary>
+        /// The size of the font in device independent hecto pixel (1 = 100 DIP).
+        /// </summary>
+        public Optional<float> FontSize { private get; set; }
+
         internal override void SetCore(Context context)
         {
             if (Color.HasValue)
@@ -43,9 +43,11 @@ namespace VL.ImGui.Styling
                 colorCount++;
                 ImGui.PushStyleColor(ImGuiCol.TextSelectedBg, SelectedTextBackground.Value.ToImGui());
             }
-            if (FontName != null && context.Fonts.TryGetValue(FontName, out var font))
+            if (FontName != null || FontSize.HasValue)
             {
-                ImGui.PushFont(font);
+                var font = FontName != null ? context.Fonts.GetValueOrDefault(FontName) : default;
+                var fontSize = FontSize.HasValue ? Math.Clamp(FontSize.Value.FromHectoToImGui(), 0f, float.MaxValue) : font.LegacySize;
+                ImGui.PushFont(font, fontSize);
                 fontPushed = true;
             }
         }

@@ -7,7 +7,7 @@ namespace VL.ImGui.Widgets
     [WidgetType(WidgetType.Default)]
     internal partial class ColorEdit : ChannelWidget<Color4>
     {
-        public ImGuiNET.ImGuiColorEditFlags Flags { private get; set; } = ImGuiNET.ImGuiColorEditFlags.AlphaPreview | ImGuiNET.ImGuiColorEditFlags.AlphaBar;
+        public ImGuiNET.ImGuiColorEditFlags Flags { private get; set; } = ImGuiNET.ImGuiColorEditFlags.AlphaBar;
 
         public ColorEdit()
         {

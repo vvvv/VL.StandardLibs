@@ -27,11 +27,11 @@ namespace VL.ImGui.Widgets.Primitives
             var radius = Radius.FromHectoToImGui();
             if (IsFilled)
             {
-                drawList.AddEllipseFilled(Center.FromHectoToImGui(), radius.X, radius.Y, color, Rotation, SegmentsCount);
+                drawList.AddEllipseFilled(Center.FromHectoToImGui(), radius, color, Rotation, SegmentsCount);
             }
             else
             {
-                drawList.AddEllipse(Center.FromHectoToImGui(), radius.X, radius.Y, color, Rotation, SegmentsCount, Thickness.FromHectoToImGui());
+                drawList.AddEllipse(Center.FromHectoToImGui(), radius, color, Rotation, SegmentsCount, Thickness.FromHectoToImGui());
             }
         }
     }

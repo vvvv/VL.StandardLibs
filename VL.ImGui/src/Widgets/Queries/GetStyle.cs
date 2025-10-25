@@ -55,7 +55,7 @@ namespace VL.ImGui.Widgets
             TabRounding = ptr.TabRounding.ToVLHecto();
             TabBorderSize = ptr.TabBorderSize.ToVLHecto();
             TabBarBorderSize = ptr.TabBarBorderSize.ToVLHecto();
-            TabMinWidthForCloseButton = ptr.TabMinWidthForCloseButton.ToVLHecto();
+            TabMinWidthForCloseButton = ptr.TabCloseButtonMinWidthUnselected.ToVLHecto();
             TableAngledHeadersAngle = ptr.TableAngledHeadersAngle;
             ColorButtonPosition = ptr.ColorButtonPosition;
             ButtonTextAlign = ptr.ButtonTextAlign.ToVL();

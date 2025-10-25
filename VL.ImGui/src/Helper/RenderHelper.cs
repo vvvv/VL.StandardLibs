@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using System.Drawing;
 using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -9,9 +10,9 @@ using VL.Lib.Text;
 
 namespace VL.ImGui
 {
-    using MouseButtons = VL.Lib.IO.MouseButtons;
-    using Keys = VL.Lib.IO.Keys;
     using ImGui = ImGuiNET.ImGui;
+    using Keys = VL.Lib.IO.Keys;
+    using MouseButtons = VL.Lib.IO.MouseButtons;
 
     static class RenderHelper
     {
@@ -121,7 +122,7 @@ namespace VL.ImGui
             }
         }
 
-        public static ImFontAtlasPtr BuildImFontAtlas(this ImFontAtlasPtr atlas, float scaling, Context _context, Spread<FontConfig?>? fonts)
+        public static ImFontAtlasPtr BuildImFontAtlas(this ImFontAtlasPtr atlas, Context _context, Spread<FontConfig?>? fonts)
         {
             atlas.Clear();
             _context.Fonts.Clear();
@@ -141,12 +142,11 @@ namespace VL.ImGui
                 if (fontPath.IsDefault)
                     continue;
 
-                var size = Math.Clamp(font.Size * 100 /* hecto pixel */ * scaling, 1, short.MaxValue);
-
+                var size = Math.Clamp(font.Size * 100 /* hecto pixel */ /** scaling*/, 1, short.MaxValue);
                 ImFontConfig cfg = new ImFontConfig()
                 {
                     SizePixels = size,
-                    FontNo = fontPath.Index,
+                    FontNo = (uint)fontPath.Index,
                     FontDataOwnedByAtlas = 1,
                     EllipsisChar = unchecked((ushort)-1),
                     OversampleH = 2,
@@ -160,15 +160,7 @@ namespace VL.ImGui
 
                 unsafe
                 {
-                    // Write name
-                    Span<byte> s = Encoding.Default.GetBytes(font.ToString());
-                    var dst = new Span<byte>(cfg.Name, 40);
-                    s.Slice(0, Math.Min(s.Length, dst.Length)).CopyTo(dst);
-
-                    var glyphRange = font.CustomGlyphRangePtr;
-                    if (glyphRange == default)
-                        glyphRange = GetGlypthRange(atlas, font.GlyphRange);
-                    var f = atlas.AddFontFromFileTTF(fontPath.Path, cfg.SizePixels, &cfg, glyphRange);
+                    var f = atlas.AddFontFromFileTTF(fontPath.Path, 0f, &cfg);
                     anyFontLoaded = true;
                     _context.Fonts[font.Name] = f;
                 }
@@ -179,25 +171,7 @@ namespace VL.ImGui
                 atlas.AddFontDefault();
             }
 
-            atlas.Build();
-
             return atlas;
-
-            static IntPtr GetGlypthRange(ImFontAtlasPtr atlas, GlyphRange glyphRange)
-            {
-                return glyphRange switch
-                {
-                    GlyphRange.ChineseFull => atlas.GetGlyphRangesChineseFull(),
-                    GlyphRange.ChineseSimplifiedCommon => atlas.GetGlyphRangesChineseSimplifiedCommon(),
-                    GlyphRange.Cyrillic => atlas.GetGlyphRangesCyrillic(),
-                    GlyphRange.Greek => atlas.GetGlyphRangesGreek(),
-                    GlyphRange.Japanese => atlas.GetGlyphRangesJapanese(),
-                    GlyphRange.Korean => atlas.GetGlyphRangesKorean(),
-                    GlyphRange.Thai => atlas.GetGlyphRangesThai(),
-                    GlyphRange.Vietnamese => atlas.GetGlyphRangesVietnamese(),
-                    _ => atlas.GetGlyphRangesDefault()
-                };
-            }
         }
     }
 }

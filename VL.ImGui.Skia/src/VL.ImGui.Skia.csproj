@@ -12,12 +12,13 @@
 	<PackageTags>VL, imgui, gui, widgets, button, slider, layout</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- We use our own fork inside of VL.ImGui -->
+  <!--<ItemGroup>
     <PackageReference Include="ImGui.NET">
       <PrivateAssets>all</PrivateAssets>
       <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
-  </ItemGroup>
+  </ItemGroup>-->
 
   <ItemGroup>
     <ProjectReference Include="..\..\VL.Skia\src\VL.Skia.csproj" />
@@ -36,6 +37,14 @@
     <!-- Exclude the output of source generators from the compilation -->
     <Compile Remove="Generated\**\*.cs" />
     <None Include="Generated\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ToSkiaLayerVersion1.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="ToSkiaLayerVersion1.cs" />
   </ItemGroup>
 
 </Project>

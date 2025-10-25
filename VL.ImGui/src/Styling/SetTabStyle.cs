@@ -57,17 +57,17 @@ namespace VL.ImGui.Styling
             if (Active.HasValue)
             {
                 colorCount++;
-                ImGui.PushStyleColor(ImGuiCol.TabActive, Active.Value.ToImGui());
+                ImGui.PushStyleColor(ImGuiCol.TabSelected, Active.Value.ToImGui());
             }
             if (Unfocused.HasValue)
             {
                 colorCount++;
-                ImGui.PushStyleColor(ImGuiCol.TabUnfocused, Unfocused.Value.ToImGui());
+                ImGui.PushStyleColor(ImGuiCol.TabDimmed, Unfocused.Value.ToImGui());
             }
             if (UnfocusedActive.HasValue)
             {
                 colorCount++;
-                ImGui.PushStyleColor(ImGuiCol.TabUnfocusedActive, UnfocusedActive.Value.ToImGui());
+                ImGui.PushStyleColor(ImGuiCol.TabDimmedSelected, UnfocusedActive.Value.ToImGui());
             }
 
             if (Rounding.HasValue)

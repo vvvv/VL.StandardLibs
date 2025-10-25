@@ -15,13 +15,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ImGui.NET" GeneratePathProperty="true">
-      <PrivateAssets>all</PrivateAssets>
-      <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
     <ProjectReference Include="..\..\VL.ImGui.Generator\VL.ImGui.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
@@ -29,6 +22,11 @@
   <PropertyGroup Condition=" '$(DebugGenerator)'  == 'true' ">
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
+  
+  <!-- ImGui.NET -->
+  <ItemGroup>
+    <Compile Include="..\dependencies\ImGui.NET\src\ImGui.NET\**\*.cs" LinkBase="ImGui.NET" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Exclude the output of source generators from the compilation -->

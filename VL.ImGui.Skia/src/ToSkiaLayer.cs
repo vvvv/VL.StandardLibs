@@ -1,11 +1,14 @@
-﻿using VL.Lib.IO.Notifications;
-using VL.Skia;
-using ImGuiNET;
+﻿using ImGuiNET;
 using SkiaSharp;
-using System.Runtime.InteropServices;
-
+using Stride.Core.Mathematics;
 using System.Buffers;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Threading;
+using VL.Lib.Basics.Video;
 using VL.Lib.Collections;
+using VL.Lib.IO.Notifications;
+using VL.Skia;
 
 namespace VL.ImGui
 {
@@ -42,7 +45,6 @@ namespace VL.ImGui
         private readonly Handle<SKPaint> _fontPaint;
 
         private bool _disposed;
-        float _fontScaling;
         float _uiScaling;
         Spread<FontConfig?> _fonts = Spread<FontConfig?>.Empty;
 
@@ -57,12 +59,14 @@ namespace VL.ImGui
             using (_context.MakeCurrent())
             {
                 _io = ImGui.GetIO();
+                _io.BackendFlags |= ImGuiBackendFlags.RendererHasTextures;
                 _io.NativePtr->IniFilename = null;
 
                 _fontPaint = new Handle<SKPaint>(new SKPaint());
+                _io.Fonts.BuildImFontAtlas(_context, _fonts);
 
                 var scaling = VL.UI.Core.DIPHelpers.DIPFactor();
-                updateScaling(fontScaling: scaling, uiScaling: scaling);
+                updateScaling(uiScaling: scaling);
             }
         }
 
@@ -78,7 +82,7 @@ namespace VL.ImGui
                 if (!_fonts.SequenceEqual(fonts))
                 {
                     _fonts = fonts;
-                    BuildImFontAtlas(_io.Fonts, _fontPaint, _fontScaling, fonts);
+                    _io.Fonts.BuildImFontAtlas(_context, fonts);
                 }
 
                 var bounds = _lastCallerInfo.ViewportBounds;
@@ -103,7 +107,7 @@ namespace VL.ImGui
                         var viewPort = ImGui.GetMainViewport();
                         if (dockingEnabled)
                         {
-                            ImGui.DockSpaceOverViewport(viewPort, ImGuiDockNodeFlags.PassthruCentralNode);
+                            ImGui.DockSpaceOverViewport(0, viewPort, ImGuiDockNodeFlags.PassthruCentralNode);
                         }
                         else
                         {
@@ -142,13 +146,8 @@ namespace VL.ImGui
             return this;
         }
 
-        void updateScaling(float fontScaling, float uiScaling)
+        void updateScaling(float uiScaling)
         {
-            if (fontScaling != _fontScaling)
-            {
-                _fontScaling = fontScaling;
-                BuildImFontAtlas(_io.Fonts, _fontPaint, fontScaling, _fonts);
-            }
             if (uiScaling != _uiScaling) 
             {
                 _uiScaling = uiScaling;
@@ -172,41 +171,18 @@ namespace VL.ImGui
                 Render(caller, _drawDataPtr);
         }
 
-        void BuildImFontAtlas(ImFontAtlasPtr atlas, Handle<SKPaint> paintHandle, float scaling, Spread<FontConfig?>? fonts)
-        {
-            atlas.BuildImFontAtlas(scaling, _context, fonts);
-
-            atlas.GetTexDataAsAlpha8(out IntPtr pixels, out var w, out var h);
-
-            if (w == 0)
-            {
-                // Something went wrong, load default font
-                atlas.Clear();
-                _context.Fonts.Clear();
-                atlas.AddFontDefault();
-                atlas.GetTexDataAsAlpha8(out pixels, out w, out h);
-            }
-
-            var info = new SKImageInfo(w, h, SKColorType.Alpha8);
-            using var pmap = new SKPixmap(info, pixels, info.RowBytes);
-            var localMatrix = SKMatrix.CreateScale(1.0f / w, 1.0f / h);
-            var fontImage = SKImage.FromPixelCopy(pmap);
-            // makeShader(SkSamplingOptions(SkFilterMode::kLinear), localMatrix);
-            var fontShader = fontImage.ToShader(SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, localMatrix);
-            var paint = paintHandle.Target;
-            if (paint != null)
-            {
-                paint.Shader = fontShader;
-                paint.Color = SKColors.White;
-                atlas.TexID = paintHandle.Ptr;
-            }
-        }
-
-
         // From https://github.com/google/skia/blob/main/tools/viewer/ImGuiLayer.cpp
-        private void Render(CallerInfo caller, ImDrawDataPtr drawData)
+        private unsafe void Render(CallerInfo caller, ImDrawDataPtr drawData)
         {
             var canvas = caller.Canvas;
+
+            for (int i = 0; i < drawData.Textures.Size; i++)
+            {
+                var texture = drawData.Textures[i];
+                if (texture.Status != ImTextureStatus.OK)
+                    UpdateTexture(texture);
+            }
+
             //using var _ = new SKAutoCanvasRestore(canvas, true);
             canvas.Save();
             try
@@ -275,8 +251,9 @@ namespace VL.ImGui
                             }
                             else if (drawCmd.ElemCount > 0)
                             {
-                                var textureHandle = GCHandle.FromIntPtr(drawCmd.TextureId);
-                                var paint = textureHandle.Target as SKPaint ?? _fontPaint.Target;
+                                var texData = new ImTextureDataPtr(drawCmd.TexRef._TexData);
+                                var textureHandle = GCHandle.FromIntPtr(texData.BackendUserData);
+                                var paint = (textureHandle.Target as PrivateTextureData)?.Paint;
                                 if (paint is null)
                                     continue;
 
@@ -317,6 +294,86 @@ namespace VL.ImGui
             finally
             {
                 canvas.Restore();
+            }
+
+            void UpdateTexture(ImTextureDataPtr texture)
+            {
+                if (texture.Status == ImTextureStatus.WantCreate)
+                {
+                    //var info = new SKImageInfo(texture.Width, texture.Height, SKColorType.Bgra8888, SKAlphaType.Unpremul);
+                    //using var pmap = new SKPixmap(info, texture.Pixels, info.RowBytes);
+                    var bitmap = new SKBitmap(texture.Width, texture.Height, SKColorType.Rgba8888, SKAlphaType.Unpremul);
+                    var localMatrix = SKMatrix.CreateScale(1.0f / texture.Width, 1.0f / texture.Height);
+                    bitmap.SetPixels(texture.Pixels);
+                    //var fontImage = SKImage.FromPixelCopy(pmap);
+                    // makeShader(SkSamplingOptions(SkFilterMode::kLinear), localMatrix);
+                    var fontShader = bitmap.ToShader(SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, localMatrix);
+                    var paint = new SKPaint
+                    {
+                        Shader = fontShader,
+                        Color = SKColors.White
+                    };
+                    var backendData = new PrivateTextureData
+                    {
+                        Paint = paint,
+                        Bitmap = bitmap,
+                        Shader = fontShader
+                    };
+                    texture.BackendUserData = GCHandle.ToIntPtr(GCHandle.Alloc(backendData));
+                    texture.SetStatus(ImTextureStatus.OK);
+                }
+                else if (texture.Status == ImTextureStatus.WantUpdates)
+                {
+                    var backendData = GCHandle.FromIntPtr(texture.BackendUserData).Target as PrivateTextureData;
+                    if (backendData is null)
+                        return;
+
+                    var bitmap = backendData.Bitmap;
+                    for (int i = 0; i < texture.Updates.Size; i++)
+                    {
+                        var rect = texture.Updates[i];
+                        var rowBytes = (uint)(rect.w * sizeof(Color));
+                        for (int r = 0; r < rect.h; r++)
+                        {
+                            var dst = bitmap.GetAddress(rect.x, rect.y + r);
+                            var pitch = (uint)texture.GetPitch();
+                            Unsafe.CopyBlock(dst.ToPointer(), texture.GetPixelsAt(rect.x, rect.y + r).ToPointer(), rowBytes);
+                        }
+                    }
+                    bitmap.NotifyPixelsChanged();
+                    var localMatrix = SKMatrix.CreateScale(1.0f / texture.Width, 1.0f / texture.Height);
+                    backendData.Paint.Shader = bitmap.ToShader(SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, localMatrix);
+
+                    //var info = new SKImageInfo(texture.Width, texture.Height, SKColorType.Bgra8888, SKAlphaType.Unpremul);
+                    //using var pmap = new SKPixmap(info, texture.Pixels, info.RowBytes);
+                    //var localMatrix = SKMatrix.CreateScale(1.0f / texture.Width, 1.0f / texture.Height);
+                    //var fontImage = SKImage.FromPixelCopy(pmap);
+                    //// makeShader(SkSamplingOptions(SkFilterMode::kLinear), localMatrix);
+                    //var fontShader = fontImage.ToShader(SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, localMatrix);
+                    //var paint = new SKPaint
+                    //{
+                    //    Shader = fontShader,
+                    //    Color = SKColors.White
+                    //};
+                    //texture.BackendUserData = GCHandle.ToIntPtr(GCHandle.Alloc(paint));
+                    texture.SetStatus(ImTextureStatus.OK);
+                }
+                else if (texture.Status == ImTextureStatus.WantDestroy && texture.UnusedFrames > 0)
+                {
+                    var handle = GCHandle.FromIntPtr(texture.BackendUserData);
+                    var backendData = handle.Target as PrivateTextureData;
+                    if (backendData is not null)
+                    {
+                        backendData.Paint.Dispose();
+                        backendData.Shader.Dispose();
+                        backendData.Bitmap.Dispose();
+                    }
+                    handle.Free();
+
+                    texture.SetTexID(default);
+                    texture.BackendUserData = default;
+                    texture.SetStatus(ImTextureStatus.Destroyed);
+                }
             }
 
             // Taken from SkiaApi - allows us to draw the vertices without allocating
@@ -376,6 +433,13 @@ namespace VL.ImGui
 
             _disposed = true;
             _context.Dispose();
+        }
+
+        sealed class PrivateTextureData
+        {
+            public SKPaint Paint;
+            public SKBitmap Bitmap;
+            public SKShader Shader;
         }
     }
 }
