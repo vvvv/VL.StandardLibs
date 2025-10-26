@@ -111,7 +111,7 @@ namespace VL.ImGui
                             // Enable Docking
                             if (dockingEnabled)
                             {
-                                ImGui.DockSpaceOverViewport(viewPort, ImGuiDockNodeFlags.PassthruCentralNode);
+                                ImGui.DockSpaceOverViewport(0, viewPort, ImGuiDockNodeFlags.PassthruCentralNode);
                             }
                             else
                             {

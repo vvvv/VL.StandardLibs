@@ -61,6 +61,8 @@ namespace VL.ImGui
                 _io = ImGui.GetIO();
                 _io.BackendFlags |= ImGuiBackendFlags.RendererHasTextures;
                 _io.NativePtr->IniFilename = null;
+                _io.ConfigDpiScaleFonts = true;
+                _io.ConfigDpiScaleViewports = true;
 
                 _fontPaint = new Handle<SKPaint>(new SKPaint());
                 _io.Fonts.BuildImFontAtlas(_context, _fonts);
@@ -88,6 +90,9 @@ namespace VL.ImGui
                 var bounds = _lastCallerInfo.ViewportBounds;
 
                 _io.DisplaySize = new Vector2(bounds.Width, bounds.Height);
+
+                var style = ImGui.GetStyle();
+                style.FontScaleDpi = _lastCallerInfo.Scaling;
 
                 // Enable Docking
                 if (dockingEnabled)
@@ -275,7 +280,6 @@ namespace VL.ImGui
                                         var vertices = sk_vertices_make_copy(SKVertexMode.Triangles, size, pPos, pTex, (uint*)pColor, (int)drawCmd.ElemCount, indexPtr);
                                         sk_canvas_draw_vertices(canvas.Handle, vertices, SKBlendMode.Modulate, paint.Handle);
                                         sk_vertices_unref(vertices);
-                                            
                                     }
                                 }
                             } 

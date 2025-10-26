@@ -1,4 +1,5 @@
-﻿using Stride.Core.Mathematics;
+﻿using ImGuiNET;
+using Stride.Core.Mathematics;
 using Stride.Graphics;
 using System.Runtime.InteropServices;
 
@@ -26,7 +27,7 @@ namespace VL.ImGui.Widgets
                     textureHandle.Free();
 
                 textureHandle = GCHandle.Alloc(Texture);
-                ImGui.Image(GCHandle.ToIntPtr(textureHandle), Size.FromHectoToImGui());
+                ImGui.Image(new ImTextureRef() { _TexID = GCHandle.ToIntPtr(textureHandle) }, Size.FromHectoToImGui());
             }
         }
         public void Dispose()

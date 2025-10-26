@@ -26,7 +26,7 @@ namespace VL.ImGui.Styling
         /// </summary>
         public Optional<float> FontSize { private get; set; }
 
-        internal override void SetCore(Context context)
+        internal override unsafe void SetCore(Context context)
         {
             if (Color.HasValue)
             {
@@ -46,7 +46,7 @@ namespace VL.ImGui.Styling
             if (FontName != null || FontSize.HasValue)
             {
                 var font = FontName != null ? context.Fonts.GetValueOrDefault(FontName) : default;
-                var fontSize = FontSize.HasValue ? Math.Clamp(FontSize.Value.FromHectoToImGui(), 0f, float.MaxValue) : font.LegacySize;
+                var fontSize = FontSize.HasValue ? Math.Clamp(FontSize.Value.FromHectoToImGui(), 0f, float.MaxValue) : font.NativePtr != null ? font.LegacySize : 0;
                 ImGui.PushFont(font, fontSize);
                 fontPushed = true;
             }

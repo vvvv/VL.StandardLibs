@@ -20,7 +20,6 @@ namespace VL.ImGui
         {
             var style = ImGui.GetStyle();
             style.ScaleAllSizes(scaling);
-
             // From https://github.com/ocornut/imgui/discussions/3925
             //ImGuiStyle* p = style;
             //ImGuiStyle styleold = *p; // Backup colors
@@ -127,9 +126,6 @@ namespace VL.ImGui
             atlas.Clear();
             _context.Fonts.Clear();
 
-            var anyFontLoaded = false;
-            var fontsfolder = Environment.GetFolderPath(Environment.SpecialFolder.Fonts);
-
             if (fonts is null || fonts.IsEmpty)
                 fonts = Spread.Create(FontConfig.Default);
 
@@ -161,12 +157,11 @@ namespace VL.ImGui
                 unsafe
                 {
                     var f = atlas.AddFontFromFileTTF(fontPath.Path, 0f, &cfg);
-                    anyFontLoaded = true;
                     _context.Fonts[font.Name] = f;
                 }
             }
 
-            if (!anyFontLoaded)
+            if (_context.Fonts.Count == 0)
             {
                 atlas.AddFontDefault();
             }

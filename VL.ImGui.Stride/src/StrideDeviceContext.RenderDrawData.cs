@@ -51,9 +51,16 @@ namespace VL.ImGui
                 vtxOffsetBytes += cmdList.VtxBuffer.Size * Unsafe.SizeOf<ImDrawVert>();
                 idxOffsetBytes += cmdList.IdxBuffer.Size * sizeof(ushort);
             }
+
+            for (int i = 0; i < drawData.Textures.Size; i++)
+            {
+                var texture = drawData.Textures[i];
+                if (texture.Status != ImTextureStatus.OK)
+                    UpdateTexture(commandList, texture);
+            }
         }
 
-        public void RenderDrawLists(RenderDrawContext context, ImDrawDataPtr drawData)
+        public unsafe void RenderDrawLists(RenderDrawContext context, ImDrawDataPtr drawData)
         {
 
             var inputSource = context.RenderContext.GetWindowInputSource();
@@ -118,20 +125,7 @@ namespace VL.ImGui
                     }
                     else
                     {
-                        Texture? tex = null;
-
-                        if (cmd.TextureId != IntPtr.Zero)
-                        {
-                            var textureHandle = GCHandle.FromIntPtr(cmd.TextureId);
-                            if (textureHandle.Target is Texture texture)
-                            {
-                                tex = texture;
-                            }
-                        }
-                        else
-                        {
-                            tex = fontTexture;
-                        }
+                        var tex = GCHandle.FromIntPtr(cmd.GetTexID()).Target as Texture;
                         if (tex != null)
                         {
                             var is32Bits = false;

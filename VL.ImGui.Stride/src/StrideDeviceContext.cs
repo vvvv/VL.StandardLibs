@@ -1,19 +1,18 @@
 ﻿using ImGuiNET;
-using Stride.Input;
-using Stride.Graphics;
-using Stride.Rendering;
+using SharpDX.Direct2D1.Effects;
 using Stride.Core.Mathematics;
-using Buffer = Stride.Graphics.Buffer;
-
-using VL.Core;
-using VL.Lib.Collections;
-using VL.Stride;
-
-using VL.Lib.Basics.Resources;
-using VL.ImGui.Stride.Effects;
+using Stride.Graphics;
+using Stride.Input;
+using Stride.Rendering;
 using Stride.Shaders.Compiler;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using VL.Core;
+using VL.ImGui.Stride.Effects;
+using VL.Lib.Basics.Resources;
+using VL.Lib.Collections;
+using VL.Stride;
+using Buffer = Stride.Graphics.Buffer;
 
 namespace VL.ImGui
 {
@@ -48,7 +47,6 @@ namespace VL.ImGui
         private VertexBufferBinding vertexBinding;
         private IndexBufferBinding indexBinding;
         private readonly EffectInstance imShader;
-        private Texture? fontTexture;
 
         //VL 
         private NodeContext nodeContext;
@@ -76,6 +74,13 @@ namespace VL.ImGui
             {
                 _io = ImGui.GetIO();
                 _io.NativePtr->IniFilename = null;
+                _io.BackendFlags |= ImGuiBackendFlags.RendererHasTextures;
+
+                _io.ConfigDpiScaleFonts = true;
+                _io.ConfigDpiScaleViewports = true;
+
+                // Setup default font
+                _io.Fonts.BuildImFontAtlas(this, _fonts);
 
                 #region DeviceObjects
 
@@ -128,18 +133,13 @@ namespace VL.ImGui
                 #endregion DeviceObjects
 
                 var scaling = VL.UI.Core.DIPHelpers.DIPFactor();
-                UpdateScaling(fontScaling: scaling, uiScaling: scaling);
+                UpdateScaling(uiScaling: scaling);
             }
         }
 
         #region scaling
-        void UpdateScaling(float fontScaling, float uiScaling)
+        void UpdateScaling(float uiScaling)
         {
-            if (fontScaling != _fontScaling)
-            {
-                _fontScaling = fontScaling;
-                BuildImFontAtlas(device, _io.Fonts, _fontScaling);
-            }
             if (uiScaling != _uiScaling)
             {
                 _uiScaling = uiScaling;
@@ -154,11 +154,12 @@ namespace VL.ImGui
             {
                 if (disposing)
                 {
+                    // TODO: Double check if font atlas textures get destroyed!
+
                     // Dispose managed resources
                     imPipeline.Dispose();
                     vertexBinding.Buffer.Dispose();
                     indexBinding.Buffer.Dispose();
-                    fontTexture?.Dispose();
                     imShader.Dispose();
 
                     deviceHandle.Dispose();

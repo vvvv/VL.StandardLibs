@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
-using SkiaSharp;
+using Stride.Core.Mathematics;
 using Stride.Graphics;
+using System.Runtime.InteropServices;
 using VL.Lib.Collections;
 
 namespace VL.ImGui
@@ -12,40 +13,55 @@ namespace VL.ImGui
             if (!fonts.IsEmpty && !_fonts.SequenceEqual(fonts))
             {
                 _fonts = fonts;
-                BuildImFontAtlas(device, _io.Fonts, _fontScaling);
+                _io.Fonts.BuildImFontAtlas(this, _fonts);
             }
         }
 
-        void BuildImFontAtlas(GraphicsDevice device, ImFontAtlasPtr atlas, float scaling)
+        unsafe void UpdateTexture(CommandList commandList, ImTextureDataPtr textureData)
         {
-            atlas.BuildImFontAtlas(scaling, this, _fonts);
-
-            unsafe
+            if (textureData.Status == ImTextureStatus.WantCreate)
             {
-                atlas.GetTexDataAsRGBA32(out byte* pixelData, out int width, out int height, out int bytesPerPixel);
-                if (width == 0 || height == 0)
-                {
-                    // Something went wrong, load default font
-                    atlas.Clear();
-                    this.Fonts.Clear();
-                    atlas.AddFontDefault();
-                    atlas.GetTexDataAsRGBA32(out pixelData, out width, out height, out bytesPerPixel);
-                }
-
-                fontTexture?.Dispose();
-
-                var newFontTexture = Texture.New2D(
+                var width = textureData.Width;
+                var height = textureData.Height;
+                var rowPitch = textureData.GetPitch();
+                var pixelData = textureData.Pixels;
+                var texture = Texture.New2D(
                     device: device,
                     width: width,
                     height: height,
                     mipCount: 1,
                     format: device.ColorSpace == ColorSpace.Linear ? PixelFormat.R8G8B8A8_UNorm_SRgb : PixelFormat.R8G8B8A8_UNorm,
-                    textureData: [new DataBox(new IntPtr(pixelData), rowPitch: width * bytesPerPixel, slicePitch: width * height * bytesPerPixel)],
+                    textureData: [new DataBox(pixelData, rowPitch: rowPitch, slicePitch: rowPitch * height)],
                     textureFlags: TextureFlags.ShaderResource,
-                    usage: GraphicsResourceUsage.Immutable);
+                    usage: GraphicsResourceUsage.Default);
+                textureData.TexID = GCHandle.ToIntPtr(GCHandle.Alloc(texture));
+                textureData.SetStatus(ImTextureStatus.OK);
+            }
+            else if (textureData.Status == ImTextureStatus.WantUpdates)
+            {
+                var texture = GCHandle.FromIntPtr(textureData.TexID).Target as Texture;
+                if (texture is null)
+                    return;
 
-                fontTexture = newFontTexture;
-                atlas.ClearTexData();
+                for (int i = 0; i < textureData.Updates.Size; i++)
+                {
+                    var rect = textureData.Updates[i];
+                    var rowBytes = (uint)(rect.w * sizeof(Color));
+                    var data = new Span<Color>(textureData.GetPixelsAt(rect.x, rect.y).ToPointer(), textureData.GetPitch());
+                    texture.SetData(commandList, data, region: new ResourceRegion(rect.x, rect.y, 0, rect.x + rect.w, rect.y + rect.h, 1));
+                }
+
+                textureData.SetStatus(ImTextureStatus.OK);
+            }
+            else if (textureData.Status == ImTextureStatus.WantDestroy && textureData.UnusedFrames > 0)
+            {
+                var handle = GCHandle.FromIntPtr(textureData.TexID);
+                var texture = handle.Target as Texture;
+                texture?.Dispose();
+                handle.Free();
+
+                textureData.SetTexID(default);
+                textureData.SetStatus(ImTextureStatus.Destroyed);
             }
         }
     }
