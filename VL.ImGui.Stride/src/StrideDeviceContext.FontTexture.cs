@@ -25,15 +25,24 @@ namespace VL.ImGui
                 var height = textureData.Height;
                 var rowPitch = textureData.GetPitch();
                 var pixelData = textureData.Pixels;
-                var texture = Texture.New2D(
-                    device: device,
-                    width: width,
-                    height: height,
-                    mipCount: 1,
-                    format: device.ColorSpace == ColorSpace.Linear ? PixelFormat.R8G8B8A8_UNorm_SRgb : PixelFormat.R8G8B8A8_UNorm,
-                    textureData: [new DataBox(pixelData, rowPitch: rowPitch, slicePitch: rowPitch * height)],
-                    textureFlags: TextureFlags.ShaderResource,
-                    usage: GraphicsResourceUsage.Default);
+                var texture = pixelData == default
+                    ? Texture.New2D(
+                        device: device,
+                        width: width,
+                        height: height,
+                        mipCount: 1,
+                        format: device.ColorSpace == ColorSpace.Linear ? PixelFormat.R8G8B8A8_UNorm_SRgb : PixelFormat.R8G8B8A8_UNorm,
+                        textureFlags: TextureFlags.ShaderResource,
+                        usage: GraphicsResourceUsage.Default)
+                    : Texture.New2D(
+                        device: device,
+                        width: width,
+                        height: height,
+                        mipCount: 1,
+                        format: device.ColorSpace == ColorSpace.Linear ? PixelFormat.R8G8B8A8_UNorm_SRgb : PixelFormat.R8G8B8A8_UNorm,
+                        textureData: [new DataBox(pixelData, rowPitch: rowPitch, slicePitch: rowPitch * height)],
+                        textureFlags: TextureFlags.ShaderResource,
+                        usage: GraphicsResourceUsage.Default);
                 textureData.TexID = GCHandle.ToIntPtr(GCHandle.Alloc(texture));
                 textureData.SetStatus(ImTextureStatus.OK);
             }

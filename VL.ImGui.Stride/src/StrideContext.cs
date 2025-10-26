@@ -100,12 +100,6 @@ namespace VL.ImGui
                 return null;
         }
 
-        public override void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)

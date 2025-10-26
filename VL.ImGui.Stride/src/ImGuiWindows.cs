@@ -129,11 +129,11 @@ namespace VL.ImGui.Stride
 
         public void Update(ImGuiWindowsCreateHandler create, ImGuiWindowsDrawHandler draw, Widget? widget, bool dockingEnabled, Spread<FontConfig?> fonts, IStyle style)
         {
-            SetPerFrameImGuiData();
-            UpdateMonitors();
-
             using (_strideDeviceContext.MakeCurrent())
             {
+                SetPerFrameImGuiData();
+                UpdateMonitors();
+
                 // should be always
                 if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
                 {
@@ -149,21 +149,16 @@ namespace VL.ImGui.Stride
                     {
                         using var _ = _strideDeviceContext.ApplyStyle(style);
 
+                        var viewPort = ImGui.GetMainViewport();
                         // Enable Docking
                         if (dockingEnabled)
                         {
-                            ImGui.DockSpaceOverViewport();
-
-                            var viewPort = ImGui.GetMainViewport();
-                            ImGui.SetNextWindowPos(viewPort.WorkPos);
-                            ImGui.SetNextWindowSize(viewPort.WorkSize);
-                            ImGui.Begin("DockingRoot", ImGuiWindowFlags.ChildWindow);
+                            ImGui.DockSpaceOverViewport(0, viewPort, ImGuiDockNodeFlags.PassthruCentralNode);
                         }
                         else
                         {
-                            var viewPort = ImGui.GetMainViewport();
-                            ImGui.SetNextWindowPos(viewPort.WorkPos);
-                            ImGui.SetNextWindowSize(viewPort.WorkSize);
+                            ImGui.SetNextWindowPos(viewPort.Pos);
+                            ImGui.SetNextWindowSize(viewPort.Size);
                             ImGui.Begin("FullscreenRoot",
                                 ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
                                 ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus |
@@ -171,13 +166,13 @@ namespace VL.ImGui.Stride
                                 ImGuiWindowFlags.NoBackground);
                         }
 
-                        _strideDeviceContext.SetDrawList(DrawList.AtCursor);
+                        // Do not set Cursior -> it will trigger the Debug window
+                        _strideDeviceContext.SetDrawList(DrawList.Foreground);
                         _strideDeviceContext.Update(widget);
                     }
                     finally
                     {
-                        ImGui.End();
-                        if (dockingEnabled)
+                        if (!dockingEnabled)
                         {
                             ImGui.End();
                         }
@@ -209,37 +204,28 @@ namespace VL.ImGui.Stride
             }
         }
 
-        private void SetPerFrameImGuiData()
+        private unsafe void SetPerFrameImGuiData()
         {
-            using (_strideDeviceContext.MakeCurrent())
+            int x, y;
+            uint buttons = global::Stride.Graphics.SDL.Window.SDL.GetGlobalMouseState(&x, &y);
+            _strideDeviceContext.IO.MouseDown[0] = (buttons & 0b0001) != 0;
+            _strideDeviceContext.IO.MouseDown[1] = (buttons & 0b0010) != 0;
+            _strideDeviceContext.IO.MouseDown[2] = (buttons & 0b0100) != 0;
+            _strideDeviceContext.IO.MousePos = new Vector2(x, y);
+
+            _strideDeviceContext.IO.DisplaySize = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
+            _strideDeviceContext.IO.DisplayFramebufferScale = new Vector2(1.0f, 1.0f);
+
+            var platformIO = ImGui.GetPlatformIO();
+            if ((nint)platformIO.NativePtr != IntPtr.Zero)
             {
-                unsafe
+                var viewPorts = platformIO.Viewports;
+                if (viewPorts.Data != IntPtr.Zero)
                 {
-                    int x, y;
-                    uint buttons = global::Stride.Graphics.SDL.Window.SDL.GetGlobalMouseState(&x, &y);
-                    _strideDeviceContext.IO.MouseDown[0] = (buttons & 0b0001) != 0;
-                    _strideDeviceContext.IO.MouseDown[1] = (buttons & 0b0010) != 0;
-                    _strideDeviceContext.IO.MouseDown[2] = (buttons & 0b0100) != 0;
-                    _strideDeviceContext.IO.MousePos = new Vector2(x, y);
-                }
-
-                _strideDeviceContext.IO.DisplaySize = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
-                _strideDeviceContext.IO.DisplayFramebufferScale = new Vector2(1.0f, 1.0f);
-
-                unsafe
-                {
-                    var platformIO = ImGui.GetPlatformIO();
-                    if ((nint)platformIO.NativePtr != IntPtr.Zero)
+                    if (_mainViewportWindow != null && platformIO.Viewports.Size > 0 && (nint)platformIO.Viewports[0].NativePtr != IntPtr.Zero)
                     {
-                        var viewPorts = platformIO.Viewports;
-                        if (viewPorts.Data != IntPtr.Zero)
-                        {
-                            if (_mainViewportWindow != null && platformIO.Viewports.Size > 0 && (nint)platformIO.Viewports[0].NativePtr != IntPtr.Zero)
-                            {
-                                platformIO.Viewports[0].Pos = new Vector2(_mainViewportWindow.Position.X, _mainViewportWindow.Position.Y);
-                                platformIO.Viewports[0].Size = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
-                            }
-                        }
+                        platformIO.Viewports[0].Pos = new Vector2(_mainViewportWindow.Position.X, _mainViewportWindow.Position.Y);
+                        platformIO.Viewports[0].Size = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
                     }
                 }
             }
@@ -247,52 +233,31 @@ namespace VL.ImGui.Stride
 
         private unsafe void UpdateMonitors()
         {
-            using (_strideDeviceContext.MakeCurrent())
+            var outputs = _deviceHandle.Resource?.Adapter?.Outputs;
+            if (outputs is null)
+                return;
+
+            var platformIO = ImGui.GetPlatformIO();
+            if (platformIO.NativePtr->Monitors.Data != IntPtr.Zero)
             {
-                var outputs = _deviceHandle.Resource.Adapter.Outputs;
+                ImGui.MemFree(platformIO.NativePtr->Monitors.Data);
+            }
 
-                ImGuiPlatformIOPtr platformIO = ImGui.GetPlatformIO();
-                if (platformIO.NativePtr->Monitors.Data != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(platformIO.NativePtr->Monitors.Data);
-                }
+            var numMonitors = outputs.Length;
+            var data = ImGui.MemAlloc((uint)(Unsafe.SizeOf<ImGuiPlatformMonitor>() * numMonitors));
+            platformIO.NativePtr->Monitors = new ImVector(numMonitors, numMonitors, data);
 
-                int numMonitors = outputs.Length;
-                IntPtr data = IntPtr.Zero;
+            for (int i = 0; i < numMonitors; i++)
+            {
+                Vector2 pos = new Vector2(outputs[i].DesktopBounds.X, outputs[i].DesktopBounds.Y);
+                Vector2 size = new Vector2(outputs[i].CurrentDisplayMode.Width, outputs[i].CurrentDisplayMode.Height);
 
-                try
-                {
-                    data = Marshal.AllocHGlobal(Unsafe.SizeOf<ImGuiPlatformMonitor>() * numMonitors);
-                    platformIO.NativePtr->Monitors = new ImVector(numMonitors, numMonitors, data);
-
-                    for (int i = 0; i < numMonitors; i++)
-                    {
-                        Vector2 pos = new Vector2(outputs[i].DesktopBounds.X, outputs[i].DesktopBounds.Y);
-                        Vector2 size = new Vector2(outputs[i].CurrentDisplayMode.Width, outputs[i].CurrentDisplayMode.Height);
-
-                        ImGuiPlatformMonitorPtr monitor = platformIO.Monitors[i];
-                        monitor.DpiScale = 1f; // TODO GET SCALE PER MONITOR
-                        monitor.MainPos = pos;
-                        monitor.MainSize = size;
-                        monitor.WorkPos = pos;
-                        monitor.WorkSize = size;
-                    }
-                }
-                catch
-                {
-                    if (data != IntPtr.Zero)
-                    {
-                        Marshal.FreeHGlobal(data);
-                    }
-                    throw;
-                }
-                finally
-                {
-                    if (data != IntPtr.Zero && platformIO.NativePtr->Monitors.Data == IntPtr.Zero)
-                    {
-                        Marshal.FreeHGlobal(data);
-                    }
-                }
+                ImGuiPlatformMonitorPtr monitor = platformIO.Monitors[i];
+                monitor.DpiScale = 1f; // TODO GET SCALE PER MONITOR
+                monitor.MainPos = pos;
+                monitor.MainSize = size;
+                monitor.WorkPos = pos;
+                monitor.WorkSize = size;
             }
         }
 
@@ -300,7 +265,6 @@ namespace VL.ImGui.Stride
         private void CreateWindow(ImGuiViewportPtr vp)
         {
             ImGuiWindow window = new ImGuiWindow(_nodeContext, _strideDeviceContext, vp, _bounds);
-            vp.PlatformUserData = GCHandle.ToIntPtr(GCHandle.Alloc(window));
         }
 
         private void DestroyWindow(ImGuiViewportPtr vp)
@@ -308,8 +272,6 @@ namespace VL.ImGui.Stride
             GetWindow(vp, (window) => 
             { 
                 window.Dispose();
-                GCHandle.FromIntPtr(vp.PlatformUserData).Free();
-                vp.PlatformUserData = IntPtr.Zero;
             });
         }
 
@@ -407,6 +369,7 @@ namespace VL.ImGui.Stride
                 {
                     _deviceHandle.Dispose();
                     _mainViewportWindow.Dispose();
+                    ImGui.DestroyPlatformWindows();
                     _strideDeviceContext.Dispose();
                 }
 
@@ -416,8 +379,12 @@ namespace VL.ImGui.Stride
 
         public void Dispose()
         {
-            Dispose(true);
             GC.SuppressFinalize(this);
+
+            using (_strideDeviceContext.MakeCurrent())
+            {
+                Dispose(true);
+            }
         }
     }
 }

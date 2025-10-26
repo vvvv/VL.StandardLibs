@@ -125,31 +125,38 @@ namespace VL.ImGui
                     }
                     else
                     {
-                        var tex = GCHandle.FromIntPtr(cmd.GetTexID()).Target as Texture;
-                        if (tex != null)
+                        // ??
+                        var texId = cmd.TexRef._TexID;
+                        if (texId == IntPtr.Zero && cmd.TexRef._TexData != null)
+                            texId = cmd.TexRef._TexData->TexID;
+                        if (texId != IntPtr.Zero)
                         {
-                            var is32Bits = false;
-                            commandList.SetPipelineState(imPipeline);
-                            commandList.SetVertexBuffer(0, vertexBinding.Buffer, 0, Unsafe.SizeOf<ImDrawVert>());
-                            commandList.SetIndexBuffer(indexBinding.Buffer, 0, is32Bits);
+                            var tex = GCHandle.FromIntPtr(texId).Target as Texture;
+                            if (tex != null)
+                            {
+                                var is32Bits = false;
+                                commandList.SetPipelineState(imPipeline);
+                                commandList.SetVertexBuffer(0, vertexBinding.Buffer, 0, Unsafe.SizeOf<ImDrawVert>());
+                                commandList.SetIndexBuffer(indexBinding.Buffer, 0, is32Bits);
 
-                            commandList.SetScissorRectangle(
-                                new Rectangle(
-                                    (int)cmd.ClipRect.X - (int)drawData.DisplayPos.X,
-                                    (int)cmd.ClipRect.Y - (int)drawData.DisplayPos.Y,
-                                    (int)(cmd.ClipRect.Z - cmd.ClipRect.X),
-                                    (int)(cmd.ClipRect.W - cmd.ClipRect.Y)
-                                )
-                            );
+                                commandList.SetScissorRectangle(
+                                    new Rectangle(
+                                        (int)cmd.ClipRect.X - (int)drawData.DisplayPos.X,
+                                        (int)cmd.ClipRect.Y - (int)drawData.DisplayPos.Y,
+                                        (int)(cmd.ClipRect.Z - cmd.ClipRect.X),
+                                        (int)(cmd.ClipRect.W - cmd.ClipRect.Y)
+                                    )
+                                );
 
-                            //imShader.SetParameters(context?.RenderContext.RenderView, context);
-                            imShader.Parameters.Set(TexturingKeys.Texture0, tex);
-                            imShader.Parameters.Set(ImGuiEffectShaderKeys.proj, ref projMatrix);
-                            imShader.Parameters.Set(ImGuiEffectShaderKeys.offset, ref off);
-                            
-                            imShader.Apply(graphicsContext);
+                                //imShader.SetParameters(context?.RenderContext.RenderView, context);
+                                imShader.Parameters.Set(TexturingKeys.Texture0, tex);
+                                imShader.Parameters.Set(ImGuiEffectShaderKeys.proj, ref projMatrix);
+                                imShader.Parameters.Set(ImGuiEffectShaderKeys.offset, ref off);
 
-                            commandList.DrawIndexed((int)cmd.ElemCount, idxOffset, vtxOffset);
+                                imShader.Apply(graphicsContext);
+
+                                commandList.DrawIndexed((int)cmd.ElemCount, idxOffset, vtxOffset);
+                            }
                         }
 
                         idxOffset += (int)cmd.ElemCount;

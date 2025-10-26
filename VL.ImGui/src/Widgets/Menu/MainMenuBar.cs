@@ -18,7 +18,7 @@
                 }
                 finally
                 {
-                    ImGuiNET.ImGui.EndMenuBar();
+                    ImGuiNET.ImGui.EndMainMenuBar();
                 }
             }
         }

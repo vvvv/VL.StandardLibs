@@ -75,7 +75,9 @@ namespace VL.ImGui
 
             using (_context.MakeCurrent())
             {
-                _context.IO.DeltaTime = (float)context.RenderContext.Time.TimePerFrame.TotalSeconds;
+                var elapsedSeconds = context.RenderContext.Time.TimePerFrame.TotalSeconds;
+                if (elapsedSeconds > 0)
+                    _context.IO.DeltaTime = (float)elapsedSeconds;
 
                 // Handle the inputSource for ImGui
                 var inputSource = context.RenderContext.GetWindowInputSource();

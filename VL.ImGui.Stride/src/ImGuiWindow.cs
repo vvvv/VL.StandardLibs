@@ -22,7 +22,7 @@ namespace VL.ImGui.Stride
 
     internal class ImGuiWindow : IDisposable
     {
-        private readonly ImGuiViewportPtr _vp;
+        private ImGuiViewportPtr _vp;
         private readonly GCHandle _gcHandle;
         private readonly SchedulerSystem _schedulerSystem;
         private readonly GameContext _gameContext;
@@ -226,6 +226,7 @@ namespace VL.ImGui.Stride
 
             // Dispose unmanaged resources
             _gcHandle.Free();
+            _vp.PlatformUserData = default;
         }
 
         class WindowRenderer : IGraphicsRendererBase
