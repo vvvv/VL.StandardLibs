@@ -19,6 +19,17 @@ namespace VL.Stride.Games
 {
     public class VLGame : Game, IGraphicsDeviceProvider
     {
+        internal record struct GameContextParams(NodeContext NodeContext, bool AlwaysOnTop, bool ExtendIntoTitleBar, AppContextType AppContextType, int RequestedWidth, int RequestedHeight, bool IsUserManagingRun);
+        internal static Func<GameContextParams, GameContext> VLGameContextFactory;
+
+        public static GameContext CreateGameContext(NodeContext nodeContext, bool alwaysOnTop, bool extendIntoTitleBar, AppContextType appContextType, int requestedWidth = 0, int requestedHeight = 0, bool isUserManagingRun = false)
+        {
+            if (VLGameContextFactory is null)
+                throw new InvalidOperationException("VL Stride init routines didn't run yet.");
+
+            return VLGameContextFactory(new(nodeContext, alwaysOnTop, extendIntoTitleBar, appContextType, requestedWidth, requestedHeight, isUserManagingRun));
+        }
+
         private readonly TimeSpan maximumElapsedTime = TimeSpan.FromMilliseconds(2000.0);
         private TimeSpan accumulatedElapsedGameTime;
         private bool forceElapsedTimeToZero;

@@ -19,6 +19,7 @@ using VL.Core.Utils;
 using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
 using VL.UI.Core;
+using Win32CustomTitleBar = sw::VL.Core.Windows.Win32CustomTitleBar;
 
 namespace VL.Skia
 {
@@ -41,9 +42,9 @@ namespace VL.Skia
         ILayer? Layer;
         bool FFirstRenderCall = true;
 
-        public SkiaRenderer()
+        public SkiaRenderer(NodeContext nodeContext, Win32CustomTitleBar.Options options)
         {
-            FAppHost = AppHost.Current;
+            FAppHost = nodeContext.AppHost;
 
             Icon = Properties.Resources.QuadIcon;
             StartPosition = FormStartPosition.Manual;
@@ -53,6 +54,8 @@ namespace VL.Skia
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             ResizeRedraw = true;
             DoubleBuffered = false;
+
+            customTitleBar = Win32CustomTitleBar.Install(this, nodeContext, options with { IsFullscreen = () => FFullScreen });
 
             BoundsChanged = new BehaviorSubject<System.Drawing.Rectangle>(new System.Drawing.Rectangle());
             FBoundsStream = new BehaviorSubject<RectangleF>(new RectangleF());
@@ -205,8 +208,6 @@ namespace VL.Skia
             FDarkModeSubscription.Disposable = DarkTitleBarClass.Install(Handle);
             base.OnHandleCreated(e);
             renderer = new EglSkiaRenderer(RenderContextProvider);
-
-            InsertCustomMenu();
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
@@ -221,7 +222,6 @@ namespace VL.Skia
         {
             base.OnResize(e);
             OnBoundsChanged();
-            UpdateTitleBarButtonRects();
         }
 
         protected override void OnLocationChanged(EventArgs e)
@@ -234,7 +234,6 @@ namespace VL.Skia
         {
             base.OnDpiChanged(e);
             OnBoundsChanged();
-            UpdateTitleBarButtonRects();
         }
 
         private void OnBoundsChanged()
@@ -301,6 +300,10 @@ namespace VL.Skia
 
     public class SkiaRendererTopMost : SkiaRenderer
     {
+        public SkiaRendererTopMost(NodeContext nodeContext) : base(nodeContext, new (AlwaysOnTop: true, ExtendIntoTitleBar: false))
+        {
+        }
+
         protected override bool ShowWithoutActivation => true;
         protected override CreateParams CreateParams
         {
