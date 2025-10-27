@@ -13,20 +13,12 @@
         {
             Input?.Set(context);
 
-            if (!context.IsBeforeFrame || CanDoStuffBeforeFrame)
-            {
-                colorCount = 0;
-                valueCount = 0;
-                SetCore(context);
-            }
+            SetCore(context);
         }
 
         public void Reset(Context context)
         {
-            if (!context.IsBeforeFrame || CanDoStuffBeforeFrame)
-            {
-                ResetCore(context);
-            }
+            ResetCore(context);
 
             Input?.Reset(context);
         }
@@ -34,13 +26,13 @@
         internal abstract void SetCore(Context context);
         internal virtual void ResetCore(Context context)
         {
+            var colorCount = Interlocked.Exchange(ref this.colorCount, 0);
             if (colorCount > 0)
                 ImGui.PopStyleColor(colorCount);
+            var valueCount = Interlocked.Exchange(ref this.valueCount, 0);
             if (valueCount > 0)
                 ImGui.PopStyleVar(valueCount);
         }
-
-        internal virtual bool CanDoStuffBeforeFrame => false;
 
         // not really used
         internal void Update(Context context)

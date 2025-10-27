@@ -91,8 +91,10 @@ namespace VL.ImGui
 
                 _io.DisplaySize = new Vector2(bounds.Width, bounds.Height);
 
-                var style = ImGui.GetStyle();
-                style.FontScaleDpi = _lastCallerInfo.Scaling;
+                var viewPort = ImGui.GetMainViewport();
+                viewPort.DpiScale = _lastCallerInfo.Scaling;
+                //var style = ImGui.GetStyle();
+                //style.FontScaleDpi = _lastCallerInfo.Scaling;
 
                 // Enable Docking
                 if (dockingEnabled)
@@ -100,16 +102,13 @@ namespace VL.ImGui
                 else
                     _io.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
-                var onlySomeStyles = _context.ApplyStyle(Style, beforeNewFrame: true);
+                using var _ = _context.ApplyStyle(Style);
 
                 _context.NewFrame();
                 try
                 {
-                    using var _ = _context.ApplyStyle(Style);
-
                     if (fullscreenWindow)
                     {
-                        var viewPort = ImGui.GetMainViewport();
                         if (dockingEnabled)
                         {
                             ImGui.DockSpaceOverViewport(0, viewPort, ImGuiDockNodeFlags.PassthruCentralNode);
@@ -132,8 +131,6 @@ namespace VL.ImGui
                 }
                 finally
                 {
-                    onlySomeStyles.Dispose();
-
                     if (fullscreenWindow && !dockingEnabled)
                     {
                         ImGui.End();

@@ -84,7 +84,6 @@ namespace VL.ImGui
         internal DrawList DrawList;
         internal System.Numerics.Vector2 DrawListOffset;
         internal bool IsInBeginTables;
-        internal bool IsBeforeFrame;
 
         public Context()
         {
@@ -268,8 +267,6 @@ namespace VL.ImGui
 
             public StyleFrame(Context context, IStyle? style, bool beforeNewFrame = false)
             {
-                context.IsBeforeFrame = beforeNewFrame;
-
                 this.context = context;
                 this.style = style;
 
@@ -279,8 +276,6 @@ namespace VL.ImGui
             public void Dispose()
             {
                 style?.Reset(context);
-
-                context.IsBeforeFrame = false;
             }
         }
     }
