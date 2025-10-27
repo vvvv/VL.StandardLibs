@@ -9,7 +9,7 @@ namespace VL.ImGui.Widgets
     [WidgetType(WidgetType.Bang)]
     internal partial class BangButton : ChannelWidget<Unit>
     {
-        public ImGuiNET.ImGuiDir Direction { private get; set; } = ImGuiNET.ImGuiDir.None;
+        public ImGuiNET.ImGuiDir Direction { private get; set; } = ImGuiNET.ImGuiDir.Right;
 
         private readonly SerialDisposable channelSubscription = new();
 
@@ -19,6 +19,9 @@ namespace VL.ImGui.Widgets
         internal override void UpdateCore(Context context)
         {
             Update();
+            var direction = Direction;
+            if (direction == ImGuiNET.ImGuiDir.None)
+                direction = ImGuiNET.ImGuiDir.Right;
             selfbang = ImGuiNET.ImGui.ArrowButton(widgetLabel.Update(label.Value), selfbang | bang ? ImGuiNET.ImGuiDir.Down : Direction);
             if (selfbang)
                 Value = Unit.Default;

@@ -13,7 +13,7 @@
 
         internal override void UpdateCore(Context context)
         {
-            Value = ImGuiNET.ImGui.IsWindowHovered(Flags);
+            Value = ImGuiNET.ImGui.IsWindowHovered(Flags.ForWindowHovered());
         }
     }
 }

@@ -129,6 +129,7 @@ namespace VL.ImGui
             if (fonts is null || fonts.IsEmpty)
                 fonts = Spread.Create(FontConfig.Default);
 
+            ImFontPtr defaultFont = default;
             foreach (var font in fonts)
             {
                 if (font is null)
@@ -158,13 +159,18 @@ namespace VL.ImGui
                 {
                     var f = atlas.AddFontFromFileTTF(fontPath.Path, 0f, &cfg);
                     _context.Fonts[font.Name] = f;
+                    if (defaultFont.NativePtr is null)
+                        defaultFont = f;
                 }
             }
 
             if (_context.Fonts.Count == 0)
             {
-                atlas.AddFontDefault();
+                defaultFont = atlas.AddFontDefault();
             }
+
+            _context.DefaultFont = defaultFont;
+            //ImGui.PushFont(defaultFont, 0f);
 
             return atlas;
         }

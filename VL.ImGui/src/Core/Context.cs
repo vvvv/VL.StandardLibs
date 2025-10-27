@@ -84,6 +84,7 @@ namespace VL.ImGui
         internal DrawList DrawList;
         internal System.Numerics.Vector2 DrawListOffset;
         internal bool IsInBeginTables;
+        internal ImFontPtr DefaultFont;
 
         public Context()
         {

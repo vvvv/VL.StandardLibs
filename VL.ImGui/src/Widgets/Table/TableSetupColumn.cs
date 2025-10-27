@@ -12,7 +12,11 @@
 
         internal override void UpdateCore(Context context)
         {
-            ImGuiNET.ImGui.TableSetupColumn(widgetLabel.Update(Label), Flags, InitWidth);
+            // TODO: Check table resize policy
+            var flags = Flags;
+            if (InitWidth > 0f && (flags & ImGuiNET.ImGuiTableColumnFlags.WidthMask) == 0)
+                flags |= ImGuiNET.ImGuiTableColumnFlags.WidthFixed;
+            ImGuiNET.ImGui.TableSetupColumn(widgetLabel.Update(Label), flags, InitWidth);
         }
     }
 }

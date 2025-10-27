@@ -17,7 +17,7 @@
             if (capturedState.HasValue)
                 Value = capturedState.Value.IsHovered;
             else
-                Value = ImGuiNET.ImGui.IsItemHovered(Flags);
+                Value = ImGuiNET.ImGui.IsItemHovered(Flags.ForItemHovered());
         }
     }
 }

@@ -102,6 +102,8 @@ namespace VL.ImGui
                 else
                     _io.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
+                ImGui.PushFont(_context.DefaultFont, 0f);
+
                 using var _ = _context.ApplyStyle(Style);
 
                 _context.NewFrame();
@@ -135,6 +137,8 @@ namespace VL.ImGui
                     {
                         ImGui.End();
                     }
+
+                    ImGui.PopFont();
 
                     // Render (builds mesh with texture coordinates)
                     ImGui.Render();
