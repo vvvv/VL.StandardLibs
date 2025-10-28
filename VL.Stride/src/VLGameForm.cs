@@ -3,6 +3,7 @@ using Stride.Games;
 using Stride.Graphics;
 using Stride.Rendering;
 using System;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using VL.Core;
 using VL.Core.Windows;
@@ -43,7 +44,28 @@ internal class VLGameForm : GameForm, IHasCustomTitleBar
         if (customTitleBar.ProcessMessage(ref m) == true)
             return;
 
+        switch (m.Msg)
+        {
+            case 28: // WM_ACTIVATEAPP
+                // Hack to prevent window from leaving fullscreen when it loses focus (like it was in SDL)
+                ref var isSwitchingFullScreen = ref GetIsSwitchingFullScreen(this);
+                var backup = isSwitchingFullScreen;
+                isSwitchingFullScreen = true;
+                try
+                {
+                    base.WndProc(ref m);
+                }
+                finally
+                {
+                    isSwitchingFullScreen = backup;
+                }
+                return;
+        }
+
         base.WndProc(ref m);
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "isSwitchingFullScreen")]
+        extern static ref bool GetIsSwitchingFullScreen(GameForm gameForm);
     }
 
     /// <summary>
