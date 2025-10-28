@@ -1,4 +1,7 @@
 ﻿#nullable enable
+
+extern alias sw;
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -13,11 +16,12 @@ using VL.Lang.PublicAPI;
 using VL.Lib.Reactive;
 using VL.Skia;
 using Keys = VL.Lib.IO.Keys;
+using sw::VL.Core.Windows;
 
 namespace Graphics.Skia;
 
 /// <summary>
-/// Internal renderer node. Only visible to VL.Skia. On patch side only ILayer related things (Space, Clear, PerfMeter) is built on top.
+/// Internal renderer node. Only visible to VL.Skia. On patch side only ILayer related things (Space, Clear, PerfMeter) are built on top.
 /// </summary>
 [ProcessNode]
 [Smell(SymbolSmell.Internal)]
@@ -43,12 +47,10 @@ public sealed class SkiaRendererNode : IDisposable
                            bool alwaysOnTop,
                            bool extendIntoTitleBar)
     {
-        _renderer = new SkiaRenderer()
+        _renderer = new SkiaRenderer(nodeContext, new (alwaysOnTop, extendIntoTitleBar))
         {
             Text = "Skia",
-            FormBorderStyle = FormBorderStyle.Sizable,
-            TopMost = alwaysOnTop,
-            ExtendIntoTitleBar = extendIntoTitleBar,
+            FormBorderStyle = FormBorderStyle.Sizable
         };
 
         if (!bounds.IsEmpty)
@@ -72,18 +74,6 @@ public sealed class SkiaRendererNode : IDisposable
                     });
                 _disposables.Add(writeBounds);
             }
-
-            _renderer.MenuToggled += (s, e) =>
-            {
-                if (e == SkiaRenderer.ID_TOGGLE_TOPMOST)
-                    session.CurrentSolution
-                        .SetPinValue(nodeContext.Stack, "Always On Top", _renderer.TopMost)
-                        .Confirm(VL.Model.SolutionUpdateKind.DontCompile);
-                if (e == SkiaRenderer.ID_TOGGLE_EXTEND_INTO_TITLEBAR)
-                    session.CurrentSolution
-                        .SetPinValue(nodeContext.Stack, "Extend Into Title Bar", _renderer.ExtendIntoTitleBar)
-                        .Confirm(VL.Model.SolutionUpdateKind.DontCompile);
-            };
         }
 
         _renderer.FormClosing += (s, e) =>

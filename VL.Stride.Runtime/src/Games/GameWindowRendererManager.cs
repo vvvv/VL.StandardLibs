@@ -44,6 +44,8 @@ namespace VL.Stride.Games
 
         private PixelFormat preferredBackBufferFormat;
 
+        private ColorSpaceType preferredOutputColorSpace;
+
         private int preferredBackBufferHeight;
 
         private int preferredBackBufferWidth;
@@ -87,6 +89,7 @@ namespace VL.Stride.Games
 
             // Set defaults
             PreferredBackBufferFormat = PixelFormat.R8G8B8A8_UNorm;
+            PreferredOutputColorSpace = ColorSpaceType.RgbFullG22NoneP709;
             PreferredDepthStencilFormat = PixelFormat.D24_UNorm_S8_UInt;
             PreferredBackBufferWidth = 1280;
             PreferredBackBufferHeight = 720;
@@ -266,6 +269,29 @@ namespace VL.Stride.Games
                 }
             }
         }
+
+        /// <summary>
+        /// Gets or sets the preferred presenter output color space. Can be used to render to HDR monitors.
+        /// See: https://learn.microsoft.com/en-us/windows/win32/direct3darticles/high-dynamic-range
+        /// </summary>
+        /// <value>The preferred presenter output color space.</value>
+        public ColorSpaceType PreferredOutputColorSpace
+        {
+            get
+            {
+                return preferredOutputColorSpace;
+            }
+
+            set
+            {
+                if (preferredOutputColorSpace != value)
+                {
+                    preferredOutputColorSpace = value;
+                    deviceSettingsChanged = true;
+                }
+            }
+        }
+
 
         /// <summary>
         /// Gets or sets the height of the preferred back buffer.
@@ -729,6 +755,9 @@ namespace VL.Stride.Games
         {
             switch (format)
             {
+                case PixelFormat.R16G16B16A16_Float:
+                    return 64;
+
                 case PixelFormat.R8G8B8A8_UNorm:
                 case PixelFormat.R8G8B8A8_UNorm_SRgb:
                 case PixelFormat.B8G8R8A8_UNorm:
@@ -771,8 +800,14 @@ namespace VL.Stride.Games
 
         private void Window_ClientSizeChanged(object sender, EventArgs e)
         {
+            EnsureBackBufferHasCorrectSize();
+        }
+
+        public void EnsureBackBufferHasCorrectSize()
+        {
             var clientSize = window.ClientBounds.Size;
-            if (!isChangingDevice && !window.IsFullscreen && ((clientSize.Height != 0) || (clientSize.Width != 0)))
+            var backBufferDescription = windowRenderer.Presenter.Description;
+            if (!isChangingDevice && !window.IsFullscreen && ((clientSize.Height != 0) || (clientSize.Width != 0)) && (clientSize.Width != backBufferDescription.BackBufferWidth || clientSize.Height != backBufferDescription.BackBufferHeight))
             {
                 resizedBackBufferWidth = clientSize.Width;
                 resizedBackBufferHeight = clientSize.Height;
@@ -804,6 +839,8 @@ namespace VL.Stride.Games
             }
         }
 
+        Int2 windowedPostion;
+
         private void Window_FullscreenChanged(object sender, EventArgs eventArgs)
         {
             if (sender is GameWindow window)
@@ -834,11 +871,16 @@ namespace VL.Stride.Games
                         resizedBackBufferHeight = output.CurrentDisplayMode.Height;
                     else
                         resizedBackBufferHeight = ApplyDesktopBoundsFix(output.DesktopBounds).Height;
+
+                    var position = output.DesktopBounds.Location;
+                    windowedPostion = window.Position;
+                    window.Position = new Int2(position.X, position.Y);
                 }
                 else
                 {
                     resizedBackBufferWidth = window.PreferredWindowedSize.X;
                     resizedBackBufferHeight = window.PreferredWindowedSize.Y;
+                    window.Position = windowedPostion;
                 }
 
                 deviceSettingsChanged = true;

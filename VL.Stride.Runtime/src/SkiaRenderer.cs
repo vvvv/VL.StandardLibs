@@ -9,6 +9,7 @@ using VL.Core;
 using VL.Skia;
 using VL.Skia.Egl;
 using VL.Stride.Input;
+using VL.UI.Core;
 using PixelFormat = Stride.Graphics.PixelFormat;
 using SkiaRenderContext = VL.Skia.RenderContext;
 
@@ -94,7 +95,7 @@ namespace VL.Stride
             {
                 lastInputSource = inputSource;
                 lastRenderTargetSize = renderTargetSize;
-                inputSubscription.Disposable = SubscribeToInputSource(inputSource, context, canvas: null, skiaRenderContext.SkiaContext);
+                inputSubscription.Disposable = SubscribeToInputSource(inputSource, context, canvas: null, skiaRenderContext.SkiaContext, DIPHelpers.DIPFactor() /* FIXME */);
             }
 
             // Make current on current thread for resource creation
@@ -119,7 +120,7 @@ namespace VL.Stride
                 withinCommonSpaceLayer.Update(Layer, out var spaceLayer, Space);
                 viewportLayer.Update(spaceLayer, SKRect.Create(viewport.X, viewport.Y, viewport.Width, viewport.Height), CommonSpace.PixelTopLeft, out var layer);
 
-                layer.Render(CallerInfo.InRenderer(renderTarget.Width, renderTarget.Height, canvas, skiaRenderContext.SkiaContext));
+                layer.Render(CallerInfo.InRenderer(renderTarget.Width, renderTarget.Height, canvas, skiaRenderContext.SkiaContext, DIPHelpers.DIPFactor() /* FIXME */));
 
                 // Flush
                 surface.Flush();

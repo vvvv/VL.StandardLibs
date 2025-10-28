@@ -19,6 +19,7 @@ using VL.Core.Utils;
 using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
 using VL.UI.Core;
+using Win32CustomTitleBar = sw::VL.Core.Windows.Win32CustomTitleBar;
 
 namespace VL.Skia
 {
@@ -41,9 +42,9 @@ namespace VL.Skia
         ILayer? Layer;
         bool FFirstRenderCall = true;
 
-        public SkiaRenderer()
+        public SkiaRenderer(NodeContext nodeContext, Win32CustomTitleBar.Options options)
         {
-            FAppHost = AppHost.Current;
+            FAppHost = nodeContext.AppHost;
 
             Icon = Properties.Resources.QuadIcon;
             StartPosition = FormStartPosition.Manual;
@@ -53,6 +54,8 @@ namespace VL.Skia
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             ResizeRedraw = true;
             DoubleBuffered = false;
+
+            customTitleBar = Win32CustomTitleBar.Install(this, nodeContext, options with { IsFullscreen = () => FFullScreen });
 
             BoundsChanged = new BehaviorSubject<System.Drawing.Rectangle>(new System.Drawing.Rectangle());
             FBoundsStream = new BehaviorSubject<RectangleF>(new RectangleF());
@@ -76,7 +79,7 @@ namespace VL.Skia
             })
             .Subscribe(OnNotification);
 
-            var size = DIPHelpers.DIPToPixel(new System.Drawing.Size(600, 400));
+            var size = LogicalToDeviceUnits(new System.Drawing.Size(600, 400));
             var bounds = GetCenteredBoundsInPixel(size.Width, size.Height);
             var boundsF = Conversions.ToRectangleF(ref bounds);
             SetBounds(boundsF, inDIP: false, setClientSize: true);
@@ -156,7 +159,7 @@ namespace VL.Skia
                 return;
 
             var b = Conversions.ToRectangle(ref bounds);
-            SetBounds(inDIP ? DIPHelpers.DIPToPixel(b) : b, setClientSize);
+            SetBounds(inDIP ? this.LogicalToDeviceUnits(b) : b, setClientSize);
         }
 
         private void SetBounds(System.Drawing.Rectangle bounds, bool setClientSize)
@@ -205,8 +208,6 @@ namespace VL.Skia
             FDarkModeSubscription.Disposable = DarkTitleBarClass.Install(Handle);
             base.OnHandleCreated(e);
             renderer = new EglSkiaRenderer(RenderContextProvider);
-
-            InsertCustomMenu();
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
@@ -221,7 +222,6 @@ namespace VL.Skia
         {
             base.OnResize(e);
             OnBoundsChanged();
-            UpdateTitleBarButtonRects();
         }
 
         protected override void OnLocationChanged(EventArgs e)
@@ -230,12 +230,18 @@ namespace VL.Skia
             OnBoundsChanged();
         }
 
-        protected void OnBoundsChanged()
+        protected override void OnDpiChanged(DpiChangedEventArgs e)
         {
-            BoundsChanged?.OnNext(DIPHelpers.DIP(Bounds));
+            base.OnDpiChanged(e);
+            OnBoundsChanged();
+        }
+
+        private void OnBoundsChanged()
+        {
+            BoundsChanged?.OnNext(this.DeviceToLogicalUnits(Bounds));
             var bounds = Bounds;
             var boundsF = Conversions.ToRectangleF(ref bounds);
-            boundsF = DIPHelpers.DIP(boundsF);
+            boundsF = this.DeviceToLogicalUnits(boundsF);
             FBoundsStream?.OnNext(boundsF);
         }
 
@@ -245,7 +251,7 @@ namespace VL.Skia
             if (!Visible || Handle == 0 || renderer is null)
                 return;
 
-            renderer.Render(Handle, ClientSize.Width, ClientSize.Height, VSync, callerInfo =>
+            renderer.Render(Handle, ClientSize.Width, ClientSize.Height, this.LogicalToDeviceScalingFactor(), VSync, callerInfo =>
             {
                 using var _ = FAppHost?.MakeCurrentIfNone();
                 try
@@ -294,6 +300,10 @@ namespace VL.Skia
 
     public class SkiaRendererTopMost : SkiaRenderer
     {
+        public SkiaRendererTopMost(NodeContext nodeContext) : base(nodeContext, new (AlwaysOnTop: true, ExtendIntoTitleBar: false))
+        {
+        }
+
         protected override bool ShowWithoutActivation => true;
         protected override CreateParams CreateParams
         {
