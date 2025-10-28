@@ -68,9 +68,10 @@ public sealed class SkiaRendererNode : IDisposable
                     .Throttle(TimeSpan.FromSeconds(0.5))
                     .Subscribe(r =>
                     {
-                        session.CurrentSolution
-                            .SetPinValue(nodeContext.Stack, "Bounds", r)
-                            .Confirm(VL.Model.SolutionUpdateKind.DontCompile);
+                        if (!_renderer.FullScreen)
+                            session.CurrentSolution
+                                .SetPinValue(nodeContext.Stack, "Bounds", r)
+                                .Confirm(VL.Model.SolutionUpdateKind.DontCompile);
                     });
                 _disposables.Add(writeBounds);
             }
