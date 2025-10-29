@@ -56,5 +56,19 @@ namespace VL.Core.Tests.Collections
             var spread = Spread<int>.Empty.Add(1);
             Assert.IsFalse(spread.TryGetMemory(out Memory<int> memory));
         }
+
+        [Test]
+        public static void Spread_InsertSlice()
+        {
+            var emptySpread = Spread<int>.Empty;
+            Assert.IsTrue(emptySpread.InsertSlice(0, 1)[0] == 1);
+
+            var someSpread = Spread.Create(1, 2, 3);
+            Assert.IsTrue(someSpread.InsertSlice(0, 100)[0] == 100);
+            Assert.IsTrue(someSpread.InsertSlice(1, 100)[1] == 100);
+            Assert.IsTrue(someSpread.InsertSlice(2, 100)[2] == 100);
+            Assert.IsTrue(someSpread.InsertSlice(3, 100)[3] == 100);
+            Assert.IsTrue(someSpread.InsertSlice(4, 100)[0] == 100);
+        }
     }
 }
