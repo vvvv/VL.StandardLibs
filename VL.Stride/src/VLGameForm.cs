@@ -38,6 +38,8 @@ internal class VLGameForm : GameForm, IHasCustomTitleBar
     /// </summary>
     public Color TitleBarButtonIdleColor { get; set; } = new Color(60, 60, 60, 90);
 
+    public Win32CustomTitleBar CustomTitleBar => customTitleBar;
+
     protected override void WndProc(ref Message m)
     {
         // Let the custom title bar handle Win32 messages

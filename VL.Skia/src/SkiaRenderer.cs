@@ -111,6 +111,7 @@ namespace VL.Skia
         public Keyboard Keyboard => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Keyboard;
         public TouchDevice TouchDevice => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).TouchDevice;
         public ICommandList? CommandList { get; set; }
+        public Win32CustomTitleBar CustomTitleBar => customTitleBar;
 
         System.Drawing.Rectangle FWindowedBoundsInPix;
         FormBorderStyle FWindowedBorderStyle;

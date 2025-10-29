@@ -146,6 +146,12 @@ public sealed class SkiaRendererNode : IDisposable
         }
     }
 
+    /// <inheritdoc cref="Win32CustomTitleBar.InteractionWidth" />
+    public int InteractionWidth
+    {
+        set => _renderer.CustomTitleBar.InteractionWidth = value;
+    }
+
     public void Update(ILayer? input,
                        [DefaultValue("Skia")] string title,
                        [DefaultValue(true)] bool showCursor,

@@ -66,10 +66,19 @@ namespace VL.Core.Windows
         internal const uint ID_TOGGLE_TOPMOST = 0x100;
         internal const uint ID_TOGGLE_EXTEND_INTO_TITLEBAR = 0x101;
 
+        // Minimal draggable space (in DIP) that must remain beside the window control buttons
+        private const int MinimalDraggableSpace = 50;
+
         /// <summary>
         /// Whether we want to extend the client area into the title bar. Can be changed at runtime.
         /// </summary>
         private bool extendIntoTitleBar = false;
+
+        /// <summary>
+        /// Width in pixels from the left edge of the title bar where clicks are treated as client area clicks
+        /// instead of dragging the window. Default is 0 (no interaction area).
+        /// </summary>
+        private int interactionWidth = 0;
 
         public Win32CustomTitleBar(Form form)
         {
@@ -116,6 +125,23 @@ namespace VL.Core.Windows
         /// This should be provided by the form implementation.
         /// </summary>
         public Func<bool> IsFullScreen { get; set; } = () => false;
+
+        /// <summary>
+        /// Gets or sets the width in device-independent pixels (DIP) from the left edge of the title bar where clicks are treated 
+        /// as normal client area clicks instead of dragging the window. When set to a value greater than 0,
+        /// this area allows normal mouse interaction with controls/content rendered in that region of the title bar.
+        /// </summary>
+        /// <remarks>
+        /// This is useful when you want to place interactive elements (like buttons, tabs, or menus) in the left 
+        /// portion of the custom title bar while still allowing the rest of the title bar to be draggable.
+        /// The value is automatically scaled based on the current DPI of the monitor the window is on.
+        /// A minimal draggable space is always preserved beside the window control buttons to ensure the window can be moved.
+        /// </remarks>
+        public int InteractionWidth
+        {
+            get => interactionWidth;
+            set => interactionWidth = Math.Max(0, value);
+        }
 
         // Convenience effective flag (disabled when fullscreen)
         private bool ShouldExtendIntoTitleBar => extendIntoTitleBar && !IsFullScreen();
@@ -250,9 +276,42 @@ namespace VL.Core.Windows
                             return true;
                         }
 
-                        // Since we are drawing our own caption, this needs to be a custom test
+                        // Check if cursor is in the title bar
                         if (cursor_point.Y < win32_titlebar_rect(handle).bottom)
                         {
+                            // Always prioritize window control buttons (close, maximize, minimize)
+                            // This ensures they work even when interaction width is too large
+                            if (closeButtonRect.Contains(cursor_point.X, cursor_point.Y) ||
+                                maximizeButtonRect.Contains(cursor_point.X, cursor_point.Y) ||
+                                minimizeButtonRect.Contains(cursor_point.X, cursor_point.Y))
+                            {
+                                m.Result = (nint)HTCAPTION;
+                                return true;
+                            }
+
+                            // Check if cursor is within the interaction width from the left
+                            // Convert DIP to physical pixels based on current DPI
+                            // But cap it to ensure minimal draggable space remains
+                            if (interactionWidth > 0)
+                            {
+                                // Calculate the minimal draggable space boundary
+                                // This is the area immediately to the left of the minimize button
+                                int minimalDraggableSpacePhysical = LogicalToDeviceUnits(MinimalDraggableSpace);
+                                int draggableSpaceStart = minimizeButtonRect.Left - minimalDraggableSpacePhysical;
+
+                                int interactionWidthPhysical = LogicalToDeviceUnits(interactionWidth);
+                                // Limit the interaction area to not encroach on the minimal draggable space
+                                int maxInteractionRight = Math.Min(interactionWidthPhysical, draggableSpaceStart);
+
+                                if (cursor_point.X < maxInteractionRight)
+                                {
+                                    // Treat this area as client area for normal click interactions
+                                    m.Result = (nint)HTCLIENT;
+                                    return true;
+                                }
+                            }
+
+                            // Rest of title bar is draggable caption
                             m.Result = (nint)HTCAPTION;
                             return true;
                         }

@@ -34,5 +34,10 @@ namespace VL.Stride.Games
             }
             catch { }
         }
+
+        public static void SetTitleBarInteractionWith(this GameWindow window, int value)
+        {
+            VLGame.SetTitleBarInteractionWidth(window, value);
+        }
     }
 }

@@ -46,6 +46,11 @@ namespace VL.Stride.Lib
             }
 
             VLGame.VLGameContextFactory = o => VLGameContextFactory.CreateContext(o.NodeContext, o.AlwaysOnTop, o.ExtendIntoTitleBar, o.AppContextType, o.RequestedWidth, o.RequestedHeight, o.IsUserManagingRun);
+            VLGame.SetTitleBarInteractionWidth = (w, v) =>
+            {
+                if (w.NativeWindow.NativeWindow is VLGameForm form)
+                    form.CustomTitleBar.InteractionWidth = v;
+            };
         }
 
         // Remove once tested enough
