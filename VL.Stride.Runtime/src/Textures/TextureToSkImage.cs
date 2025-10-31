@@ -10,6 +10,12 @@ using StrideRenderContext = Stride.Rendering.RenderContext;
 
 namespace VL.Stride.Textures
 {
+    /// <summary>
+    /// Creates an image from the given texture. Note that the tooltip does not update correctly in case the texture mutates.
+    /// </summary>
+    /// <remarks>
+    /// In case the texture is in sRGB format and the current color space is linear, a non-sRGB copy of the texture will be created internally.
+    /// </remarks>
     [ProcessNode]
     public class TextureToSkImage
     {
