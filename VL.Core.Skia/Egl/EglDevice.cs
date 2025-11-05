@@ -7,17 +7,21 @@ using EGLDeviceEXT = System.IntPtr;
 using static VL.Skia.Egl.NativeEgl;
 using VL.Core;
 using VL.Lib.Basics.Video;
+using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace VL.Skia.Egl
 {
     sealed class EglDeviceProvider : IDisposable
     {
         private readonly IGraphicsDeviceProvider? graphicsDeviceProvider;
+        private readonly ILogger? logger;
         private EglDevice? device;
 
-        public EglDeviceProvider(IGraphicsDeviceProvider? graphicsDeviceProvider = null)
+        public EglDeviceProvider(IGraphicsDeviceProvider? graphicsDeviceProvider = null, ILogger? logger = null)
         {
             this.graphicsDeviceProvider = graphicsDeviceProvider;
+            this.logger = logger;
         }
 
         public EglDevice GetDevice()
@@ -45,10 +49,12 @@ namespace VL.Skia.Egl
                 // TODO: Hmm, because of extensions assemblies being part of service scope we always create a Stride game this way - ideas?
                 if (graphicsDeviceProvider?.Type == GraphicsDeviceType.Direct3D11)
                 {
+                    logger?.LogInformation("Using existing D3D11 device for ANGLE on thread {threadName}", GetThreadName());
                     device = EglDevice.FromD3D11(graphicsDeviceProvider.NativePointer, graphicsDeviceProvider.UseLinearColorspace);
                 }
                 else
                 {
+                    logger?.LogInformation("Creating new D3D11 device for ANGLE on thread {threadName}", GetThreadName());
                     device = EglDevice.NewD3D11();
                 }
                 return device;
@@ -57,6 +63,8 @@ namespace VL.Skia.Egl
             {
                 throw new NotImplementedException();
             }
+
+            static string GetThreadName() => Thread.CurrentThread.Name ?? Thread.CurrentThread.ManagedThreadId.ToString();
         }
     }
 
