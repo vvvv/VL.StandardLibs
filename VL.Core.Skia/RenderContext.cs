@@ -31,7 +31,7 @@ namespace VL.Skia
                     // Access external device on main thread only
                     var isOnMainThread = SynchronizationContext.Current == appHost.SynchronizationContext;
                     var externalDeviceProvider = isOnMainThread ? s.GetService<IGraphicsDeviceProvider>() : null;
-                    var deviceProvider = new EglDeviceProvider(externalDeviceProvider).DisposeBy(appHost);
+                    var deviceProvider = new EglDeviceProvider(externalDeviceProvider, appHost.DefaultLogger).DisposeBy(appHost);
                     var displayProvider = new EglDisplayProvider(deviceProvider).DisposeBy(appHost);
                     var eglContextProvider = new EglContextProvider(displayProvider).DisposeBy(appHost);
                     var renderContextProvider = new RenderContextProvider(eglContextProvider).DisposeBy(appHost);
