@@ -478,7 +478,11 @@ namespace VL.Stride.Rendering.Compositing
                         {
                             s.Enabled = v.Enabled;
                             s.Amount = v.Amount;
-                            s.StreakCount = v.StreakCount;
+                            // The following two properties trigger internal Stride mem-leak on set, therefor write only when necessary
+                            if (s.StreakCount != v.StreakCount)
+                                s.StreakCount = v.StreakCount;
+                            if (s.IterationCount != v.IterationCount)
+                                s.IterationCount = v.IterationCount;
                             s.Attenuation = v.Attenuation;
                             s.Phase = v.Phase;
                             s.ColorAberrationStrength = v.ColorAberrationStrength;
