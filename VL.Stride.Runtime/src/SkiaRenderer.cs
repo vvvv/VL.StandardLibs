@@ -128,7 +128,7 @@ namespace VL.Stride
 
         SKSurface CreateSkSurface(GRContext context, Texture texture)
         {
-            var colorType = GetColorType(texture.ViewFormat);
+            var colorType = PixelFormatHelper.ToSKColorType(texture.ViewFormat);
             NativeGles.glGetIntegerv(NativeGles.GL_STENCIL_BITS, out var stencil);
             NativeGles.glGetIntegerv(NativeGles.GL_SAMPLES, out var samples);
             var maxSamples = context.GetMaxSurfaceSampleCount(colorType);
@@ -182,41 +182,6 @@ namespace VL.Stride
             // Stride hides that fact from us, we therefor need to query the underlying API.
             var nativeTexture = SharpDXInterop.GetNativeResource(texture) as Texture2D;
             return nativeTexture != null ? (PixelFormat)nativeTexture.Description.Format : texture.Format;
-        }
-
-        static SKColorType GetColorType(PixelFormat format)
-        {
-            switch (format)
-            {
-                case PixelFormat.B5G6R5_UNorm:
-                    return SKColorType.Rgb565;
-                case PixelFormat.B8G8R8A8_UNorm:
-                case PixelFormat.B8G8R8A8_UNorm_SRgb:
-                    return SKColorType.Bgra8888;
-                case PixelFormat.R8G8B8A8_UNorm:
-                case PixelFormat.R8G8B8A8_UNorm_SRgb:
-                    return SKColorType.Rgba8888;
-                case PixelFormat.R10G10B10A2_UNorm:
-                    return SKColorType.Rgba1010102;
-                case PixelFormat.R16G16B16A16_Float:
-                    return SKColorType.RgbaF16;
-                case PixelFormat.R16G16B16A16_UNorm:
-                    return SKColorType.Rgba16161616;
-                case PixelFormat.R32G32B32A32_Float:
-                    return SKColorType.RgbaF32;
-                case PixelFormat.R16G16_Float:
-                    return SKColorType.RgF16;
-                case PixelFormat.R16G16_UNorm:
-                    return SKColorType.Rg1616;
-                case PixelFormat.R8G8_UNorm:
-                    return SKColorType.Rg88;
-                case PixelFormat.A8_UNorm:
-                    return SKColorType.Alpha8;
-                case PixelFormat.R8_UNorm:
-                    return SKColorType.Gray8;
-                default:
-                    return SKColorType.Unknown;
-            }
         }
     }
 }

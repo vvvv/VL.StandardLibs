@@ -1,22 +1,23 @@
 ﻿#nullable enable
 using System;
-
-using EGLDisplay = System.IntPtr;
-using EGLContext = System.IntPtr;
-using EGLConfig = System.IntPtr;
-using EGLSurface = System.IntPtr;
 using System.Collections.Generic;
-using System.Linq;
-using static VL.Skia.Egl.NativeEgl;
-using Windows.Win32.Graphics.Direct3D11;
-using static Windows.Win32.PInvoke;
-using static VL.Skia.Egl.D3D11Utils;
-using Windows.Win32.Graphics.Direct3D;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using System.Threading;
+using Windows.Win32.Graphics.Direct3D;
+using Windows.Win32.Graphics.Direct3D11;
+using static VL.Skia.Egl.D3D11Utils;
+using static VL.Skia.Egl.NativeEgl;
+using static Windows.Win32.PInvoke;
+using EGLConfig = System.IntPtr;
+using EGLContext = System.IntPtr;
+using EGLDisplay = System.IntPtr;
+using EGLSurface = System.IntPtr;
 
 namespace VL.Skia.Egl
 {
@@ -45,12 +46,11 @@ namespace VL.Skia.Egl
         }
     }
 
-    public sealed class EglContext : EglResource
+    public sealed unsafe class EglContext : EglResource
     {
         public static EglContext New(EglDisplay display, int sampleCount = 0, EglContext? shareContext = null)
         {
-            int[] configAttributes =
-            [
+            int[] configAttributes = [
                 EGL_RED_SIZE, 8,
                 EGL_GREEN_SIZE, 8,
                 EGL_BLUE_SIZE, 8,
@@ -62,7 +62,16 @@ namespace VL.Skia.Egl
                 EGL_NONE
             ];
 
-            int[] contextAttributes =
+            // Try ES 3.1 first
+            int[] contextAttributes32 =
+            [
+                EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL_CONTEXT_MINOR_VERSION_KHR, 1,  // Request ES 3.1
+                EGL_NONE
+            ];
+
+            // Fallback to ES 3.0 if ES 3.1 not available
+            int[] contextAttributes30 =
             [
                 EGL_CONTEXT_CLIENT_VERSION, 3,
                 EGL_NONE
@@ -75,10 +84,16 @@ namespace VL.Skia.Egl
             }
             var config = configs[0];
 
-            var context = eglCreateContext(display, config, share_context: shareContext, contextAttributes);
+            // Try ES 3.1 first
+            var context = eglCreateContext(display, config, share_context: shareContext, contextAttributes32);
             if (context == default)
             {
-                throw new EglException($"Failed to create EGL context.");
+                // Fall back to ES 3.0
+                context = eglCreateContext(display, config, share_context: shareContext, contextAttributes30);
+                if (context == default)
+                {
+                    throw new EglException($"Failed to create EGL context.");
+                }
             }
 
             return new EglContext(display, context, config, shareContext, sampleCount);
@@ -231,30 +246,48 @@ namespace VL.Skia.Egl
         public unsafe Scope MakeCurrent(bool forRendering, EglSurface? surface = null)
         {
             var deviceContext = default(ComPtr<ID3D11DeviceContext1>);
-            if (forRendering && OperatingSystem.IsWindowsVersionAtLeast(8) && display.TryGetD3D11Device(out var d3dDevice))
+            if (forRendering && OperatingSystem.IsWindowsVersionAtLeast(8) && display.TryGetD3D11DeviceInterface(out var d3dDevice))
             {
                 deviceContext = GetD3D11DeviceContext1(d3dDevice);
-                if (deviceContextState == default)
-                {
-                    using var device = GetD3D11Device1(d3dDevice);
-                    D3D_FEATURE_LEVEL chosenFeatureLevel;
-                    ID3DDeviceContextState* deviceContextState;
-                    device.Ptr->CreateDeviceContextState(
-                        0,
-                        [device.Ptr->GetFeatureLevel()],
-                        D3D11_SDK_VERSION,
-                        in ID3D11Device1.IID_Guid,
-                        &chosenFeatureLevel,
-                        &deviceContextState);
-                    this.deviceContextState = (nint)deviceContextState;
-                }
-                return new Scope(this, surface, deviceContext, (ID3DDeviceContextState*)deviceContextState);
+                var deviceContextState = EnsureDeviceContextState(d3dDevice);
+                return new Scope(this, surface, deviceContext, deviceContextState);
             }
 
             return new Scope(this, surface);
         }
 
-        nint deviceContextState;
+        ID3DDeviceContextState* deviceContextState;
+
+        [SupportedOSPlatform("Windows8.0")]
+        private unsafe ID3DDeviceContextState* EnsureDeviceContextState(ID3D11Device* d3dDevice)
+        {
+            if (this.deviceContextState != null)
+                return this.deviceContextState;
+
+            using var device = GetD3D11Device1(d3dDevice);
+            D3D_FEATURE_LEVEL chosenFeatureLevel;
+            ID3DDeviceContextState* deviceContextState;
+            device.Ptr->CreateDeviceContextState(
+                0,
+                [device.Ptr->GetFeatureLevel()],
+                D3D11_SDK_VERSION,
+                in ID3D11Device1.IID_Guid,
+                &chosenFeatureLevel,
+                &deviceContextState);
+            return this.deviceContextState = deviceContextState;
+        }
+
+        [SupportedOSPlatform("Windows8.0")]
+        internal unsafe DeviceContextScope SwitchDeviceContextState()
+        {
+            if (display.TryGetD3D11DeviceInterface(out var d3dDevice))
+            {
+                var deviceContext = GetD3D11DeviceContext1(d3dDevice);
+                var deviceContextState = EnsureDeviceContextState(d3dDevice);
+                return new DeviceContextScope(deviceContext, deviceContextState);
+            }
+            return default;
+        }
 
         public void MakeCurrent(EglSurface? surface = null)
         {
@@ -300,8 +333,8 @@ namespace VL.Skia.Egl
         {
             ReleaseCurrent();
 
-            if (deviceContextState != default)
-                Marshal.Release(deviceContextState);
+            if (OperatingSystem.IsWindowsVersionAtLeast(8) && deviceContextState != default)
+                deviceContextState->Release();
 
             try
             {

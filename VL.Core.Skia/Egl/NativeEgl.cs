@@ -93,9 +93,10 @@ namespace VL.Skia.Egl
 
 		// CreateContext attributes
 		public const int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+		public const int EGL_CONTEXT_MINOR_VERSION_KHR = 0x30FB;
 
-		// EGL_VERSION
-		public const int EGL_SWAP_BEHAVIOR = 0x3093;
+        // EGL_VERSION
+        public const int EGL_SWAP_BEHAVIOR = 0x3093;
 		public const int EGL_BUFFER_PRESERVED = 0x3094;
 		public const int EGL_BUFFER_DESTROYED = 0x3095;
 		public const int EGL_OPENGL_ES_API = 0x30A0;

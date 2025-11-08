@@ -30,6 +30,9 @@ namespace VL.Stride.Games
 
         internal event EventHandler BeforeDestroy;
 
+        internal event EventHandler DrawStarted;
+        internal event EventHandler DrawEnded;  // NEW: Raised after all rendering is complete
+
         public VLGame(NodeFactoryRegistry nodeFactoryRegistry)
         {
             NodeFactoryRegistry = nodeFactoryRegistry;
@@ -184,6 +187,13 @@ namespace VL.Stride.Games
             }
 
             base.Update(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            DrawStarted?.Invoke(this, EventArgs.Empty);
+            base.Draw(gameTime);
+            DrawEnded?.Invoke(this, EventArgs.Empty);  // NEW: Signal that rendering is complete
         }
 
         protected override void EndDraw(bool present)

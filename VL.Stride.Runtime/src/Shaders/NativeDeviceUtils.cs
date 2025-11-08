@@ -110,6 +110,11 @@ namespace VL.Stride.Shaders
             return (SharpDX.Direct3D11.Device)SharpDXInterop.GetNativeDevice(graphicsDevice);
         }
 
+        public static T GetNativeResource<T>(this GraphicsResource graphicsResource) where T : SharpDX.Direct3D11.Resource
+        {
+            return (T)SharpDXInterop.GetNativeResource(graphicsResource);
+        }
+
         public static void ComputeShaderReApplyUnorderedAccessView(this CommandList commandList, int slot, int counterValue)
         {
             var uavs = (SharpDX.Direct3D11.UnorderedAccessView[])unorderedAccessViewsFi.GetValue(commandList);

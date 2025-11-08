@@ -12,8 +12,6 @@ namespace VL.Skia.Egl
 {
     static unsafe class D3D11Utils
     {
-        [SupportedOSPlatform("windows8.0")]
-        public static ComPtr<ID3D11Device1> GetD3D11Device1(nint d3d11Device) => GetD3D11Device1((ID3D11Device*)d3d11Device);
 
         [SupportedOSPlatform("windows8.0")]
         public static ComPtr<ID3D11Device1> GetD3D11Device1(ID3D11Device* device)
@@ -45,10 +43,9 @@ namespace VL.Skia.Egl
         [SupportedOSPlatform("windows6.1")]
         public static unsafe SKImage SharedHandleToSKImage(RenderContext renderContext, nint sharedHandle)
         {
-            if (!renderContext.EglContext.Display.TryGetD3D11Device(out var d3dDevicePtr))
+            if (!renderContext.EglContext.Display.TryGetD3D11DeviceInterface(out var d3dDevice))
                 return null;
 
-            var d3dDevice = (ID3D11Device*)d3dDevicePtr;
             // Open on D3D11 device of vvvv
             ID3D11Texture2D* d3d11Texture;
             {
