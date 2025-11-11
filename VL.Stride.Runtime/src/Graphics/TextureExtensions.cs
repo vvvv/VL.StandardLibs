@@ -109,7 +109,7 @@ namespace VL.Stride.Graphics
 
         public static void SaveTexture(this Texture texture, CommandList commandList, string filename, TextureWriterFileType imageFileType = TextureWriterFileType.Png)
         {
-            using (var resultFileStream = File.OpenWrite(filename))
+            using (var resultFileStream = File.Create(filename))
             {
                 texture.Save(commandList, resultFileStream, (ImageFileType)imageFileType);
             }
@@ -123,7 +123,7 @@ namespace VL.Stride.Graphics
             if (!stagingTexture.Usage.HasFlag(GraphicsResourceUsage.Staging))
                 throw new ArgumentException("The texture is not a staging texture", nameof(stagingTexture));
 
-            using (var resultFileStream = File.OpenWrite(filename))
+            using (var resultFileStream = File.Create(filename))
             {
                 stagingTexture.Save(commandList, resultFileStream, stagingTexture, (ImageFileType)imageFileType);
             }
