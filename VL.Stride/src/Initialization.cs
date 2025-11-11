@@ -51,6 +51,14 @@ namespace VL.Stride.Lib
                 if (w.NativeWindow.NativeWindow is VLGameForm form)
                     form.CustomTitleBar.InteractionWidth = v;
             };
+            VLGame.BringToFront = (w) =>
+            {
+                var nativeWindow = w.NativeWindow.NativeWindow;
+                if (nativeWindow is GameForm form)
+                    form.Activate();
+                else if (nativeWindow is GameFormSDL sdlForm)
+                    sdlForm.BringToFront();
+            };
         }
 
         // Remove once tested enough

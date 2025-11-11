@@ -22,6 +22,7 @@ namespace VL.Stride.Games
         internal record struct GameContextParams(NodeContext NodeContext, bool AlwaysOnTop, bool ExtendIntoTitleBar, AppContextType AppContextType, int RequestedWidth, int RequestedHeight, bool IsUserManagingRun);
         internal static Func<GameContextParams, GameContext> VLGameContextFactory;
         internal static Action<GameWindow, int> SetTitleBarInteractionWidth;
+        internal static Action<GameWindow> BringToFront;
 
         public static GameContext CreateGameContext(NodeContext nodeContext, bool alwaysOnTop, bool extendIntoTitleBar, AppContextType appContextType, int requestedWidth = 0, int requestedHeight = 0, bool isUserManagingRun = false)
         {
