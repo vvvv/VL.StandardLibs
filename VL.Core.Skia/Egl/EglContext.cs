@@ -50,7 +50,8 @@ namespace VL.Skia.Egl
     {
         public static EglContext New(EglDisplay display, int sampleCount = 0, EglContext? shareContext = null)
         {
-            int[] configAttributes = [
+            int[] configAttributes =
+            [
                 EGL_RED_SIZE, 8,
                 EGL_GREEN_SIZE, 8,
                 EGL_BLUE_SIZE, 8,
@@ -62,16 +63,7 @@ namespace VL.Skia.Egl
                 EGL_NONE
             ];
 
-            // Try ES 3.1 first
-            int[] contextAttributes32 =
-            [
-                EGL_CONTEXT_CLIENT_VERSION, 3,
-                EGL_CONTEXT_MINOR_VERSION_KHR, 1,  // Request ES 3.1
-                EGL_NONE
-            ];
-
-            // Fallback to ES 3.0 if ES 3.1 not available
-            int[] contextAttributes30 =
+            int[] contextAttributes =
             [
                 EGL_CONTEXT_CLIENT_VERSION, 3,
                 EGL_NONE
@@ -84,16 +76,10 @@ namespace VL.Skia.Egl
             }
             var config = configs[0];
 
-            // Try ES 3.1 first
-            var context = eglCreateContext(display, config, share_context: shareContext, contextAttributes32);
+            var context = eglCreateContext(display, config, share_context: shareContext, contextAttributes);
             if (context == default)
             {
-                // Fall back to ES 3.0
-                context = eglCreateContext(display, config, share_context: shareContext, contextAttributes30);
-                if (context == default)
-                {
-                    throw new EglException($"Failed to create EGL context.");
-                }
+                throw new EglException($"Failed to create EGL context.");
             }
 
             return new EglContext(display, context, config, shareContext, sampleCount);
