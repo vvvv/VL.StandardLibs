@@ -50,9 +50,6 @@ namespace VL.Stride.Games
             SchedulerSystem = new SchedulerSystem(Services);
             Services.AddService(SchedulerSystem);
 
-#if DEBUG
-            GraphicsDeviceManager.DeviceCreationFlags |= DeviceCreationFlags.Debug;
-#endif
             // for now we don't let the user decide upon the colorspace
             // as we'd need to either recreate all textures and swapchains in that moment or make sure that these weren't created yet.
             GraphicsDeviceManager.PreferredColorSpace = ColorSpace.Linear;
