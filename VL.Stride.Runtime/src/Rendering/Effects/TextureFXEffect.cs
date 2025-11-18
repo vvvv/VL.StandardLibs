@@ -38,6 +38,12 @@ namespace VL.Stride.Rendering
             perViewParams = EffectInstance.Parameters.GetWellKnownParameters(WellKnownParameters.PerViewMap).ToArray();
         }
 
+        protected override void Destroy()
+        {
+            EffectInstance?.Dispose();
+            base.Destroy();
+        }
+
         public bool IsOutputAssigned => OutputCount > 0 && GetOutput(0) != null;
 
         protected override void PreDrawCore(RenderDrawContext context)
