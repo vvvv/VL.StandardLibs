@@ -78,6 +78,21 @@ namespace VL.Stride.Games
         // Used to post-pone the present calls to the very end of a frame
         internal readonly List<GameWindowRenderer> PendingPresentCalls = new List<GameWindowRenderer>();
 
+        // Used by performance meter (F2) to display the number of references on the device
+        public int DeviceRefCount
+        {
+            get
+            {
+                var nativeDevice = SharpDXInterop.GetNativeDevice(GraphicsDevice) as SharpDX.IUnknown;
+                if (nativeDevice != null)
+                {
+                    nativeDevice.AddReference();
+                    return nativeDevice.Release();
+                }
+                return 0;
+            }
+        }
+
         protected override void PrepareContext()
         {
             base.PrepareContext();
