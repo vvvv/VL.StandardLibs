@@ -21,6 +21,14 @@ namespace VL.Skia
             return threadLocal.Value!;
         }
 
+        public static RenderContextProvider GetRenderContextProvider(this AppHost appHost, bool dedicated)
+        {
+            if (dedicated)
+                return appHost.GetDedicatedThreadLocalRenderContextProvider().Value;
+            else
+                return appHost.GetThreadLocalRenderContextProvider().Value!;
+        }
+
         public static ThreadLocal<RenderContextProvider> GetThreadLocalRenderContextProvider(this AppHost appHost)
         {
             return appHost.Services.GetOrAddService(s =>
@@ -28,25 +36,48 @@ namespace VL.Skia
                 // Keep a render context provider per thread
                 return new ThreadLocal<RenderContextProvider>(() =>
                 {
-                    // Access external device on main thread only
-                    var isOnMainThread = SynchronizationContext.Current == appHost.SynchronizationContext;
-                    var externalDeviceProvider = isOnMainThread ? s.GetService<IGraphicsDeviceProvider>() : null;
-                    var deviceProvider = new EglDeviceProvider(externalDeviceProvider, appHost.DefaultLogger).DisposeBy(appHost);
-                    var displayProvider = new EglDisplayProvider(deviceProvider).DisposeBy(appHost);
-                    var eglContextProvider = new EglContextProvider(displayProvider).DisposeBy(appHost);
-                    var renderContextProvider = new RenderContextProvider(eglContextProvider).DisposeBy(appHost);
-
-                    if (isOnMainThread)
-                    {
-                        // Make sure the context is current whenever a new frame starts to ensure nodes that for example "download" pixel data (like Pipet) work.
-                        var frameclock = s.GetService<IFrameClock>();
-                        if (frameclock is not null)
-                            frameclock.GetTicks().Subscribe(_ => renderContextProvider.GetRenderContext().MakeCurrent()).DisposeBy(appHost);
-                    }
-
-                    return renderContextProvider;
+                    return CreateRenderContextProvider(appHost, s, isDedicated: false);
                 });
             }, allowToAskParent: false);
+        }
+
+        private static ThreadLocal<DedicatedProvider> GetDedicatedThreadLocalRenderContextProvider(this AppHost appHost)
+        {
+            return appHost.Services.GetOrAddService(s =>
+            {
+                // Keep a render context provider per thread
+                return new ThreadLocal<DedicatedProvider>(() =>
+                {
+                    return CreateRenderContextProvider(appHost, s, isDedicated: true);
+                });
+            }, allowToAskParent: false);
+        }
+
+        private static RenderContextProvider CreateRenderContextProvider(AppHost appHost, IServiceProvider s, bool isDedicated)
+        {
+            // Access external device on main thread only
+            var isOnMainThread = SynchronizationContext.Current == appHost.SynchronizationContext;
+            var externalDeviceProvider = isOnMainThread && !isDedicated ? s.GetService<IGraphicsDeviceProvider>() : null;
+            var deviceProvider = new EglDeviceProvider(externalDeviceProvider, appHost.DefaultLogger).DisposeBy(appHost);
+            var displayProvider = new EglDisplayProvider(deviceProvider).DisposeBy(appHost);
+            var eglContextProvider = new EglContextProvider(displayProvider).DisposeBy(appHost);
+            var renderContextProvider = new RenderContextProvider(eglContextProvider).DisposeBy(appHost);
+
+            if (isOnMainThread && !isDedicated)
+            {
+                // Make sure the context is current whenever a new frame starts to ensure nodes that for example "download" pixel data (like Pipet) work.
+                var frameclock = s.GetService<IFrameClock>();
+                if (frameclock is not null)
+                    frameclock.GetTicks().Subscribe(_ => renderContextProvider.GetRenderContext().MakeCurrent()).DisposeBy(appHost);
+            }
+
+            return renderContextProvider;
+        }
+
+        private record struct DedicatedProvider(RenderContextProvider Provider)
+        {
+            public static implicit operator DedicatedProvider(RenderContextProvider provider) => new DedicatedProvider(provider);
+            public static implicit operator RenderContextProvider(DedicatedProvider dedicatedProvider) => dedicatedProvider.Provider;
         }
     }
 

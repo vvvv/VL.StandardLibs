@@ -111,14 +111,14 @@ namespace VL.Skia.Egl
             }
         }
 
-        private readonly ID3D11Device* nativeDevice;
+        private readonly ID3D11Device* d3d11Device;
 
-        private EglDevice(EGLDeviceEXT angleDevice, ID3D11Device* nativeDevice, nint contextState = default, bool useLinearColorSpace = false)
+        private EglDevice(EGLDeviceEXT angleDevice, ID3D11Device* d3d11Device, nint contextState = default, bool useLinearColorSpace = false)
             : base(angleDevice)
         {
             ContextState = contextState;
             UseLinearColorspace = useLinearColorSpace;
-            this.nativeDevice = nativeDevice;
+            this.d3d11Device = d3d11Device;
         }
 
         public nint ContextState { get; }
@@ -129,11 +129,13 @@ namespace VL.Skia.Egl
         {
             get
             {
-                if (OperatingSystem.IsWindowsVersionAtLeast(6, 1) && !nativeDevice->GetDeviceRemovedReason().Succeeded)
+                if (OperatingSystem.IsWindowsVersionAtLeast(6, 1) && !d3d11Device->GetDeviceRemovedReason().Succeeded)
                     return true;
                 return false;
             }
         }
+
+        internal ID3D11Device* D3D11Device => d3d11Device;
 
         protected override bool ReleaseHandle()
         {
