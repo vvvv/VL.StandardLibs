@@ -32,10 +32,19 @@ namespace VL.Lib.Collections
         // Neither GetEnumerator/MoveNext/Current nor for (...; i < input.Count;) produce same good code as direct access on array does :/
         public readonly ImmutableArray<T> _array;
 
+        internal Spread() : this(ImmutableArray<T>.Empty) 
+        {
+
+        }
+
+        // For collection initializer
         internal Spread(ImmutableArray<T> array)
         {
             _array = array;
         }
+
+        // For collection initializer
+        internal Spread<T> Add(T item) => new Spread<T>(_array.Add(item));
 
         /// <summary>
         /// Creates a new read-only memory region over this spread.
