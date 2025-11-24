@@ -14,7 +14,7 @@ using VL.Stride;
 using VL.Stride.Games;
 using VL.Stride.Graphics;
 
-[assembly: ImportType(typeof(SkiaTexture), Name = "SkiaTexture")]
+[assembly: ImportType(typeof(SkiaTexture), Name = "SkiaTexture", Category = "Stride.Textures.Source")]
 
 namespace VL.Stride;
 
