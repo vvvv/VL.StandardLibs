@@ -148,7 +148,12 @@ namespace VL.Stride.Graphics
         {
             using (var resultFileStream = File.Create(filename))
             {
-                texture.Save(commandList, resultFileStream, (ImageFileType)imageFileType);
+                var stagingDescription = texture.Description.ToStagingDescription();
+                // Use the format of the view for typeless textures (like e.g. returned from SkiaTexture)
+                if (stagingDescription.Format.IsTypeless())
+                    stagingDescription.Format = texture.ViewFormat;
+                using var staging = Texture.New(texture.GraphicsDevice, stagingDescription);
+                texture.Save(commandList, resultFileStream, staging, (ImageFileType)imageFileType);
             }
         }
 

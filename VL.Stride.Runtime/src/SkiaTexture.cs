@@ -139,6 +139,7 @@ public unsafe sealed partial class SkiaTexture : IDisposable
                 Height = size.Height,
                 ArraySize = 1,
                 MipLevels = 1,
+                Depth = 1,
                 MultisampleCount = MultisampleCount.None,
                 Format = textureFormat,
                 Dimension = TextureDimension.Texture2D,
