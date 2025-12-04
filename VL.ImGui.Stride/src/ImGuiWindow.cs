@@ -27,7 +27,6 @@ namespace VL.ImGui.Stride
         private readonly SchedulerSystem _schedulerSystem;
         private readonly GameContext _gameContext;
         private readonly GameWindowRenderer _gameWindowRenderer;
-        private readonly IInputSource _inputSource;
         private readonly WindowRenderer _windowRenderer;
         private readonly ImGuiRenderer _renderer;
 
@@ -66,7 +65,7 @@ namespace VL.ImGui.Stride
             set { if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Title = value; }
         }
 
-        public IInputSource Input => _inputSource;
+        public IInputSource Input => _gameWindowRenderer.InputSource;
 
         private bool _isFocused;
         public bool IsFocused
@@ -80,7 +79,7 @@ namespace VL.ImGui.Stride
                     if (focused)
                     {
                         _inputManager.Sources.Clear();
-                        _inputManager.Sources.Add(_inputSource);
+                        _inputManager.Sources.Add(Input);
                     }
                 }
                 return _isFocused;
@@ -112,13 +111,8 @@ namespace VL.ImGui.Stride
             using (var gameHandle = nodeContext.AppHost.Services.GetGameHandle())
             {
                 _gameContext = GameContextFactory.NewGameContextSDL(size.X, size.Y, true);
-                _gameWindowRenderer = new GameWindowRenderer(gameHandle.Resource.Services, _gameContext);
+                _gameWindowRenderer = new GameWindowRenderer(gameHandle.Resource.Services, _gameContext, int.MaxValue);
                 _schedulerSystem = gameHandle.Resource.Services.GetService<SchedulerSystem>();
-                
-                _inputSource = InputSourceFactory.NewWindowInputSource(_gameContext);
-                _inputHandle = nodeContext.AppHost.Services.GetInputManagerHandle();
-                _inputManager.Sources.Clear();
-                _inputManager.Sources.Add(_inputSource);
             }
 
             var manager = _gameWindowRenderer.WindowManager;
@@ -157,7 +151,7 @@ namespace VL.ImGui.Stride
             window.Closing += Window_Closing;
             window.FullscreenChanged += Window_FullscreenChanged;
 
-            _windowRenderer = new WindowRenderer(_gameWindowRenderer, _inputSource);
+            _windowRenderer = new WindowRenderer(_gameWindowRenderer);
 
             _renderer = new ImGuiRenderer(strideDeviceContext);
 
@@ -221,7 +215,6 @@ namespace VL.ImGui.Stride
                 }
                 _gameWindowRenderer.Close();
                 _inputHandle.Dispose();
-                _inputSource.Dispose();
             }
 
             // Dispose unmanaged resources
@@ -237,11 +230,11 @@ namespace VL.ImGui.Stride
 
             public IInputSource? InputSource { get; set; }
 
-            public WindowRenderer(GameWindowRenderer gameWindowRenderer, IInputSource inputSource)
+            public WindowRenderer(GameWindowRenderer gameWindowRenderer)
             {
                 _gameWindowRenderer = gameWindowRenderer;
                 _withRenderTargetAndViewPort = new WithRenderTargetAndViewPort();
-                InputSource = inputSource;
+                InputSource = gameWindowRenderer.InputSource;
             }
 
             public void Draw(RenderDrawContext context)
