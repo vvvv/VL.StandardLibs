@@ -15,6 +15,8 @@ using System.Reactive.Disposables;
 using VL.Lib.Basics.Resources;
 using VL.ImGui.Stride.Effects;
 using Stride.Shaders.Compiler;
+using Stride.Games;
+using VL.ImGui.Stride;
 
 
 namespace VL.ImGui
@@ -24,6 +26,7 @@ namespace VL.ImGui
     public partial class ImGuiRenderer : RendererBase, IDisposable
     {
         private readonly StrideDeviceContext _context;
+        private readonly ImGuiWindow _window;
 
         private ImDrawDataPtr _drawData;
 
@@ -38,9 +41,10 @@ namespace VL.ImGui
         private IInputSource? lastInputSource;
         private readonly SerialDisposable inputSubscription = new SerialDisposable();
 
-        internal unsafe ImGuiRenderer(StrideDeviceContext strideDeviceContext)
+        internal unsafe ImGuiRenderer(StrideDeviceContext strideDeviceContext, ImGuiWindow window)
         {
             _context = strideDeviceContext;
+            _window = window;
         }
 
         public unsafe ImGuiRenderer(NodeContext nodeContext)

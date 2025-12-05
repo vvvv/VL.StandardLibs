@@ -22,6 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using VL.Lib.Basics.Video;
 using Stride.Input;
 using System.Linq;
+using Stride.Core.Mathematics;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Lib.Initialization))]
 
@@ -71,6 +72,11 @@ namespace VL.Stride.Lib
                     var device = new TextKeyboardWinforms(inputSource, form);
                     inputSource.Devices.Add(device.Id, device);
                 }
+            };
+            VLGame.GetCursorPos = () =>
+            {
+                var p = System.Windows.Forms.Cursor.Position;
+                return new Vector2(p.X, p.Y);
             };
         }
 

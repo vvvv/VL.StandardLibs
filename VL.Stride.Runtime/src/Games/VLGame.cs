@@ -1,4 +1,5 @@
 using Stride.Core.Diagnostics;
+using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Engine.Design;
 using Stride.Games;
@@ -25,6 +26,7 @@ namespace VL.Stride.Games
         internal static Action<GameWindow, int> SetTitleBarInteractionWidth;
         internal static Action<GameWindow> BringToFront;
         internal static Action<InputManager, GameWindow, IInputSource> FixKeyboardDevice;
+        public static Func<Vector2> GetCursorPos;
 
         public static GameContext CreateGameContext(NodeContext nodeContext, bool alwaysOnTop, bool extendIntoTitleBar, AppContextType appContextType, int requestedWidth = 0, int requestedHeight = 0, bool isUserManagingRun = false)
         {

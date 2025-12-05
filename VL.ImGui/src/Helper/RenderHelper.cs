@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using Stride.Core.Mathematics;
 using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -39,7 +40,7 @@ namespace VL.ImGui
             //style.ScaleAllSizes(scale);
         }
 
-        public static void HandleNotification(this ImGuiIOPtr _io, INotification notification)
+        public static void HandleNotification(this ImGuiIOPtr _io, INotification notification, Func<Vector2, Vector2>? clientToScreen = null)
         {
             if (notification is KeyNotification keyNotification)
             {
@@ -73,11 +74,16 @@ namespace VL.ImGui
                     };
                 }
 
-                // If viewports are enabled, ImGui expects the mouse in DesktopScreenSpace, this is set in ImGuiWindows/SetPerFrameImGuiData, if not use the old approach
+                // If viewports are enabled, ImGui expects the mouse in DesktopScreenSpace
                 var flag = ImGui.GetIO().ConfigFlags;
                 if ((flag & ImGuiConfigFlags.ViewportsEnable) == 0)
                 {
                     var pos = mouseNotification.PositionInWorldSpace.FromHectoToImGui();
+                    _io.AddMousePosEvent(pos.X, pos.Y);
+                }
+                else if (clientToScreen != null)
+                {
+                    var pos = clientToScreen(mouseNotification.Position);
                     _io.AddMousePosEvent(pos.X, pos.Y);
                 }
 
