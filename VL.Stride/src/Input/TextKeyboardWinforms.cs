@@ -1,20 +1,24 @@
-﻿using MathNet.Numerics.Providers.LinearAlgebra;
-using Stride.Input;
+﻿using Stride.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
+using Keys = Stride.Input.Keys;
 
 namespace VL.Stride.Input;
 
 // Adds text input support (native KeyboardWinforms does't work, even when calling EnabledTextInput)
-internal class TextKeyboardWinforms : KeyboardDeviceBase, ITextInputDevice, IDisposable
+// Not needed if original keyboard would emit those events correctly
+internal class TextKeyboardWinforms : IKeyboardDevice, ITextInputDevice, IDisposable
 {
     private readonly Form form;
+    private readonly IKeyboardDevice keyboard;
     private readonly List<TextInputEvent> textEvents = new List<TextInputEvent>();
 
     public TextKeyboardWinforms(IInputSource inputSource, Form form)
     {
         Source = inputSource;
+        keyboard = inputSource.Devices.Values.OfType<IKeyboardDevice>().First();
 
         this.form = form;
         form.KeyPress += Form_KeyPress;
@@ -30,16 +34,22 @@ internal class TextKeyboardWinforms : KeyboardDeviceBase, ITextInputDevice, IDis
         textEvents.Add(inputEvent);
     }
 
-    public override string Name => "Windows Keyboard Text";
+    public string Name => "Windows Keyboard Text";
 
-    public override Guid Id { get; }
+    public Guid Id { get; }
 
-    public override IInputSource Source { get; }
+    public IInputSource Source { get; }
 
-    public override void Update(List<InputEvent> inputEvents)
+    public global::Stride.Core.Collections.IReadOnlySet<Keys> PressedKeys => keyboard.PressedKeys;
+
+    public global::Stride.Core.Collections.IReadOnlySet<Keys> ReleasedKeys => keyboard.ReleasedKeys;
+
+    public global::Stride.Core.Collections.IReadOnlySet<Keys> DownKeys => keyboard.DownKeys;
+
+    public int Priority { get => keyboard.Priority; set => keyboard.Priority = value; }
+
+    public void Update(List<InputEvent> inputEvents)
     {
-        base.Update(inputEvents);
-
         for (int i = 0; i < textEvents.Count; i++)
             inputEvents.Add(textEvents[i]);
         textEvents.Clear();
