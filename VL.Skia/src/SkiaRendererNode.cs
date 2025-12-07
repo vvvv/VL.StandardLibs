@@ -44,8 +44,8 @@ public sealed class SkiaRendererNode : IDisposable
                            bool boundToDocument,
                            bool dialogIfDocumentChanged,
                            IChannel<bool> showPerfMeter,
-                           bool alwaysOnTop,
-                           bool extendIntoTitleBar)
+                           IChannel<bool> alwaysOnTop,
+                           IChannel<bool> extendIntoTitleBar)
     {
         _renderer = new SkiaRenderer(nodeContext, new (alwaysOnTop, extendIntoTitleBar))
         {

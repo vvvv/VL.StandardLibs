@@ -1,10 +1,13 @@
 #nullable enable
 
 using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Reactive.Disposables;
 using System.Windows.Forms;
 using VL.Lang.PublicAPI;
+using VL.Lib.Reactive;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Controls;
 using Windows.Win32.UI.WindowsAndMessaging;
@@ -21,33 +24,53 @@ namespace VL.Core.Windows
     /// but delegates the actual drawing to a separate renderer interface.
     /// Port of https://github.com/grassator/win32-window-custom-titlebar
     /// </summary>
-    public class Win32CustomTitleBar
+    public class Win32CustomTitleBar : INotifyPropertyChanged
     {
-        public readonly record struct Options(bool AlwaysOnTop, bool ExtendIntoTitleBar, Func<bool>? IsFullscreen = default);
+        public readonly record struct Options(IChannel<bool> AlwaysOnTop, IChannel<bool> ExtendIntoTitleBar, Func<bool>? IsFullscreen = default);
 
         public static Win32CustomTitleBar Install(Form form, NodeContext nodeContext, Options options)
         {
             var customTitleBar = new Win32CustomTitleBar(form)
             {
-                ExtendIntoTitleBar = options.ExtendIntoTitleBar,
+                AlwaysOnTop = options.AlwaysOnTop.Value,
+                ExtendIntoTitleBar = options.ExtendIntoTitleBar.Value,
                 IsFullScreen = options.IsFullscreen ?? (() => false)
             };
-            var session = IDevSession.Current;
-            if (session != null)
-            {
-                customTitleBar.MenuToggled += (s, e) =>
+
+            // Sync channels -> title bar
+            var channelSubscriptions = new CompositeDisposable()
                 {
-                    if (e == ID_TOGGLE_TOPMOST)
-                        session.CurrentSolution
-                            .SetPinValue(nodeContext.Path.Stack, "Always On Top", form.TopMost)
-                            .Confirm(VL.Model.SolutionUpdateKind.DontCompile);
-                    if (e == ID_TOGGLE_EXTEND_INTO_TITLEBAR)
-                        session.CurrentSolution
-                            .SetPinValue(nodeContext.Path.Stack, "Extend Into Title Bar", customTitleBar.ExtendIntoTitleBar)
-                            .Confirm(VL.Model.SolutionUpdateKind.DontCompile);
+                    options.AlwaysOnTop.Subscribe(v =>
+                    {
+                        customTitleBar.AlwaysOnTop = v;
+                    }),
+                    options.ExtendIntoTitleBar.Subscribe(v =>
+                    {
+                        customTitleBar.ExtendIntoTitleBar = v;
+                    }),
                 };
-            }
-            form.TopMost = options.AlwaysOnTop;
+            form.Disposed += (s, e) => channelSubscriptions.Dispose();
+
+            // Sync title bar -> channels and persist settings on change
+            customTitleBar.PropertyChanged += (s, e) =>
+            {
+                var session = IDevSession.Current;
+                if (e.PropertyName == nameof(AlwaysOnTop))
+                {
+                    options.AlwaysOnTop.EnsureValue(customTitleBar.AlwaysOnTop);
+                    session?.CurrentSolution
+                        .SetPinValue(nodeContext.Path.Stack, "Always On Top", customTitleBar.AlwaysOnTop)
+                        .Confirm(VL.Model.SolutionUpdateKind.DontCompile);
+                }
+                else if (e.PropertyName == nameof(ExtendIntoTitleBar))
+                {
+                    options.ExtendIntoTitleBar.EnsureValue(customTitleBar.ExtendIntoTitleBar);
+                    session?.CurrentSolution
+                        .SetPinValue(nodeContext.Path.Stack, "Extend Into Title Bar", customTitleBar.ExtendIntoTitleBar)
+                        .Confirm(VL.Model.SolutionUpdateKind.DontCompile);
+                }
+            };
+
             return customTitleBar;
         }
 
@@ -69,6 +92,8 @@ namespace VL.Core.Windows
         // Minimal draggable space (in DIP) that must remain beside the window control buttons
         private const int MinimalDraggableSpace = 50;
 
+        private bool alwaysOnTop = false;
+
         /// <summary>
         /// Whether we want to extend the client area into the title bar. Can be changed at runtime.
         /// </summary>
@@ -83,12 +108,33 @@ namespace VL.Core.Windows
         public Win32CustomTitleBar(Form form)
         {
             this.form = form ?? throw new ArgumentNullException(nameof(form));
+            this.alwaysOnTop = form.TopMost;
             form.HandleCreated += (s, e) =>
             {
                 InitializeCustomMenu();
                 UpdateTitleBarButtonRects();
             };
             form.Resize += (s, e) => UpdateTitleBarButtonRects();
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public bool AlwaysOnTop
+        {
+            get => alwaysOnTop;
+            set
+            {
+                if (value != alwaysOnTop)
+                {
+                    alwaysOnTop = value;
+                    form.TopMost = alwaysOnTop;
+
+                    if (form.IsHandleCreated)
+                        ToggleMenu(ID_TOGGLE_TOPMOST, alwaysOnTop);
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AlwaysOnTop)));
+                }
+            }
         }
 
         /// <summary>
@@ -110,15 +156,14 @@ namespace VL.Core.Windows
                         SetWindowPos(handle, default, 0, 0, 0, 0,
                             SET_WINDOW_POS_FLAGS.SWP_FRAMECHANGED | SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER);
                         form.Invalidate();
+
+                        ToggleMenu(ID_TOGGLE_EXTEND_INTO_TITLEBAR, extendIntoTitleBar);
                     }
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ExtendIntoTitleBar)));
                 }
             }
         }
-
-        /// <summary>
-        /// Event fired when custom menu items are toggled
-        /// </summary>
-        public event EventHandler<uint>? MenuToggled;
 
         /// <summary>
         /// Gets whether the form is currently in fullscreen mode.
@@ -165,14 +210,12 @@ namespace VL.Core.Windows
                     {
                         if (m.WParam == ID_TOGGLE_TOPMOST)
                         {
-                            form.TopMost = !form.TopMost;
-                            ToggleMenu(ID_TOGGLE_TOPMOST, form.TopMost);
+                            AlwaysOnTop = !AlwaysOnTop;
                             return true;
                         }
                         else if (m.WParam == ID_TOGGLE_EXTEND_INTO_TITLEBAR)
                         {
                             ExtendIntoTitleBar = !ExtendIntoTitleBar;
-                            ToggleMenu(ID_TOGGLE_EXTEND_INTO_TITLEBAR, ExtendIntoTitleBar);
                             return true;
                         }
                         break;
@@ -457,7 +500,7 @@ namespace VL.Core.Windows
             sep.fType = MENU_ITEM_TYPE.MFT_SEPARATOR;
             InsertMenuItem(sysMenu, 0, true, &sep);
 
-            InsertToggleMenu(ID_TOGGLE_TOPMOST, 0, "Always On Top", form.TopMost);
+            InsertToggleMenu(ID_TOGGLE_TOPMOST, 0, "Always On Top", AlwaysOnTop);
             InsertToggleMenu(ID_TOGGLE_EXTEND_INTO_TITLEBAR, 1, "Extend Into Title Bar", ExtendIntoTitleBar);
         }
 
@@ -484,8 +527,6 @@ namespace VL.Core.Windows
             mii.fMask = MENU_ITEM_MASK.MIIM_STATE;
             mii.fState = value ? MENU_ITEM_STATE.MFS_CHECKED : MENU_ITEM_STATE.MFS_UNCHECKED;
             SetMenuItemInfo(sysMenu, id, false, &mii);
-
-            MenuToggled?.Invoke(this, id);
         }
 
         /// <summary>

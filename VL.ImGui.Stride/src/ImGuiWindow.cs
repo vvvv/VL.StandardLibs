@@ -17,6 +17,7 @@ using VL.Stride.Input;
 using VL.Lib.Basics.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
+using VL.Lib.Reactive;
 
 namespace VL.ImGui.Stride
 {
@@ -103,8 +104,8 @@ namespace VL.ImGui.Stride
             _game = nodeContext.AppHost.Services.GetRequiredService<VLGame>();
             _gameContext = VLGame.CreateGameContext(
                 nodeContext,
-                alwaysOnTop: false,
-                extendIntoTitleBar: false,
+                alwaysOnTop: Channel.Create(false),
+                extendIntoTitleBar: Channel.Create(false),
                 AppContextType.Desktop,
                 size.X,
                 size.Y,

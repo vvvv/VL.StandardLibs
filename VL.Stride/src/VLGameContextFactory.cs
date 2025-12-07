@@ -1,6 +1,7 @@
 ﻿using Stride.Games;
 using System;
 using VL.Core;
+using VL.Lib.Reactive;
 
 namespace VL.Stride;
 
@@ -8,8 +9,8 @@ internal class VLGameContextFactory
 {
     public static GameContext CreateContext(
         NodeContext nodeContext, 
-        bool alwaysOnTop, 
-        bool extendIntoTitleBar, 
+        IChannel<bool> alwaysOnTop,
+        IChannel<bool> extendIntoTitleBar, 
         AppContextType appContextType, 
         int requestedWidth = 0, 
         int requestedHeight = 0, 
