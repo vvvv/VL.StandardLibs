@@ -11,6 +11,7 @@ using VL.Core;
 using VL.Lib.Collections;
 using VL.Lib.Basics.Resources;
 using VL.Stride;
+using VL.Stride.Games;
 
 namespace VL.ImGui.Stride
 {
@@ -213,16 +214,6 @@ namespace VL.ImGui.Stride
         {
             using (_strideDeviceContext.MakeCurrent())
             {
-                unsafe
-                {
-                    int x, y;
-                    uint buttons = global::Stride.Graphics.SDL.Window.SDL.GetGlobalMouseState(&x, &y);
-                    _strideDeviceContext.IO.MouseDown[0] = (buttons & 0b0001) != 0;
-                    _strideDeviceContext.IO.MouseDown[1] = (buttons & 0b0010) != 0;
-                    _strideDeviceContext.IO.MouseDown[2] = (buttons & 0b0100) != 0;
-                    _strideDeviceContext.IO.MousePos = new Vector2(x, y);
-                }
-
                 _strideDeviceContext.IO.DisplaySize = new Vector2(_mainViewportWindow.Size.X, _mainViewportWindow.Size.Y);
                 _strideDeviceContext.IO.DisplayFramebufferScale = new Vector2(1.0f, 1.0f);
 
