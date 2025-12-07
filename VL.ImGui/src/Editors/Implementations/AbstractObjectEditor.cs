@@ -74,7 +74,7 @@ namespace VL.ImGui.Editors
                 privateChannel?.Dispose();
                 privateChannel = ChannelHelpers.CreateChannelOfType(type);
                 if (publicChannel.Attributes.Any())
-                    privateChannel.Attributes().Value = publicChannel.Attributes;
+                    privateChannel.AttributesChannel.Value = publicChannel.Attributes;
                 privateChannel.Object = value;
                 privateChannelSubscription.Disposable = privateChannel.Subscribe(v =>
                 {

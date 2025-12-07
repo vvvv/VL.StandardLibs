@@ -29,7 +29,7 @@ namespace VL.ImGui.Widgets
                 {
                     var old = channel;
                     channel = value;
-                    attributesSubscription.Disposable = channel?.Attributes().StartWith([channel?.Attributes().Value]).Subscribe(a => UpdateDefaultsFromAttributes(a ?? Spread<Attribute>.Empty));
+                    attributesSubscription.Disposable = channel?.AttributesChannel.StartWith([channel?.AttributesChannel.Value]).Subscribe(a => UpdateDefaultsFromAttributes(a ?? Spread<Attribute>.Empty));
 
                     OnChannelChanged(value, old);
                 }
