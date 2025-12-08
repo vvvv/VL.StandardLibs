@@ -46,7 +46,12 @@ namespace VL.Lib.Reactive
 
 
 
-
+        public static IChannel AsChannelView(this IChannel channel, Type type)
+        {
+            if (channel.ClrTypeOfValues == type)
+                return channel;
+            return (IChannel)Activator.CreateInstance(typeof(ChannelView<>).MakeGenericType(type), channel);
+        }
 
 
 

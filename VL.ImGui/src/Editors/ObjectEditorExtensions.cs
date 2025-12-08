@@ -17,6 +17,11 @@ namespace VL.ImGui.Editors
             return objectEditor;
         }
 
+        public static bool HasContentToDraw(this IObjectEditor objectEditor)
+        {
+            return objectEditor != null && objectEditor.HasContentToDraw;
+        }
+
         private sealed class ViewOnlyEditor : IObjectEditor
         {
             private readonly IObjectEditor _editor;
