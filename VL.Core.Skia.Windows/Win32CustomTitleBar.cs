@@ -114,6 +114,10 @@ namespace VL.Core.Windows
                 InitializeCustomMenu();
                 UpdateTitleBarButtonRects();
             };
+            form.Shown += (s, e) =>
+            {
+                form.TopMost = alwaysOnTop;
+            };
             form.Resize += (s, e) => UpdateTitleBarButtonRects();
         }
 
@@ -127,10 +131,12 @@ namespace VL.Core.Windows
                 if (value != alwaysOnTop)
                 {
                     alwaysOnTop = value;
-                    form.TopMost = alwaysOnTop;
 
                     if (form.IsHandleCreated)
+                    {
+                        form.TopMost = alwaysOnTop;
                         ToggleMenu(ID_TOGGLE_TOPMOST, alwaysOnTop);
+                    }
 
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AlwaysOnTop)));
                 }
