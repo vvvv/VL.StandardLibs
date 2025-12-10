@@ -18,6 +18,7 @@ using VL.Core.Commands;
 using VL.Core.Utils;
 using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
+using VL.Lib.Reactive;
 using VL.UI.Core;
 using Win32CustomTitleBar = sw::VL.Core.Windows.Win32CustomTitleBar;
 
@@ -301,7 +302,7 @@ namespace VL.Skia
 
     public class SkiaRendererTopMost : SkiaRenderer
     {
-        public SkiaRendererTopMost(NodeContext nodeContext) : base(nodeContext, new (AlwaysOnTop: true, ExtendIntoTitleBar: false))
+        public SkiaRendererTopMost(NodeContext nodeContext) : base(nodeContext, new (AlwaysOnTop: Channel.Create(true), ExtendIntoTitleBar: Channel.Create(false)))
         {
         }
 

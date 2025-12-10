@@ -20,6 +20,9 @@ using System.Threading;
 using VL.Stride.Input;
 using Microsoft.Extensions.DependencyInjection;
 using VL.Lib.Basics.Video;
+using Stride.Input;
+using System.Linq;
+using Stride.Core.Mathematics;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Lib.Initialization))]
 
@@ -58,6 +61,22 @@ namespace VL.Stride.Lib
                     form.Activate();
                 else if (nativeWindow is GameFormSDL sdlForm)
                     sdlForm.BringToFront();
+            };
+            VLGame.FixKeyboardDevice = (inputManager, gameWindow, inputSource) =>
+            {
+                if (gameWindow.NativeWindow.NativeWindow is GameForm form)
+                {
+                    //var existingKeyboard = inputSource.Devices.Values.FirstOrDefault(d => d is IKeyboardDevice);
+                    //if (existingKeyboard != null)
+                    //    inputSource.Devices.Remove(existingKeyboard.Id);
+                    var device = new TextKeyboardWinforms(inputSource, form);
+                    inputSource.Devices.Add(device.Id, device);
+                }
+            };
+            VLGame.GetCursorPos = () =>
+            {
+                var p = System.Windows.Forms.Cursor.Position;
+                return new Vector2(p.X, p.Y);
             };
         }
 

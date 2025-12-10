@@ -5,10 +5,12 @@ using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Games;
 using Stride.Graphics;
+using Stride.Input;
 using Stride.Rendering;
 using System;
 using System.Reactive.Disposables;
 using VL.Core.Utils;
+using VL.Stride.Input;
 
 namespace VL.Stride.Games
 {
@@ -23,6 +25,7 @@ namespace VL.Stride.Games
     public class GameWindowRenderer : GameSystemBase
     {
         private readonly SerialDisposable FDarkModeSubscription = new();
+        private readonly int inputPriority;
         private GraphicsPresenter savedPresenter;
         private bool beginDrawOk;
 
@@ -31,12 +34,14 @@ namespace VL.Stride.Games
         /// </summary>
         /// <param name="registry">The registry.</param>
         /// <param name="gameContext">The window context.</param>
-        public GameWindowRenderer(IServiceRegistry registry, GameContext gameContext)
+        /// <param name="inputPriority">The priority of the input devices. Larger means higher priority when selecting the first device of some type.</param>
+        public GameWindowRenderer(IServiceRegistry registry, GameContext gameContext, int inputPriority)
             : base(registry)
         {
             GameContext = gameContext;
             WindowManager = new GameWindowRendererManager();
             FDarkModeSubscription.DisposeBy(this);
+            this.inputPriority = inputPriority;
         }
 
         /// <summary>
@@ -69,6 +74,7 @@ namespace VL.Stride.Games
         /// Gets or sets the present call intercept. Can be set to manage the present call on your own.
         /// </summary>
         public IPresentCallIntercept PresentCallIntercept { get; set; }
+        public IInputSource InputSource { get; private set; }
 
         public override void Initialize()
         {
@@ -77,8 +83,12 @@ namespace VL.Stride.Games
             //GameContext.RequestedHeight = WindowManager.PreferredBackBufferHeight;
             Window = gamePlatform.CreateWindow(GameContext);
             Window.SetSize(new Int2(WindowManager.PreferredBackBufferWidth, WindowManager.PreferredBackBufferHeight));
-
             Window.Visible = true;
+
+            var inputManager = Services.GetService<InputManager>();
+            var inputSource = InputSource = InputSourceFactory.NewWindowInputSource(GameContext);
+            inputManager.AddWithPriority(inputSource, inputPriority);
+            VLGame.FixKeyboardDevice(inputManager, Window, inputSource);
 
             FDarkModeSubscription.Disposable = DarkTitleBarClass.Install(Window.NativeWindow.Handle);
 
@@ -93,6 +103,14 @@ namespace VL.Stride.Games
 
         protected override void Destroy()
         {
+            if (InputSource != null)
+            {
+                var inputManager = Services.GetService<InputManager>();
+                inputManager.Sources.Remove(InputSource); // Will dispose the input source
+                InputSource = null;
+            }
+
+
             if (Presenter != null)
             {
                 // Make sure that the Presenter is reverted to window before shuting down

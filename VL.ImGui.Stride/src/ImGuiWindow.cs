@@ -15,6 +15,9 @@ using VL.Stride.Engine;
 using VL.Lib.Collections;
 using VL.Stride.Input;
 using VL.Lib.Basics.Resources;
+using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+using VL.Lib.Reactive;
 
 namespace VL.ImGui.Stride
 {
@@ -24,15 +27,14 @@ namespace VL.ImGui.Stride
     {
         private readonly ImGuiViewportPtr _vp;
         private readonly GCHandle _gcHandle;
+        private readonly VLGame _game;
         private readonly SchedulerSystem _schedulerSystem;
         private readonly GameContext _gameContext;
         private readonly GameWindowRenderer _gameWindowRenderer;
-        private readonly IInputSource _inputSource;
         private readonly WindowRenderer _windowRenderer;
         private readonly ImGuiRenderer _renderer;
 
-        private readonly IResourceHandle<InputManager> _inputHandle;
-        InputManager _inputManager => _inputHandle.Resource;
+        InputManager _inputManager => _game.Input;
 
         private object? _state;
         private ImGuiWindowsCreateHandler? _createHandler;
@@ -66,26 +68,9 @@ namespace VL.ImGui.Stride
             set { if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Title = value; }
         }
 
-        public IInputSource Input => _inputSource;
+        public IInputSource Input => _gameWindowRenderer.InputSource;
 
-        private bool _isFocused;
-        public bool IsFocused
-        {
-            get
-            {
-                var focused = _gameWindowRenderer.Window?.Focused ?? false;
-                if (_isFocused != focused)
-                {
-                    _isFocused = focused;
-                    if (focused)
-                    {
-                        _inputManager.Sources.Clear();
-                        _inputManager.Sources.Add(_inputSource);
-                    }
-                }
-                return _isFocused;
-            }
-        }
+        public bool IsFocused => _gameWindowRenderer.Window?.Focused ?? false;
 
         public void Activate()
         {
@@ -93,6 +78,8 @@ namespace VL.ImGui.Stride
         }
 
         public bool IsMinimized => _gameWindowRenderer.Window?.IsMinimized ?? false;
+
+        public bool IsMain;
 
         public ImGuiWindow(NodeContext nodeContext, StrideDeviceContext strideDeviceContext, ImGuiViewportPtr vp, RectangleF bounds)
         {
@@ -103,28 +90,33 @@ namespace VL.ImGui.Stride
 
             if ((_vp.Flags & ImGuiViewportFlags.NoDecoration) != 0)
             {
+                IsMain = false;
                 position = new Int2((int)_vp.Pos.X, (int)_vp.Pos.Y);
                 size = new Int2((int)_vp.Size.X, (int)_vp.Size.Y);
+            }
+            else
+            {
+                IsMain = true;
             }
 
             _gcHandle = GCHandle.Alloc(this);
 
-            using (var gameHandle = nodeContext.AppHost.Services.GetGameHandle())
-            {
-                _gameContext = GameContextFactory.NewGameContextSDL(size.X, size.Y, true);
-                _gameWindowRenderer = new GameWindowRenderer(gameHandle.Resource.Services, _gameContext);
-                _schedulerSystem = gameHandle.Resource.Services.GetService<SchedulerSystem>();
-                
-                _inputSource = InputSourceFactory.NewWindowInputSource(_gameContext);
-                _inputHandle = nodeContext.AppHost.Services.GetInputManagerHandle();
-                _inputManager.Sources.Clear();
-                _inputManager.Sources.Add(_inputSource);
-            }
+            _game = nodeContext.AppHost.Services.GetRequiredService<VLGame>();
+            _gameContext = VLGame.CreateGameContext(
+                nodeContext,
+                alwaysOnTop: Channel.Create(false),
+                extendIntoTitleBar: Channel.Create(false),
+                AppContextType.Desktop,
+                size.X,
+                size.Y,
+                isUserManagingRun: true);
+            _gameWindowRenderer = new GameWindowRenderer(_game.Services, _gameContext, 0);
+            _schedulerSystem = _game.Services.GetService<SchedulerSystem>()!;
 
             var manager = _gameWindowRenderer.WindowManager;
             manager.PreferredBackBufferWidth = size.X;
             manager.PreferredBackBufferHeight = size.Y;
-            manager.PreferredBackBufferFormat = PixelFormat.R16G16B16A16_Float;
+            manager.PreferredBackBufferFormat = PixelFormat.R8G8B8A8_UNorm_SRgb;
             manager.PreferredDepthStencilFormat = PixelFormat.D24_UNorm_S8_UInt;
             manager.ShaderProfile = GraphicsProfile.Level_11_0;
             manager.PreferredGraphicsProfile = new[] { GraphicsProfile.Level_11_0 };
@@ -157,9 +149,9 @@ namespace VL.ImGui.Stride
             window.Closing += Window_Closing;
             window.FullscreenChanged += Window_FullscreenChanged;
 
-            _windowRenderer = new WindowRenderer(_gameWindowRenderer, _inputSource);
+            _windowRenderer = new WindowRenderer(_gameWindowRenderer);
 
-            _renderer = new ImGuiRenderer(strideDeviceContext);
+            _renderer = new ImGuiRenderer(strideDeviceContext, this);
 
             vp.PlatformUserData = (IntPtr)_gcHandle;
         }
@@ -220,8 +212,6 @@ namespace VL.ImGui.Stride
                     _gameWindowRenderer.Window.FullscreenChanged -= Window_FullscreenChanged;
                 }
                 _gameWindowRenderer.Close();
-                _inputHandle.Dispose();
-                _inputSource.Dispose();
             }
 
             // Dispose unmanaged resources
@@ -237,11 +227,11 @@ namespace VL.ImGui.Stride
 
             public IInputSource? InputSource { get; set; }
 
-            public WindowRenderer(GameWindowRenderer gameWindowRenderer, IInputSource inputSource)
+            public WindowRenderer(GameWindowRenderer gameWindowRenderer)
             {
                 _gameWindowRenderer = gameWindowRenderer;
                 _withRenderTargetAndViewPort = new WithRenderTargetAndViewPort();
-                InputSource = inputSource;
+                InputSource = gameWindowRenderer.InputSource;
             }
 
             public void Draw(RenderDrawContext context)

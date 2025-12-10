@@ -1,8 +1,10 @@
 using Stride.Core.Diagnostics;
+using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Engine.Design;
 using Stride.Games;
 using Stride.Graphics;
+using Stride.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -10,6 +12,7 @@ using System.IO;
 using System.Linq;
 using VL.Core;
 using VL.Lib.Basics.Video;
+using VL.Lib.Reactive;
 using VL.Stride.Core;
 using VL.Stride.Engine;
 using VL.Stride.Rendering;
@@ -19,12 +22,14 @@ namespace VL.Stride.Games
 {
     public class VLGame : Game, IGraphicsDeviceProvider
     {
-        internal record struct GameContextParams(NodeContext NodeContext, bool AlwaysOnTop, bool ExtendIntoTitleBar, AppContextType AppContextType, int RequestedWidth, int RequestedHeight, bool IsUserManagingRun);
+        internal record struct GameContextParams(NodeContext NodeContext, IChannel<bool> AlwaysOnTop, IChannel<bool> ExtendIntoTitleBar, AppContextType AppContextType, int RequestedWidth, int RequestedHeight, bool IsUserManagingRun);
         internal static Func<GameContextParams, GameContext> VLGameContextFactory;
         internal static Action<GameWindow, int> SetTitleBarInteractionWidth;
         internal static Action<GameWindow> BringToFront;
+        internal static Action<InputManager, GameWindow, IInputSource> FixKeyboardDevice;
+        public static Func<Vector2> GetCursorPos;
 
-        public static GameContext CreateGameContext(NodeContext nodeContext, bool alwaysOnTop, bool extendIntoTitleBar, AppContextType appContextType, int requestedWidth = 0, int requestedHeight = 0, bool isUserManagingRun = false)
+        public static GameContext CreateGameContext(NodeContext nodeContext, IChannel<bool> alwaysOnTop, IChannel<bool> extendIntoTitleBar, AppContextType appContextType, int requestedWidth = 0, int requestedHeight = 0, bool isUserManagingRun = false)
         {
             if (VLGameContextFactory is null)
                 throw new InvalidOperationException("VL Stride init routines didn't run yet.");

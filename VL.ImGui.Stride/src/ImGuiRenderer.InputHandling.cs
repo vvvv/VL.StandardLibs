@@ -1,9 +1,11 @@
 ﻿using SkiaSharp;
+using Stride.Core.Mathematics;
 using Stride.Input;
 using Stride.Rendering;
 using System.Reactive.Disposables;
 using VL.Skia;
 using VL.Stride;
+using VL.Stride.Games;
 using CommonSpace = VL.Skia.CommonSpace;
 
 namespace VL.ImGui
@@ -29,7 +31,7 @@ namespace VL.ImGui
             {
                 using (_context.MakeCurrent())
                 {
-                    _context.IO.HandleNotification(n);
+                    _context.IO.HandleNotification(n, ClientToScreen);
                 }
                 return n.Handled;
             }, out _);
@@ -43,6 +45,22 @@ namespace VL.ImGui
                 {
                     viewportLayer.Notify(n, callerInfo);
             });
+        }
+
+        Vector2 ClientToScreen(Vector2 clientPos)
+        {
+            if (_window is null)
+                return clientPos;
+            if (_window.IsMain)
+            {
+                var windowPos = _window.Position;
+                return new Vector2(clientPos.X + windowPos.X, clientPos.Y + windowPos.Y);
+            }
+            else
+            {
+                // Above code leads to strange feedback when moving the window - not sure why, probably because events get queued by Stride's InputManager?
+                return VLGame.GetCursorPos();
+            }
         }
     }
 }
