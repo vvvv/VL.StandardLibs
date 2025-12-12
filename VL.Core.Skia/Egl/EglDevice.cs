@@ -88,11 +88,23 @@ namespace VL.Skia.Egl
             if (Array.Exists(Environment.GetCommandLineArgs(), argument => argument == "--debug-gpu"))
                 flags |= D3D11_CREATE_DEVICE_FLAG.D3D11_CREATE_DEVICE_DEBUG;
 
-            ID3D11Device* device;
-            ID3D11DeviceContext* deviceContext;
-            Windows.Win32.PInvoke.D3D11CreateDevice(null, D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE, default, flags, &featureLevels, 1, 7, &device, &featureLevel, &deviceContext);
-            if (device is null)
-                Windows.Win32.PInvoke.D3D11CreateDevice(null, D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE, default, flags, default, 0, 7, &device, &featureLevel, &deviceContext);
+            ID3D11Device* device = null;
+            ID3D11DeviceContext* deviceContext = null;
+
+            var deviceTypes = new D3D_DRIVER_TYPE[]
+            {
+                D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE,
+                D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_WARP
+            };
+            foreach (var driverType in deviceTypes)
+            {
+                Windows.Win32.PInvoke.D3D11CreateDevice(null, driverType, default, flags, &featureLevels, 1, 7, &device, &featureLevel, &deviceContext);
+                if (device is null)
+                    Windows.Win32.PInvoke.D3D11CreateDevice(null, driverType, default, flags, default, 0, 7, &device, &featureLevel, &deviceContext);
+                if (device is not null)
+                    break;
+            }
+
             if (device is null)
                 throw new Exception("Failed to create D3D11 device");
 

@@ -21,6 +21,7 @@ namespace VL.Lib.Collections
         Type ElementType { get; }
     }
 
+    [CollectionBuilder(typeof(Spread), "Create")] 
     [Serializable]
     public sealed class Spread<T> : IReadOnlyList<T>, IHasMemory<T>, ISpread, IList<T> /* LINQ looks for IList and not IReadOnlyList */
     {
@@ -32,19 +33,10 @@ namespace VL.Lib.Collections
         // Neither GetEnumerator/MoveNext/Current nor for (...; i < input.Count;) produce same good code as direct access on array does :/
         public readonly ImmutableArray<T> _array;
 
-        internal Spread() : this(ImmutableArray<T>.Empty) 
-        {
-
-        }
-
-        // For collection initializer
         internal Spread(ImmutableArray<T> array)
         {
             _array = array;
         }
-
-        // For collection initializer
-        internal Spread<T> Add(T item) => new Spread<T>(_array.Add(item));
 
         /// <summary>
         /// Creates a new read-only memory region over this spread.
@@ -248,6 +240,14 @@ namespace VL.Lib.Collections
         {
             if (values.Length > 0)
                 return new Spread<T>(values);
+            return Spread<T>.Empty;
+        }
+
+        // Collection expressions handler
+        public static Spread<T> Create<T>(ReadOnlySpan<T> items)
+        {
+            if (items.Length > 0)
+                return new Spread<T>(ImmutableArray.Create(items));
             return Spread<T>.Empty;
         }
 
