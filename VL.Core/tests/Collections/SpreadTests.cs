@@ -70,5 +70,14 @@ namespace VL.Core.Tests.Collections
             Assert.IsTrue(someSpread.InsertSlice(3, 100)[3] == 100);
             Assert.IsTrue(someSpread.InsertSlice(4, 100)[0] == 100);
         }
+
+        [Test]
+        public static void Spread_CollectionInitializer()
+        {
+            Spread<int> someSpread = [1, 2, 3];
+            Assert.IsTrue(someSpread[0] == 1);
+            Assert.IsTrue(someSpread[1] == 2);
+            Assert.IsTrue(someSpread[2] == 3);
+        }
     }
 }
