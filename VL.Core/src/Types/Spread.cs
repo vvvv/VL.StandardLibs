@@ -21,6 +21,7 @@ namespace VL.Lib.Collections
         Type ElementType { get; }
     }
 
+    [CollectionBuilder(typeof(Spread), "Create")] 
     [Serializable]
     public sealed class Spread<T> : IReadOnlyList<T>, IHasMemory<T>, ISpread, IList<T> /* LINQ looks for IList and not IReadOnlyList */
     {
@@ -248,6 +249,14 @@ namespace VL.Lib.Collections
         {
             if (values.Length > 0)
                 return new Spread<T>(values);
+            return Spread<T>.Empty;
+        }
+
+        // Collection expressions handler
+        public static Spread<T> Create<T>(ReadOnlySpan<T> items)
+        {
+            if (items.Length > 0)
+                return new Spread<T>(ImmutableArray.Create(items));
             return Spread<T>.Empty;
         }
 
