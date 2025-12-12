@@ -29,7 +29,7 @@
                         foreach (var item in Items)
                         {
                             bool is_selected = value == item;
-                            if (ImGuiNET.ImGui.Selectable(item, is_selected))
+                            if (ImGuiNET.ImGui.Selectable(item ?? string.Empty, is_selected))
                             {
                                 Value = item;
                             }
