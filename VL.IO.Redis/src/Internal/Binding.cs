@@ -108,7 +108,7 @@ namespace VL.IO.Redis.Internal
                         if (_logger is null)
                             throw;
 
-                        _logger.LogError(ex, "Error while serializing");
+                        _logger.LogError(ex, "Error while serializing key {key}", key);
                         return;
                     }
 
@@ -141,7 +141,7 @@ namespace VL.IO.Redis.Internal
                             if (_logger is null)
                                 throw;
 
-                            _logger.LogError(ex, "Error while deserializing");
+                            _logger.LogError(ex, "Error while deserializing key {key}", key);
                             return;
                         }
 
