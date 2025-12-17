@@ -46,7 +46,7 @@ namespace VL.Core.Reactive
             set
             {
                 MustHaveDescriptiveSubscription?.Dispose();
-                recreateChannels(value.Value);
+                recreateChannels(value.Value!);
                 MustHaveDescriptiveSubscription = ((IObservable<PublicChannelDescription[]>)value).Subscribe(recreateChannels);
             }
         }

@@ -54,7 +54,7 @@ namespace VL.Lib.Reactive
         public void AddAccessorNode(NodeContext node)
         {
             var nodepath = node.Path;
-            var accessorNode = nodes.Value.GetOrAdd(nodepath.Stack.Peek(), _ => new AccessorNode(nodepath));
+            var accessorNode = nodes.Value!.GetOrAdd(nodepath.Stack.Peek(), _ => new AccessorNode(nodepath));
             accessorNode.AddRef();
             nodes.SetValue(nodes.Value);
         }
@@ -64,7 +64,7 @@ namespace VL.Lib.Reactive
             if (!nodes.Enabled)
                 return;
             var uniqueId = node.Path.Stack.Peek();
-            if (nodes.Value.TryGetValue(uniqueId, out var accessorNode))
+            if (nodes.Value!.TryGetValue(uniqueId, out var accessorNode))
             {
                 accessorNode.Release();
                 if (!accessorNode.IsAlive)

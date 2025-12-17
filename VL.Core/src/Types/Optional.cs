@@ -175,14 +175,14 @@ namespace VL.Core
         {
             var optionalType = typeof(Optional<>).MakeGenericType(t);
             var optional = Activator.CreateInstance(optionalType);
-            return (IOptional)optional;
+            return (IOptional)optional!;
         }
 
         public static IOptional CreateOptional(object value, Type t)
         {
             var optionalType = typeof(Optional<>).MakeGenericType(t);
             var optional = Activator.CreateInstance(optionalType, value);
-            return (IOptional)optional;
+            return (IOptional)optional!;
         }
 
         public static IOptional Select(object value, Func<object, object> selector, Type type)

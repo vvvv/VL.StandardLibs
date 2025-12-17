@@ -75,7 +75,6 @@ namespace VL.Core.Windows
         }
 
         private readonly Form form;
-        private bool disposed;
 
         // Win32 custom title bar related fields
         private Rectangle closeButtonRect;
@@ -202,9 +201,6 @@ namespace VL.Core.Windows
         /// </summary>
         public unsafe bool ProcessMessage(ref Message m)
         {
-            if (disposed)
-                return false;
-
             var handle = (HWND)m.HWnd;
             var w_param = (WPARAM)(nuint)m.WParam;
             var l_param = m.LParam;

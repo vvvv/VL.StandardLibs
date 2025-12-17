@@ -769,6 +769,7 @@ namespace VL.Core
         /// <param name="name">The name of the property.</param>
         /// <param name="defaultValue">The default value to use in case retrieval failed.</param>
         /// <param name="value">The returned values.</param>
+        /// <param name="pathExists">Whether or not the given property exists.</param>
         /// <returns>True if the retrieval succeeded.</returns>
         public static bool TryGetValue<T>(this IVLObject instance, string name, T defaultValue, out T value, out bool pathExists)
         {

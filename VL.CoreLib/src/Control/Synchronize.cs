@@ -343,6 +343,7 @@ namespace VL.Lib.Control
     [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
     [Region(SupportedBorderControlPoints = ControlPointType.Splicer, TypeConstraint = "IReadOnlyDictionary", TypeConstraintIsBaseType = true)]
     public class ForEachKey<TKey> : IRegion<IInlay_ForEachKey<TKey>>, IDisposable
+        where TKey : notnull
     {
         private readonly Dictionary<TKey, PatchWithBorders> _patches = new();
         private Func<IInlay_ForEachKey<TKey>>? _inlayFactory;
@@ -376,7 +377,7 @@ namespace VL.Lib.Control
             _patches.Clear();
         }
 
-        object _currentkey;
+        object? _currentkey;
 
         [Fragment]
         public void Update(IEnumerable<TKey> keys)
@@ -408,7 +409,7 @@ namespace VL.Lib.Control
             foreach (var (ospl, splicer) in _outputSplicers)
             {
                 EnsureOutputSplicer(ospl);
-                splicer.Dictionary.Clear();
+                splicer?.Dictionary.Clear();
             }
 
             foreach (var key in keys)
@@ -446,13 +447,13 @@ namespace VL.Lib.Control
                     .GetMethod(nameof(ForEachKeyHelper.CreateImmutableDictionary), BindingFlags.NonPublic | BindingFlags.Static);
                 method = method?
                     .MakeGenericMethod(genericArgs);
-                return new OutputSplicer(method?.Invoke(null, null) as IDictionary, true); // immutable dictionary builder created
+                return new OutputSplicer((IDictionary)method?.Invoke(null, null)!, true); // immutable dictionary builder created
             }
 
             if (outerType.IsSealed)
-                return new OutputSplicer(Activator.CreateInstance(outerType) as IDictionary, false); // some dictionary created
+                return new OutputSplicer((IDictionary)Activator.CreateInstance(outerType)!, false); // some dictionary created
 
-            return new OutputSplicer(Activator.CreateInstance(findDictionaryType(outerType)) as IDictionary, false); // standard mutable dictionary created
+            return new OutputSplicer((IDictionary)Activator.CreateInstance(findDictionaryType(outerType))!, false); // standard mutable dictionary created
         }
 
         Type findDictionaryType(Type outerType)
@@ -475,10 +476,10 @@ namespace VL.Lib.Control
 
         class OutputSplicer
         {
-            public IDictionary? Dictionary;
+            public IDictionary Dictionary;
             public bool IsImmutable;
 
-            public OutputSplicer(IDictionary? dictionary, bool isImmutable)
+            public OutputSplicer(IDictionary dictionary, bool isImmutable)
             {
                 Dictionary = dictionary;
                 IsImmutable = isImmutable;
@@ -515,14 +516,14 @@ namespace VL.Lib.Control
             if (!_inputSplicers.TryGetValue(cp, out var dictionary))
                 throw new Exception($"Input Splicer {cp} doesn't hold dictionary");
 
-            innerValue = dictionary[_currentkey];
+            innerValue = dictionary[_currentkey!];
         }
 
         public void AcknowledgeOutput(in OutputDescription cp, IInlay_ForEachKey<TKey> patchInstance, object? innerValue)
         {
             var splicer = EnsureOutputSplicer(cp);
 
-            splicer.Dictionary[_currentkey] = innerValue;
+            splicer.Dictionary[_currentkey!] = innerValue;
         }
 
         public void RetrieveOutput(in OutputDescription cp, out object? outerValue)
@@ -531,7 +532,7 @@ namespace VL.Lib.Control
             {
                 var outerType = cp.OuterType;
                 if (splicer.IsImmutable)
-                    outerValue = (splicer.Dictionary as dynamic).ToImmutable();
+                    outerValue = (splicer.Dictionary as dynamic)!.ToImmutable();
                 else
                     outerValue = splicer.Dictionary;
             }
@@ -545,6 +546,7 @@ namespace VL.Lib.Control
     internal static class ForEachKeyHelper
     {
         internal static IDictionary? CreateImmutableDictionary<TKey, TValue>()
+            where TKey : notnull
         {
             return ImmutableDictionary<TKey, TValue>.Empty.ToBuilder();
         }

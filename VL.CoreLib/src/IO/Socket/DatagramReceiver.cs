@@ -102,7 +102,7 @@ namespace VL.Lib.IO.Socket
                                 }
                             }
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             //Warn($"Error receiving datagram: {e.Message}");
                             if (!token.IsCancellationRequested)

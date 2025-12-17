@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -50,7 +51,7 @@ namespace VL.Lib.Reactive
         {
             if (channel.ClrTypeOfValues == type)
                 return channel;
-            return (IChannel)Activator.CreateInstance(typeof(ChannelView<>).MakeGenericType(type), channel);
+            return (IChannel)Activator.CreateInstance(typeof(ChannelView<>).MakeGenericType(type), channel)!;
         }
 
 

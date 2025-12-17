@@ -273,7 +273,7 @@ namespace VL.Core
         /// <remarks>This event is triggered after a plugin has been loaded into the application. 
         /// Subscribers can use this event to perform actions such as initializing plugin-specific settings or updating
         /// the user interface to reflect the newly available plugin functionality.</remarks>
-        public event EventHandler<PluginLoadedEventArgs> PluginLoaded;
+        public event EventHandler<PluginLoadedEventArgs>? PluginLoaded;
 
         /// <summary>
         /// Called when a plugin got loaded. Raises the <see cref="PluginLoaded"/> event.

@@ -9,7 +9,15 @@ namespace VL.Core.EditorAttributes
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public class DefaultAttribute : Attribute
     {
+        /// <summary>
+        /// Computes an encoded value suitable for use with <see cref="DefaultAttribute"/>.
+        /// Attempts to encode the value in a simple string format for primitive types (int, float, vectors, etc.),
+        /// or falls back to full XML serialization for complex types.
+        /// </summary>
+        /// <param name="value">The value to encode.</param>
+        /// <param name="nodeContext">The node context used for serialization. If null, a default context is created using the current or global AppHost.</param>
         /// <param name="typeHint">Feeding a typeHint may abbreviate the serialization. Only feed a typeHint if you know that the type is known on deserialization.</param>
+        /// <returns>A string representation of the value, either in simple format or as an XML string.</returns>
         public static string ComputeEncodedValue(object value, NodeContext nodeContext = default, Type typeHint = default)
         {
             nodeContext = nodeContext ?? NodeContext.Create(AppHost.CurrentOrGlobal);
