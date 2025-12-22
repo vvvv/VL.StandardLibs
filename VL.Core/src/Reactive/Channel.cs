@@ -101,7 +101,7 @@ namespace VL.Lib.Reactive
         /// </summary>
         bool HasBeenRequested { get; }
 
-        internal IChannel<Spread<Attribute>> AttributesChannel { get; }
+        IChannel<Spread<Attribute>> AttributesChannel { get; }
     }
 
     [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
