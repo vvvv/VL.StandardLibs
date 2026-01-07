@@ -43,7 +43,21 @@ namespace VL.Core.Logging
 
         public string Message => LogEntry.Message;
 
-        public string? Exception => LogEntry.Exception?.ToString();
+        public string? Exception
+        {
+            get
+            {
+                try
+                {
+                    return LogEntry.Exception?.ToString();
+                }
+                catch (Exception e)
+                {
+
+                    return $"Unable to show exception information: {e}";
+                }
+            }
+        }
 
         public DateTime Timestamp { get; private set; }
 
