@@ -101,7 +101,7 @@ namespace VL.Lib.Reactive
         /// </summary>
         bool HasBeenRequested { get; }
 
-        IChannel<Spread<Attribute>> AttributesChannel { get; }
+        internal IChannel<Spread<Attribute>> AttributesChannel { get; }
     }
 
     [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
@@ -115,7 +115,7 @@ namespace VL.Lib.Reactive
         Func<T?, Optional<T?>>? Validator { set; }
     }
 
-    internal abstract class C<T> : IChannel<T>, IMonadicValue<T>
+    public abstract class C<T> : IChannel<T>, IMonadicValue<T>
     {
         protected readonly Subject<T?> subject = new();
         protected int lockCount = 0;
@@ -346,7 +346,7 @@ namespace VL.Lib.Reactive
         }
     }
 
-    internal class Channel<T> : C<T>, IChannel<object>, IInternalChannel
+    public class Channel<T> : C<T>, IChannel<object>, IInternalChannel
     {
         public Channel()
         {
