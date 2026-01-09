@@ -17,9 +17,17 @@ namespace VL.Stride.Rendering
     {
         IReadOnlyList<IGraphicsRendererBase> upstreamRenderers = Spread<IGraphicsRendererBase>.Empty;
 
-        public void Update(IReadOnlyList<IGraphicsRendererBase> input)
+        public void Update(IReadOnlyList<IGraphicsRendererBase> input, bool Enabled = true)
         {
-            upstreamRenderers = input;
+            if (Enabled)
+            {
+                upstreamRenderers = input;
+            }
+            else
+            {
+                upstreamRenderers = null;
+            }
+
         }
 
         void IGraphicsRendererBase.Draw(RenderDrawContext context)
