@@ -1223,6 +1223,26 @@ namespace VL.Core
                 return value;
             }
 
+            if (instance is IVLObject vlObj)
+            {
+                var match = FPropertyRegex.Match(path);
+                if (match.Success)
+                {
+                    var property = match.Groups[1].Value;
+                    var rest = match.Groups[2].Value;
+                    if (vlObj.TryGetValue(property, default(object), out var o, out pathExists))
+                    {
+                        o = o.WithValueByPath(rest, value, out pathExists);
+                        return vlObj.WithValue(property, o);
+                    }
+                    if (pathExists && rest == "")
+                    {
+                        return vlObj.WithValue(property, value);
+                    }
+                }
+                return instance;
+            }
+
             if (instance is ISpread spread)
             {
                 var match = FValueIndexerRegex.Match(path);
