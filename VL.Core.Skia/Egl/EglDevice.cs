@@ -141,6 +141,8 @@ namespace VL.Skia.Egl
         {
             get
             {
+                if (IsClosed)
+                    return true;
                 if (OperatingSystem.IsWindowsVersionAtLeast(6, 1) && !d3d11Device->GetDeviceRemovedReason().Succeeded)
                     return true;
                 return false;
