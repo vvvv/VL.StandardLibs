@@ -1,0 +1,39 @@
+[Summary("")]
+shader ConstantTextured_DrawFX : VS_PS_Base, ColorBase, ShaderUtils, Texturing, ComputeColor, TransformLib
+{
+    stage SamplerState SamplerIn;
+    
+    [Color]
+    compose ComputeColor ColorIn = float4(1, 1, 1, 1);
+
+    stage float4x4 TextureTransform;
+    stage float2 TextureAspectRatio = float2(1.0f, 1.0f);
+
+    override stage void VSMain()
+    {
+        streams.ShadingPosition = mul(streams.Position, WorldViewProjection);
+    }
+
+    //texture transform function
+    float2 TransformUVWithAspectRatio(float2 AspectRatio, float4x4 UVTransform)
+    {
+        float2 uv = streams.TexCoord;
+        uv *= AspectRatio * 2.0f;
+        uv -= AspectRatio;
+
+        uv = mul(float4(uv, 0.0f, 1.0f), UVTransform).xy;
+
+        uv += AspectRatio;
+        uv /= AspectRatio * 2.0f;
+        //shell we invert y?
+
+        return uv;
+    }
+
+    override stage void PSMain() 
+    {
+        float2 uv = TransformUVWithAspectRatio(TextureAspectRatio, TextureTransform);
+
+        streams.ColorTarget = Texture0.Sample(SamplerIn, uv) * ColorIn.Compute();
+    }
+};
