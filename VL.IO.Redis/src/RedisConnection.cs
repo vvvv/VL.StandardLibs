@@ -33,6 +33,7 @@ namespace VL.IO.Redis
 
         private void EnableClientSideTracking()
         {
+            // https://medium.com/@darali7575/understanding-client-tracking-in-redis-43215e1495c1
             // HACK: It seems the StackExchange API is a little too high level here / doesn't support this yet properly:
             // 1) CLIENT TRACKING ON without the REDIRECT option requires RESP3, but StackExchange will crash in that case not being able to handle the incoming server message
             // 2) CLIENT TRACKING ON with the REDIRECT option only seems to work in RESP2, but in RESP2 we need to use a 2nd connection for Pub/Sub.
