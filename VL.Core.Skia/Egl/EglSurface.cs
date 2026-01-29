@@ -11,6 +11,9 @@ namespace VL.Skia.Egl
         public EglSurface(EglDisplay display, IntPtr nativePointer) : base(nativePointer)
         {
             this.display = display;
+
+            bool success = false;
+            display.DangerousAddRef(ref success);
         }
 
         public Int2 Size
@@ -18,15 +21,22 @@ namespace VL.Skia.Egl
             get
             {
                 Int2 size;
-                eglQuerySurface(display, NativePointer, EGL_WIDTH, out size.X);
-                eglQuerySurface(display, NativePointer, EGL_HEIGHT, out size.Y);
+                eglQuerySurface(display.NativePointer, NativePointer, EGL_WIDTH, out size.X);
+                eglQuerySurface(display.NativePointer, NativePointer, EGL_HEIGHT, out size.Y);
                 return size;
             }
         }
 
         protected override bool ReleaseHandle()
         {
-            return eglDestroySurface(display, handle);
+            try
+            {
+                return eglDestroySurface(display, handle);
+            }
+            finally
+            {
+                display.DangerousRelease();
+            }
         }
     }
 }
