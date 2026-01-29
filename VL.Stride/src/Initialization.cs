@@ -34,6 +34,8 @@ namespace VL.Stride.Lib
 
         public Initialization()
         {
+            UseSDL = Array.Exists(Environment.GetCommandLineArgs(), argument => argument == "--sdl");
+
             if (UseSDL)
             {
                 // Use .NET standard native library loading mechanism (before Silk.NET or Stride try their custom ones which don't work for us)
