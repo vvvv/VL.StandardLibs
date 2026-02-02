@@ -27,6 +27,8 @@ namespace VL.Stride.Games
         internal static Action<GameWindow, int> SetTitleBarInteractionWidth;
         internal static Action<GameWindow> BringToFront;
         internal static Action<InputManager, GameWindow, IInputSource> FixKeyboardDevice;
+        internal static Func<GameWindow, Int2> GetWindowPositionInScreenCoordinates;
+
         public static Func<Vector2> GetCursorPos;
 
         public static GameContext CreateGameContext(NodeContext nodeContext, IChannel<bool> alwaysOnTop, IChannel<bool> extendIntoTitleBar, AppContextType appContextType, int requestedWidth = 0, int requestedHeight = 0, bool isUserManagingRun = false)

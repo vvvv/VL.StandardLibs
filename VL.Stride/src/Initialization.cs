@@ -80,6 +80,15 @@ namespace VL.Stride.Lib
                 var p = System.Windows.Forms.Cursor.Position;
                 return new Vector2(p.X, p.Y);
             };
+            VLGame.GetWindowPositionInScreenCoordinates = (w) =>
+            {
+                if (w.NativeWindow.NativeWindow is GameForm form)
+                {
+                    var screenRect = form.RectangleToScreen(form.ClientRectangle);
+                    return new Int2(screenRect.X, screenRect.Y);
+                }
+                return w.Position;
+            };
         }
 
         // Remove once tested enough
