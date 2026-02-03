@@ -139,6 +139,16 @@ namespace VL.Core
         public virtual bool IsUser => false;
 
         /// <summary>
+        /// Whether or not this is a boygroup server.
+        /// </summary>
+        public virtual bool IsServer => false;
+
+        /// <summary>
+        /// Whether or not this is a boygroup client (for example was started with vvvv.exe --server http://localhost:5000).
+        /// </summary>
+        public virtual bool IsClient => false;
+
+        /// <summary>
         /// The service registry of the app.
         /// </summary>
         public abstract ServiceRegistry Services { get; }
