@@ -1,7 +1,7 @@
 ﻿shader ConstantColor_DrawFX : VS_PS_Base, ColorBase, ShaderUtils
 {
     [Color]
-    stage float4 ColorInput = float4(1, 1, 1, 1);
+    compose ComputeColor ColorInput = float4(1, 1, 1, 1);
 
     override stage void VSMain()
     {
@@ -10,6 +10,6 @@
 
     override stage void PSMain() 
     {
-        streams.ColorTarget = ColorInput;
+        streams.ColorTarget = ColorInput.Compute();
     }
 };

@@ -1,7 +1,18 @@
-﻿shader ConstantColorTextured_DrawFX : ConstantColor_DrawFX, Texturing
+﻿shader ConstantColorTextured_DrawFX : ConstantColor_DrawFX, TextureUtils
 {
+    stage SamplerState SamplerIn;
+
+    stage float4x4 TextureTransform;
+    stage float2 TextureAspectRatio = float2(1.0f, 1.0f);
+    
+    override stage void VSMain() 
+    {
+        base.VSMain();
+        streams.TexCoord = TransformUVWithAspectRatio(streams.TexCoord.xy, TextureAspectRatio, TextureTransform);
+    }
+    
     override stage void PSMain() 
     {
-        streams.ColorTarget = Texture0.Sample(LinearSampler, streams.TexCoord) * ColorInput;
+        streams.ColorTarget = Texture0.Sample(SamplerIn, streams.TexCoord) * ColorInput.Compute();
     }
 };
