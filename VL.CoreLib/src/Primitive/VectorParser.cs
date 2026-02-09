@@ -125,6 +125,9 @@ namespace VL.Lib.Primitive
         {
             result = Vector2.Zero;
 
+            if (value is null)
+                return false;
+
             Span<Range> ranges = stackalloc Range[2];
             if (!ExtractComponents(value.AsSpan(), ranges, 2, out int count))
                 return false;
@@ -144,6 +147,9 @@ namespace VL.Lib.Primitive
         public static bool TryParseVector3(string value, NumberStyles style, IFormatProvider format, out Vector3 result)
         {
             result = Vector3.Zero;
+
+            if (value is null)
+                return false;
 
             Span<Range> ranges = stackalloc Range[3];
             if (!ExtractComponents(value.AsSpan(), ranges, 3, out int count))
@@ -167,6 +173,9 @@ namespace VL.Lib.Primitive
         public static bool TryParseVector4(string value, NumberStyles style, IFormatProvider format, out Vector4 result)
         {
             result = Vector4.Zero;
+
+            if (value is null)
+                return false;
 
             Span<Range> ranges = stackalloc Range[4];
             if (!ExtractComponents(value.AsSpan(), ranges, 4, out int count))
@@ -194,6 +203,9 @@ namespace VL.Lib.Primitive
         {
             result = Int2.Zero;
 
+            if (value is null)
+                return false;
+
             Span<Range> ranges = stackalloc Range[2];
             if (!ExtractComponents(value.AsSpan(), ranges, 2, out int count))
                 return false;
@@ -213,6 +225,9 @@ namespace VL.Lib.Primitive
         public static bool TryParseInt3(string value, NumberStyles style, IFormatProvider format, out Int3 result)
         {
             result = Int3.Zero;
+
+            if (value is null)
+                return false;
 
             Span<Range> ranges = stackalloc Range[3];
             if (!ExtractComponents(value.AsSpan(), ranges, 3, out int count))
@@ -236,6 +251,9 @@ namespace VL.Lib.Primitive
         public static bool TryParseInt4(string value, NumberStyles style, IFormatProvider format, out Int4 result)
         {
             result = Int4.Zero;
+
+            if (value is null)
+                return false;
 
             Span<Range> ranges = stackalloc Range[4];
             if (!ExtractComponents(value.AsSpan(), ranges, 4, out int count))
