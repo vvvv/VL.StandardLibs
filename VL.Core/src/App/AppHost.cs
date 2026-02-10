@@ -178,6 +178,8 @@ namespace VL.Core
         /// </summary>
         public abstract TaskScheduler MainLoopTaskScheduler { get; }
 
+        public VirtualFileSystem FileSystem => VirtualFileSystem.Default;
+
         /// <summary>
         /// The VL factory of the app. This property exists only for compatibility reasons.
         /// </summary>
