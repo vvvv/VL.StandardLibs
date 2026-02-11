@@ -17,6 +17,7 @@ namespace VL.Lib.IO
     [ProcessNode(Name = "File")]
     public class FileNode
     {
+        private readonly NodeContext FNodeContext;
         private IResourceProvider<Stream> FStreamProvider;
         private Path FFilePath;
         private FileMode FFileMode;
@@ -25,6 +26,7 @@ namespace VL.Lib.IO
 
         public FileNode(NodeContext nodeContext)
         {
+            FNodeContext = nodeContext;
         }
 
         public IResourceProvider<Stream> Update(Path filePath, FileMode fileMode = FileMode.OpenOrCreate, FileAccess fileAccess = FileAccess.Read, FileShare fileShare = FileShare.Read)
@@ -39,13 +41,14 @@ namespace VL.Lib.IO
 
                 FStreamProvider = ResourceProvider.New(() => 
                 {
+                    var fileSystem = FNodeContext.AppHost.FileSystem;
                     var createsFile = CreatesFile(fileMode);
                     if (createsFile)
                     {
                         var directory = System.IO.Path.GetDirectoryName(filePath);
-                        Directory.CreateDirectory(directory);
+                        fileSystem.CreateDirectory(directory);
                     }
-                    return (filePath != Path.Default) ? new FileStream(filePath, fileMode, fileAccess, fileShare, StreamUtils.SmallBufferSize, true) : Stream.Null;
+                    return (filePath != Path.Default) ? fileSystem.Open(filePath, fileMode, fileAccess, fileShare) : Stream.Null;
                 });
             }
             return FStreamProvider;
