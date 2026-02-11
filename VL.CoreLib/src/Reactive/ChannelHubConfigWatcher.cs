@@ -10,6 +10,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using VL.Lib.Collections;
@@ -22,7 +23,7 @@ namespace VL.Core.Reactive
     {
         readonly string filePath;
         readonly AppHost appHost;
-        readonly FileSystemWatcher watcher;
+        readonly IDisposable subscription;
 
         public Channel<PublicChannelDescription[]> Descriptions;
 
@@ -30,15 +31,12 @@ namespace VL.Core.Reactive
         {
             this.appHost = appHost;
             this.filePath = filePath;
-            watcher = new FileSystemWatcher();
-            watcher.Path = Path.GetDirectoryName(filePath);
-            watcher.Filter = Path.GetFileName(filePath);
-            watcher.EnableRaisingEvents = true;
 
             Descriptions = new Channel<PublicChannelDescription[]>();
             PushChannelBuildDescriptions();
 
-            Observable.FromEventPattern<FileSystemEventArgs>(watcher, "Changed", scheduler: Scheduler.CurrentThread)
+            subscription = appHost.FileSystem.Watch(Path.GetDirectoryName(filePath), Path.GetFileName(filePath))
+                .ObserveOn(Scheduler.CurrentThread)
                 .Where(_ => DateTime.UtcNow > lastSave + TimeSpan.FromSeconds(10))
                 .Do(_ => appHost.DefaultLogger.LogDebug($"{filePath} changed"))
                 .Throttle(TimeSpan.FromSeconds(1))
@@ -63,14 +61,15 @@ namespace VL.Core.Reactive
 
         IEnumerable<PublicChannelDescription> GetChannelBuildDescriptions()
         {
-            if (!File.Exists(filePath))
+            using var stream = Task.Run(() => appHost.FileSystem.OpenReadOrNullAsync(filePath)).Result;
+            if (stream is null)
                 yield break;
 
             // Try to read as XML first
             List<PublicChannelDescription> result = null;
             try
             {
-                var doc = XDocument.Load(filePath);
+                var doc = XDocument.Load(stream);
                 var channels = doc.Root?.Elements("Channel");
                 if (channels != null)
                 {
@@ -97,18 +96,21 @@ namespace VL.Core.Reactive
             }
 
             // Legacy: read as text file (Name:TypeName per line)
-            var lines = File.ReadLines(filePath);
-            foreach (var l in lines)
+            using var reader = new StreamReader(stream, leaveOpen: true /* stream already in using block */);
+            while (!reader.EndOfStream)
             {
-                var _ = l.Split(':');
-                if (_.Length >= 2)
-                    yield return new PublicChannelDescription(Name: _[0], _[1]);
+                var line = reader.ReadLine();
+                if (line == null)
+                    continue;
+                var parts = line.Split(':');
+                if (parts.Length >= 2)
+                    yield return new PublicChannelDescription(Name: parts[0], TypeName: parts[1]);
             }
         }
 
         public void Dispose()
         {
-            watcher.Dispose();
+            subscription.Dispose();
             allwatchers.TryRemove(filePath, out var _);
         }
 
@@ -121,7 +123,7 @@ namespace VL.Core.Reactive
 
         internal static string GetConfigFilePath(string p) => Path.Combine(p, "GlobalChannels.txt");
 
-        internal static string GetConfigFilePath(AppHost app) => Path.Combine(app.AppBasePath, app.AppName + ".pc");
+        internal static string GetConfigFilePath(AppHost app) => Path.Combine(app.AppBasePath_CanBeRemote, app.AppName + ".pc");
 
         internal static ChannelHubConfigWatcher FromApplicationBasePath(AppHost appHost)
         {
@@ -131,6 +133,7 @@ namespace VL.Core.Reactive
 
         DateTime lastSave = DateTime.MinValue;
 
+        // Only called by server, no need for virtual file system for now
         public void Save(IEnumerable<PublicChannelDescription> descriptions)
         {
             if (descriptions.SequenceEqual(Descriptions.Value))
