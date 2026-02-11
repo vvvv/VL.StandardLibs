@@ -2,52 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace VL.Core;
-
-// TODO: Move me to VL.Core once satisified
-public interface IFileSystem
-{
-    ValueTask<bool> FileExistsAsync(string filePath);
-    ValueTask<Stream> OpenReadAsync(string filePath);
-    ValueTask<Stream> OpenWriteAsync(string filePath);
-    IAsyncEnumerable<string> EnumerateFilesAsync(string directory, string pattern, SearchOption searchOption);
-    IObservable<string> Watch(string directory, string filter = "*.*", bool includeSubdirectories = false);
-}
-
-sealed class LocalFileSystem : IFileSystem
-{
-    public static readonly LocalFileSystem Instance = new LocalFileSystem();
-
-    private LocalFileSystem() { }
-
-    public string GetLocalPath(string filePath) => filePath;
-    public ValueTask<bool> FileExistsAsync(string filePath) => ValueTask.FromResult(File.Exists(filePath));
-    public ValueTask<Stream> OpenReadAsync(string filePath) => ValueTask.FromResult<Stream>(File.OpenRead(filePath));
-    public ValueTask<Stream> OpenWriteAsync(string filePath)
-    {
-        if (Path.GetDirectoryName(filePath) is { } dir)
-            Directory.CreateDirectory(dir);
-        return ValueTask.FromResult<Stream>(File.Open(filePath, FileMode.Create, FileAccess.Write));
-    }
-    public async IAsyncEnumerable<string> EnumerateFilesAsync(string directory, string searchPattern, SearchOption searchOption)
-    {
-        foreach (var filePath in Directory.EnumerateFiles(directory, searchPattern, searchOption))
-        {
-            yield return filePath;
-        }
-    }
-
-    public IObservable<string> Watch(string directory, string filter, bool includeSubdirectories)
-    {
-        return FileSystemUtils.WatchDir(directory, filter, includeSubdirectories)
-            .Select(args => args.FullPath);
-    }
-}
 
 public sealed class VirtualFileSystem : IFileSystem
 {
@@ -59,11 +18,9 @@ public sealed class VirtualFileSystem : IFileSystem
         public string ToLocalPath(string filePath) => Path.Combine(LocalBasePath, ToFileSystem(filePath));
     }
 
-    public static VirtualFileSystem Default { get; } = new VirtualFileSystem();
-
     private List<FileSystemEntry> fileSystems = new List<FileSystemEntry>();
 
-    private VirtualFileSystem() 
+    public VirtualFileSystem()
     {
         fileSystems.Add(new FileSystemEntry(string.Empty, string.Empty, LocalFileSystem.Instance));
     }
@@ -109,25 +66,25 @@ public sealed class VirtualFileSystem : IFileSystem
         return entry.FileSystem.FileExistsAsync(fileSystemPath);
     }
 
-    public ValueTask<Stream> OpenReadAsync(string filePath)
+    public ValueTask<bool> DirectoryExistsAsync(string directoryPath)
+    {
+        ref var entry = ref GetFileSystemEntry(directoryPath);
+        var fileSystemDirectory = entry.ToFileSystem(directoryPath);
+        return entry.FileSystem.DirectoryExistsAsync(fileSystemDirectory);
+    }
+
+    public ValueTask<Stream> OpenAsync(string filePath, FileStreamOptions options)
     {
         ref var entry = ref GetFileSystemEntry(filePath);
         var fileSystemPath = entry.ToFileSystem(filePath);
-        return entry.FileSystem.OpenReadAsync(fileSystemPath);
+        return entry.FileSystem.OpenAsync(fileSystemPath, options);
     }
 
-    public ValueTask<Stream> OpenWriteAsync(string filePath)
-    {
-        ref var entry = ref GetFileSystemEntry(filePath);
-        var fileSystemPath = entry.ToFileSystem(filePath);
-        return entry.FileSystem.OpenWriteAsync(fileSystemPath);
-    }
-
-    public async IAsyncEnumerable<string> EnumerateFilesAsync(string directory, string pattern, SearchOption searchOption)
+    public async IAsyncEnumerable<string> EnumerateFilesAsync(string directory, string pattern, EnumerationOptions options)
     {
         var entry = GetFileSystemEntry(directory);
         var fileSystemDirectory = entry.ToFileSystem(directory);
-        await foreach (var filePath in entry.FileSystem.EnumerateFilesAsync(fileSystemDirectory, pattern, searchOption))
+        await foreach (var filePath in entry.FileSystem.EnumerateFilesAsync(fileSystemDirectory, pattern, options))
         {
             yield return entry.FromFileSystem(filePath);
         }
@@ -140,19 +97,18 @@ public sealed class VirtualFileSystem : IFileSystem
         return entry.FileSystem.Watch(fileSystemDirectory, filter, includeSubdirectories)
             .Select(file => entry.FromFileSystem(file));
     }
-}
 
-public static class FileSystemExtensions
-{
-    public static async Task<Stream?> OpenReadOrNullAsync(this IFileSystem fileSystem, string filePath)
+    public ValueTask<string> CreateDirectoryAsync(string directoryPath)
     {
-        try
-        {
-            return await fileSystem.OpenReadAsync(filePath);
-        }
-        catch
-        {
-            return null;
-        }
+        var entry = GetFileSystemEntry(directoryPath);
+        var fileSystemDirectory = entry.ToFileSystem(directoryPath);
+        return entry.FileSystem.CreateDirectoryAsync(fileSystemDirectory);
+    }
+
+    public ValueTask DeleteFileAsync(string filePath)
+    {
+        var entry = GetFileSystemEntry(filePath);
+        var fileSystemPath = entry.ToFileSystem(filePath);
+        return entry.FileSystem.DeleteFileAsync(fileSystemPath);
     }
 }
