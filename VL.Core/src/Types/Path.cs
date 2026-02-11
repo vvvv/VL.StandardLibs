@@ -56,6 +56,7 @@ namespace VL.Lib.IO
         public static explicit operator Path(string s) => s != null ? new Path(s) : null;
 
         internal FileSystemInfo Info => _info ??= GetInfo();
+        private IFileSystem FileSystem => AppHost.IsAnyCurrent() ? AppHost.Current.FileSystem : LocalFileSystem.Instance;
 
         FileSystemInfo GetInfo()
         {
@@ -145,9 +146,9 @@ namespace VL.Lib.IO
         /// </summary>
         public bool Exists => FileExists || DirectoryExists;
 
-        public bool FileExists => File.Exists(_path);
+        public bool FileExists => FileSystem.FileExists(_path);
 
-        public bool DirectoryExists => Directory.Exists(_path);
+        public bool DirectoryExists => FileSystem.DirectoryExists(_path);
 
         /// <summary>
         /// Updates all properties of the path
@@ -214,9 +215,8 @@ namespace VL.Lib.IO
         public Spread<Path> GetFiles(string searchPattern = "*.*", bool includeSubdirectories = false, bool includeHidden = false)
         {
             if (DirectoryInfo != null)
-                return DirectoryInfo.EnumerateFiles(searchPattern, includeSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
-                    .Where(i => includeHidden || (!i.Attributes.HasFlag(FileAttributes.Hidden)))
-                    .Select(i => new Path(this, i))
+                return FileSystem.EnumerateFiles(DirectoryName, searchPattern, includeSubdirectories, includeHidden)
+                    .Select(i => new Path(this, new FileInfo(i)))
                     .ToSpread();
             return Spread<Path>.Empty;
         }
@@ -355,7 +355,7 @@ namespace VL.Lib.IO
         {
             try
             {
-                Directory.CreateDirectory(_path);
+                FileSystem.CreateDirectory(_path);
                 // Update the info to the newly created directory
                 _info = new DirectoryInfo(_path);
                 success = true;
@@ -462,7 +462,7 @@ namespace VL.Lib.IO
                 if (DirectoryInfo != null)
                     DirectoryInfo.Delete(true);
                 else
-                    Info.Delete();
+                    FileSystem.DeleteFile(_path);
                 return true;
             }
         }

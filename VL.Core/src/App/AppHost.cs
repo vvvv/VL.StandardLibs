@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using VL.Core;
 using LoggerFactory = VL.Core.Logging.LoggerFactory;
 
 namespace VL.Core
@@ -128,7 +129,7 @@ namespace VL.Core
         /// </summary>
         public virtual string AppBasePath => Path.GetDirectoryName(AppPath)!;
         // As long as we have code relying on local paths we need an extra property
-        internal virtual string AppBasePath_CanBeRemote => AppBasePath;
+        public virtual string AppBasePath_CanBeRemote => AppBasePath;
 
         /// <summary>
         /// Whether the app is exported and runs standalone as an executable.
@@ -180,7 +181,7 @@ namespace VL.Core
         /// </summary>
         public abstract TaskScheduler MainLoopTaskScheduler { get; }
 
-        public VirtualFileSystem FileSystem => VirtualFileSystem.Default;
+        public virtual IFileSystem FileSystem => LocalFileSystem.Instance;
 
         /// <summary>
         /// The VL factory of the app. This property exists only for compatibility reasons.
