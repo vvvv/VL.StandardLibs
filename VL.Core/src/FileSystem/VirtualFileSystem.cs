@@ -98,11 +98,12 @@ public sealed class VirtualFileSystem : IFileSystem
             .Select(file => entry.FromFileSystem(file));
     }
 
-    public ValueTask<string> CreateDirectoryAsync(string directoryPath)
+    public async ValueTask<string> CreateDirectoryAsync(string directoryPath)
     {
         var entry = GetFileSystemEntry(directoryPath);
         var fileSystemDirectory = entry.ToFileSystem(directoryPath);
-        return entry.FileSystem.CreateDirectoryAsync(fileSystemDirectory);
+        var result = await entry.FileSystem.CreateDirectoryAsync(fileSystemDirectory);
+        return entry.FromFileSystem(result);
     }
 
     public ValueTask DeleteFileAsync(string filePath)
