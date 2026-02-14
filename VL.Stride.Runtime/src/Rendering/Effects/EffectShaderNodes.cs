@@ -236,6 +236,14 @@ namespace VL.Stride.Rendering
             if (isOptionalOverride.HasValue)
                 isOptional |= isOptionalOverride.Value;
 
+            // Ensure unknown shader types always get a valid default value for the pin
+            if (typeInPatch == typeof(IComputeNode) && runtimeDefaultValue == null && key.PropertyType == typeof(Stride.Shaders.ShaderSource))
+            {
+                // Use the variable name as the type name for the fallback
+                var typeName = key.GetVariableName();
+                runtimeDefaultValue = new VL.Stride.Rendering.CompositionInput.ShaderSourceComputeNode(new Stride.Shaders.ShaderClassSource(typeName));
+            }
+
             return new ParameterPinDescription(usedNames, key, count,
                 compilationDefaultValue: compilationDefaultValue,
                 name: name,
