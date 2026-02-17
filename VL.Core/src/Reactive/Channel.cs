@@ -291,12 +291,7 @@ namespace VL.Lib.Reactive
                 if (current != null)
                     return current;
 
-                var created = Channel.Create(Spread<Attribute>.Empty);
-                var original = Interlocked.CompareExchange(ref attributesChannel, created, null);
-
-                if (ReferenceEquals(attributesChannel, created))
-                    this.AddComponent(attributesChannel);
-
+                attributesChannel = this.EnsureSingleComponentOfType(() => Channel.Create(Spread<Attribute>.Empty));
                 return attributesChannel;
             }
         }
