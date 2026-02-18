@@ -1,4 +1,5 @@
-﻿using Stride.Games;
+﻿using Stride.Core.Mathematics;
+using Stride.Games;
 
 namespace VL.Stride.Games
 {
@@ -13,5 +14,10 @@ namespace VL.Stride.Games
         {
             VLGame.SetTitleBarInteractionWidth(window, value);
         }
+
+        /// <summary>
+        /// The WinForms based implementation differs from the SDL based one.
+        /// </summary>
+        public static Int2 GetWindowPositionInScreenCoordinates(this GameWindow window) => VLGame.GetWindowPositionInScreenCoordinates(window);
     }
 }

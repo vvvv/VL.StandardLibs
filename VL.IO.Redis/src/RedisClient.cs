@@ -371,16 +371,21 @@ namespace VL.IO.Redis
                 {
                     if (_lastTransaction.IsFaulted)
                     {
-                        _logger?.LogError(_lastTransaction.Exception, "Exception in last transaction.");
-                        _lastTransaction = null;
+                        _logger?.LogError(_lastTransaction.Exception, "Exception in Redis transaction");
                     }
-
                     _lastTransaction = null;
                 }
             }
 
             // Simulate new network sync event -> values are now written back to the channels
-            _networkSync.OnNext(default);
+            try
+            {
+                _networkSync.OnNext(default);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Exception during network sync");
+            }
         }
 
         internal void SendData(SubFrameMessage _)
@@ -393,17 +398,24 @@ namespace VL.IO.Redis
             if (_lastTransaction != null)
                 return;
 
-            // 1) Collect changes and if necessary build a new transaction
-            _transactionBuilder.Clear();
-            foreach (var (_, binding) in _bindings)
-                binding.BuildUp(_transactionBuilder);
+            try
+            {
+                // 1) Collect changes and if necessary build a new transaction
+                _transactionBuilder.Clear();
+                foreach (var (_, binding) in _bindings)
+                    binding.BuildUp(_transactionBuilder);
 
-            if (_transactionBuilder.IsEmpty)
-                return;
+                if (_transactionBuilder.IsEmpty)
+                    return;
 
-            // 2) Send the transaction
-            var database = connection.GetDatabase(Database);
-            _lastTransaction = _transactionBuilder.BuildAndExecuteAsync(database);
+                // 2) Send the transaction
+                var database = connection.GetDatabase(Database);
+                _lastTransaction = _transactionBuilder.BuildAndExecuteAsync(database);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Exception building or sending Redis transaction");
+            }
         }
     }
 }
