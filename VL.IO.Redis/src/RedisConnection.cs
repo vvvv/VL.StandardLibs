@@ -12,22 +12,54 @@ namespace VL.IO.Redis
     {
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly RedisClient _client;
+        private readonly ILogger _logger;
 
         public RedisConnection(AppHost appHost, ConnectionMultiplexer multiplexer, ILogger logger, RedisClient client)
         {
             _multiplexer = multiplexer;
             _client = client;
+            _logger = logger;
 
-            // This opens a Pub/Sub connection internally
-            var subscriber = multiplexer.GetSubscriber();
-            var _invalidations = subscriber.Subscribe(RedisChannel.Literal("__redis__:invalidate"));
-            _invalidations.OnMessage(client.OnInvalidationMessage);
+            // Subscribe to connection error events
+            _multiplexer.ConnectionFailed += OnConnectionFailed;
+            _multiplexer.ErrorMessage += OnErrorMessage;
+            _multiplexer.InternalError += OnInternalError;
 
-            EnableClientSideTracking();
+            try
+            {
+                // This opens a Pub/Sub connection internally
+                var subscriber = multiplexer.GetSubscriber();
+                var _invalidations = subscriber.Subscribe(RedisChannel.Literal("__redis__:invalidate"));
+                _invalidations.OnMessage(msg =>
+                {
+                    try
+                    {
+                        client.OnInvalidationMessage(msg);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error processing invalidation message");
+                    }
+                });
+
+                EnableClientSideTracking();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to initialize Redis subscription");
+            }
+
             _multiplexer.ConnectionRestored += (s, e) =>
             {
-                // Re-enable client side tracking
-                EnableClientSideTracking();
+                try
+                {
+                    // Re-enable client side tracking
+                    EnableClientSideTracking();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to re-enable client tracking after connection restored");
+                }
             };
         }
 
@@ -40,21 +72,53 @@ namespace VL.IO.Redis
             //    However getting the ID of that 2nd connection is not possible in StackExchange (https://stackoverflow.com/questions/66964604/how-do-i-get-the-client-id-for-the-isubscriber-connection)
             //    we need to ask the server (requires the AllowAdmin option) for the client list and then identify our pub/sub connection.
             // Hopefully the situation should improve once https://github.com/StackExchange/StackExchange.Redis/tree/server-cache-invalidation is merged back.
-            foreach (var s in _multiplexer.GetServers())
+            try
             {
-                if (!s.IsConnected)
-                    continue;
-
-                var pubSubClient = s.ClientList().FirstOrDefault(c => c.Name == _multiplexer.ClientName && c.ClientType == ClientType.PubSub);
-                if (pubSubClient != null)
+                foreach (var s in _multiplexer.GetServers())
                 {
-                    s.Execute("CLIENT", new object[] { "TRACKING", "ON", "REDIRECT", pubSubClient.Id.ToString(), "BCAST", "NOLOOP" });
+                    if (!s.IsConnected)
+                        continue;
+
+                    try
+                    {
+                        var pubSubClient = s.ClientList().FirstOrDefault(c => c.Name == _multiplexer.ClientName && c.ClientType == ClientType.PubSub);
+                        if (pubSubClient != null)
+                        {
+                            s.Execute("CLIENT", new object[] { "TRACKING", "ON", "REDIRECT", pubSubClient.Id.ToString(), "BCAST", "NOLOOP" });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to enable client tracking on server {EndPoint}", s.EndPoint);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to enable client-side tracking");
+            }
+        }
+
+        private void OnConnectionFailed(object? sender, ConnectionFailedEventArgs e)
+        {
+            _logger.LogError(e.Exception, "Redis connection failed: {FailureType} on {EndPoint}", e.FailureType, e.EndPoint);
+        }
+
+        private void OnErrorMessage(object? sender, RedisErrorEventArgs e)
+        {
+            _logger.LogError("Redis error message: {Message} on {EndPoint}", e.Message, e.EndPoint);
+        }
+
+        private void OnInternalError(object? sender, InternalErrorEventArgs e)
+        {
+            _logger.LogError(e.Exception, "Redis internal error: {Origin} on {EndPoint}", e.Origin, e.EndPoint);
         }
 
         public void Dispose()
         {
+            _multiplexer.ConnectionFailed -= OnConnectionFailed;
+            _multiplexer.ErrorMessage -= OnErrorMessage;
+            _multiplexer.InternalError -= OnInternalError;
             _multiplexer.Dispose();
         }
 
