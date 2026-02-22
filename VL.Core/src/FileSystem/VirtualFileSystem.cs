@@ -10,7 +10,7 @@ namespace VL.Core;
 
 public sealed class VirtualFileSystem : IFileSystem
 {
-    private record struct FileSystemEntry(string Prefix, string LocalBasePath, IFileSystem FileSystem)
+    private record struct FileSystemEntry(string Prefix, string PrefixWithoutSeparator, string LocalBasePath, IFileSystem FileSystem)
     {
         public bool IsLocal => FileSystem == LocalFileSystem.Instance;
         public string ToFileSystem(string filePath) => filePath.Substring(Prefix.Length);
@@ -22,7 +22,7 @@ public sealed class VirtualFileSystem : IFileSystem
 
     public VirtualFileSystem()
     {
-        fileSystems.Add(new FileSystemEntry(string.Empty, string.Empty, LocalFileSystem.Instance));
+        fileSystems.Add(new FileSystemEntry(string.Empty, string.Empty, string.Empty, LocalFileSystem.Instance));
     }
 
     public void RegisterFileSystem(string prefix, string localBasePath, IFileSystem fileSystem)
@@ -31,8 +31,10 @@ public sealed class VirtualFileSystem : IFileSystem
             throw new ArgumentException("Prefix cannot be null or empty.", nameof(prefix));
         if (string.IsNullOrEmpty(localBasePath))
             throw new ArgumentException("Local base path cannot be null or empty.", nameof(localBasePath));
+        if (!prefix.EndsWith(Path.DirectorySeparatorChar))
+            prefix += Path.DirectorySeparatorChar;
 
-        fileSystems.Add(new FileSystemEntry(prefix, localBasePath, fileSystem));
+        fileSystems.Add(new FileSystemEntry(prefix, prefix.TrimEnd(Path.DirectorySeparatorChar), localBasePath, fileSystem));
     }
 
     private ref FileSystemEntry GetFileSystemEntry(string path)
@@ -41,7 +43,7 @@ public sealed class VirtualFileSystem : IFileSystem
         for (int i = 1; i < fileSystems.Length; i++)
         {
             ref var entry = ref fileSystems[i];
-            if (path.StartsWith(entry.Prefix, StringComparison.OrdinalIgnoreCase))
+            if (path.StartsWith(entry.Prefix, StringComparison.OrdinalIgnoreCase) || path.Equals(entry.PrefixWithoutSeparator, StringComparison.OrdinalIgnoreCase))
                 return ref entry;
         }
         return ref fileSystems[0]; // Local file system is the default
