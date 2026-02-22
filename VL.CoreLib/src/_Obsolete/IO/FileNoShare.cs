@@ -11,7 +11,6 @@ namespace VL.Lib.IO.Obsolete
     /// </summary>
     public class ObsoleteFileNoSharing
     {
-        private readonly NodeContext FNodeContext;
         private IFrameClock FFrameClock;
         private IResourceProvider<Stream> FStreamProvider;
         private Path FFilePath;
@@ -19,9 +18,8 @@ namespace VL.Lib.IO.Obsolete
         private FileAccess FFileAccess;
         private FileShare FFileShare;
 
-        public ObsoleteFileNoSharing(NodeContext nodeContext, IFrameClock clock)
+        public ObsoleteFileNoSharing(IFrameClock clock)
         {
-            FNodeContext = nodeContext;
             FFrameClock = clock;
         }
 
@@ -35,7 +33,7 @@ namespace VL.Lib.IO.Obsolete
                 FFileAccess = fileAccess;
                 FFileShare = fileShare;
 
-                FStreamProvider = ResourceProvider.New(() => { return (filePath != Path.Default) ? FNodeContext.AppHost.FileSystem.Open(filePath, fileMode, fileAccess, fileShare) : Stream.Null; });
+                FStreamProvider = ResourceProvider.New(() => { return (filePath != Path.Default) ? new FileStream(filePath, fileMode, fileAccess, fileShare, StreamUtils.SmallBufferSize, true) : Stream.Null; });
             }
             return FStreamProvider;
         }
