@@ -40,7 +40,7 @@ namespace VL.Lib
                 // make sure all channels of config exist in app-channelhub.
                 var watcher = ChannelHubConfigWatcher.FromApplicationBasePath(appHost);
                 channelHub.MustHaveDescriptive = watcher.Descriptions;
-                if (!appHost.IsExported && !appHost.IsClient)
+                if (!appHost.IsExported)
                 {
                     channelHub.OnChannelsChanged
                     .Throttle(TimeSpan.FromMilliseconds(500))
