@@ -13,7 +13,16 @@ public sealed class VirtualFileSystem : IFileSystem
     private record struct FileSystemEntry(string Prefix, string PrefixWithoutSeparator, string LocalBasePath, IFileSystem FileSystem)
     {
         public bool IsLocal => FileSystem == LocalFileSystem.Instance;
-        public string ToFileSystem(string filePath) => filePath.Substring(Prefix.Length);
+
+        public string ToFileSystem(string filePath)
+        {
+            // filePath may equal PrefixWithoutSeparator (e.g. "vfs" when Prefix is "vfs\"),
+            // which is shorter than Prefix, so guard against a negative substring offset.
+            if (filePath.Length < Prefix.Length)
+                return string.Empty;
+            return filePath.Substring(Prefix.Length);
+        }
+
         public string FromFileSystem(string filePath) => Prefix + filePath;
         public string ToLocalPath(string filePath) => Path.Combine(LocalBasePath, ToFileSystem(filePath));
     }
