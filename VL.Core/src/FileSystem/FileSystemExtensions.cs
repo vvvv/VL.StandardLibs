@@ -21,6 +21,13 @@ public static class FileSystemExtensions
         Share = FileShare.None
     };
 
+    private static readonly FileStreamOptions s_readWriteOptions = new FileStreamOptions()
+    {
+        Mode = FileMode.Create,
+        Access = FileAccess.ReadWrite,
+        Share = FileShare.None
+    };
+
     public static IFileSystem AsReadOnly(this IFileSystem fileSystem)
     {
         return new ReadOnlyFileSystem(fileSystem);
@@ -53,6 +60,13 @@ public static class FileSystemExtensions
         if (Path.GetDirectoryName(filePath) is { } directory)
             await fileSystem.CreateDirectoryAsync(directory);
         return await fileSystem.OpenAsync(filePath, s_writeOptions);
+    }
+
+    public static async ValueTask<Stream> OpenReadWriteAsync(this IFileSystem fileSystem, string filePath)
+    {
+        if (Path.GetDirectoryName(filePath) is { } directory)
+            await fileSystem.CreateDirectoryAsync(directory);
+        return await fileSystem.OpenAsync(filePath, s_readWriteOptions);
     }
 
     public static bool FileExists(this IFileSystem fileSystem, string filePath)
