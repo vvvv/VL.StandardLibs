@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="MbxxMvhsY4GL0IKpduvTst" LanguageVersion="2025.7.1-0025-g457c9ac45e" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="MbxxMvhsY4GL0IKpduvTst" LanguageVersion="2025.7.0" Version="0.128">
   <NugetDependency Id="Rq1hxtGm4prLgcbPnzpr1q" Location="VL.CoreLib" Version="2025.7.0" />
   <Patch Id="EflKC5Ddi2BN1mZWLv60qK">
     <Canvas Id="NBB3K3ClmntMsyQxzUGU5L" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -98,7 +98,7 @@
             <Pin Id="BgTSBCMSA2EOENPtU1CojS" Name="Enabled" Kind="InputPin" />
             <Pin Id="TEC2boM0rLXNDfs5MvFVPB" Name="Output" Kind="OutputPin" />
           </Node>
-          <Node Bounds="544,512,325,19" Id="HNMQXZ6ZlA7N69T6YIX9tD">
+          <Node Bounds="544,512,345,19" Id="HNMQXZ6ZlA7N69T6YIX9tD">
             <p:NodeReference LastCategoryFullName="Stride.Cameras" LastDependency="VL.Stride.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="WASDCamera" />
@@ -130,7 +130,8 @@
             <Pin Id="AhbIFGUmB8vL6LKV8kSk3s" Name="Camera Component" Kind="OutputPin" />
             <Pin Id="S2i7irGAp4aMOJe54SQ6gc" Name="Interest" Kind="OutputPin" />
             <Pin Id="TsfavvToTdjOgZpXn4BjBT" Name="Speed" Kind="InputPin" />
-            <Pin Id="ECVlzaEfh3nL216yHO2vbZ" Name="High Speed" Kind="InputPin" />
+            <Pin Id="FaAB6ZQOgu5PkBrxmd0b1F" Name="Speed Multiplier" Kind="InputPin" />
+            <Pin Id="AnTg91uBAkYN8aZrTU1rnR" Name="Speed" Kind="OutputPin" />
           </Node>
           <Node Bounds="366,439,165,19" Id="HVZLeyR1AVQOVHzjURWhnM">
             <p:NodeReference LastCategoryFullName="Stride.Models" LastDependency="VL.Stride.Engine.vl">
@@ -185,7 +186,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="So4ec8pMghWNMs24Qx43vd" Bounds="574,56,518,323" ShowValueBox="true" isIOBox="true" Value="Orbit: Drag with Right Mouse Button&#xD;&#xA;Move: Press to move&#xD;&#xA;  W - forward&#xD;&#xA;  S - backward&#xD;&#xA;  A - Left&#xD;&#xA;  D - Right&#xD;&#xA;  E - Up&#xD;&#xA;  Q - Down&#xD;&#xA;(Hold down SHIFT key for high movement speed)&#xD;&#xA;&#xD;&#xA;Track: Drag with Middle Mouse Button&#xD;&#xA;Zoom: Use Mouse Wheel&#xD;&#xA;&#xD;&#xA;Reset: Press &amp; Hold [R] on the Keyboard">
+          <Pad Id="So4ec8pMghWNMs24Qx43vd" Bounds="579,33,527,370" ShowValueBox="true" isIOBox="true" Value="Orbit: Drag with Right Mouse Button&#xD;&#xA;Move: Press to move&#xD;&#xA;  W - forward&#xD;&#xA;  S - backward&#xD;&#xA;  A - Left&#xD;&#xA;  D - Right&#xD;&#xA;  E - Up&#xD;&#xA;  Q - Down&#xD;&#xA;(Hold down SHIFT key for multiplying movement speed)&#xD;&#xA;(Adjust Movement Speed: Hold Right Mouse Button + Mouse Wheel)&#xD;&#xA;&#xD;&#xA;Track: Drag with Middle Mouse Button&#xD;&#xA;Dolly forward/backward: Use Mouse Wheel&#xD;&#xA;Adjust FoV: CTRL + Mouse Wheel&#xD;&#xA;&#xD;&#xA;Reset: Press &amp; Hold [R] on the Keyboard">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -209,17 +210,12 @@
             <Pin Id="Ripl8xHDY6pPtDjZJM2jaK" Name="Enabled" Kind="InputPin" />
             <Pin Id="DMTNEiuamu8MJk7QRwQCO2" Name="Output" Kind="OutputPin" />
           </Node>
-          <Pad Id="N4YhZKHYEMlMdcOF0Wjvn0" Comment="Initial Interest" Bounds="586,415,35,43" ShowValueBox="true" isIOBox="true" Value="0, 1, 3">
+          <Pad Id="N4YhZKHYEMlMdcOF0Wjvn0" Comment="Initial Interest" Bounds="588,415,35,43" ShowValueBox="true" isIOBox="true" Value="0, 1, 3">
             <p:TypeAnnotation LastCategoryFullName="3D" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Vector3" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="LIt2cgHE3VLNNCG7XTwOJi" Comment="Speed" Bounds="846,466,35,15" ShowValueBox="true" isIOBox="true" Value="0.1">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="Float32" />
-            </p:TypeAnnotation>
-          </Pad>
-          <Pad Id="ITEEHK6f5A8LALQOwM5fOe" Comment="High Speed" Bounds="866,486,35,15" ShowValueBox="true" isIOBox="true" Value="0.4">
+          <Pad Id="LIt2cgHE3VLNNCG7XTwOJi" Comment="Speed" Bounds="865,461,35,15" ShowValueBox="true" isIOBox="true" Value="0.1">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
@@ -276,6 +272,12 @@
             <Pin Id="Kvovley2Kf1NQM434pj7pH" Name="Back Buffer" Kind="OutputPin" IsHidden="true" />
             <Pin Id="QbzJ7VZGySiPB3bkazwm8X" Name="Depth Buffer" Kind="OutputPin" IsHidden="true" />
           </Node>
+          <Pad Id="Oc0nIF9Zn4yNhuZWJ5Ld7Z" Comment="Speed Multiplier" Bounds="886,490,35,15" ShowValueBox="true" isIOBox="true" Value="3">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="FBPlmfyptGuMriK0BkPrJg" Comment="Speed" Bounds="886,550,35,15" ShowValueBox="true" isIOBox="true" />
         </Canvas>
         <Patch Id="MlJDEAkmWSCNFrBbC1wcnK" Name="Create" />
         <Patch Id="FH0PMPoKAjCPHHW3NlP1Bj" Name="Update" />
@@ -293,9 +295,10 @@
         <Link Id="AnpMe1f3sjEOYfUq8Lq2dl" Ids="DMTNEiuamu8MJk7QRwQCO2,HigQ7qCGgu3N7fGXM84AS7" />
         <Link Id="Q3Itdatq57SPDRgOHlkYW5" Ids="N4YhZKHYEMlMdcOF0Wjvn0,KTvdaR3kAQ4NKXs3YieIkY" />
         <Link Id="RYOi7Hxgd9ZOS276mLiiZH" Ids="LIt2cgHE3VLNNCG7XTwOJi,TsfavvToTdjOgZpXn4BjBT" />
-        <Link Id="U5CMOQQrBVAPXeI4xa1F0d" Ids="ITEEHK6f5A8LALQOwM5fOe,ECVlzaEfh3nL216yHO2vbZ" />
         <Link Id="PbQ5NmoSUAPNLt7R634nQn" Ids="OrhiFun7LMjMlUx7Qm76yX,IR5VtjjH9pHMZOkXt6JSAi" />
         <Link Id="NupBvWBIGUMMlXF1OxwmXG" Ids="UBNKKtaEU0ALHrm7moEeq4,GxKY4nCXx99MKixjpC0RRf" />
+        <Link Id="NLnvxYXAUT1NPmCcnXAQb1" Ids="Oc0nIF9Zn4yNhuZWJ5Ld7Z,FaAB6ZQOgu5PkBrxmd0b1F" />
+        <Link Id="Uhp44GfPKSPNXvapffofZz" Ids="AnTg91uBAkYN8aZrTU1rnR,FBPlmfyptGuMriK0BkPrJg" />
       </Patch>
     </Node>
   </Patch>
