@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="VrvuzXRL7b0QEbFk5N89Mx" LanguageVersion="2025.7.1-0161-g176d67638c" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="VrvuzXRL7b0QEbFk5N89Mx" LanguageVersion="2025.7.1-0164-g42ad9555c3" Version="0.128">
   <NugetDependency Id="MKZvNI3vgxzPg0WjqA7etF" Location="VL.CoreLib" Version="2025.7.1-0132-g535d266972" />
   <Patch Id="E4PzYDczSPbMGifTCvKSrM">
     <Canvas Id="KEXM3CfHLs8NnBvMFzrfoa" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -127,7 +127,7 @@
                 <Pin Id="MT6eRYyjtRxNvUOfyyzci7" Name="Blend State" Kind="InputPin" />
                 <Pin Id="GNMVmlsSeiIMO1KTjKXFYv" Name="Rasterizer State" Kind="InputPin" />
                 <Pin Id="OtZQ81DYQNRO04FCMr0fbn" Name="Depth Stencil State" Kind="InputPin" />
-                <Pin Id="NyyUHf5FwJMOjkWbuwPFah" Name="Aspect Ratio Correction Mode" Kind="InputPin" DefaultValue="FitIn" />
+                <Pin Id="VSHVyxCGVyDPWH29RRMRga" Name="Size Mode" Kind="InputPin" />
                 <Pin Id="GbmUyMWo72pOZp9pTIw7HQ" Name="Anchor" Kind="InputPin" DefaultValue="Center" />
                 <Pin Id="HZkZ1KTtOHYQIGZrjCb2t2" Name="Enabled" Kind="InputPin" DefaultValue="True" />
                 <Pin Id="MXbH1KoVa8DOpjxKPaEGzk" Name="Output" Kind="OutputPin" />
@@ -270,16 +270,11 @@
             <Pin Id="AXOcAvbSUXhQAvBMth3d8A" Name="Blend State" Kind="InputPin" />
             <Pin Id="RKcxEi9GfgpMVtRNUUoowa" Name="Rasterizer State" Kind="InputPin" />
             <Pin Id="Cp6oeNVwMWZL26Oo3yuTlm" Name="Depth Stencil State" Kind="InputPin" />
-            <Pin Id="MJMxSj6KYD8NOlwCM4pGts" Name="Aspect Ratio Correction Mode" Kind="InputPin" DefaultValue="FitIn" />
+            <Pin Id="VJ7QtnPZpMzPrXOIvkBu1n" Name="Size Mode" Kind="InputPin" />
             <Pin Id="TYeTFEb01hfMbMB1Oq95C3" Name="Anchor" Kind="InputPin" />
             <Pin Id="UiSYifYfiCjM6hZVczC1i7" Name="Enabled" Kind="InputPin" DefaultValue="True" />
             <Pin Id="PsQ0TcOuVeBPAaLj0f9ixk" Name="Output" Kind="OutputPin" />
           </Node>
-          <Pad Id="DTvS6asdBuBP5CLxUjaX5J" Comment="Aspect Ratio Correction Mode" Bounds="539,321,91,15" ShowValueBox="true" isIOBox="true" Value="Size">
-            <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="SizeMode" />
-            </p:TypeAnnotation>
-          </Pad>
           <Node Bounds="937,360,67,19" Id="Tt5byfZoBHnM0uHvLLYIgg">
             <p:NodeReference LastCategoryFullName="Stride.Assets" LastDependency="VL.Stride.Games.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -297,11 +292,6 @@
           <Pad Id="KIP82dkmTdJLXQrBFluDEs" Comment="Url" Bounds="939,316,90,15" ShowValueBox="true" isIOBox="true" Value="Textures/earth">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="String" />
-            </p:TypeAnnotation>
-          </Pad>
-          <Pad Id="HHsqBdnqXdoMp3Fipg5QlT" Comment="Aspect Ratio Correction Mode" Bounds="1198,500,91,15" ShowValueBox="true" isIOBox="true" Value="FitIn">
-            <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="SizeMode" />
             </p:TypeAnnotation>
           </Pad>
           <Node Bounds="1108,430,185,19" Id="TBVJN0sjnHPOSq9rYxB3kF">
@@ -400,6 +390,16 @@
               <Choice Kind="TypeFlag" Name="RGBA" />
             </p:TypeAnnotation>
           </Pad>
+          <Pad Id="Pf2CzWehXdIPDiWixUlgtl" Comment="Size Mode" Bounds="539,300,91,15" ShowValueBox="true" isIOBox="true" Value="Size">
+            <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="SizeMode" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="Hr5uTjwxggoNuMFe4q0xms" Comment="Size Mode" Bounds="1198,480,91,15" ShowValueBox="true" isIOBox="true" Value="FitIn">
+            <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="SizeMode" />
+            </p:TypeAnnotation>
+          </Pad>
         </Canvas>
         <Patch Id="KN5J2u4tRCtLzfQhuIX2EF" Name="Create" />
         <Patch Id="PHt0bxfLUHQNJxVIXrGsrE" Name="Update" />
@@ -428,11 +428,9 @@
         <Link Id="I8UOtMOMueGNlzSc0qZrdD" Ids="A47HYbVwGd0OO6d2tDMl2L,BA55n1gabAMQQqPTJ7QW0X" />
         <Link Id="SR2scWhMTQmPsubFn0DgD7" Ids="ETvKJO6FvjeOrebb5ER2bn,SPteLKIEahCOELe5TZd30w" />
         <Link Id="BbxjkSiHPUJMh0LGDdzJa1" Ids="RbluIX5x6RbOkcTJF4bsW7,RTaJIYy5E7QNsZsUjmGF0J" />
-        <Link Id="RPhlYkT41xrObVri1yB4Bd" Ids="DTvS6asdBuBP5CLxUjaX5J,NyyUHf5FwJMOjkWbuwPFah" />
         <Link Id="Uigidu6mPMsOpicResA7n8" Ids="KIP82dkmTdJLXQrBFluDEs,SjQZOIITo43MvV22lLAhw8" />
         <Link Id="VmvKRbOGdqVPTmwP5b34xB" Ids="BeSW4EyDIfbLyNvUMMsAUu,NjysQ6TNG0RLbaMq6xwq6d" />
         <Link Id="HWFeRoOPCCcMzIt8vGNAha" Ids="IKnjiZGX6PuMc7mf7DoBln,PBFT5dj8czSMAhvONBSB4Z" />
-        <Link Id="Byiuyqy5zs7OT6s1kJX5ux" Ids="HHsqBdnqXdoMp3Fipg5QlT,MJMxSj6KYD8NOlwCM4pGts" />
         <Link Id="HsYnAqxTfInMkepEvGmDEW" Ids="ChomsCCxkWRM38gKh9UTx1,SJMmURS8tetNm8Upzwm6q2" />
         <Link Id="Mt1YQ8oPOOlPvNcx1VTUNm" Ids="ChomsCCxkWRM38gKh9UTx1,JppEH5qf3VRLRPLgNlNNbK" />
         <Link Id="HY3BndgZUM7NvmAYrqXrmL" Ids="Jjz4ecDMSuIMVgQ2RBNGSG,LShgGr4gnhLOsK80o1pcht" />
@@ -441,6 +439,8 @@
         <Link Id="HpzXAtQR1VMNJkqPBx2VZN" Ids="Ut163LHzLs2O8uhXUUCMPe,HU93swowNriN6jFHDcPs6C" />
         <Link Id="RfvOwjbrAFgMGGsjMlOziT" Ids="DdiTvbMim6ZPkRd1xva72W,OoZ4BHWXb5BPLEQSaQbr4K" />
         <Link Id="VhS6LxAPKMSONXeUgd9mA1" Ids="P6B2oypKTtbQK0VLYtYQPO,C40MIAJN7JHPoRfy7dzf6h" />
+        <Link Id="VXNxTdBoSW9NDXpSBvrwym" Ids="Pf2CzWehXdIPDiWixUlgtl,VSHVyxCGVyDPWH29RRMRga" />
+        <Link Id="Aqeabtj33HhO5mhRbFyNWe" Ids="Hr5uTjwxggoNuMFe4q0xms,VJ7QtnPZpMzPrXOIvkBu1n" />
       </Patch>
     </Node>
   </Patch>

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="PJ6mrClZIEiPhslryR6xFO" LanguageVersion="2025.7.1-0161-g176d67638c" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="PJ6mrClZIEiPhslryR6xFO" LanguageVersion="2025.7.1-0164-g42ad9555c3" Version="0.128">
   <NugetDependency Id="RJpvmziTItTLsEVBOxazzF" Location="VL.CoreLib" Version="2025.7.1-0132-g535d266972" />
   <Patch Id="JaK7k72LlnhOqHUh0FxSWO">
     <Canvas Id="IxBgL2NHCr5MO1MTCysEOe" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
@@ -40,7 +40,6 @@
             <Pin Id="OJy4unduGuILlvryjWDdBE" Name="Enabled" Kind="InputPin" DefaultValue="True" />
             <Pin Id="JVi4xg63pCGPTgKxEnzD7P" Name="FOV" Kind="OutputPin" />
             <Pin Id="IqkI6zK86CINEB58Aw1B87" Name="Distance" Kind="OutputPin" />
-            <Pin Id="Usw6K1R19hVNgpG4DzEA4b" Name="Renderer Hovered" Kind="OutputPin" />
             <Pin Id="B9dJvVpgcbYOClOGY4fyCk" Name="Idle" Kind="OutputPin" />
           </Node>
           <Node Bounds="244,770,145,19" Id="SfBv6aGKgUhMr6Cfwh0Ij1">
@@ -61,7 +60,6 @@
             <Pin Id="NqAf7IFKNDgO86Lspjan6O" Name="Projection" Kind="OutputPin" />
             <Pin Id="Oibn8Lq9V6MOq2z98XynSQ" Name="Zoom" Kind="OutputPin" />
             <Pin Id="F6cRv1ZkmO9Llvj3gSIuXI" Name="Idle" Kind="OutputPin" />
-            <Pin Id="RRQWYtTJsqlNmAUhzFZDOT" Name="Renderer Hovered" Kind="OutputPin" />
             <Pin Id="UQ0B60rfPcPOeUIoTG9twv" Name="Reset" Kind="InputPin" DefaultValue="False" />
             <Pin Id="ANLYEVRRtwILZJFhAkD5C0" Name="Enabled" Kind="InputPin" DefaultValue="True" />
           </Node>
@@ -145,6 +143,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="QuadRenderer" />
             </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="KHToQeEfK8SMEdsS2H61MC" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="VR1ER2pjt8SNIdHbUAfv0u" Name="Transformation" Kind="InputPin" />
             <Pin Id="VNt5TIelAaBMSFKf6lbqQP" Name="Texture" Kind="InputPin" />
@@ -155,7 +154,7 @@
             <Pin Id="N0YCLJvs9p5M72TrFMnLLQ" Name="Blend State" Kind="InputPin" />
             <Pin Id="BScU9HK1iSTNSLZxXI80hm" Name="Rasterizer State" Kind="InputPin" />
             <Pin Id="Ee1TTyzAwWCPw1NlMeIPNO" Name="Depth Stencil State" Kind="InputPin" />
-            <Pin Id="OuMcNFP0eHqNQdTpnE1fiS" Name="Aspect Ratio Correction Mode" Kind="InputPin" />
+            <Pin Id="Bf5FSNWWZT5L0vIrRtJqQw" Name="Size Mode" Kind="InputPin" />
             <Pin Id="SALTWlEft1ZLnkSYGGIgCi" Name="Anchor" Kind="InputPin" />
             <Pin Id="IeprDmvsEyQLv5k2anQ4Vm" Name="Enabled" Kind="InputPin" DefaultValue="True" />
           </Node>
@@ -212,11 +211,6 @@
               <Choice Kind="TypeFlag" Name="Vector2" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="RSkbMCWO4iAMZw86WnZSEK" Comment="Aspect Ratio Correction Mode" Bounds="458,460,91,15" ShowValueBox="true" isIOBox="true" Value="FitIn">
-            <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="SizeMode" />
-            </p:TypeAnnotation>
-          </Pad>
           <Pad Id="DC0YsFXdj5DPyozmiIvrVE" Comment="Anchor" Bounds="482,490,93,15" ShowValueBox="true" isIOBox="true" Value="Center">
             <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="RectangleAnchor" />
@@ -261,7 +255,7 @@
               <Choice Kind="TypeFlag" Name="RGBA" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="G1V7j4WNTDHP6DEWHwCGMu" Bounds="580,233,226,69" ShowValueBox="true" isIOBox="true" Value="A Quad renderer inclueds texture sampling with transformation and adjustable apect ratio correction.">
+          <Pad Id="G1V7j4WNTDHP6DEWHwCGMu" Bounds="580,233,226,78" ShowValueBox="true" isIOBox="true" Value="A Quad renderer includes texture sampling with transformation and different size modes to adjust to the textures actual aspect ratio.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -295,6 +289,11 @@
             </p:TypeAnnotation>
           </Pad>
           <ControlPoint Id="PUcfWU3cvCGLpFkc1M0IWf" Bounds="398,238" />
+          <Pad Id="HLMvD0cdCbXN6FL4EVBQm4" Comment="Size Mode" Bounds="458,451,91,15" ShowValueBox="true" isIOBox="true" Value="FitIn">
+            <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="SizeMode" />
+            </p:TypeAnnotation>
+          </Pad>
         </Canvas>
         <Patch Id="PeVRGr0OgJsOJGOF6DNV7w" Name="Create" />
         <Patch Id="NczRNdgx80mMTNOSym1Tcl" Name="Update" />
@@ -310,7 +309,6 @@
         <Link Id="VA2NEiEXa6JQUyLewUbucw" Ids="NSFKhIIcVEWNRuRSfIvZet,Vdx7KyuDNOsLFErBJqIr8u" />
         <Link Id="RyNuzVXEYGFMZAgPKTEQGz" Ids="BB0E1ZFZ1X4Opx2PJTKr2z,PUcfWU3cvCGLpFkc1M0IWf,BaurMmEfWQMP0JFninFvw1" />
         <Link Id="AbEwfbyZysdMqc8pcF2WnT" Ids="QpHZzOFfkYMQQjQ00cZhp5,KpX1i8amNEnMFAYiPpJNj7" />
-        <Link Id="PIyv34F1GFWQKFZPUxR6Il" Ids="RSkbMCWO4iAMZw86WnZSEK,OuMcNFP0eHqNQdTpnE1fiS" />
         <Link Id="Hh80sFhCXvtLCI1bYITHFL" Ids="DC0YsFXdj5DPyozmiIvrVE,SALTWlEft1ZLnkSYGGIgCi" />
         <Link Id="P99TbxSLbD2LQ8lt2mdezd" Ids="RK7OyVf5P51P0qcL3n8MI6,IeprDmvsEyQLv5k2anQ4Vm" />
         <Link Id="IYNpbUUBbHxMTOOZ75Ty9F" Ids="OLBBRGgIRVwPM3Xr2zYhLC,MJL396BSqPFO2HBfEf9ibh" />
@@ -326,6 +324,7 @@
         <Link Id="MXNJMJPGurALjO0kbc2K8v" Ids="P81u7TNG27gLUtvcLdn8B1,PnCuD938pxSMJdxMLaIYEU" />
         <Link Id="RV56Di4wFTXOSQ2NUrz3ZI" Ids="RsUQrMuZ4piPz4P0Z8FZdh,S3JbankBLX5OrxdQsH7HhF" />
         <Link Id="EMRVUo20JxKPrhDeTbTAy8" Ids="Uy4HczqCBCVQJzbreNIsO5,MzEPIja9XAWQaPA2lYgWgp" />
+        <Link Id="VQNXZXmQLuxLVabn6s8Me1" Ids="HLMvD0cdCbXN6FL4EVBQm4,Bf5FSNWWZT5L0vIrRtJqQw" />
       </Patch>
     </Node>
   </Patch>
