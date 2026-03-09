@@ -1,4 +1,4 @@
-﻿shader ConstantColorTextured_DrawFX : ConstantColor_DrawFX, TextureUtils
+﻿shader QuadRendererTextured_Advanced_DrawFX : QuadRenderer_Advanced_DrawFX, TextureUtils
 {
     stage SamplerState SamplerIn;
 
@@ -13,6 +13,6 @@
     
     override stage void PSMain() 
     {
-        streams.ColorTarget = Texture0.Sample(SamplerIn, streams.TexCoord) * ColorInput;
+        streams.ColorTarget = Texture0.Sample(SamplerIn, streams.TexCoord) * ColorInput.Compute();
     }
 };
