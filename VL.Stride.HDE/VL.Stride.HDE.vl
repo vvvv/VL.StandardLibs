@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="VDq9TVGGhYiNegoTop6Mqh" LanguageVersion="2025.7.0-0550-gf45bd9cc45" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="VDq9TVGGhYiNegoTop6Mqh" LanguageVersion="2025.7.2-0009-g2b948fac06" Version="0.128">
   <NugetDependency Id="S1C3z3GKjeENrXFbYsqDAm" Location="VL.CoreLib" Version="2021.4.6-0825-gfd5be72bbc" />
   <Patch Id="S9Y5tQRruhZQQEPhzndqij">
     <Canvas Id="S9Lazm76rLSPFTgbYk3zkc" DefaultCategory="Stride.HDE" CanvasType="FullCategory">
@@ -1913,12 +1913,13 @@
               <Pin Id="VkoLABr98ZfOeiA52XCELj" Name="Blend State" Kind="InputPin" />
               <Pin Id="MQrasx0CO92LgnGRzKw5ZJ" Name="Rasterizer State" Kind="InputPin" />
               <Pin Id="KKk6iNlVtteMYpWCIbRmtW" Name="Depth Stencil State" Kind="InputPin" />
-              <Pin Id="QzSE9z0X296LjUAbXWukGK" Name="Mesh" Kind="InputPin" />
-              <Pin Id="GCpxxSHuInvNev94I0QMCM" Name="Instance Count" Kind="InputPin" />
-              <Pin Id="Ge3a51IWruBLWOPkkNgf49" Name="Profiling Name" Kind="InputPin" />
               <Pin Id="Vj7rHlB8r5AMonvvZ3rC5l" Name="Topology" Kind="InputPin" />
               <Pin Id="GrSpFRjLhBNMn0yWax1kTY" Name="Draw Count" Kind="InputPin" DefaultValue="0" />
               <Pin Id="O9BIBiaVCmROFJ0mZUIYpY" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="QzSE9z0X296LjUAbXWukGK" Name="Mesh" Kind="InputPin" />
+              <Pin Id="GCpxxSHuInvNev94I0QMCM" Name="Instance Count" Kind="InputPin" />
+              <Pin Id="Ge3a51IWruBLWOPkkNgf49" Name="Profiling Name" Kind="InputPin" />
+              <Pin Id="Q0ciOHDh6CUPLP5aol3C0q" Name="Enabled" Kind="InputPin" />
             </Node>
             <Node Bounds="247,261,133,19" Id="GcC5xnecbxfPND7Kz77ZUl">
               <p:NodeReference LastCategoryFullName="Stride.Rendering.DrawShaders" LastDependency="VL.Stride.Rendering.EffectShaderNodes">
@@ -2003,6 +2004,7 @@
               <Pin Id="JSP1tRYl4apLWkA8ur8Q63" Name="Input" Kind="InputPin" />
               <Pin Id="LbRhEskoKAnNCTXsP81K1i" Name="Input 2" Kind="InputPin" />
               <Pin Id="De1xz9AXs8lPo12Yoiesvz" Name="Output" Kind="OutputPin" />
+              <Pin Id="PkUKJnHPZrePAvWkPtv6Rj" Name="Enabled" Kind="InputPin" />
             </Node>
             <Node Bounds="573,333,148,19" Id="V0Xf1Oh8hbPL2LmLJu5FA4">
               <p:NodeReference LastCategoryFullName="Stride.Graphics" LastDependency="VL.Stride.Graphics.Nodes">
@@ -2037,12 +2039,13 @@
               <Pin Id="F5nZXF8KVL7ODI4BJtjgcx" Name="Blend State" Kind="InputPin" />
               <Pin Id="MIrp5FEr2BjNVfhNKY7cP1" Name="Rasterizer State" Kind="InputPin" />
               <Pin Id="J4dgBTIVKvIOHTdnfCHUTH" Name="Depth Stencil State" Kind="InputPin" />
-              <Pin Id="Siui1dfsyeJPADRy3aDOyv" Name="Mesh" Kind="InputPin" />
-              <Pin Id="Q3XD9g4nawxOq2W0CeTJJ4" Name="Instance Count" Kind="InputPin" />
-              <Pin Id="T6cLtGP2zNZLcs1SsXU6G6" Name="Profiling Name" Kind="InputPin" />
               <Pin Id="UUg2C1S2FQEQNh4EDHxB3z" Name="Topology" Kind="InputPin" />
               <Pin Id="MIsbrSPjhgkLGqklO6Yw65" Name="Draw Count" Kind="InputPin" />
               <Pin Id="I2x90FdFN4BMcM9Iql8jBo" Name="Output" Kind="StateOutputPin" />
+              <Pin Id="Siui1dfsyeJPADRy3aDOyv" Name="Mesh" Kind="InputPin" />
+              <Pin Id="Q3XD9g4nawxOq2W0CeTJJ4" Name="Instance Count" Kind="InputPin" />
+              <Pin Id="T6cLtGP2zNZLcs1SsXU6G6" Name="Profiling Name" Kind="InputPin" />
+              <Pin Id="Hcc75VEaeBAQHLhD0C09im" Name="Enabled" Kind="InputPin" />
             </Node>
             <Node Bounds="555,376,101,19" Id="BIKkI0VfK7APHBbOYmEmdm">
               <p:NodeReference LastCategoryFullName="Stride.API.Graphics.RasterizerStateDescription" LastDependency="VL.Stride.Runtime.vl">
@@ -3589,7 +3592,11 @@
           <Link Id="EC4yQ8ZODTHMyitT1IL6WF" Ids="BVRstUj3WsJLcGRJ1u3fD3,UtHToATWV1dO3vJn7keaKG" />
           <Patch Id="JQ5JeCvnDsbNvDMmAXfl6l" Name="Create" />
           <Patch Id="V8gvm07pkkfMkuYlILrw39" Name="Update">
-            <Pin Id="CExhRACGOaUPzQN0FqZZnF" Name="Value" Kind="InputPin" />
+            <Pin Id="CExhRACGOaUPzQN0FqZZnF" Name="Value" Kind="InputPin">
+              <p:TypeAnnotation LastCategoryFullName="Stride.API.Engine" LastDependency="VL.Stride.Runtime.vl">
+                <Choice Kind="TypeFlag" Name="Entity" />
+              </p:TypeAnnotation>
+            </Pin>
             <Pin Id="HrNYJdjiq5NL0xlt1aAXLb" Name="Context" Kind="InputPin" />
             <Pin Id="JnXrHjsbCKGLEtEy8nSxHL" Name="Widget" Kind="OutputPin" />
           </Patch>
