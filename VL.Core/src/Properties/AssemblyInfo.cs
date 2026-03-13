@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("VL.HDE")]
 [assembly: InternalsVisibleTo("VL.UI.Core")]
 [assembly: InternalsVisibleTo("VL.UI.Forms")]
+[assembly: InternalsVisibleTo("VL.UI.PatchEditor.Utils")]
 [assembly: InternalsVisibleTo("VL.TestLib")]
 [assembly: InternalsVisibleTo("VL.TestFramework")]
 [assembly: InternalsVisibleTo("VL.Core.Tests")]

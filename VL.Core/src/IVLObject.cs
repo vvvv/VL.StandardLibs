@@ -164,7 +164,11 @@ namespace VL.Core
         /// <param name="forType">The type of the value for which a service is requested.</param>
         /// <param name="serviceType">The type of the service.</param>
         /// <returns>The factory function creating the service or null.</returns>
-        Func<object, object> GetServiceFactory(Type forType, Type serviceType);
+        Func<object, object> GetServiceFactory(Type forType, Type serviceType) => FindService(forType, serviceType).Factory;
+
+        internal MatchResult FindService(Type forType, Type serviceType);
+
+        internal record struct MatchResult(Type MatchedType, Func<object, object> Factory);
     }
 
     /// <summary>
