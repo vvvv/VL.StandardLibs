@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using VL.Core;
 
 namespace VL.Lib.Threading
 {
@@ -47,6 +48,16 @@ namespace VL.Lib.Threading
                         t.Result?.Dispose();
                 }, TaskContinuationOptions.ExecuteSynchronously);
             }
+        }
+
+        public static T WaitWhilePumpingMessageLoop<T>(this T task) where T : Task
+        {
+            var platformServices = AppHost.Current.Services.GetService<IPlatformServices>();
+            while (!task.Wait(millisecondsTimeout: 1))
+            {
+                platformServices?.DoEvents();
+            }
+            return task;
         }
     }
 }

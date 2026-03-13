@@ -10,6 +10,7 @@
         IClipboard Clipboard { get; }
         Optional<string> ShowFileDialog(string initialDirectory, string filter = "All files (*.*)|*.*");
         Optional<string> ShowDirectoryDialog(string initialDirectory, string selectedPath);
+        void DoEvents();
     }
 
     public interface IClipboard
