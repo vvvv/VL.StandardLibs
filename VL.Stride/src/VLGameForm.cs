@@ -21,6 +21,25 @@ internal class VLGameForm : GameForm, IHasCustomTitleBar
     public VLGameForm(NodeContext nodeContext, Win32CustomTitleBar.Options options)
     {
         customTitleBar = Win32CustomTitleBar.Install(this, nodeContext, options with { IsFullscreen = () => isFullscreen });
+
+        // Subscribe to the FullscreenToggle event to track fullscreen state
+        FullscreenToggle += OnFullscreenToggle;
+    }
+
+    private void OnFullscreenToggle(object sender, EventArgs e)
+    {
+        isFullscreen = !isFullscreen;
+
+        // When toggling fullscreen, reset TopMost to user's preference (from Win32CustomTitleBar.AlwaysOnTop)
+        // This will override Stride's GameWindowWinForms attempt to set TopMost = true
+        // We use BeginInvoke to ensure this runs after Stride's delayed TopMost assignment
+        BeginInvoke(new Action(() =>
+        {
+            if (!customTitleBar.AlwaysOnTop)
+            {
+                base.TopMost = false;
+            }
+        }));
     }
 
     /// <summary>
@@ -192,6 +211,7 @@ internal class VLGameForm : GameForm, IHasCustomTitleBar
     {
         if (disposing)
         {
+            FullscreenToggle -= OnFullscreenToggle;
             spriteBatch?.Dispose();
             spriteBatch = null;
         }
