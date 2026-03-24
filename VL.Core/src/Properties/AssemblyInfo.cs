@@ -23,3 +23,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("VL.ImGui")]
 [assembly: InternalsVisibleTo("VL.Stride.Runtime")]
 [assembly: InternalsVisibleTo("VL.Serialization.FSPickler")]
+[assembly: InternalsVisibleTo("vvvv")]
