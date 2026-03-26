@@ -341,4 +341,16 @@
         float alpha = text2D(text, qt_TexCoord0).a;
         return float4(color, alpha);
     }
+
+    //texture transform function
+    float2 TransformUVWithAspectRatio(float2 uv, float2 AspectRatio, float4x4 UVTransform)
+    {
+        uv -= 0.5f;
+        uv *= float2(1.0f,-1.0f) * AspectRatio;
+        uv = mul(float4(uv, 0.0f, 1.0f), UVTransform).xy;
+        uv /= float2(1.0f,-1.0f) * AspectRatio;
+        uv += 0.5f;
+
+        return uv;
+    }
 };

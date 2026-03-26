@@ -1,0 +1,15 @@
+﻿shader QuadRenderer_Advanced_DrawFX : VS_PS_Base, ColorBase, ShaderUtils
+{
+    [Color]
+    compose ComputeColor ColorInput = float4(1, 1, 1, 1);
+
+    override stage void VSMain()
+    {
+        streams.ShadingPosition = mul(streams.Position, WorldViewProjection);
+    }
+
+    override stage void PSMain() 
+    {
+        streams.ColorTarget = ColorInput.Compute();
+    }
+};

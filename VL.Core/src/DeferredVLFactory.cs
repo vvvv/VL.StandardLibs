@@ -48,5 +48,10 @@ namespace VL.Core
         {
             Factory.RegisterService(forType, serviceType, serviceFactory);
         }
+
+        IVLFactory.MatchResult IVLFactory.FindService(Type forType, Type serviceType)
+        {
+            return Factory.FindService(forType, serviceType);
+        }
     }
 }

@@ -1,0 +1,18 @@
+﻿shader QuadRendererTextured_Advanced_DrawFX : QuadRenderer_Advanced_DrawFX, TextureUtils
+{
+    stage SamplerState SamplerIn;
+
+    stage float4x4 TextureTransform;
+    stage float2 TextureAspectRatio = float2(1.0f, 1.0f);
+    
+    override stage void VSMain() 
+    {
+        base.VSMain();
+        streams.TexCoord = TransformUVWithAspectRatio(streams.TexCoord.xy, TextureAspectRatio, TextureTransform);
+    }
+    
+    override stage void PSMain() 
+    {
+        streams.ColorTarget = Texture0.Sample(SamplerIn, streams.TexCoord) * ColorInput.Compute();
+    }
+};
