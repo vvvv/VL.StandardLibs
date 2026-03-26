@@ -8,6 +8,13 @@
     <Content Include="$(VLPackageBasePath)vvvv\**" PackagePath="vvvv\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="vvvv" />
     <Content Remove="$(VLPackageBasePath)**\*.vl.dll" />
   </ItemGroup>
+  
+  <!-- Fill out the blanks for VL packages  -->
+  <PropertyGroup Condition="$(VLPackageBasePath) != ''">
+    <PackageTags Condition="'$(PackageTags)' == ''">VL</PackageTags>
+    <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">http://vvvv.org</PackageProjectUrl>
+    <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == ''">LGPL-3.0-only</PackageLicenseExpression>
+  </PropertyGroup>
 
   <ItemGroup Condition=" '$(IsPackable)' != 'false' ">
     <None Include="$(MsBuildThisFileDirectory)build\nugeticon.png" Pack="true" PackagePath="\"/>
