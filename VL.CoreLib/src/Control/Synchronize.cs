@@ -340,7 +340,7 @@ namespace VL.Lib.Control
         void Update(TKey key);
     }
 
-    [ProcessNode]
+    [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
     [Region(SupportedBorderControlPoints = ControlPointType.Splicer, TypeConstraint = "IReadOnlyDictionary", TypeConstraintIsBaseType = true)]
     public class ForEachKey<TKey> : IRegion<IInlay_ForEachKey<TKey>>, IDisposable
     {
@@ -363,6 +363,12 @@ namespace VL.Lib.Control
             public bool MarkedForRemoval;
         }
 
+        [Fragment]
+        public ForEachKey()
+        {           
+        }
+
+        [Fragment]
         public void Dispose()
         {
             foreach (var p in _patches.Values)
@@ -372,6 +378,7 @@ namespace VL.Lib.Control
 
         object _currentkey;
 
+        [Fragment]
         public void Update(IEnumerable<TKey> keys)
         {
             if (keys == null)

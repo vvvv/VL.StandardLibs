@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="LiIPinoB4LjLRms7uZqVID" LanguageVersion="2025.7.0-0234-g26c6a1d246" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="LiIPinoB4LjLRms7uZqVID" LanguageVersion="2025.7.1-0030-gb320f7c791" Version="0.128">
   <Patch Id="MaKn58isLEdLcMSCDKs0fL">
     <Canvas Id="Bb8OVvqJusyMdcjXvJIsPx" DefaultCategory="System.Reflection" CanvasType="FullCategory">
       <Canvas Id="QozF33LF0ncPaMIS06nLkl" Name="Experimental" Position="538,165">
@@ -561,10 +561,12 @@
                     <Pin Id="DUl3GRLKPb9PHgmQuqrQOo" Name="Input" Kind="StateInputPin" />
                     <Pin Id="UvO6VAJMqp6MRzS1EkAbXQ" Name="Path" Kind="InputPin" />
                     <Pin Id="FnG4hfSf2YcQMdfO9SmSaO" Name="Result" Kind="OutputPin" />
+                    <Pin Id="Cj9kXDBmiWvMb1uGDz63bn" Name="Rootpath" Kind="InputPin" />
                   </Node>
                   <Pin Id="HGrUI8sZmNRNOUrfNMyfir" Name="Input" Kind="InputPin" />
                   <Pin Id="PTzKLJu5QV2QZZWas5UPkj" Name="Path" Kind="InputPin" />
                   <Pin Id="IheCPF7rxldNqka93Q7X2B" Name="Result" Kind="OutputPin" />
+                  <Pin Id="GufuDMflmPKMk3kA9ufS74" Name="Rootpath" Kind="InputPin" />
                 </Patch>
               </Node>
             </Canvas>
@@ -1208,6 +1210,54 @@
           <Patch Id="OapZ3PZHwPwNhrH05YSJbY">
             <Canvas Id="ILqtE7WsraqN36Ig6DvRTO" BordersChecked="false" CanvasType="Group" />
             <ProcessDefinition Id="EEm7KJ4EJovLTnK4HGga0Y" IsHidden="true" />
+          </Patch>
+        </Node>
+        <!--
+
+    ************************ Assembly ************************
+
+-->
+        <Node Name="Assembly" Bounds="641,592" Id="ToO2CDIJB1XPwy1U0R26iv">
+          <p:NodeReference>
+            <Choice Kind="ForwardDefinition" Name="Forward" />
+            <CategoryReference Kind="Category" Name="Primitive" />
+          </p:NodeReference>
+          <p:TypeAnnotation LastCategoryFullName="System.Reflection" LastDependency="mscorlib.dll">
+            <Choice Kind="TypeFlag" Name="Assembly" />
+            <FullNameCategoryReference ID="System.Reflection" />
+            <AssemblyReference ID="System.Runtime.dll" />
+          </p:TypeAnnotation>
+          <Patch Id="GOF8zPURYeEOCudaij2uNb">
+            <Canvas Id="DtrL7LwrfZvN8E4xN4Bu0T" CanvasType="Group">
+              <!--
+
+    ************************ CreateDefault ************************
+
+-->
+              <Node Name="CreateDefault" Bounds="245,340,144,88" Id="GrW6cu9dTogNgvaqFPc7fQ">
+                <p:NodeReference>
+                  <Choice Kind="OperationDefinition" />
+                </p:NodeReference>
+                <Patch Id="GASUicw6wNsPnR4JaMXWWL">
+                  <Pin Id="Ga9h0RMZpqkNJTDUQVeaEp" Name="Output" Kind="OutputPin" />
+                  <Node Bounds="257,363,120,19" Id="ToGtOQJayXmOKmOYepBndl">
+                    <p:NodeReference LastCategoryFullName="System.Reflection.Assembly" LastDependency="mscorlib.dll">
+                      <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                      <Choice Kind="OperationCallFlag" Name="GetExecutingAssembly" />
+                    </p:NodeReference>
+                    <Pin Id="JjZbPcrIm3oK9vmTCQCFgy" Name="Result" Kind="OutputPin" />
+                  </Node>
+                  <ControlPoint Id="QevhNJ0B7zxN58bR53SbFY" Bounds="257,381" />
+                  <Link Id="AemyDM9VG4xPWIse91qp13" Ids="JjZbPcrIm3oK9vmTCQCFgy,QevhNJ0B7zxN58bR53SbFY" />
+                  <ControlPoint Id="HZ2fZAtnIT5LmiR3xAZCoW" Bounds="259,411" />
+                  <Link Id="PpZxe6e9rtEM3cOG8imQMz" Ids="HZ2fZAtnIT5LmiR3xAZCoW,Ga9h0RMZpqkNJTDUQVeaEp" IsHidden="true" />
+                  <Link Id="Q7p2gAk8LgAP8QjX4jvN3v" Ids="JjZbPcrIm3oK9vmTCQCFgy,HZ2fZAtnIT5LmiR3xAZCoW" />
+                </Patch>
+              </Node>
+            </Canvas>
+            <ProcessDefinition Id="TfmPRBAxYw3OJaoJr7DK6S" IsHidden="true">
+              <Fragment Id="VQGrzotvWSCPQ98XLPjAzf" Patch="GrW6cu9dTogNgvaqFPc7fQ" Enabled="true" />
+            </ProcessDefinition>
           </Patch>
         </Node>
       </Canvas>

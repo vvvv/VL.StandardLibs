@@ -1,9 +1,11 @@
 ﻿#nullable enable
+extern alias sw;
+
 using Stride.Core.Mathematics;
+using System.Windows.Forms;
+using sw::System.Windows.Forms;
 using VL.Core;
 using VL.Core.Import;
-using VL.Skia;
-using VL.UI.Core;
 
 namespace Graphics.Skia;
 
@@ -12,12 +14,12 @@ public sealed class FormBoundsNotification
 {
     private readonly RectangleF _controlBoundsDip;
     private readonly Vector2 _clientSizePx;
-    private readonly System.Windows.Forms.Form _form;
+    private readonly Form _form;
 
     /// <summary>
     /// Create (stores initial control bounds in DIP and the Form reference).
     /// </summary>
-    public FormBoundsNotification(RectangleF controlBounds, System.Windows.Forms.Form form)
+    public FormBoundsNotification(RectangleF controlBounds, Form form)
     {
         _controlBoundsDip = controlBounds;
         _form = form;
@@ -30,7 +32,7 @@ public sealed class FormBoundsNotification
         out RectangleF controlBoundsDIP,
         out Vector2 clientSizePx,
         out Vector2 clientSizeDIP,
-        out System.Windows.Forms.Form? form)
+        out Form? form)
     {
         form = _form;
 
@@ -49,13 +51,13 @@ public sealed class FormBoundsNotification
 
     // Helpers mirroring the patch converters (DIPToPixel / PixelToDIP)
 
-    private static RectangleF ToPixels(RectangleF dip)
+    private RectangleF ToPixels(RectangleF dip)
     {
-        return DIPHelpers.DIPToPixel(dip);
+        return _form.LogicalToDeviceUnits(dip);
     }
 
-    private static Vector2 ToDIP(Vector2 pixels)
+    private Vector2 ToDIP(Vector2 pixels)
     {
-        return new Vector2(pixels.X / CallerInfo.DIPFactor, pixels.Y / CallerInfo.DIPFactor);
+        return _form.DeviceToLogicalUnits(pixels);
     }
 }

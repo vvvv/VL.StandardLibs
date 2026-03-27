@@ -10,6 +10,7 @@ using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.Graphics.DirectWrite;
 using System.Runtime.Versioning;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace VL.Lib.Text
 {
@@ -101,7 +102,7 @@ namespace VL.Lib.Text
         [SupportedOSPlatform("windows6.1")]
         private static unsafe void GetFonts_DirectWrite(List<string> fonts)
         {
-            PInvoke.DWriteCreateFactory(DWRITE_FACTORY_TYPE.DWRITE_FACTORY_TYPE_SHARED, typeof(IDWriteFactory).GUID, out var factory)
+            PInvoke.DWriteCreateFactory(DWRITE_FACTORY_TYPE.DWRITE_FACTORY_TYPE_ISOLATED, typeof(IDWriteFactory).GUID, out var factory)
                 .ThrowOnFailure();
 
             ((IDWriteFactory)factory).GetSystemFontCollection(out var fontCollection, checkForUpdates: true);
@@ -144,7 +145,10 @@ namespace VL.Lib.Text
         public static FontPath GetFontPath(string familyName, FontStyle fontStyle)
         {
             if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
-                return GetFontPathDirectWrite(familyName, fontStyle);
+#pragma warning disable CA1416 // Validate platform compatibility
+                // Run the DirectWrite call on a background thread to avoid potential COM STA issues on the calling thread (https://github.com/devvvvs/vvvv/issues/7369)
+                return Task.Run(() => GetFontPathDirectWrite(familyName, fontStyle)).GetAwaiter().GetResult();
+#pragma warning restore CA1416 // Validate platform compatibility
             else if (OperatingSystem.IsWindowsVersionAtLeast(5))
                 return default;
             else
@@ -185,7 +189,16 @@ namespace VL.Lib.Text
             fontFace.GetFiles(ref numberOfFiles, fontFiles);
             fontFiles[0].GetReferenceKey(out var fontFileReferenceKey, out var fontFileReferenceKeySize);
 
-            fontFiles[0].GetLoader(out var loader);
+            IDWriteFontFileLoader loader = null;
+            try
+            {
+                fontFiles[0].GetLoader(out loader);
+            }
+            catch (Exception)
+            {
+                // Fails on some systems. Need to investigate further. But for now just return default / font is not available.
+                return default;
+            }
 
             if (loader is IDWriteLocalFontFileLoader localLoader)
             {

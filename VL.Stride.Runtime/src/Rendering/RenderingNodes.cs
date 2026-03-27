@@ -290,15 +290,7 @@ namespace VL.Stride.Rendering
                                 {
                                     var model = new Model();
                                     generator.Generate(game.Services, model);
-                                    return ResourceProvider.Return(model.Meshes[0], m =>
-                                    {
-                                        if (m.Draw != null)
-                                        {
-                                            m.Draw.IndexBuffer?.Buffer?.Dispose();
-                                            foreach (var b in m.Draw.VertexBuffers)
-                                                b.Buffer?.Dispose();
-                                        }
-                                    });
+                                    return ResourceProvider.Return(model.Meshes[0], m => m.ReleaseGraphicsResources());
                                 });
                         });
                         var meshHandle = provider.GetHandle();

@@ -9,7 +9,7 @@ namespace VL.Stride
 {
     partial class SkiaRenderer
     {
-        IDisposable SubscribeToInputSource(IInputSource inputSource, RenderDrawContext context, SKCanvas canvas, GRContext graphicsContext)
+        IDisposable SubscribeToInputSource(IInputSource inputSource, RenderDrawContext context, SKCanvas canvas, GRContext graphicsContext, float scaling)
         {
             if (inputSource is null)
                 return Disposable.Empty;
@@ -19,7 +19,7 @@ namespace VL.Stride
                 return Disposable.Empty;
 
             var renderTarget = context.CommandList.RenderTarget;
-            var callerInfo = CallerInfo.InRenderer(renderTarget.Width, renderTarget.Height, canvas, graphicsContext);
+            var callerInfo = CallerInfo.InRenderer(renderTarget.Width, renderTarget.Height, canvas, graphicsContext, scaling);
             return inputManager.GetNotifications(inputSource, sender: this)
                 .Subscribe(n =>
                 {

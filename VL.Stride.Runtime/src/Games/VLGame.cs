@@ -1,8 +1,10 @@
 using Stride.Core.Diagnostics;
+using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Engine.Design;
 using Stride.Games;
 using Stride.Graphics;
+using Stride.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -10,6 +12,7 @@ using System.IO;
 using System.Linq;
 using VL.Core;
 using VL.Lib.Basics.Video;
+using VL.Lib.Reactive;
 using VL.Stride.Core;
 using VL.Stride.Engine;
 using VL.Stride.Rendering;
@@ -19,6 +22,23 @@ namespace VL.Stride.Games
 {
     public class VLGame : Game, IGraphicsDeviceProvider
     {
+        internal record struct GameContextParams(NodeContext NodeContext, IChannel<bool> AlwaysOnTop, IChannel<bool> ExtendIntoTitleBar, AppContextType AppContextType, int RequestedWidth, int RequestedHeight, bool IsUserManagingRun);
+        internal static Func<GameContextParams, GameContext> VLGameContextFactory;
+        internal static Action<GameWindow, int> SetTitleBarInteractionWidth;
+        internal static Action<GameWindow> BringToFront;
+        internal static Action<InputManager, GameWindow, IInputSource> FixKeyboardDevice;
+        internal static Func<GameWindow, Int2> GetWindowPositionInScreenCoordinates;
+
+        public static Func<Vector2> GetCursorPos;
+
+        public static GameContext CreateGameContext(NodeContext nodeContext, IChannel<bool> alwaysOnTop, IChannel<bool> extendIntoTitleBar, AppContextType appContextType, int requestedWidth = 0, int requestedHeight = 0, bool isUserManagingRun = false)
+        {
+            if (VLGameContextFactory is null)
+                throw new InvalidOperationException("VL Stride init routines didn't run yet.");
+
+            return VLGameContextFactory(new(nodeContext, alwaysOnTop, extendIntoTitleBar, appContextType, requestedWidth, requestedHeight, isUserManagingRun));
+        }
+
         private readonly TimeSpan maximumElapsedTime = TimeSpan.FromMilliseconds(2000.0);
         private TimeSpan accumulatedElapsedGameTime;
         private bool forceElapsedTimeToZero;
@@ -30,6 +50,9 @@ namespace VL.Stride.Games
 
         internal event EventHandler BeforeDestroy;
 
+        internal event EventHandler DrawStarted;
+        internal event EventHandler DrawEnded;  // NEW: Raised after all rendering is complete
+
         public VLGame(NodeFactoryRegistry nodeFactoryRegistry)
         {
             NodeFactoryRegistry = nodeFactoryRegistry;
@@ -37,9 +60,6 @@ namespace VL.Stride.Games
             SchedulerSystem = new SchedulerSystem(Services);
             Services.AddService(SchedulerSystem);
 
-#if DEBUG
-            GraphicsDeviceManager.DeviceCreationFlags |= DeviceCreationFlags.Debug;
-#endif
             // for now we don't let the user decide upon the colorspace
             // as we'd need to either recreate all textures and swapchains in that moment or make sure that these weren't created yet.
             GraphicsDeviceManager.PreferredColorSpace = ColorSpace.Linear;
@@ -67,6 +87,21 @@ namespace VL.Stride.Games
 
         // Used to post-pone the present calls to the very end of a frame
         internal readonly List<GameWindowRenderer> PendingPresentCalls = new List<GameWindowRenderer>();
+
+        // Used by performance meter (F2) to display the number of references on the device
+        public int DeviceRefCount
+        {
+            get
+            {
+                var nativeDevice = SharpDXInterop.GetNativeDevice(GraphicsDevice) as SharpDX.IUnknown;
+                if (nativeDevice != null)
+                {
+                    nativeDevice.AddReference();
+                    return nativeDevice.Release();
+                }
+                return 0;
+            }
+        }
 
         protected override void PrepareContext()
         {
@@ -184,6 +219,13 @@ namespace VL.Stride.Games
             }
 
             base.Update(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            DrawStarted?.Invoke(this, EventArgs.Empty);
+            base.Draw(gameTime);
+            DrawEnded?.Invoke(this, EventArgs.Empty);  // NEW: Signal that rendering is complete
         }
 
         protected override void EndDraw(bool present)

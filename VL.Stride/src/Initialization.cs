@@ -20,6 +20,9 @@ using System.Threading;
 using VL.Stride.Input;
 using Microsoft.Extensions.DependencyInjection;
 using VL.Lib.Basics.Video;
+using Stride.Input;
+using System.Linq;
+using Stride.Core.Mathematics;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Lib.Initialization))]
 
@@ -31,6 +34,8 @@ namespace VL.Stride.Lib
 
         public Initialization()
         {
+            UseSDL = Array.Exists(Environment.GetCommandLineArgs(), argument => argument == "--sdl");
+
             if (UseSDL)
             {
                 // Use .NET standard native library loading mechanism (before Silk.NET or Stride try their custom ones which don't work for us)
@@ -38,13 +43,56 @@ namespace VL.Stride.Lib
                 NativeLibrary.Load("SDL2.dll", typeof(Initialization).Assembly, default);
             }
 
-            // In our deployment the dll is not beside the exe (what Silk.NET expects) and sadly Silk.NET is not using Load but instead uses TryLoad
-            // which doesn't go through the resolve event.
-            NativeLibrary.Load("openxr_loader.dll", typeof(Initialization).Assembly, default);
+            if (RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
+            {
+                // In our deployment the dll is not beside the exe (what Silk.NET expects) and sadly Silk.NET is not using Load but instead uses TryLoad
+                // which doesn't go through the resolve event.
+                NativeLibrary.Load("openxr_loader.dll", typeof(Initialization).Assembly, default);
+            }
+
+            VLGame.VLGameContextFactory = o => VLGameContextFactory.CreateContext(o.NodeContext, o.AlwaysOnTop, o.ExtendIntoTitleBar, o.AppContextType, o.RequestedWidth, o.RequestedHeight, o.IsUserManagingRun);
+            VLGame.SetTitleBarInteractionWidth = (w, v) =>
+            {
+                if (w.NativeWindow.NativeWindow is VLGameForm form)
+                    form.CustomTitleBar.InteractionWidth = v;
+            };
+            VLGame.BringToFront = (w) =>
+            {
+                var nativeWindow = w.NativeWindow.NativeWindow;
+                if (nativeWindow is GameForm form)
+                    form.Activate();
+                else if (nativeWindow is GameFormSDL sdlForm)
+                    sdlForm.BringToFront();
+            };
+            VLGame.FixKeyboardDevice = (inputManager, gameWindow, inputSource) =>
+            {
+                if (gameWindow.NativeWindow.NativeWindow is GameForm form)
+                {
+                    //var existingKeyboard = inputSource.Devices.Values.FirstOrDefault(d => d is IKeyboardDevice);
+                    //if (existingKeyboard != null)
+                    //    inputSource.Devices.Remove(existingKeyboard.Id);
+                    var device = new TextKeyboardWinforms(inputSource, form);
+                    inputSource.Devices.Add(device.Id, device);
+                }
+            };
+            VLGame.GetCursorPos = () =>
+            {
+                var p = System.Windows.Forms.Cursor.Position;
+                return new Vector2(p.X, p.Y);
+            };
+            VLGame.GetWindowPositionInScreenCoordinates = (w) =>
+            {
+                if (w.NativeWindow.NativeWindow is GameForm form)
+                {
+                    var screenRect = form.RectangleToScreen(form.ClientRectangle);
+                    return new Int2(screenRect.X, screenRect.Y);
+                }
+                return w.Position;
+            };
         }
 
         // Remove once tested enough
-        bool UseSDL = true;
+        bool UseSDL = false;
 
         public override void Configure(AppHost appHost)
         {

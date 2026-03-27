@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="TxRvauDPxrcPWOOIyk2VsS" LanguageVersion="2025.7.1-0141-ge684a3f26b" Version="0.128">
+  <NugetDependency Id="TZqGZWzLLseMjp8mkBcDff" Location="VL.CoreLib" Version="2025.7.1-0141-ge684a3f26b" />
+  <Patch Id="JnLIKwWcA21OC97w4eXn9O">
+    <Canvas Id="EstwiVVhT04M6fneNMt3FK" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="OkHiN1MlwJcNzasQQgVodE">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="UuQL513TQ18OZcEAIrQIwy">
+        <Canvas Id="D4MNkDfKJmwLVNkjVREdEs" CanvasType="Group">
+          <Node Bounds="367,640,65,26" Id="FcM6ntVU8SnMzLlGjKHOBH">
+            <p:NodeReference LastCategoryFullName="System.Drawing.Bitmap" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="ClassType" Name="Bitmap" NeedsToBeDirectParent="true" />
+              <Choice Kind="OperationCallFlag" Name="ToImage" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="ViWTGOHnfeMPSSlTKkp3cG" Name="Input" Kind="StateInputPin" />
+            <Pin Id="QxCfhecCV64LcBoIiCq5lZ" Name="Take Ownership" Kind="InputPin" />
+            <Pin Id="IDifvNHwTJ3Mw43rC6u3Ro" Name="Is Volatile" Kind="InputPin" />
+            <Pin Id="O90FA05E6D9MSbrjRqHFk1" Name="Can Write" Kind="InputPin" />
+            <Pin Id="MuFffCqxYsiMHDApRNW7nt" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="UhFWnnuDghjLEgPxJ0z7ce" Comment="Take Ownership" Bounds="389,181,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="R91CZl1EVt4Pa9QOwORA8g" Comment="Is Volatile" Bounds="409,375,35,35" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="I0ZmVrGGvGMPRtpVPz5vuk" Comment="Can Write" Bounds="429,551,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Toggle</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="DdfZF7e48YMNmgOlvhTCDt" Bounds="430,201,265,157" ShowValueBox="true" isIOBox="true" Value="Means that when disposing the node, the underlying bitmap will also get disposed. This is useful if you are the one creating the bitmap and only pass it along via the image wrapper. There are cases where you do not control the lifetime of the bitmap itself (you do not have ownership) in which case you would pass false here.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="DPMyTDgiObzMfa2grTjllN" Bounds="449,395,270,137" ShowValueBox="true" isIOBox="true" Value="If true, tells consumers that the image is only valid for that current call. They must process the image right away and not hold on to it. Useful in scenarios where the underlying image refers to some temporary buffer and gets passed to consumers via an event like observables.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="JOUtp6cdZzwMgsFxlZH71d" Bounds="470,568,221,39" ShowValueBox="true" isIOBox="true" Value="Whether or not the resulting image can be written to.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+        </Canvas>
+        <Patch Id="OOKY4RnniTHMxCdISlG1Bk" Name="Create" />
+        <Patch Id="Sg3omVbcoQdOytPwpPagLt" Name="Update" />
+        <ProcessDefinition Id="SU2xCaKzSA0Ox6A49M1Oll">
+          <Fragment Id="IykJs6krcK9N941Oax72fR" Patch="OOKY4RnniTHMxCdISlG1Bk" Enabled="true" />
+          <Fragment Id="KCq4rvWYDf1N5esHOpnwEQ" Patch="Sg3omVbcoQdOytPwpPagLt" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="KCLsfPPz0BJQayg42INubz" Ids="UhFWnnuDghjLEgPxJ0z7ce,QxCfhecCV64LcBoIiCq5lZ" />
+        <Link Id="IfrIdAPEOQdM6fLATeAkxs" Ids="R91CZl1EVt4Pa9QOwORA8g,IDifvNHwTJ3Mw43rC6u3Ro" />
+        <Link Id="ETXHugF37shPEtr7tQHZRD" Ids="I0ZmVrGGvGMPRtpVPz5vuk,O90FA05E6D9MSbrjRqHFk1" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="QOiiFspnjKxLMrN1Y1np6j" Location="VL.Skia" Version="2025.7.1-0141-ge684a3f26b" />
+</Document>

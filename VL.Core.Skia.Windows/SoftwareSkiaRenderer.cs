@@ -17,7 +17,7 @@ internal sealed class SoftwareSkiaRenderer : ISkiaRenderer
 
     public CallerInfo CallerInfo { get; private set; } = CallerInfo.Default;
 
-    public void Render(nint hwnd, int width, int height, bool vsync, Action<CallerInfo> renderAction, Graphics? gdiTarget = null)
+    public void Render(nint hwnd, int width, int height, float scaling, bool vsync, Action<CallerInfo> renderAction, Graphics? gdiTarget = null)
     {
         if (disposed)
             throw new ObjectDisposedException(nameof(SoftwareSkiaRenderer));
@@ -36,7 +36,7 @@ internal sealed class SoftwareSkiaRenderer : ISkiaRenderer
             {
                 using var surface = SKSurface.Create(info, data.Scan0, data.Stride);
                 var canvas = surface.Canvas;
-                CallerInfo = CallerInfo.InRenderer(info.Width, info.Height, canvas, null);
+                CallerInfo = CallerInfo.InRenderer(info.Width, info.Height, canvas, null, scaling);
                 using (new SKAutoCanvasRestore(canvas, true))
                 {
                     renderAction(CallerInfo);

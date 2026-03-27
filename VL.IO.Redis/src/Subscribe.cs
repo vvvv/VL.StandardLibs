@@ -2,6 +2,7 @@
 using StackExchange.Redis;
 using System;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using VL.Core;
 using VL.Core.Import;
@@ -66,46 +67,59 @@ namespace VL.IO.Redis
             if (client is null || string.IsNullOrEmpty(config.Channel))
                 return;
 
-            var subscriber = client.GetSubscriber();
-            var channel = new RedisChannel(config.Channel, RedisChannel.PatternMode.Literal);
-
-            if (config.ProcessMessagesConcurrently)
-            {
-                Action<RedisChannel, RedisValue> handler = (redisChannel, redisValue) =>
+            var innerSub = new SerialDisposable();
+            _subscription.Disposable = client.ConnectionObservable
+                .Do(connection =>
                 {
-                    try
-                    {
-                        var value = client.Deserialize<T>(redisValue, config.Format);
-                        _subject.OnNext(value);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogError(e, "Unexpected exception in subscribe.");
-                    }
-                };
-                subscriber.Subscribe(channel, handler);
-                _subscription.Disposable = Disposable.Create(() => subscriber.Unsubscribe(channel, handler));
-            }
-            else
-            {
-                Action<ChannelMessage> handler = (channelMessage) =>
-                {
-                    try
-                    {
-                        var redisValue = channelMessage.Message;
-                        var value = client.Deserialize<T>(redisValue, config.Format);
-                        _subject.OnNext(value);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogError(e, "Unexpected exception in subscribe.");
-                    }
-                };
+                    // Unsubscribe from previous connection
+                    innerSub.Disposable = null;
 
-                var queue = subscriber.Subscribe(channel);
-                queue.OnMessage(handler);
-                _subscription.Disposable = Disposable.Create(() => queue.Unsubscribe());
-            }
+                    if (connection is null)
+                        return;
+
+                    var subscriber = connection.GetSubscriber();
+                    var channel = new RedisChannel(config.Channel, RedisChannel.PatternMode.Literal);
+
+                    if (config.ProcessMessagesConcurrently)
+                    {
+                        Action<RedisChannel, RedisValue> handler = (redisChannel, redisValue) =>
+                        {
+                            try
+                            {
+                                var value = client.Deserialize<T>(redisValue, config.Format);
+                                _subject.OnNext(value);
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogError(e, "Unexpected exception in subscribe.");
+                            }
+                        };
+                        subscriber.Subscribe(channel, handler);
+                        innerSub.Disposable = Disposable.Create(() => subscriber.Unsubscribe(channel, handler));
+                    }
+                    else
+                    {
+                        Action<ChannelMessage> handler = (channelMessage) =>
+                        {
+                            try
+                            {
+                                var redisValue = channelMessage.Message;
+                                var value = client.Deserialize<T>(redisValue, config.Format);
+                                _subject.OnNext(value);
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogError(e, "Unexpected exception in subscribe.");
+                            }
+                        };
+
+                        var queue = subscriber.Subscribe(channel);
+                        queue.OnMessage(handler);
+                        innerSub.Disposable = Disposable.Create(() => queue.Unsubscribe());
+                    }
+                })
+                .Finally(() => innerSub.Dispose())
+                .Subscribe();
         }
     }
 }

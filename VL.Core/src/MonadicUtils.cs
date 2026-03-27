@@ -27,6 +27,22 @@ namespace VL.Core
             return type.ImplementsMonadicValue() || type.IsOptional() || type.IsNullable();
         }
 
+        // Find M<T> : IMonadicValue<T>
+        internal static bool TryGetMonadicType(this Type type, [NotNullWhen(true)] out Type? monadicType)
+        {
+            if (type.BaseType != null && TryGetMonadicType(type.BaseType, out monadicType))
+                return true;
+
+            if (type.HasMonadicValueEditor())
+            {
+                monadicType = type;
+                return true;
+            }
+
+            monadicType = null;
+            return false;
+        }
+
         internal static IMonadicValueEditor<TValue, TMonad>? GetMonadicEditor<TValue, TMonad>()
         {
             if (typeof(TMonad).ImplementsMonadicValue())

@@ -60,8 +60,7 @@ namespace VL.Stride.Graphics
         public static unsafe Texture SetData<TData>(this Texture texture, CommandList commandList, Spread<TData> fromData, int arraySlice, int mipSlice, ResourceRegion? region)
             where TData : unmanaged
         {
-            var immutableArray = fromData._array;
-            var array = Unsafe.As<ImmutableArray<TData>, TData[]>(ref immutableArray);
+            var array = fromData.GetInternalArray();
             texture.SetData(commandList, array, arraySlice, mipSlice, region);
             return texture;
         }
@@ -108,11 +107,53 @@ namespace VL.Stride.Graphics
             return Texture.New(device, image, textureFlags, usage);
         }
 
+        // Limit how many texture loads run simultaneously
+        private static readonly SemaphoreSlim _loadSemaphore = new SemaphoreSlim(Math.Max(2, Environment.ProcessorCount / 2));
+
+        public static async Task<Texture> LoadAsync(GraphicsDevice device, string file, TextureFlags textureFlags = TextureFlags.ShaderResource, GraphicsResourceUsage usage = GraphicsResourceUsage.Immutable, bool loadAsSRGB = false, CancellationToken cancellationToken = default)
+        {
+            const int bufferSize = 1024 * 1024 * 8;
+
+            await _loadSemaphore.WaitAsync(cancellationToken);
+            try
+            {
+                using var src = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, FileOptions.SequentialScan | FileOptions.Asynchronous);
+                var ptr = Utilities.AllocateMemory((int)src.Length);
+                using var dst = CreateMemoryStream(ptr, src.Length);
+                try
+                {
+                    await src.CopyToAsync(dst, bufferSize, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    Utilities.FreeMemory(ptr);
+                    throw;
+                }
+                using var image = Image.Load(new IntPtr(ptr), (int)dst.Length, makeACopy: false, loadAsSRGB: loadAsSRGB);
+                cancellationToken.ThrowIfCancellationRequested();
+                return Texture.New(device, image, textureFlags, usage);
+            }
+            finally
+            {
+                _loadSemaphore.Release();
+            }
+
+            static unsafe UnmanagedMemoryStream CreateMemoryStream(nint ptr, long length)
+            {
+                return new UnmanagedMemoryStream((byte*)ptr, 0, length, FileAccess.ReadWrite);
+            }
+        }
+
         public static void SaveTexture(this Texture texture, CommandList commandList, string filename, TextureWriterFileType imageFileType = TextureWriterFileType.Png)
         {
-            using (var resultFileStream = File.OpenWrite(filename))
+            using (var resultFileStream = File.Create(filename))
             {
-                texture.Save(commandList, resultFileStream, (ImageFileType)imageFileType);
+                var stagingDescription = texture.Description.ToStagingDescription();
+                // Use the format of the view for typeless textures (like e.g. returned from SkiaTexture)
+                if (stagingDescription.Format.IsTypeless())
+                    stagingDescription.Format = texture.ViewFormat;
+                using var staging = Texture.New(texture.GraphicsDevice, stagingDescription);
+                texture.Save(commandList, resultFileStream, staging, (ImageFileType)imageFileType);
             }
         }
 
@@ -124,7 +165,7 @@ namespace VL.Stride.Graphics
             if (!stagingTexture.Usage.HasFlag(GraphicsResourceUsage.Staging))
                 throw new ArgumentException("The texture is not a staging texture", nameof(stagingTexture));
 
-            using (var resultFileStream = File.OpenWrite(filename))
+            using (var resultFileStream = File.Create(filename))
             {
                 stagingTexture.Save(commandList, resultFileStream, stagingTexture, (ImageFileType)imageFileType);
             }

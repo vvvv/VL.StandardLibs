@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CommunityToolkit.HighPerformance;
+using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
@@ -10,16 +12,31 @@ namespace VL.Lib.IO.Net
 
     public static class HttpClientExtensions
     {
-        public static async Task DownloadFile(HttpClient client, string url, string filePath, IProgress<float> progress = null, CancellationToken cancellationToken = default)
+        public static async Task<int> DownloadFile(HttpClient client, string url, string filePath, ILogger logger = null, IProgress<float> progress = null, CancellationToken cancellationToken = default, int retryCount = 0)
         {
-            // Create a file stream to store the downloaded data.
-            // This really can be any type of writeable stream.
-            using (var file = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            var attempt = 0;
+        start:
+            try
             {
-                // Use the custom extension method below to download the data.
-                // The passed progress-instance will receive the download status updates.
-                await client.DownloadAsync(url, file, progress, cancellationToken);
+                // Create a file stream to store the downloaded data.
+                // This really can be any type of writeable stream.
+                using (var file = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    logger?.LogTrace("Starting to download {url} (attempt {attempt} of {retryCount}).", url, attempt, retryCount);
+                    // Use the custom extension method below to download the data.
+                    // The passed progress-instance will receive the download status updates.
+                    await client.DownloadAsync(url, file, progress, cancellationToken);
+                    logger?.LogTrace("Finished download of {url} at attempt {attempt}).", url, attempt);
+                }
             }
+            catch (Exception e) when (attempt++ < retryCount)
+            {
+                logger?.LogWarning(e, "Download of {url} failed. Starting attempt {attempt} in {attempt} seconds!", url, attempt, attempt);
+                await Task.Delay(attempt * 1000);
+                goto start;
+            }
+
+            return attempt;
         }
 
         public static async Task DownloadAsync(this HttpClient client, string requestUri, Stream destination, IProgress<float> progress = null, CancellationToken cancellationToken = default)
@@ -67,7 +84,8 @@ namespace VL.Lib.IO.Net
             var buffer = new byte[bufferSize];
             long totalBytesRead = 0;
             int bytesRead;
-            while ((bytesRead = await source.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) != 0)
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)); // 10s read timeout
+            while ((bytesRead = await source.ReadAsync(buffer, 0, buffer.Length, cts.Token).ConfigureAwait(false)) != 0)
             {
                 await destination.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
                 totalBytesRead += bytesRead;

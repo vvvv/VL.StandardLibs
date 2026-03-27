@@ -18,9 +18,13 @@ namespace VL.ImGui.Editors
         public IObjectEditor? CreateObjectEditor(IChannel channel, ObjectEditorContext context)
         {
             var staticType = channel.ClrTypeOfValues;
+            if (staticType == typeof(object))
+            {
+                return new DynamicObjectEditor(channel, context);
+            }
 
             // Is there a widget for exactly that type?
-            var widgetType = channel.Attributes().Value?.OfType<WidgetTypeAttribute>().FirstOrDefault()?.WidgetType ?? GetDefaultWidgetType(staticType);
+            var widgetType = channel.AttributesChannel.Value?.OfType<WidgetTypeAttribute>().FirstOrDefault()?.WidgetType ?? GetDefaultWidgetType(staticType);
             var channelWidgetType = typeof(ChannelWidget<>).MakeGenericType(staticType);
             var widgetClass = channelWidgetType.Assembly.GetTypes()
                 .Where(t => !t.IsAbstract && channelWidgetType.IsAssignableFrom(t) && t.GetConstructor(Array.Empty<Type>()) != null)
@@ -81,7 +85,7 @@ namespace VL.ImGui.Editors
             var typeInfo = context.AppHost.TypeRegistry.GetTypeInfo(staticType);
             if (AllowGeneralObjectEditor(context, typeInfo))
             {
-                if (staticType.IsAbstract || staticType == typeof(object))
+                if (staticType.IsAbstract)
                     return new AbstractObjectEditor(channel, context, typeInfo);
 
                 var editorType = typeof(ObjectEditor<>).MakeGenericType(staticType);

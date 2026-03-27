@@ -46,7 +46,12 @@ namespace VL.Lib.Reactive
 
 
 
-
+        public static IChannel AsChannelView(this IChannel channel, Type type)
+        {
+            if (channel.ClrTypeOfValues == type)
+                return channel;
+            return (IChannel)Activator.CreateInstance(typeof(ChannelView<>).MakeGenericType(type), channel);
+        }
 
 
 
@@ -178,7 +183,7 @@ namespace VL.Lib.Reactive
         {
             if (node.AccessedViaKey is IVLPropertyInfo p)
             {
-                var attribChannel = Attributes(channel);
+                var attribChannel = channel.AttributesChannel;
                 if (!attribChannel.Value.SequenceEqual(p.Attributes))
                 {
                     attribChannel.SetValueAndAuthor(p.Attributes, author: "InitSubChannel");
@@ -245,14 +250,11 @@ namespace VL.Lib.Reactive
             return component;
         }
 
-        public static IChannel<Spread<Attribute>> Attributes(this IChannel channel)
-        {
-            return channel.TryGetComponent<IChannel<Spread<Attribute>>>() ?? channel.EnsureSingleComponentOfType(() => Channel.Create(Spread<Attribute>.Empty), false);
-        }
+        public static IChannel<Spread<Attribute>> Attributes(this IChannel channel) => channel.AttributesChannel;
 
         public static bool TryGetAttribute<T>(this IChannel channel, [NotNullWhen(true)] out T? attribute) where T : Attribute
         {
-            var attributes = channel.TryGetComponent<IChannel<Spread<Attribute>>>()?.Value;
+            var attributes = channel.AttributesChannel.Value;
 
             if (attributes is not null)
             {

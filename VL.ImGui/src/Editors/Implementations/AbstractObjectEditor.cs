@@ -23,7 +23,6 @@ namespace VL.ImGui.Editors
         readonly string[]? possibleTypeEntries;
 
         IChannel<object>? privateChannel;
-        Type? currentEditorType;
         IObjectEditor? currentEditor;
         bool isBusy;
 
@@ -54,6 +53,8 @@ namespace VL.ImGui.Editors
 
         public bool NeedsMoreThanOneLine => currentEditor != null ? currentEditor.NeedsMoreThanOneLine : false;
 
+        public bool HasContentToDraw => currentEditor != null ? currentEditor.HasContentToDraw : false;
+
         void OnNext(object? value)
         {
             if (isBusy)
@@ -74,13 +75,16 @@ namespace VL.ImGui.Editors
                 privateChannel?.Dispose();
                 privateChannel = ChannelHelpers.CreateChannelOfType(type);
                 if (publicChannel.Attributes.Any())
-                    privateChannel.Attributes().Value = publicChannel.Attributes;
+                    privateChannel.AttributesChannel.Value = publicChannel.Attributes;
                 privateChannel.Object = value;
                 privateChannelSubscription.Disposable = privateChannel.Subscribe(v =>
                 {
                     // Push to upstream channel
                     PushValue(publicChannel, v);
                 });
+
+                currentEditor = factory.CreateObjectEditor(privateChannel, editorContext);
+                editorOwnership.Disposable = currentEditor as IDisposable;
             }
 
             // Push to private channel
@@ -119,16 +123,6 @@ namespace VL.ImGui.Editors
                     // This will implicitly rebuild the privat channel
                     publicChannel.Object = CreateNewValue(possibleTypes.ElementAtOrDefault(currentItem))!;
                 }
-            }
-
-            if (privateChannel is null)
-                return;
-
-            if (currentEditorType != privateChannel.ClrTypeOfValues)
-            {
-                currentEditorType = privateChannel.ClrTypeOfValues;
-                currentEditor = factory.CreateObjectEditor(privateChannel, editorContext);
-                editorOwnership.Disposable = currentEditor as IDisposable;
             }
 
             if (currentEditor != null)

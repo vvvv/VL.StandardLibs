@@ -31,5 +31,22 @@ namespace VL.Lib.Threading
             }
             cancellation.Dispose();
         }
+
+        public static void DisposeAfterCompletion<T>(this Task<T> task) where T : IDisposable
+        {
+            if (task.IsCompleted)
+            {
+                if (task.IsCompletedSuccessfully)
+                    task.Result?.Dispose();
+            }
+            else
+            {
+                _ = task.ContinueWith(t =>
+                {
+                    if (t.IsCompletedSuccessfully)
+                        t.Result?.Dispose();
+                }, TaskContinuationOptions.ExecuteSynchronously);
+            }
+        }
     }
 }

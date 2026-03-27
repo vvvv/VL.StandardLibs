@@ -259,10 +259,12 @@ namespace VL.Video.MF
 
             if (ReadyState >= ReadyState.HaveMetadata)
             {
+                var checkPlayState = false;
                 if (videoPlayer.Seek)
                 {
                     var seekTime = VLMath.Clamp(videoPlayer.SeekTime, 0, Duration);
                     engine->SetCurrentTime(seekTime).ThrowOnFailure();
+                    checkPlayState = true;
                 }
 
                 engine->SetLoop(videoPlayer.Loop);
@@ -276,10 +278,13 @@ namespace VL.Video.MF
                             engine->SetCurrentTime(loopStartTime).ThrowOnFailure();
                         else
                             engine->SetCurrentTime(loopEndTime).ThrowOnFailure();
+                        checkPlayState = true;
                     }
                 }
 
-                if (videoPlayer.Play && engine->IsPaused() && !engine->IsEnded() /* https://discourse.vvvv.org/t/vl-video-mediafoundation-toggling-play-at-the-end-of-a-video-resets-position/21050 */)
+                if (checkPlayState && videoPlayer.Play)
+                    engine->Play().ThrowOnFailure();
+                else if (videoPlayer.Play && engine->IsPaused() && !engine->IsEnded() /* https://discourse.vvvv.org/t/vl-video-mediafoundation-toggling-play-at-the-end-of-a-video-resets-position/21050 */)
                     engine->Play().ThrowOnFailure();
                 else if (!videoPlayer.Play && !engine->IsPaused())
                     engine->Pause().ThrowOnFailure();

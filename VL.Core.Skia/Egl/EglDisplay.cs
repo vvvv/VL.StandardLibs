@@ -3,6 +3,7 @@ using System;
 
 using EGLDisplay = System.IntPtr;
 using static VL.Skia.Egl.NativeEgl;
+using Windows.Win32.Graphics.Direct3D11;
 
 namespace VL.Skia.Egl
 {
@@ -62,18 +63,16 @@ namespace VL.Skia.Egl
 
         public bool IsLost => device.IsLost;
 
-        public bool TryGetD3D11Device(out IntPtr d3dDevice)
+        public unsafe bool TryGetD3D11Device(out IntPtr d3dDevice)
         {
-            if (eglQueryDisplayAttribEXT(NativePointer, EGL_DEVICE_EXT, out var devicePtr) &&
-                eglQueryDeviceAttribEXT(devicePtr, EGL_D3D11_DEVICE_ANGLE, out d3dDevice))
-            {
-                return true;
-            }
-            else
-            {
-                d3dDevice = default;
-                return false;
-            }
+            d3dDevice = (nint)Device.D3D11Device;
+            return d3dDevice != IntPtr.Zero;
+        }
+
+        internal unsafe bool TryGetD3D11DeviceInterface(out ID3D11Device* d3dDevice)
+        {
+            d3dDevice = Device.D3D11Device;
+            return d3dDevice != null;
         }
 
         public void BindTexImage(EglSurface surface)

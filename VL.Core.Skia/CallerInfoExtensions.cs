@@ -35,7 +35,7 @@ namespace VL.Skia
         /// Applies the space by resetting the Transformation.
         /// Further upstream you may use cameras and other transformations and thus invent your own space.
         /// </summary>
-        internal static SKMatrix GetWithinSpaceTransformation(SKRect viewportBounds, Sizing sizing = Sizing.ManualSize, 
+        internal static SKMatrix GetWithinSpaceTransformation(SKRect viewportBounds, float scaling, Sizing sizing = Sizing.ManualSize, 
             float width = 0, float height = 2, RectangleAnchor origin = RectangleAnchor.Center)
         {
             SKMatrix transformation = SKMatrix.CreateIdentity();
@@ -45,7 +45,7 @@ namespace VL.Skia
                     if (width == 0)
                     {
                         if (height == 0)
-                            return GetWithinSpaceTransformation(viewportBounds, Sizing.Pixels, 0, 0, origin);
+                            return GetWithinSpaceTransformation(viewportBounds, scaling, Sizing.Pixels, 0, 0, origin);
 
                         var scale = viewportBounds.Height / height;
                         transformation.ScaleX = scale;
@@ -71,8 +71,8 @@ namespace VL.Skia
                     transformation.ScaleY = 100f;
                     break;
                 case Sizing.DIP:
-                    transformation.ScaleX = DIPHelpers.DIPFactor() * 100f;
-                    transformation.ScaleY = DIPHelpers.DIPFactor() * 100f;
+                    transformation.ScaleX = scaling * 100f;
+                    transformation.ScaleY = scaling * 100f;
                     break;
                 default:
                     throw new NotImplementedException();
@@ -111,20 +111,20 @@ namespace VL.Skia
             return transformation;
         }
 
-        internal static SKMatrix GetWithinCommonSpaceTransformation(SKRect viewportBounds, CommonSpace space)
+        internal static SKMatrix GetWithinCommonSpaceTransformation(SKRect viewportBounds, CommonSpace space, float scaling)
         {
             switch (space)
             {
                 case CommonSpace.Normalized:
-                    return GetWithinSpaceTransformation(viewportBounds, Sizing.ManualSize, 0, 2, RectangleAnchor.Center);
+                    return GetWithinSpaceTransformation(viewportBounds, scaling, Sizing.ManualSize, 0, 2, RectangleAnchor.Center);
                 case CommonSpace.DIP:
-                    return GetWithinSpaceTransformation(viewportBounds, Sizing.DIP, 0, 2, RectangleAnchor.Center);
+                    return GetWithinSpaceTransformation(viewportBounds, scaling, Sizing.DIP, 0, 2, RectangleAnchor.Center);
                 case CommonSpace.DIPTopLeft:
-                    return GetWithinSpaceTransformation(viewportBounds, Sizing.DIP, 0, 2, RectangleAnchor.TopLeft);
+                    return GetWithinSpaceTransformation(viewportBounds, scaling, Sizing.DIP, 0, 2, RectangleAnchor.TopLeft);
                 //case CommonSpace.PixelCentered:
                 //    return GetWithinSpaceTransformation(Sizing.Pixels, 0, 2, RectangleAnchor.Center);
                 case CommonSpace.PixelTopLeft:
-                    return GetWithinSpaceTransformation(viewportBounds, Sizing.Pixels, 0, 2, RectangleAnchor.TopLeft);
+                    return GetWithinSpaceTransformation(viewportBounds, scaling, Sizing.Pixels, 0, 2, RectangleAnchor.TopLeft);
                 //case CommonSpace.HDCentered:
                 //    return GetWithinSpaceTransformation(Sizing.ManualSize, 0, 10.80f, RectangleAnchor.Center);
                 default:

@@ -59,7 +59,11 @@ namespace VL.IO.Redis
             {
                 try
                 {
-                    var subscriber = client.GetSubscriber();
+                    var connection = client.CurrentConnection;
+                    if (connection is null)
+                        return;
+
+                    var subscriber = connection.GetSubscriber();
                     var redisChannel = new RedisChannel(channel, RedisChannel.PatternMode.Literal);
                     var value = client.Serialize(v, config.format);
                     subscriber.Publish(redisChannel, value, CommandFlags.FireAndForget);

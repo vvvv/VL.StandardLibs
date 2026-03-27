@@ -8,6 +8,7 @@ public abstract class BlockNode<TBlock, TOptions, T> : IDisposable
     where TBlock : class, ITargetBlock<T>
     where TOptions : DataflowBlockOptions
 {
+    private static readonly DataflowLinkOptions s_linkOptions = new() { PropagateCompletion = true };
     private readonly SerialDisposable _linkManager = new();
     private readonly AppHost _appHost;
     private readonly ILogger _logger;
@@ -48,7 +49,7 @@ public abstract class BlockNode<TBlock, TOptions, T> : IDisposable
             _targetBlock = _block;
 
             _linkManager.Disposable = null;
-            _linkManager.Disposable = _sourceBlock?.LinkTo(_block);
+            _linkManager.Disposable = _sourceBlock?.LinkTo(_block, s_linkOptions);
         }
 
         return _block;

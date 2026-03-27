@@ -3,11 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using VL.Core;
-using VL.Core.CompilerServices;
 using VL.Core.Utils;
 
 namespace VL.Lib.Collections
@@ -23,6 +21,7 @@ namespace VL.Lib.Collections
         Type ElementType { get; }
     }
 
+    [CollectionBuilder(typeof(Spread), "Create")] 
     [Serializable]
     public sealed class Spread<T> : IReadOnlyList<T>, IHasMemory<T>, ISpread, IList<T> /* LINQ looks for IList and not IReadOnlyList */
     {
@@ -244,6 +243,14 @@ namespace VL.Lib.Collections
             return Spread<T>.Empty;
         }
 
+        // Collection expressions handler
+        public static Spread<T> Create<T>(ReadOnlySpan<T> items)
+        {
+            if (items.Length > 0)
+                return new Spread<T>(ImmutableArray.Create(items));
+            return Spread<T>.Empty;
+        }
+
         public static Spread<T> Create<T>(params T[] items) => Create(ImmutableArray.Create(items));
 
         public static Spread<T> Create<T>(T[] items, int start, int length) => Create(ImmutableArray.Create(items, start, length));
@@ -327,8 +334,7 @@ namespace VL.Lib.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] GetInternalArray<T>(this Spread<T> input)     
         {
-            var immutableArray = input._array;
-            return Unsafe.As<ImmutableArray<T>, T[]>(ref immutableArray);
+            return ImmutableCollectionsMarshal.AsArray(input._array);
         }
 
         /// <summary>
@@ -339,7 +345,7 @@ namespace VL.Lib.Collections
         {
             if (input.Length > 0)
             {
-                var immutableArray = Unsafe.As<T[], ImmutableArray<T>>(ref input);
+                var immutableArray = ImmutableCollectionsMarshal.AsImmutableArray(input);
                 return new Spread<T>(immutableArray);
             }
             else

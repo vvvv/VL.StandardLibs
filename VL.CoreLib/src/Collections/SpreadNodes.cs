@@ -159,11 +159,7 @@ namespace VL.Lib.Collections
         public static Spread<T> InsertSlice<T>(this Spread<T> input, int index, T value)
         {
             var builder = input.ToBuilder();
-            var count = input.Count;
-            if (count == 0)
-                builder.Add(value);
-            else
-                builder.Insert(index.ZMOD(count), value);
+            builder.Insert(index.ZMOD(input.Count + 1), value);
             return builder.ToSpread();
         }
 

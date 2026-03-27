@@ -57,6 +57,7 @@ namespace VL.Lib.Animation
             FrameStarting.OnNext(new FrameTimeMessage(FFrameTime, FCurrentFrame, FLastInterval));
 
             OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.SubChannelsGetLocked));
+            OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.EnsureMutatingPropertiesAreReflectedInChannels)); 
             OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.ModulesWriteGlobalChannels));
             OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.ApplyClientTime));
             OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.PlayingTransitions));

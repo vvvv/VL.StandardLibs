@@ -100,6 +100,8 @@ namespace VL.Lib.Reactive
         /// Is true for the rest of the application lifetime once the channel has been requested.
         /// </summary>
         bool HasBeenRequested { get; }
+
+        internal IChannel<Spread<Attribute>> AttributesChannel { get; }
     }
 
     [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
@@ -113,7 +115,7 @@ namespace VL.Lib.Reactive
         Func<T?, Optional<T?>>? Validator { set; }
     }
 
-    internal abstract class C<T> : IChannel<T>, IMonadicValue<T>
+    public abstract class C<T> : IChannel<T>, IMonadicValue<T>
     {
         protected readonly Subject<T?> subject = new();
         protected int lockCount = 0;
@@ -276,16 +278,27 @@ namespace VL.Lib.Reactive
             if (lockCount == 0 && revisionOnLockTaken != revision)
                 SetValueAndAuthor(this.Value, LatestAuthor);
         }
-        Spread<string> IHasAttributes.Tags => (tagsCache ??= new(GetAttributesChannel())).Tags;
 
-        Spread<Attribute> IHasAttributes.Attributes => GetAttributesChannel().Value ?? Spread<Attribute>.Empty;
+        Spread<string> IHasAttributes.Tags => (tagsCache ??= new(AttributesChannel)).Tags;
 
-        IChannel<Spread<Attribute>> GetAttributesChannel() => attributesChannel ??= this.Attributes();
+        Spread<Attribute> IHasAttributes.Attributes => AttributesChannel.Value ?? Spread<Attribute>.Empty;
+
+        public IChannel<Spread<Attribute>> AttributesChannel
+        {
+            get
+            {
+                var current = attributesChannel;
+                if (current != null)
+                    return current;
+
+                attributesChannel = this.EnsureSingleComponentOfType(() => Channel.Create(Spread<Attribute>.Empty));
+                return attributesChannel;
+            }
+        }
 
         AccessorNodes IChannel.AccessorNodes => accessorNodes ??= this.EnsureSingleComponentOfType(() => new AccessorNodes(), false);
 
         T? IMonadicValue<T>.Value => Value;
-
 
         IMonadicValue<T> IMonadicValue<T>.SetValue(T? value)
         {
@@ -319,10 +332,7 @@ namespace VL.Lib.Reactive
                 get
                 {
                     var r = revision;
-                    if (Interlocked.Exchange(ref revision, attributes.Revision) != r)
-                        tags = null;
-
-                    if (tags is null)
+                    if (Interlocked.Exchange(ref revision, attributes.Revision) != revision || (tags is null))
                         tags = attributes.Value?.OfType<TagAttribute>().Select(t => t.TagLabel).ToSpread() ?? Spread<string>.Empty;
 
                     return tags;
@@ -331,7 +341,7 @@ namespace VL.Lib.Reactive
         }
     }
 
-    internal class Channel<T> : C<T>, IChannel<object>, IInternalChannel
+    public class Channel<T> : C<T>, IChannel<object>, IInternalChannel
     {
         public Channel()
         {
@@ -522,6 +532,8 @@ namespace VL.Lib.Reactive
         public string? Path => original.Path;
 
         public Spread<Attribute> Attributes => original.Attributes;
+
+        public IChannel<Spread<Attribute>> AttributesChannel => original.AttributesChannel;
 
         public bool HasValue => original.HasValue;
 

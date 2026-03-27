@@ -3,7 +3,6 @@ using Stride.Core.Extensions;
 using System;
 using System.Text;
 using VL.Core;
-using VL.IO.Redis.Experimental;
 using VL.Lib.Reactive;
 
 namespace VL.IO.Redis
@@ -84,14 +83,14 @@ namespace VL.IO.Redis
             return value;
         }
 
-        public ResolvedBindingModel Resolve(RedisModule m, IChannel channel)
+        public ResolvedBindingModel Resolve(RedisClient? client, IChannel? channel)
         {
-            var model = m.Model;
+            var model = client != null ? client.Model : default;
             bool changed = false;
             return new ResolvedBindingModel(
                 this,
-                Key: ResolveKey(channel),
-                PublicChannelPath: channel.Path,
+                Key: channel != null ? ResolveKey(channel) : string.Empty,
+                PublicChannelPath: channel?.Path,
                 Initialization: ResolvedInitialization(model, ref changed),
                 BindingType: ResolvedBindingType(model, ref changed),
                 CollisionHandling: ResolvedCollisionHandling(model, ref changed),
@@ -132,7 +131,7 @@ namespace VL.IO.Redis
     public readonly record struct ResolvedBindingModel(
         BindingModel Model,
         string? PublicChannelPath,
-        string? Key,
+        string Key,
         Initialization Initialization = Initialization.Redis,
         BindingDirection BindingType = BindingDirection.InOut,
         CollisionHandling CollisionHandling = default,

@@ -59,6 +59,7 @@ namespace VL.Lib.Animation
     {
         // add BeforeCreate & AfterCreate?
         SubChannelsGetLocked,
+        EnsureMutatingPropertiesAreReflectedInChannels,
         ModulesWriteGlobalChannels,
         ApplyClientTime,
         PlayingTransitions,

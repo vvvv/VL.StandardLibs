@@ -1,12 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
 
+  <PropertyGroup Condition="Exists('$(MsBuildThisFileDirectory)..\version.json')">
+    <InPrivateRepo>true</InPrivateRepo>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)..\bin\packages\</PackageOutputPath>
+  </PropertyGroup>
+
   <PropertyGroup>
-    <PackageOutputPath>$(MsBuildThisFileDirectory)build\packages\</PackageOutputPath>
+    <PackageOutputPath Condition="'$(PackageOutputPath)' == ''">$(MsBuildThisFileDirectory)build\packages\</PackageOutputPath>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
     <NoWarn>$(NoWarn)1591;</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Create the nupks as well so we can use them right away -->
+    <GeneratePackageOnBuild>$(BuildingInsideVisualStudio)</GeneratePackageOnBuild>
+    <!-- Use stable nuspec file name during development -->
+    <!-- It leads to for example VL.CoreLib\src\obj\VL.CoreLib.nuspec which our package loader can pick up to infer the exact package version -->
+    <!-- Combined with the GeneratePackageOnBuild this allows to reference this project as a package in C# project references from within VL files -->
+    <OutputFileNamesWithoutVersion Condition="'$(OutputFileNamesWithoutVersion)' == ''">true</OutputFileNamesWithoutVersion>
+    <NuspecOutputPath>obj\</NuspecOutputPath>
+    <!-- Maybe interesting, see nuget pack command line docs -->
+    <!--<InstallPackageToOutputPath>true</InstallPackageToOutputPath>-->
 
     <!-- Must be turned off or publishing from inside VS fails -->
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
@@ -32,13 +46,13 @@
   </PropertyGroup>
 
   <!-- Read the version information from our private repo (for now) -->
-  <PropertyGroup Condition="Exists('$(MsBuildThisFileDirectory)..\version.json')">
+  <PropertyGroup Condition="'$(InPrivateRepo)' == 'true'">
     <GitRepoRoot>$(MSBuildThisFileDirectory)..\</GitRepoRoot>
     <!-- https://github.com/dotnet/Nerdbank.GitVersioning/blob/master/doc/msbuild.md -->
     <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)..\</GitVersionBaseDirectory>
   </PropertyGroup>
 
-  <ItemGroup Condition="Exists('$(MsBuildThisFileDirectory)..\version.json')">
+  <ItemGroup Condition="'$(InPrivateRepo)' == 'true'">
     <PackageReference Include="Nerdbank.GitVersioning">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

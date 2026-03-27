@@ -426,7 +426,7 @@ namespace VL.Lib.IO
                         {
                             if (!n.FileInfo.Directory.Exists)
                                 n.FileInfo.Directory.Create();
-                            f.FileInfo.CopyTo(newPath);
+                            f.FileInfo.CopyTo(newPath, replaceExisting);
                             return n;
                         });
                         p = n;

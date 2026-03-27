@@ -10,11 +10,20 @@ namespace VL.Skia.Egl
         public EglImage(EglDisplay display, IntPtr nativePointer) : base(nativePointer)
         {
             this.display = display;
+            bool success = false;
+            display.DangerousAddRef(ref success);
         }
 
         protected override bool ReleaseHandle()
         {
-            return eglDestroyImageKHR(display, handle);
+            try
+            {
+                return eglDestroyImageKHR(display, handle);
+            }
+            finally
+            {
+                display.DangerousRelease();
+            }
         }
     }
 }

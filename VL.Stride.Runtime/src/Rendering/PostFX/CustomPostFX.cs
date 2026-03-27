@@ -172,7 +172,7 @@ public sealed class CustomPostFX : ImageEffect, IPostProcessingEffects
     {
     }
 
-    void IPostProcessingEffects.Draw(RenderDrawContext drawContext, RenderOutputValidator outputValidator, Texture[] inputs, Texture inputDepthStencil, Texture outputTarget)
+    void IPostProcessingEffects.Draw(RenderDrawContext drawContext, RenderOutputValidator outputValidator, Span<Texture> inputs, Texture inputDepthStencil, Texture outputTarget)
     {
         // Ensure we start from a clean state
         Reset();

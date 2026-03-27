@@ -9,11 +9,11 @@ namespace VL.Core.EditorAttributes
 {
     /// <summary>
     /// Used by the Publish node to turn properties into public channels.
-    /// The Publish node interprets the absence of the attribute means that the property is published.
-    /// Use the attribute to mark properties that should not be published.
-    /// Might later on also be used by an auto-publish system, which might interpret the absence of the attribute as "don't publish".
+    /// VLObjects are published by default
+    /// For .Net classes and structs, the default is not to publish anything. unless marked with [CanBePublished(true)].
+    /// Properties are published unless marked with [CanBePublished(false)].
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)] // TODO: shouldn't be on field
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)] // TODO: shouldn't be on field
     public class CanBePublishedAttribute : Attribute
     {
         bool canBePublished;

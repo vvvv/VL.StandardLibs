@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stride.Core.Mathematics;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
@@ -217,6 +218,37 @@ namespace VL.Lib.Primitive
             var success = TryParseValue<double>(@string, double.TryParse, out val);
             value = val;
             return success;
+        }
+
+        // Parsing for stride.core.mathematics (intX and vectorX)
+        public static bool TryParse(string @string, out Vector2 value)
+        {
+            return TryParseValue(@string, VectorParser.TryParseVector2, out value);
+        }
+
+        public static bool TryParse(string @string, out Vector3 value)
+        {
+            return TryParseValue(@string, VectorParser.TryParseVector3, out value);
+        }
+
+        public static bool TryParse(string @string, out Vector4 value)
+        {
+            return TryParseValue(@string, VectorParser.TryParseVector4, out value);
+        }
+
+        public static bool TryParse(string @string, out Int2 value)
+        {
+            return TryParseValue(@string, VectorParser.TryParseInt2, out value);
+        }
+
+        public static bool TryParse(string @string, out Int3 value)
+        {
+            return TryParseValue(@string, VectorParser.TryParseInt3, out value);
+        }
+
+        public static bool TryParse(string @string, out Int4 value)
+        {
+            return TryParseValue(@string, VectorParser.TryParseInt4, out value);
         }
     }
 }

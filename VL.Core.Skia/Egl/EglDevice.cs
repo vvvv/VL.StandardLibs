@@ -7,17 +7,21 @@ using EGLDeviceEXT = System.IntPtr;
 using static VL.Skia.Egl.NativeEgl;
 using VL.Core;
 using VL.Lib.Basics.Video;
+using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace VL.Skia.Egl
 {
     sealed class EglDeviceProvider : IDisposable
     {
         private readonly IGraphicsDeviceProvider? graphicsDeviceProvider;
+        private readonly ILogger? logger;
         private EglDevice? device;
 
-        public EglDeviceProvider(IGraphicsDeviceProvider? graphicsDeviceProvider = null)
+        public EglDeviceProvider(IGraphicsDeviceProvider? graphicsDeviceProvider = null, ILogger? logger = null)
         {
             this.graphicsDeviceProvider = graphicsDeviceProvider;
+            this.logger = logger;
         }
 
         public EglDevice GetDevice()
@@ -45,10 +49,12 @@ namespace VL.Skia.Egl
                 // TODO: Hmm, because of extensions assemblies being part of service scope we always create a Stride game this way - ideas?
                 if (graphicsDeviceProvider?.Type == GraphicsDeviceType.Direct3D11)
                 {
+                    logger?.LogInformation("Using existing D3D11 device for ANGLE on thread {threadName}", GetThreadName());
                     device = EglDevice.FromD3D11(graphicsDeviceProvider.NativePointer, graphicsDeviceProvider.UseLinearColorspace);
                 }
                 else
                 {
+                    logger?.LogInformation("Creating new D3D11 device for ANGLE on thread {threadName}", GetThreadName());
                     device = EglDevice.NewD3D11();
                 }
                 return device;
@@ -57,6 +63,8 @@ namespace VL.Skia.Egl
             {
                 throw new NotImplementedException();
             }
+
+            static string GetThreadName() => Thread.CurrentThread.Name ?? Thread.CurrentThread.ManagedThreadId.ToString();
         }
     }
 
@@ -80,11 +88,23 @@ namespace VL.Skia.Egl
             if (Array.Exists(Environment.GetCommandLineArgs(), argument => argument == "--debug-gpu"))
                 flags |= D3D11_CREATE_DEVICE_FLAG.D3D11_CREATE_DEVICE_DEBUG;
 
-            ID3D11Device* device;
-            ID3D11DeviceContext* deviceContext;
-            Windows.Win32.PInvoke.D3D11CreateDevice(null, D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE, default, flags, &featureLevels, 1, 7, &device, &featureLevel, &deviceContext);
-            if (device is null)
-                Windows.Win32.PInvoke.D3D11CreateDevice(null, D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE, default, flags, default, 0, 7, &device, &featureLevel, &deviceContext);
+            ID3D11Device* device = null;
+            ID3D11DeviceContext* deviceContext = null;
+
+            var deviceTypes = new D3D_DRIVER_TYPE[]
+            {
+                D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE,
+                D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_WARP
+            };
+            foreach (var driverType in deviceTypes)
+            {
+                Windows.Win32.PInvoke.D3D11CreateDevice(null, driverType, default, flags, &featureLevels, 1, 7, &device, &featureLevel, &deviceContext);
+                if (device is null)
+                    Windows.Win32.PInvoke.D3D11CreateDevice(null, driverType, default, flags, default, 0, 7, &device, &featureLevel, &deviceContext);
+                if (device is not null)
+                    break;
+            }
+
             if (device is null)
                 throw new Exception("Failed to create D3D11 device");
 
@@ -103,14 +123,14 @@ namespace VL.Skia.Egl
             }
         }
 
-        private readonly ID3D11Device* nativeDevice;
+        private readonly ID3D11Device* d3d11Device;
 
-        private EglDevice(EGLDeviceEXT angleDevice, ID3D11Device* nativeDevice, nint contextState = default, bool useLinearColorSpace = false)
+        private EglDevice(EGLDeviceEXT angleDevice, ID3D11Device* d3d11Device, nint contextState = default, bool useLinearColorSpace = false)
             : base(angleDevice)
         {
             ContextState = contextState;
             UseLinearColorspace = useLinearColorSpace;
-            this.nativeDevice = nativeDevice;
+            this.d3d11Device = d3d11Device;
         }
 
         public nint ContextState { get; }
@@ -121,11 +141,15 @@ namespace VL.Skia.Egl
         {
             get
             {
-                if (OperatingSystem.IsWindowsVersionAtLeast(6, 1) && !nativeDevice->GetDeviceRemovedReason().Succeeded)
+                if (IsClosed)
+                    return true;
+                if (OperatingSystem.IsWindowsVersionAtLeast(6, 1) && !d3d11Device->GetDeviceRemovedReason().Succeeded)
                     return true;
                 return false;
             }
         }
+
+        internal ID3D11Device* D3D11Device => d3d11Device;
 
         protected override bool ReleaseHandle()
         {

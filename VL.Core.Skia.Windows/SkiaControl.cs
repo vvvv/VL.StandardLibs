@@ -88,7 +88,7 @@ namespace VL.Skia
 
             try
             {
-                r.Render(Handle, Width, Height, VSync, ci =>
+                r.Render(Handle, Width, Height, this.LogicalToDeviceScalingFactor(), VSync, ci =>
                 {
                     CallerInfo = ci;
                     OnPaint(ci);

@@ -52,7 +52,7 @@ public class TransformBlockNode<TInput, TOutput> : BlockNode<TransformBlock<TInp
                 }
             },
             dataflowBlockOptions: options ?? new());
-        block.Completion.ContinueWith(_ => manager.Dispose());
+        block.Completion.ContinueWith(_ => manager.Dispose(), options?.TaskScheduler ?? TaskScheduler.Default);
         return block;
     }
 }

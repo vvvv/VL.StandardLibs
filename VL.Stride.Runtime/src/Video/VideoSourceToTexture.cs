@@ -45,7 +45,7 @@ namespace VL.Stride.Video
         {
             using var _ = appHost.MakeCurrent();
             var handle = videoFrameProvider?.ToTexture(renderContext).GetHandle();
-            if (handle != null && !resultQueue.TryAddSafe(handle, millisecondsTimeout: 10))
+            if (handle != null && !resultQueue.TryAddSafe(handle, millisecondsTimeout: 100))
                 handle.Dispose();
         }
 
