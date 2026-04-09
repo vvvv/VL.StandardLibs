@@ -100,6 +100,7 @@ namespace VL.ImGui.Stride
 
             _game = nodeContext.AppHost.Services.GetRequiredService<VLGame>();
             _gameWindowManager = new GameWindowManager(nodeContext, bounds,
+                isBorderless: false,
                 alwaysOnTop: Channel.Create(false),
                 extendIntoTitleBar: Channel.Create(false),
                 multisampleCount: MultisampleCount.None,
