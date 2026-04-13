@@ -27,6 +27,7 @@ namespace VL.Lib.Animation
         private double waitAccuracy = 2.0 / 1000.0; //2ms
         IMainLoopTimer mainLoopTimer;
         readonly Stopwatch FWatch = Stopwatch.StartNew();
+        readonly Stopwatch FTotalTimeWatch = Stopwatch.StartNew();
 
         public FrameClock()
         {
@@ -37,11 +38,23 @@ namespace VL.Lib.Animation
 
         public Time Time => FFrameTime;
 
+        public void BeginFrame()
+        {
+            if (IsIncremental)
+            {
+                BeginFrame(FFrameTime + TimeIncrement);
+            }
+            else
+            {
+                BeginFrame(FTotalTimeWatch.Elapsed);
+            }
+        }
+
         /// <summary>
         /// Used on start of the frame, sets the frame time and triggers the before frame tick event.
         /// </summary>
         /// <param name="frameTime">The absolute time since start. Global parameter used by the animation nodes</param>
-        public void SetFrameTime(Time frameTime)
+        private void BeginFrame(Time frameTime)
         {
             if (FInitialized)
                 TimeDifference = Math.Max(frameTime.Seconds - FFrameTime.Seconds, MinTimeDifferenceInSeconds);
@@ -53,7 +66,7 @@ namespace VL.Lib.Animation
             FWatch.Restart();
 
             FCurrentFrame++;
-            FLastInterval = mainLoopTimer?.GetIntervalOrIncrement() ?? TimeSpan.Zero;
+            FLastInterval = TimeSpan.FromSeconds(TimeDifference);
             FrameStarting.OnNext(new FrameTimeMessage(FFrameTime, FCurrentFrame, FLastInterval));
 
             OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.SubChannelsGetLocked));
@@ -90,10 +103,11 @@ namespace VL.Lib.Animation
         /// </summary>
         public void NotifyFrameFinished()
         {
-            OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.ModulesSendingData)); 
+            OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.ModulesSendingData));
 
-            UpdateTime = FWatch.Elapsed;
-            FrameFinished.OnNext(new FrameFinishedMessage(FFrameTime, UpdateTime, FCurrentFrame, mainLoopTimer?.GetIntervalOrIncrement() ?? TimeSpan.Zero));
+            var updateBeginToEndElapsedTime = FWatch.Elapsed;
+            UpdateTime = updateBeginToEndElapsedTime;
+            FrameFinished.OnNext(new FrameFinishedMessage(FFrameTime, UpdateTime, FCurrentFrame, updateBeginToEndElapsedTime));
         }
 
         public Time UpdateTime { get; private set; }
@@ -142,7 +156,9 @@ namespace VL.Lib.Animation
                 if (isIncremental != value)
                 {
                     isIncremental = value;
-                    SetMainloopTimerProperties(); 
+                    SetMainloopTimerProperties();
+                    if (!value)
+                        Restart();
                 }
             }
         }
@@ -184,8 +200,6 @@ namespace VL.Lib.Animation
             {
                 mainLoopTimer.Interval = TimeSpanUtils.FromSecondsPrecise(desiredTimeDifference);
                 mainLoopTimer.WaitAccuracy = TimeSpanUtils.FromSecondsPrecise(waitAccuracy);
-                mainLoopTimer.IsIncremental = isIncremental;
-                mainLoopTimer.Increment = TimeSpanUtils.FromSecondsPrecise(timeIncrement);
             }
         }
 
