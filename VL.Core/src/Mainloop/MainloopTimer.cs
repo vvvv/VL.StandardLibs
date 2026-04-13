@@ -32,7 +32,7 @@ namespace VL.Core
         TimeSpan LastInterval { get; }
 
         /// <summary>
-        /// Occurs when the Timer has completed one interval.
+        /// Occurs when the Timer has completed one interval. Raised on the thread the timer has been created in.
         /// </summary>
         event EventHandler<TimeSpan> Tick;
 
