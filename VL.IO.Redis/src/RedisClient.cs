@@ -179,6 +179,8 @@ namespace VL.IO.Redis
         [DefaultValue(SerializationFormat.MessagePack)]
         internal SerializationFormat Format { private get; set; } = SerializationFormat.MessagePack;
 
+        internal bool IsDisposed => _disposables.IsDisposed;
+
         internal RedisConnection? CurrentConnection => _redisConnection;
         internal IObservable<RedisConnection?> ConnectionObservable => _redisConnectionManager.ConnectionObservable;
 

@@ -95,7 +95,11 @@ namespace VL.IO.Redis
                             }
                         };
                         subscriber.Subscribe(channel, handler);
-                        innerSub.Disposable = Disposable.Create(() => subscriber.Unsubscribe(channel, handler));
+                        innerSub.Disposable = Disposable.Create(() =>
+                        {
+                            if (!client.IsDisposed)
+                                subscriber.Unsubscribe(channel, handler);
+                        });
                     }
                     else
                     {
@@ -115,7 +119,11 @@ namespace VL.IO.Redis
 
                         var queue = subscriber.Subscribe(channel);
                         queue.OnMessage(handler);
-                        innerSub.Disposable = Disposable.Create(() => queue.Unsubscribe());
+                        innerSub.Disposable = Disposable.Create(() =>
+                        {
+                            if (!client.IsDisposed)
+                                queue.Unsubscribe();
+                        });
                     }
                 })
                 .Finally(() => innerSub.Dispose())
