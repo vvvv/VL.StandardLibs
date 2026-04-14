@@ -116,7 +116,7 @@ namespace VL.Core
         public void Incorporate(T @default, out T value, out bool isDefault, out bool valueIsSet)
         {
             value = HasValue ? Value : @default;
-            isDefault = value.Equals(@default);
+            isDefault = EqualityComparer<T>.Default.Equals(value, @default);
             valueIsSet = HasValue;
         }
 
