@@ -44,6 +44,7 @@ namespace VL.Core
         private readonly UniqueId _localId;
         private readonly UniqueId? _definitionId;
         private readonly string? _privateData;
+        private ILogger? _logger;
         private ImmutableStack<UniqueId>? _stack;
 
         private NodeContext(AppHost appHost, NodeContext? parent, UniqueId localId, bool isImmutable = false, UniqueId? definitionId = null, string? privateData = null)
@@ -119,7 +120,7 @@ namespace VL.Core
         [EditorBrowsable(EditorBrowsableState.Never)]
         public IClock RealTimeClock => ServiceRegistry.Current.GetRequiredService<IClock>();
 
-        public ILogger GetLogger() => _appHost.LoggerFactory.CreateLogger(null, this);
+        public ILogger GetLogger() => _logger ??= _appHost.LoggerFactory.CreateLogger(null, this);
 
         public string? PrivateData => _privateData;
 
