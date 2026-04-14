@@ -23,8 +23,6 @@ namespace VL.Core
 
         void Start();
 
-        void EmulateTick();
-
         void Stop();
     }
 }
