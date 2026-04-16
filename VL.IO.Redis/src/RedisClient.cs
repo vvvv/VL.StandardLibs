@@ -277,6 +277,9 @@ namespace VL.IO.Redis
             switch (GetEffectiveSerializationFormat(preferredFormat))
             {
                 case SerializationFormat.Raw:
+                    // Strings have their own code path in RedisValue
+                    if (value is string s)
+                        return s;
                     return RawSerialization.Serialize(value);
                 case SerializationFormat.MessagePack:
                     return MessagePackSerialization.Serialize(value);
@@ -293,6 +296,9 @@ namespace VL.IO.Redis
             switch (GetEffectiveSerializationFormat(preferredFormat))
             {
                 case SerializationFormat.Raw:
+                    // Strings have their own code path in RedisValue
+                    if (typeof(T) == typeof(string))
+                        return (T?)(object?)(string?)redisValue;
                     return RawSerialization.Deserialize<T>(redisValue);
                 case SerializationFormat.MessagePack:
                     return MessagePackSerialization.Deserialize<T>(redisValue);
