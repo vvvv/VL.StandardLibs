@@ -76,8 +76,8 @@ namespace VL.Lib.Video
                                     }
                                     else
                                     {
-                                        // To prevent CPU going to 100%
-                                        await scheduler.Sleep(TimeSpan.FromMilliseconds(1), token);
+                                        // To prevent CPU going to 100% (1ms seems to trigger a busy wait)
+                                        await scheduler.Sleep(TimeSpan.FromMilliseconds(2), token);
                                     }
                                 }
                                 else
