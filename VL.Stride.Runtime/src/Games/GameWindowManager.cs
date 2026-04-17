@@ -55,6 +55,7 @@ public sealed class GameWindowManager : IDisposable
         window.AllowUserResizing = true;
         window.IsMouseVisible = true;
         window.IsBorderLess = isBorderless;
+        window.SetSize(new Int2((int)boundsInPixels.Width, (int)boundsInPixels.Height));
     }
 
     [Fragment]
