@@ -540,7 +540,7 @@ namespace VL.Lib.IO
         public static bool operator !=(Path a, Path b) => !(a == b);
 
         public override bool Equals(object obj) => Equals(obj as Path);
-        public override int GetHashCode() => Info?.FullName.GetHashCode() ?? _path.GetHashCode();
+        public override int GetHashCode() => _path.GetHashCode();
     }
 }
 
