@@ -88,9 +88,6 @@ namespace VL.Stride.Core
 
         private static void LoadBundle(ServiceRegistry services, PluginInfo plugin)
         {
-            var objDb = services.GetService<IDatabaseFileProviderService>().FileProvider.ObjectDatabase;
-            var bundleBackend = objDb.BundleBackend;
-
             var mountPoint = $"/{plugin.Name}";
             var bundlesPath = Path.Combine(plugin.Path, "data", "db", "bundles");
             var defaultBundlePath = Path.Combine(bundlesPath, "default.bundle");
@@ -110,11 +107,57 @@ namespace VL.Stride.Core
                 }
                 return null;
             };
+
+            var objDb = services.GetService<IDatabaseFileProviderService>().FileProvider.ObjectDatabase;
+            var bundleBackend = objDb.BundleBackend;
             bundleBackend.BundleResolve += resolver;
 
             try
             {
                 var bundleLoadTask = bundleBackend.LoadBundle(plugin.Name, objDb.ContentIndexMap);
+                bundleLoadTask.Wait();
+            }
+            finally
+            {
+                bundleBackend.BundleResolve -= resolver;
+            }
+        }
+
+        public static void LoadBundle(AppHost appHost, string bundleFile)
+        {
+            var servicesUsedByNodeFactories = GetGlobalStrideServices();
+            LoadBundle(servicesUsedByNodeFactories, bundleFile);
+
+            var services = appHost.Services.GetRequiredService<Game>().Services;
+            LoadBundle(services, bundleFile);
+        }
+
+        private static void LoadBundle(ServiceRegistry services, string bundleFile)
+        {
+            var bundleName = Path.GetFileNameWithoutExtension(bundleFile);
+            var mountPoint = $"/{bundleName}";
+            var bundlesPath = Path.GetDirectoryName(bundleFile);
+            if (!VirtualFileSystem.DirectoryExists(mountPoint)) // or just use RemountFileSystem?
+            {
+                VirtualFileSystem.MountFileSystem(mountPoint, bundlesPath);
+            }
+
+            BundleResolveDelegate resolver = async name =>
+            {
+                if (name == bundleName)
+                {
+                    return $"{mountPoint}/{Path.GetFileName(bundleFile)}";
+                }
+                return null;
+            };
+
+            var objDb = services.GetService<IDatabaseFileProviderService>().FileProvider.ObjectDatabase;
+            var bundleBackend = objDb.BundleBackend;
+            bundleBackend.BundleResolve += resolver;
+
+            try
+            {
+                var bundleLoadTask = bundleBackend.LoadBundle(bundleName, objDb.ContentIndexMap);
                 bundleLoadTask.Wait();
             }
             finally

@@ -16,6 +16,14 @@
     <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == ''">LGPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
 
+  <!-- Puts the compiler generated nuspec file into the package root folder. This file will be read by our package system. -->
+  <Target Name="_EnsureNuspecIsPresent"  Condition="$(IsPackable) == 'true'" AfterTargets="Build" DependsOnTargets="GenerateNuspec">
+    <ItemGroup>
+      <_NuspecFiles Include="@(_OutputPackItems)" Condition="'%(Extension)' == '.nuspec'" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_NuspecFiles)" DestinationFiles="@(_NuspecFiles->'$(OutputPath)..\..\$(PackageId).gen.nuspec')" SkipUnchangedFiles="true" />
+  </Target>
+
   <ItemGroup Condition=" '$(IsPackable)' != 'false' ">
     <None Include="$(MsBuildThisFileDirectory)build\nugeticon.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
