@@ -7,6 +7,26 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <IsPrivateVLProject Condition="'$(IsPrivateVLProject)' == ''">false</IsPrivateVLProject>
+  </PropertyGroup>
+
+  <!-- Let's change defaults of how references work (these are all plugins after all) -->
+  <!-- https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support -->
+  <PropertyGroup Condition="'$(IsPrivateVLProject)' == 'false'">
+    <!-- We need to carefully manage P2P references. Making sure we don't copy base dlls to multiple locations. -->
+    <!-- https://github.com/dotnet/msbuild/blob/main/documentation/wiki/Controlling-Dependencies-Behavior.md#access-to-transitive-project-references -->
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+  </PropertyGroup>
+  
+  <ItemDefinitionGroup Condition="'$(IsPrivateVLProject)' == 'false'">
+    <PackageReference ExcludeAssets="runtime" />
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(IsPrivateVLProject)' == 'false'">
+    <ProjectReference Private="false" ExcludeAssets="runtime" />
+  </ItemDefinitionGroup>
+
+  <PropertyGroup>
     <PackageOutputPath Condition="'$(PackageOutputPath)' == ''">$(MsBuildThisFileDirectory)build\packages\</PackageOutputPath>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
