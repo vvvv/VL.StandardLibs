@@ -45,15 +45,15 @@ namespace VL.Stride.Video
         {
             using var _ = appHost.MakeCurrent();
             var handle = videoFrameProvider?.ToTexture(renderContext).GetHandle();
-            if (handle != null && !resultQueue.TryAddSafe(handle, millisecondsTimeout: 100))
-                handle.Dispose();
+            if (!resultQueue.TryAddSafe(handle, millisecondsTimeout: 100))
+                handle?.Dispose();
         }
 
         protected override void OnPull(IResourceProvider<VideoFrame>? videoFrameProvider, bool mipmapped)
         {
             var handle = videoFrameProvider?.ToTexture(renderContext).GetHandle();
-            if (handle != null && !resultQueue.TryAddSafe(handle, millisecondsTimeout: 10))
-                handle.Dispose();
+            if (!resultQueue.TryAddSafe(handle, millisecondsTimeout: 10))
+                handle?.Dispose();
         }
 
         public override void Dispose()

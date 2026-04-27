@@ -42,15 +42,15 @@ namespace VL.Skia.Video
         protected override void OnPush(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped)
         {
             var handle = videoFrameProvider?.GetHandle().ToSkImage(renderContextProvider, mipmapped).GetHandle();
-            if (handle != null && !resultQueue.TryAddSafe(handle, millisecondsTimeout: 100))
-                handle.Dispose();
+            if (!resultQueue.TryAddSafe(handle, millisecondsTimeout: 100))
+                handle?.Dispose();
         }
 
         protected override void OnPull(IResourceProvider<VideoFrame>? videoFrameProvider, bool mipmapped)
         {
             var handle = videoFrameProvider?.GetHandle().ToSkImage(renderContextProvider, mipmapped).GetHandle();
-            if (handle != null && !resultQueue.TryAddSafe(handle))
-                handle.Dispose();
+            if (!resultQueue.TryAddSafe(handle))
+                handle?.Dispose();
         }
 
         public override void Dispose()
