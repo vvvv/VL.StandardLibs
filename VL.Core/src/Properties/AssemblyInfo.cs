@@ -1,5 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 // All the general informaton including the version info is generated during build
 // and can be found in AssemblyInfo.generated.cs
@@ -24,3 +25,5 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("VL.Stride.Runtime")]
 [assembly: InternalsVisibleTo("VL.Serialization.FSPickler")]
 [assembly: InternalsVisibleTo("vvvv")]
+
+[assembly: AssemblyMetadata("BugFix.VideoSourceToImage.FrameReleaseIssue", "Fixed")]
