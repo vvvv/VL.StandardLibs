@@ -1,0 +1,21 @@
+shader SampleVideoTextureBGRA<LinkType TextureName, MemberName TextureResourceGroupName> 
+        : ComputeFloat4
+{
+    stage stream float2 TexCoord : TEXCOORD0;
+
+    rgroup TextureResourceGroupName
+    {
+        [Link("TextureName")]
+        stage Texture2D VideoTexture;
+
+        // Sampler is static, doesn't need dynamic linking
+        stage SamplerState VideoSampler;
+    }
+
+    override float4 Compute()
+    {
+        // Sample from texture using texture coordinates from the mesh (TEXCOORD0 semantic)
+        // BGRA format is already in the right color space, just sample directly
+        return VideoTexture.Sample(VideoSampler, streams.TexCoord);
+    }  
+};

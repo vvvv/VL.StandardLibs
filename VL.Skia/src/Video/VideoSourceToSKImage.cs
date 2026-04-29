@@ -39,18 +39,9 @@ namespace VL.Skia.Video
 
         protected override VideoPlaybackContext Context => ctx;
 
-        protected override void OnPush(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped)
+        protected override IResourceHandle<SKImage?>? GetHandle(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped)
         {
-            var handle = videoFrameProvider?.GetHandle().ToSkImage(renderContextProvider, mipmapped).GetHandle();
-            if (!resultQueue.TryAddSafe(handle, millisecondsTimeout: 100))
-                handle?.Dispose();
-        }
-
-        protected override void OnPull(IResourceProvider<VideoFrame>? videoFrameProvider, bool mipmapped)
-        {
-            var handle = videoFrameProvider?.GetHandle().ToSkImage(renderContextProvider, mipmapped).GetHandle();
-            if (!resultQueue.TryAddSafe(handle))
-                handle?.Dispose();
+            return videoFrameProvider.ToSkImage(renderContextProvider, mipmapped).GetHandle();
         }
 
         public override void Dispose()

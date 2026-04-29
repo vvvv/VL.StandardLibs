@@ -1,10 +1,12 @@
 ﻿#nullable enable
 using SharpDX.Direct3D11;
+using Stride.Engine;
 using Stride.Graphics;
 using Stride.Rendering;
 using System;
 using System.Reactive.Disposables;
 using VL.Core;
+using VL.Lib.Animation;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
 using VL.Stride.Utils;
@@ -96,6 +98,31 @@ namespace VL.Stride.Video
         {
             var nativeTexture = new Texture2D(videoTexture.NativePointer);
             return SharpDXInterop.CreateTextureFromNative(graphicsDevice, nativeTexture, takeOwnership: true, isSRgb: false);
+        }
+
+        internal static VideoPlaybackContext CreatePlaybackContext(NodeContext nodeContext)
+        {
+            var logger = nodeContext.GetLogger();
+            var appHost = nodeContext.AppHost;
+
+            var game = appHost.Services.GetRequiredService<Game>();
+            var frameClock = appHost.Services.GetRequiredService<IFrameClock>();
+
+            var renderContext = RenderContext.GetShared(game.Services);
+            var graphicsDevice = renderContext.GraphicsDevice;
+
+            if (SharpDXInterop.GetNativeDevice(graphicsDevice) is SharpDX.Direct3D11.Device device)
+                return new VideoPlaybackContext(frameClock, logger, GetGraphicsDevice, GraphicsDeviceType.Direct3D11, graphicsDevice.ColorSpace == ColorSpace.Linear);
+            else
+                return new VideoPlaybackContext(frameClock, logger);
+
+            IntPtr GetGraphicsDevice()
+            {
+                var graphicsDevice = renderContext.GraphicsDevice;
+                if (SharpDXInterop.GetNativeDevice(graphicsDevice) is SharpDX.Direct3D11.Device device)
+                    return device.NativePointer;
+                return IntPtr.Zero;
+            }
         }
     }
 }

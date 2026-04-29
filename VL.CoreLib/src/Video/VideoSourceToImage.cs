@@ -6,6 +6,8 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using VL.Core;
+using VL.Core.Utils;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
 
@@ -27,9 +29,24 @@ namespace VL.Lib.Video
 
         private VideoPlaybackContext GetVideoPlaybackContext(bool preferGpu) => preferGpu ? Context : new VideoPlaybackContext(Context.FrameClock, Context.Logger);
 
-        protected abstract void OnPush(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped);
+        protected virtual void OnPush(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped)
+        {
+            var handle = GetHandle(videoFrameProvider, mipmapped);
+            if (!resultQueue.TryAddSafe(handle, millisecondsTimeout: 100))
+                handle?.Dispose();
+        }
 
-        protected abstract void OnPull(IResourceProvider<VideoFrame>? videoFrameProvider, bool mipmapped);
+        protected virtual void OnPull(IResourceProvider<VideoFrame>? videoFrameProvider, bool mipmapped)
+        {
+            var handle = videoFrameProvider != null ? GetHandle(videoFrameProvider, mipmapped) : null;
+            if (!resultQueue.TryAddSafe(handle, millisecondsTimeout: 10))
+                handle?.Dispose();
+        }
+
+        protected virtual IResourceHandle<TImage?>? GetHandle(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped)
+        {
+            return null;
+        }
 
         public TImage Update(IVideoSource? videoSource, TImage fallback, bool mipmapped, bool preferPush = true, bool preferGpu = true)
         {

@@ -45,7 +45,20 @@ namespace VL.Stride.Utils
         public static StridePixelFormat ToTexturePixelFormat(this VLPixelFormat format, ColorSpace colorSpace)
         {
             var pixelFormat = ToTexturePixelFormat(format);
+
+            // YUV video formats should NOT be converted to sRGB texture formats
+            // because YUV data is not gamma-encoded RGB - the shader will handle color space conversion
+            if (IsVideoFormat(format))
+                return pixelFormat;
+
             return colorSpace == ColorSpace.Linear ? pixelFormat.ToSRgb() : pixelFormat;
+
+            static bool IsVideoFormat(VLPixelFormat format) => format switch
+            {
+                VLPixelFormat.UYVY => true,
+                VLPixelFormat.YUY2 => true,
+                _ => false
+            };
 
             static StridePixelFormat ToTexturePixelFormat(VLPixelFormat format)
             {
@@ -61,6 +74,11 @@ namespace VL.Stride.Utils
                     case VLPixelFormat.R16G16B16A16F: return StridePixelFormat.R16G16B16A16_Float;
                     case VLPixelFormat.R32G32F: return StridePixelFormat.R32G32_Float;
                     case VLPixelFormat.R32G32B32A32F: return StridePixelFormat.R32G32B32A32_Float;
+
+                    // Video formats - packed YUV formats stored as raw RGBA data
+                    // The shader will interpret the channels correctly
+                    case VLPixelFormat.UYVY: return StridePixelFormat.R8G8B8A8_UNorm; // U0,Y0,V0,Y1 -> R,G,B,A
+                    case VLPixelFormat.YUY2: return StridePixelFormat.R8G8B8A8_UNorm; // Y0,U0,Y1,V0 -> R,G,B,A
                 }
                 throw new UnsupportedPixelFormatException(format);
             }

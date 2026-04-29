@@ -1,0 +1,45 @@
+shader SampleVideoTextureUYVY<LinkType TextureName, MemberName TextureResourceGroupName> 
+        : ComputeFloat4
+{
+    stage stream float2 TexCoord : TEXCOORD0;
+
+    rgroup TextureResourceGroupName
+    {
+        [Link("TextureName")]
+        stage Texture2D VideoTexture;
+
+        // Sampler is static, doesn't need dynamic linking
+        stage SamplerState VideoSampler;
+    }
+
+    override float4 Compute()
+    {
+        float4 packed = VideoTexture.Sample(VideoSampler, streams.TexCoord);
+
+        // UYVY packed format: 4 bytes encode 2 pixels
+        // Standard byte order: U0 Y0 V0 Y1
+        // Stored in R8G8B8A8 texture as: R=U, G=Y0, B=V, A=Y1
+
+        // Average the two Y (luma) values to avoid sampling artifacts at different scales
+        float y = (packed.g + packed.a) * 0.5;
+        float u = packed.r;
+        float v = packed.b;
+
+        // Apply limited range (TV levels) scaling
+        // Y: 16-235 (video range) to 0-1 (full range)
+        y = (y - 16.0/255.0) * 255.0/219.0;
+        // U/V: 16-240 centered at 128 to -0.5 to +0.5
+        u = (u - 128.0/255.0) * 255.0/224.0;
+        v = (v - 128.0/255.0) * 255.0/224.0;
+
+        // YUV to RGB conversion using BT.2020 matrix
+        // (NDI uses Rec.2020 for high resolution content)
+        float r = y + 1.4746 * v;
+        float g = y - 0.1646 * u - 0.5714 * v;
+        float b = y + 1.8814 * u;
+
+        // Convert from sRGB gamma to linear color space
+        // (Stride rendering pipeline expects linear color values)
+        return ColorUtility.ToLinear(float4(r, g, b, 1.0));
+    }
+};

@@ -4,8 +4,6 @@ using Stride.Engine;
 using Stride.Graphics;
 using Stride.Rendering;
 using VL.Core;
-using VL.Core.Utils;
-using VL.Lib.Animation;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
 using VL.Lib.Video;
@@ -22,38 +20,14 @@ namespace VL.Stride.Video
         {
             appHost = AppHost.Current;
             renderContext = RenderContext.GetShared(appHost.Services.GetRequiredService<Game>().Services);
-
-            var graphicsDevice = renderContext.GraphicsDevice;
-            var frameClock = AppHost.Current.Services.GetRequiredService<IFrameClock>();
-            if (SharpDXInterop.GetNativeDevice(graphicsDevice) is SharpDX.Direct3D11.Device device)
-                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger(), GetGraphicsDevice, GraphicsDeviceType.Direct3D11, graphicsDevice.ColorSpace == ColorSpace.Linear);
-            else
-                ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger());
-
-            IntPtr GetGraphicsDevice()
-            {
-                var graphicsDevice = renderContext.GraphicsDevice;
-                if (SharpDXInterop.GetNativeDevice(graphicsDevice) is SharpDX.Direct3D11.Device device)
-                    return device.NativePointer;
-                return IntPtr.Zero;
-            }
+            ctx = VideoUtils.CreatePlaybackContext(nodeContext);
         }
 
         protected override VideoPlaybackContext Context => ctx;
 
-        protected override void OnPush(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped)
+        protected override IResourceHandle<Texture?>? GetHandle(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped)
         {
-            using var _ = appHost.MakeCurrent();
-            var handle = videoFrameProvider?.ToTexture(renderContext).GetHandle();
-            if (!resultQueue.TryAddSafe(handle, millisecondsTimeout: 100))
-                handle?.Dispose();
-        }
-
-        protected override void OnPull(IResourceProvider<VideoFrame>? videoFrameProvider, bool mipmapped)
-        {
-            var handle = videoFrameProvider?.ToTexture(renderContext).GetHandle();
-            if (!resultQueue.TryAddSafe(handle, millisecondsTimeout: 10))
-                handle?.Dispose();
+            return videoFrameProvider.ToTexture(renderContext).GetHandle();
         }
 
         public override void Dispose()
