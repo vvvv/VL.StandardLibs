@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
-  
+
+  <!-- Import VL custom Stride asset compiler targets -->
+  <Import Project="$(MSBuildThisFileDirectory)build\VL.Stride.AssetCompiler.targets" Condition="Exists('$(MSBuildThisFileDirectory)build\VL.Stride.AssetCompiler.targets')" />
+
   <ItemGroup Condition="$(VLPackageBasePath) != ''">
     <Content Include="$(VLPackageBasePath)*.vl" PackagePath="%(RecursiveDir)%(Filename)%(Extension)" />
     <Content Include="$(VLPackageBasePath)Assets\**" PackagePath="Assets\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="Assets" />

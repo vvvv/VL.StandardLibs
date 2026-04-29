@@ -1,0 +1,73 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- 
+    VL Custom Stride Asset Compiler Targets
+
+    This file provides a custom Stride asset compiler with VL-specific assembly resolution.
+
+    Usage:
+      Set VLStrideCompileAssets=true in projects that need asset compilation.
+      Set VLStridePackageRepositories to semicolon-separated repository paths.
+
+    Example in Directory.Build.props:
+      <VLStridePackageRepositories>$(MSBuildThisFileDirectory)../../vvvv50;$(MSBuildThisFileDirectory)..</VLStridePackageRepositories>
+  -->
+
+  <PropertyGroup>
+    <!-- Locate our custom asset compiler -->
+    <VLStrideAssetCompilerProject>$(MSBuildThisFileDirectory)VL.Stride.AssetCompilerApp\VL.Stride.AssetCompilerApp.csproj</VLStrideAssetCompilerProject>
+    <VLStrideAssetCompilerOutput>$(MSBuildThisFileDirectory)VL.Stride.AssetCompilerApp\bin\$(Configuration)\net8.0\VL.Stride.AssetCompilerApp.dll</VLStrideAssetCompilerOutput>
+
+    <!-- Use PackageRepositories property from top-level Directory.Build.props -->
+    <!-- Fallback to parent directory if not set (for standalone VL.StandardLibs repo) -->
+    <VLStridePackageRepositories Condition="'$(VLStridePackageRepositories)' == '' AND '$(PackageRepositories)' != ''">$(PackageRepositories)</VLStridePackageRepositories>
+    <VLStridePackageRepositories Condition="'$(VLStridePackageRepositories)' == ''">$(MSBuildThisFileDirectory)..</VLStridePackageRepositories>
+  </PropertyGroup>
+
+  <!-- Build the custom asset compiler if needed -->
+  <Target Name="_VLBuildStrideAssetCompiler" 
+          BeforeTargets="VLCompileStrideAssets"
+          Condition="'$(VLStrideCompileAssets)' == 'true' AND !Exists('$(VLStrideAssetCompilerOutput)')">
+    <Message Importance="High" Text="[VL] Building custom Stride asset compiler..." />
+
+    <MSBuild Projects="$(VLStrideAssetCompilerProject)" 
+             Targets="Build" 
+             Properties="Configuration=$(Configuration)" />
+  </Target>
+
+  <!-- Run the custom asset compiler -->
+  <Target Name="VLCompileStrideAssets" 
+          AfterTargets="Build"
+          Condition="'$(VLStrideCompileAssets)' == 'true'"
+          Inputs="$(TargetPath)" 
+          Outputs="$(IntermediateOutputPath)VLStrideAssets.stamp">
+
+    <PropertyGroup>
+      <!-- Asset build/output paths matching Stride conventions -->
+      <VLStrideAssetBuildPath Condition="'$(VLStrideAssetBuildPath)' == ''">$(ProjectDir)$(BaseIntermediateOutputPath)stride\assetbuild\data</VLStrideAssetBuildPath>
+      <VLStrideAssetOutputPath Condition="'$(VLStrideAssetOutputPath)' == ''">$(TargetDir)data</VLStrideAssetOutputPath>
+      <VLStrideAssetUpToDateCheckFileBase>$(ProjectDir)$(IntermediateOutputPath)stride\assetcompiler-uptodatecheck</VLStrideAssetUpToDateCheckFileBase>
+
+      <!-- Build the asset compiler command line (matching original Stride arguments) -->
+      <VLStrideAssetCompilerArgs>--disable-auto-compile</VLStrideAssetCompilerArgs>
+      <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --project-configuration="$(Configuration)"</VLStrideAssetCompilerArgs>
+      <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --platform=$(StridePlatform)</VLStrideAssetCompilerArgs>
+      <VLStrideAssetCompilerArgs Condition="'$(StrideGraphicsApi)' != ''">$(VLStrideAssetCompilerArgs) --compile-property:StrideGraphicsApi=$(StrideGraphicsApi)</VLStrideAssetCompilerArgs>
+      <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --output-path="$(VLStrideAssetOutputPath)"</VLStrideAssetCompilerArgs>
+      <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --build-path="$(VLStrideAssetBuildPath)"</VLStrideAssetCompilerArgs>
+      <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --package-file="$(MSBuildProjectFullPath)"</VLStrideAssetCompilerArgs>
+      <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --msbuild-uptodatecheck-filebase="$(VLStrideAssetUpToDateCheckFileBase)"</VLStrideAssetCompilerArgs>
+      <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --package-repositories="$(VLStridePackageRepositories)"</VLStrideAssetCompilerArgs>
+      <VLStrideAssetCompilerCommand>dotnet &quot;$(VLStrideAssetCompilerOutput)&quot; $(VLStrideAssetCompilerArgs)</VLStrideAssetCompilerCommand>
+    </PropertyGroup>
+
+    <Message Importance="High" Text="[VL] $(VLStrideAssetCompilerCommand)" />
+
+    <Exec Command="$(VLStrideAssetCompilerCommand)" 
+          WorkingDirectory="$(ProjectDir)" />
+
+    <!-- Create stamp file to track incremental builds -->
+    <Touch Files="$(IntermediateOutputPath)VLStrideAssets.stamp" AlwaysCreate="true" />
+  </Target>
+
+</Project>

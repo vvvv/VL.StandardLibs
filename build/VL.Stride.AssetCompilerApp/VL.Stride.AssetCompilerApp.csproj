@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <!-- Don't pack this, it's build-time infrastructure -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Stride.Core.Assets.CompilerApp">
+      <ExcludeAssets>build;buildTransitive</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" />
+  </ItemGroup>
+
+  <!-- 
+    Remove the Stride.Core.Assets.CompilerApp.exe from runtime assets.
+    The NuGet package contains both a .dll and .exe in lib/net8.0,
+    but we only want the .dll and its dependencies.
+  -->
+  <Target Name="RemoveStrideCompilerExe" AfterTargets="ResolvePackageAssets">
+    <ItemGroup>
+      <RuntimeCopyLocalItems Remove="@(RuntimeCopyLocalItems)" 
+                             Condition="'%(Filename)%(Extension)' == 'Stride.Core.Assets.CompilerApp.exe'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" 
+                               Condition="'%(Filename)%(Extension)' == 'Stride.Core.Assets.CompilerApp.exe'" />
+      <RuntimeTargetsCopyLocalItems Remove="@(RuntimeTargetsCopyLocalItems)"
+                                    Condition="'%(Filename)%(Extension)' == 'Stride.Core.Assets.CompilerApp.exe'" />
+    </ItemGroup>
+  </Target>
+
+</Project>

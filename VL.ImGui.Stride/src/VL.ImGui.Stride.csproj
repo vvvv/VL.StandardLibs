@@ -1,36 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-	  <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OutputPath>..\lib</OutputPath>
-    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<OutputPath>..\lib</OutputPath>
+		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
 
-    <VLPackageBasePath>..\</VLPackageBasePath>
-	  <Description>ImGui rendering backend for Stride</Description>
-	  <PackageTags>widgets, button, slider, layout</PackageTags>
+		<VLPackageBasePath>..\</VLPackageBasePath>
+		<Description>ImGui rendering backend for Stride</Description>
+		<PackageTags>widgets, button, slider, layout</PackageTags>
 
-    <StrideIsExecutable>true</StrideIsExecutable>
-  </PropertyGroup>
+		<!-- Enable VL custom Stride asset compilation -->
+		<VLStrideCompileAssets>true</VLStrideCompileAssets>
+	</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="ImGui.NET">
       <PrivateAssets>all</PrivateAssets>
       <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Stride.Core.Assets.CompilerApp" IncludeAssets="build;buildTransitive" />
     <PackageReference Include="Stride.Engine" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\VL.Core.Skia\VL.Core.Skia.csproj" />
+    <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
     <ProjectReference Include="..\..\VL.ImGui.Skia\src\VL.ImGui.Skia.csproj" />
     <ProjectReference Include="..\..\VL.ImGui\src\VL.ImGui.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\VL.ImGui.Generator\VL.ImGui.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\VL.Skia\src\VL.Skia.csproj" />
     <ProjectReference Include="..\..\VL.Stride.Runtime\src\VL.Stride.Runtime.csproj" />
   </ItemGroup>
 
