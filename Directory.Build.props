@@ -10,20 +10,9 @@
     <IsPrivateVLProject Condition="'$(IsPrivateVLProject)' == ''">false</IsPrivateVLProject>
   </PropertyGroup>
 
-  <!-- Let's change defaults of how references work (these are all plugins after all) -->
-  <!-- https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support -->
-  <PropertyGroup Condition="'$(IsPrivateVLProject)' == 'false'">
-    <!-- We need to carefully manage P2P references. Making sure we don't copy base dlls to multiple locations. -->
-    <!-- https://github.com/dotnet/msbuild/blob/main/documentation/wiki/Controlling-Dependencies-Behavior.md#access-to-transitive-project-references -->
-    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
-  </PropertyGroup>
-  
-  <!--<ItemDefinitionGroup Condition="'$(IsPrivateVLProject)' == 'false'">
-    <PackageReference ExcludeAssets="runtime" />
-  </ItemDefinitionGroup>-->
-
+  <!-- No need to copy base dlls all over the place for our libraries -->
   <ItemDefinitionGroup Condition="'$(IsPrivateVLProject)' == 'false'">
-    <ProjectReference Private="false" ExcludeAssets="runtime" />
+    <ProjectReference Private="false" />
   </ItemDefinitionGroup>
 
   <PropertyGroup>

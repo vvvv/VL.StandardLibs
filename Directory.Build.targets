@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <!-- Puts the compiler generated nuspec file into the package root folder. This file will be read by our package system. -->
-  <Target Name="_EnsureNuspecIsPresent"  Condition="$(IsPackable) == 'true'" AfterTargets="Build" DependsOnTargets="GenerateNuspec">
+  <Target Name="_EnsureNuspecIsPresent"  Condition="$(IsPackable) == 'true'" AfterTargets="GenerateNuspec">
     <ItemGroup>
       <_NuspecFiles Include="@(_OutputPackItems)" Condition="'%(Extension)' == '.nuspec'" />
     </ItemGroup>
