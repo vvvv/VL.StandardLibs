@@ -123,54 +123,13 @@ namespace VL.Stride.Core
             }
         }
 
-        public static void LoadBundle(AppHost appHost, string bundleFile)
-        {
-            var servicesUsedByNodeFactories = GetGlobalStrideServices();
-            LoadBundle(servicesUsedByNodeFactories, bundleFile);
-
-            var services = appHost.Services.GetRequiredService<Game>().Services;
-            LoadBundle(services, bundleFile);
-        }
-
-        private static void LoadBundle(ServiceRegistry services, string bundleFile)
-        {
-            var bundleName = Path.GetFileNameWithoutExtension(bundleFile);
-            var mountPoint = $"/{bundleName}";
-            var bundlesPath = Path.GetDirectoryName(bundleFile);
-            if (!VirtualFileSystem.DirectoryExists(mountPoint)) // or just use RemountFileSystem?
-            {
-                VirtualFileSystem.MountFileSystem(mountPoint, bundlesPath);
-            }
-
-            BundleResolveDelegate resolver = async name =>
-            {
-                if (name == bundleName)
-                {
-                    return $"{mountPoint}/{Path.GetFileName(bundleFile)}";
-                }
-                return null;
-            };
-
-            var objDb = services.GetService<IDatabaseFileProviderService>().FileProvider.ObjectDatabase;
-            var bundleBackend = objDb.BundleBackend;
-            bundleBackend.BundleResolve += resolver;
-
-            try
-            {
-                var bundleLoadTask = bundleBackend.LoadBundle(bundleName, objDb.ContentIndexMap);
-                bundleLoadTask.Wait();
-            }
-            finally
-            {
-                bundleBackend.BundleResolve -= resolver;
-            }
-        }
-
         public override void Configure(AppHost appHost)
         {
             appHost.PluginLoaded += AppHost_PluginLoaded;
 
             var services = appHost.Services;
+
+            services.RegisterService(new BundleLoader());
 
             // Graphics device
             services.RegisterProvider(game => ResourceProvider.Return(game.GraphicsDevice));

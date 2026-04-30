@@ -43,7 +43,14 @@ class Program
         // Setup custom assembly resolution ONLY for VL/Stride assemblies
         var context = new VLAssemblyLoadContext();
         context.SetVerbose(verbose);
-        context.Initialize(repositories);
+
+        // Extract the package file to determine the project being compiled
+        var packageFileArg = args.FirstOrDefault(a => a.StartsWith("--package-file=", StringComparison.OrdinalIgnoreCase));
+        var packageFile = packageFileArg != null
+            ? packageFileArg.Substring("--package-file=".Length).Trim('"')
+            : null;
+
+        context.Initialize(repositories, packageFile);
         AssemblyLoadContext.Default.Resolving += context.ResolveAssembly;
 
         // Initialize Stride modules (same as PackageBuilderApp does)
@@ -177,12 +184,15 @@ class Program
 /// Custom assembly load context that resolves assemblies from local packages
 /// using .gen.nuspec files to find primary assemblies and their .deps.json files
 /// to resolve all runtime dependencies from the global packages folder.
+/// Also resolves .NET runtime assemblies like System.Windows.Forms.
 /// </summary>
 class VLAssemblyLoadContext
 {
     private readonly Dictionary<string, string> _assemblyPathCache = new();
+    private readonly Dictionary<string, string> _runtimeAssemblyCache = new();
     private readonly List<string> _packageRepositories = new();
     private readonly HashSet<string> _processedDepsJson = new();
+    private string? _packageFile;
     private bool _verbose;
     private string? _globalPackagesFolder;
 
@@ -191,8 +201,10 @@ class VLAssemblyLoadContext
         _verbose = verbose;
     }
 
-    public void Initialize(string? repositoriesArg)
+    public void Initialize(string? repositoriesArg, string? packageFile)
     {
+        _packageFile = packageFile;
+
         // Get global packages folder
         _globalPackagesFolder = Environment.GetEnvironmentVariable("NUGET_PACKAGES");
         if (string.IsNullOrEmpty(_globalPackagesFolder))
@@ -220,12 +232,181 @@ class VLAssemblyLoadContext
             }
         }
 
-        // Build assembly cache from all local packages
+        // Build runtime assembly cache from .NET installation
+        BuildRuntimeAssemblyCache();
+
+        // PRIORITY 1: Process the project's own deps.json first (by finding its .gen.nuspec in repositories)
+        if (!string.IsNullOrEmpty(_packageFile))
+        {
+            TryProcessProjectDepsJson();
+        }
+
+        // PRIORITY 2: Build assembly cache from all local packages
         BuildAssemblyCache();
 
         if (_verbose)
         {
-            Console.WriteLine($"[VL Asset Compiler] Found {_assemblyPathCache.Count} assemblies");
+            Console.WriteLine($"[VL Asset Compiler] Found {_assemblyPathCache.Count} assemblies from packages");
+            Console.WriteLine($"[VL Asset Compiler] Found {_runtimeAssemblyCache.Count} runtime assemblies");
+        }
+    }
+
+    private void BuildRuntimeAssemblyCache()
+    {
+        try
+        {
+            // Get the runtime directory from the current process (e.g., C:\Program Files\dotnet\shared\Microsoft.NETCore.App\8.0.x)
+            var runtimeDirectory = Path.GetDirectoryName(typeof(object).Assembly.Location);
+            if (string.IsNullOrEmpty(runtimeDirectory))
+                return;
+
+            var sharedDirectory = Path.GetDirectoryName(runtimeDirectory);
+            if (string.IsNullOrEmpty(sharedDirectory))
+                return;
+
+            var versionFolder = Path.GetFileName(runtimeDirectory);
+
+            if (_verbose)
+                Console.WriteLine($"[VL Asset Compiler] Scanning additional runtime packs for version {versionFolder}");
+
+            // Scan additional runtime packs that our app doesn't directly reference
+            // but user code might need (like System.Windows.Forms, ASP.NET Core, etc.)
+            var additionalRuntimes = new[]
+            {
+                "Microsoft.WindowsDesktop.App",
+                "Microsoft.AspNetCore.App"
+            };
+
+            foreach (var runtimeName in additionalRuntimes)
+            {
+                var runtimePath = Path.Combine(sharedDirectory, "..", runtimeName, versionFolder);
+                runtimePath = Path.GetFullPath(runtimePath);
+
+                if (Directory.Exists(runtimePath))
+                {
+                    if (_verbose)
+                        Console.WriteLine($"[VL Asset Compiler] Found runtime pack: {runtimePath}");
+
+                    foreach (var dllPath in Directory.GetFiles(runtimePath, "*.dll"))
+                    {
+                        var assemblyName = Path.GetFileNameWithoutExtension(dllPath);
+                        if (!_runtimeAssemblyCache.ContainsKey(assemblyName))
+                        {
+                            _runtimeAssemblyCache[assemblyName] = dllPath;
+                        }
+                    }
+                }
+            }
+
+            if (_verbose && _runtimeAssemblyCache.Count > 0)
+            {
+                Console.WriteLine($"[VL Asset Compiler] Registered {_runtimeAssemblyCache.Count} assemblies from additional runtime packs");
+            }
+        }
+        catch (Exception ex)
+        {
+            if (_verbose)
+                Console.WriteLine($"[VL Asset Compiler] Error building runtime assembly cache: {ex.Message}");
+        }
+    }
+
+    private void TryProcessProjectDepsJson()
+    {
+        try
+        {
+            // Get the package ID from the project file path
+            var packageId = Path.GetFileNameWithoutExtension(_packageFile);
+
+            if (_verbose)
+                Console.WriteLine($"[VL Asset Compiler] Looking for {packageId}.gen.nuspec in package repositories...");
+
+            // Look for PackageId/PackageId.gen.nuspec in the repositories
+            foreach (var repo in _packageRepositories)
+            {
+                var packageDir = Path.Combine(repo, packageId);
+                var nuspecPath = Path.Combine(packageDir, $"{packageId}.gen.nuspec");
+
+                if (File.Exists(nuspecPath))
+                {
+                    if (_verbose)
+                        Console.WriteLine($"[VL Asset Compiler] Found project nuspec (PRIORITY): {nuspecPath}");
+
+                    ProcessProjectNuspec(nuspecPath, packageDir);
+                    return;
+                }
+            }
+
+            if (_verbose)
+                Console.WriteLine($"[VL Asset Compiler] Warning: Could not find {packageId}.gen.nuspec in any repository");
+        }
+        catch (Exception ex)
+        {
+            if (_verbose)
+                Console.WriteLine($"[VL Asset Compiler] Error looking for project deps.json: {ex.Message}");
+        }
+    }
+
+    private void ProcessProjectNuspec(string nuspecPath, string packageDir)
+    {
+        try
+        {
+            var doc = XDocument.Load(nuspecPath);
+            var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
+
+            // Get package metadata
+            var metadata = doc.Root?.Element(ns + "metadata");
+            if (metadata == null)
+                return;
+
+            var packageId = metadata.Element(ns + "id")?.Value;
+            if (string.IsNullOrEmpty(packageId))
+                return;
+
+            // Find lib files in the nuspec to locate the primary assembly
+            var files = doc.Root?.Element(ns + "files")?.Elements(ns + "file");
+            if (files == null)
+                return;
+
+            foreach (var file in files)
+            {
+                var src = file.Attribute("src")?.Value;
+                var target = file.Attribute("target")?.Value;
+
+                if (string.IsNullOrEmpty(src) || string.IsNullOrEmpty(target))
+                    continue;
+
+                // Only process lib assemblies
+                if (!target.StartsWith("lib/", StringComparison.OrdinalIgnoreCase) &&
+                    !target.StartsWith("lib\\", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (!target.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                // Resolve src path (absolute or relative to package directory)
+                var assemblyPath = Path.IsPathRooted(src) ? src : Path.Combine(packageDir, src);
+                if (!File.Exists(assemblyPath))
+                    continue;
+
+                // Look for accompanying .deps.json file
+                var depsJsonPath = Path.ChangeExtension(assemblyPath, ".deps.json");
+                if (File.Exists(depsJsonPath))
+                {
+                    if (_verbose)
+                        Console.WriteLine($"[VL Asset Compiler] Found project deps.json via nuspec: {depsJsonPath}");
+
+                    ProcessDepsJson(depsJsonPath);
+                    return; // Process only the first matching assembly's deps.json
+                }
+            }
+
+            if (_verbose)
+                Console.WriteLine($"[VL Asset Compiler] Warning: Could not find deps.json for project {packageId}");
+        }
+        catch (Exception ex)
+        {
+            if (_verbose)
+                Console.WriteLine($"[VL Asset Compiler] Error processing project nuspec {nuspecPath}: {ex.Message}");
         }
     }
 
@@ -358,9 +539,13 @@ class VLAssemblyLoadContext
                 {
                     var assemblyName = Path.GetFileNameWithoutExtension(assembly);
 
-                    // Skip if already cached
+                    // Skip if already cached - this respects priority (project deps.json is processed first)
                     if (_assemblyPathCache.ContainsKey(assemblyName))
+                    {
+                        if (_verbose)
+                            Console.WriteLine($"[VL Asset Compiler] Skipping {assemblyName} - already registered (priority)");
                         continue;
+                    }
 
                     // Resolve from global packages folder
                     var packagePath = Path.Combine(
@@ -394,7 +579,7 @@ class VLAssemblyLoadContext
         if (name == null)
             return null;
 
-        // Don't touch system/framework assemblies - let default resolution handle them
+        // Don't touch core framework assemblies - let default resolution handle them
         if (
             name.StartsWith("netstandard") ||
             name.StartsWith("mscorlib") ||
@@ -403,7 +588,7 @@ class VLAssemblyLoadContext
             return null;
         }
 
-        // Check our cache
+        // First check our package cache
         if (_assemblyPathCache.TryGetValue(name, out var assemblyPath))
         {
             try
@@ -416,6 +601,22 @@ class VLAssemblyLoadContext
             {
                 if (_verbose)
                     Console.WriteLine($"[VL Asset Compiler] Failed to load from {assemblyPath}: {ex.Message}");
+            }
+        }
+
+        // Then check runtime assemblies (System.*, Microsoft.*, etc.)
+        if (_runtimeAssemblyCache.TryGetValue(name, out var runtimePath))
+        {
+            try
+            {
+                if (_verbose)
+                    Console.WriteLine($"[VL Asset Compiler] Loading {name} from runtime: {runtimePath}");
+                return context.LoadFromAssemblyPath(runtimePath);
+            }
+            catch (Exception ex)
+            {
+                if (_verbose)
+                    Console.WriteLine($"[VL Asset Compiler] Failed to load runtime assembly from {runtimePath}: {ex.Message}");
             }
         }
 

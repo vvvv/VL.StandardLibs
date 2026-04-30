@@ -190,6 +190,10 @@ namespace VL.Stride.Lib
                     game.Services.GetService<RenderDocManager>()?.RemoveHooks();
                 };
 
+                // Now that game is setup, load bundles
+                var bundleLoader = appHost.Services.GetRequiredService<BundleLoader>();
+                bundleLoader.LoadBundles(game);
+
                 return game;
             });
             appHost.Services.RegisterService<Game>(s => s.GetRequiredService<VLGame>());

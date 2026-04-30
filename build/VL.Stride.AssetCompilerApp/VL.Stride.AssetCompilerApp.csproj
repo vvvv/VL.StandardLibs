@@ -14,6 +14,18 @@
       <ExcludeAssets>build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyModel" />
+    <PackageReference Include="Stride.Assets" GeneratePathProperty="true" />
+    <!-- It's up to the project what runtime assembly to load (there are multiple) -->
+    <PackageReference Include="Stride.Games" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(PkgStride_Assets)\contentFiles\any\net8.0\ffmpeg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(PkgStride_Assets)\contentFiles\any\net8.0\msdfgen.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <!-- 

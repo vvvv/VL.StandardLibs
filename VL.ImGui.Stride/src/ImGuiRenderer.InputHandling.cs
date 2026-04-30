@@ -3,6 +3,7 @@ using Stride.Core.Mathematics;
 using Stride.Input;
 using Stride.Rendering;
 using System.Reactive.Disposables;
+using VL.Lib.IO.Notifications;
 using VL.Skia;
 using VL.Stride;
 using VL.Stride.Games;
@@ -12,6 +13,23 @@ namespace VL.ImGui
 {
     partial class ImGuiRenderer
     {
+        class SetNotify : LinkedLayerBase
+        {
+            Func<INotification, CallerInfo, bool>? OnNotify;
+
+            public void Update(ILayer? input, Func<INotification, CallerInfo, bool> notify, out ILayer output)
+            {
+                Input = input;
+                OnNotify = notify;
+                output = this;
+            }
+
+            public override bool Notify(INotification notification, CallerInfo caller)
+            {
+                return OnNotify?.Invoke(notification, caller) ?? false;
+            }
+        }
+
         IDisposable SubscribeToInputSource(IInputSource inputSource, RenderDrawContext context)
         {
             if (inputSource is null)

@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
     <OutputPath>..\lib</OutputPath>
-    <StrideIsExecutable>true</StrideIsExecutable>
 
     <!-- Warning about x64 MSIL mismatch on Stride native assemblies. Ignore because we're the Windows only package. -->
     <NoWarn>$(NoWarn)MSB3270</NoWarn>
@@ -15,9 +14,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- We need this so the correct reference ends up in deps.json which in turn our asset compiler reads -->
+    <PackageReference Include="Stride.Games" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\VL.Core.Skia.Windows\VL.Core.Skia.Windows.csproj" />
     <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
-    <ProjectReference Include="..\..\VL.Stride.DefaultAssets\VL.Stride.DefaultAssets.csproj" />
     <ProjectReference Include="..\..\VL.Stride.Windows\src\VL.Stride.Windows.csproj" />
     <ProjectReference Include="..\..\VL.Stride.Runtime\src\VL.Stride.Runtime.csproj" />
   </ItemGroup>

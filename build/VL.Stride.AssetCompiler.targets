@@ -35,12 +35,41 @@
              Properties="Configuration=$(Configuration)" />
   </Target>
 
+  <!-- Collect up-to-date check inputs (matching Stride's behavior) -->
+  <Target Name="_VLCollectUpToDateCheckInputDesignTime" 
+          Condition="'$(VLStrideCompileAssets)' == 'true'">
+    <ReadLinesFromFile File="$(VLStrideAssetUpToDateCheckFileBase).inputs" 
+                       Condition="Exists('$(VLStrideAssetUpToDateCheckFileBase).inputs')">
+      <Output TaskParameter="Lines" ItemName="VLStrideAssetInput"/>
+    </ReadLinesFromFile>
+
+    <ItemGroup>
+      <!-- If no input (yet), make sure build doesn't skip by adding a fake input file -->
+      <VLStrideAssetInput Condition="'@(VLStrideAssetInput)' == ''" Include="FakeInputForceBuild.file" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Collect up-to-date check outputs (matching Stride's behavior) -->
+  <Target Name="_VLCollectUpToDateCheckOutputDesignTime" 
+          Condition="'$(VLStrideCompileAssets)' == 'true'">
+    <ReadLinesFromFile File="$(VLStrideAssetUpToDateCheckFileBase).outputs" 
+                       Condition="Exists('$(VLStrideAssetUpToDateCheckFileBase).outputs')">
+      <Output TaskParameter="Lines" ItemName="VLStrideAssetOutput"/>
+    </ReadLinesFromFile>
+
+    <ItemGroup>
+      <!-- If no output (yet), make sure build doesn't skip by adding a fake output file -->
+      <VLStrideAssetOutput Condition="'@(VLStrideAssetOutput)' == ''" Include="FakeBundleForceBuild.bundle" />
+    </ItemGroup>
+  </Target>
+
   <!-- Run the custom asset compiler -->
   <Target Name="VLCompileStrideAssets" 
           AfterTargets="Build"
           Condition="'$(VLStrideCompileAssets)' == 'true'"
-          Inputs="$(TargetPath)" 
-          Outputs="$(IntermediateOutputPath)VLStrideAssets.stamp">
+          DependsOnTargets="_VLCollectUpToDateCheckInputDesignTime;_VLCollectUpToDateCheckOutputDesignTime"
+          Inputs="@(VLStrideAssetInput)" 
+          Outputs="@(VLStrideAssetOutput)">
 
     <PropertyGroup>
       <!-- Asset build/output paths matching Stride conventions -->
@@ -60,6 +89,10 @@
       <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --package-repositories="$(VLStridePackageRepositories)"</VLStrideAssetCompilerArgs>
       <VLStrideAssetCompilerCommand>dotnet &quot;$(VLStrideAssetCompilerOutput)&quot; $(VLStrideAssetCompilerArgs)</VLStrideAssetCompilerCommand>
     </PropertyGroup>
+
+    <!-- Ensure the output directory and intermediate directories exist -->
+    <MakeDir Directories="$(TargetDir)" />
+    <MakeDir Directories="$(ProjectDir)$(IntermediateOutputPath)stride" />
 
     <Message Importance="High" Text="[VL] $(VLStrideAssetCompilerCommand)" />
 

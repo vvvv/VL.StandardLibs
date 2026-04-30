@@ -12,6 +12,7 @@ using Stride.Core.Assets.Compiler;
 using Stride.Core.BuildEngine;
 using Stride.Core.Diagnostics;
 using Stride.Core.Extensions;
+using Stride.Core.IO;
 using Stride.Core.MicroThreading;
 using Stride.Core.Serialization.Contents;
 using Stride.Engine;
@@ -71,7 +72,7 @@ namespace VL.Stride.Assets
 
         internal static RuntimeDatabase Create(Game game)
         {
-            var dataDir = VL.Stride.Core.Initialization.GetPathToAssetDatabase() ?? Path.Combine(PlatformFolders.ApplicationBinaryDirectory, "data");
+            var dataDir = VirtualFileSystem.ApplicationData.GetAbsolutePath("");
             var builder = new AssetBuilderService(dataDir);
             var logger = new LoggerResult();
             return new RuntimeDatabase(logger, builder, game);
