@@ -22,6 +22,11 @@
     <!-- Fallback to parent directory if not set (for standalone VL.StandardLibs repo) -->
     <VLStridePackageRepositories Condition="'$(VLStridePackageRepositories)' == '' AND '$(PackageRepositories)' != ''">$(PackageRepositories)</VLStridePackageRepositories>
     <VLStridePackageRepositories Condition="'$(VLStridePackageRepositories)' == ''">$(MSBuildThisFileDirectory)..</VLStridePackageRepositories>
+
+    <!-- Asset build/output paths matching Stride conventions -->
+    <VLStrideAssetBuildPath Condition="'$(VLStrideAssetBuildPath)' == ''">$(ProjectDir)$(BaseIntermediateOutputPath)stride\assetbuild\data</VLStrideAssetBuildPath>
+    <VLStrideAssetOutputPath Condition="'$(VLStrideAssetOutputPath)' == ''">$(TargetDir)data</VLStrideAssetOutputPath>
+    <VLStrideAssetUpToDateCheckFileBase>$(ProjectDir)$(IntermediateOutputPath)stride\assetcompiler-uptodatecheck</VLStrideAssetUpToDateCheckFileBase>
   </PropertyGroup>
 
   <!-- Build the custom asset compiler if needed -->
@@ -63,19 +68,28 @@
     </ItemGroup>
   </Target>
 
+  <!-- Collect referenced project assemblies -->
+  <Target Name="_VLCollectReferencedProjectAssemblies"
+          Condition="'$(VLStrideCompileAssets)' == 'true'"
+          DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <!-- Collect output assemblies from referenced projects -->
+      <VLReferencedProjectAssembly Include="@(ReferencePath)" Condition="'%(ReferencePath.ReferenceSourceTarget)' == 'ProjectReference'" />
+    </ItemGroup>
+  </Target>
+
   <!-- Run the custom asset compiler -->
   <Target Name="VLCompileStrideAssets" 
           AfterTargets="Build"
           Condition="'$(VLStrideCompileAssets)' == 'true'"
-          DependsOnTargets="_VLCollectUpToDateCheckInputDesignTime;_VLCollectUpToDateCheckOutputDesignTime"
+          DependsOnTargets="_VLCollectUpToDateCheckInputDesignTime;_VLCollectUpToDateCheckOutputDesignTime;_VLCollectReferencedProjectAssemblies"
           Inputs="@(VLStrideAssetInput)" 
           Outputs="@(VLStrideAssetOutput)">
 
     <PropertyGroup>
-      <!-- Asset build/output paths matching Stride conventions -->
-      <VLStrideAssetBuildPath Condition="'$(VLStrideAssetBuildPath)' == ''">$(ProjectDir)$(BaseIntermediateOutputPath)stride\assetbuild\data</VLStrideAssetBuildPath>
-      <VLStrideAssetOutputPath Condition="'$(VLStrideAssetOutputPath)' == ''">$(TargetDir)data</VLStrideAssetOutputPath>
-      <VLStrideAssetUpToDateCheckFileBase>$(ProjectDir)$(IntermediateOutputPath)stride\assetcompiler-uptodatecheck</VLStrideAssetUpToDateCheckFileBase>
+      <!-- Build semicolon-separated list of assemblies (main assembly + referenced project assemblies) -->
+      <VLStrideAssemblyList>$(TargetPath)</VLStrideAssemblyList>
+      <VLStrideAssemblyList Condition="'@(VLReferencedProjectAssembly)' != ''">$(VLStrideAssemblyList);@(VLReferencedProjectAssembly)</VLStrideAssemblyList>
 
       <!-- Build the asset compiler command line (matching original Stride arguments) -->
       <VLStrideAssetCompilerArgs>--disable-auto-compile</VLStrideAssetCompilerArgs>
@@ -86,7 +100,7 @@
       <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --build-path="$(VLStrideAssetBuildPath)"</VLStrideAssetCompilerArgs>
       <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --package-file="$(MSBuildProjectFullPath)"</VLStrideAssetCompilerArgs>
       <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --msbuild-uptodatecheck-filebase="$(VLStrideAssetUpToDateCheckFileBase)"</VLStrideAssetCompilerArgs>
-      <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --package-repositories="$(VLStridePackageRepositories)"</VLStrideAssetCompilerArgs>
+      <VLStrideAssetCompilerArgs>$(VLStrideAssetCompilerArgs) --assembly-paths="$(VLStrideAssemblyList)"</VLStrideAssetCompilerArgs>
       <VLStrideAssetCompilerCommand>dotnet &quot;$(VLStrideAssetCompilerOutput)&quot; $(VLStrideAssetCompilerArgs)</VLStrideAssetCompilerCommand>
     </PropertyGroup>
 
@@ -101,6 +115,37 @@
 
     <!-- Create stamp file to track incremental builds -->
     <Touch Files="$(IntermediateOutputPath)VLStrideAssets.stamp" AlwaysCreate="true" />
+
+    <!-- Ensure outputs are up-to-date -->
+    <ItemGroup Condition="Exists('$(VLStrideAssetUpToDateCheckFileBase).outputs')">
+      <VLStrideAssetOutput Remove="*" />
+    </ItemGroup>
+
+    <ReadLinesFromFile File="$(VLStrideAssetUpToDateCheckFileBase).outputs" 
+                       Condition="Exists('$(VLStrideAssetUpToDateCheckFileBase).outputs')">
+      <Output TaskParameter="Lines" ItemName="VLStrideAssetOutput"/>
+    </ReadLinesFromFile>
+  </Target>
+
+  <Target Name="VLIncludeAssetDBInPackage"
+          Condition="'$(VLStrideCompileAssets)' == 'true'" >
+
+    <ReadLinesFromFile File="$(VLStrideAssetUpToDateCheckFileBase).outputs">
+      <Output TaskParameter="Lines" ItemName="VLStrideBundles"/>
+    </ReadLinesFromFile>
+
+    <!-- Exclude default bundles since they come from VL.Stride.Runtime dependency -->
+    <!-- Filter by checking if filename starts with "default" -->
+    <ItemGroup>
+      <VLStrideBundlesFiltered Include="@(VLStrideBundles)" Condition="!$([System.IO.Path]::GetFileName('%(Identity)').StartsWith('default'))" />
+    </ItemGroup>
+
+    <Message Importance="high" Text="Adding @(VLStrideBundlesFiltered) to package" />
+
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="@(VLStrideBundlesFiltered)" 
+                              PackagePath="lib\$(TargetFramework)\data\db\bundles\%(Filename)%(Extension)" />
+    </ItemGroup>
   </Target>
 
 </Project>

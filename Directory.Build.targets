@@ -2,7 +2,7 @@
 <Project>
 
   <!-- Import VL custom Stride asset compiler targets -->
-  <Import Project="$(MSBuildThisFileDirectory)build\VL.Stride.AssetCompiler.targets" Condition="Exists('$(MSBuildThisFileDirectory)build\VL.Stride.AssetCompiler.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)build\VL.Stride.AssetCompiler.targets" />
 
   <ItemGroup Condition="$(VLPackageBasePath) != ''">
     <Content Include="$(VLPackageBasePath)*.vl" PackagePath="%(RecursiveDir)%(Filename)%(Extension)" />
@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <!-- Puts the compiler generated nuspec file into the package root folder. This file will be read by our package system. -->
-  <Target Name="_EnsureNuspecIsPresent"  Condition="$(IsPackable) == 'true'" AfterTargets="GenerateNuspec">
+  <Target Name="_EnsureNuspecIsPresent"  Condition="$(IsPackable) == 'true'" DependsOnTargets="GenerateNuspec" AfterTargets="Build">
     <ItemGroup>
       <_NuspecFiles Include="@(_OutputPackItems)" Condition="'%(Extension)' == '.nuspec'" />
     </ItemGroup>

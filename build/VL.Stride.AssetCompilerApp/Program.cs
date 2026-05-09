@@ -31,10 +31,10 @@ class Program
         // Register MSBuild using Stride's method
         PackageSessionPublicHelper.FindAndSetMSBuildVersion();
 
-        // Parse command line to extract package repositories and verbose flag early
-        var repositoriesArg = args.FirstOrDefault(a => a.StartsWith("--package-repositories=", StringComparison.OrdinalIgnoreCase));
-        var repositories = repositoriesArg != null
-            ? repositoriesArg.Substring("--package-repositories=".Length).Trim('"')
+        // Parse command line to extract assembly paths and verbose flag early
+        var assemblyPathsArg = args.FirstOrDefault(a => a.StartsWith("--assembly-paths=", StringComparison.OrdinalIgnoreCase));
+        var assemblyPaths = assemblyPathsArg != null
+            ? assemblyPathsArg.Substring("--assembly-paths=".Length).Trim('"')
             : null;
 
         var verbose = args.Any(a => a.Equals("--verbose", StringComparison.OrdinalIgnoreCase)) ||
@@ -43,14 +43,7 @@ class Program
         // Setup custom assembly resolution ONLY for VL/Stride assemblies
         var context = new VLAssemblyLoadContext();
         context.SetVerbose(verbose);
-
-        // Extract the package file to determine the project being compiled
-        var packageFileArg = args.FirstOrDefault(a => a.StartsWith("--package-file=", StringComparison.OrdinalIgnoreCase));
-        var packageFile = packageFileArg != null
-            ? packageFileArg.Substring("--package-file=".Length).Trim('"')
-            : null;
-
-        context.Initialize(repositories, packageFile);
+        context.Initialize(assemblyPaths);
         AssemblyLoadContext.Default.Resolving += context.ResolveAssembly;
 
         // Initialize Stride modules (same as PackageBuilderApp does)
@@ -81,7 +74,7 @@ class Program
             "=== Options ===",
             string.Empty,
             { "h|help", "Show this message and exit", v => showHelp = v != null },
-            { "package-repositories=", "Semicolon-separated list of package repository directories", v => { /* Handled in Main */ } },
+            { "assembly-paths=", "Semicolon-separated list of assembly paths to resolve dependencies from", v => { /* Handled in Main */ } },
             { "v|verbose", "Show more verbose progress logs", v => options.Verbose = v != null },
             { "d|debug", "Show debug logs (imply verbose)", v => options.Debug = v != null },
             { "log", "Enable file logging", v => options.EnableFileLogging = v != null },
@@ -181,18 +174,16 @@ class Program
 }
 
 /// <summary>
-/// Custom assembly load context that resolves assemblies from local packages
-/// using .gen.nuspec files to find primary assemblies and their .deps.json files
-/// to resolve all runtime dependencies from the global packages folder.
+/// Custom assembly load context that resolves assemblies using explicit assembly paths
+/// and their corresponding .deps.json files to resolve all runtime dependencies
+/// from the global packages folder.
 /// Also resolves .NET runtime assemblies like System.Windows.Forms.
 /// </summary>
 class VLAssemblyLoadContext
 {
     private readonly Dictionary<string, string> _assemblyPathCache = new();
     private readonly Dictionary<string, string> _runtimeAssemblyCache = new();
-    private readonly List<string> _packageRepositories = new();
     private readonly HashSet<string> _processedDepsJson = new();
-    private string? _packageFile;
     private bool _verbose;
     private string? _globalPackagesFolder;
 
@@ -201,10 +192,8 @@ class VLAssemblyLoadContext
         _verbose = verbose;
     }
 
-    public void Initialize(string? repositoriesArg, string? packageFile)
+    public void Initialize(string? assemblyPathsArg)
     {
-        _packageFile = packageFile;
-
         // Get global packages folder
         _globalPackagesFolder = Environment.GetEnvironmentVariable("NUGET_PACKAGES");
         if (string.IsNullOrEmpty(_globalPackagesFolder))
@@ -214,40 +203,92 @@ class VLAssemblyLoadContext
                 ".nuget", "packages");
         }
 
-        // Parse package repositories from command line argument
-        if (!string.IsNullOrEmpty(repositoriesArg))
-        {
-            var repositories = repositoriesArg.Split(';', StringSplitOptions.RemoveEmptyEntries);
-            foreach (var repository in repositories)
-            {
-                var trimmedPath = repository.Trim();
-                if (Directory.Exists(trimmedPath))
-                {
-                    _packageRepositories.Add(trimmedPath);
-                }
-                else if (_verbose)
-                {
-                    Console.WriteLine($"[VL Asset Compiler] Warning: Repository does not exist: {trimmedPath}");
-                }
-            }
-        }
-
         // Build runtime assembly cache from .NET installation
         BuildRuntimeAssemblyCache();
 
-        // PRIORITY 1: Process the project's own deps.json first (by finding its .gen.nuspec in repositories)
-        if (!string.IsNullOrEmpty(_packageFile))
+        // Process assembly paths from command line
+        if (!string.IsNullOrEmpty(assemblyPathsArg))
         {
-            TryProcessProjectDepsJson();
-        }
+            var assemblyPaths = assemblyPathsArg.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
-        // PRIORITY 2: Build assembly cache from all local packages
-        BuildAssemblyCache();
+            if (assemblyPaths.Length == 0)
+            {
+                throw new InvalidOperationException("No assembly paths provided. The build system must pass --assembly-paths with the main assembly and referenced project assemblies.");
+            }
+
+            // PRIORITY 1: Process the main assembly (first in the list) and its deps.json
+            var mainAssemblyPath = assemblyPaths[0].Trim();
+            if (!File.Exists(mainAssemblyPath))
+            {
+                throw new FileNotFoundException($"Main assembly not found: {mainAssemblyPath}");
+            }
+
+            // Register the main assembly directly
+            var mainAssemblyName = Path.GetFileNameWithoutExtension(mainAssemblyPath);
+            _assemblyPathCache[mainAssemblyName] = mainAssemblyPath;
+
+            if (_verbose)
+                Console.WriteLine($"[VL Asset Compiler] Registered main assembly: {mainAssemblyName} -> {mainAssemblyPath}");
+
+            var mainDepsJsonPath = Path.ChangeExtension(mainAssemblyPath, ".deps.json");
+            if (!File.Exists(mainDepsJsonPath))
+            {
+                throw new FileNotFoundException(
+                    $"Main assembly deps.json file not found: {mainDepsJsonPath}. " +
+                    $"This file is required for dependency resolution. Ensure the project builds successfully.");
+            }
+
+            if (_verbose)
+                Console.WriteLine($"[VL Asset Compiler] Processing main assembly deps.json: {mainDepsJsonPath}");
+
+            ProcessDepsJson(mainDepsJsonPath, isPrimary: true);
+
+            // PRIORITY 2: Process referenced project assemblies and their deps.json files
+            for (int i = 1; i < assemblyPaths.Length; i++)
+            {
+                var assemblyPath = assemblyPaths[i].Trim();
+                if (!File.Exists(assemblyPath))
+                {
+                    if (_verbose)
+                        Console.WriteLine($"[VL Asset Compiler] Warning: Referenced assembly not found: {assemblyPath}");
+                    continue;
+                }
+
+                // Register the referenced assembly directly
+                var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
+                if (!_assemblyPathCache.ContainsKey(assemblyName))
+                {
+                    _assemblyPathCache[assemblyName] = assemblyPath;
+
+                    if (_verbose)
+                        Console.WriteLine($"[VL Asset Compiler] Registered referenced assembly: {assemblyName} -> {assemblyPath}");
+                }
+
+                var depsJsonPath = Path.ChangeExtension(assemblyPath, ".deps.json");
+                if (File.Exists(depsJsonPath))
+                {
+                    if (_verbose)
+                        Console.WriteLine($"[VL Asset Compiler] Processing referenced assembly deps.json: {depsJsonPath}");
+
+                    ProcessDepsJson(depsJsonPath, isPrimary: false);
+                }
+                else if (_verbose)
+                {
+                    Console.WriteLine($"[VL Asset Compiler] Warning: deps.json not found for {assemblyPath}");
+                }
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException(
+                "--assembly-paths argument is required. The build system must pass the main assembly " +
+                "and all referenced project assemblies.");
+        }
 
         if (_verbose)
         {
-            Console.WriteLine($"[VL Asset Compiler] Found {_assemblyPathCache.Count} assemblies from packages");
-            Console.WriteLine($"[VL Asset Compiler] Found {_runtimeAssemblyCache.Count} runtime assemblies");
+            Console.WriteLine($"[VL Asset Compiler] Total assemblies registered: {_assemblyPathCache.Count}");
+            Console.WriteLine($"[VL Asset Compiler] Runtime assemblies available: {_runtimeAssemblyCache.Count}");
         }
     }
 
@@ -310,227 +351,30 @@ class VLAssemblyLoadContext
         }
     }
 
-    private void TryProcessProjectDepsJson()
+    private void ProcessDepsJson(string depsJsonPath, bool isPrimary)
     {
+        if (_processedDepsJson.Contains(depsJsonPath))
+            return;
+
+        _processedDepsJson.Add(depsJsonPath);
+
+        if (_verbose)
+            Console.WriteLine($"[VL Asset Compiler] Processing deps.json{(isPrimary ? " (PRIMARY)" : "")}: {depsJsonPath}");
+
         try
         {
-            // Get the package ID from the project file path
-            var packageId = Path.GetFileNameWithoutExtension(_packageFile);
-
-            if (_verbose)
-                Console.WriteLine($"[VL Asset Compiler] Looking for {packageId}.gen.nuspec in package repositories...");
-
-            // Look for PackageId/PackageId.gen.nuspec in the repositories
-            foreach (var repo in _packageRepositories)
-            {
-                var packageDir = Path.Combine(repo, packageId);
-                var nuspecPath = Path.Combine(packageDir, $"{packageId}.gen.nuspec");
-
-                if (File.Exists(nuspecPath))
-                {
-                    if (_verbose)
-                        Console.WriteLine($"[VL Asset Compiler] Found project nuspec (PRIORITY): {nuspecPath}");
-
-                    ProcessProjectNuspec(nuspecPath, packageDir);
-                    return;
-                }
-            }
-
-            if (_verbose)
-                Console.WriteLine($"[VL Asset Compiler] Warning: Could not find {packageId}.gen.nuspec in any repository");
-        }
-        catch (Exception ex)
-        {
-            if (_verbose)
-                Console.WriteLine($"[VL Asset Compiler] Error looking for project deps.json: {ex.Message}");
-        }
-    }
-
-    private void ProcessProjectNuspec(string nuspecPath, string packageDir)
-    {
-        try
-        {
-            var doc = XDocument.Load(nuspecPath);
-            var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
-
-            // Get package metadata
-            var metadata = doc.Root?.Element(ns + "metadata");
-            if (metadata == null)
-                return;
-
-            var packageId = metadata.Element(ns + "id")?.Value;
-            if (string.IsNullOrEmpty(packageId))
-                return;
-
-            // Find lib files in the nuspec to locate the primary assembly
-            var files = doc.Root?.Element(ns + "files")?.Elements(ns + "file");
-            if (files == null)
-                return;
-
-            foreach (var file in files)
-            {
-                var src = file.Attribute("src")?.Value;
-                var target = file.Attribute("target")?.Value;
-
-                if (string.IsNullOrEmpty(src) || string.IsNullOrEmpty(target))
-                    continue;
-
-                // Only process lib assemblies
-                if (!target.StartsWith("lib/", StringComparison.OrdinalIgnoreCase) &&
-                    !target.StartsWith("lib\\", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                if (!target.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                // Resolve src path (absolute or relative to package directory)
-                var assemblyPath = Path.IsPathRooted(src) ? src : Path.Combine(packageDir, src);
-                if (!File.Exists(assemblyPath))
-                    continue;
-
-                // Look for accompanying .deps.json file
-                var depsJsonPath = Path.ChangeExtension(assemblyPath, ".deps.json");
-                if (File.Exists(depsJsonPath))
-                {
-                    if (_verbose)
-                        Console.WriteLine($"[VL Asset Compiler] Found project deps.json via nuspec: {depsJsonPath}");
-
-                    ProcessDepsJson(depsJsonPath);
-                    return; // Process only the first matching assembly's deps.json
-                }
-            }
-
-            if (_verbose)
-                Console.WriteLine($"[VL Asset Compiler] Warning: Could not find deps.json for project {packageId}");
-        }
-        catch (Exception ex)
-        {
-            if (_verbose)
-                Console.WriteLine($"[VL Asset Compiler] Error processing project nuspec {nuspecPath}: {ex.Message}");
-        }
-    }
-
-    private void BuildAssemblyCache()
-    {
-        // Scan local repositories for .gen.nuspec files
-        foreach (var repo in _packageRepositories)
-        {
-            ScanRepository(repo);
-        }
-    }
-
-    private void ScanRepository(string repositoryPath)
-    {
-        try
-        {
-            if (!Directory.Exists(repositoryPath))
-                return;
-
-            // Look for PACKAGE/PACKAGE.gen.nuspec pattern
-            foreach (var packageDir in Directory.GetDirectories(repositoryPath))
-            {
-                var packageName = Path.GetFileName(packageDir);
-                var nuspecPath = Path.Combine(packageDir, $"{packageName}.gen.nuspec");
-
-                if (File.Exists(nuspecPath))
-                {
-                    ProcessNuspecFile(nuspecPath, packageDir);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            if (_verbose)
-                Console.WriteLine($"[VL Asset Compiler] Error scanning repository {repositoryPath}: {ex.Message}");
-        }
-    }
-
-    private void ProcessNuspecFile(string nuspecPath, string packageDir)
-    {
-        try
-        {
-            var doc = XDocument.Load(nuspecPath);
-            var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
-
-            // Get package metadata
-            var metadata = doc.Root?.Element(ns + "metadata");
-            if (metadata == null)
-                return;
-
-            var packageId = metadata.Element(ns + "id")?.Value;
-            if (string.IsNullOrEmpty(packageId))
-                return;
-
-            // Find lib files in the nuspec
-            var files = doc.Root?.Element(ns + "files")?.Elements(ns + "file");
-            if (files == null)
-                return;
-
-            foreach (var file in files)
-            {
-                var src = file.Attribute("src")?.Value;
-                var target = file.Attribute("target")?.Value;
-
-                if (string.IsNullOrEmpty(src) || string.IsNullOrEmpty(target))
-                    continue;
-
-                // Only process lib assemblies
-                if (!target.StartsWith("lib/", StringComparison.OrdinalIgnoreCase) &&
-                    !target.StartsWith("lib\\", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                if (!target.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                // Resolve src path (absolute or relative to package directory)
-                var assemblyPath = Path.IsPathRooted(src) ? src : Path.Combine(packageDir, src);
-                if (!File.Exists(assemblyPath))
-                    continue;
-
-                // Extract assembly name
-                var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
-
-                // Add to cache
-                if (!_assemblyPathCache.ContainsKey(assemblyName))
-                {
-                    _assemblyPathCache[assemblyName] = assemblyPath;
-
-                    if (_verbose)
-                        Console.WriteLine($"[VL Asset Compiler] Registered {assemblyName} -> {assemblyPath}");
-                }
-
-                // Look for accompanying .deps.json file
-                var depsJsonPath = Path.ChangeExtension(assemblyPath, ".deps.json");
-                if (File.Exists(depsJsonPath))
-                {
-                    ProcessDepsJson(depsJsonPath);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            if (_verbose)
-                Console.WriteLine($"[VL Asset Compiler] Error processing nuspec {nuspecPath}: {ex.Message}");
-        }
-    }
-
-    private void ProcessDepsJson(string depsJsonPath)
-    {
-        try
-        {
-            if (_processedDepsJson.Contains(depsJsonPath))
-                return;
-
-            _processedDepsJson.Add(depsJsonPath);
-
-            if (_verbose)
-                Console.WriteLine($"[VL Asset Compiler] Processing deps.json: {depsJsonPath}");
-
             using var stream = File.OpenRead(depsJsonPath);
 
             var dependencyContext = new DependencyContextJsonReader().Read(stream);
             if (dependencyContext == null)
+            {
+                var errorMsg = $"Failed to parse deps.json file: {depsJsonPath}";
+                if (isPrimary)
+                    throw new InvalidOperationException(errorMsg);
+                else if (_verbose)
+                    Console.WriteLine($"[VL Asset Compiler] Warning: {errorMsg}");
                 return;
+            }
 
             // Process runtime libraries
             foreach (var runtimeLibrary in dependencyContext.RuntimeLibraries)
@@ -539,7 +383,7 @@ class VLAssemblyLoadContext
                 {
                     var assemblyName = Path.GetFileNameWithoutExtension(assembly);
 
-                    // Skip if already cached - this respects priority (project deps.json is processed first)
+                    // Skip if already cached - this respects priority (primary deps.json is processed first)
                     if (_assemblyPathCache.ContainsKey(assemblyName))
                     {
                         if (_verbose)
@@ -547,7 +391,39 @@ class VLAssemblyLoadContext
                         continue;
                     }
 
-                    // Resolve from global packages folder
+                    // Handle based on library type
+                    string? foundPath = null;
+
+                    if (runtimeLibrary.Type.Equals("reference", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // "reference" type means direct assembly reference - look next to the deps.json file
+                        var depsDir = Path.GetDirectoryName(depsJsonPath);
+                        if (!string.IsNullOrEmpty(depsDir))
+                        {
+                            var localAssemblyPath = Path.Combine(depsDir, Path.GetFileName(assembly));
+                            if (File.Exists(localAssemblyPath))
+                            {
+                                foundPath = localAssemblyPath;
+                                if (_verbose)
+                                    Console.WriteLine($"[VL Asset Compiler] Found reference assembly {assemblyName} next to deps.json: {foundPath}");
+                            }
+                            else if (_verbose)
+                            {
+                                Console.WriteLine($"[VL Asset Compiler] Warning: Reference assembly not found: {localAssemblyPath}");
+                            }
+                        }
+
+                        // Skip the NuGet package resolution for reference types
+                        if (foundPath != null)
+                        {
+                            _assemblyPathCache[assemblyName] = foundPath;
+                            if (_verbose)
+                                Console.WriteLine($"[VL Asset Compiler] Registered {assemblyName} -> {foundPath} (reference)");
+                        }
+                        continue;
+                    }
+
+                    // For package types, resolve from global packages folder
                     var packagePath = Path.Combine(
                         _globalPackagesFolder ?? "",
                         runtimeLibrary.Name.ToLowerInvariant(),
@@ -557,18 +433,26 @@ class VLAssemblyLoadContext
 
                     if (File.Exists(fullAssemblyPath))
                     {
-                        _assemblyPathCache[assemblyName] = fullAssemblyPath;
+                        foundPath = fullAssemblyPath;
+                        _assemblyPathCache[assemblyName] = foundPath;
 
                         if (_verbose)
-                            Console.WriteLine($"[VL Asset Compiler] Registered {assemblyName} -> {fullAssemblyPath} (from deps.json)");
+                            Console.WriteLine($"[VL Asset Compiler] Registered {assemblyName} -> {foundPath} (from deps.json)");
+                    }
+                    else if (_verbose)
+                    {
+                        Console.WriteLine($"[VL Asset Compiler] Warning: Assembly not found in global packages: {fullAssemblyPath}");
                     }
                 }
             }
         }
         catch (Exception ex)
         {
-            if (_verbose)
-                Console.WriteLine($"[VL Asset Compiler] Error processing deps.json {depsJsonPath}: {ex.Message}");
+            var errorMsg = $"Error processing deps.json {depsJsonPath}: {ex.Message}";
+            if (isPrimary)
+                throw new InvalidOperationException(errorMsg, ex);
+            else if (_verbose)
+                Console.WriteLine($"[VL Asset Compiler] Warning: {errorMsg}");
         }
     }
 
