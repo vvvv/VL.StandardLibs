@@ -137,7 +137,8 @@
     <!-- Exclude default bundles since they come from VL.Stride.Runtime dependency -->
     <!-- Filter by checking if filename starts with "default" -->
     <ItemGroup>
-      <VLStrideBundlesFiltered Include="@(VLStrideBundles)" Condition="!$([System.IO.Path]::GetFileName('%(Identity)').StartsWith('default'))" />
+      <VLStrideBundlesFiltered Include="@(VLStrideBundles)" 
+                               Condition="'$(MSBuildProjectName)' == 'VL.Stride.Runtime' OR !$([System.IO.Path]::GetFileName('%(Identity)').StartsWith('default'))" />
     </ItemGroup>
 
     <Message Importance="high" Text="Adding @(VLStrideBundlesFiltered) to package" />
