@@ -12,7 +12,7 @@ namespace VL.Stride.Rendering
 {
     /// <summary>
     /// Loads a 3D model directly and in a blocking fashion from disk without caching in the Stride asset database.
-    /// Should do the same as the FileModel node but not tested properly yet.
+    /// Should do the same as the FileModel node.
     /// </summary>
     [ProcessNode(Category = "Stride.Models.Experimental")]
     public sealed class ModelReader : IDisposable
