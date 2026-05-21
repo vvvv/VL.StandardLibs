@@ -22,6 +22,7 @@ public sealed class GameWindowManager : IDisposable
     public GameWindowManager(
         NodeContext nodeContext,
         RectangleF boundsInPixels,
+        bool isBorderless,
         IChannel<bool> alwaysOnTop,
         IChannel<bool> extendIntoTitleBar,
         MultisampleCount multisampleCount,
@@ -53,6 +54,8 @@ public sealed class GameWindowManager : IDisposable
         window.PreferredFullscreenSize = new Int2(-1, -1); // adapt to desktop size
         window.AllowUserResizing = true;
         window.IsMouseVisible = true;
+        window.IsBorderLess = isBorderless;
+        window.SetSize(new Int2((int)boundsInPixels.Width, (int)boundsInPixels.Height));
     }
 
     [Fragment]

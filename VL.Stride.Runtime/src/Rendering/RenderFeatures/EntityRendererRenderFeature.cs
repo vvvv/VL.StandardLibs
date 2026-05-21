@@ -23,7 +23,6 @@ namespace VL.Stride.Rendering
         private readonly List<RenderRenderer> singleCallRenderers = new List<RenderRenderer>();
         private readonly List<RenderRenderer> renderers = new List<RenderRenderer>();
         private int lastFrameNr;
-        private IVLRuntime runtime;
 
         public RenderStage HelpersRenderStage { get; set; } // TODO: shouldn't be a pin
         public IGraphicsRendererBase HelpersRenderer { get; set; }
@@ -32,12 +31,6 @@ namespace VL.Stride.Rendering
         {
             // Pre adjust render priority, low numer is early, high number is late (advantage of backbuffer culling)
             SortKey = 190;
-        }
-
-        public override void Prepare(RenderDrawContext context)
-        {
-            base.Prepare(context);
-            runtime ??= context.RenderContext.Services.GetService<IVLRuntime>();
         }
 
         public override Type SupportedRenderObjectType => typeof(RenderRenderer);
@@ -59,10 +52,6 @@ namespace VL.Stride.Rendering
             using (Profiler.Begin(VLProfilerKeys.InSceneRenderProfilingKey))
             using (context.QueryManager.BeginProfile(Color.Green, VLProfilerKeys.InSceneRenderProfilingKey))
             {
-                // Do not call into VL if not running
-                if (runtime != null && !runtime.IsRunning)
-                    return;
-
                 // Build the list of renderers to render
                 singleCallRenderers.Clear();
                 renderers.Clear();

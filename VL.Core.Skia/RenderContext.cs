@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using SkiaSharp;
 using System;
 using System.Diagnostics;
@@ -7,6 +8,7 @@ using System.Reactive;
 using System.Reactive.Subjects;
 using System.Threading;
 using VL.Core;
+using VL.Core.Skia.Egl;
 using VL.Lib.Animation;
 using VL.Lib.Basics.Video;
 using VL.Skia.Egl;
@@ -58,7 +60,7 @@ namespace VL.Skia
             // Access external device on main thread only
             var isOnMainThread = SynchronizationContext.Current == appHost.SynchronizationContext;
             var externalDeviceProvider = isOnMainThread && !isDedicated ? s.GetService<IGraphicsDeviceProvider>() : null;
-            var deviceProvider = new EglDeviceProvider(externalDeviceProvider, appHost.DefaultLogger).DisposeBy(appHost);
+            var deviceProvider = new EglDeviceProvider(externalDeviceProvider, appHost.DefaultLogger, s.GetService<IOptionsMonitor<EglDeviceOptions>>()).DisposeBy(appHost);
             var displayProvider = new EglDisplayProvider(deviceProvider).DisposeBy(appHost);
             var eglContextProvider = new EglContextProvider(displayProvider).DisposeBy(appHost);
             var renderContextProvider = new RenderContextProvider(eglContextProvider).DisposeBy(appHost);

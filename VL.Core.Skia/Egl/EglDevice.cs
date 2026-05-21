@@ -9,6 +9,8 @@ using VL.Core;
 using VL.Lib.Basics.Video;
 using Microsoft.Extensions.Logging;
 using System.Threading;
+using Microsoft.Extensions.Options;
+using VL.Core.Skia.Egl;
 
 namespace VL.Skia.Egl
 {
@@ -16,18 +18,28 @@ namespace VL.Skia.Egl
     {
         private readonly IGraphicsDeviceProvider? graphicsDeviceProvider;
         private readonly ILogger? logger;
+        private EglDeviceOptions options;
+        private readonly IDisposable? optionsSubscription;
         private EglDevice? device;
+        private bool recreateDevice;
 
-        public EglDeviceProvider(IGraphicsDeviceProvider? graphicsDeviceProvider = null, ILogger? logger = null)
+        public EglDeviceProvider(IGraphicsDeviceProvider? graphicsDeviceProvider = null, ILogger? logger = null, IOptionsMonitor<EglDeviceOptions>? optionsMonitor = null)
         {
             this.graphicsDeviceProvider = graphicsDeviceProvider;
             this.logger = logger;
+            this.options = optionsMonitor?.CurrentValue ?? EglDeviceOptions.Default;
+            optionsSubscription = optionsMonitor?.OnChange(o =>
+            {
+                recreateDevice = o != options;
+                options = o;
+            });
         }
 
         public EglDevice GetDevice()
         {
-            if (device != null && device.IsLost)
+            if (device != null && (recreateDevice || device.IsLost))
             {
+                recreateDevice = false;
                 device.Dispose();
                 device = null;
             }
@@ -37,6 +49,7 @@ namespace VL.Skia.Egl
 
         public void Dispose()
         {
+            optionsSubscription?.Dispose();
             device?.Dispose();
             device = null;
         }
@@ -54,8 +67,8 @@ namespace VL.Skia.Egl
                 }
                 else
                 {
-                    logger?.LogInformation("Creating new D3D11 device for ANGLE on thread {threadName}", GetThreadName());
-                    device = EglDevice.NewD3D11();
+                    logger?.LogInformation("Creating new D3D11 {deviceType} device for ANGLE on thread {threadName}", options.UseWarpDevice ? "WARP" : "hardware",  GetThreadName());
+                    device = EglDevice.NewD3D11(options);
                 }
                 return device;
             }
@@ -79,7 +92,10 @@ namespace VL.Skia.Egl
         }
 
         [SupportedOSPlatform("windows6.1")]
-        public static unsafe EglDevice NewD3D11()
+        public static unsafe EglDevice NewD3D11() => NewD3D11(EglDeviceOptions.Default);
+
+        [SupportedOSPlatform("windows6.1")]
+        public static unsafe EglDevice NewD3D11(EglDeviceOptions options)
         {
             D3D_FEATURE_LEVEL featureLevels = D3D_FEATURE_LEVEL.D3D_FEATURE_LEVEL_11_1;
             D3D_FEATURE_LEVEL featureLevel = default;
@@ -93,8 +109,7 @@ namespace VL.Skia.Egl
 
             var deviceTypes = new D3D_DRIVER_TYPE[]
             {
-                D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE,
-                D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_WARP
+                options.UseWarpDevice ? D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_WARP : D3D_DRIVER_TYPE.D3D_DRIVER_TYPE_HARDWARE
             };
             foreach (var driverType in deviceTypes)
             {

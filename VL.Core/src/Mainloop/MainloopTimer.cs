@@ -17,37 +17,12 @@ namespace VL.Core
         TimeSpan WaitAccuracy { get; set; }
 
         /// <summary>
-        /// Enables fixed increment time mode.
+        /// Occurs when the Timer has completed one interval. Raised on the thread the timer has been created in.
         /// </summary>
-        bool IsIncremental { get; set; }
-
-        /// <summary>
-        /// Gets or sets the time increment. Used when <see cref="IsIncremental"/> is set to true.
-        /// </summary>
-        TimeSpan Increment { get; set; }
-
-        /// <summary>
-        /// The time interval between the last frame and the current frame.
-        /// </summary>
-        TimeSpan LastInterval { get; }
-
-        /// <summary>
-        /// Occurs when the Timer has completed one interval.
-        /// </summary>
-        event EventHandler<TimeSpan> Tick;
+        event EventHandler Tick;
 
         void Start();
 
-        void Step();
-
         void Stop();
-
-        TimerMode Mode { get; set; }
-    }
-
-    public static class MainloopTimerExtensions
-    {
-        public static TimeSpan GetIntervalOrIncrement(this IMainLoopTimer timer)
-            => timer.IsIncremental ? timer.Increment : timer.LastInterval;
     }
 }

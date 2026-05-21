@@ -30,7 +30,10 @@ namespace VL.Core
                             Observable.FromEventPattern<FileSystemEventArgs>(w, nameof(FileSystemWatcher.Deleted)).Select(e => e.EventArgs),
                             Observable.FromEventPattern<FileSystemEventArgs>(w, nameof(FileSystemWatcher.Created)).Select(e => e.EventArgs),
                             Observable.FromEventPattern<RenamedEventArgs>(w, nameof(FileSystemWatcher.Renamed)).Select(e => e.EventArgs));
-                    }).Publish().RefCount();
+                    })
+                .Catch(Observable.Empty<FileSystemEventArgs>())
+                .Publish()
+                .RefCount();
             });
         }
         private static readonly ConcurrentDictionary<(string path, string filter, bool includeSubdirectories), IObservable<FileSystemEventArgs>> watchers = new ConcurrentDictionary<(string path, string filter, bool includeSubdirectories), IObservable<FileSystemEventArgs>>();

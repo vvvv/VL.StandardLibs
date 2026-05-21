@@ -492,9 +492,83 @@ namespace VL.Core
 
         public static readonly IVLObject Default = new DefaultImpl();
 
-        static readonly Regex FPropertyRegex = new Regex(@"^\.?([^\[\.]+)($|\[.*|\..*)$", RegexOptions.Compiled);
-        static readonly Regex FValueIndexerRegex = new Regex(@"^\[(-?[0-9]+)\](.*)$", RegexOptions.Compiled);
-        static readonly Regex FStringIndexerRegex = new Regex(@"^\[""([^""]*)""\](.*)$", RegexOptions.Compiled);
+        // Span-based parsing methods for zero-allocation path parsing
+        private static bool TryParseProperty(ReadOnlySpan<char> path, out ReadOnlySpan<char> propertyName, out ReadOnlySpan<char> rest)
+        {
+            var span = path;
+
+            // Skip leading dot if present
+            if (span.Length > 0 && span[0] == '.')
+                span = span.Slice(1);
+
+            if (span.IsEmpty)
+            {
+                propertyName = default;
+                rest = default;
+                return false;
+            }
+
+            // Find the end of property name (next . or [ or end)
+            int endIndex = 0;
+            while (endIndex < span.Length && span[endIndex] != '.' && span[endIndex] != '[')
+                endIndex++;
+
+            if (endIndex > 0)
+            {
+                propertyName = span.Slice(0, endIndex);
+                rest = span.Slice(endIndex);
+                return true;
+            }
+
+            propertyName = default;
+            rest = default;
+            return false;
+        }
+
+        private static bool TryParseValueIndexer(ReadOnlySpan<char> path, out int index, out ReadOnlySpan<char> rest)
+        {
+            if (path.Length >= 3 && path[0] == '[')
+            {
+                // Find closing bracket
+                int closeIndex = path.IndexOf(']');
+                if (closeIndex > 1)
+                {
+                    var numberSpan = path.Slice(1, closeIndex - 1);
+                    if (int.TryParse(numberSpan, out index))
+                    {
+                        rest = path.Slice(closeIndex + 1);
+                        return true;
+                    }
+                }
+            }
+
+            index = 0;
+            rest = default;
+            return false;
+        }
+
+        private static bool TryParseStringIndexer(ReadOnlySpan<char> path, out ReadOnlySpan<char> key, out ReadOnlySpan<char> rest)
+        {
+            if (path.Length >= 4 && path[0] == '[' && path[1] == '"')
+            {
+                // Find closing quote
+                int quoteIndex = path.Slice(2).IndexOf('"');
+                if (quoteIndex >= 0)
+                {
+                    int closeIndex = 2 + quoteIndex;
+                    if (closeIndex + 1 < path.Length && path[closeIndex + 1] == ']')
+                    {
+                        key = path.Slice(2, quoteIndex);
+                        rest = path.Slice(closeIndex + 2);
+                        return true;
+                    }
+                }
+            }
+
+            key = default;
+            rest = default;
+            return false;
+        }
 
         /// <summary>
         /// Tries to retrieve the path from the instance to the descendant.
@@ -884,9 +958,14 @@ namespace VL.Core
         /// <returns>True if the lookup succeeded: Correct path and found data of the requested type.</returns>
         public static bool TryGetValueByPath<T>(this object instance, string path, T defaultValue, out T value, out bool pathExists)
         {
+            return TryGetValueByPathSpan(instance, path.AsSpan(), defaultValue, out value, out pathExists);
+        }
+
+        private static bool TryGetValueByPathSpan<T>(object instance, ReadOnlySpan<char> path, T defaultValue, out T value, out bool pathExists)
+        {
             pathExists = false;
 
-            if (path == "")
+            if (path.IsEmpty)
             {
                 pathExists = true;
                 if (instance is T v)
@@ -900,14 +979,12 @@ namespace VL.Core
 
             if (instance is IVLObject vlObj)
             {
-                var match = FPropertyRegex.Match(path);
-                if (match.Success)
+                if (TryParseProperty(path, out var propertyName, out var rest))
                 {
-                    var property = match.Groups[1].Value;
-                    var rest = match.Groups[2].Value;
+                    var property = propertyName.ToString();
                     if (vlObj.TryGetValue(property, default(object), out var o, out pathExists))
                     {
-                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
+                        return TryGetValueByPathSpan(o, rest, defaultValue, out value, out pathExists);
                     }
                 }
                 value = defaultValue;
@@ -916,17 +993,12 @@ namespace VL.Core
 
             if (instance is ISpread spread)
             {
-                var match = FValueIndexerRegex.Match(path);
-                if (match.Success)
+                if (TryParseValueIndexer(path, out var index, out var rest))
                 {
-                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    if (0 <= index && index < spread.Count)
                     {
-                        if (0 <= index && index < spread.Count)
-                        {
-                            var rest = match.Groups[2].Value;
-                            var o = spread.GetItem(index);
-                            return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
-                        }
+                        var o = spread.GetItem(index);
+                        return TryGetValueByPathSpan(o, rest, defaultValue, out value, out pathExists);
                     }
                 }
                 value = defaultValue;
@@ -935,15 +1007,13 @@ namespace VL.Core
 
             if (instance is IDictionary dict && dict.Keys is IEnumerable<string>)
             {
-                var match = FStringIndexerRegex.Match(path);
-                if (match.Success)
+                if (TryParseStringIndexer(path, out var key, out var rest))
                 {
-                    var key = match.Groups[1].Value;
-                    var rest = match.Groups[2].Value;
-                    if (dict.Contains(key))
+                    var keyStr = key.ToString();
+                    if (dict.Contains(keyStr))
                     {
-                        var o = dict[key];
-                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
+                        var o = dict[keyStr];
+                        return TryGetValueByPathSpan(o, rest, defaultValue, out value, out pathExists);
                     }
                 }
                 value = defaultValue;
@@ -952,17 +1022,12 @@ namespace VL.Core
 
             if (instance is IList list)
             {
-                var match = FValueIndexerRegex.Match(path);
-                if (match.Success)
+                if (TryParseValueIndexer(path, out var index, out var rest))
                 {
-                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    if (0 <= index && index < list.Count)
                     {
-                        if (0 <= index && index < list.Count)
-                        {
-                            var rest = match.Groups[2].Value;
-                            var o = list[index];
-                            return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
-                        }
+                        var o = list[index];
+                        return TryGetValueByPathSpan(o, rest, defaultValue, out value, out pathExists);
                     }
                 }
                 value = defaultValue;
@@ -971,17 +1036,15 @@ namespace VL.Core
 
             if (instance is not null)
             {
-                var match = FPropertyRegex.Match(path);
-                if (match.Success)
+                if (TryParseProperty(path, out var propertyName, out var rest))
                 {
                     var type = instance.GetType();
-                    var propertyName = match.Groups[1].Value;
-                    var rest = match.Groups[2].Value;
-                    var property = type.GetProperty(propertyName);
+                    var propStr = propertyName.ToString();
+                    var property = type.GetProperty(propStr);
                     if (property != null)
                     {
                         var o = property.GetValue(instance);
-                        return o.TryGetValueByPath(rest, defaultValue, out value, out pathExists);
+                        return TryGetValueByPathSpan(o, rest, defaultValue, out value, out pathExists);
                     }
                 }
             }
@@ -995,28 +1058,36 @@ namespace VL.Core
             if (path.Length == 0)
                 return default;
             var firstChar = path[0];
-            path = firstChar == '.' || firstChar == '[' ? path : '.' + path;
-            return TryGetObjectGraphNodeByPath_(path, new ObjectGraphNode(rootpath, instance, instance?.GetType(), 0, null, ""));
+            if (firstChar == '.' || firstChar == '[')
+            {
+                return TryGetObjectGraphNodeByPath_(path.AsSpan(), new ObjectGraphNode(rootpath, instance, instance?.GetType(), 0, null, ""));
+            }
+            else
+            {
+                // Need to prepend a dot - use stackalloc to avoid heap allocation
+                Span<char> buffer = stackalloc char[path.Length + 1];
+                buffer[0] = '.';
+                path.AsSpan().CopyTo(buffer.Slice(1));
+                return TryGetObjectGraphNodeByPath_(buffer, new ObjectGraphNode(rootpath, instance, instance?.GetType(), 0, null, ""));
+            }
         }
 
-        static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath_(string path, ObjectGraphNode parent)
+        static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath_(ReadOnlySpan<char> path, ObjectGraphNode parent)
         {
             var instance = parent.Value;
-            if (path == "")
+            if (path.IsEmpty)
                 return parent; 
 
             if (instance is IVLObject vlObj)
             {
-                var match = FPropertyRegex.Match(path);
-                if (match.Success)
+                if (TryParseProperty(path, out var propertyName, out var rest))
                 {
-                    var propertyName = match.Groups[1].Value;
-                    var rest = match.Groups[2].Value;
-                    var property = vlObj.Type.GetProperty(propertyName);
+                    var propStr = propertyName.ToString();
+                    var property = vlObj.Type.GetProperty(propStr);
                     if (property != null)
                     {
                         var o = property.GetValue(vlObj);
-                        var node = new ObjectGraphNode($"{parent.Path}.{propertyName}", o, property.Type.ClrType, property, parent, propertyName);
+                        var node = new ObjectGraphNode($"{parent.Path}.{propStr}", o, property.Type.ClrType, property, parent, propStr);
                         return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
@@ -1025,18 +1096,13 @@ namespace VL.Core
 
             if (instance is ISpread spread)
             {
-                var match = FValueIndexerRegex.Match(path);
-                if (match.Success)
+                if (TryParseValueIndexer(path, out var index, out var rest))
                 {
-                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    if (0 <= index && index < spread.Count)
                     {
-                        var rest = match.Groups[2].Value;
-                        if (0 <= index && index < spread.Count)
-                        {
-                            var o = spread.GetItem(index);
-                            var node = new ObjectGraphNode($"{parent.Path}[{index}]", o, spread.ElementType, index, parent, $"[{index}]");
-                            return TryGetObjectGraphNodeByPath_(rest, node);
-                        }
+                        var o = spread.GetItem(index);
+                        var node = new ObjectGraphNode($"{parent.Path}[{index}]", o, spread.ElementType, index, parent, $"[{index}]");
+                        return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
                 return default;
@@ -1044,16 +1110,14 @@ namespace VL.Core
 
             if (instance is IDictionary dict)
             {
-                var match = FStringIndexerRegex.Match(path);
-                if (match.Success)
+                if (TryParseStringIndexer(path, out var key, out var rest))
                 {
-                    var key = match.Groups[1].Value;
-                    var rest = match.Groups[2].Value;
-                    if (dict.Contains(key))
+                    var keyStr = key.ToString();
+                    if (dict.Contains(keyStr))
                     {
-                        var o = dict[key];
-                        var node = new ObjectGraphNode($"{parent.Path}[\"{key}\"]", o, 
-                            o?.GetType() /* should be something like dict.TypeOfValues */, key, parent, $"[\"{key}\"]");
+                        var o = dict[keyStr];
+                        var node = new ObjectGraphNode($"{parent.Path}[\"{keyStr}\"]", o, 
+                            o?.GetType() /* should be something like dict.TypeOfValues */, keyStr, parent, $"[\"{keyStr}\"]");
                         return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
@@ -1062,19 +1126,14 @@ namespace VL.Core
 
             if (instance is IList list)
             {
-                var match = FValueIndexerRegex.Match(path);
-                if (match.Success)
+                if (TryParseValueIndexer(path, out var index, out var rest))
                 {
-                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    if (0 <= index && index < list.Count)
                     {
-                        if (0 <= index && index < list.Count)
-                        {
-                            var rest = match.Groups[2].Value;
-                            var o = list[index];
-                            var node = new ObjectGraphNode($"{parent.Path}[{index}]", o, 
-                                o?.GetType() /* should be something like list.ElementType */, index, parent, $"[{index}]");
-                            return TryGetObjectGraphNodeByPath_(rest, node);
-                        }
+                        var o = list[index];
+                        var node = new ObjectGraphNode($"{parent.Path}[{index}]", o, 
+                            o?.GetType() /* should be something like list.ElementType */, index, parent, $"[{index}]");
+                        return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
                 return default;
@@ -1082,17 +1141,15 @@ namespace VL.Core
 
             if (instance is not null)
             {
-                var match = FPropertyRegex.Match(path);
-                if (match.Success)
+                if (TryParseProperty(path, out var propertyName, out var rest))
                 {
                     var type = instance.GetType();
-                    var propertyName = match.Groups[1].Value;
-                    var rest = match.Groups[2].Value;
-                    var property = type.GetProperty(propertyName);
+                    var propStr = propertyName.ToString();
+                    var property = type.GetProperty(propStr);
                     if (property != null)
                     {
                         var o = property.GetValue(instance);
-                        var node = new ObjectGraphNode($"{parent.Path}.{propertyName}", o, property.PropertyType, property, parent, propertyName);   
+                        var node = new ObjectGraphNode($"{parent.Path}.{propStr}", o, property.PropertyType, property, parent, propStr);   
                         return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
@@ -1215,13 +1272,13 @@ namespace VL.Core
         /// <param name="pathExists">The path exists.</param>
         /// <returns>The new root instance (if it is a record) with the updated spine.</returns>
         public static TInstance WithValueByPath<TInstance, TValue>(this TInstance instance, string path, TValue value, out bool pathExists)
-            => (TInstance)WithValueByPathCore(instance, path, value, out pathExists);
+            => (TInstance)WithValueByPathCore(instance, path.AsSpan(), value, out pathExists);
 
-        private static object WithValueByPathCore(this object instance, string path, object value, out bool pathExists)
+        private static object WithValueByPathCore(this object instance, ReadOnlySpan<char> path, object value, out bool pathExists)
         {
             pathExists = false;
 
-            if (path == "")
+            if (path.IsEmpty)
             {
                 pathExists = true;
                 return value;
@@ -1229,17 +1286,15 @@ namespace VL.Core
 
             if (instance is IVLObject vlObj)
             {
-                var match = FPropertyRegex.Match(path);
-                if (match.Success)
+                if (TryParseProperty(path, out var propertyName, out var rest))
                 {
-                    var property = match.Groups[1].Value;
-                    var rest = match.Groups[2].Value;
+                    var property = propertyName.ToString();
                     if (vlObj.TryGetValue(property, default(object), out var o, out pathExists))
                     {
-                        o = o.WithValueByPath(rest, value, out pathExists);
+                        o = o.WithValueByPathCore(rest, value, out pathExists);
                         return vlObj.WithValue(property, o);
                     }
-                    if (pathExists && rest == "")
+                    if (pathExists && rest.IsEmpty)
                     {
                         return vlObj.WithValue(property, value);
                     }
@@ -1249,18 +1304,13 @@ namespace VL.Core
 
             if (instance is ISpread spread)
             {
-                var match = FValueIndexerRegex.Match(path);
-                if (match.Success)
+                if (TryParseValueIndexer(path, out var index, out var rest))
                 {
-                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    if (0 <= index && index < spread.Count)
                     {
-                        if (0 <= index && index < spread.Count)
-                        {
-                            var rest = match.Groups[2].Value;
-                            var o = spread.GetItem(index);
-                            o = o.WithValueByPathCore(rest, value, out pathExists);
-                            return spread.SetItem(index, o);
-                        }
+                        var o = spread.GetItem(index);
+                        o = o.WithValueByPathCore(rest, value, out pathExists);
+                        return spread.SetItem(index, o);
                     }
                 }
                 return instance;
@@ -1268,16 +1318,14 @@ namespace VL.Core
 
             if (instance is IDictionary dict && dict.Keys is IEnumerable<string>)
             {
-                var match = FStringIndexerRegex.Match(path);
-                if (match.Success)
+                if (TryParseStringIndexer(path, out var key, out var rest))
                 {
-                    var key = match.Groups[1].Value;
-                    var rest = match.Groups[2].Value;
-                    if (dict.Contains(key))
+                    var keyStr = key.ToString();
+                    if (dict.Contains(keyStr))
                     {
-                        var o = dict[key];
+                        var o = dict[keyStr];
                         o = o.WithValueByPathCore(rest, value, out pathExists);
-                        return SetItem(dict, key, o);
+                        return SetItem(dict, keyStr, o);
                     }
                 }
                 return instance;
@@ -1285,18 +1333,13 @@ namespace VL.Core
 
             if (instance is IList list)
             {
-                var match = FValueIndexerRegex.Match(path);
-                if (match.Success)
+                if (TryParseValueIndexer(path, out var index, out var rest))
                 {
-                    if (int.TryParse(match.Groups[1].Value, out var index))
+                    if (0 <= index && index < list.Count)
                     {
-                        if (0 <= index && index < list.Count)
-                        {
-                            var rest = match.Groups[2].Value;
-                            var o = list[index];
-                            o = o.WithValueByPathCore(rest, value, out pathExists);
-                            return SetItem(list, index, o);
-                        }
+                        var o = list[index];
+                        o = o.WithValueByPathCore(rest, value, out pathExists);
+                        return SetItem(list, index, o);
                     }
                 }
                 return instance;
@@ -1304,13 +1347,11 @@ namespace VL.Core
 
             if (instance is not null)
             {
-                var match = FPropertyRegex.Match(path);
-                if (match.Success)
+                if (TryParseProperty(path, out var propertyName, out var rest))
                 { 
                     var type = instance.GetVLTypeInfo();
-                    var propertyName = match.Groups[1].Value;
-                    var rest = match.Groups[2].Value;
-                    var property = type.GetProperty(propertyName);
+                    var propStr = propertyName.ToString();
+                    var property = type.GetProperty(propStr);
                     if (property != null)
                     {
                         var o = property.GetValue(instance);

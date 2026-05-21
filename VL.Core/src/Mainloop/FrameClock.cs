@@ -23,10 +23,13 @@ namespace VL.Lib.Animation
         bool FInitialized;
         private double desiredTimeDifference = 1.0 / 60.0; //60fps
         private double timeIncrement = 1.0 / 60.0; //60fps
-        private bool isIncremental = false; //60fps
+        private bool isIncremental = false;
         private double waitAccuracy = 2.0 / 1000.0; //2ms
         IMainLoopTimer mainLoopTimer;
         readonly Stopwatch FWatch = Stopwatch.StartNew();
+        readonly Stopwatch FTotalTimeWatch = Stopwatch.StartNew();
+        private Time FIncrementalTime = TimeSpan.Zero;
+        private bool wasInIncrementalMode;
 
         public FrameClock()
         {
@@ -40,20 +43,39 @@ namespace VL.Lib.Animation
         /// <summary>
         /// Used on start of the frame, sets the frame time and triggers the before frame tick event.
         /// </summary>
-        /// <param name="frameTime">The absolute time since start. Global parameter used by the animation nodes</param>
-        public void SetFrameTime(Time frameTime)
-        {
-            if (FInitialized)
-                TimeDifference = Math.Max(frameTime.Seconds - FFrameTime.Seconds, MinTimeDifferenceInSeconds);
-            else
-                TimeDifference = DesiredTimeDifference;
+        public void BeginFrame() => BeginFrame(IsIncremental);
 
-            FFrameTime = frameTime;
-            FInitialized = true;
+        internal void BeginFrame(bool isIncremental)
+        {
+            if (isIncremental)
+            {
+                TimeDifference = Math.Max(TimeIncrement, MinTimeDifferenceInSeconds);
+                FFrameTime += TimeIncrement;
+                FIncrementalTime = FFrameTime;
+                wasInIncrementalMode = true;
+            }
+            else
+            {
+                if (FInitialized)
+                    TimeDifference = FWatch.Elapsed.TotalSeconds;
+                else
+                    TimeDifference = Math.Max(DesiredTimeDifference, MinTimeDifferenceInSeconds);
+
+                if (wasInIncrementalMode)
+                {
+                    wasInIncrementalMode = false;
+                    FTotalTimeWatch.Restart();
+                    FIncrementalTime += TimeIncrement;
+                }
+
+                FFrameTime = FIncrementalTime + FTotalTimeWatch.Elapsed.TotalSeconds;
+            }
+
             FWatch.Restart();
+            FInitialized = true;
 
             FCurrentFrame++;
-            FLastInterval = mainLoopTimer?.GetIntervalOrIncrement() ?? TimeSpan.Zero;
+            FLastInterval = TimeSpan.FromSeconds(TimeDifference);
             FrameStarting.OnNext(new FrameTimeMessage(FFrameTime, FCurrentFrame, FLastInterval));
 
             OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.SubChannelsGetLocked));
@@ -90,10 +112,11 @@ namespace VL.Lib.Animation
         /// </summary>
         public void NotifyFrameFinished()
         {
-            OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.ModulesSendingData)); 
+            OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.ModulesSendingData));
 
-            UpdateTime = FWatch.Elapsed;
-            FrameFinished.OnNext(new FrameFinishedMessage(FFrameTime, UpdateTime, FCurrentFrame, mainLoopTimer?.GetIntervalOrIncrement() ?? TimeSpan.Zero));
+            var updateBeginToEndElapsedTime = FWatch.Elapsed;
+            UpdateTime = updateBeginToEndElapsedTime;
+            FrameFinished.OnNext(new FrameFinishedMessage(FFrameTime, UpdateTime, FCurrentFrame, updateBeginToEndElapsedTime));
         }
 
         public Time UpdateTime { get; private set; }
@@ -102,7 +125,9 @@ namespace VL.Lib.Animation
         {
             FInitialized = false;
             FFrameTime = 0;
+            FIncrementalTime = 0;
             FWatch.Restart();
+            FTotalTimeWatch.Restart();
             TimeDifference = DesiredTimeDifference;
         }
 
@@ -137,14 +162,7 @@ namespace VL.Lib.Animation
         public bool IsIncremental
         {
             get => isIncremental;
-            set
-            {
-                if (isIncremental != value)
-                {
-                    isIncremental = value;
-                    SetMainloopTimerProperties(); 
-                }
-            }
+            set => isIncremental = value;
         }
 
         /// <summary>
@@ -154,14 +172,7 @@ namespace VL.Lib.Animation
         public double TimeIncrement
         {
             get => timeIncrement;
-            set
-            {
-                if (timeIncrement != value)
-                {
-                    timeIncrement = value;
-                    SetMainloopTimerProperties(); 
-                }
-            }
+            set => timeIncrement = value;
         }
 
         /// <summary>
@@ -184,8 +195,6 @@ namespace VL.Lib.Animation
             {
                 mainLoopTimer.Interval = TimeSpanUtils.FromSecondsPrecise(desiredTimeDifference);
                 mainLoopTimer.WaitAccuracy = TimeSpanUtils.FromSecondsPrecise(waitAccuracy);
-                mainLoopTimer.IsIncremental = isIncremental;
-                mainLoopTimer.Increment = TimeSpanUtils.FromSecondsPrecise(timeIncrement);
             }
         }
 

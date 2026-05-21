@@ -50,8 +50,15 @@ namespace VL.Skia.Egl
             ID3D11Texture2D* d3d11Texture;
             {
                 ID3D11Resource* sharedResource;
-                Guid iid = ID3D11Resource.IID_Guid;
-                d3dDevice->OpenSharedResource((Windows.Win32.Foundation.HANDLE)sharedHandle, &iid, (void**)&sharedResource);
+                try
+                {
+                    Guid iid = ID3D11Resource.IID_Guid;
+                    d3dDevice->OpenSharedResource((Windows.Win32.Foundation.HANDLE)sharedHandle, &iid, (void**)&sharedResource);
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
                 sharedResource->QueryInterface(out d3d11Texture);
                 sharedResource->Release();
             }

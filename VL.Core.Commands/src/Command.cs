@@ -87,10 +87,7 @@ public static class Command
 
         public void Execute()
         {
-            if (context != SynchronizationContext.Current)
-                context.Post(_ => command.Execute(), null);
-            else
-                command.Execute();
+            context.Post(_ => command.Execute(), null);
         }
     }
 }
