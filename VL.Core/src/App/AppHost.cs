@@ -9,6 +9,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
 using LoggerFactory = VL.Core.Logging.LoggerFactory;
@@ -137,6 +138,8 @@ namespace VL.Core
         /// Whether the app is running in the user thread.
         /// </summary>
         public virtual bool IsUser => false;
+
+        public abstract AssemblyLoadContext AssemblyLoadContext { get; }
 
         /// <summary>
         /// The service registry of the app.
