@@ -114,9 +114,8 @@ namespace VL.Lib.Animation
         {
             OnSubFrameEvent.OnNext(new SubFrameMessage(FFrameTime, FCurrentFrame, FLastInterval, SubFrameEvents.ModulesSendingData));
 
-            var updateBeginToEndElapsedTime = FWatch.Elapsed;
-            UpdateTime = updateBeginToEndElapsedTime;
-            FrameFinished.OnNext(new FrameFinishedMessage(FFrameTime, UpdateTime, FCurrentFrame, updateBeginToEndElapsedTime));
+            UpdateTime = FWatch.Elapsed;
+            FrameFinished.OnNext(new FrameFinishedMessage(FFrameTime, UpdateTime, FCurrentFrame, FLastInterval));
         }
 
         public Time UpdateTime { get; private set; }
