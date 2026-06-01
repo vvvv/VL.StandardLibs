@@ -160,6 +160,9 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
             stencilBits: stencilBits,
             glInfo: glInfo);
 
-        return SKSurface.Create(renderContext.SkiaContext, renderTarget, GRSurfaceOrigin.BottomLeft, colorType);
+        // Window framebuffer is presented directly to the monitor → always sRGB.
+        // Without this tag, Skia treats the surface as unmanaged and sRGB-tagged
+        // images (e.g. from TextureToSkImage) composite with a gamma offset.
+        return SKSurface.Create(renderContext.SkiaContext, renderTarget, GRSurfaceOrigin.BottomLeft, colorType, SKColorSpace.CreateSrgb());
     }
 }
