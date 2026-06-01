@@ -22,10 +22,10 @@
     <None Include="..\readme.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
-  <Target Name="IncludeReferencedAssembliesInPackage" DependsOnTargets="ResolveReferences">
+  <Target Name="IncludeReferencedAssembliesInPackage">
     <ItemGroup>
       <!-- Include assemblies from transitive package references https://github.com/NuGet/Home/issues/5103 -->
-      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'vrc-oscquery-lib'" />
+      <BuildOutputInPackage Include="..\dependencies\vrc-oscquery-lib.dll" />
     </ItemGroup>
   </Target>	
     

@@ -41,10 +41,10 @@
   <Target Name="IncludeStridePackageContent" BeforeTargets="InferPackageContents" DependsOnTargets="_StridePrepareAssetsForPack">
     <Message Importance="high" Text="Called Stride package targets" />
   </Target>
-  <Target Name="IncludeReferencedAssembliesInPackage" DependsOnTargets="ResolveReferences">
+  <Target Name="IncludeReferencedAssembliesInPackage">
     <ItemGroup>
       <!-- Include assemblies from transitive package references https://github.com/NuGet/Home/issues/5103 -->
-      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'vvvv.geometry3Sharp'" />
+      <BuildOutputInPackage Include="..\dependencies\vvvv.geometry3Sharp.dll" />
     </ItemGroup>
   </Target>
   <ItemGroup>
