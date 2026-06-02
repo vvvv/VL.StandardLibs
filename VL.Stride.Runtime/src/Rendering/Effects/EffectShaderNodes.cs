@@ -223,12 +223,19 @@ namespace VL.Stride.Rendering
             }
         }
 
-        private static ParameterPinDescription CreatePinDescription(in ParameterKeyInfo keyInfo, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string? name = null, bool? isOptionalOverride = default)
+        private static ParameterPinDescription CreatePinDescription(in ParameterKeyInfo keyInfo, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string? name = null, bool? isOptionalOverride = default, string? nodeInstanceId = null)
         {
-            return CreatePinDescription(keyInfo.Key, keyInfo.Count, usedNames, shaderMetadata, name, isOptionalOverride);
+            // Determine if this variable is a 'stage' variable using the Stride shader AST variable's Qualifiers
+            bool isStage = false;
+            if (shaderMetadata.ParsedShader != null && shaderMetadata.ParsedShader.VariablesByName.TryGetValue(keyInfo.Key.GetVariableName(), out var variable))
+            {
+                // Check for 'stage' in the Qualifiers collection (Stride AST)
+                isStage = variable.Qualifiers != null && variable.Qualifiers.Any(q => q.Name.Text.Equals("stage", StringComparison.OrdinalIgnoreCase));
+            }
+            return CreatePinDescription(keyInfo.Key, keyInfo.Count, usedNames, shaderMetadata, name, isOptionalOverride, nodeInstanceId, isStage);
         }
 
-        private static ParameterPinDescription CreatePinDescription(ParameterKey key, int count, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string? name = null, bool? isOptionalOverride = default)
+        private static ParameterPinDescription CreatePinDescription(ParameterKey key, int count, HashSet<string> usedNames, ShaderMetadata shaderMetadata, string? name = null, bool? isOptionalOverride = default, string? nodeInstanceId = null, bool isStage = false)
         {
             var typeInPatch = shaderMetadata.GetPinType(key, out var runtimeDefaultValue, out var compilationDefaultValue);
             shaderMetadata.GetPinDocuAndVisibility(key, out var summary, out var remarks, out var isOptional);
@@ -240,7 +247,9 @@ namespace VL.Stride.Rendering
                 compilationDefaultValue: compilationDefaultValue,
                 name: name,
                 typeInPatch: typeInPatch,
-                runtimeDefaultValue: runtimeDefaultValue)
+                runtimeDefaultValue: runtimeDefaultValue,
+                nodeInstanceId: nodeInstanceId,
+                isStage: isStage)
             {
                 IsVisible = !isOptional,
                 Summary = summary,
