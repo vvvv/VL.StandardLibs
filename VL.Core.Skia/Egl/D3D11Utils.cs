@@ -92,7 +92,7 @@ namespace VL.Skia.Egl
             ID3D11Texture2D* texture = (ID3D11Texture2D*)d3d11Texture;
             texture->GetDesc(out var desc);
 
-            var format = (viewFormat ?? desc.Format);
+            var format = viewFormat ?? desc.Format;
             var colorType = format.ToSkColorType();
             var glInfo = new GRGlTextureInfo(
                 id: textureId,
@@ -111,8 +111,8 @@ namespace VL.Skia.Egl
                 GRSurfaceOrigin.TopLeft,
                 colorType,
                 SKAlphaType.Unpremul,
-                // TODO: Check this, seems to make no difference
-                colorspace: renderContext.UseLinearColorspace && format.ShouldUseLinearColorSpace() ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb(),
+                // Same as in Stride/SkiaRenderer
+                colorspace: renderContext.UseLinearColorspace && format == desc.Format ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb(),
                 releaseProc: x =>
                 {
                     var (renderContext, textureId) = ((RenderContext, uint))x;
@@ -213,23 +213,6 @@ namespace VL.Skia.Egl
                 default:
                     return SKColorType.Unknown;
             }
-        }
-
-        /// <summary>
-        /// Determines whether the given DXGI format should use a linear color space
-        /// </summary>
-        /// <param name="format">The DXGI format to check</param>
-        /// <returns>True if the format should use a linear color space, false otherwise</returns>
-        public static bool ShouldUseLinearColorSpace(this DXGI_FORMAT format)
-        {
-            if (IsSrgbFormat(format))
-                return true;
-
-            if (IsHdrFormat(format))
-                return true;
-
-            // Default to false for standard formats
-            return false;
         }
 
         /// <summary>

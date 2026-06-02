@@ -1,12 +1,10 @@
 ﻿#nullable enable
 using SkiaSharp;
 using Stride.Core;
-using Stride.Engine;
 using Stride.Graphics;
 using VL.Core;
 using VL.Skia;
 using VL.Skia.Egl;
-using StrideRenderContext = Stride.Rendering.RenderContext;
 
 namespace VL.Stride.Textures
 {
@@ -19,38 +17,15 @@ namespace VL.Stride.Textures
     [ProcessNode]
     public class TextureToSkImage
     {
-        private static readonly PropertyKey<SKImage> SKImageView = new (nameof(SKImageView), typeof(TextureToSkImage));
-        private static readonly PropertyKey<Texture> NonSrgbTexture = new (nameof(NonSrgbTexture), typeof(TextureToSkImage));
+        private static readonly PropertyKey<SKImage?> SKImageView = new (nameof(SKImageView), typeof(TextureToSkImage));
         private readonly RenderContextProvider renderContextProvider = AppHost.Current.GetRenderContextProvider();
-        private readonly CommandList commandList = GetCommandList();
-
-        static CommandList GetCommandList()
-        {
-            return StrideRenderContext.GetShared(AppHost.Current.Services.GetRequiredService<Game>().Services).GetThreadContext().CommandList;
-        }
 
         public SKImage? Update(Texture? texture)
         {
             if (texture is null)
                 return null;
 
-            // Maybe Skia update will help here - for now make the copy :(
             var device = texture.GraphicsDevice;
-            if (device.ColorSpace == ColorSpace.Linear && texture.Format.IsSRgb())
-            {
-                var nonSrgbTexture = texture.Tags.Get(NonSrgbTexture);
-                if (nonSrgbTexture is null)
-                {
-                    var desc = texture.Description;
-                    desc.Format = desc.Format.ToNonSRgb();
-                    desc.Options = TextureOptions.None;
-                    nonSrgbTexture = Texture.New(texture.GraphicsDevice, desc).DisposeBy(texture);
-                    texture.Tags.Set(NonSrgbTexture, nonSrgbTexture);
-                }
-                commandList.Copy(texture, nonSrgbTexture);
-                return Update(nonSrgbTexture);
-            }
-
             if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
             {
                 var nativeTexture = SharpDXInterop.GetNativeResource(texture) as SharpDX.Direct3D11.Texture2D;

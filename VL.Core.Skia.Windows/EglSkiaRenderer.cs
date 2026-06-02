@@ -160,6 +160,6 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
             stencilBits: stencilBits,
             glInfo: glInfo);
 
-        return SKSurface.Create(renderContext.SkiaContext, renderTarget, GRSurfaceOrigin.BottomLeft, colorType);
+        return SKSurface.Create(renderContext.SkiaContext, renderTarget, GRSurfaceOrigin.BottomLeft, colorType, colorspace: SKColorSpace.CreateSrgb());
     }
 }
