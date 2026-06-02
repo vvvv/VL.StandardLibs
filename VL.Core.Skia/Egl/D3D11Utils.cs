@@ -74,7 +74,7 @@ namespace VL.Skia.Egl
         }
 
         [SupportedOSPlatform("windows6.1")]
-        public static unsafe SKImage TextureToSKImage(RenderContext renderContext, nint d3d11Texture)
+        public static unsafe SKImage TextureToSKImage(RenderContext renderContext, nint d3d11Texture, DXGI_FORMAT? viewFormat = default)
         {
             using var _ = renderContext.MakeCurrent(forRendering: false);
 
@@ -92,7 +92,8 @@ namespace VL.Skia.Egl
             ID3D11Texture2D* texture = (ID3D11Texture2D*)d3d11Texture;
             texture->GetDesc(out var desc);
 
-            var colorType = desc.Format.ToSkColorType();
+            var format = (viewFormat ?? desc.Format);
+            var colorType = format.ToSkColorType();
             var glInfo = new GRGlTextureInfo(
                 id: textureId,
                 target: NativeGles.GL_TEXTURE_2D,
@@ -111,7 +112,7 @@ namespace VL.Skia.Egl
                 colorType,
                 SKAlphaType.Unpremul,
                 // TODO: Check this, seems to make no difference
-                colorspace: renderContext.UseLinearColorspace && desc.Format.ShouldUseLinearColorSpace() ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb(),
+                colorspace: renderContext.UseLinearColorspace && format.ShouldUseLinearColorSpace() ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb(),
                 releaseProc: x =>
                 {
                     var (renderContext, textureId) = ((RenderContext, uint))x;

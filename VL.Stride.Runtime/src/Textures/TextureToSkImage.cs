@@ -61,7 +61,7 @@ namespace VL.Stride.Textures
                 if (image is null)
                 {
                     var renderContext = renderContextProvider.GetRenderContext();
-                    image = D3D11Utils.TextureToSKImage(renderContext, nativeTexture.NativePointer).DisposeBy(texture);
+                    image = D3D11Utils.TextureToSKImage(renderContext, nativeTexture.NativePointer, texture.ViewFormat.ToDXGIFormat()).DisposeBy(texture);
                     texture.Tags.Set(SKImageView, image);
                 }
                 return image;
