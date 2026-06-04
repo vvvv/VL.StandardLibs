@@ -79,6 +79,17 @@ namespace VL.Core.EditorAttributes
             return fallback;
         }
 
+        public static bool GetPublishIndividualItems(this IHasAttributes propertyInfoOrChannel, bool fallback = true)
+        {
+            foreach (var attr in propertyInfoOrChannel.Attributes)
+            {
+                if (attr is PublishIndividualItemsAttribute a)
+                    return a.PublishIndividualItems;
+            }
+
+            return fallback;
+        }
+
         public static bool GetIsBrowsable(this IHasAttributes propertyInfoOrChannel)
         {
             foreach (var attr in propertyInfoOrChannel.Attributes)

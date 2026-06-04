@@ -246,7 +246,7 @@ namespace VL.Core
 
     public struct ObjectGraphNode
     {
-        public string Path { get; }
+        public string Path { get; set; }
         public object Value { get; }
         public Type Type { get; }
 
@@ -661,6 +661,7 @@ namespace VL.Core
             public bool IndexIntoDictionaries => true;
             public bool CrawlOnTypeLevel => false;
             public bool AlsoCollectNulls => false;
+            bool IncludeItems(string path, string localID, object collection, int depth, object accessedViaKey) => true;
 
             // missing still:
             // crawl any collection
@@ -689,17 +690,23 @@ namespace VL.Core
         {
             if (instance is null)
                 return Spread<ObjectGraphNode>.Empty;
+
             if (type is null)
                 type = instance.GetType();
             else
                 if (!instance.GetType().IsAssignableTo(type))
                     throw new ArgumentException($"{instance.GetType()} is not of specified type {type}");
+            var root = new ObjectGraphNode(rootPath, instance, type, 0, null, "");
             if (filter == null)
                 filter = DefaultCrawlObjectGraphFilter.Instance;
             filter.Reset();
-            var collection = new SpreadBuilder<ObjectGraphNode>();
 
-            var root = new ObjectGraphNode(rootPath, instance, type, 0, null, "");
+            return CrawlObjectGraph(root, filter, includeRoot);
+        }
+
+        public static Spread<ObjectGraphNode> CrawlObjectGraph(ObjectGraphNode root, ICrawlObjectGraphFilter filter, bool includeRoot)
+        {
+            var collection = new SpreadBuilder<ObjectGraphNode>();
             if (includeRoot)
                 collection.Add(root);
 
@@ -844,8 +851,11 @@ namespace VL.Core
                 }
             }
 
-            public void ActOnChildren(ISpread spread,int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
+            public void ActOnChildren(ISpread spread, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
             {
+                if (!filter.IncludeItems(node.Path, node.AccessedViaKeyPath, spread, depth, node.AccessedViaKey))
+                    return;
+
                 var count = spread.Count;
                 for (int i = 0; i < count; i++)
                 {
@@ -863,6 +873,9 @@ namespace VL.Core
 
             public void ActOnChildren(IDictionary dict, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
             {
+                if (!filter.IncludeItems(node.Path, node.AccessedViaKeyPath, dict, depth, node.AccessedViaKey))
+                    return;
+
                 var enumerator = dict.GetEnumerator();
                 var dictType = dict.GetType();
                 var valueType = dictType.IsConstructedGenericType && dictType.GenericTypeArguments.Length == 2 ? dictType.GenericTypeArguments[1] : typeof(object);
