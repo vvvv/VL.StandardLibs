@@ -88,7 +88,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
         {
             surface = CreateSkSurface(renderContext, surfaceSize.X, surfaceSize.Y);
             canvas = surface?.Canvas;
-            CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, canvas, renderContext.SkiaContext, scaling);
+            CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, surface, renderContext.SkiaContext, scaling);
         }
 
         if (surface is null)
@@ -97,7 +97,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
         if (scaling != lastScaling)
         {
             lastScaling = scaling;
-            CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, canvas, renderContext.SkiaContext, scaling);
+            CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, surface, renderContext.SkiaContext, scaling);
         }
 
         if (!lastSetVSync.HasValue || vsync != lastSetVSync.Value)

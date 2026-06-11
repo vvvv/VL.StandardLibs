@@ -120,7 +120,7 @@ namespace VL.Stride
                 withinCommonSpaceLayer.Update(Layer, out var spaceLayer, Space);
                 viewportLayer.Update(spaceLayer, SKRect.Create(viewport.X, viewport.Y, viewport.Width, viewport.Height), CommonSpace.PixelTopLeft, out var layer);
 
-                layer.Render(CallerInfo.InRenderer(renderTarget.Width, renderTarget.Height, canvas, skiaRenderContext.SkiaContext, DIPHelpers.DIPFactor() /* FIXME */));
+                layer.Render(CallerInfo.InRenderer(renderTarget.Width, renderTarget.Height, surface, skiaRenderContext.SkiaContext, DIPHelpers.DIPFactor() /* FIXME */));
 
                 // Flush
                 surface.Flush();
