@@ -74,18 +74,12 @@ namespace VL.Stride.Rendering
 
             // Compute effect dispatchers
             var dispatchersCategory = $"{renderingAdvancedCategory}.ComputeEffect";
-            yield return factory.NewNode<DirectComputeEffectDispatcher>(name: "DirectDispatcher", category: renderingAdvancedCategory, copyOnWrite: false, hasStateOutput: false)
-                .AddCachedInput(nameof(DirectComputeEffectDispatcher.ThreadGroupCount), x => x.ThreadGroupCount, (x, v) => x.ThreadGroupCount = v, Int3.One)
-                .AddOutput<IComputeEffectDispatcher>("Output", x => x);
-
+            // For DirectDispatcher see DirectComputeEffectDispatcher class
             yield return factory.NewNode<IndirectComputeEffectDispatcher>(name: "IndirectDispatcher", category: renderingAdvancedCategory, copyOnWrite: false, hasStateOutput: false)
                 .AddCachedInput(nameof(IndirectComputeEffectDispatcher.ArgumentBuffer), x => x.ArgumentBuffer, (x, v) => x.ArgumentBuffer = v)
                 .AddCachedInput(nameof(IndirectComputeEffectDispatcher.OffsetInBytes), x => x.OffsetInBytes, (x, v) => x.OffsetInBytes = v)
                 .AddOutput<IComputeEffectDispatcher>("Output", x => x);
-
-            yield return factory.NewNode<CustomComputeEffectDispatcher>(name: "CustomDispatcher", category: renderingAdvancedCategory, copyOnWrite: false, hasStateOutput: false)
-                .AddCachedInput(nameof(CustomComputeEffectDispatcher.ThreadGroupCountsSelector), x => x.ThreadGroupCountsSelector, (x, v) => x.ThreadGroupCountsSelector = v)
-                .AddOutput<IComputeEffectDispatcher>("Output", x => x);
+            // For CustomDispatcher see CustomComputeEffectDispatcher class
 
             //yield return factory.NewNode<RenderView>(name: "RenderView", category: renderingAdvancedCategory, copyOnWrite: false)
             //    .AddInput(nameof(RenderView.View), x => x.View, (x, v) => x.View = v)
