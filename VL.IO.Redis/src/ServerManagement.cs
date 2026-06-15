@@ -4,6 +4,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using VL.Core;
 using VL.Core.Import;
 using VL.Core.Utils;
 using VL.Lib.Collections;
@@ -16,18 +17,19 @@ namespace VL.IO.Redis
         /// Deletes a key from the database
         /// </summary>
         /// <param name="client"></param>
+        /// <param name="database">The database to use. If not provided the default database from the <paramref name="client"/> will be used.</param>
         /// <param name="key"></param>
         /// <param name="apply"></param>
         /// <param name="success"></param>
         /// <returns></returns>
-        public static RedisClient? DeleteKey(this RedisClient? client, string? key, bool apply, out bool success)
+        public static RedisClient? DeleteKey(this RedisClient? client, [Pin(Visibility = Model.PinVisibility.Optional)] Optional<int> database, string? key, bool apply, out bool success)
         {
             success = false;
 
             if (!apply || string.IsNullOrEmpty(key))
                 return client;
 
-            var db = client?.GetDatabase();
+            var db = client?.GetDatabase(database.ToNullable());
             if (db is null)
                 return client;
 
@@ -41,8 +43,9 @@ namespace VL.IO.Redis
         /// </summary>
         /// <param name="client"></param>
         /// <param name="apply"></param>
+        /// <param name="database">The database to use. If not provided the default database from the <paramref name="client"/> will be used.</param>
         /// <returns></returns>
-        public static RedisClient? FlushDB(this RedisClient? client, bool apply)
+        public static RedisClient? FlushDB(this RedisClient? client, [Pin(Visibility = Model.PinVisibility.Optional)] Optional<int> database, bool apply)
         {
             if (!apply || client is null)
                 return client;
@@ -51,7 +54,7 @@ namespace VL.IO.Redis
             if (server is null)
                 return client;
 
-            server.FlushDatabase(client.Database);
+            server.FlushDatabase(database.ToNullable() ?? client.Database);
 
             return client;
         }
@@ -104,15 +107,17 @@ namespace VL.IO.Redis
             private string? _pattern;
             private IObservable<Spread<string>> _keys = Observable.Empty<Spread<string>>();
             private Spread<string> _keysCache = Spread<string>.Empty;
+            private Optional<int> _database;
             private bool _stopPollingOnceConnected;
 
             [return: Pin(Name = "Client")]
-            public IObservable<Spread<string>> Update(RedisClient? client, string? pattern, [DefaultValue(1f)] float period, bool stopPollingOnceConnected, bool force)
+            public IObservable<Spread<string>> Update(RedisClient? client, [Pin(Visibility = Model.PinVisibility.Optional)] Optional<int> database, string? pattern, [DefaultValue(1f)] float period, bool stopPollingOnceConnected, bool force)
             {
-                if (client != _client || pattern != _pattern || stopPollingOnceConnected != _stopPollingOnceConnected || force)
+                if (client != _client || database != _database || pattern != _pattern || stopPollingOnceConnected != _stopPollingOnceConnected || force)
                 {
                     _client = client;
                     _pattern = pattern;
+                    _database = database;
                     _stopPollingOnceConnected = stopPollingOnceConnected;
                     _keys = Observable.Create<Spread<string>>(async (observer, token) =>
                     {
@@ -125,7 +130,7 @@ namespace VL.IO.Redis
                                 try
                                 {
                                     var builder = CollectionBuilders.GetBuilder(_keysCache, 0);
-                                    await foreach (var key in server.KeysAsync(client.Database, pattern).WithCancellation(token))
+                                    await foreach (var key in server.KeysAsync(database.ToNullable() ?? client.Database, pattern).WithCancellation(token))
                                         builder.Add(key.ToString());
                                     observer.OnNext(_keysCache = builder.Commit());
 

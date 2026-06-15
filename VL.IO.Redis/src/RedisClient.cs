@@ -200,7 +200,7 @@ namespace VL.IO.Redis
         internal RedisConnection? CurrentConnection => _redisConnection;
         internal IObservable<RedisConnection?> ConnectionObservable => _redisConnectionManager.ConnectionObservable;
 
-        internal IDatabase? GetDatabase() => _redisConnection?.GetDatabase(Database);
+        internal IDatabase? GetDatabase(int? database) => _redisConnection?.GetDatabase(database ?? Database);
 
         internal IServer? GetServer() => _redisConnection?.GetServer();
 
