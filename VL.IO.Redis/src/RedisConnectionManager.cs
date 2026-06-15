@@ -42,7 +42,7 @@ namespace VL.IO.Redis
             _redisConnection.Dispose();
         }
 
-        public RedisConnection? Update(string? configuration = "localhost:6379", Action<ConfigurationOptions>? configure = null, bool connectAsync = true, RedisClient module = null! /* No longer used as node, defaults not needed right? */)
+        public RedisConnection? Update(string? configuration, Action<ConfigurationOptions>? configure, bool connectAsync, RedisClient module, ClientSideCachingOptions cachingOptions)
         {
             if (configuration != _configuration)
             {
@@ -58,7 +58,7 @@ namespace VL.IO.Redis
                 }
 
                 _connectCancellationTokenSource = new CancellationTokenSource();
-                _connectTask = Reconnect(configuration, configure, connectAsync, module, _connectCancellationTokenSource.Token, _connectTask);
+                _connectTask = Reconnect(configuration, configure, connectAsync, module, _connectCancellationTokenSource.Token, cachingOptions, _connectTask);
             }
 
             return _redisConnection.Value;
@@ -73,7 +73,7 @@ namespace VL.IO.Redis
         public IObservable<RedisConnection?> ConnectionObservable => _redisConnection;
         public RedisConnection? CurrentConnection => _redisConnection.Value;
 
-        private async Task Reconnect(string? configuration, Action<ConfigurationOptions>? configure, bool connectAsync, RedisClient client, CancellationToken cancellationToken, Task? existingConnectTask)
+        private async Task Reconnect(string? configuration, Action<ConfigurationOptions>? configure, bool connectAsync, RedisClient client, CancellationToken cancellationToken, ClientSideCachingOptions cachingOptions, Task? existingConnectTask)
         {
             // Reset options while reconnecting - they are used for display in tooltip
             Options = default;
@@ -110,7 +110,7 @@ namespace VL.IO.Redis
                         : ConnectionMultiplexer.Connect(options);
 
                     if (!_disposed && !token.IsCancellationRequested)
-                        _redisConnection.OnNext(new RedisConnection(_nodeContext.AppHost, multiplexer, _logger, client));
+                        _redisConnection.OnNext(new RedisConnection(multiplexer, _logger, client, cachingOptions));
                     else
                         multiplexer.Dispose();
 

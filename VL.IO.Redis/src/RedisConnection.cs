@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using VL.Core;
@@ -13,12 +15,14 @@ namespace VL.IO.Redis
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly RedisClient _client;
         private readonly ILogger _logger;
+        private ClientSideCachingOptions _cachingOptions;
 
-        public RedisConnection(AppHost appHost, ConnectionMultiplexer multiplexer, ILogger logger, RedisClient client)
+        public RedisConnection(ConnectionMultiplexer multiplexer, ILogger logger, RedisClient client, ClientSideCachingOptions cachingOptions)
         {
             _multiplexer = multiplexer;
             _client = client;
             _logger = logger;
+            _cachingOptions = cachingOptions;
 
             // Subscribe to connection error events
             _multiplexer.ConnectionFailed += OnConnectionFailed;
@@ -91,9 +95,16 @@ namespace VL.IO.Redis
                             s.Execute("CLIENT", new object[] { "TRACKING", "OFF" });
 
                             var id = pubSubClient.Id.ToString();
-                            var args = _client.UseBroadcastTracking
-                                ? new object[] { "TRACKING", "ON", "REDIRECT", id, "BCAST", "NOLOOP" }
-                                : new object[] { "TRACKING", "ON", "REDIRECT", id, "NOLOOP" };
+                            var args = new List<object> { "TRACKING", "ON", "REDIRECT", id, "NOLOOP" };
+                            if (_cachingOptions.UseBroadcastMode)
+                            {
+                                args.Add("BCAST");
+                                foreach (var prefix in _cachingOptions.BroadcastPrefixes)
+                                {
+                                    args.Add("PREFIX");
+                                    args.Add(prefix);
+                                }
+                            }
                             s.Execute("CLIENT", args);
                         }
                     }
@@ -143,5 +154,11 @@ namespace VL.IO.Redis
         internal RedisClient Client => _client;
 
         internal ISubscriber GetSubscriber() => _multiplexer.GetSubscriber();
+
+        public ClientSideCachingOptions CachingOptions 
+        {
+            get => _cachingOptions;
+            set => _cachingOptions = value; 
+        }
     }
 }
