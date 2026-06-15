@@ -127,7 +127,7 @@ namespace VL.IO.Redis
             [Pin(Visibility = PinVisibility.Optional)] Optional<TimeSpan> expiry = default,
             [Pin(Visibility = PinVisibility.Optional)] When when = When.Always,
             bool connectAsync = true,
-            [Pin(Visibility = PinVisibility.Hidden)] bool broadcast = true)
+            [Pin(Visibility = PinVisibility.Optional)] bool broadcast = true)
         {
             Format = serializationFormat;
             Database = database;
