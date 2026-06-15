@@ -46,6 +46,7 @@ namespace VL.IO.Redis
         private string _nickname = string.Empty;
         private string? _lastConfiguration;
         private Optional<string> _lastNickname;
+        private bool _lastBroadcast = true; // tracks pin changes for live re-apply
         private readonly IChannel<Unit> _onModuleModelChanged = ChannelHelpers.CreateChannelOfType<Unit>();
         private Task? _lastTransaction;
 
@@ -125,10 +126,12 @@ namespace VL.IO.Redis
             SerializationFormat serializationFormat = SerializationFormat.MessagePack,
             [Pin(Visibility = PinVisibility.Optional)] Optional<TimeSpan> expiry = default,
             [Pin(Visibility = PinVisibility.Optional)] When when = When.Always,
-            bool connectAsync = true)
+            bool connectAsync = true,
+            [Pin(Visibility = PinVisibility.Hidden)] bool broadcast = true)
         {
             Format = serializationFormat;
             Database = database;
+            UseBroadcastTracking = broadcast;
 
             if (configuration != _lastConfiguration || nickname != _lastNickname)
             {
@@ -153,7 +156,8 @@ namespace VL.IO.Redis
                 _onModuleModelChanged.SetValueAndAuthor(Unit.Default, null);
 
             var connection = _redisConnectionManager.Update(configuration, configure, connectAsync, this);
-            if (connection != _redisConnection)
+            bool isNewConnection = connection != _redisConnection;
+            if (isNewConnection)
             {
                 _redisConnection = connection;
 
@@ -162,6 +166,19 @@ namespace VL.IO.Redis
 
                 UpdateBindingsFromModel(_modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty);
             }
+
+            // Live toggle: re-apply tracking on an already-established connection when the
+            // pin changed. A new connection already applied the current value in its ctor.
+            if (!isNewConnection && connection != null && broadcast != _lastBroadcast)
+            {
+                connection.ApplyClientSideTracking();
+
+                // Force a re-read of all bound keys so default mode re-arms (its tracking
+                // table is empty after OFF/ON). Harmless when switching to BCAST.
+                foreach (var (_, binding) in _bindings)
+                    binding.Invalidate();
+            }
+            _lastBroadcast = broadcast;
         }
 
 
@@ -178,6 +195,12 @@ namespace VL.IO.Redis
 
         [DefaultValue(SerializationFormat.MessagePack)]
         internal SerializationFormat Format { private get; set; } = SerializationFormat.MessagePack;
+
+        // Whether CLIENT TRACKING uses BCAST (broadcast all matching changes) or
+        // default per-read mode. Read live by RedisConnection when (re)applying
+        // tracking. Default true keeps existing behavior.
+        [DefaultValue(true)]
+        internal bool UseBroadcastTracking { get; set; } = true;
 
         internal bool IsDisposed => _disposables.IsDisposed;
 
