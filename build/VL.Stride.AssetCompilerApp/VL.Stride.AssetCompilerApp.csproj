@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <!-- Don't pack this, it's build-time infrastructure -->
@@ -10,6 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Build" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Framework" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" ExcludeAssets="runtime" />
+
     <PackageReference Include="Stride.Core.Assets.CompilerApp">
       <ExcludeAssets>build;buildTransitive</ExcludeAssets>
     </PackageReference>
@@ -20,17 +25,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="$(PkgStride_Assets)\contentFiles\any\net8.0\ffmpeg.exe">
+    <None Include="$(PkgStride_Assets)\contentFiles\any\net10.0\ffmpeg.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="$(PkgStride_Assets)\contentFiles\any\net8.0\msdfgen.exe">
+    <None Include="$(PkgStride_Assets)\contentFiles\any\net10.0\msdfgen.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <!-- 
     Remove the Stride.Core.Assets.CompilerApp.exe from runtime assets.
-    The NuGet package contains both a .dll and .exe in lib/net8.0,
+    The NuGet package contains both a .dll and .exe in lib/net10.0,
     but we only want the .dll and its dependencies.
   -->
   <Target Name="RemoveStrideCompilerExe" AfterTargets="ResolvePackageAssets">
