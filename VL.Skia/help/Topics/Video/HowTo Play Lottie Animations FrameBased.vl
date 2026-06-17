@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="GKsTLl956DCQYBTRQcARjt" LanguageVersion="2023.5.3-0157-gcbac65ecd1" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="GKsTLl956DCQYBTRQcARjt" LanguageVersion="2026.8.0-0004-gfe502254ae" Version="0.128">
   <Patch Id="KRylUBm2Bl8L8ZPuaoZlTH">
     <Canvas Id="B3xrTUVdOH5OlMZuf70Go2" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -14,23 +14,28 @@
       </p:NodeReference>
       <Patch Id="PPdV7FJV1QEP7s9pZN8VYw">
         <Canvas Id="AovNkoS7kcvL2xUzzckGQ6" CanvasType="Group">
-          <Node Bounds="563,567,165,19" Id="Kjk2k0SnrZsM0T8RWnOxbA">
+          <Node Bounds="563,567,185,19" Id="Kjk2k0SnrZsM0T8RWnOxbA">
             <p:NodeReference LastCategoryFullName="Graphics.Skia" LastDependency="VL.Skia.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
               <CategoryReference Kind="Category" Name="Skia" NeedsToBeDirectParent="true" />
             </p:NodeReference>
+            <Pin Id="PuuQ81ManmpNPoWl3lMw97" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="T92JiDX17g3LvV7ckMUSjK" Name="Bounds" Kind="InputPin" DefaultValue="1128, 59, 613, 478" />
             <Pin Id="I5VWlCfhaxULfj1ExC6DsF" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
             <Pin Id="D7U0yu6fp2vLaapjlkgBIR" Name="Bound to Document" Kind="InputPin" DefaultValue="True" />
-            <Pin Id="PuuQ81ManmpNPoWl3lMw97" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="NjpVndUYu3aM9fQx35iuqd" Name="Dialog If Document Changed" Kind="InputPin" IsHidden="true" />
+            <Pin Id="EhCZyLIdGgyOkdAnGjVrAO" Name="Always On Top" Kind="InputPin" IsHidden="true" />
+            <Pin Id="NUAmzoNCNW6LIuM3W2502E" Name="Extend Into Title Bar" Kind="InputPin" IsHidden="true" />
             <Pin Id="KXMq3Ck3dgHOYtTGy9wdP3" Name="Input" Kind="InputPin" />
+            <Pin Id="HKeP74e5zZSO1sruxPYd3U" Name="Title" Kind="InputPin" />
+            <Pin Id="LR8IwUQ1glBPiHStmGx4Kw" Name="Title Bar Interaction Width" Kind="InputPin" IsHidden="true" />
             <Pin Id="NNlwIoi5hWdNzU5u64jbTm" Name="Color" Kind="InputPin" />
             <Pin Id="DLKTSteEe4mK95F0M9xIMq" Name="Clear" Kind="InputPin" />
             <Pin Id="I2wuusOqeuZOwbKbGkrLrv" Name="Space" Kind="InputPin" />
             <Pin Id="R2BcLaxDZWZLB7UTz19Kin" Name="Show Cursor" Kind="InputPin" />
             <Pin Id="GvVfIssOr7ELlCCNzb2rAB" Name="VSync" Kind="InputPin" />
+            <Pin Id="BcexUHza7WCLRpSu7FC4Jl" Name="Commands" Kind="InputPin" IsHidden="true" />
             <Pin Id="H0wixGOqKhUL6MuMS1QcyM" Name="Enable Keyboard Shortcuts" Kind="InputPin" IsHidden="true" />
             <Pin Id="B032rPDtkMrQZgi7mMHZX3" Name="Enabled" Kind="InputPin" />
             <Pin Id="U6fhigfLLSvQNBfjjZUcWj" Name="Form Bounds Notifications" Kind="OutputPin" IsHidden="true" />
@@ -51,11 +56,6 @@
           <Pad Id="FwDmLwefayhPwl2fqRQRgl" Comment="Size" Bounds="656,147,35,28" ShowValueBox="true" isIOBox="true" Value="3, 3">
             <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Vector2" />
-            </p:TypeAnnotation>
-          </Pad>
-          <Pad Id="JS9Ka2Bc7rGPsVz2jhT2F5" Comment="File Path" Bounds="401,285,140,15" ShowValueBox="true" isIOBox="true" Value="..\..\Assets\LottieLogo1.json">
-            <p:TypeAnnotation LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="Path" />
             </p:TypeAnnotation>
           </Pad>
           <Node Bounds="603,509,125,19" Id="TZVx4PF2qaaPG9vJwgZCXT">
@@ -123,6 +123,7 @@
             <Pin Id="TmXI3OEnvKcOIwtebwvQyp" Name="Frame to Display" Kind="InputPin" />
             <Pin Id="VbLva5OGTJ3NBdrYESiIUz" Name="Loop From" Kind="InputPin" />
             <Pin Id="STgboAGw2toQLEnkdXrvFd" Name="Loop To" Kind="InputPin" />
+            <Pin Id="BQbJxFDtSEcP8PlWqEZvZe" Name="State Output" Kind="OutputPin" IsHidden="true" />
             <Pin Id="UwO9JyGxv6qLtzh8IIAzxh" Name="Output" Kind="OutputPin" />
             <Pin Id="B6wub60tEksP5itJspYuXo" Name="Version" Kind="OutputPin" />
             <Pin Id="VapZDcAhAfGLuLlUoK4PHl" Name="Original Size" Kind="OutputPin" />
@@ -130,13 +131,8 @@
             <Pin Id="RACwIkyfzstQb42ujzy7iS" Name="Frame Count" Kind="OutputPin" />
             <Pin Id="CwVkXuUiRYCLntkRLOAEab" Name="FPS" Kind="OutputPin" />
           </Node>
-          <Pad Id="LePIREj2Y4eOOr86F6pOjN" Comment="Frame to Display" Bounds="653,264,35,15" ShowValueBox="true" isIOBox="true" Value="42">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="Integer32" />
-            </p:TypeAnnotation>
-          </Pad>
           <Pad Id="E6Wr7zD3AUWL19GZlNRWJq" Comment="Frame Count" Bounds="684,464,35,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="Cro7NI6yTE6NNXWl9Zlyhx" Comment="Loop From" Bounds="680,312,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+          <Pad Id="Cro7NI6yTE6NNXWl9Zlyhx" Comment="Loop From" Bounds="679,301,35,15" ShowValueBox="true" isIOBox="true" Value="0">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Integer32" />
             </p:TypeAnnotation>
@@ -149,6 +145,39 @@
           <Pad Id="OikawFYLWN6P0HWGEQUXJo" Comment="FPS" Bounds="813,464,35,15" ShowValueBox="true" isIOBox="true" />
           <Pad Id="Drdyqy8ylujO4e8kjn6UuC" Comment="Version" Bounds="624,392,38,15" ShowValueBox="true" isIOBox="true" />
           <Pad Id="ORkWJg5pu52PY3J9sgz7N8" Comment="Original Size" Bounds="645,419,35,28" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="432,290,84,19" Id="Ew50oOWYdQZMZivSE1bMvj">
+            <p:NodeReference LastCategoryFullName="System.Help" LastDependency="VL.HelpAssets.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="MiscAsset" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="SWt3RhWicL8PzcKYE7TtZA" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="NdvqYtjKEYpQY7EbTJip8O" Name="Asset" Kind="InputPin" />
+            <Pin Id="CSNdMzahWNTMe9bKRxKQ8f" Name="File Path" Kind="OutputPin" />
+          </Node>
+          <Pad Id="PDaa1bZlKP8P2QzeRymx0m" Comment="Asset" Bounds="434,263,106,15" ShowValueBox="true" isIOBox="true" Value="LottieLogo1.json">
+            <p:TypeAnnotation LastCategoryFullName="System.Help" LastDependency="VL.HelpAssets.vl">
+              <Choice Kind="TypeFlag" Name="MiscAsset" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="652,260,81,19" Id="Rkyp2IpbhUwMtt2vbsgzMY">
+            <p:NodeReference LastCategoryFullName="Animation.FrameBased" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="FrameCounter" />
+            </p:NodeReference>
+            <Pin Id="VHVfue5FNSVPVoqkI0P488" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="RMypBsTNKMoQU9OgnxdYPS" Name="Count" Kind="ApplyPin" DefaultValue="True" />
+            <Pin Id="KPHnAocLREmOjE2hTPwK6Q" Name="Reset" Kind="ApplyPin" />
+            <Pin Id="AzVdRZ2fW5UOjL3a1YbH0w" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="KGDNkAW04AgP2x6kMgxAf6" Comment="Rewind" Bounds="768,230,35,35" ShowValueBox="true" isIOBox="true" Value="false">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
         </Canvas>
         <Patch Id="BbfBNWpOinrQVXXNYVkBHy" Name="Create" />
         <Patch Id="RypPtAcvzjAMpxPSr8H0Mw" Name="Update" />
@@ -158,19 +187,22 @@
         </ProcessDefinition>
         <Link Id="JXDcIDvR27WMJ65Sjf5MoG" Ids="FwDmLwefayhPwl2fqRQRgl,GVAJHaC1OTBPnGvfIIdgcX" />
         <Link Id="F3nEtnm1RH5MPjcq0J7Qm6" Ids="OMI9ze8rZ5oOX6uV1Kb2KK,KXMq3Ck3dgHOYtTGy9wdP3" />
-        <Link Id="FBeJdflH83NQTK1LG6Yhkt" Ids="JS9Ka2Bc7rGPsVz2jhT2F5,IZq2mnLVfIxMTsCMZRmZuH" />
         <Link Id="N02r4MJn02IPddlYLgQs5Y" Ids="EeYT190hR0ULZeUbMaVTMm,CV6WA7z0ri3Qb7gvMUKyIR" />
         <Link Id="CmJCxrzidstL3SOS1OhSub" Ids="UwO9JyGxv6qLtzh8IIAzxh,ICRW9wKstAXPdJMBm0JsT9" />
-        <Link Id="Jy6LkbQBGpsN52BxaDNGpC" Ids="LePIREj2Y4eOOr86F6pOjN,TmXI3OEnvKcOIwtebwvQyp" />
         <Link Id="PDGk41X84WfOYe0xLYGj6g" Ids="RACwIkyfzstQb42ujzy7iS,E6Wr7zD3AUWL19GZlNRWJq" />
         <Link Id="RmiayIw5KvJP0OQBIhoi1a" Ids="Cro7NI6yTE6NNXWl9Zlyhx,VbLva5OGTJ3NBdrYESiIUz" />
         <Link Id="DIraTOlUfQ9NjhySFjnflx" Ids="H42ogKtFHgCNml0pOVQuxr,STgboAGw2toQLEnkdXrvFd" />
         <Link Id="R90QP6IEXtfM1x8voydqYM" Ids="CwVkXuUiRYCLntkRLOAEab,OikawFYLWN6P0HWGEQUXJo" />
         <Link Id="ArpPMSEQO1zPSM84pJ1XKO" Ids="B6wub60tEksP5itJspYuXo,Drdyqy8ylujO4e8kjn6UuC" />
         <Link Id="Gp8StALN1QFQVKj4dcyasW" Ids="VapZDcAhAfGLuLlUoK4PHl,ORkWJg5pu52PY3J9sgz7N8" />
+        <Link Id="LbCAirfGZYxNEIWLy7ocXp" Ids="CSNdMzahWNTMe9bKRxKQ8f,IZq2mnLVfIxMTsCMZRmZuH" />
+        <Link Id="JQk52j7ukT8QFEMxghbMZh" Ids="PDaa1bZlKP8P2QzeRymx0m,NdvqYtjKEYpQY7EbTJip8O" />
+        <Link Id="GmfnFZDHdNUPN55u52w9DH" Ids="AzVdRZ2fW5UOjL3a1YbH0w,TmXI3OEnvKcOIwtebwvQyp" />
+        <Link Id="D3iQ8CKWkhLLcvKY8OtHd7" Ids="KGDNkAW04AgP2x6kMgxAf6,KPHnAocLREmOjE2hTPwK6Q" />
       </Patch>
     </Node>
   </Patch>
-  <NugetDependency Id="JavCygml0wbM5zmfnyLLZP" Location="VL.Skia" Version="2021.4.12-1367-gb6775f76f2" />
-  <NugetDependency Id="FQ9gSnjCP67N1yRTp3G2Au" Location="VL.CoreLib" Version="2021.4.12-1367-gb6775f76f2" />
+  <NugetDependency Id="JavCygml0wbM5zmfnyLLZP" Location="VL.Skia" />
+  <NugetDependency Id="FQ9gSnjCP67N1yRTp3G2Au" Location="VL.CoreLib" />
+  <NugetDependency Id="E62aR29faGSLOWkZhVRJhi" Location="VL.HelpAssets" />
 </Document>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="TrWHyOR1YVpPIN3lnNUaCB" LanguageVersion="2022.5.0-0765-gb1019f31c5" Version="0.128">
-  <NugetDependency Id="IvWlHY1zI6hM0XTjMo2AnP" Location="VL.CoreLib" Version="2021.4.0-0603-g27c6206669" />
+<Document xmlns:p="property" xmlns:r="reflection" Id="TrWHyOR1YVpPIN3lnNUaCB" LanguageVersion="2026.8.0-0004-gfe502254ae" Version="0.128">
+  <NugetDependency Id="IvWlHY1zI6hM0XTjMo2AnP" Location="VL.CoreLib" />
   <Patch Id="CJJuKGpHwm7PGP8F8uBo7Y">
     <Canvas Id="GaRgMS52uD2Ml5Tb2fkzpQ" DefaultCategory="Stride" CanvasType="FullCategory" />
     <!--
@@ -15,14 +15,6 @@
       </p:NodeReference>
       <Patch Id="CYQ4KQwlK9BMl9t7fSoWv5">
         <Canvas Id="Bek9MFlaUrmMLspYRN5HOd" CanvasType="Group">
-          <Pad Id="AF80v9TiKQAMLnTYvb41VH" Comment="Directory" Bounds="83,344,102,15" ShowValueBox="true" isIOBox="true" Value="..\..\Assets\pumping_quad\\">
-            <p:TypeAnnotation LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="Path" />
-            </p:TypeAnnotation>
-            <p:ValueBoxSettings>
-              <p:pathtype p:Assembly="VL.Core" p:Type="VL.Core.PathType">Directory</p:pathtype>
-            </p:ValueBoxSettings>
-          </Pad>
           <Pad Id="TG1KoGF6N7LMXGElnNOYg6" Comment="Play" Bounds="203,485,35,35" ShowValueBox="true" isIOBox="true" Value="True">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
@@ -130,17 +122,21 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="ImagePlayer (FrameBased Skia)" />
             </p:NodeReference>
+            <Pin Id="LFmtnoy6MOmQajmLGLqKa4" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="Qxb1vZaWSclPQKMCUo4qoQ" Name="Directory" Kind="InputPin" />
             <Pin Id="AJzknb0vtWdNlT8KRw3tvi" Name="Search Pattern" Kind="InputPin" />
             <Pin Id="IS987gKZJStP3aR6bUlLoC" Name="Rescan Directory" Kind="InputPin" />
             <Pin Id="VkJ4xr2qaURMBeu88vKBVa" Name="Loop From" Kind="InputPin" />
             <Pin Id="DnIPbmWLycoLrgj07SCAke" Name="Loop To" Kind="InputPin" />
             <Pin Id="UYg2SibDhktMQ50TK9OCHd" Name="Seek Frames" Kind="InputPin" />
+            <Pin Id="GXJDkeu9XFFNFXEUWdSfnh" Name="Frame Step Descending" Kind="InputPin" IsHidden="true" />
+            <Pin Id="MfgYKytzFwVMaSXfR8Cpxp" Name="Frame Step Ascending" Kind="InputPin" IsHidden="true" />
             <Pin Id="Qh62ggZqT81PD8u53g8W05" Name="Preload Count" Kind="InputPin" />
             <Pin Id="KB0FGNoX1NhLw9cpW2Tt7O" Name="Frame to Display" Kind="InputPin" />
             <Pin Id="TnpW2Exg2q1MBumrzCH3uk" Name="Output" Kind="OutputPin" />
             <Pin Id="T29VvZH8KBxQMlYl1n0VkS" Name="On Scanning Complete" Kind="OutputPin" />
             <Pin Id="MUJYfgdc7j5O4sZOEPlmKc" Name="Frame Count" Kind="OutputPin" />
+            <Pin Id="JIkELrF6OE3MFIjyKfJaBM" Name="Preloaded Frames" Kind="OutputPin" IsHidden="true" />
           </Node>
           <Pad Id="MaBb0kDF2aaP1woEvRNSgr" Bounds="63,793,86,25" ShowValueBox="true" isIOBox="true" Value="See also">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
@@ -178,20 +174,30 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Node Bounds="41,701,165,19" Id="SKqzJWf3GxZOF2aSv632Vv">
+          <Node Bounds="41,701,185,19" Id="SKqzJWf3GxZOF2aSv632Vv">
             <p:NodeReference LastCategoryFullName="Graphics.Skia" LastDependency="VL.Skia.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Renderer" />
             </p:NodeReference>
+            <Pin Id="FkcWTi04OxrLTrWmCdIMva" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="L54xBYAEXeOQKBCcByLNqJ" Name="Bounds" Kind="InputPin" DefaultValue="1144, 61, 600, 400" />
+            <Pin Id="DBHsIbVHUNWP19eimAgnex" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
             <Pin Id="IHm2tSCDXUNPs1UKp3EwPc" Name="Bound to Document" Kind="InputPin" DefaultValue="True" />
+            <Pin Id="I2d78O4kjO7PVTIubRMiR3" Name="Dialog If Document Changed" Kind="InputPin" IsHidden="true" />
+            <Pin Id="B61fcDcNfuxQai3ZP52lB6" Name="Always On Top" Kind="InputPin" IsHidden="true" />
+            <Pin Id="CVBOc5ypt1KMdvgp8YUdRX" Name="Extend Into Title Bar" Kind="InputPin" IsHidden="true" />
             <Pin Id="KDX1sKrvRW4NAnsX9z5ezJ" Name="Input" Kind="InputPin" />
+            <Pin Id="U3zEh4WQJxtOS77MVJDAfn" Name="Title" Kind="InputPin" />
+            <Pin Id="PP7yC9IqbT1NFzXtzu7BUk" Name="Title Bar Interaction Width" Kind="InputPin" IsHidden="true" />
             <Pin Id="TfFjVtZMfjAPNogXTU1xQj" Name="Color" Kind="InputPin" DefaultValue="0.5019608, 0.5019608, 0.5019608, 1" />
             <Pin Id="GxyOgUa03QQNGfg4IZZC4Z" Name="Clear" Kind="InputPin" />
             <Pin Id="OUgA6V6hk2mPp5cqOp0ceI" Name="Space" Kind="InputPin" />
             <Pin Id="Tes2ShRiWzvNa6xNjawj8s" Name="Show Cursor" Kind="InputPin" />
             <Pin Id="SH9wfE5IGTCO32bPXY84cs" Name="VSync" Kind="InputPin" />
+            <Pin Id="LBSYh0SvzAXNhFFozxJhXx" Name="Commands" Kind="InputPin" IsHidden="true" />
+            <Pin Id="MK8G09p31iCNvH1IWfVrsr" Name="Enable Keyboard Shortcuts" Kind="InputPin" IsHidden="true" />
             <Pin Id="EctJr1Egu0VLB6NKY36lrc" Name="Enabled" Kind="InputPin" />
+            <Pin Id="P3DeGbYGQr0OJb8CLhSDUz" Name="Form Bounds Notifications" Kind="OutputPin" IsHidden="true" />
             <Pin Id="FwJTQjKlDffPS6XFvKYe4o" Name="Form" Kind="OutputPin" />
             <Pin Id="NQZvLFWpWuVOJ9MQz6i2IM" Name="ClientBounds" Kind="OutputPin" />
             <Pin Id="Hnltvt1n3XbOxzxBRUOJit" Name="Render Time" Kind="OutputPin" />
@@ -201,6 +207,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="DrawImage" />
             </p:NodeReference>
+            <Pin Id="K1fbRV8WEMmMWxTl5ZWgmd" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="VhibLAcycSLLHGnBZ5Gvkq" Name="Image" Kind="InputPin" />
             <Pin Id="VRCoEHpnlZvLN9XuIUJ129" Name="Position" Kind="InputPin" />
             <Pin Id="Oe4DHbLUpPMQXjvsnVCpbL" Name="Size" Kind="InputPin" />
@@ -226,6 +233,9 @@
               <Choice Kind="ProcessAppFlag" Name="ImagePlayer (Skia)" />
             </p:NodeReference>
             <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="MjUODlc7f4sN5UtVzi5ecU" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="I0xqHSutu8PNyY43cdxFPA" Name="Clock" Kind="InputPin" IsHidden="true" />
+            <Pin Id="HQLJrErzjkpLmB4E85fkOa" Name="New Clock" Kind="InputPin" IsHidden="true" />
             <Pin Id="BVoOj4n9uZ3MHnX0iHXmiJ" Name="Directory" Kind="InputPin" />
             <Pin Id="LrzUNNFkj5XQciwJoQqbai" Name="Search Pattern" Kind="InputPin" />
             <Pin Id="ORmbqkDmsdLNmEg0H7Rilq" Name="Rescan Directory" Kind="InputPin" />
@@ -243,8 +253,26 @@
             <Pin Id="VzcUlErWWuGLUPtGiYptKL" Name="On Scanning Complete" Kind="OutputPin" />
             <Pin Id="QXXnNv7YocXNwtBpmUcVrF" Name="Position" Kind="OutputPin" />
             <Pin Id="TFIHWBObaMSO8KnrLF7Bh5" Name="Duration" Kind="OutputPin" />
+            <Pin Id="I8gh8Bazt6eOFroX1f0dhr" Name="Displayed Frame" Kind="OutputPin" IsHidden="true" />
+            <Pin Id="PiEGDGDqGmgQXj5dHfHjkz" Name="Frame Count" Kind="OutputPin" IsHidden="true" />
             <Pin Id="HvZA1210YoFOhByLK2a9Zf" Name="Preloaded Frames" Kind="OutputPin" />
+            <Pin Id="HFklDU5kc8nOks6Gl8OSbW" Name="Sync" Kind="InputPin" IsHidden="true" />
           </Node>
+          <Node Bounds="81,300,84,19" Id="L46UIYJ6K3PO5RVu1qEWLX">
+            <p:NodeReference LastCategoryFullName="System.Help" LastDependency="VL.HelpAssets.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="SequenceAsset" />
+            </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
+            <Pin Id="HJziVwNuBr9PoIVkGHX2tu" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="U83TGuxXE8SLotWmHSSNyN" Name="Asset" Kind="InputPin" />
+            <Pin Id="Jj0zQVGf36fOWiZD6RqFU6" Name="File Path" Kind="OutputPin" />
+          </Node>
+          <Pad Id="IfgTfQ2heyaO3NxRbvj73c" Comment="Asset" Bounds="83,283,99,15" ShowValueBox="true" isIOBox="true" Value="pumping-quad">
+            <p:TypeAnnotation LastCategoryFullName="System.Help" LastDependency="VL.HelpAssets.vl">
+              <Choice Kind="TypeFlag" Name="SequenceAsset" />
+            </p:TypeAnnotation>
+          </Pad>
         </Canvas>
         <Patch Id="TpnDDF84TJqPJq7ECiRAa5" Name="Create" />
         <Patch Id="ABVoXgJVnUrN1QMrpElCAo" Name="Update" />
@@ -254,7 +282,6 @@
         </ProcessDefinition>
         <Link Id="VK5Jjb2zFzrLtd8xI3C5gH" Ids="IC1JOZOLEkVO71nkTffEFx,KDX1sKrvRW4NAnsX9z5ezJ" />
         <Link Id="AwcZeO21zKQOzQwefY9NM6" Ids="PKRQyA4F6W0L3wxq8KTozF,SH9wfE5IGTCO32bPXY84cs" />
-        <Link Id="CMLp8HvhtU4PwdVVLdguCk" Ids="AF80v9TiKQAMLnTYvb41VH,BVoOj4n9uZ3MHnX0iHXmiJ" />
         <Link Id="NDOyfJwZyG2MOK53VbRDE0" Ids="M19kco48v1aLrS79tmc8eq,LrzUNNFkj5XQciwJoQqbai" />
         <Link Id="Vf1HxlsasKiMI9BImFiSzl" Ids="Ly7yZBh5A1ROCJoMcytyNc,AxzPlTrx3klNTzDLgocmcl" />
         <Link Id="UU4ASdIEuyxOECPv9zZV3I" Ids="JlkmhRZhUFWPbWDpeJus6k,KY8AWgUAOFcP722JbykB44" />
@@ -266,8 +293,11 @@
         <Link Id="N2QRZ4ApOO0NflKchmJvgj" Ids="TFIHWBObaMSO8KnrLF7Bh5,T7HHPk0D5B4MIgmyyWKo7g" />
         <Link Id="LrtfYDCFtGGPi1s7GMZsTi" Ids="QXXnNv7YocXNwtBpmUcVrF,RdiHH7cB7HQN0nvKgG4AnS" />
         <Link Id="TxdoLH4K4FbLSDX4isJqCs" Ids="BY6muKp2V9ML0ncrsHBBsR,VhibLAcycSLLHGnBZ5Gvkq" />
+        <Link Id="OfkLSg7qvqDPr96ub3zkU5" Ids="IfgTfQ2heyaO3NxRbvj73c,U83TGuxXE8SLotWmHSSNyN" />
+        <Link Id="VLBSDzTZQydPoQBdbrw7I7" Ids="Jj0zQVGf36fOWiZD6RqFU6,BVoOj4n9uZ3MHnX0iHXmiJ" />
       </Patch>
     </Node>
   </Patch>
-  <NugetDependency Id="LvwRmBBYfPBL6J78OYVvmi" Location="VL.Skia" Version="2021.4.0-0603-g27c6206669" />
+  <NugetDependency Id="LvwRmBBYfPBL6J78OYVvmi" Location="VL.Skia" />
+  <NugetDependency Id="NMBogRyrtMKORhw6nWXKbM" Location="VL.HelpAssets" />
 </Document>
