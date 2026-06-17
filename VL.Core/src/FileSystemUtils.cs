@@ -34,5 +34,35 @@ namespace VL.Core
             });
         }
         private static readonly ConcurrentDictionary<(string path, string filter, bool includeSubdirectories), IObservable<FileSystemEventArgs>> watchers = new ConcurrentDictionary<(string path, string filter, bool includeSubdirectories), IObservable<FileSystemEventArgs>>();
+
+        public static bool HasWriteAccess(string directoryPath)
+        {
+            try
+            {
+                // Ensure directory exists
+                if (!Directory.Exists(directoryPath))
+                    return false;
+
+                // Try to create a temporary file
+                string testFile = Path.Combine(directoryPath, Path.GetRandomFileName());
+                using (FileStream fs = File.Create(testFile, 1, FileOptions.DeleteOnClose))
+                {
+                    // File created successfully and will be deleted on close
+                }
+                return true;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return false;
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

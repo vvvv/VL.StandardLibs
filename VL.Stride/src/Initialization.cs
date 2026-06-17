@@ -1,28 +1,29 @@
-using VL.Core;
-using VL.Core.CompilerServices;
-using VL.Lib.Basics.Resources;
-using VL.Stride.Assets;
-using VL.Stride.Games;
+using Microsoft.Extensions.DependencyInjection;
+using Silk.NET.SDL;
+using Stride.Core;
+using Stride.Core.Diagnostics;
+using Stride.Core.IO;
+using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Games;
 using Stride.Graphics;
-using System.Windows.Forms;
-using System;
-using VL.Lib.Animation;
-using StrideApp = Stride.Graphics.SDL.Application;
-using System.Runtime.InteropServices;
-using Silk.NET.SDL;
-using Stride.Core;
-using ServiceRegistry = VL.Core.ServiceRegistry;
-using VL.Stride.Core;
-using Stride.Core.Diagnostics;
-using System.Threading;
-using VL.Stride.Input;
-using Microsoft.Extensions.DependencyInjection;
-using VL.Lib.Basics.Video;
 using Stride.Input;
+using System;
 using System.Linq;
-using Stride.Core.Mathematics;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Windows.Forms;
+using VL.Core;
+using VL.Core.CompilerServices;
+using VL.Lib.Animation;
+using VL.Lib.Basics.Resources;
+using VL.Lib.Basics.Video;
+using VL.Stride.Assets;
+using VL.Stride.Core;
+using VL.Stride.Games;
+using VL.Stride.Input;
+using ServiceRegistry = VL.Core.ServiceRegistry;
+using StrideApp = Stride.Graphics.SDL.Application;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Lib.Initialization))]
 
@@ -132,7 +133,10 @@ namespace VL.Stride.Lib
                 GameContext gameContext;
                 if (UseSDL && appHost.IsUser /* SDL assumes one main thread, so let's not use it when game is created inside of editor */)
                 {
-                    gameContext = new GameContextSDL(null, 0, 0, isUserManagingRun: true);
+                    gameContext = new GameContextSDL(null, 0, 0, isUserManagingRun: true)
+                    {
+                        InitializeDatabase = false
+                    };
                     // SDL_PumpEvents shall not run the message loop (Translate/Dispatch) - already done by windows forms
                     // This calls also needs to be done after the Stride loaded the native SDL library - otherwise crash
                     Sdl.GetApi().SetHint(Sdl.HintWindowsEnableMessageloop, "0");
@@ -143,8 +147,14 @@ namespace VL.Stride.Lib
                 }
                 else
                 {
-                    gameContext = new GameContextWinforms(null, 0, 0, isUserManagingRun: true);
+                    gameContext = new GameContextWinforms(null, 0, 0, isUserManagingRun: true)
+                    {
+                        InitializeDatabase = false
+                    };
                 }
+
+                // Set asset db
+                ((DatabaseFileProviderService)game.Services.GetService<IDatabaseFileProviderService>()).FileProvider = VL.Stride.Core.Initialization.GetDatabaseFileProvider();
 
                 game.Run(gameContext); // Creates the window
 
@@ -189,10 +199,6 @@ namespace VL.Stride.Lib
 
                     game.Services.GetService<RenderDocManager>()?.RemoveHooks();
                 };
-
-                // Now that game is setup, load bundles
-                var bundleLoader = appHost.Services.GetRequiredService<BundleLoader>();
-                bundleLoader.LoadBundles(game);
 
                 return game;
             });

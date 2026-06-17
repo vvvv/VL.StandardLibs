@@ -1,65 +1,24 @@
-﻿using Stride.Core;
-using Stride.Core.IO;
-using Stride.Engine;
-using static Stride.Core.Storage.BundleOdbBackend;
+﻿using Stride.Core.IO;
+using VL.Stride.Utils;
 
 namespace VL.Stride
 {
     public sealed class BundleLoader
     {
-        private readonly List<string> bundles = new();
+        private readonly DatabaseFileProvider databaseFileProvider;
+        private readonly HashSet<string> loadedBundles = new(StringComparer.OrdinalIgnoreCase);
 
-        public void AddBundle(string bundleFile)
+        public BundleLoader(DatabaseFileProvider databaseFileProvider)
         {
-            bundles.Add(bundleFile);
-
-            var servicesUsedByNodeFactories = VL.Stride.Core.Initialization.GetGlobalStrideServices();
-            LoadBundle(servicesUsedByNodeFactories, bundleFile);
+            this.databaseFileProvider = databaseFileProvider;
         }
 
-        internal void LoadBundles(Game game)
+        public void LoadBundle(string bundleFile)
         {
-            foreach (var bundle in bundles) 
-                LoadBundle(game, bundle);
-        }
-
-        private void LoadBundle(Game game, string bundleFile)
-        {
-            var services = game.Services;
-            LoadBundle(services, bundleFile);
-        }
-
-        private void LoadBundle(ServiceRegistry services, string bundleFile)
-        {
-            var bundleName = Path.GetFileNameWithoutExtension(bundleFile);
-            var mountPoint = $"/{bundleName}";
-            var bundlesPath = Path.GetDirectoryName(bundleFile);
-            if (!VirtualFileSystem.DirectoryExists(mountPoint)) // or just use RemountFileSystem?
+            lock (loadedBundles)
             {
-                VirtualFileSystem.MountFileSystem(mountPoint, bundlesPath);
-            }
-
-            BundleResolveDelegate resolver = async name =>
-            {
-                if (name == bundleName)
-                {
-                    return $"{mountPoint}/{Path.GetFileName(bundleFile)}";
-                }
-                return null;
-            };
-
-            var objDb = services.GetService<IDatabaseFileProviderService>().FileProvider.ObjectDatabase;
-            var bundleBackend = objDb.BundleBackend;
-            bundleBackend.BundleResolve += resolver;
-
-            try
-            {
-                var bundleLoadTask = bundleBackend.LoadBundle(bundleName, objDb.ContentIndexMap);
-                bundleLoadTask.Wait();
-            }
-            finally
-            {
-                bundleBackend.BundleResolve -= resolver;
+                if (loadedBundles.Add(bundleFile))
+                    databaseFileProvider.LoadBundle(bundleFile);
             }
         }
     }

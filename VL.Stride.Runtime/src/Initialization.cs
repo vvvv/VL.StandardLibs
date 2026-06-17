@@ -6,14 +6,8 @@ using Stride.Games;
 using Stride.Graphics;
 using Stride.Rendering;
 using Stride.Shaders.Compiler;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Reactive.Disposables;
+using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using VL.Core;
 using VL.Core.CompilerServices;
 using VL.Lib.Basics.Resources;
@@ -23,6 +17,7 @@ using VL.Stride.Rendering;
 using VL.Stride.Rendering.Compositing;
 using VL.Stride.Rendering.Lights;
 using VL.Stride.Rendering.Materials;
+using VL.Stride.Utils;
 using static Stride.Core.Storage.BundleOdbBackend;
 using ServiceRegistry = global::Stride.Core.ServiceRegistry;
 
@@ -57,15 +52,34 @@ namespace VL.Stride.Core
     {
         public static string GetPathToAssetDatabase()
         {
-            var thisDirectory = Path.GetDirectoryName(typeof(Initialization).Assembly.Location);
-            if (thisDirectory is null)
-                return null; // Exported single file exe
+            // Check if we have write access to the base directory of the app
+            // If yes, use it as it supports the portable case
+            // If no, setup a directory in the user profile
+            var appBasePath = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);
+            if (FileSystemUtils.HasWriteAccess(appBasePath))
+                return Path.Combine(appBasePath, "data");
 
-            var dataDir = Path.Combine(thisDirectory, "data");
-            if (Directory.Exists(dataDir))
-                return dataDir;
+            var localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (localAppDataPath is null)
+                return null;
 
-            // Let Stride figure it out
+            var entryAssembly = Assembly.GetEntryAssembly();
+            if (entryAssembly is null)
+                return null;
+
+            var appName = entryAssembly.GetName().Name;
+            if (appName == "vvvv" || appName == "vvvvc")
+#pragma warning disable CS0436 // Type conflicts with imported type
+                return Path.Combine(localAppDataPath, appName, ThisAssembly.NuGetPackageVersion, "data");
+#pragma warning restore CS0436 // Type conflicts with imported type
+
+            // User app
+            var appVersion = entryAssembly.GetName().Version?.ToString();
+            if (appName != null && appVersion != null)
+                return Path.Combine(localAppDataPath, appName, appVersion, "data");
+            if (appName != null)
+                return Path.Combine(localAppDataPath, appName, "data");
+
             return null;
         }
 
@@ -78,15 +92,11 @@ namespace VL.Stride.Core
 
         private void AppHost_PluginLoaded(object sender, PluginLoadedEventArgs args)
         {
-            var appHost = args.AppHost;
-            var servicesUsedByNodeFactories = GetGlobalStrideServices();
-            LoadBundle(servicesUsedByNodeFactories, args.PluginInfo);
-
-            var services = appHost.Services.GetRequiredService<Game>().Services;
-            LoadBundle(services, args.PluginInfo);
+            var fileProvider = GetDatabaseFileProvider();
+            LoadBundle(fileProvider, args.PluginInfo);
         }
 
-        private static void LoadBundle(ServiceRegistry services, PluginInfo plugin)
+        private static void LoadBundle(DatabaseFileProvider databaseFileProvider, PluginInfo plugin)
         {
             var mountPoint = $"/{plugin.Name}";
             var bundlesPath = Path.Combine(plugin.Path, "data", "db", "bundles");
@@ -108,7 +118,7 @@ namespace VL.Stride.Core
                 return null;
             };
 
-            var objDb = services.GetService<IDatabaseFileProviderService>().FileProvider.ObjectDatabase;
+            var objDb = databaseFileProvider.ObjectDatabase;
             var bundleBackend = objDb.BundleBackend;
             bundleBackend.BundleResolve += resolver;
 
@@ -129,7 +139,7 @@ namespace VL.Stride.Core
 
             var services = appHost.Services;
 
-            services.RegisterService(new BundleLoader());
+            services.RegisterService(GetBundleLoader());
 
             // Graphics device
             services.RegisterProvider(game => ResourceProvider.Return(game.GraphicsDevice));
@@ -203,6 +213,45 @@ namespace VL.Stride.Core
             }
         }
 
+        public static DatabaseFileProvider GetDatabaseFileProvider()
+        {
+            // We keep one for the entire process
+            var appHost = AppHost.Global;
+            return appHost.Services.GetOrAddService(_ =>
+            {
+                // Create and mount database file system
+                var objDatabase = new ObjectDatabase(VirtualFileSystem.ApplicationDatabasePath, VirtualFileSystem.ApplicationDatabaseIndexName, VirtualFileSystem.LocalDatabasePath, 
+                    loadDefaultBundle: appHost.IsExported);
+
+                // Only set a mount path if not mounted already
+                var mountPath = VirtualFileSystem.ResolveProviderUnsafe("/asset", true).Provider == null ? "/asset" : null;
+                var fileProvider = new DatabaseFileProvider(objDatabase, mountPath);
+
+                if (!appHost.IsExported)
+                {
+                    // Load default bundle from our package
+                    var assemblyDir = Path.GetDirectoryName(typeof(Initialization).Assembly.Location);
+                    var defaultBundlePath = Path.Combine(assemblyDir, "data", "db", "bundles", "default.bundle");
+                    if (File.Exists(defaultBundlePath))
+                        fileProvider.LoadBundle(defaultBundlePath);
+                    else
+                        appHost.DefaultLogger.LogWarning($"Could not find default bundle at {defaultBundlePath}");
+                }
+
+                return fileProvider;
+            });
+        }
+
+        public static BundleLoader GetBundleLoader()
+        {
+            return AppHost.Global.Services.GetOrAddService(services =>
+            {
+                var fileProvider = GetDatabaseFileProvider();
+                var bundleLoader = new BundleLoader(fileProvider);
+                return bundleLoader;
+            });
+        }
+
         static readonly ConditionalWeakTable<AppHost, ServiceRegistry> serviceCache = new();
 
         // Taken from Stride/SkyboxGeneratorContext
@@ -210,8 +259,7 @@ namespace VL.Stride.Core
         {
             var services = new ServiceRegistry();
 
-            var fileProvider = InitializeAssetDatabase();
-            var fileProviderService = new DatabaseFileProviderService(fileProvider);
+            var fileProviderService = new DatabaseFileProviderService(GetDatabaseFileProvider());
             services.AddService<IDatabaseFileProviderService>(fileProviderService);
 
             var content = new ContentManager(services);
@@ -234,17 +282,6 @@ namespace VL.Stride.Core
             ((EffectCompilerCache)effectSystem.Compiler).CompileEffectAsynchronously = false;
 
             return services;
-        }
-
-        // Taken from Stride/Game
-        static DatabaseFileProvider InitializeAssetDatabase()
-        {
-            // Create and mount database file system
-            var objDatabase = ObjectDatabase.CreateDefaultDatabase();
-
-            // Only set a mount path if not mounted already
-            var mountPath = VirtualFileSystem.ResolveProviderUnsafe("/asset", true).Provider == null ? "/asset" : null;
-            return new DatabaseFileProvider(objDatabase, mountPath);
         }
     }
 }

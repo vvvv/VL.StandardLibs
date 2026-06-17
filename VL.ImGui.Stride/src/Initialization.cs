@@ -26,7 +26,7 @@ namespace VL.ImGui.Stride
                 var bundleFile = Path.Combine(
                     assemblyDir, "data", "db", "bundles", "VL.ImGui.Stride.bundle");
                 var bundleLoader = appHost.Services.GetRequiredService<BundleLoader>();
-                bundleLoader.AddBundle(bundleFile);
+                bundleLoader.LoadBundle(bundleFile);
             }
         }
     }
