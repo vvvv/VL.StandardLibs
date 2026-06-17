@@ -17,6 +17,12 @@
     <Authors>vvvv and open-source contributors</Authors>
     <Company>vvvv</Company>
   </PropertyGroup>
+
+  <Target Name="AdditionalThisAssemblyFields" BeforeTargets="GenerateAssemblyNBGVVersionInfo" DependsOnTargets="GetBuildVersion">
+    <ItemGroup>
+      <AdditionalThisAssemblyFields Include="NuGetPackageVersion" String="$(NuGetPackageVersion)" />
+    </ItemGroup>
+  </Target>
   
   <ItemGroup>
     <None Include="..\*.vl" Pack="true" PackagePath=" " />

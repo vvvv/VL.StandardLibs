@@ -1,4 +1,5 @@
 using Stride.Core.Diagnostics;
+using Stride.Core.IO;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Engine.Design;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using VL.Core;
 using VL.Lib.Basics.Video;
 using VL.Lib.Reactive;
@@ -106,6 +108,44 @@ namespace VL.Stride.Games
         protected override void PrepareContext()
         {
             base.PrepareContext();
+
+            // Copied from base method but without asset database initialization as we did that already
+
+            var renderingSettings = new RenderingSettings();
+            if (Content.Exists(GameSettings.AssetUrl))
+            {
+                WriteSettings(this, Content.Load<GameSettings>(GameSettings.AssetUrl));
+
+                renderingSettings = Settings.Configurations.Get<RenderingSettings>();
+
+                // Set ShaderProfile even if AutoLoadDefaultSettings is false (because that is what shaders in effect logs are compiled against, even if actual instantiated profile is different)
+                if (renderingSettings.DefaultGraphicsProfile > 0)
+                {
+                    var deviceManager = (GraphicsDeviceManager)graphicsDeviceManager;
+                    if (!deviceManager.ShaderProfile.HasValue)
+                        deviceManager.ShaderProfile = renderingSettings.DefaultGraphicsProfile;
+                }
+
+                Services.AddService<IGameSettingsService>(this);
+            }
+
+            // Load several default settings
+            if (AutoLoadDefaultSettings)
+            {
+                var deviceManager = (GraphicsDeviceManager)graphicsDeviceManager;
+                if (renderingSettings.DefaultGraphicsProfile > 0)
+                {
+                    deviceManager.PreferredGraphicsProfile = new[] { renderingSettings.DefaultGraphicsProfile };
+                }
+
+                if (renderingSettings.DefaultBackBufferWidth > 0) deviceManager.PreferredBackBufferWidth = renderingSettings.DefaultBackBufferWidth;
+                if (renderingSettings.DefaultBackBufferHeight > 0) deviceManager.PreferredBackBufferHeight = renderingSettings.DefaultBackBufferHeight;
+
+                deviceManager.PreferredColorSpace = renderingSettings.ColorSpace;
+            }
+
+            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "set_Settings")]
+            static extern void WriteSettings(Game game, GameSettings settings);
         }
 
         protected override void OnWindowCreated()
