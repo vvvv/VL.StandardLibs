@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="AFGBMszJJyYO8DmfLIeKxU" LanguageVersion="2023.5.3-0359-g76f8ff031b" Version="0.128">
-  <NugetDependency Id="EX4WQqp7RfDOkpC9NB2i7Y" Location="VL.CoreLib" Version="2021.4.0-0472-g1cf903ecbd" />
+<Document xmlns:p="property" xmlns:r="reflection" Id="AFGBMszJJyYO8DmfLIeKxU" LanguageVersion="2026.8.0-0007-g07b53cfa53" Version="0.128">
+  <NugetDependency Id="EX4WQqp7RfDOkpC9NB2i7Y" Location="VL.CoreLib" />
   <Patch Id="VsaXdR4Oj6GOzw0tduUk7L">
     <Canvas Id="HQQG7R2X3VVOypmZGDhuu5" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
     <!--
@@ -39,12 +39,8 @@
             <Pin Id="B8ZbDzAb9mdQVsRtQsjThH" Name="Texture" Kind="OutputPin" />
             <Pin Id="KPLQUMhKAtiNZqJraAvkN8" Name="Is Loading" Kind="OutputPin" />
             <Pin Id="MpqdgOdREZlNUBNytbTmRF" Name="Already Loaded" Kind="OutputPin" />
+            <Pin Id="N6OmUGuQUV8QZLBDjLB6AD" Name="Url" Kind="OutputPin" IsHidden="true" />
           </Node>
-          <Pad Id="VzJZFgLPUIVPqycrwP4OGY" Comment="Path" Bounds="285,156,131,17" ShowValueBox="true" isIOBox="true" Value="..\Assets\earth_512x512.jpg">
-            <p:TypeAnnotation LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="Path" />
-            </p:TypeAnnotation>
-          </Pad>
           <Node Bounds="283,413,125,19" Id="KXtUBDCRu6HNrBMRVv8VfP">
             <p:NodeReference LastCategoryFullName="Stride.Textures.Filter" LastDependency="VL.Stride.TextureFX.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -71,19 +67,21 @@
               <Choice Kind="ProcessAppFlag" Name="TextureWindow" />
             </p:NodeReference>
             <Pin Id="GZtqLsjWD71O2vxv4MHcVn" Name="Node Context" Kind="InputPin" IsHidden="true" />
-            <Pin Id="FnB3vXwEpBhQcuHJ25hU0x" Name="Bounds" Kind="InputPin" DefaultValue="1042, 87, 468, 432">
+            <Pin Id="FnB3vXwEpBhQcuHJ25hU0x" Name="Bounds" Kind="InputPin" DefaultValue="1596, 134.66667, 468, 432">
               <p:TypeAnnotation LastCategoryFullName="2D" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="TypeFlag" Name="Rectangle" />
               </p:TypeAnnotation>
             </Pin>
-            <Pin Id="Me7XqaK2CjcP39I8H7VMBI" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
-            <Pin Id="FIABHzwoNOWOUDItaurBv7" Name="Back Buffer Format" Kind="InputPin" IsHidden="true" />
             <Pin Id="SUWW4oFmOo7OqvsVn076pd" Name="Bound to Document" Kind="InputPin" DefaultValue="True">
               <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="TypeFlag" Name="Boolean" />
               </p:TypeAnnotation>
             </Pin>
             <Pin Id="PhoNl523THFM2yecr9jy6N" Name="Dialog If Document Changed" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Me7XqaK2CjcP39I8H7VMBI" Name="Save Bounds" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Ql94AsNRF3WOyx2lDA7rzx" Name="Always On Top" Kind="InputPin" IsHidden="true" />
+            <Pin Id="ErEW2KeowCsP4abSdWvIAK" Name="Extend Into Title Bar" Kind="InputPin" IsHidden="true" />
+            <Pin Id="FIABHzwoNOWOUDItaurBv7" Name="Back Buffer Format" Kind="InputPin" IsHidden="true" />
             <Pin Id="Nv2L1T2jLSUL3KkceGKiRX" Name="Input" Kind="InputPin" />
             <Pin Id="Om2kf9ybgzMOqzaFbSgVPI" Name="Title" Kind="InputPin" DefaultValue="Cross Hatch">
               <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
@@ -118,9 +116,23 @@
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="J3rxM84MzJqPVYqivXnmUp" Comment="Density" Bounds="305,286,35,15" ShowValueBox="true" isIOBox="true" Value="12">
+          <Pad Id="J3rxM84MzJqPVYqivXnmUp" Comment="Density" Bounds="305,286,35,15" ShowValueBox="true" isIOBox="true" Value="20">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="283,170,69,19" Id="H7fiC1fmc6mMfMym1ITlxg">
+            <p:NodeReference LastCategoryFullName="System.Help" LastDependency="VL.HelpAssets.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="ImageAsset" />
+            </p:NodeReference>
+            <Pin Id="NIphjDIY6HGLoU21dMM8TG" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="SVYUSdA0hjGLfTtubrbTLz" Name="Asset" Kind="InputPin" />
+            <Pin Id="Q1cxEVmwAOpLA81f6bmB4d" Name="File Path" Kind="OutputPin" />
+          </Node>
+          <Pad Id="DZkXybus92nPwkr5as3kg6" Comment="Asset" Bounds="285,149,206,15" ShowValueBox="true" isIOBox="true" Value="earth_512x512.jpg">
+            <p:TypeAnnotation LastCategoryFullName="System.Help" LastDependency="VL.HelpAssets.vl">
+              <Choice Kind="TypeFlag" Name="ImageAsset" />
             </p:TypeAnnotation>
           </Pad>
         </Canvas>
@@ -130,16 +142,17 @@
           <Fragment Id="PtUK7JUxqynPwusrvTb3Qg" Patch="QhjWIHQmsTMLjFw2y5ZYB6" Enabled="true" />
           <Fragment Id="LwHC6ntxbMKMzr27IWbOGB" Patch="BUfnhNo8LSGOLf5kf1LBlk" Enabled="true" />
         </ProcessDefinition>
-        <Link Id="KExkIhLQAiAQGSxgYJNgKk" Ids="VzJZFgLPUIVPqycrwP4OGY,MVRxck0ECRDOf4GJm7ovBn" />
         <Link Id="GDzEo9VmvIVMbdgUam30yK" Ids="B8ZbDzAb9mdQVsRtQsjThH,SBbkF6BZvZ0QNvDbWolbry" />
         <Link Id="LdDkeSCXclyNUhSOwfMQpm" Ids="JIILhtTPF3ILbkPrFMHI3X,Nv2L1T2jLSUL3KkceGKiRX" />
         <Link Id="TRmlOmJikcyLDvG6rlhV9m" Ids="FX3FseW0NfPLLa1GGq8JEb,AxpYkBbydkWNphJmBXiA53" />
         <Link Id="T7hnvk59DwyOz0ctQYR5Wc" Ids="UbAO1vvc9LzPPZoliKgjNO,H1sibj1JpFMOoxmulCU0JK" />
         <Link Id="JUErcunp2rfOhesn0WxOWJ" Ids="VxizSjzE0oaO7S3PBp8pPq,GdfRSBRzDcjN2AUCWihDrW" />
         <Link Id="VVIhNZs9a3PNyoUeqq3eYG" Ids="J3rxM84MzJqPVYqivXnmUp,EyCxncM0ag7OmBTQsRVmZh" />
+        <Link Id="IR7KFgMjLJMLaUWrCXU3xU" Ids="DZkXybus92nPwkr5as3kg6,SVYUSdA0hjGLfTtubrbTLz" />
+        <Link Id="QExEThs3JzbNiNrGGCfgQC" Ids="Q1cxEVmwAOpLA81f6bmB4d,MVRxck0ECRDOf4GJm7ovBn" />
       </Patch>
     </Node>
   </Patch>
-  <NugetDependency Id="KejqP9eAj0nMzjuMF92Dop" Location="VL.Stride.TextureFX" Version="2021.4.0-0472-g1cf903ecbd" />
-  <NugetDependency Id="VN0MBKjK3CSNi9DnEOej1d" Location="VL.Skia" Version="2021.4.0-0472-g1cf903ecbd" />
+  <NugetDependency Id="KejqP9eAj0nMzjuMF92Dop" Location="VL.Stride.TextureFX" />
+  <NugetDependency Id="UJadTLpBtl4N2I8Rdf9q7m" Location="VL.HelpAssets" />
 </Document>
