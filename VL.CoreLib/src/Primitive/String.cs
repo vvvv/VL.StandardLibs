@@ -13,15 +13,15 @@ using VL.Lib.Collections;
 using VL.Lib.Primitive;
 using VL.Lib.Text;
 
-[assembly: ImportType(typeof(StringNodes))]
+[assembly: ImportType(typeof(StringNodes), Category = "Primitive.String")]
 
 namespace VL.Lib.Primitive
 {
     delegate bool TryParseDelegate<T>(string value, NumberStyles numberStyle, IFormatProvider format, out T result);
 
+    [SkipCategory]
     public static class StringNodes
     {
-        [Category("Primitive.String")]
         public static string Format(string format, [Pin(PinGroupKind = Model.PinGroupKind.Collection, PinGroupDefaultCount = 1)] object[] input)
         {
             return string.Format(CultureInfo.InvariantCulture, format, args: input);

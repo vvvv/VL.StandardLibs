@@ -29,55 +29,52 @@ namespace VL.ImGui.Stride
         private readonly GCHandle _gcHandle;
         private readonly VLGame _game;
         private readonly SchedulerSystem _schedulerSystem;
-        private readonly GameContext _gameContext;
-        private readonly GameWindowRenderer _gameWindowRenderer;
+        private readonly GameWindowManager _gameWindowManager;
         private readonly WindowRenderer _windowRenderer;
         private readonly ImGuiRenderer _renderer;
-
-        InputManager _inputManager => _game.Input;
 
         private object? _state;
         private ImGuiWindowsCreateHandler? _createHandler;
         private ImGuiWindowsDrawHandler? _drawHandler;
 
-        public IntPtr Handle => _gameWindowRenderer.Window?.NativeWindow.Handle ?? IntPtr.Zero;
+        public IntPtr Handle => _gameWindowManager.Window?.NativeWindow.Handle ?? IntPtr.Zero;
 
         public event EventHandler<EventArgs> Closing
         {
-            add { if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Closing += value; }
-            remove { if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Closing -= value; }
+            add { if (GameWindow != null) GameWindow.Closing += value; }
+            remove { if (GameWindow != null) GameWindow.Closing -= value; }
         }
 
         public Int2 Position
         {
-            get => _gameWindowRenderer.Window?.Position ?? Int2.Zero;
-            set { if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Position = value; }
+            get => GameWindow?.Position ?? Int2.Zero;
+            set { if (GameWindow != null) GameWindow.Position = value; }
         }
 
         public Int2 Size
         {
-            get => _gameWindowRenderer.Window != null ? new Int2(_gameWindowRenderer.Window.ClientBounds.Width, _gameWindowRenderer.Window.ClientBounds.Height) : Int2.Zero;
-            set { _gameWindowRenderer.Window?.SetSize(value); }
+            get => GameWindow != null ? new Int2(GameWindow.ClientBounds.Width, GameWindow.ClientBounds.Height) : Int2.Zero;
+            set { GameWindow?.SetSize(value); }
         }
 
-        public GameWindow GameWindow => _gameWindowRenderer.Window;
+        public GameWindow GameWindow => _gameWindowManager.Window;
 
         public string Title
         {
-            get => _gameWindowRenderer.Window?.Title ?? string.Empty;
-            set { if (_gameWindowRenderer.Window != null) _gameWindowRenderer.Window.Title = value; }
+            get => GameWindow?.Title ?? string.Empty;
+            set { if (GameWindow != null) GameWindow.Title = value; }
         }
 
-        public IInputSource Input => _gameWindowRenderer.InputSource;
+        public IInputSource Input => _gameWindowManager.InputSource;
 
-        public bool IsFocused => _gameWindowRenderer.Window?.Focused ?? false;
+        public bool IsFocused => GameWindow?.Focused ?? false;
 
         public void Activate()
         {
-            _gameWindowRenderer.Window?.BringToFront();
+            GameWindow?.BringToFront();
         }
 
-        public bool IsMinimized => _gameWindowRenderer.Window?.IsMinimized ?? false;
+        public bool IsMinimized => GameWindow?.IsMinimized ?? false;
 
         public bool IsMain;
 
@@ -102,54 +99,25 @@ namespace VL.ImGui.Stride
             _gcHandle = GCHandle.Alloc(this);
 
             _game = nodeContext.AppHost.Services.GetRequiredService<VLGame>();
-            _gameContext = VLGame.CreateGameContext(
-                nodeContext,
+            _gameWindowManager = new GameWindowManager(nodeContext, bounds,
+                isBorderless: false,
                 alwaysOnTop: Channel.Create(false),
                 extendIntoTitleBar: Channel.Create(false),
-                AppContextType.Desktop,
-                size.X,
-                size.Y,
-                isUserManagingRun: true);
-            _gameWindowRenderer = new GameWindowRenderer(_game.Services, _gameContext, 0);
+                multisampleCount: MultisampleCount.None,
+                backBufferFormat: PixelFormat.R8G8B8A8_UNorm_SRgb);
             _schedulerSystem = _game.Services.GetService<SchedulerSystem>()!;
 
-            var manager = _gameWindowRenderer.WindowManager;
-            manager.PreferredBackBufferWidth = size.X;
-            manager.PreferredBackBufferHeight = size.Y;
-            manager.PreferredBackBufferFormat = PixelFormat.R8G8B8A8_UNorm_SRgb;
-            manager.PreferredDepthStencilFormat = PixelFormat.D24_UNorm_S8_UInt;
-            manager.ShaderProfile = GraphicsProfile.Level_11_0;
-            manager.PreferredGraphicsProfile = new[] { GraphicsProfile.Level_11_0 };
-
-            using (var dev = nodeContext.AppHost.Services.GetDeviceHandle())
-            {
-                manager.PreferredColorSpace = dev.Resource.ColorSpace;
-            }
-
-            manager.PreferredMultisampleCount = MultisampleCount.None;
-
-            _gameWindowRenderer.Initialize();
-
-            if (_gameWindowRenderer is IContentable contentable)
-            {
-                contentable.LoadContent();
-            }
-
-            var window = _gameWindowRenderer.Window;
+            var window = _gameWindowManager.Window;
             window.Title = "MainImgui";
             window.IsBorderLess = (_vp.Flags & ImGuiViewportFlags.NoDecoration) != 0;
             window.Position = position;
-            window.FullscreenIsBorderlessWindow = true;
-            window.PreferredFullscreenSize = new Int2(-1, -1); // adapt desktop Size
             window.AllowUserResizing = (_vp.Flags & ImGuiViewportFlags.NoDecoration) == 0;
-            window.IsMouseVisible = true;
-            window.BringToFront();
 
             window.ClientSizeChanged += Window_ClientSizeChanged;
             window.Closing += Window_Closing;
             window.FullscreenChanged += Window_FullscreenChanged;
 
-            _windowRenderer = new WindowRenderer(_gameWindowRenderer);
+            _windowRenderer = new WindowRenderer(_gameWindowManager.GameWindowRenderer);
 
             _renderer = new ImGuiRenderer(strideDeviceContext, this);
 
@@ -185,7 +153,7 @@ namespace VL.ImGui.Stride
             {
                 _renderer.Update(fonts, style);
                 _renderer.SetDrawData(drawData);
-                _drawHandler(_state, _renderer, _gameWindowRenderer.Window, _gameWindowRenderer.Presenter, out _state, out var output);
+                _drawHandler(_state, _renderer, GameWindow, _gameWindowManager.GameWindowRenderer.Presenter, out _state, out var output);
                 _windowRenderer.Input = output;
                 _schedulerSystem.Schedule(_windowRenderer);
             }
@@ -205,13 +173,13 @@ namespace VL.ImGui.Stride
                 (_state as IDisposable)?.Dispose();
                 _state = null;
 
-                if (_gameWindowRenderer.Window != null)
+                if (GameWindow != null)
                 {
-                    _gameWindowRenderer.Window.ClientSizeChanged -= Window_ClientSizeChanged;
-                    _gameWindowRenderer.Window.Closing -= Window_Closing;
-                    _gameWindowRenderer.Window.FullscreenChanged -= Window_FullscreenChanged;
+                    GameWindow.ClientSizeChanged -= Window_ClientSizeChanged;
+                    GameWindow.Closing -= Window_Closing;
+                    GameWindow.FullscreenChanged -= Window_FullscreenChanged;
                 }
-                _gameWindowRenderer.Close();
+                _gameWindowManager.Dispose();
             }
 
             // Dispose unmanaged resources

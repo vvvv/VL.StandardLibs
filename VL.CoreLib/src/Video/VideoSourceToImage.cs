@@ -13,7 +13,7 @@ namespace VL.Lib.Video
 {
     public abstract class VideoSourceToImage<TImage> : IDisposable
     {
-        protected readonly BlockingCollection<IResourceHandle<TImage?>> resultQueue = new(boundedCapacity: 1);
+        protected BlockingCollection<IResourceHandle<TImage?>?>? resultQueue;
 
         private readonly SerialDisposable streamSubscription = new SerialDisposable();
         private readonly SerialDisposable imageSubscription = new SerialDisposable();
@@ -42,6 +42,13 @@ namespace VL.Lib.Video
                 // Kill current stream
                 streamSubscription.Disposable = null;
 
+                // Drain current queue and release latest image
+                DrainQueue();
+                imageSubscription.Disposable = null;
+
+                // Setup new queue for the new stream
+                var queue = resultQueue = new(boundedCapacity: 1);
+
                 // Fetch new ticket after the source has been disposed (it might have incremented it)
                 this.changeTicket = videoSource?.GetChangedTicket();
 
@@ -50,7 +57,6 @@ namespace VL.Lib.Video
                 if (preferPush)
                 {
                     streamSubscription.Disposable = videoSource?.GetPushBasedStream(ctx)
-                        .Finally(() => imageSubscription.Disposable = null)
                         .Subscribe(v => OnPush(v, mipmapped), onError: e => logger.LogError(e, "Error in video stream."));
                 }
                 else
@@ -58,7 +64,6 @@ namespace VL.Lib.Video
                     // We run single threaded, we can therefor safe resources by releasing the image before grabbing a new one
                     streamSubscription.Disposable = videoSource?.GetPullBasedStream(ctx, beforeGrab: () => imageSubscription.Disposable = null)
                         .Do(v => OnPull(v, mipmapped))
-                        .Finally(() => imageSubscription.Disposable = null)
                         .GetEnumerator();
                 }
             }
@@ -66,7 +71,7 @@ namespace VL.Lib.Video
             if (streamSubscription.Disposable is IEnumerator enumerator)
                 enumerator.MoveNext();
 
-            if (resultQueue.TryTake(out var newHandle))
+            if (resultQueue != null && resultQueue.TryTake(out var newHandle))
                 imageSubscription.Disposable = newHandle;
 
             if (imageSubscription.Disposable is IResourceHandle<TImage?> handle)
@@ -80,9 +85,17 @@ namespace VL.Lib.Video
             imageSubscription.Dispose();
             streamSubscription.Dispose();
 
+            DrainQueue();
+        }
+
+        private void DrainQueue()
+        {
+            if (resultQueue is null)
+                return;
+
             resultQueue.CompleteAdding();
             foreach (var remaining in resultQueue.GetConsumingEnumerable())
-                remaining.Dispose();
+                remaining?.Dispose();
         }
     }
 }

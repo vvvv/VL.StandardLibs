@@ -25,7 +25,7 @@ namespace VL.Video.MF
     [SupportedOSPlatform("windows6.1")]
     internal sealed class SourceReader
     {
-        public static unsafe SourceReader CreateFromUrl(string url, ID3D11Device* device, bool readAsync)
+        public static unsafe SourceReader CreateFromUrl(string url, ID3D11Device* device, bool readAsync, bool useLinearFormat)
         {
             using var _ = MediaFoundation.Use();
 
@@ -35,7 +35,7 @@ namespace VL.Video.MF
             {
                 IMFSourceReader* sourceReader;
                 MFCreateSourceReaderFromURL(url, sourceReaderAttributes, &sourceReader).ThrowOnFailure();
-                return new SourceReader(sourceReader, sourceReaderCB);
+                return new SourceReader(sourceReader, sourceReaderCB, useLinearFormat);
             }
             finally
             {
@@ -43,7 +43,7 @@ namespace VL.Video.MF
             }
         }
 
-        public static unsafe SourceReader CreateFromMediaSource(IMFMediaSource* mediaSource, ID3D11Device* device, bool readAsync)
+        public static unsafe SourceReader CreateFromMediaSource(IMFMediaSource* mediaSource, ID3D11Device* device, bool readAsync, bool useLinearFormat)
         {
             using var _ = MediaFoundation.Use();
 
@@ -53,7 +53,7 @@ namespace VL.Video.MF
             {
                 IMFSourceReader* sourceReader;
                 MFCreateSourceReaderFromMediaSource(mediaSource, sourceReaderAttributes, &sourceReader).ThrowOnFailure();
-                return new SourceReader(sourceReader, sourceReaderCB);
+                return new SourceReader(sourceReader, sourceReaderCB, useLinearFormat);
             }
             finally
             {
@@ -105,19 +105,24 @@ namespace VL.Video.MF
         private readonly Size2 size;
         private readonly (int n, int d) frameRate;
         private readonly SourceReaderCB? sourceReaderCB;
+        private readonly bool useLinearFormat;
 
-        private unsafe SourceReader(IMFSourceReader* reader, SourceReaderCB? sourceReaderCB)
+        private unsafe SourceReader(IMFSourceReader* reader, SourceReaderCB? sourceReaderCB, bool useLinearFormat)
         {
             this.mf = MediaFoundation.Use();
             this.reader = new IntPtr(reader);
             this.sourceReaderCB = sourceReaderCB;
+            this.useLinearFormat = useLinearFormat;
 
             // Set output format to BGRA8
             {
                 IMFMediaType* mt;
                 MFCreateMediaType(&mt).ThrowOnFailure();
                 mt->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
-                mt->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_ARGB32);
+                if (useLinearFormat)
+                    mt->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_A16B16G16R16F);
+                else
+                    mt->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_ARGB32);
                 reader->SetCurrentMediaType(firstVideoStream, null, mt);
                 mt->Release();
             }
@@ -199,8 +204,8 @@ namespace VL.Video.MF
                     {
                         var d3D11Texture = (ID3D11Texture2D*)pD3D11Texture;
                         d3D11Texture->GetDesc(out var desc);
-                        var videoTexture = new VideoTexture(new IntPtr(pD3D11Texture), size.Width, size.Height, Lib.Basics.Imaging.PixelFormat.B8G8R8A8);
-                        var frame = new GpuVideoFrame<BgraPixel>(videoTexture, Timecode: time, FrameRate: frameRate);
+                        var videoTexture = new VideoTexture(new IntPtr(pD3D11Texture), size.Width, size.Height, useLinearFormat ? Lib.Basics.Imaging.PixelFormat.R16G16B16A16F : Lib.Basics.Imaging.PixelFormat.B8G8R8A8);
+                        VideoFrame frame = useLinearFormat ? new GpuVideoFrame<Rgba16fPixel>(videoTexture, Timecode: time, FrameRate: frameRate) : new GpuVideoFrame<BgraPixel>(videoTexture, Timecode: time, FrameRate: frameRate);
                         return ResourceProvider.Return(frame, (texture: new IntPtr(pD3D11Texture), dxgiBuffer: new IntPtr(pDxgiBuffer), buffer: new IntPtr(buffer), sample: new IntPtr(sample), videoTexture),
                             disposeAction: static x =>
                             {

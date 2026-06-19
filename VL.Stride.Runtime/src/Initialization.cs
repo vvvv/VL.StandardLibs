@@ -20,6 +20,7 @@ using VL.Stride.Rendering.Materials;
 using VL.Stride.Utils;
 using static Stride.Core.Storage.BundleOdbBackend;
 using ServiceRegistry = global::Stride.Core.ServiceRegistry;
+using VirtualFileSystem = Stride.Core.IO.VirtualFileSystem;
 
 [assembly: AssemblyInitializer(typeof(VL.Stride.Core.Initialization))]
 

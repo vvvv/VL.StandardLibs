@@ -120,7 +120,7 @@ namespace VL.Stride
                 withinCommonSpaceLayer.Update(Layer, out var spaceLayer, Space);
                 viewportLayer.Update(spaceLayer, SKRect.Create(viewport.X, viewport.Y, viewport.Width, viewport.Height), CommonSpace.PixelTopLeft, out var layer);
 
-                layer.Render(CallerInfo.InRenderer(renderTarget.Width, renderTarget.Height, canvas, skiaRenderContext.SkiaContext, DIPHelpers.DIPFactor() /* FIXME */));
+                layer.Render(CallerInfo.InRenderer(renderTarget.Width, renderTarget.Height, surface, skiaRenderContext.SkiaContext, DIPHelpers.DIPFactor() /* FIXME */));
 
                 // Flush
                 surface.Flush();
@@ -148,7 +148,7 @@ namespace VL.Stride
                 glInfo: glInfo);
 
             var useLinearColorspace = false;
-            if (GraphicsDevice.ColorSpace == ColorSpace.Linear && IsLinear(texture.ViewFormat) && GetResourceFormat(texture) == texture.ViewFormat)
+            if (GraphicsDevice.ColorSpace == ColorSpace.Linear && GetResourceFormat(texture) == texture.ViewFormat)
             {
                 // Output looks correct in the following cases:
                 // - Rendering to swap chain, the render target is non-srgb while the view is srgb
@@ -172,8 +172,6 @@ namespace VL.Stride
                 colorType, 
                 colorspace: useLinearColorspace ? srgbLinearColorspace : srgbColorspace);
         }
-
-        static bool IsLinear(PixelFormat pixelFormat) => pixelFormat.IsSRgb() || pixelFormat.IsHDR();
 
         static PixelFormat GetResourceFormat(Texture texture)
         {

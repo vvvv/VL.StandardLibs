@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Disposables;
 using VL.Core.Utils;
+using VL.Lang;
 using VL.Lib.Animation;
 
 namespace VL.Core
@@ -44,6 +46,7 @@ namespace VL.Core
         private readonly UniqueId _localId;
         private readonly UniqueId? _definitionId;
         private readonly string? _privateData;
+        private ILogger? _logger;
         private ImmutableStack<UniqueId>? _stack;
 
         private NodeContext(AppHost appHost, NodeContext? parent, UniqueId localId, bool isImmutable = false, UniqueId? definitionId = null, string? privateData = null)
@@ -119,7 +122,7 @@ namespace VL.Core
         [EditorBrowsable(EditorBrowsableState.Never)]
         public IClock RealTimeClock => ServiceRegistry.Current.GetRequiredService<IClock>();
 
-        public ILogger GetLogger() => _appHost.LoggerFactory.CreateLogger(null, this);
+        public ILogger GetLogger() => _logger ??= _appHost.LoggerFactory.CreateLogger(null, this);
 
         public string? PrivateData => _privateData;
 
@@ -151,6 +154,36 @@ namespace VL.Core
                     if (type != null)
                         yield return type;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Adds a persistent message to the runtime. If includeAncestors is true, the message will be added to all ancestors of this node as well. This is useful for example to report errors in a patch which should be visible on the patch itself as well as on all nodes using the patch.
+        /// </summary>
+        /// <param name="severity">The severity of the message.</param>
+        /// <param name="message">The message to be added.</param>
+        /// <param name="includeAncestors">Whether to include ancestors in the message propagation.</param>
+        /// <returns>An IDisposable that can be used to remove the message.</returns>
+        public IDisposable AddPersistentMessage(MessageSeverity severity, string message, bool includeAncestors = true)
+        {
+            var runtime = IVLRuntime.Current;
+            if (runtime is null)
+                return Disposable.Empty;
+
+            if (includeAncestors)
+            {
+                var disposable = new CompositeDisposable();
+                IReadOnlyCollection<NodeContext> contexts = [this, .. GetAncestors()];
+                foreach (var c in contexts)
+                {
+                    var id = c.LocalId;
+                    disposable.Add(runtime.AddPersistentMessage(new Message(id, severity, message)));
+                }
+                return disposable;
+            }
+            else
+            {
+                return runtime.AddPersistentMessage(new Message(LocalId, severity, message));
             }
         }
 

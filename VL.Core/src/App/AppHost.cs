@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using VL.Core;
 using LoggerFactory = VL.Core.Logging.LoggerFactory;
 
 namespace VL.Core
@@ -127,6 +128,8 @@ namespace VL.Core
         /// The directory of the currently running application.
         /// </summary>
         public virtual string AppBasePath => Path.GetDirectoryName(AppPath)!;
+        // As long as we have code relying on local paths we need an extra property
+        public virtual string AppBasePath_CanBeRemote => AppBasePath;
 
         /// <summary>
         /// Whether the app is exported and runs standalone as an executable.
@@ -137,6 +140,16 @@ namespace VL.Core
         /// Whether the app is running in the user thread.
         /// </summary>
         public virtual bool IsUser => false;
+
+        /// <summary>
+        /// Whether or not this is a boygroup server.
+        /// </summary>
+        public virtual bool IsServer => false;
+
+        /// <summary>
+        /// Whether or not this is a boygroup client (for example was started with vvvv.exe --server http://localhost:5000).
+        /// </summary>
+        public virtual bool IsClient => false;
 
         /// <summary>
         /// The service registry of the app.
@@ -167,6 +180,8 @@ namespace VL.Core
         /// Runs posted tasks inside of the update loop of the app.
         /// </summary>
         public abstract TaskScheduler MainLoopTaskScheduler { get; }
+
+        public virtual IFileSystem FileSystem => LocalFileSystem.Instance;
 
         /// <summary>
         /// The VL factory of the app. This property exists only for compatibility reasons.
@@ -215,6 +230,8 @@ namespace VL.Core
         /// The document path. Running inside the editor this refers to the path of the document otherwise the path of the executable.
         /// </summary>
         public abstract string GetDocumentPath(UniqueId documentId);
+        // As long as we have code relying on local paths we need an extra method
+        internal virtual string GetDocumentPath_CanBeRemote(UniqueId documentId) => GetDocumentPath(documentId);
 
         /// <summary>
         /// The path of the locally installed package. If the package is not installed or the app is running as standalone this will return null.

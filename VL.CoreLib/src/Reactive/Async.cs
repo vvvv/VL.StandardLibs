@@ -45,7 +45,6 @@ namespace VL.Lib.Reactive
                 {
                     FCurrentTask = Task.Run(() =>
                     {
-                        var st = Stopwatch.StartNew();
                         var frameClock = new FrameClock();
                         using var _ = Clocks.SetCurrentFrameClock(frameClock);
 
@@ -53,7 +52,7 @@ namespace VL.Lib.Reactive
                         {
                             try
                             {
-                                frameClock.SetFrameTime(new Time(st.Elapsed.TotalSeconds));
+                                frameClock.BeginFrame();
 
                                 var state = FState ?? FCreate?.Invoke();
                                 if (state != null && FUpdate != null)

@@ -28,6 +28,7 @@ namespace VL.Stride.Games
         private readonly int inputPriority;
         private GraphicsPresenter savedPresenter;
         private bool beginDrawOk;
+        private bool firstFramePresented;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GameWindowRenderer" /> class.
@@ -83,7 +84,6 @@ namespace VL.Stride.Games
             //GameContext.RequestedHeight = WindowManager.PreferredBackBufferHeight;
             Window = gamePlatform.CreateWindow(GameContext);
             Window.SetSize(new Int2(WindowManager.PreferredBackBufferWidth, WindowManager.PreferredBackBufferHeight));
-            Window.Visible = true;
 
             var inputManager = Services.GetService<InputManager>();
             var inputSource = InputSource = InputSourceFactory.NewWindowInputSource(GameContext);
@@ -92,8 +92,12 @@ namespace VL.Stride.Games
 
             FDarkModeSubscription.Disposable = DarkTitleBarClass.Install(Window.NativeWindow.Handle);
 
-
             base.Initialize();
+
+            // Fetches graphics device
+            ((IContentable)this).LoadContent();
+            // Presenter might get accessed before first BeginDraw (to fetch back buffer for example), so we need to ensure it is created here already
+            EnsurePresenter();
         }
 
         public void Close()
@@ -162,7 +166,7 @@ namespace VL.Stride.Games
 
         public override bool BeginDraw()
         {
-            if (GraphicsDevice != null && Window.Visible)
+            if (GraphicsDevice != null && (Window.Visible || !firstFramePresented))
             {
                 savedPresenter = GraphicsDevice.Presenter;
 
@@ -243,6 +247,18 @@ namespace VL.Stride.Games
                 }
 
                 beginDrawOk = false;
+
+                // Now that we presented the first frame, we can make the window visible if it isn't already.
+                // In earlier code this was done in Initialize() and led to the window being shown before the first frame was actually presented, causing a white or black flash.
+                if (!firstFramePresented)
+                {
+                    firstFramePresented = true;
+                    if (!Window.Visible)
+                    {
+                        Window.Visible = true;
+                        Window.BringToFront();
+                    }
+                }
             }
         }
     }

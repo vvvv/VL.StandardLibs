@@ -29,6 +29,11 @@ namespace VL.Core.Import
 
         public PinExpositionMode? GetExposition() => exposition;
 
+        /// <summary>
+        /// Tells vvvv to turn this pin into a pin group. Note that only certain types are supported, that is
+        /// - regular arrays, ImmutableArray and Spread for collections,
+        /// - Dictionary and ImmutableDictionary for dictionaries
+        /// </summary>
         public PinGroupKind PinGroupKind { get; set; }
 
         public int PinGroupDefaultCount { get; set; }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using VL.Core;
@@ -13,12 +15,14 @@ namespace VL.IO.Redis
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly RedisClient _client;
         private readonly ILogger _logger;
+        private ClientSideCachingOptions _cachingOptions;
 
-        public RedisConnection(AppHost appHost, ConnectionMultiplexer multiplexer, ILogger logger, RedisClient client)
+        public RedisConnection(ConnectionMultiplexer multiplexer, ILogger logger, RedisClient client, ClientSideCachingOptions cachingOptions)
         {
             _multiplexer = multiplexer;
             _client = client;
             _logger = logger;
+            _cachingOptions = cachingOptions;
 
             // Subscribe to connection error events
             _multiplexer.ConnectionFailed += OnConnectionFailed;
@@ -42,7 +46,7 @@ namespace VL.IO.Redis
                     }
                 });
 
-                EnableClientSideTracking();
+                ApplyClientSideTracking();
             }
             catch (Exception ex)
             {
@@ -54,7 +58,7 @@ namespace VL.IO.Redis
                 try
                 {
                     // Re-enable client side tracking
-                    EnableClientSideTracking();
+                    ApplyClientSideTracking();
                 }
                 catch (Exception ex)
                 {
@@ -63,7 +67,7 @@ namespace VL.IO.Redis
             };
         }
 
-        private void EnableClientSideTracking()
+        internal void ApplyClientSideTracking()
         {
             // https://medium.com/@darali7575/understanding-client-tracking-in-redis-43215e1495c1
             // HACK: It seems the StackExchange API is a little too high level here / doesn't support this yet properly:
@@ -84,18 +88,35 @@ namespace VL.IO.Redis
                         var pubSubClient = s.ClientList().FirstOrDefault(c => c.Name == _multiplexer.ClientName && c.ClientType == ClientType.PubSub);
                         if (pubSubClient != null)
                         {
-                            s.Execute("CLIENT", new object[] { "TRACKING", "ON", "REDIRECT", pubSubClient.Id.ToString(), "BCAST", "NOLOOP" });
+                            // Reset existing tracking first so that switching the BCAST mode takes effect.
+                            // OFF on a connection that isn't tracking is a harmless no-op.
+                            // There's a tiny window between OFF and ON where invalidations could be missed;
+                            // the caller forces a re-read of bound keys afterwards which re-arms tracking.
+                            s.Execute("CLIENT", new object[] { "TRACKING", "OFF" });
+
+                            var id = pubSubClient.Id.ToString();
+                            var args = new List<object> { "TRACKING", "ON", "REDIRECT", id, "NOLOOP" };
+                            if (_cachingOptions.UseBroadcastMode)
+                            {
+                                args.Add("BCAST");
+                                foreach (var prefix in _cachingOptions.BroadcastPrefixes)
+                                {
+                                    args.Add("PREFIX");
+                                    args.Add(prefix);
+                                }
+                            }
+                            s.Execute("CLIENT", args);
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning(ex, "Failed to enable client tracking on server {EndPoint}", s.EndPoint);
+                        _logger.LogWarning(ex, "Failed to (re)apply client tracking on server {EndPoint}", s.EndPoint);
                     }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to enable client-side tracking");
+                _logger.LogError(ex, "Failed to (re)apply client-side tracking");
             }
         }
 
@@ -133,5 +154,11 @@ namespace VL.IO.Redis
         internal RedisClient Client => _client;
 
         internal ISubscriber GetSubscriber() => _multiplexer.GetSubscriber();
+
+        public ClientSideCachingOptions CachingOptions 
+        {
+            get => _cachingOptions;
+            set => _cachingOptions = value; 
+        }
     }
 }
