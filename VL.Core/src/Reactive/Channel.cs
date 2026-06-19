@@ -188,7 +188,13 @@ namespace VL.Lib.Reactive
 
         void IChannel.SetObjectAndAuthor(object? @object, string? author)
         {
-            SetValueAndAuthor((T?)@object, author);
+            SetValueAndAuthor(IHotswapSpecificNodes.Impl.HardCast<T?>(@object), author);
+        }
+
+        public void SetObjectDirectly(object? @object, string? author)
+        {
+            LatestAuthor = author;
+            this.value = value;
         }
 
         IChannel<object> IChannel.ChannelOfObject => channelOfObject;
@@ -383,7 +389,7 @@ namespace VL.Lib.Reactive
 
         void IChannel<object>.SetValueAndAuthor(object? value, string? author)
         {
-            SetValueAndAuthor((T?)value, author);
+            ((IChannel)this).SetObjectAndAuthor(value, author);
         }
 
         void IObserver<object?>.OnCompleted()
@@ -434,6 +440,7 @@ namespace VL.Lib.Reactive
     {
         void SetPath(string path);
         void Request();
+        void SetObjectDirectly(object? @object, string? author);
     }
 
 

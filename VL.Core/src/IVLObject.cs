@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive;
 using System.Reflection;
@@ -290,6 +291,18 @@ namespace VL.Core
         }
 
         public override string ToString() => Path;
+
+        public override bool Equals([NotNullWhen(true)] object obj)
+        {
+            if (obj is ObjectGraphNode node)
+                return Path.Equals(node.Path);
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     public static class VLFactoryExtensions
