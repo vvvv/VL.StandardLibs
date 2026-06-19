@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Core.Import;
 
 namespace VL.IO.Redis.Advanced
 {
@@ -12,19 +13,21 @@ namespace VL.IO.Redis.Advanced
         /// An error is returned if the value stored at key is not a string, because GET only handles string values.
         /// </summary>
         /// <param name="client">The Redis client.</param>
+        /// <param name="database">The database to use. If not provided the default database from the <paramref name="client"/> will be used.</param>
         /// <param name="key">The key of the string.</param>
         /// <param name="format">The serialization format to use. If not provided the one from the <paramref name="client"/> will be used.</param>
         /// <param name="defaultValue">The value to return in case the key does not exist or the client is not connected.</param>
         /// <returns>The value of key, or <paramref name="defaultValue"/> when key does not exist.</returns>
         /// <remarks><seealso href="https://redis.io/commands/get"/></remarks>
-        public static Optional<T> Get<T>(this RedisClient client, 
+        public static Optional<T> Get<T>(this RedisClient client,
+            [Pin(Visibility = Model.PinVisibility.Optional)] Optional<int> database,
             string key, 
             Optional<SerializationFormat> format,
             Optional<T> defaultValue)
         {
             if (client is null) throw new ArgumentNullException(nameof(client));
 
-            var db = client.GetDatabase();
+            var db = client.GetDatabase(database.ToNullable());
             if (db is null)
                 return defaultValue;
 
@@ -40,19 +43,21 @@ namespace VL.IO.Redis.Advanced
         /// An error is returned if the value stored at key is not a string, because GET only handles string values.
         /// </summary>
         /// <param name="client">The Redis client.</param>
+        /// <param name="database">The database to use. If not provided the default database from the <paramref name="client"/> will be used.</param>
         /// <param name="key">The key of the string.</param>
         /// <param name="format">The serialization format to use. If not provided the one from the <paramref name="client"/> will be used.</param>
         /// <param name="defaultValue">The value to return in case the key does not exist or the client is not connected.</param>
         /// <returns>The value of key, or <paramref name="defaultValue"/> when key does not exist.</returns>
         /// <remarks><seealso href="https://redis.io/commands/get"/></remarks>
         public static async Task<Optional<T>> GetAsync<T>(this RedisClient client,
+            [Pin(Visibility = Model.PinVisibility.Optional)] Optional<int> database,
             string key,
             Optional<SerializationFormat> format,
             Optional<T> defaultValue)
         {
             if (client is null) throw new ArgumentNullException(nameof(client));
 
-            var db = client.GetDatabase();
+            var db = client.GetDatabase(database.ToNullable());
             if (db is null)
                 return defaultValue;
 
@@ -65,6 +70,7 @@ namespace VL.IO.Redis.Advanced
 
         /// <inheritdoc cref="IDatabase.StringSet(RedisKey, RedisValue, TimeSpan?, bool, When, CommandFlags)"/>
         public static bool Set<T>(this RedisClient client,
+            [Pin(Visibility = Model.PinVisibility.Optional)] Optional<int> database,
             string key,
             T value,
             Optional<SerializationFormat> format,
@@ -73,7 +79,7 @@ namespace VL.IO.Redis.Advanced
         {
             if (client is null) throw new ArgumentNullException(nameof(client));
 
-            var db = client.GetDatabase();
+            var db = client.GetDatabase(database.ToNullable());
             if (db is null)
                 return false;
 
@@ -82,7 +88,8 @@ namespace VL.IO.Redis.Advanced
         }
 
         /// <inheritdoc cref="IDatabaseAsync.StringSetAsync(RedisKey, RedisValue, TimeSpan?, bool, When, CommandFlags)"/>
-        public static async Task<bool> SetAsync<T>(this RedisClient client, 
+        public static async Task<bool> SetAsync<T>(this RedisClient client,
+            [Pin(Visibility = Model.PinVisibility.Optional)] Optional<int> database,
             string key, 
             T value, 
             Optional<SerializationFormat> format,
@@ -91,7 +98,7 @@ namespace VL.IO.Redis.Advanced
         {
             if (client is null) throw new ArgumentNullException(nameof(client));
 
-            var db = client.GetDatabase();
+            var db = client.GetDatabase(database.ToNullable());
             if (db is null)
                 return false;
 
@@ -100,14 +107,15 @@ namespace VL.IO.Redis.Advanced
         }
 
         /// <inheritdoc cref="IDatabase.Publish(RedisChannel, RedisValue, CommandFlags)"/>
-        public static void Publish<T>(this RedisClient client, 
+        public static void Publish<T>(this RedisClient client,
+            [Pin(Visibility = Model.PinVisibility.Optional)] Optional<int> database,
             string channel, 
             T message, 
             Optional<SerializationFormat> format = default)
         {
             if (client is null) throw new ArgumentNullException(nameof(client));
 
-            var db = client.GetDatabase();
+            var db = client.GetDatabase(database.ToNullable());
             if (db is null)
                 return;
 

@@ -125,6 +125,16 @@ namespace VL.IO.Redis.Internal
                     _ = transaction.StringSetAsync(key, redisValue, flags: CommandFlags.FireAndForget, 
                         expiry: _resolvedBindingModel.Expiry, 
                         when: when);
+
+                    var connection = _client.CurrentConnection;
+                    if (initializing && 
+                        connection != null && !connection.CachingOptions.UseBroadcastMode &&
+                        _resolvedBindingModel.Initialization == Initialization.Local && 
+                        _resolvedBindingModel.BindingType.HasFlag(BindingDirection.In))
+                    {
+                        // Insert fake read to trigger client side caching on server
+                        _ = transaction.StringGetAsync(key, flags: CommandFlags.FireAndForget);
+                    }
                 }
                 if (needToReadFromDb)
                 {

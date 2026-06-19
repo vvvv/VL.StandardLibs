@@ -125,7 +125,9 @@ namespace VL.IO.Redis
             SerializationFormat serializationFormat = SerializationFormat.MessagePack,
             [Pin(Visibility = PinVisibility.Optional)] Optional<TimeSpan> expiry = default,
             [Pin(Visibility = PinVisibility.Optional)] When when = When.Always,
-            bool connectAsync = true)
+            bool connectAsync = true,
+            [Pin(Visibility = PinVisibility.Optional)] bool broadcast = true,
+            [Pin(Visibility = PinVisibility.Optional)] Spread<string>? broadcastPrefixes = default)
         {
             Format = serializationFormat;
             Database = database;
@@ -152,7 +154,8 @@ namespace VL.IO.Redis
             if (changed)
                 _onModuleModelChanged.SetValueAndAuthor(Unit.Default, null);
 
-            var connection = _redisConnectionManager.Update(configuration, configure, connectAsync, this);
+            var cachingOptions = new ClientSideCachingOptions(broadcast, broadcastPrefixes ?? Spread.Create<string>());
+            var connection = _redisConnectionManager.Update(configuration, configure, connectAsync, this, cachingOptions);
             if (connection != _redisConnection)
             {
                 _redisConnection = connection;
@@ -161,6 +164,19 @@ namespace VL.IO.Redis
                     binding.Reset();
 
                 UpdateBindingsFromModel(_modelStream.Value ?? ImmutableDictionary<string, BindingModel>.Empty);
+            }
+
+            // Live toggle: re-apply tracking on an already-established connection when the
+            // pin changed. A new connection already applied the current value in its ctor.
+            if (connection != null && cachingOptions != connection.CachingOptions)
+            {
+                connection.CachingOptions = cachingOptions;
+                connection.ApplyClientSideTracking();
+
+                // Force a re-read of all bound keys so default mode re-arms (its tracking
+                // table is empty after OFF/ON). Harmless when switching to BCAST.
+                foreach (var (_, binding) in _bindings)
+                    binding.Invalidate();
             }
         }
 
@@ -184,7 +200,7 @@ namespace VL.IO.Redis
         internal RedisConnection? CurrentConnection => _redisConnection;
         internal IObservable<RedisConnection?> ConnectionObservable => _redisConnectionManager.ConnectionObservable;
 
-        internal IDatabase? GetDatabase() => _redisConnection?.GetDatabase(Database);
+        internal IDatabase? GetDatabase(int? database) => _redisConnection?.GetDatabase(database ?? Database);
 
         internal IServer? GetServer() => _redisConnection?.GetServer();
 
