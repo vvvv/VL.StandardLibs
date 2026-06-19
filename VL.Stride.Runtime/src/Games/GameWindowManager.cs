@@ -29,7 +29,7 @@ public sealed class GameWindowManager : IDisposable
         [DefaultValue(PixelFormat.R16G16B16A16_Float)] PixelFormat backBufferFormat,
         [DefaultValue(PixelFormat.D24_UNorm_S8_UInt)] PixelFormat depthBufferFormat = PixelFormat.D24_UNorm_S8_UInt,
         [DefaultValue(GraphicsProfile.Level_11_0)] GraphicsProfile graphicsProfile = GraphicsProfile.Level_11_0,
-        [DefaultValue(ColorSpaceType.RgbFullG22NoneP709)] ColorSpaceType preferredOutputColorSpace = ColorSpaceType.RgbFullG22NoneP709,
+        [DefaultValue(ColorSpaceType.Rgb_Full_G22_None_P709)] ColorSpaceType preferredOutputColorSpace = ColorSpaceType.Rgb_Full_G22_None_P709,
         int inputPriority = 0)
     {
         logger = nodeContext.GetLogger();

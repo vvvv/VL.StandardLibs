@@ -1,5 +1,5 @@
 ﻿#nullable enable
-using SharpDX.Direct3D11;
+using Silk.NET.Direct3D11;
 using Stride.Graphics;
 using Stride.Rendering;
 using System;
@@ -14,7 +14,7 @@ namespace VL.Stride.Video
     // Used by VideoSourceToTexture patch
     public static class VideoUtils
     {
-        public static IResourceProvider<Texture> ToTexture(this IResourceProvider<VideoFrame> videoFrameProvider, RenderContext renderContext)
+        public static unsafe IResourceProvider<Texture> ToTexture(this IResourceProvider<VideoFrame> videoFrameProvider, RenderContext renderContext)
         {
             var device = renderContext.GraphicsDevice;
             var handle = videoFrameProvider.GetHandle();
@@ -24,14 +24,14 @@ namespace VL.Stride.Video
                 // CreateTextureFromNative is quite expensive (creates bunch of auxiliary objects) -> use resource pool
                 var textureProvider = ResourceProvider.NewPooledPerApp(videoTexture, videoTexture =>
                 {
-                    var nativeTexture = new Texture2D(videoTexture.NativePointer);
-                    return SharpDXInterop.CreateTextureFromNative(device, nativeTexture, takeOwnership: true /* Stride bug, read: increase ref count? yes */, isSRgb: false);
+                    var nativeTexture = (ID3D11Texture2D*)(videoTexture.NativePointer);
+                    return GraphicsMarshal.CreateTextureFromNative(device, nativeTexture, takeOwnership: true /* Stride bug, read: increase ref count? yes */, isSRgb: false);
                 }, delayDisposalInMilliseconds: 1000 /* Keep the wrappers in memory for a bit - due to upstream pooling this might help */);
 
                 // Color space check
                 var textureHandle = textureProvider.GetHandle();
                 var texture = textureHandle.Resource;
-                if (device.ColorSpace == ColorSpace.Gamma || texture.Format.IsSRgb() || !texture.Format.HasSRgbEquivalent())
+                if (device.ColorSpace == ColorSpace.Gamma || texture.Format.IsSRgb || !texture.Format.HasSRgbEquivalent)
                     return ResourceProvider.Return(texture, new CompositeDisposable(textureHandle, handle), x => x.Dispose());
 
                 // We need to do a color space conversion. Can be done by copying the texture to a SRGB based format.
@@ -90,12 +90,6 @@ namespace VL.Stride.Video
                         description,
                         new DataBox(new IntPtr(data), videoFrame.RowLengthInBytes, videoFrame.LengthInBytes));
             }
-        }
-
-        private static Texture AsTexture(VideoTexture videoTexture, GraphicsDevice graphicsDevice)
-        {
-            var nativeTexture = new Texture2D(videoTexture.NativePointer);
-            return SharpDXInterop.CreateTextureFromNative(graphicsDevice, nativeTexture, takeOwnership: true, isSRgb: false);
         }
     }
 }

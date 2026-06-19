@@ -6,6 +6,8 @@ using Stride.Graphics;
 using Stride.Rendering;
 using Stride.Rendering.Materials;
 using Stride.Shaders;
+using Stride.Shaders.Parsing;
+using Stride.Shaders.Parsing.SDSL.AST;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +20,8 @@ namespace VL.Stride.Rendering
 {
     public class ParsedShader
     {
-        public readonly Shader Shader;
-        public readonly ClassType ShaderClass;
+        public readonly ShaderFile Shader;
+        public readonly ShaderClass ShaderClass;
 
         // base shaders
         public IReadOnlyList<ParsedShader> BaseShaders => baseShaders;
@@ -33,8 +35,8 @@ namespace VL.Stride.Rendering
 
         Lazy<IReadOnlyDictionary<string, CompositionInput>> compositionsWithBaseShaders;
 
-        public readonly IReadOnlyList<Variable> Variables;
-        public readonly IReadOnlyDictionary<string, Variable> VariablesByName;
+        public readonly IReadOnlyList<ShaderMember> Variables;
+        public readonly IReadOnlyDictionary<string, ShaderMember> VariablesByName;
 
         private IEnumerable<CompositionInput> GetCompositionsWithBaseShaders()
         {
@@ -52,15 +54,15 @@ namespace VL.Stride.Rendering
             }
         }
 
-        public ParsedShader(Shader shader)
+        public ParsedShader(ShaderFile shader)
         {
             Shader = shader;
-            ShaderClass = Shader.GetFirstClassDecl();
-            Variables = ShaderClass?.Members.OfType<Variable>().Where(v => !v.Qualifiers.Contains(StrideStorageQualifier.Stream)).ToList() ?? new List<Variable>(); //should include parent shaders?
-            VariablesByName = Variables.ToDictionary(v => v.Name.Text);
+            ShaderClass = Shader.RootDeclarations.FirstOrDefault() as ShaderClass;
+            Variables = ShaderClass?.Elements.OfType<ShaderMember>().Where(v => v.StreamKind == StreamKind.None).ToList() ?? new List<ShaderMember>(); //should include parent shaders?
+            VariablesByName = Variables.ToDictionary(v => v.Name.ToString());
             compositions = Variables
                 .Select((v, i) => (v, i))
-                .Where(v => v.v.Qualifiers.Contains(StrideStorageQualifier.Compose))
+                .Where(v => v.v.IsCompose)
                 .Select(v => new CompositionInput(v.v, v.i))
                 .ToDictionary(v => v.Name);
 
@@ -167,14 +169,14 @@ namespace VL.Stride.Rendering
         /// </summary>
         public readonly int LocalIndex;
 
-        public readonly Variable Variable;
+        public readonly ShaderMember Variable;
 
-        public CompositionInput(Variable v, int localIndex)
+        public CompositionInput(ShaderMember v, int localIndex)
         {
-            Name = v.Name.Text;
+            Name = v.Name.ToString();
 
             // parse attributes
-            foreach (var attr in v.Attributes.OfType<AttributeDeclaration>())
+            foreach (var attr in v.Attributes.OfType<AnyShaderAttribute>())
             {
                 switch (attr.Name)
                 {
@@ -182,17 +184,17 @@ namespace VL.Stride.Rendering
                         IsOptional = true;
                         break;
                     case ShaderMetadata.SummaryName:
-                        Summary = attr.ParseString();
+                        Summary = (attr.Parameters.ElementAtOrDefault(0) as StringLiteral)?.Value;
                         break;
                     case ShaderMetadata.RemarksName:
-                        Remarks = attr.ParseString();
+                        Remarks = (attr.Parameters.ElementAtOrDefault(0) as StringLiteral)?.Value;
                         break;
                     default:
                         break;
                 }
             }
 
-            TypeName = v.Type.Name.Text;
+            TypeName = v.Type.ToString();
 
             Key = new PermutationParameterKey<ShaderSource>(Name);
             LocalIndex = localIndex;

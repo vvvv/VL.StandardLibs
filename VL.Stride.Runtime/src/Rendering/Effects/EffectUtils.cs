@@ -21,6 +21,8 @@ using Stride.Core;
 using Stride.Shaders.Parser.Mixins;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
+using Stride.Shaders.Compilers;
+using Stride.Shaders.Parsing;
 
 namespace VL.Stride.Rendering
 {
@@ -246,15 +248,15 @@ namespace VL.Stride.Rendering
                     var code = GetShaderSourceCode(shaderName, fileProvider, shaderSourceManager);
                     var inputFileName = GetPathOfSdslShader(shaderName, fileProvider) ?? shaderName + ".sdsl";
 
-                    var parsingResult = StrideShaderParser.TryPreProcessAndParse(code, inputFileName, macros);
+                    var parsingResult = SDSLParser.Parse(code);
 
-                    if (parsingResult.HasErrors)
+                    if (parsingResult.Errors.Any())
                     {
                         return false;
                     }
                     else //success
                     {
-                        localResult = new ParsedShader(parsingResult.Shader);
+                        localResult = new ParsedShader(parsingResult.AST);
 
                         foreach (var parentShader in resultRef.ParentShaders)
                         {

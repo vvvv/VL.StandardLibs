@@ -5,6 +5,7 @@ using Stride.Core.Mathematics;
 using Stride.Core.Shaders.Ast.Stride;
 using Stride.Core.Shaders.Ast;
 using System.Collections.Generic;
+using Stride.Shaders.Parsing.SDSL.AST;
 
 namespace VL.Stride.Rendering
 {
@@ -28,11 +29,11 @@ namespace VL.Stride.Rendering
             return result;
         }
 
-        public static bool TryGetAttribute(this Variable v, string attrName, out AttributeDeclaration attribute)
+        public static bool TryGetAttribute(this ShaderMember v, string attrName, out AnyShaderAttribute attribute)
         {
             foreach (var a in v.Attributes)
             {
-                if (a is AttributeDeclaration decl && decl.Name.Text == attrName)
+                if (a is AnyShaderAttribute decl && decl.Name == attrName)
                 {
                     attribute = decl;
                     return true;

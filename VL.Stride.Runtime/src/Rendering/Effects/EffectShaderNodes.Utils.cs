@@ -192,21 +192,5 @@ namespace VL.Stride.Rendering
                 return new ShaderMixinGeneratorSource(effectName);
             return new ShaderClassSource(effectName);
         }
-
-        // Not used yet
-        static Dictionary<string, Dictionary<string, ParameterKey>> GetCompilerParameters(string filePath, string sdfxEffectName)
-        {
-            // In .sdfx, shader has been renamed to effect, in order to avoid ambiguities with HLSL and .sdsl
-            var macros = new[]
-            {
-                    new global::Stride.Core.Shaders.Parser.ShaderMacro("shader", "effect")
-                };
-
-            // Parse and collect
-            var shader = StrideShaderParser.PreProcessAndParse(filePath, macros);
-            var builder = new RuntimeShaderMixinBuilder(shader);
-            return builder.CollectParameters();
-        }
-
     }
 }
