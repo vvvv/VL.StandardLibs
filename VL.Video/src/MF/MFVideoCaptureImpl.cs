@@ -16,7 +16,7 @@ namespace VL.Video.MF
     [SupportedOSPlatform("windows6.1")]
     internal sealed class MFVideoCaptureImpl : VideoCaptureImpl
     {
-        public unsafe static MFVideoCaptureImpl? Create(VideoCaptureConfig config, IntPtr device)
+        public unsafe static MFVideoCaptureImpl? Create(VideoCaptureConfig config, IntPtr device, bool useLinearFormat)
         {
             using var _ = MediaFoundation.Use();
 
@@ -34,7 +34,7 @@ namespace VL.Video.MF
                 if (bestCaptureFormat != null)
                     Utils.SetCaptureFormat(mediaSource, bestCaptureFormat.mediaType);
 
-                var sourceReader = SourceReader.CreateFromMediaSource(mediaSource, (ID3D11Device*)device, readAsync: true);
+                var sourceReader = SourceReader.CreateFromMediaSource(mediaSource, (ID3D11Device*)device, readAsync: true, useLinearFormat);
 
                 return new MFVideoCaptureImpl(sourceReader, mediaSource, config);
             }

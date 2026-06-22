@@ -36,7 +36,7 @@ internal sealed class SoftwareSkiaRenderer : ISkiaRenderer
             {
                 using var surface = SKSurface.Create(info, data.Scan0, data.Stride);
                 var canvas = surface.Canvas;
-                CallerInfo = CallerInfo.InRenderer(info.Width, info.Height, canvas, null, scaling);
+                CallerInfo = CallerInfo.InRenderer(info.Width, info.Height, surface, null, scaling);
                 using (new SKAutoCanvasRestore(canvas, true))
                 {
                     renderAction(CallerInfo);

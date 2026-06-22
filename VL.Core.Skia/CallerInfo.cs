@@ -10,10 +10,16 @@ namespace VL.Skia
     public record class CallerInfo
     {
         public static SKMatrix Identity = SKMatrix.CreateIdentity();
-        public static readonly CallerInfo Default = new CallerInfo(null, new SKCanvas(new SKBitmap()),
+        public static readonly CallerInfo Default = new CallerInfo(null, null, new SKCanvas(new SKBitmap()),
             Identity, new SKRect(0, 0, 1920, 1080), 1f, null);
 
         public GRContext GRContext { get; init; }
+
+        /// <summary>
+        /// The surface to render on. Not necessarily set, as some renderers only provide a canvas. If not null, the surface's canvas is the same as the Canvas property.
+        /// </summary>
+        public SKSurface Surface { get; init; }
+
         public SKCanvas Canvas { get; init; }
         public SKMatrix Transformation { get; init; }
         public SKRect ViewportBounds { get; init; }
@@ -21,10 +27,11 @@ namespace VL.Skia
         public bool IsTooltip { get; init; }
         public float Scaling { get; init; }
 
-        internal CallerInfo(GRContext context, SKCanvas canvas, SKMatrix transformation, SKRect viewportBounds, float scaling,
+        internal CallerInfo(GRContext context, SKSurface surface, SKCanvas canvas, SKMatrix transformation, SKRect viewportBounds, float scaling,
             Func<object, object> renderInfoHack)
         {
             GRContext = context;
+            Surface = surface;
             Canvas = canvas;
             Transformation = transformation;
             ViewportBounds = viewportBounds;
@@ -44,7 +51,15 @@ namespace VL.Skia
         /// </summary>
         public static CallerInfo InRenderer(float width, float height, SKCanvas canvas, GRContext context, float scaling)
         {
-            return new CallerInfo(context, canvas, Identity, new SKRect(0, 0, width, height), scaling, null);
+            return new CallerInfo(context, null, canvas, Identity, new SKRect(0, 0, width, height), scaling, null);
+        }
+
+        /// <summary>
+        /// Renderers call this to set up the caller info
+        /// </summary>
+        public static CallerInfo InRenderer(float width, float height, SKSurface surface, GRContext context, float scaling)
+        {
+            return new CallerInfo(context, surface, surface.Canvas, Identity, new SKRect(0, 0, width, height), scaling, null);
         }
 
         public CallerInfo WithTransformation(SKMatrix transformation)

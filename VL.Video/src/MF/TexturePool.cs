@@ -89,6 +89,8 @@ namespace VL.Video.MF
             {
                 case DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM:
                     return PixelFormat.B8G8R8A8;
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT:
+                    return PixelFormat.R16G16B16A16F;
                 default:
                     throw new NotImplementedException();
             }

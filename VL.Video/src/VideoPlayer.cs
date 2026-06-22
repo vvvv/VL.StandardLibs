@@ -133,7 +133,7 @@ namespace VL.Video
                 if (OperatingSystem.IsWindowsVersionAtLeast(8))
                 {
                     var devicePtr = ctx.GraphicsDeviceType == GraphicsDeviceType.Direct3D11 ? ctx.GraphicsDevice : default;
-                    return currentPlayer = new MF.MFVideoPlayerImpl(this, devicePtr)
+                    return currentPlayer = new MF.MFVideoPlayerImpl(this, devicePtr, ctx.UsesLinearColorspace)
                     {
                         DisposeAction = () =>
                         {

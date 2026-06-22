@@ -73,7 +73,7 @@ namespace VL.Skia
             if (canvas != null)
             {
                 var renderContext = renderContextProvider.GetRenderContext();
-                Layer?.Notify(n, CallerInfo.InRenderer(Size.X, Size.Y, canvas, renderContext.SkiaContext, 1f));
+                Layer?.Notify(n, CallerInfo.InRenderer(Size.X, Size.Y, surface, renderContext.SkiaContext, 1f));
             }
         }
 
@@ -103,7 +103,7 @@ namespace VL.Skia
             {
                 surfaceSize = size;
                 surface?.Dispose();
-                var info = new SKImageInfo(size.X, size.Y, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+                var info = new SKImageInfo(size.X, size.Y, SKImageInfo.PlatformColorType, SKAlphaType.Premul, SKColorSpace.CreateSrgb());
                 surface = SKSurface.Create(renderContext.SkiaContext, budgeted: false, info, sampleCount: 0, origin: GRSurfaceOrigin.TopLeft, null, shouldCreateWithMips: true);
             }
 
@@ -112,7 +112,7 @@ namespace VL.Skia
             var canvas = surface.Canvas;
             using (new SKAutoCanvasRestore(canvas, true))
             {
-                Layer?.Render(CallerInfo.InRenderer(size.X, size.Y, canvas, renderContext.SkiaContext, 1f));
+                Layer?.Render(CallerInfo.InRenderer(size.X, size.Y, surface, renderContext.SkiaContext, 1f));
             }
             surface.Flush();
 
