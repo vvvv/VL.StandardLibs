@@ -551,7 +551,7 @@ namespace VL.Lib.Reactive
 
         int IChannel.Revision => original.Revision;
 
-        public bool HasBeenRequested { get; internal set; }
+        public bool HasBeenRequested => original.HasBeenRequested;
 
         public AccessorNodes AccessorNodes => original.AccessorNodes;
 
