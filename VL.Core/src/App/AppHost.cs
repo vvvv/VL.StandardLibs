@@ -33,6 +33,7 @@ namespace VL.Core
         /// </summary>
         public static AppHost CurrentOrGlobal => current ?? Global;
         internal static AppHost? CurrentOrGlobalOrNull => current ?? global;
+        internal static AppHost? CurrentOrNull => current;
 
         /// <summary>
         /// The app host for the whole application. 
