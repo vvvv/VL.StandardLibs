@@ -102,7 +102,7 @@ namespace VL.Core.Reactive
             using var _ = BeginChange();
             var c = Channels.GetOrAdd(key, _ => 
             { 
-                var c = ChannelHelpers.CreateChannelOfType(typeOfValues); 
+                var c = ChannelHelpers.CreateChannelOfType(typeof(object));
                 ((IInternalChannel)c).SetPath(key);
                 if (!c.IsAnonymous()) revision++;
 
@@ -110,7 +110,7 @@ namespace VL.Core.Reactive
                 //if (typeInfo != null && !typeInfo.IsPatched)
                 //    c.Value = AppHost.TypeRegistry.GetTypeInfo(typeOfValues).GetDefaultValue();
 
-                return c; 
+                return ChannelHelpers.CreateChannelViewOfType(typeOfValues, c);
             });
             if (c.ClrTypeOfValues != typeOfValues)
                 return default;
@@ -122,7 +122,7 @@ namespace VL.Core.Reactive
         public IChannel<object>? TryGetChannel(string key)
         {
             Channels.TryGetValue(key, out var c);
-            if (c is IInternalChannel ic)
+            if (c?.ChannelOfObject is IInternalChannel ic)
                 ic.Request(); // mark channel as asked for, so that it can be used in the UI
             return c;
         }
@@ -251,10 +251,8 @@ namespace VL.Core.Reactive
                     var newValue = entryPoint.Swap(value, typeof(object));
                     if (newValue != value)
                     {
-                        
                         var newElementType = entryPoint.SwapType(channel.ClrTypeOfValues);
-
-                        var newChannel = (IChannel)entryPoint.Swap(channel, typeof(Channel<>).MakeGenericType(newElementType));
+                        var newChannel = (IChannel)entryPoint.Swap(channel, typeof(IChannel<>).MakeGenericType(newElementType));
                         if (channel != newChannel)
                         {
                             channels[key] = (IChannel<object>)newChannel;

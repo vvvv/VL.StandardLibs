@@ -454,6 +454,9 @@ namespace VL.Lib.Reactive
         }
     }
 
+    internal interface IChannelView
+    {
+    }
 
 
     internal abstract class ChannelView_<T> : IChannel<T>
@@ -609,7 +612,7 @@ namespace VL.Lib.Reactive
     }
 
 
-    internal class ChannelView<T> : ChannelView_<T>, IChannel, IChannel<object>
+    internal class ChannelView<T> : ChannelView_<T>, IChannel, IChannel<object>, IChannelView
     {
         public ChannelView(IChannel original) : base(original)
         {
@@ -650,12 +653,11 @@ namespace VL.Lib.Reactive
 
         object? IMonadicValue.BoxedValue => original.BoxedValue;
 
-        protected override IChannel<object> channelOfObject => this;
+        protected override IChannel<object> channelOfObject => original;
 
         public static implicit operator T?(ChannelView<T> c) => c.Value;
 
         public override string? ToString() => original.ToString();
-
     }
 
 }

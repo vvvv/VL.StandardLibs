@@ -25,7 +25,10 @@ namespace VL.Lib.Reactive
         {
             return (IChannel<object>)Activator.CreateInstance(typeof(Channel<>).MakeGenericType(typeOfValues.ClrType))!;
         }
-
+        public static IChannel<object> CreateChannelViewOfType(Type typeOfValues, IChannel channel)
+        {
+            return (IChannel<object>)Activator.CreateInstance(typeof(ChannelView<>).MakeGenericType(typeOfValues), channel)!;
+        }
 
 
 
