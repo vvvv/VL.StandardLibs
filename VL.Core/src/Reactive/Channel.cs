@@ -583,7 +583,7 @@ namespace VL.Lib.Reactive
             return original.Subscribe(new ObserverWrapper(observer, AsT));
         }
 
-        private struct ObserverWrapper : IObserver<object?>
+        private class ObserverWrapper : IObserver<object?>
         {
             private readonly IObserver<T?> observer;
             private readonly Func<object?, T?> asT;
@@ -611,6 +611,30 @@ namespace VL.Lib.Reactive
         }
     }
 
+    class ObserverWrapper<T> : IObserver<T?>
+    {
+        private readonly IObserver<object?> observer;
+
+        public ObserverWrapper(IObserver<object?> observer)
+        {
+            this.observer = observer;
+        }
+
+        public void OnCompleted()
+        {
+            observer.OnCompleted();
+        }
+
+        public void OnError(Exception error)
+        {
+            observer.OnError(error);
+        }
+
+        public void OnNext(T? value)
+        {
+            observer.OnNext(value);
+        }
+    }
 
     internal class ChannelView<T> : ChannelView_<T>, IChannel, IChannel<object>, IChannelView
     {
@@ -620,13 +644,13 @@ namespace VL.Lib.Reactive
 
         object? IChannel<object>.Value
         {
-            get => original.Value;
-            set => original.Value = value;
+            get => Value;
+            set => Value = AsT(value);
         }
 
         void IChannel<object>.SetValueAndAuthor(object? value, string? author)
         {
-            original.SetValueAndAuthor(value, author);
+            SetValueAndAuthor(AsT(value), author);
         }
 
         Func<object?, Optional<object?>>? IChannel<object>.Validator
@@ -636,22 +660,22 @@ namespace VL.Lib.Reactive
 
         void IObserver<object?>.OnNext(object? value)
         {
-            original.OnNext(value);
+            OnNext(AsT(value));
         }
 
         IDisposable IObservable<object?>.Subscribe(IObserver<object?> observer)
         {
-            return original.Subscribe(observer);
+            return Subscribe(new ObserverWrapper<T?>(observer));
         }
 
-        object? IMonadicValue<object>.Value => original.Value;
+        object? IMonadicValue<object>.Value => Value;
 
         IMonadicValue<object> IMonadicValue<object>.SetValue(object? value)
         {
-            return ((IMonadicValue<object>)original).SetValue(value);
+            throw new NotImplementedException();
         }
 
-        object? IMonadicValue.BoxedValue => original.BoxedValue;
+        object? IMonadicValue.BoxedValue => Value;
 
         protected override IChannel<object> channelOfObject => original;
 
