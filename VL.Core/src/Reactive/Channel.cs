@@ -188,7 +188,13 @@ namespace VL.Lib.Reactive
 
         void IChannel.SetObjectAndAuthor(object? @object, string? author)
         {
-            SetValueAndAuthor((T?)@object, author);
+            SetValueAndAuthor(IHotswapSpecificNodes.Impl.HardCast<T?>(@object), author);
+        }
+
+        public void SetObjectDirectly(object? @object, string? author)
+        {
+            LatestAuthor = author;
+            this.value = (T)@object;
         }
 
         IChannel<object> IChannel.ChannelOfObject => channelOfObject;
@@ -383,7 +389,7 @@ namespace VL.Lib.Reactive
 
         void IChannel<object>.SetValueAndAuthor(object? value, string? author)
         {
-            SetValueAndAuthor((T?)value, author);
+            ((IChannel)this).SetObjectAndAuthor(value, author);
         }
 
         void IObserver<object?>.OnCompleted()
@@ -434,6 +440,7 @@ namespace VL.Lib.Reactive
     {
         void SetPath(string path);
         void Request();
+        void SetObjectDirectly(object? @object, string? author);
     }
 
 
@@ -447,6 +454,9 @@ namespace VL.Lib.Reactive
         }
     }
 
+    internal interface IChannelView
+    {
+    }
 
 
     internal abstract class ChannelView_<T> : IChannel<T>
@@ -541,7 +551,7 @@ namespace VL.Lib.Reactive
 
         int IChannel.Revision => original.Revision;
 
-        public bool HasBeenRequested { get; internal set; }
+        public bool HasBeenRequested => original.HasBeenRequested;
 
         public AccessorNodes AccessorNodes => original.AccessorNodes;
 
@@ -602,7 +612,7 @@ namespace VL.Lib.Reactive
     }
 
 
-    internal class ChannelView<T> : ChannelView_<T>, IChannel, IChannel<object>
+    internal class ChannelView<T> : ChannelView_<T>, IChannel, IChannel<object>, IChannelView
     {
         public ChannelView(IChannel original) : base(original)
         {
@@ -643,12 +653,11 @@ namespace VL.Lib.Reactive
 
         object? IMonadicValue.BoxedValue => original.BoxedValue;
 
-        protected override IChannel<object> channelOfObject => this;
+        protected override IChannel<object> channelOfObject => original;
 
         public static implicit operator T?(ChannelView<T> c) => c.Value;
 
         public override string? ToString() => original.ToString();
-
     }
 
 }
