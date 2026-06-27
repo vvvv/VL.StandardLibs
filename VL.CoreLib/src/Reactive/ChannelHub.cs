@@ -110,7 +110,10 @@ namespace VL.Core.Reactive
                 //if (typeInfo != null && !typeInfo.IsPatched)
                 //    c.Value = AppHost.TypeRegistry.GetTypeInfo(typeOfValues).GetDefaultValue();
 
-                return ChannelHelpers.CreateChannelViewOfType(typeOfValues, c);
+                var cv = ChannelHelpers.CreateChannelViewOfType(typeOfValues, c);
+                if (typeOfValues.IsValueType)
+                    cv.SetObjectAndAuthor(Activator.CreateInstance(typeOfValues), "initial value of public channel");
+                return cv;
             });
             if (c.ClrTypeOfValues != typeOfValues)
                 return default;
