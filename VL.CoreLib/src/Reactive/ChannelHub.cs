@@ -105,14 +105,14 @@ namespace VL.Core.Reactive
                 var c = ChannelHelpers.CreateChannelOfType(typeof(object));
                 ((IInternalChannel)c).SetPath(key);
                 if (!c.IsAnonymous()) revision++;
+                if (typeOfValues.IsValueType)
+                    ((IInternalChannel)c).SetObjectDirectly(Activator.CreateInstance(typeOfValues), "initial value of public channel");
 
                 //var typeInfo = AppHost.TypeRegistry.GetTypeInfo(typeOfValues);
                 //if (typeInfo != null && !typeInfo.IsPatched)
                 //    c.Value = AppHost.TypeRegistry.GetTypeInfo(typeOfValues).GetDefaultValue();
 
                 var cv = ChannelHelpers.CreateChannelViewOfType(typeOfValues, c);
-                if (typeOfValues.IsValueType)
-                    cv.SetObjectAndAuthor(Activator.CreateInstance(typeOfValues), "initial value of public channel");
                 return cv;
             });
             if (c.ClrTypeOfValues != typeOfValues)
