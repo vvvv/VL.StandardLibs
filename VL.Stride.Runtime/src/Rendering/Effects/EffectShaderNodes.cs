@@ -26,6 +26,7 @@ namespace VL.Stride.Rendering
         const string computeFXSuffix = "_ComputeFX";
         const string textureFXSuffix = "_TextureFX";
         const string shaderFXSuffix = "_ShaderFX";
+        const string nodeSuffix = "_Node";
 
         static string? GetSuffix(string effectName)
         {
@@ -33,6 +34,7 @@ namespace VL.Stride.Rendering
             if (effectName.EndsWith(computeFXSuffix)) return computeFXSuffix;
             if (effectName.EndsWith(textureFXSuffix)) return textureFXSuffix;
             if (effectName.EndsWith(shaderFXSuffix))  return shaderFXSuffix;
+            if (effectName.EndsWith(nodeSuffix)) return nodeSuffix;
             return null;
         }
 

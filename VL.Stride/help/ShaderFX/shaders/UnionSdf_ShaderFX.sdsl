@@ -1,0 +1,10 @@
+shader UnionSdf_ShaderFX : ISdf
+{
+    compose ISdf InputA;
+    compose ISdf InputB;
+
+    override float Distance(float2 position)
+    {
+        return min(InputA.Distance(position), InputB.Distance(position));
+    }
+};

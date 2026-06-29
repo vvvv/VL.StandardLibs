@@ -1,0 +1,10 @@
+shader IntersectSdf_ShaderFX : ISdf
+{
+    compose ISdf InputA;
+    compose ISdf InputB;
+
+    override float Distance(float2 position)
+    {
+        return max(InputA.Distance(position), InputB.Distance(position));
+    }
+};

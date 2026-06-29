@@ -1,0 +1,22 @@
+shader SignedDistanceField_DrawFX : VS_PS_Base, Texturing
+{
+    [Color]
+    float4 Color = float4(1, 0, 0, 1);
+
+    compose ISdf Input1;
+    compose ComputeColor FooBar;
+
+    override stage void VSMain()
+    {
+        streams.ShadingPosition = mul(streams.Position, WorldViewProjection);
+    }
+
+    override stage void PSMain() 
+    {
+        float distance = Input1.Distance(float2(streams.TexCoord.x * 2 - 1, streams.TexCoord.y * 2 - 1));
+        if (distance <= 0)
+            streams.ColorTarget = FooBar.Compute();
+        else
+            streams.ColorTarget = float4(0, 0, 0, 0);
+    }
+};

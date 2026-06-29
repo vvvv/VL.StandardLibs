@@ -308,6 +308,7 @@ namespace VL.Stride.Rendering
             { "ComputeInt3", typeof(SetVar<Int3>) },
             { "ComputeInt4", typeof(SetVar<Int4>) },
             { "ComputeUInt", typeof(SetVar<uint>) },
+            { "ISdf", typeof(ISdf) }
         };
 
         /// <summary>

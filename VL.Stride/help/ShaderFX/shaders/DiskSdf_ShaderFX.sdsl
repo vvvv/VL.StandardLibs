@@ -1,0 +1,11 @@
+shader DiskSdf_ShaderFX : ISdf
+{
+    //float radius = 1.0f;
+    [DefaultValue(1f)]
+    compose ComputeFloat radius; 
+
+    override float Distance(float2 position)
+    {
+        return length(position) - 1;
+    }
+};

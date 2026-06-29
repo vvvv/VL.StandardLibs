@@ -137,8 +137,6 @@ namespace VL.Stride.Rendering
 
                 if (shaderChanged)
                 {
-
-
                     var newComputeNode = new ShaderFXNode<TInner>(
                         getShaderSource: (c, k) =>
                         {
@@ -149,8 +147,21 @@ namespace VL.Stride.Rendering
                             return new ShaderClassSource(nodeState.ShaderName);
                         },
                         inputs: compositionPins);
-
                     nodeState.CurrentComputeNode = newComputeNode;
+
+                    if (typeof(T) == typeof(ISdf))
+                    {
+                        nodeState.CurrentComputeNode = new MyTestShaderFXNode(
+                            getShaderSource: (c, k) =>
+                            {
+                                //let the pins subscribe to the parameter collection of the sink
+                                foreach (var pin in inputs)
+                                    pin.SubscribeTo(c);
+                                return new ShaderClassSource(nodeState.ShaderName);
+                            },
+                            inputs: compositionPins);
+                    }
+
 
                     if (typeof(TInner) == typeof(VoidOrUnknown))
                         nodeState.CurrentOutputValue = nodeState.CurrentComputeNode;
@@ -192,5 +203,14 @@ namespace VL.Stride.Rendering
         }
 
         public IList<ShaderFXPin> InputPins { get; }
+    }
+
+    // TODO: This class needs to be generated automatically based on the IMyTest interface and the ShaderInterfaceAttribute
+    class MyTestShaderFXNode : ShaderFXNode<VoidOrUnknown>, ISdf
+    {
+        public MyTestShaderFXNode(Func<ShaderGeneratorContext, MaterialComputeColorKeys, ShaderClassCode> getShaderSource, IList<ShaderFXPin> inputs)
+            : base(getShaderSource, inputs)
+        {
+        }
     }
 }
