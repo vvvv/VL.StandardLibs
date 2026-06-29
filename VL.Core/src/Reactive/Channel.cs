@@ -461,11 +461,14 @@ namespace VL.Lib.Reactive
 
     internal abstract class ChannelView_<T> : IChannel<T>
     {
-        static T? asT(object? value)
+        static T asT(object? value)
         {
             if (value is T t)
                 return t;
-            return default;
+
+            throw new ArgumentException(message: $"{value} is not of type {typeof(T)}", paramName: nameof(value));
+
+            return default!; // this might be more beautiful, but postpones errors
         }
 
         protected readonly IChannel<object> original;
@@ -475,18 +478,10 @@ namespace VL.Lib.Reactive
             this.original = original.ChannelOfObject;
         }
 
-        public Func<object?, T?> AsT { get; init; } = asT;
-        public Func<T?, Optional<object?>> ToObject { get; init; } = v => v;
-
         public T? Value
         {
-            get => AsT(original.Object);
-            set
-            {
-                var o = ToObject(value);
-                if (o.HasValue)
-                    original.Object = o.Value;
-            }
+            get => asT(original.Object);
+            set => original.Object = value;
         }
 
         public Func<T?, Optional<T?>>? Validator
@@ -500,7 +495,7 @@ namespace VL.Lib.Reactive
                 }
                 original.Validator = v =>
                 {
-                    var opt = value(AsT(v));
+                    var opt = value(asT(v));
                     if (opt.HasValue)
                         return opt.Value;
                     return new Optional<object?>();
@@ -580,7 +575,7 @@ namespace VL.Lib.Reactive
 
         public IDisposable Subscribe(IObserver<T?> observer)
         {
-            return original.Subscribe(new ObserverWrapper(observer, AsT));
+            return original.Subscribe(new ObserverWrapper(observer, asT));
         }
 
         private class ObserverWrapper : IObserver<object?>
