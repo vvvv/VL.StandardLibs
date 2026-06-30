@@ -105,7 +105,7 @@ namespace VL.Lib.Reactive
     }
 
     [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
-    public interface IChannel<T> : IChannel, IObservable<T?>, IMonadicValue<T>
+    public interface IChannel<T> : IChannel, ISubject<T?>, IMonadicValue<T>
     {
         static IMonadicValue<T> IMonadicValue<T>.Create(NodeContext nodeContext, T? value) => Channel.Create(value!);
         static bool IMonadicValue<T>.HasCustomDefault => true; // We use DummyChannel as default
@@ -125,6 +125,8 @@ namespace VL.Lib.Reactive
         private IChannel<Spread<Attribute>>? attributesChannel;
         private AccessorNodes? accessorNodes;
         private TagsCache? tagsCache;
+        private bool enabled = true;
+        private Exception? error;
 
         public ImmutableArray<object> Components { get; set; } = ImmutableArray<object>.Empty;
 
@@ -213,12 +215,9 @@ namespace VL.Lib.Reactive
 
         protected abstract IChannel<object> channelOfObject {get;}
 
-        public void OnCompleted()
-        {
-            AssertAlive();
-            if (Enabled)
-                subject.OnCompleted();
-        }
+        void IObserver<T?>.OnCompleted() => Enabled = false;
+        void IObserver<T?>.OnError(Exception error) => Error = error;
+        void IObserver<T?>.OnNext(T? value) => SetValueAndAuthor(value, "via typed observer interface");
 
         public IDisposable Subscribe(IObserver<T?> observer)
         {
@@ -235,7 +234,34 @@ namespace VL.Lib.Reactive
             //Debug.Assert(!subject.IsDisposed, "you work with a disposed channel!");
         }
 
-        public bool Enabled { get; set; } = true;
+        public bool Enabled
+        {
+            get => enabled;
+            set
+            {
+                if (value != enabled && value == false)
+                {
+                    enabled = false;
+                    subject.OnCompleted();
+                    return;
+                }
+                enabled = value;
+            }
+        }
+
+        public Exception? Error
+        {
+            get => error;
+            set
+            {
+                if (value != error)
+                {
+                    error = value;
+                    subject.OnError(value!);
+                    return;
+                }
+            }
+        }
 
         public string? LatestAuthor { get; set; }
 
@@ -386,6 +412,12 @@ namespace VL.Lib.Reactive
             SetObjectAndAuthor(value, author);
         }
         
+
+        void IObserver<object?>.OnCompleted() => Enabled = false;
+        void IObserver<object?>.OnError(Exception error) => Error = error;
+        void IObserver<object?>.OnNext(object? value) => SetObjectAndAuthor(value, "via untyped observer interface");
+
+
         IDisposable IObservable<object?>.Subscribe(IObserver<object?> observer)
         {
             AssertAlive();
@@ -529,6 +561,10 @@ namespace VL.Lib.Reactive
             // we didn't subscribe to the original channel, so we don't need to unsubscribe.
         }
 
+        public void OnCompleted() => original.OnCompleted();
+        public void OnError(Exception error) => original.OnError(error);
+        public void OnNext(T? value) => original.OnNext(value);
+
         public void SetObjectAndAuthor(object? @object, string? author) => original.SetObjectAndAuthor(@object, author);
 
         public IMonadicValue<T> SetValue(T? value)
@@ -581,6 +617,8 @@ namespace VL.Lib.Reactive
         {
             set => original.Validator = value;
         }
+
+        void IObserver<object?>.OnNext(object? value) => original.OnNext(value); //let's avoid boxing several times 
 
         IDisposable IObservable<object?>.Subscribe(IObserver<object?> observer)
         {
