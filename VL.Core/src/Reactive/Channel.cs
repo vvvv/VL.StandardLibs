@@ -105,7 +105,7 @@ namespace VL.Lib.Reactive
     }
 
     [MonadicTypeFilter(typeof(ChannelMonadicTypeFilter))]
-    public interface IChannel<T> : IChannel, ISubject<T?>, IMonadicValue<T>
+    public interface IChannel<T> : IChannel, IObservable<T?>, IMonadicValue<T>
     {
         static IMonadicValue<T> IMonadicValue<T>.Create(NodeContext nodeContext, T? value) => Channel.Create(value!);
         static bool IMonadicValue<T>.HasCustomDefault => true; // We use DummyChannel as default
@@ -180,14 +180,19 @@ namespace VL.Lib.Reactive
             }
         }
 
-        object? IChannel.Object { get => Value; set => Value = (T?)value; }
+        public object? Object
+        {
+            get => Value;
+            set => SetObjectAndAuthor(value, null);
+        }
 
         public bool HasBeenRequested { get; internal set; }
 
         int IChannel.Revision => revision;
 
-        void IChannel.SetObjectAndAuthor(object? @object, string? author)
+        public void SetObjectAndAuthor(object? @object, string? author)
         {
+            //throw new ArgumentException(message: $"{value} is not of type {typeof(T)}", paramName: nameof(value));
             SetValueAndAuthor(IHotswapSpecificNodes.Impl.HardCast<T?>(@object), author);
         }
 
@@ -197,7 +202,7 @@ namespace VL.Lib.Reactive
             this.value = (T)@object;
         }
 
-        IChannel<object> IChannel.ChannelOfObject => channelOfObject;
+        public IChannel<object> ChannelOfObject => channelOfObject;
 
         public bool HasValue => true;
 
@@ -208,31 +213,18 @@ namespace VL.Lib.Reactive
 
         protected abstract IChannel<object> channelOfObject {get;}
 
-        void IObserver<T?>.OnCompleted()
+        public void OnCompleted()
         {
             AssertAlive();
             if (Enabled)
                 subject.OnCompleted();
         }
 
-        void IObserver<T?>.OnError(Exception error)
+        public IDisposable Subscribe(IObserver<T?> observer)
         {
             AssertAlive();
-            if (Enabled)
-                subject.OnError(error);
-        }
-
-        void IObserver<T?>.OnNext(T? value)
-        {
-            AssertAlive();
-            SetValueAndAuthor(value, null);
-        }
-
-        IDisposable IObservable<T?>.Subscribe(IObserver<T?> observer)
-        {
-            AssertAlive();
-            if (subject.IsDisposed) 
-                return Disposable.Empty;                
+            if (subject.IsDisposed)
+                return Disposable.Empty;
             return subject.Subscribe(observer);
         }
 
@@ -250,7 +242,7 @@ namespace VL.Lib.Reactive
         public string? Path { get; protected set; }
 
         bool disposing = false;
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             if (disposing)
                 return;
@@ -285,9 +277,9 @@ namespace VL.Lib.Reactive
                 SetValueAndAuthor(this.Value, LatestAuthor);
         }
 
-        Spread<string> IHasAttributes.Tags => (tagsCache ??= new(AttributesChannel)).Tags;
+        public Spread<string> Tags => (tagsCache ??= new(AttributesChannel)).Tags;
 
-        Spread<Attribute> IHasAttributes.Attributes => AttributesChannel.Value ?? Spread<Attribute>.Empty;
+        public Spread<Attribute> Attributes => AttributesChannel.Value ?? Spread<Attribute>.Empty;
 
         public IChannel<Spread<Attribute>> AttributesChannel
         {
@@ -302,9 +294,7 @@ namespace VL.Lib.Reactive
             }
         }
 
-        AccessorNodes IChannel.AccessorNodes => accessorNodes ??= this.EnsureSingleComponentOfType(() => new AccessorNodes(), false);
-
-        T? IMonadicValue<T>.Value => Value;
+        public AccessorNodes AccessorNodes => accessorNodes ??= this.EnsureSingleComponentOfType(() => new AccessorNodes(), false);
 
         IMonadicValue<T> IMonadicValue<T>.SetValue(T? value)
         {
@@ -366,7 +356,11 @@ namespace VL.Lib.Reactive
 
         protected override IChannel<object> channelOfObject => this;
 
-        object? IChannel<object>.Value { get => Value; set { Value = (T?)value; } }
+        object? IChannel<object>.Value 
+        { 
+            get => Value; 
+            set => Object = value;
+        }
 
         Func<object?, Optional<object?>>? IChannel<object>.Validator 
         {
@@ -389,26 +383,7 @@ namespace VL.Lib.Reactive
 
         void IChannel<object>.SetValueAndAuthor(object? value, string? author)
         {
-            ((IChannel)this).SetObjectAndAuthor(value, author);
-        }
-
-        void IObserver<object?>.OnCompleted()
-        {
-            AssertAlive();
-            if (Enabled)
-                subject.OnCompleted();
-        }
-
-        void IObserver<object?>.OnError(Exception error)
-        {
-            AssertAlive();
-            if (Enabled)
-                subject.OnError(error);
-        }
-
-        void IObserver<object?>.OnNext(object? value)
-        {
-            Value = (T?)value;
+            SetObjectAndAuthor(value, author);
         }
         
         IDisposable IObservable<object?>.Subscribe(IObserver<object?> observer)
@@ -425,12 +400,12 @@ namespace VL.Lib.Reactive
 
         public override string ToString() => Path != null && !this.IsAnonymous() ? $"{Path} = {Value}" : $"{Value}";
 
-        void IInternalChannel.SetPath(string path)
+        public void SetPath(string path)
         {
             Path = path;
         }
 
-        void IInternalChannel.Request()
+        public void Request()
         {
             HasBeenRequested = true;
         }
@@ -440,7 +415,7 @@ namespace VL.Lib.Reactive
     {
         void SetPath(string path);
         void Request();
-        void SetObjectDirectly(object? @object, string? author);
+        void SetObjectDirectly(object? @object, string? author = null);
     }
 
 
@@ -458,17 +433,13 @@ namespace VL.Lib.Reactive
     {
     }
 
-
     internal abstract class ChannelView_<T> : IChannel<T>
     {
         static T asT(object? value)
         {
             if (value is T t)
                 return t;
-
-            throw new ArgumentException(message: $"{value} is not of type {typeof(T)}", paramName: nameof(value));
-
-            return default!; // this might be more beautiful, but postpones errors
+            return default!; 
         }
 
         protected readonly IChannel<object> original;
@@ -558,12 +529,6 @@ namespace VL.Lib.Reactive
             // we didn't subscribe to the original channel, so we don't need to unsubscribe.
         }
 
-        public void OnCompleted() => original.OnCompleted();
-
-        public void OnError(Exception error) => original.OnError(error);
-
-        public void OnNext(T? value) => original.OnNext(value);
-
         public void SetObjectAndAuthor(object? @object, string? author) => original.SetObjectAndAuthor(@object, author);
 
         public IMonadicValue<T> SetValue(T? value)
@@ -575,34 +540,21 @@ namespace VL.Lib.Reactive
 
         public IDisposable Subscribe(IObserver<T?> observer)
         {
-            return original.Subscribe(new ObserverWrapper(observer, asT));
+            return original.Subscribe(new NonGenericObserver(observer));
         }
 
-        private class ObserverWrapper : IObserver<object?>
+        private class NonGenericObserver : IObserver<object?>
         {
             private readonly IObserver<T?> observer;
-            private readonly Func<object?, T?> asT;
 
-            public ObserverWrapper(IObserver<T?> observer, Func<object?, T?> asT)
+            public NonGenericObserver(IObserver<T?> observer)
             {
                 this.observer = observer;
-                this.asT = asT;
             }
 
-            public void OnCompleted()
-            {
-                observer.OnCompleted();
-            }
-
-            public void OnError(Exception error)
-            {
-                observer.OnError(error);
-            }
-
-            public void OnNext(object? value)
-            {
-                observer.OnNext(asT(value));
-            }
+            public void OnCompleted() => observer.OnCompleted();
+            public void OnError(Exception error) => observer.OnError(error);
+            public void OnNext(object? value) => observer.OnNext(asT(value));
         }
     }
 
@@ -628,12 +580,6 @@ namespace VL.Lib.Reactive
         Func<object?, Optional<object?>>? IChannel<object>.Validator
         {
             set => original.Validator = value;
-        }
-
-        void IObserver<object?>.OnNext(object? value)
-        {          
-            //let's avoid boxing several times
-            original.OnNext(value);
         }
 
         IDisposable IObservable<object?>.Subscribe(IObserver<object?> observer)
