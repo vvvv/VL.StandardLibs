@@ -68,7 +68,7 @@ namespace VL.Stride.Rendering.Materials
                     {
                         var cp = compositionPins[i];
 
-                        cp?.GenerateAndSetShaderSource(context, baseKeys);
+                        cp?.GenerateAndSetShaderSource(context, baseKeys, cp.Key.Name);
                     }
                 }
                 

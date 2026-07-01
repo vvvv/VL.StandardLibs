@@ -1,20 +1,13 @@
-shader MyShaderFXNode_ShaderFX : ComputeColor, Texturing
+shader MyShaderFXNode_ShaderFX : ComputeColor
 {
-    [Color]
-    float4 ColorIn = float4(1,1,0,1);
-    //compose ComputeColor ShaderInput;
-    //compose ISdf MySdf;
-
-    //cbuffer PerMaterial //when used in materials
-    //{
-    //    stage float ScalarInput; //just for reference, it is often easier to create a ComputeFloat shader input and connect a ValueIn or ValueMap node
-    //}
+    compose ComputeColor ShaderInput;
+    compose ComputeFloat ScalarInput;
 
     override float4 Compute()
     {
         // evaluate that shader graph above this node
-        float4 result = ColorIn;
+        float4 result = ShaderInput.Compute();
 
-        return result;
+        return result * ScalarInput.Compute();
     }
 };

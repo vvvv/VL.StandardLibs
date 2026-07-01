@@ -1,11 +1,22 @@
 shader DiskSdf_ShaderFX : ISdf
 {
+    // Bug: getting invalid argument exception when using this approach
+    // Works in other shaders which inherit from ComputeColor - related?
+    //[DefaultValue(1.0)]
+    //compose ComputeFloat radius;
+
+    // Bug? Pin is dead
     //float radius = 1.0f;
-    [DefaultValue(1f)]
-    compose ComputeFloat radius; 
+
+    // Only thing that works currently
+    cbuffer PerUpdate
+    {
+        float2 center = float2(0, 0);
+        float radius = 1.0f;
+    }
 
     override float Distance(float2 position)
     {
-        return length(position) - 1;
+        return length(position - center) - radius;
     }
 };

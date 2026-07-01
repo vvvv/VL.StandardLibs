@@ -27,12 +27,14 @@ namespace VL.Stride.Shaders.ShaderFX
         private Dictionary<(ParameterCollection, ColorSpace, TKey), RefCountDisposable> trackedCollections;
 
         private TValue value;
-        private TKey key;
+        private TKey staticKey;
 
-        public ParameterUpdater(ParameterCollection parameters = default, TKey key = default)
+        public ParameterUpdater(ParameterCollection parameters = default, TKey staticKey = default)
         {
             this.parameters = parameters;
-            this.key = key;
+            this.staticKey = staticKey;
+            //if (staticKey != null)
+            //    ParameterKeys.Merge(staticKey, GetType(), staticKey.Name);
         }
 
         public TValue Value
@@ -46,7 +48,7 @@ namespace VL.Stride.Shaders.ShaderFX
 
                     if (parameters != null)
                     {
-                        Upload(parameters, key, colorSpace: default, ref value);
+                        Upload(parameters, staticKey, colorSpace: default, ref value);
                     }
 
                     if (trackedCollections != null)
@@ -71,7 +73,7 @@ namespace VL.Stride.Shaders.ShaderFX
 
         public void Track(ShaderGeneratorContext context)
         {
-            Track(context, key);
+            Track(context, (TKey)context.GetParameterKey(staticKey));
         }
 
         public void Track(ShaderGeneratorContext context, TKey key)

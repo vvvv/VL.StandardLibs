@@ -60,7 +60,7 @@ namespace VL.Stride.Shaders.ShaderFX
             }
             else
             {
-                shaderClassSource = GetShaderSourceForType<T>("InputKey", Key);
+                shaderClassSource = GetShaderSourceForType<T>("InputKey", context.GetParameterKey(Key));
             }
 
 

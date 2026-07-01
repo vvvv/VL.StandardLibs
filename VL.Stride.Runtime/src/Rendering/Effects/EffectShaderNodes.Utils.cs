@@ -166,7 +166,7 @@ namespace VL.Stride.Rendering
                 for (int i = 0; i < compositionPins.Count; i++)
                 {
                     var cp = compositionPins[i];
-                    cp.GenerateAndSetShaderSource(context, baseKeys, updatedMixin);
+                    cp.GenerateAndSetShaderSource(context, baseKeys, cp.Key.Name, updatedMixin);
                 }
                 parameters.Set(EffectNodeBaseKeys.EffectNodeBaseShader, updatedMixin);
 

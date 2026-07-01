@@ -106,6 +106,7 @@ namespace VL.Stride.Rendering
                 DefaultValueBoxed = compilationDefaultValue;
             }
             RuntimeDefaultValue = runtimeDefaultValue ?? DefaultValueBoxed;
+            ParameterKeys.Merge(Key, typeof(ParameterPinDescription), Key.Name);
         }
 
         public override string Name { get; }
@@ -348,21 +349,22 @@ namespace VL.Stride.Rendering
 
         public bool ShaderSourceChanged { get; set; } = true;
 
-        public void GenerateAndSetShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys, ShaderMixinSource mixin = null)
+        public void GenerateAndSetShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys, string compositionName, ShaderMixinSource mixin = null)
         {
-            var shaderSource = GetShaderSource(context, baseKeys);
+            var key = Key.ComposeWith(compositionName);
+            var shaderSource = GetShaderSource(context, baseKeys, key);
 
-            context.Parameters.Set(Key, shaderSource);
+            context.Parameters.Set(key, shaderSource);
 
             if (mixin != null)
             {
-                mixin.Compositions[Key.Name] = shaderSource;
+                mixin.Compositions[key.Name] = shaderSource;
             }
 
             ShaderSourceChanged = false; //change seen
         }
 
-        protected abstract ShaderSource GetShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys);
+        protected abstract ShaderSource GetShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys, PermutationParameterKey<ShaderSource> key);
 
         public abstract IComputeNode GetValueOrDefault();
 
@@ -409,11 +411,11 @@ namespace VL.Stride.Rendering
             set => Value = (TShaderClass)value;
         }
 
-        protected override sealed ShaderSource GetShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys)
+        protected override sealed ShaderSource GetShaderSource(ShaderGeneratorContext context, MaterialComputeColorKeys baseKeys, PermutationParameterKey<ShaderSource> key)
         {
             var shaderSource = GetShaderSourceCore(context, baseKeys);
 
-            context.Parameters.Set(Key, shaderSource);
+            context.Parameters.Set(key, shaderSource);
 
             return shaderSource;
         }
