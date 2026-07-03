@@ -102,15 +102,18 @@ namespace VL.Core.Reactive
             using var _ = BeginChange();
             var c = Channels.GetOrAdd(key, _ => 
             { 
-                var c = ChannelHelpers.CreateChannelOfType(typeOfValues); 
+                var c = ChannelHelpers.CreateChannelOfType(typeof(object));
                 ((IInternalChannel)c).SetPath(key);
                 if (!c.IsAnonymous()) revision++;
+                if (typeOfValues.IsValueType)
+                    ((IInternalChannel)c).SetObjectDirectly(Activator.CreateInstance(typeOfValues), "initial value of public channel");
 
                 //var typeInfo = AppHost.TypeRegistry.GetTypeInfo(typeOfValues);
                 //if (typeInfo != null && !typeInfo.IsPatched)
                 //    c.Value = AppHost.TypeRegistry.GetTypeInfo(typeOfValues).GetDefaultValue();
 
-                return c; 
+                var cv = ChannelHelpers.CreateChannelViewOfType(typeOfValues, c);
+                return cv;
             });
             if (c.ClrTypeOfValues != typeOfValues)
                 return default;
@@ -122,7 +125,7 @@ namespace VL.Core.Reactive
         public IChannel<object>? TryGetChannel(string key)
         {
             Channels.TryGetValue(key, out var c);
-            if (c is IInternalChannel ic)
+            if (c?.ChannelOfObject is IInternalChannel ic)
                 ic.Request(); // mark channel as asked for, so that it can be used in the UI
             return c;
         }
@@ -233,24 +236,38 @@ namespace VL.Core.Reactive
             bool changed = false;
             var keys = new List<string>(Channels.Keys);
             var channels = Channels;
-            foreach (string key in keys)
-            {
-                var channel = channels[key];
-                var value = channel.Value;
-                var newValue = entryPoint.Swap(value, typeof(object));
-                if (newValue != value)
+
+            //var push = new CompositeDisposable();
+
+            //foreach (string key in keys)
+            //{
+            //    var channel = channels[key];
+            //    push.Add(channel.BeginChange());
+            //}
+            //try
+            //{
+                foreach (string key in keys)
                 {
-                    var newElementType = entryPoint.SwapType(channel.ClrTypeOfValues);
-                    var newChannel = (IChannel)entryPoint.Swap(channel, typeof(Channel<>).MakeGenericType(newElementType));
-                    if (channel != newChannel)
+                    var channel = channels[key];
+                    //entryPoint.Swap(channel, typeof(object));
+                    var value = channel.Value;
+                    var newValue = entryPoint.Swap(value, typeof(object));
+                    if (newValue != value)
                     {
-                        channels[key] = (IChannel<object>)newChannel;
-                        changed = true;
+                        var newElementType = entryPoint.SwapType(channel.ClrTypeOfValues);
+                        var newChannel = (IChannel)entryPoint.Swap(channel, typeof(IChannel<>).MakeGenericType(newElementType));
+                        if (channel != newChannel)
+                        {
+                            channels[key] = (IChannel<object>)newChannel;
+                            changed = true;
+                        }
                     }
-                    
-                    newChannel.SetObjectAndAuthor(newValue, "hotswap");
                 }
-            }
+            //}
+            //finally
+            //{
+            //    push.Dispose();
+            //}
             if (changed)
             {
                 OnChannelsChanged.Value = this;

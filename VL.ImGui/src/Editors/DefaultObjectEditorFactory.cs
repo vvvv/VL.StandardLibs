@@ -62,24 +62,9 @@ namespace VL.ImGui.Editors
             }
 
             // Can we use type conversion to create an editor?
-            if (IsNumericType(staticType))
+            if (IsNumericType(staticType) && staticType != typeof(int))
             {
-                var channelView = new ChannelView<int>(channel)
-                {
-                    AsT = v => (int)Convert.ChangeType(v, typeof(int))!,
-                    ToObject = v =>
-                    {
-                        try
-                        {
-                            return Convert.ChangeType(v, staticType);
-                        }
-                        catch
-                        {
-                            return default;
-                        }
-                    }
-                };
-                return context.Factory.CreateObjectEditor(channelView, context);
+                return new NumericObjectEditor(channel, this, context, staticType);
             }
 
             var typeInfo = context.AppHost.TypeRegistry.GetTypeInfo(staticType);
