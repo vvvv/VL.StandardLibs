@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Reactive.Linq;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 #nullable enable
 
@@ -21,6 +22,8 @@ namespace VL.Core.Reactive
         public IChannel<object> OnChannelsChanged { get; }
 
         readonly IDisposable? OnSwapSubscription;
+
+        public ILogger Logger => AppHost.DefaultLogger;
 
         public ChannelHub(AppHost appHost)
         {

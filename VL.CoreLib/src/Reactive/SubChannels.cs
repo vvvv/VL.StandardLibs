@@ -131,15 +131,15 @@ namespace VL.Lib.Reactive
         private static UpLink CreateUpLink<A, B>(IChannel<A> main, IChannel<B> sub, string relativePath, ChannelHub channelHub)
             where A : class
         {
-            static void takeFromMainAndEnsureOnSub(IChannel<A> main, IChannel<B> sub, string relativePath, string author)
+            void takeFromMainAndEnsureOnSub(IChannel<A> main, IChannel<B> sub, string relativePath, string author)
             {
                 if (main.Value.TryGetValueByPath(relativePath, default, out B value, out var pathExists))
                     sub.EnsureValue(value, author: author);
                 else
                     if (pathExists)
-                        AppHost.CurrentDefaultLogger.LogWarning($"SubChannel: Data is not of type {typeof(B).FullName}. Path {relativePath}.");
+                        channelHub.Logger.LogWarning($"SubChannel: Data is not of type {typeof(B).FullName}. Path {relativePath}.");
                     else
-                        AppHost.CurrentDefaultLogger.LogWarning($"SubChannel: Path not found {relativePath}.");
+                        channelHub.Logger.LogWarning($"SubChannel: Path not found {relativePath}.");
             }
 
 
@@ -178,7 +178,7 @@ namespace VL.Lib.Reactive
                         if (pathExists)
                             main.SetValueAndAuthor(newBig, author: "SubChannelSyncer.FromChild");
                         else
-                            AppHost.CurrentDefaultLogger.LogWarning($"SubChannel: Couldn't write to parent via {relativePath}.");
+                            channelHub.Logger.LogWarning($"SubChannel: Couldn't write to parent via {relativePath}.");
                     }
                     finally
                     {
