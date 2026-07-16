@@ -119,7 +119,8 @@ public static class FileSystemExtensions
         var options = new EnumerationOptions()
         {
             RecurseSubdirectories = recurseSubdirectories,
-            AttributesToSkip = includeHidden ? FileAttributes.System : FileAttributes.System | FileAttributes.Hidden
+            AttributesToSkip = includeHidden ? FileAttributes.System : FileAttributes.System | FileAttributes.Hidden,
+            MatchType = MatchType.Win32 // "" shall be interpreted as wildcard
         };
         return fileSystem.EnumerateFilesAsync(directoryPath, searchPattern, options).ToBlockingEnumerable();
     }
