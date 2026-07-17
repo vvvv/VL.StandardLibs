@@ -204,6 +204,12 @@ namespace VL.Lib.Reactive
             this.value = (T)@object;
         }
 
+        public void SetInitialValue(object? @object)
+        {
+            this.value = (T)@object;
+            revision++;
+        }
+
         public IChannel<object> ChannelOfObject => channelOfObject;
 
         public bool HasValue => true;
@@ -448,6 +454,7 @@ namespace VL.Lib.Reactive
         void SetPath(string path);
         void Request();
         void SetObjectDirectly(object? @object, string? author = null);
+        void SetInitialValue(object? @object);
     }
 
 
