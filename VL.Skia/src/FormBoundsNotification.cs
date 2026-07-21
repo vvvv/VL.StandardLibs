@@ -1,4 +1,5 @@
 ﻿#nullable enable
+#if WINDOWS
 extern alias sw;
 
 using Stride.Core.Mathematics;
@@ -61,3 +62,4 @@ public sealed class FormBoundsNotification
         return _form.DeviceToLogicalUnits(pixels);
     }
 }
+#endif

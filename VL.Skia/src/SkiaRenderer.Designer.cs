@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if WINDOWS
+using System;
 using VL.Core;
 
 namespace VL.Skia
@@ -30,3 +31,4 @@ namespace VL.Skia
         }
     }
 }
+#endif

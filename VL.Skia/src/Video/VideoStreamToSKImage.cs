@@ -3,6 +3,7 @@ using SkiaSharp;
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Runtime.Versioning;
 using System.Threading;
 using VL.Core;
 using VL.Lib.Animation;
@@ -27,6 +28,7 @@ namespace VL.Skia.Video
             renderContextProvider = AppHost.Current.GetRenderContextProvider();
         }
 
+        [SupportedOSPlatform("windows6.1")]
         public unsafe VideoStream? VideoStream 
         {
             get => videoStream;

@@ -20,13 +20,15 @@
   </PropertyGroup>
 
   <!-- Puts the compiler generated nuspec file into the package root folder. This file will be read by our package system. -->
-  <!-- We call GenerateNuspec in a nested MSBuild invocation with NoBuild=true to avoid circular dependencies during Pack
-       (Pack->GenerateNuspec->Build would cycle back if we added GenerateNuspec to BuildDependsOn). -->
   <Target Name="_EnsureNuspecIsPresent" Condition="$(IsPackable) == 'true'" AfterTargets="GenerateNuspec">
     <PropertyGroup>
       <_GeneratedNuspecFile>$(BaseIntermediateOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).nuspec</_GeneratedNuspecFile>
+      <_ProjectDirName>$([System.IO.Path]::GetFileName('$(MSBuildProjectDirectory)'))</_ProjectDirName>
+      <!-- If project dir name matches PackageId, put nuspec there. Otherwise (e.g., src/ subfolder), put it one level up -->
+      <_NuspecDestinationPath Condition="'$(_ProjectDirName)' == '$(PackageId)'">$(MSBuildProjectDirectory)\$(PackageId).gen.nuspec</_NuspecDestinationPath>
+      <_NuspecDestinationPath Condition="'$(_NuspecDestinationPath)' == ''">$(MSBuildProjectDirectory)\..\$(PackageId).gen.nuspec</_NuspecDestinationPath>
     </PropertyGroup>
-    <Copy Condition="Exists('$(_GeneratedNuspecFile)')" SourceFiles="$(_GeneratedNuspecFile)" DestinationFiles="$(OutputPath)..\..\$(PackageId).gen.nuspec" SkipUnchangedFiles="true" />
+    <Copy Condition="Exists('$(_GeneratedNuspecFile)')" SourceFiles="$(_GeneratedNuspecFile)" DestinationFiles="$(_NuspecDestinationPath)" SkipUnchangedFiles="true" />
   </Target>
 
   <ItemGroup Condition=" '$(IsPackable)' != 'false' ">

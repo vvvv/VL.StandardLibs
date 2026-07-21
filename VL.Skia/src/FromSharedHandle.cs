@@ -3,6 +3,7 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ public sealed class FromSharedHandle : IDisposable
         renderContextProvider = AppHost.Current.GetRenderContextProvider();
     }
 
+    [SupportedOSPlatform("windows6.1")]
     public SKImage? Update(nint textureHandle)
     {
         var renderContext = renderContextProvider.GetRenderContext();

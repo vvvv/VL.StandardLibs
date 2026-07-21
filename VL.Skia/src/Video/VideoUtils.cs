@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using SkiaSharp;
 using System;
+using System.Runtime.Versioning;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
 using VL.Skia.Egl;
@@ -9,11 +10,13 @@ namespace VL.Skia.Video
 {
     static class VideoUtils
     {
+        [SupportedOSPlatform("windows6.1")]
         public static IResourceProvider<SKImage?> ToSkImage(this IResourceProvider<VideoFrame> provider, RenderContextProvider renderContextProvider, bool mipmapped)
         {
             return provider.GetHandle().ToSkImage(renderContextProvider, mipmapped);
         }
 
+        [SupportedOSPlatform("windows6.1")]
         public static IResourceProvider<SKImage?> ToSkImage(this IResourceHandle<VideoFrame> handle, RenderContextProvider renderContextProvider, bool mipmapped)
         {
             var videoFrame = handle.Resource;
@@ -52,6 +55,7 @@ namespace VL.Skia.Video
             //return image.ToTextureImage(renderContext.SkiaContext, mipmapped);
         }
 
+        [SupportedOSPlatform("windows6.1")]
         private static SKImage FromTexture(VideoTexture texture, RenderContextProvider renderContextProvider)
         {
             var renderContext = renderContextProvider.GetRenderContext();

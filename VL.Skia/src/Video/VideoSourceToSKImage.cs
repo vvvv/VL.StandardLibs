@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Runtime.Versioning;
 using SkiaSharp;
 using VL.Core;
 using VL.Core.Utils;
@@ -39,6 +40,7 @@ namespace VL.Skia.Video
 
         protected override VideoPlaybackContext Context => ctx;
 
+        [SupportedOSPlatform("windows6.1")]
         protected override void OnPush(IResourceProvider<VideoFrame> videoFrameProvider, bool mipmapped)
         {
             var handle = videoFrameProvider?.GetHandle().ToSkImage(renderContextProvider, mipmapped).GetHandle();
@@ -46,6 +48,7 @@ namespace VL.Skia.Video
                 handle?.Dispose();
         }
 
+        [SupportedOSPlatform("windows6.1")]
         protected override void OnPull(IResourceProvider<VideoFrame>? videoFrameProvider, bool mipmapped)
         {
             var handle = videoFrameProvider?.GetHandle().ToSkImage(renderContextProvider, mipmapped).GetHandle();

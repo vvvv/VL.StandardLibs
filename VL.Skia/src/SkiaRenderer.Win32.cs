@@ -1,4 +1,5 @@
 ﻿#nullable enable
+#if WINDOWS
 
 extern alias sw;
 
@@ -93,3 +94,4 @@ namespace VL.Skia
         }
     }
 }
+#endif

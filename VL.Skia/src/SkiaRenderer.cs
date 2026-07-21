@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+#if WINDOWS
 extern alias sw;
 using Stride.Core.Mathematics;
 using sw::System.Windows.Forms;
@@ -319,3 +320,4 @@ namespace VL.Skia
         }
     }
 }
+#endif

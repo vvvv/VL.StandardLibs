@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFrameworks>net10.0;net10.0-windows</TargetFrameworks>
     <OutputPath>..\lib</OutputPath>
-    <UseWindowsForms>true</UseWindowsForms>
+    
     <!-- We pack native dll in our own NuGet package -->
     <ShouldIncludeNativeSkiaSharp>False</ShouldIncludeNativeSkiaSharp>
     
@@ -18,18 +18,24 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\VL.Core.Commands\src\VL.Core.Commands.csproj" />
-    <ProjectReference Include="..\..\VL.Core.Skia.Windows\VL.Core.Skia.Windows.csproj" Aliases="sw" />
+    <ProjectReference Include="..\..\VL.Core.Skia.Windows\VL.Core.Skia.Windows.csproj" Aliases="sw" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
     <ProjectReference Include="..\..\VL.Core.Skia\VL.Core.Skia.csproj" />
-    <ProjectReference Include="..\..\VL.CoreLib.Windows\src\VL.CoreLib.Windows.csproj" />
+    <ProjectReference Include="..\..\VL.CoreLib.Windows\src\VL.CoreLib.Windows.csproj" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
     <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
     <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
   </ItemGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- Suppress warning about conditional compilation in SkiaRenderer.cs - the entire file is Windows-specific -->
+    <NoWarn>$(NoWarn);MSB3042</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <Using Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
-  
-  <ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -43,7 +49,8 @@
       <SubType>UserControl</SubType>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -51,5 +58,11 @@
     <EmbeddedResource Update="SkiaRenderer.resx">
       <DependentUpon>SkiaRenderer.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- Exclude Windows-specific embedded resources from non-Windows builds -->
+  <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-windows' AND '$(TargetFramework)' != ''">
+    <EmbeddedResource Remove="Properties\Resources.resx" />
+    <EmbeddedResource Remove="SkiaRenderer.resx" />
   </ItemGroup>
 </Project>

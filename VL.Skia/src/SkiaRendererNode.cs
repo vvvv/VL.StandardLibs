@@ -1,4 +1,5 @@
 ﻿#nullable enable
+#if WINDOWS
 
 extern alias sw;
 
@@ -215,3 +216,4 @@ public sealed class SkiaRendererNode : IDisposable
         _renderer.Dispose();
     }
 }
+#endif
