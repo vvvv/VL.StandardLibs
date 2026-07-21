@@ -67,7 +67,7 @@ namespace VL.Core
     /// </summary>
     public interface IVLRuntime
     {
-        public static IVLRuntime? Current => AppHost.Current.Services.GetService<IVLRuntime>();
+        public static IVLRuntime? Current => AppHost.CurrentOrNull?.Services.GetService<IVLRuntime>();
 
         /// <summary>
         /// Whether or not VL is in a running state. If not calls into its object graph are not allowed.
