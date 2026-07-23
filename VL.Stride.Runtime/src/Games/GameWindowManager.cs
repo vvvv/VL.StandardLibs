@@ -7,6 +7,7 @@ using System.ComponentModel;
 using VL.Core;
 using VL.Lib.Reactive;
 using VL.Stride.Games;
+using VL.Stride.Rendering;
 
 [assembly: ImportType(typeof(GameWindowManager), Category = "Stride.Windowing.Internal")]
 
@@ -77,6 +78,9 @@ public sealed class GameWindowManager : IDisposable
 
     [Fragment]
     public IPresentCallIntercept PresentCallIntercept { set => gameWindowRenderer.PresentCallIntercept = value; }
+
+    [Fragment]
+    public ViewportSettings ViewportSettings { set => gameWindowRenderer.ViewportSettings = value; }
 
     [Fragment]
     public void SetOutputColorSpace(ColorSpaceType outputColorSpace, [DefaultValue(PixelFormat.B8G8R8A8_UNorm_SRgb)] PixelFormat backbufferFormat)

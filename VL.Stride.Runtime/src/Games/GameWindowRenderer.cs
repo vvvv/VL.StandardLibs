@@ -12,6 +12,7 @@ using System.Reactive.Disposables;
 using VL.Core.Utils;
 using VL.Stride.Graphics;
 using VL.Stride.Input;
+using VL.Stride.Rendering;
 
 namespace VL.Stride.Games
 {
@@ -77,6 +78,7 @@ namespace VL.Stride.Games
         /// </summary>
         public IPresentCallIntercept PresentCallIntercept { get; set; }
         public IInputSource InputSource { get; private set; }
+        public ViewportSettings ViewportSettings { get; internal set; }
 
         public override void Initialize()
         {
@@ -135,7 +137,10 @@ namespace VL.Stride.Games
 
         protected virtual void EnsurePresenter()
         {
-            if (Presenter == null)
+            var shouldUseStereoscopicSwapChain = ViewportSettings != null && ViewportSettings.ShouldUseStereoscopic;
+            var usesStereoscopicSwapChain = Presenter is StereoscopicSwapChainGraphicsPresenter;
+
+            if (Presenter == null || shouldUseStereoscopicSwapChain != usesStereoscopicSwapChain)
             {
                 var presentationParameters = new PresentationParameters(
                     WindowManager.PreferredBackBufferWidth,
@@ -149,15 +154,13 @@ namespace VL.Stride.Games
                     OutputColorSpace = WindowManager.PreferredOutputColorSpace,
                 };
 
-#if STRIDE_GRAPHICS_API_DIRECT3D11 && STRIDE_PLATFORM_UWP
-                if (Game.Context is GameContextUWPCoreWindow context && context.IsWindowsMixedReality)
-                {
-                    Presenter = new WindowsMixedRealityGraphicsPresenter(GraphicsDevice, presentationParameters);
-                }
-                else
-#endif
+                if (shouldUseStereoscopicSwapChain)
                 {
                     Presenter = new StereoscopicSwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
+                }
+                else
+                {
+                    Presenter = new SwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
                 }
 
                 WindowManager.Initialize(this, GraphicsDevice, Services.GetService<IGraphicsDeviceFactory>());

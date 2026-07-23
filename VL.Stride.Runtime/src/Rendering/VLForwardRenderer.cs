@@ -12,7 +12,6 @@ using Stride.Core.Collections;
 using Stride.Core.Diagnostics;
 using Stride.Core.Mathematics;
 using Stride.Core.Storage;
-using Stride.Engine;
 using Stride.Graphics;
 using Stride.Rendering;
 using Stride.Rendering.Compositing;
@@ -25,39 +24,6 @@ using VL.Lib.Mathematics;
 
 namespace VL.Stride.Rendering
 {
-    [DataContract]
-    public class ViewportView
-    {
-        [DataMember]
-        public RenderView View;
-
-        [DataMember]
-        public ViewportF Viewport;
-
-        [DataMemberIgnore]
-        public IGraphicsRendererBase Renderer { get; set; }
-    }
-
-    public class ViewportRenderInfo
-    {
-        public CameraComponent CameraComponent { get; set; } = new CameraComponent();
-
-        public Vector2 RenderTargetSize { get; set; }
-    }
-
-    [DataContract]
-    public class ViewportSettings
-    {
-        [DataMember]
-        public IReadOnlyList<ViewportView> Views { get; set; } = new List<ViewportView>();
-
-        [DataMember]
-        public bool Enabled { get; set; }
-
-        [DataMember]
-        public ViewportRenderInfo ViewportRenderInfo { get; set; }
-    }
-
     /// <summary>
     /// Same as the Stride ForwardRenderer class, but with additional ViewportSettings that work similar to the VRSettings.
     /// Renders your game. It should use current <see cref="RenderContext.RenderView"/> and <see cref="CameraComponentRendererExtensions.GetCurrentCamera"/>.
