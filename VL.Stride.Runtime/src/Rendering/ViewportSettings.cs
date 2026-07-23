@@ -14,9 +14,4 @@ public class ViewportSettings
 
     [DataMember]
     public ViewportRenderInfo ViewportRenderInfo { get; set; }
-
-    [DataMember]
-    public bool UseStereoscopic { get; set; }
-
-    internal bool ShouldUseStereoscopic => Enabled && UseStereoscopic;
 }

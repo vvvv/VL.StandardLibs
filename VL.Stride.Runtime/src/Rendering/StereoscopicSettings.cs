@@ -1,11 +1,18 @@
 ﻿#nullable enable
+using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Engine;
+using Stride.Games;
+using Stride.Graphics;
 using Stride.Rendering;
+using Stride.Rendering.Compositing;
+using Stride.VirtualReality;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using VL.Core;
 using VL.Lib.Mathematics;
+using VL.Stride.Graphics;
 using VL.Stride.Rendering;
 
 [assembly: ImportType(typeof(StereoscopicSettings))]
@@ -20,24 +27,15 @@ public sealed class StereoscopicSettings
 {
     private float eyeSeparation;
     private float viewerDistance;
-    private readonly ViewportSettings viewportSettings;
+    private readonly VRRendererSettings vrSettings;
+    private readonly StereoscopicVRDevice stereoscopicVRDevice;
 
-    public StereoscopicSettings()
+    public StereoscopicSettings(NodeContext nodeContext)
     {
-        viewportSettings = new ViewportSettings()
+        vrSettings = new VRRendererSettings()
         {
-            ViewportRenderInfo = new StereoscopicRenderInfo(this),
-            Views = new List<ViewportView>()
-            {
-                new ViewportView()
-                {
-                    View = new RenderView()
-                },
-                new ViewportView()
-                {
-                    View = new RenderView()
-                }
-            }
+            Enabled = true,
+            VRDevice = stereoscopicVRDevice = new StereoscopicVRDevice(this)
         };
     }
 
@@ -47,104 +45,112 @@ public sealed class StereoscopicSettings
     /// <param name="eyeSeparation">The distance between the eyes for stereoscopic rendering.</param>
     /// <param name="viewerDistance">The distance from the viewer to the screen for stereoscopic rendering.</param>
     /// <returns>The updated viewport settings.</returns>
-    public ViewportSettings Update(float eyeSeparation = 0.065f, float viewerDistance = 1.0f)
+    public VRRendererSettings Update(float eyeSeparation = 0.065f, float viewerDistance = 1.0f)
     {
         this.eyeSeparation = eyeSeparation;
         this.viewerDistance = viewerDistance;
-        UpdateViews(viewportSettings.ViewportRenderInfo?.CameraComponent);
-        return viewportSettings;
+        this.vrSettings.VRDevice = stereoscopicVRDevice;
+        return vrSettings;
     }
 
-    private void UpdateViews(CameraComponent cameraComponent)
-    {
-        if (cameraComponent is null)
-            return;
-
-        var leftViewport = viewportSettings.Views[0];
-        var rightViewport = viewportSettings.Views[1];
-
-        var renderTargetSize = viewportSettings.ViewportRenderInfo?.RenderTargetSize ?? default;
-        var fullWidth = renderTargetSize.X;
-        var fullHeight = renderTargetSize.Y;
-        var halfWidth = fullWidth * 0.5f;
-
-        if (halfWidth > 0f && fullHeight > 0f)
-        {
-            leftViewport.Viewport = new ViewportF(0f, 0f, halfWidth, fullHeight);
-            rightViewport.Viewport = new ViewportF(halfWidth, 0f, halfWidth, fullHeight);
-        }
-
-        var aspectRatio = cameraComponent.UseCustomAspectRatio
-            ? cameraComponent.AspectRatio
-            : (halfWidth > 0f && fullHeight > 0f ? halfWidth / fullHeight : cameraComponent.ActuallyUsedAspectRatio);
-
-        cameraComponent.Update(aspectRatio);
-
-        var baseView = cameraComponent.ViewMatrix;
-        var baseProjection = cameraComponent.ProjectionMatrix;
-        var nearClip = cameraComponent.NearClipPlane;
-        var farClip = cameraComponent.FarClipPlane;
-        var halfEyeSeparation = eyeSeparation * 0.5f;
-        var projectionShiftScale = Math.Abs(viewerDistance) > float.Epsilon ? nearClip / viewerDistance : 0f;
-
-        static void UpdateEyeView(ref RenderView renderView, in Matrix baseView, in Matrix baseProjection, float nearClip, float farClip, float eyeOffset, float projectionShiftScale)
-        {
-            var view = baseView;
-            // Move eye along local X in view-space (parallel-axis stereo).
-            view.M41 -= eyeOffset;
-
-            var projection = baseProjection;
-            if (projection.M11 != 0f && projection.M22 != 0f && nearClip > 0f)
-            {
-                var left = nearClip * (projection.M31 - 1.0f) / projection.M11;
-                var right = nearClip * (projection.M31 + 1.0f) / projection.M11;
-                var bottom = nearClip * (projection.M32 - 1.0f) / projection.M22;
-                var top = nearClip * (projection.M32 + 1.0f) / projection.M22;
-
-                var projectionShift = -eyeOffset * projectionShiftScale;
-                Matrix.PerspectiveOffCenterRH(left + projectionShift, right + projectionShift, bottom, top, nearClip, farClip, out projection);
-            }
-
-            renderView.View = view;
-            renderView.Projection = projection;
-            renderView.NearClipPlane = nearClip;
-            renderView.FarClipPlane = farClip;
-            Matrix.Multiply(ref renderView.View, ref renderView.Projection, out renderView.ViewProjection);
-            renderView.Frustum = new BoundingFrustum(ref renderView.ViewProjection);
-            renderView.CullingMode = CameraCullingMode.Frustum;
-        }
-
-        UpdateEyeView(ref leftViewport.View, baseView, baseProjection, nearClip, farClip, -halfEyeSeparation, projectionShiftScale);
-        UpdateEyeView(ref rightViewport.View, baseView, baseProjection, nearClip, farClip, halfEyeSeparation, projectionShiftScale);
-    }
-
-    private sealed class StereoscopicRenderInfo : ViewportRenderInfo
+    internal sealed class StereoscopicVRDevice : VRDevice
     {
         private readonly StereoscopicSettings parent;
 
-        public StereoscopicRenderInfo(StereoscopicSettings parent)
+        private float verticalFieldOfViewDegrees = CameraComponent.DefaultVerticalFieldOfView;
+        private float aspectRatio = CameraComponent.DefaultAspectRatio;
+        private float projectionYOffset;
+
+        public override Size2 OptimalRenderFrameSize => Presenter != null ? new Size2(Presenter.BackBuffer.Width, Presenter.BackBuffer.Height) : Size2.Zero;
+
+        public override Size2 ActualRenderFrameSize { get => OptimalRenderFrameSize; protected set => throw new NotImplementedException(); }
+        public override Texture? MirrorTexture { get; protected set; }
+        public override float RenderFrameScaling { get; set; }
+
+        public override DeviceState State => DeviceState.Valid;
+
+        public override Vector3 HeadPosition => default;
+
+        public override Quaternion HeadRotation => Quaternion.Identity;
+
+        public override Vector3 HeadLinearVelocity => default;
+
+        public override Vector3 HeadAngularVelocity => default;
+
+        public override TouchController? LeftHand => null;
+
+        public override TouchController? RightHand => null;
+
+        public override TrackedItem[] TrackedItems => Array.Empty<TrackedItem>();
+
+        public override bool CanInitialize => true;
+
+        public GraphicsPresenter? Presenter { get; internal set; }
+
+        public StereoscopicVRDevice(StereoscopicSettings parent)
         {
             this.parent = parent;
         }
 
-        public override CameraComponent CameraComponent 
-        { 
-            get => base.CameraComponent;
-            set
-            {
-                base.CameraComponent = value;
-                parent.UpdateViews(CameraComponent);
-            }
+        public void SetCameraProjectionParameters(float verticalFieldOfViewDegrees, float aspectRatio, float projectionYOffset)
+        {
+            if (verticalFieldOfViewDegrees <= 0.0f || verticalFieldOfViewDegrees >= 179.0f)
+                return;
+
+            if (aspectRatio <= MathUtil.ZeroTolerance)
+                return;
+
+            this.verticalFieldOfViewDegrees = verticalFieldOfViewDegrees;
+            this.aspectRatio = aspectRatio;
+            this.projectionYOffset = projectionYOffset;
         }
 
-        public override Vector2 RenderTargetSize 
-        { 
-            get => base.RenderTargetSize; 
-            set
-            {
-                base.RenderTargetSize = value;
-                parent.UpdateViews(CameraComponent);
-            }
+        public override void ReadEyeParameters(Eyes eye, float near, float far, ref Vector3 cameraPosition, ref Matrix cameraRotation, bool ignoreHeadRotation, bool ignoreHeadPosition, out Matrix view, out Matrix projection)
+        {
+            var halfEyeSeparation = parent.eyeSeparation * 0.5f;
+            var convergenceDistance = parent.viewerDistance > MathUtil.ZeroTolerance ? parent.viewerDistance : 1.0f;
+            var verticalFieldOfViewRadians = MathUtil.DegreesToRadians(verticalFieldOfViewDegrees);
+            var baseProjectionY = 1.0f / MathF.Tan(verticalFieldOfViewRadians * 0.5f);
+            var baseProjectionX = baseProjectionY / aspectRatio;
+
+            // Shift each eye's frustum in opposite directions so both eyes converge at viewerDistance.
+            var horizontalOffset = (eye == Eyes.Left ? -1.0f : 1.0f) * halfEyeSeparation * baseProjectionX / convergenceDistance;
+            var zScale = far / (near - far);
+            var zOffset = near * far / (near - far);
+
+            projection = new Matrix(baseProjectionX, 0, 0, 0,
+                                    0, baseProjectionY, 0, 0,
+                                    horizontalOffset, projectionYOffset, zScale, -1,
+                                    0, 0, zOffset, 0);
+
+            // Move the camera to the selected eye, then build the usual inverse camera transform.
+            var eyeLocal = new Vector3((eye == Eyes.Left ? -halfEyeSeparation : halfEyeSeparation) * ViewScaling, 0.0f, 0.0f);
+            Vector3 eyeWorld;
+            Matrix fullRotation;
+            var headRotationMatrix = ignoreHeadRotation ? Matrix.Identity : Matrix.RotationQuaternion(HeadRotation);
+            Matrix.Multiply(ref headRotationMatrix, ref cameraRotation, out fullRotation);
+            Vector3.TransformCoordinate(ref eyeLocal, ref fullRotation, out eyeWorld);
+            var pos = cameraPosition + eyeWorld;
+
+            Matrix.Transpose(ref fullRotation, out view);
+            Vector3.TransformCoordinate(ref pos, ref view, out pos);
+            view.TranslationVector = -pos;
+        }
+
+        public override void Enable(GraphicsDevice device, GraphicsDeviceManager graphicsDeviceManager, bool requireMirror, int mirrorWidth, int mirrorHeight)
+        {
+        }
+
+        public override void Commit(CommandList commandList, Texture renderFrame)
+        {
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
         }
     }
 }

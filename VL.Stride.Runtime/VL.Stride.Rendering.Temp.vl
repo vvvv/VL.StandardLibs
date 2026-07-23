@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="VCMcVJqu2AbNoidKDyIIxx" LanguageVersion="2023.5.3-0120-ge45273d3bb" Version="0.128">
-  <NugetDependency Id="IwFuWAsksSjNS3ODAW7nRf" Location="VL.CoreLib" Version="2021.4.0-0550-g8cff9643c5" />
+<Document xmlns:p="property" xmlns:r="reflection" Id="VCMcVJqu2AbNoidKDyIIxx" LanguageVersion="2026.8.0-0053-gb20a38e7ce" Version="0.128">
+  <NugetDependency Id="IwFuWAsksSjNS3ODAW7nRf" Location="VL.CoreLib" />
   <Patch Id="SlSTRgKk3RKLNO8cT8Z9b1">
     <Canvas Id="RIoKw4EfYXPN47D4Py79qi" DefaultCategory="Stride" CanvasType="FullCategory">
       <Canvas Id="GvaTKvoohafPTwURvDXRqk" Name="Textures" Position="290,261">
@@ -319,6 +319,7 @@
                           <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                           <Choice Kind="ProcessNode" Name="DirectDispatcher" />
                         </p:NodeReference>
+                        <Pin Id="DIGvOrobAQbPvyAyxHBJPR" Name="Node Context" Kind="InputPin" IsHidden="true" />
                         <Pin Id="U9NVOkefkWCL8amfpIMP8I" Name="Thread Group Count" Kind="InputPin" />
                         <Pin Id="U31ud4vvwcJOej6hs5P6vc" Name="Output" Kind="OutputPin" />
                       </Node>
@@ -415,7 +416,7 @@
               <Node Bounds="450,953,65,19" Id="Muc8ElSNNMVQB2ykcbFts8">
                 <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                  <Choice Kind="ProcessAppFlag" Name="MonoFlop (FrameBased)" />
+                  <Choice Kind="ProcessNode" Name="MonoFlop (FrameBased Version 1)" />
                 </p:NodeReference>
                 <Pin Id="RFXfxmqa9ShPhWByLj4bM2" Name="Node Context" Kind="InputPin" IsHidden="true" />
                 <Pin Id="PkbZQtkqZdGNLrVLiscPXV" Name="Set" Kind="InputPin" />
@@ -1430,7 +1431,6 @@
                   <Pin Id="Hak3kuYHY9WMrOqJVXhjCS" Name="Texture" Kind="InputPin" />
                   <Pin Id="Gh75l0GlB0yO8ijnxZQlQo" Name="Fallback Color" Kind="InputPin" />
                   <Pin Id="K301wDjeqFJPXOzuQOEaIt" Name="Fallback Color Premultiply Alpha" Kind="InputPin" DefaultValue="False" />
-                  <Pin Id="I1zOoA6Dj2ZQdIlDTnHlGI" Name="Is Normal" Kind="InputPin" IsHidden="true" />
                   <Pin Id="NbnrMr8sR3zPjlk4UMxeMN" Name="Texcoord Index" Kind="InputPin" />
                   <Pin Id="VdQY7ZmCAJoNYovGzqEmT3" Name="Filtering" Kind="InputPin" IsHidden="true" />
                   <Pin Id="O3ysSucSThOOs1vvKCK3Dp" Name="Address Mode U" Kind="InputPin" IsHidden="true" />
@@ -1599,9 +1599,17 @@
                               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                               <Choice Kind="ProcessAppFlag" Name="ComputeTexture2D" />
                             </p:NodeReference>
+                            <Pin Id="LLaGKJo06puPri8KLBFeGq" Name="Node Context" Kind="InputPin" IsHidden="true" />
                             <Pin Id="EruawNeSPaIOTDYBJmWDNX" Name="Size" Kind="InputPin" />
+                            <Pin Id="A5GMkV8kRxtMDT5qaf5xFP" Name="Initial Data" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="TNdbS8SnPK0PM2m1KB663d" Name="Array Size" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="EZ8xhJLiC5qPALE2UCblhI" Name="Mip Levels" Kind="InputPin" IsHidden="true" />
                             <Pin Id="IvarQ4tonKoOBKPiFE45wv" Name="Format" Kind="InputPin" />
+                            <Pin Id="VNg25YAsfQRMw7dwldnpFp" Name="View Format" Kind="InputPin" />
+                            <Pin Id="VZt8qEYwHdhNbwGX1KUR1Z" Name="Is Unordered Access" Kind="InputPin" IsHidden="true" />
                             <Pin Id="Ozx7vj0JKmWLgsN6pAEfNE" Name="Is Render Target" Kind="InputPin" />
+                            <Pin Id="SnLZ0MryyeVL8Vy6Fk8D02" Name="Is Depth Stencil" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="EV6OY02fDeINICy40BcwFx" Name="Is Shared" Kind="InputPin" IsHidden="true" />
                             <Pin Id="HQiNbWwOCyTN7TtZmFJcJk" Name="Recreate" Kind="InputPin" />
                             <Pin Id="U5o7Hb8i94xOHqHWAmJPJU" Name="Output" Kind="OutputPin" />
                             <Pin Id="VT3csitMGtTLNTknrtqH4b" Name="Has Changed" Kind="OutputPin" />
@@ -1620,9 +1628,17 @@
                               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                               <Choice Kind="ProcessAppFlag" Name="ComputeTexture2D" />
                             </p:NodeReference>
+                            <Pin Id="Mqqc5pH0T18LMLGZgMIdvw" Name="Node Context" Kind="InputPin" IsHidden="true" />
                             <Pin Id="TaG72Gec1VWL7OrTk16YXW" Name="Size" Kind="InputPin" />
+                            <Pin Id="C6ChxdFIp7wLeDvDsuMiEj" Name="Initial Data" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="M483gzW9zYMLc9KyJIX25Q" Name="Array Size" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="DclwOTTzy84MdtePZtADDY" Name="Mip Levels" Kind="InputPin" IsHidden="true" />
                             <Pin Id="Fz3L18lySUhP7FhVk0NMOw" Name="Format" Kind="InputPin" />
+                            <Pin Id="J2M0dXXVFUsOoWAPTu30CO" Name="View Format" Kind="InputPin" />
+                            <Pin Id="GIpQWpXK8DkNwIzJ1eZWU5" Name="Is Unordered Access" Kind="InputPin" IsHidden="true" />
                             <Pin Id="V0McT4HU0gpNHzTAUbFtQi" Name="Is Render Target" Kind="InputPin" />
+                            <Pin Id="Hi0yOXqDaXePKo3iDJPmwB" Name="Is Depth Stencil" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="BQvk2DRk2JrLI6UYb9M0lA" Name="Is Shared" Kind="InputPin" IsHidden="true" />
                             <Pin Id="FZhBGdwEdjaOohy1kwxT8a" Name="Recreate" Kind="InputPin" />
                             <Pin Id="CsslvU3w3XiMNCt8ryGe3B" Name="Output" Kind="OutputPin" />
                             <Pin Id="EiYHefhjXLwNWKpNZrRxx4" Name="Has Changed" Kind="OutputPin" />
@@ -1632,9 +1648,17 @@
                               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                               <Choice Kind="ProcessAppFlag" Name="ComputeTexture2D" />
                             </p:NodeReference>
+                            <Pin Id="QeAC7xDYA6sL5z0aRxlUzS" Name="Node Context" Kind="InputPin" IsHidden="true" />
                             <Pin Id="BADb5ekqqbmPPGRKoNDhnO" Name="Size" Kind="InputPin" />
+                            <Pin Id="QJEj2ymAW9HMMlYtca1i3g" Name="Initial Data" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="FZQtAzRYZ3bO7RY2qzoTvl" Name="Array Size" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="MwCXefsw6c1MuWdzNG7JWw" Name="Mip Levels" Kind="InputPin" IsHidden="true" />
                             <Pin Id="PHiF5o3DQ9rMmTD2uoznZ5" Name="Format" Kind="InputPin" />
+                            <Pin Id="ROyshxoPpKIOnVEV52M6Zb" Name="View Format" Kind="InputPin" />
+                            <Pin Id="FPBqnZ6iOgjNP5QmTRr84e" Name="Is Unordered Access" Kind="InputPin" IsHidden="true" />
                             <Pin Id="N1BUQEXENZuQdf1ARjEiWU" Name="Is Render Target" Kind="InputPin" />
+                            <Pin Id="Dl5j14IiyuoQXpISNe4OjE" Name="Is Depth Stencil" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="PrQVyWTwckoLUnzE4vytXY" Name="Is Shared" Kind="InputPin" IsHidden="true" />
                             <Pin Id="RrAOgOuVhRsMO4AquKrw5p" Name="Recreate" Kind="InputPin" />
                             <Pin Id="PCUQb3X7FsOQPthqd5Yzlt" Name="Output" Kind="OutputPin" />
                             <Pin Id="SejlnuFeqgDLYwThq9htll" Name="Has Changed" Kind="OutputPin" />
@@ -1644,9 +1668,17 @@
                               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                               <Choice Kind="ProcessAppFlag" Name="ComputeTexture2D" />
                             </p:NodeReference>
+                            <Pin Id="TvDbl43ANs4PO98W01uWsZ" Name="Node Context" Kind="InputPin" IsHidden="true" />
                             <Pin Id="PdxS4jv09BkM6WzLdQyIfY" Name="Size" Kind="InputPin" />
+                            <Pin Id="TtpI1q3ciJEP4ChYHTUKDZ" Name="Initial Data" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="J9InI1Mm45rLfxHbRUxwCh" Name="Array Size" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="CYPyhx3RecBOqlgboB4ImM" Name="Mip Levels" Kind="InputPin" IsHidden="true" />
                             <Pin Id="GN7ja26KlM9MNwEQhKHN2N" Name="Format" Kind="InputPin" />
+                            <Pin Id="FxEKULoGXcyP0fNujx6EZH" Name="View Format" Kind="InputPin" />
+                            <Pin Id="HDyD7ouKT2dLGo4B2GDHWQ" Name="Is Unordered Access" Kind="InputPin" IsHidden="true" />
                             <Pin Id="C36MC0YNVDgNJkPTcIuPsH" Name="Is Render Target" Kind="InputPin" />
+                            <Pin Id="NlnzGAu7zesNfJGTaIlYTC" Name="Is Depth Stencil" Kind="InputPin" IsHidden="true" />
+                            <Pin Id="EoJtP60Ns0qPSVt736U9kV" Name="Is Shared" Kind="InputPin" IsHidden="true" />
                             <Pin Id="GV5e2OnEBqGM7s6xsrBQAk" Name="Recreate" Kind="InputPin" />
                             <Pin Id="K6hwQlDUbQSQHh3PYcjF3s" Name="Output" Kind="OutputPin" />
                             <Pin Id="G3vFqlXGkMxLqEtlmXDdC2" Name="Has Changed" Kind="OutputPin" />
@@ -1750,6 +1782,7 @@
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                     <Choice Kind="ProcessNode" Name="DirectDispatcher" />
                   </p:NodeReference>
+                  <Pin Id="DsL6CSDUFOHQWOiYNXESIp" Name="Node Context" Kind="InputPin" IsHidden="true" />
                   <Pin Id="RCrqgUA9HrkMm636hFYajX" Name="Thread Group Count" Kind="InputPin" />
                   <Pin Id="JsXUTpEt2tOOg9aDK3xvXp" Name="Output" Kind="OutputPin" />
                 </Node>

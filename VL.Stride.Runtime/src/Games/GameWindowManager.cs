@@ -3,6 +3,7 @@ using Stride.Engine;
 using Stride.Games;
 using Stride.Graphics;
 using Stride.Input;
+using Stride.Rendering.Compositing;
 using System.ComponentModel;
 using VL.Core;
 using VL.Lib.Reactive;
@@ -79,8 +80,9 @@ public sealed class GameWindowManager : IDisposable
     [Fragment]
     public IPresentCallIntercept PresentCallIntercept { set => gameWindowRenderer.PresentCallIntercept = value; }
 
+    /// <inheritdoc cref="GameWindowRenderer.VRSettings"/>
     [Fragment]
-    public ViewportSettings ViewportSettings { set => gameWindowRenderer.ViewportSettings = value; }
+    public VRRendererSettings VRSettings { set => gameWindowRenderer.VRSettings = value; }
 
     [Fragment]
     public void SetOutputColorSpace(ColorSpaceType outputColorSpace, [DefaultValue(PixelFormat.B8G8R8A8_UNorm_SRgb)] PixelFormat backbufferFormat)

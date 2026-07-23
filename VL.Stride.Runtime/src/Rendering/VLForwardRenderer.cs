@@ -355,6 +355,12 @@ namespace VL.Stride.Rendering
                         cameraRot = Matrix.Identity;
                     }
 
+                    if (vrSettings.VRDevice is StereoscopicSettings.StereoscopicVRDevice stereoscopicDevice)
+                    {
+                        var cameraAspectRatio = camera.ActuallyUsedAspectRatio > MathUtil.ZeroTolerance ? camera.ActuallyUsedAspectRatio : camera.AspectRatio;
+                        stereoscopicDevice.SetCameraProjectionParameters(camera.VerticalFieldOfView, cameraAspectRatio, camera.ProjectionMatrix.M32);
+                    }
+
                     // Compute both view and projection matrices
                     Matrix* viewMatrices = stackalloc Matrix[2];
                     Matrix* projectionMatrices = stackalloc Matrix[2];
@@ -806,18 +812,15 @@ namespace VL.Stride.Rendering
                         using (drawContext.PushRenderTargetsAndRestore())
                         {
                             ViewCount = 2;
-                            bool isWindowsMixedReality = false;
+                            bool isStereoscopic = false;
 
                             for (var i = 0; i < 2; i++)
                             {
-                                // WindowsMixedRealityGraphicsPresenter is the only presenter making use of left/right eye buffer.
-                                // Since Windows Mixed Reality is deprecated anyways we can safely ignore these lines.
-                                /*
-                                // For VR GraphicsPresenter such as WindowsMixedRealityGraphicsPresenter
+                                // StereoscopicSwapChainGraphicsPresenter is the only presenter making use of left/right eye buffer.
                                 var graphicsPresenter = drawContext.GraphicsDevice.Presenter;
                                 if (graphicsPresenter.LeftEyeBuffer != null)
                                 {
-                                    isWindowsMixedReality = true;
+                                    isStereoscopic = true;
 
                                     MSAALevel = MultisampleCount.None;
                                     currentRenderTargets.Clear();
@@ -831,18 +834,17 @@ namespace VL.Stride.Rendering
                                         currentRenderTargets.Add(graphicsPresenter.RightEyeBuffer);
                                     }
                                 }
-                                */
 
                                 drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, currentRenderTargets.Items);
 
-                                if (!hasPostEffects && !isWindowsMixedReality) // need to change the viewport between each eye
+                                if (!hasPostEffects && !isStereoscopic) // need to change the viewport between each eye
                                 {
                                     var frameSize = vrSettings.VRDevice.ActualRenderFrameSize;
                                     drawContext.CommandList.SetViewport(new Viewport(i * frameSize.Width / 2, 0, frameSize.Width / 2, frameSize.Height));
                                 }
                                 else if (i == 0) // the viewport is the same for both eyes so we set it only once
                                 {
-                                    drawContext.CommandList.SetViewport(new Viewport(0.0f, 0.0f, vrSettings.VRDevice.ActualRenderFrameSize.Width / 2.0f, vrSettings.VRDevice.ActualRenderFrameSize.Height));
+                                    drawContext.CommandList.SetViewport(new Viewport(0.0f, 0.0f, vrSettings.VRDevice.ActualRenderFrameSize.Width, vrSettings.VRDevice.ActualRenderFrameSize.Height));
                                 }
 
                                 using (context.PushRenderViewAndRestore(vrSettings.RenderViews[i]))

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="Qi7h0S2HFoXQSgcrQLzJIk" LanguageVersion="2023.5.3-0180-g44528d1487" Version="0.128">
-  <NugetDependency Id="SJgSFgD1CesN5MC8rsaNSL" Location="VL.CoreLib" Version="2021.4.10-1021-g8bbd4c6f55" />
+<Document xmlns:p="property" xmlns:r="reflection" Id="Qi7h0S2HFoXQSgcrQLzJIk" LanguageVersion="2026.8.0-0053-gb20a38e7ce" Version="0.128">
+  <NugetDependency Id="SJgSFgD1CesN5MC8rsaNSL" Location="VL.CoreLib" />
   <Patch Id="M21FntPMZoCL02r89zSLlQ">
     <Canvas Id="D192YDr7hmaNzHwM0fWMJw" DefaultCategory="Stride" CanvasType="FullCategory">
       <Canvas Id="GVFuIRZeK4RPLiChBZp5z3" Name="Rendering" Position="502,257">
@@ -316,8 +316,9 @@
                       <Pin Id="P5WNHKmdUWwLkTDitRH8uP" Name="Space" Kind="InputPin" DefaultValue="Normalized" />
                       <Pin Id="B4530uKuENgNxqkkF05MwA" Name="Clear" Kind="InputPin" />
                       <Pin Id="B2pNgx1G5UMLUtnQZI6uKD" Name="Clear Color" Kind="InputPin" />
-                      <Pin Id="Oo3Q1CCXEskNTUhE0NUbaO" Name="Format" Kind="InputPin" />
+                      <Pin Id="Oo3Q1CCXEskNTUhE0NUbaO" Name="Format" Kind="InputPin" DefaultValue="R16G16B16A16_Float" />
                       <Pin Id="QYQNtzYFy03NAc61jOTm4U" Name="Output" Kind="OutputPin" />
+                      <Pin Id="Rk6zW92egMXL4RiR0c2ASZ" Name="Use Dedicated Device" Kind="InputPin" IsHidden="true" />
                     </Node>
                     <Node Bounds="511,709,25,19" Id="KybBwI0YKZNLtLJnP7Sd59">
                       <p:NodeReference LastCategoryFullName="Math" LastDependency="VL.CoreLib.vl">
@@ -369,12 +370,15 @@
                       <Pin Id="PfoYvuRTDcDMWxdwQ6a3iK" Name="Transformation" Kind="InputPin" />
                       <Pin Id="SsxDcOzhXMZQMq9yrhIK33" Name="Texture" Kind="InputPin" />
                       <Pin Id="Il0e6QJXJgPQFr2oKclnMc" Name="Color" Kind="InputPin" />
+                      <Pin Id="UJm7GBgGCGhOMULG1SEh4k" Name="Texture Transform" Kind="InputPin" />
+                      <Pin Id="N4eUPQC4uq8LKO0hMIVI15" Name="Sampler In" Kind="InputPin" />
                       <Pin Id="BzVFUIjLXnnPvNdxmXVgqE" Name="Blend State" Kind="InputPin" />
                       <Pin Id="SZHuN7sFqyINTlhhLie6Lh" Name="Rasterizer State" Kind="InputPin" />
                       <Pin Id="S1ZLUIm9Jl8POrJcCO41gh" Name="Depth Stencil State" Kind="InputPin" />
-                      <Pin Id="SjlH04zwIpRO84k9h3F8he" Name="Aspect Ratio Correction Mode" Kind="InputPin" DefaultValue="OriginalSize" />
+                      <Pin Id="SjlH04zwIpRO84k9h3F8he" Name="Size Mode" Kind="InputPin" DefaultValue="OriginalSize" />
                       <Pin Id="CDUPJe83RlJOY2oSyK07Cg" Name="Anchor" Kind="InputPin" />
                       <Pin Id="PiEiLG7AWZzMcPUt1LJfFF" Name="Output" Kind="OutputPin" />
+                      <Pin Id="Hhj8BNMQ28MPukEIrian3J" Name="Enabled" Kind="InputPin" />
                     </Node>
                     <Node Bounds="265,1056,67,19" Id="C7Tl3xLx6dUMIMxDEHPnOP">
                       <p:NodeReference LastCategoryFullName="Stride.API.Graphics.BlendStateDescription" LastDependency="VL.Stride.Runtime.TypeForwards.vl">
@@ -778,6 +782,7 @@
                       <Pin Id="VeA2FtYc9Q2PsQcvnfeDRS" Name="Width" Kind="InputPin" />
                       <Pin Id="FrN7nr0U9suLAUVUBrLFEe" Name="Height" Kind="InputPin" />
                       <Pin Id="Fyk5Aq80TK0LFVkulJmwcL" Name="Origin" Kind="InputPin" />
+                      <Pin Id="EN4BgqmFJoAOx0tuWTR6Bs" Name="State Output" Kind="OutputPin" IsHidden="true" />
                       <Pin Id="B2Fi96iqR2aPqHF323uOKO" Name="Output" Kind="OutputPin" />
                     </Node>
                   </Patch>
@@ -943,11 +948,11 @@
       </Patch>
     </Node>
   </Patch>
-  <NugetDependency Id="Atmu2olrIbgN6W8C10FCUv" Location="VL.Stride.Runtime" Version="2021.4.11-1048-g21dafe45d9" />
+  <NugetDependency Id="Atmu2olrIbgN6W8C10FCUv" Location="VL.Stride.Runtime" />
   <PlatformDependency Id="OYXKghOSTHeP6lP3xiPFHx" Location="SharpDX.Direct3D11.dll" />
   <PlatformDependency Id="MrEmya3NafTPYyBdNEw69S" Location="Stride.Graphics.dll" />
   <PlatformDependency Id="FsB8b3wL45VLEHptTDEWXQ" Location="./src/bin/Debug/net472/VL.Stride.Windows.dll" />
   <DocumentDependency Id="LhpQXXxgPVGN8EgidqtOBc" Location="./VL.Stride.Graphics.Windows.vl" IsForward="true" />
-  <NugetDependency Id="LzLfrrlVfFILmJVxcZlKfw" Location="VL.Skia" Version="2021.4.10-1021-g8bbd4c6f55" />
+  <NugetDependency Id="LzLfrrlVfFILmJVxcZlKfw" Location="VL.Skia" />
   <DocumentDependency Id="LY99E30Es9QNq0MMumSQMB" Location="./VL.Stride.Assets.Windows.vl" IsForward="true" />
 </Document>

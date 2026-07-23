@@ -7,6 +7,7 @@ using Stride.Games;
 using Stride.Graphics;
 using Stride.Input;
 using Stride.Rendering;
+using Stride.Rendering.Compositing;
 using System;
 using System.Reactive.Disposables;
 using VL.Core.Utils;
@@ -78,7 +79,11 @@ namespace VL.Stride.Games
         /// </summary>
         public IPresentCallIntercept PresentCallIntercept { get; set; }
         public IInputSource InputSource { get; private set; }
-        public ViewportSettings ViewportSettings { get; internal set; }
+
+        /// <summary>
+        /// Needed for stereoscopic rendering. If set, the swap chain will be created with stereoscopic support.
+        /// </summary>
+        public VRRendererSettings VRSettings { get; internal set; }
 
         public override void Initialize()
         {
@@ -137,11 +142,15 @@ namespace VL.Stride.Games
 
         protected virtual void EnsurePresenter()
         {
-            var shouldUseStereoscopicSwapChain = ViewportSettings != null && ViewportSettings.ShouldUseStereoscopic;
+            var stereographicVrDevice = VRSettings?.VRDevice as StereoscopicSettings.StereoscopicVRDevice;
+            var shouldUseStereoscopicSwapChain = stereographicVrDevice is not null;
             var usesStereoscopicSwapChain = Presenter is StereoscopicSwapChainGraphicsPresenter;
 
             if (Presenter == null || shouldUseStereoscopicSwapChain != usesStereoscopicSwapChain)
             {
+                Presenter?.Dispose(); 
+                Presenter = null;
+
                 var presentationParameters = new PresentationParameters(
                     WindowManager.PreferredBackBufferWidth,
                     WindowManager.PreferredBackBufferHeight,
@@ -157,6 +166,8 @@ namespace VL.Stride.Games
                 if (shouldUseStereoscopicSwapChain)
                 {
                     Presenter = new StereoscopicSwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
+                    // Make it aware of actual swap chain
+                    stereographicVrDevice.Presenter = Presenter;
                 }
                 else
                 {
