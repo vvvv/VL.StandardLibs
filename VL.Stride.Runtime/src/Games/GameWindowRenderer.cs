@@ -10,6 +10,7 @@ using Stride.Rendering;
 using System;
 using System.Reactive.Disposables;
 using VL.Core.Utils;
+using VL.Stride.Graphics;
 using VL.Stride.Input;
 
 namespace VL.Stride.Games
@@ -156,7 +157,7 @@ namespace VL.Stride.Games
                 else
 #endif
                 {
-                    Presenter = new SwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
+                    Presenter = new StereoscopicSwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
                 }
 
                 WindowManager.Initialize(this, GraphicsDevice, Services.GetService<IGraphicsDeviceFactory>());
