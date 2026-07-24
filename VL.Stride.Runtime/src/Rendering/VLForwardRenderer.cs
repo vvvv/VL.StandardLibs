@@ -12,7 +12,6 @@ using Stride.Core.Collections;
 using Stride.Core.Diagnostics;
 using Stride.Core.Mathematics;
 using Stride.Core.Storage;
-using Stride.Engine;
 using Stride.Graphics;
 using Stride.Rendering;
 using Stride.Rendering.Compositing;
@@ -25,39 +24,6 @@ using VL.Lib.Mathematics;
 
 namespace VL.Stride.Rendering
 {
-    [DataContract]
-    public class ViewportView
-    {
-        [DataMember]
-        public RenderView View;
-
-        [DataMember]
-        public ViewportF Viewport;
-
-        [DataMemberIgnore]
-        public IGraphicsRendererBase Renderer { get; set; }
-    }
-
-    public class ViewportRenderInfo
-    {
-        public CameraComponent CameraComponent { get; set; } = new CameraComponent();
-
-        public Vector2 RenderTargetSize { get; set; }
-    }
-
-    [DataContract]
-    public class ViewportSettings
-    {
-        [DataMember]
-        public IReadOnlyList<ViewportView> Views { get; set; } = new List<ViewportView>();
-
-        [DataMember]
-        public bool Enabled { get; set; }
-
-        [DataMember]
-        public ViewportRenderInfo ViewportRenderInfo { get; set; }
-    }
-
     /// <summary>
     /// Same as the Stride ForwardRenderer class, but with additional ViewportSettings that work similar to the VRSettings.
     /// Renders your game. It should use current <see cref="RenderContext.RenderView"/> and <see cref="CameraComponentRendererExtensions.GetCurrentCamera"/>.
@@ -389,6 +355,12 @@ namespace VL.Stride.Rendering
                         cameraRot = Matrix.Identity;
                     }
 
+                    if (vrSettings.VRDevice is StereoscopicSettings.StereoscopicVRDevice stereoscopicDevice)
+                    {
+                        var cameraAspectRatio = camera.ActuallyUsedAspectRatio > MathUtil.ZeroTolerance ? camera.ActuallyUsedAspectRatio : camera.AspectRatio;
+                        stereoscopicDevice.SetCameraProjectionParameters(camera.VerticalFieldOfView, cameraAspectRatio, camera.ProjectionMatrix.M32);
+                    }
+
                     // Compute both view and projection matrices
                     Matrix* viewMatrices = stackalloc Matrix[2];
                     Matrix* projectionMatrices = stackalloc Matrix[2];
@@ -414,6 +386,15 @@ namespace VL.Stride.Rendering
                     CollectView(context);
                     context.VisibilityGroup.TryCollect(commonView);
 
+                    // StereoscopicSwapChainGraphicsPresenter is the only presenter making use of left/right eye buffer.
+                    // In that case each eye renders to its own full-resolution target, so the viewport used for
+                    // screen-space/culling computations here must be the full eye size, not half of the merged
+                    // side-by-side frame (which only applies to the shared-target VR path).
+                    bool isStereoscopic = GraphicsDevice.Presenter.LeftEyeBuffer != null;
+                    var eyeViewportWidth = isStereoscopic
+                        ? vrSettings.VRDevice.ActualRenderFrameSize.Width
+                        : vrSettings.VRDevice.ActualRenderFrameSize.Width / 2.0f;
+
                     for (var i = 0; i < 2; i++)
                     {
                         using (context.PushRenderViewAndRestore(vrSettings.RenderViews[i]))
@@ -421,7 +402,7 @@ namespace VL.Stride.Rendering
                         {
                             context.RenderSystem.Views.Add(context.RenderView);
                             context.RenderView.LightingView = commonView;
-                            context.ViewportState.Viewport0 = new Viewport(0, 0, vrSettings.VRDevice.ActualRenderFrameSize.Width / 2.0f, vrSettings.VRDevice.ActualRenderFrameSize.Height);
+                            context.ViewportState.Viewport0 = new Viewport(0, 0, eyeViewportWidth, vrSettings.VRDevice.ActualRenderFrameSize.Height);
 
                             //change camera params for eye
                             camera.ViewMatrix = viewMatrices[i];
@@ -567,6 +548,26 @@ namespace VL.Stride.Rendering
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Copies <paramref name="input"/> into <paramref name="output"/>. When <paramref name="output"/> is a texture view onto
+        /// a specific array slice (e.g. the left/right eye buffer views of a stereoscopic swap chain, which are both views into the
+        /// same underlying backbuffer resource), <see cref="CommandList.Copy(GraphicsResource, GraphicsResource)"/> cannot be used
+        /// since it always operates on subresource 0 of the parent resource, ignoring the view's ArraySlice. In that case we use
+        /// <see cref="CommandList.CopyRegion"/> targeting the correct subresource instead.
+        /// </summary>
+        private static void CopyToViewOutputTarget(RenderDrawContext drawContext, Texture input, Texture output)
+        {
+            if (output.ArraySize > 1)
+            {
+                var subResourceIndex = output.GetSubResourceIndex(output.ArraySlice, output.MipLevel);
+                drawContext.CommandList.CopyRegion(input, 0, null, output, subResourceIndex);
+            }
+            else
+            {
+                drawContext.CommandList.Copy(input, output);
+            }
         }
 
         /// <summary>
@@ -716,7 +717,7 @@ namespace VL.Stride.Rendering
                         {
                             using (drawContext.QueryManager.BeginProfile(Color.Green, CompositingProfilingKeys.MsaaResolve))
                             {
-                                drawContext.CommandList.Copy(renderTargets[colorTargetIndex], viewOutputTarget);
+                                CopyToViewOutputTarget(drawContext, renderTargets[colorTargetIndex], viewOutputTarget);
                             }
                         }
                     } 
@@ -774,7 +775,7 @@ namespace VL.Stride.Rendering
                     {
                         using (drawContext.QueryManager.BeginProfile(Color.Green, CompositingProfilingKeys.MsaaResolve))
                         {
-                            drawContext.CommandList.Copy(renderTargets[colorTargetIndex], viewOutputTarget);
+                            CopyToViewOutputTarget(drawContext, renderTargets[colorTargetIndex], viewOutputTarget);
                         }
                     }
                 }
@@ -815,24 +816,35 @@ namespace VL.Stride.Rendering
 
                     var hasPostEffects = PostEffects != null; // When we have post effect we need to bind a different framebuffer for each view to be sure effects impinge on the other view.
 
-                    Texture vrFullSurface;
+                    // StereoscopicSwapChainGraphicsPresenter is the only presenter making use of left/right eye buffer.
+                    // LeftEyeBuffer/RightEyeBuffer are texture views into the very same physical swap chain resource
+                    // as the backbuffer (see StereoscopicSwapChainGraphicsPresenter.UpdateStereoEyeBuffers) - Present()
+                    // shows both slices natively in 3D. There is no separate merged/mirror surface in that case, so we
+                    // must not allocate or copy into one - each eye renders straight into its own final buffer.
+                    var graphicsPresenter = drawContext.GraphicsDevice.Presenter;
+                    bool isStereoscopic = graphicsPresenter.LeftEyeBuffer != null;
+
+                    Texture vrFullSurface = null;
                     using (drawContext.PushRenderTargetsAndRestore())
                     {
-                        var currentRenderTarget = drawContext.CommandList.RenderTarget;
-                        var vrFullFrameSize = vrSettings.VRDevice.ActualRenderFrameSize;
-                        var desiredRenderTargetSize = !hasPostEffects ? vrFullFrameSize : new Size2(vrFullFrameSize.Width / 2, vrFullFrameSize.Height);
-                        if (hasPostEffects || desiredRenderTargetSize.Width != currentRenderTarget.Width || desiredRenderTargetSize.Height != currentRenderTarget.Height)
-                            drawContext.CommandList.SetRenderTargets(null, null); // force to create and bind a new render target
-
-                        PrepareRenderTargets(drawContext, desiredRenderTargetSize);
-
-                        //prepare the final VR target
-                        vrFullSurface = viewOutputTarget;
-                        if (hasPostEffects)
+                        if (!isStereoscopic)
                         {
-                            var frameSize = vrSettings.VRDevice.ActualRenderFrameSize;
-                            var renderTargetDescription = TextureDescription.New2D(frameSize.Width, frameSize.Height, 1, PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlags.ShaderResource | TextureFlags.RenderTarget);
-                            vrFullSurface = PushScopedResource(drawContext.GraphicsContext.Allocator.GetTemporaryTexture2D(renderTargetDescription));
+                            var currentRenderTarget = drawContext.CommandList.RenderTarget;
+                            var vrFullFrameSize = vrSettings.VRDevice.ActualRenderFrameSize;
+                            var desiredRenderTargetSize = !hasPostEffects ? vrFullFrameSize : new Size2(vrFullFrameSize.Width / 2, vrFullFrameSize.Height);
+                            if (hasPostEffects || desiredRenderTargetSize.Width != currentRenderTarget.Width || desiredRenderTargetSize.Height != currentRenderTarget.Height)
+                                drawContext.CommandList.SetRenderTargets(null, null); // force to create and bind a new render target
+
+                            PrepareRenderTargets(drawContext, desiredRenderTargetSize);
+
+                            //prepare the final VR target
+                            vrFullSurface = viewOutputTarget;
+                            if (hasPostEffects)
+                            {
+                                var frameSize = vrSettings.VRDevice.ActualRenderFrameSize;
+                                var renderTargetDescription = TextureDescription.New2D(frameSize.Width, frameSize.Height, 1, PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlags.ShaderResource | TextureFlags.RenderTarget);
+                                vrFullSurface = PushScopedResource(drawContext.GraphicsContext.Allocator.GetTemporaryTexture2D(renderTargetDescription));
+                            }
                         }
 
                         //draw per eye
@@ -840,39 +852,34 @@ namespace VL.Stride.Rendering
                         using (drawContext.PushRenderTargetsAndRestore())
                         {
                             ViewCount = 2;
-                            bool isWindowsMixedReality = false;
 
                             for (var i = 0; i < 2; i++)
                             {
-                                // WindowsMixedRealityGraphicsPresenter is the only presenter making use of left/right eye buffer.
-                                // Since Windows Mixed Reality is deprecated anyways we can safely ignore these lines.
-                                /*
-                                // For VR GraphicsPresenter such as WindowsMixedRealityGraphicsPresenter
-                                var graphicsPresenter = drawContext.GraphicsDevice.Presenter;
-                                if (graphicsPresenter.LeftEyeBuffer != null)
+                                Texture stereoEyeBuffer = null;
+                                if (isStereoscopic)
                                 {
-                                    isWindowsMixedReality = true;
+                                    stereoEyeBuffer = i == 0 ? graphicsPresenter.LeftEyeBuffer : graphicsPresenter.RightEyeBuffer;
 
-                                    MSAALevel = MultisampleCount.None;
-                                    currentRenderTargets.Clear();
+                                    // Allocate (MSAA-aware) intermediate targets sized to this eye's buffer so the normal
+                                    // resolve pipeline in DrawView can run, then write/copy the final image straight into it.
+                                    var eyeDepthStencilDescription = TextureDescription.New2D(stereoEyeBuffer.Width, stereoEyeBuffer.Height, 1, DepthBufferFormat, TextureFlags.ShaderResource | TextureFlags.DepthStencil);
+                                    var eyeDepthStencil = PushScopedResource(drawContext.GraphicsContext.Allocator.GetTemporaryTexture2D(eyeDepthStencilDescription));
 
-                                    if (i == 0)
-                                    {
-                                        currentRenderTargets.Add(graphicsPresenter.LeftEyeBuffer);
-                                    }
-                                    else
-                                    {
-                                        currentRenderTargets.Add(graphicsPresenter.RightEyeBuffer);
-                                    }
+                                    PrepareRenderTargets(drawContext, stereoEyeBuffer, eyeDepthStencil);
+                                    viewOutputTarget = stereoEyeBuffer;
+                                    viewDepthStencil = eyeDepthStencil;
                                 }
-                                */
 
                                 drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, currentRenderTargets.Items);
 
-                                if (!hasPostEffects && !isWindowsMixedReality) // need to change the viewport between each eye
+                                if (!hasPostEffects && !isStereoscopic) // need to change the viewport between each eye
                                 {
                                     var frameSize = vrSettings.VRDevice.ActualRenderFrameSize;
                                     drawContext.CommandList.SetViewport(new Viewport(i * frameSize.Width / 2, 0, frameSize.Width / 2, frameSize.Height));
+                                }
+                                else if (isStereoscopic) // each eye has its own full-size target, so always use the full viewport
+                                {
+                                    drawContext.CommandList.SetViewport(new Viewport(0, 0, stereoEyeBuffer.Width, stereoEyeBuffer.Height));
                                 }
                                 else if (i == 0) // the viewport is the same for both eyes so we set it only once
                                 {
@@ -882,14 +889,14 @@ namespace VL.Stride.Rendering
                                 using (context.PushRenderViewAndRestore(vrSettings.RenderViews[i]))
                                 {
                                     // Clear render target and depth stencil
-                                    if (hasPostEffects || i == 0) // need to clear for each eye in the case we have two different render targets
+                                    if (hasPostEffects || isStereoscopic || i == 0) // need to clear for each eye in the case we have two different render targets
                                         Clear?.Draw(drawContext);
 
                                     ViewIndex = i;
 
                                     DrawView(context, drawContext, i, 2);
 
-                                    if (hasPostEffects) // copy the rendered view into the vr full view framebuffer
+                                    if (hasPostEffects && !isStereoscopic) // copy the rendered view into the vr full view framebuffer (used for mirroring/overlays)
                                         drawContext.CommandList.CopyRegion(viewOutputTarget, 0, null, vrFullSurface, 0, vrSettings.VRDevice.ActualRenderFrameSize.Width / 2 * i);
                                 }
                             }
@@ -905,12 +912,13 @@ namespace VL.Stride.Rendering
                                 }
                             }
 
-                            vrSettings.VRDevice.Commit(drawContext.CommandList, vrFullSurface);
+                            if (vrFullSurface != null)
+                                vrSettings.VRDevice.Commit(drawContext.CommandList, vrFullSurface);
                         }
                     }
 
                     //draw mirror to backbuffer (if size is matching and full viewport)
-                    if (vrSettings.CopyMirror)
+                    if (vrSettings.CopyMirror && !isStereoscopic)
                     {
                         CopyOrScaleTexture(drawContext, vrFullSurface, drawContext.CommandList.RenderTarget, vrSettings.MirrorScaler);
                     }

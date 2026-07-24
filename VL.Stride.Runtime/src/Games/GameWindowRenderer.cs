@@ -7,11 +7,13 @@ using Stride.Games;
 using Stride.Graphics;
 using Stride.Input;
 using Stride.Rendering;
+using Stride.Rendering.Compositing;
 using System;
 using System.Reactive.Disposables;
 using VL.Core.Utils;
 using VL.Stride.Graphics;
 using VL.Stride.Input;
+using VL.Stride.Rendering;
 
 namespace VL.Stride.Games
 {
@@ -78,6 +80,11 @@ namespace VL.Stride.Games
         public IPresentCallIntercept PresentCallIntercept { get; set; }
         public IInputSource InputSource { get; private set; }
 
+        /// <summary>
+        /// Needed for stereoscopic rendering. If set, the swap chain will be created with stereoscopic support.
+        /// </summary>
+        public VRRendererSettings VRSettings { get; internal set; }
+
         public override void Initialize()
         {
             var gamePlatform = Services.GetService<IGamePlatform>();
@@ -135,8 +142,15 @@ namespace VL.Stride.Games
 
         protected virtual void EnsurePresenter()
         {
-            if (Presenter == null)
+            var stereographicVrDevice = VRSettings?.VRDevice as StereoscopicSettings.StereoscopicVRDevice;
+            var shouldUseStereoscopicSwapChain = stereographicVrDevice is not null;
+            var usesStereoscopicSwapChain = Presenter is StereoscopicSwapChainGraphicsPresenter;
+
+            if (Presenter == null || shouldUseStereoscopicSwapChain != usesStereoscopicSwapChain)
             {
+                Presenter?.Dispose(); 
+                Presenter = null;
+
                 var presentationParameters = new PresentationParameters(
                     WindowManager.PreferredBackBufferWidth,
                     WindowManager.PreferredBackBufferHeight,
@@ -149,15 +163,15 @@ namespace VL.Stride.Games
                     OutputColorSpace = WindowManager.PreferredOutputColorSpace,
                 };
 
-#if STRIDE_GRAPHICS_API_DIRECT3D11 && STRIDE_PLATFORM_UWP
-                if (Game.Context is GameContextUWPCoreWindow context && context.IsWindowsMixedReality)
-                {
-                    Presenter = new WindowsMixedRealityGraphicsPresenter(GraphicsDevice, presentationParameters);
-                }
-                else
-#endif
+                if (shouldUseStereoscopicSwapChain)
                 {
                     Presenter = new StereoscopicSwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
+                    // Make it aware of actual swap chain
+                    stereographicVrDevice.Presenter = Presenter;
+                }
+                else
+                {
+                    Presenter = new SwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
                 }
 
                 WindowManager.Initialize(this, GraphicsDevice, Services.GetService<IGraphicsDeviceFactory>());

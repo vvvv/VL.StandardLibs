@@ -4,6 +4,7 @@ using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 using Stride.Core;
 using Stride.Core.Collections;
+using Stride.Core.Yaml.Tokens;
 using Stride.Graphics;
 using System;
 using System.Collections.Generic;
@@ -47,6 +48,7 @@ internal class StereoscopicSwapChainGraphicsPresenter : GraphicsPresenter
         swapChain = CreateSwapChain();
 
         backBuffer = device.CreateTexture().InitializeFromImpl(swapChain.GetBackBuffer<BackBufferResourceType>(0), Description.BackBufferFormat.IsSRgb());
+        UpdateStereoEyeBuffers();
 
         // Reload should get backbuffer from swapchain as well
         //backBufferTexture.Reload = graphicsResource => ((Texture)graphicsResource).Recreate(swapChain.GetBackBuffer<SharpDX.Direct3D11.Texture>(0));
@@ -211,6 +213,11 @@ internal class StereoscopicSwapChainGraphicsPresenter : GraphicsPresenter
         backBuffer.OnDestroyed();
         backBuffer.LifetimeState = GraphicsResourceLifetimeState.Destroyed;
 
+        this.LeftEyeBuffer?.Dispose();
+        this.LeftEyeBuffer = null;
+        this.RightEyeBuffer?.Dispose();
+        this.RightEyeBuffer = null;
+
         swapChain.Dispose();
         swapChain = null;
 
@@ -230,6 +237,7 @@ internal class StereoscopicSwapChainGraphicsPresenter : GraphicsPresenter
         // Put it in our back buffer texture
         // TODO: Update new size
         backBuffer.InitializeFromImpl(backBufferTexture, Description.BackBufferFormat.IsSRgb());
+        UpdateStereoEyeBuffers();
         backBuffer.LifetimeState = GraphicsResourceLifetimeState.Active;
     }
 
@@ -264,6 +272,8 @@ internal class StereoscopicSwapChainGraphicsPresenter : GraphicsPresenter
         {
             texture.InitializeFrom(backBuffer, texture.ViewDescription);
         }
+
+        UpdateStereoEyeBuffers();
     }
 
     protected override void ResizeDepthStencilBuffer(int width, int height, PixelFormat format)
@@ -403,35 +413,40 @@ internal class StereoscopicSwapChainGraphicsPresenter : GraphicsPresenter
 
     private SwapChain CreateSwapChainForDesktop(IntPtr handle)
     {
-        // https://devblogs.microsoft.com/directx/dxgi-flip-model/#what-do-i-have-to-do-to-use-flip-model
-        useFlipModel = Description.MultisampleCount == MultisampleCount.None && flipModelSupport;
+        if (!flipModelSupport)
+            throw new GraphicsException("Stereoscopic swap chain requires DXGI flip model support.");
 
-        var swapchainFormat = Description.BackBufferFormat;
-        bufferCount = 1;
+        if (Description.MultisampleCount != MultisampleCount.None)
+            throw new GraphicsException("Stereoscopic swap chain does not support multisampling.");
 
-        if (useFlipModel)
+        useFlipModel = true;
+
+        var swapchainFormat = ToSupportedFlipModelFormat(Description.BackBufferFormat);
+        bufferCount = 2;
+
+        var description = new SwapChainDescription1
         {
-            swapchainFormat = ToSupportedFlipModelFormat(swapchainFormat);
-            bufferCount = 2;
-        }
-
-        var description = new SwapChainDescription
-        {
-            ModeDescription = new ModeDescription(Description.BackBufferWidth, Description.BackBufferHeight, Description.RefreshRate.ToSharpDX(), (DXGI_Format)swapchainFormat),
-            BufferCount = bufferCount, // TODO: Do we really need this to be configurable by the user?
-            OutputHandle = handle,
-            SampleDescription = new SampleDescription((int)Description.MultisampleCount, 0),
-            SwapEffect = useFlipModel ? SwapEffect.FlipDiscard : SwapEffect.Discard,
+            Width = Description.BackBufferWidth,
+            Height = Description.BackBufferHeight,
+            Format = (DXGI_Format)swapchainFormat,
+            Stereo = true,
+            BufferCount = bufferCount,
+            SampleDescription = new SampleDescription(1, 0),
+            SwapEffect = SwapEffect.FlipSequential,
+            Scaling = Scaling.None,
             Usage = Usage.BackBuffer | Usage.RenderTargetOutput,
-            IsWindowed = true,
             Flags = GetSwapChainFlags(),
         };
 
-        using var dxgiDevice = GraphicsDevice.NativeDevice.QueryInterface<SharpDX.DXGI.Device>();
-        using var dxgiAdapter = dxgiDevice.Adapter;
-        using var dxgiFactory = dxgiAdapter.GetParent<SharpDX.DXGI.Factory>();
+        var modeDescription = new ModeDescription(Description.BackBufferWidth, Description.BackBufferHeight, Description.RefreshRate.ToSharpDX(), (DXGI_Format)swapchainFormat);
 
-        var newSwapChain = new SwapChain(dxgiFactory, GraphicsDevice.NativeDevice, description);
+        using var dxgiDevice = GraphicsDevice.NativeDevice.QueryInterface<SharpDX.DXGI.Device2>();
+        using var dxgiAdapter = dxgiDevice.Adapter;
+        using var dxgiFactory = dxgiAdapter.GetParent<SharpDX.DXGI.Factory2>();
+
+        dxgiDevice.MaximumFrameLatency = 1;
+
+        var newSwapChain = new SwapChain1(dxgiFactory, GraphicsDevice.NativeDevice, handle, ref description);
         var swapChain3 = newSwapChain.QueryInterface<SwapChain3>();
         if (swapChain3 != null)
         {
@@ -445,7 +460,7 @@ internal class StereoscopicSwapChainGraphicsPresenter : GraphicsPresenter
         if (Description.IsFullScreen)
         {
             // Before fullscreen switch
-            newSwapChain.ResizeTarget(ref description.ModeDescription);
+            newSwapChain.ResizeTarget(ref modeDescription);
 
             // Switch to full screen
             newSwapChain.IsFullScreen = true;
@@ -455,6 +470,15 @@ internal class StereoscopicSwapChainGraphicsPresenter : GraphicsPresenter
         }
 
         return newSwapChain;
+    }
+
+    private void UpdateStereoEyeBuffers()
+    {
+        this.LeftEyeBuffer?.Dispose();
+        this.RightEyeBuffer?.Dispose();
+
+        this.LeftEyeBuffer = backBuffer.ToTextureView(new TextureViewDescription { ArraySlice = 0, Type = ViewType.Single });
+        this.RightEyeBuffer = backBuffer.ToTextureView(new TextureViewDescription { ArraySlice = 1, Type = ViewType.Single });
     }
 
     private SwapChainFlags GetSwapChainFlags()
@@ -491,148 +515,5 @@ internal class StereoscopicSwapChainGraphicsPresenter : GraphicsPresenter
                 return nonSRgb;
             default: throw new ArgumentException($"Format '{pixelFormat}' is not supported when using flip swap", nameof(pixelFormat));
         }
-    }
-}
-
-static class StrideInternalHelpers
-{
-    /// <summary>
-    /// Converts to SharpDX representation.
-    /// </summary>
-    /// <returns>SharpDX.DXGI.Rational.</returns>
-    internal static SharpDX.DXGI.Rational ToSharpDX(this Rational rational)
-    {
-        return new SharpDX.DXGI.Rational(rational.Numerator, rational.Denominator);
-    }
-
-    extension(GraphicsDevice @this)
-    {
-        internal Texture CreateTexture()
-        {
-            return CreateTexture(@this);
-
-            [UnsafeAccessor(UnsafeAccessorKind.Constructor)]
-            extern static Texture CreateTexture(GraphicsDevice i);
-        }
-
-        internal Device NativeDevice
-        {
-            get
-            {
-                return GetNativeDevice(@this);
-
-                [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "get_NativeDevice")]
-                extern static Device GetNativeDevice(GraphicsDevice device);
-            }
-        }
-
-        internal HashSet<GraphicsResourceBase> Resources
-        {
-            get
-            {
-                return GetResources(@this);
-                [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "Resources")]
-                extern static ref HashSet<GraphicsResourceBase> GetResources(GraphicsDevice device);
-            }
-        }
-    }
-
-    extension (GraphicsOutput @this)
-    {
-        internal Output NativeOutput
-        {
-            get
-            {
-                return GetNativeOutput(@this);
-
-                [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "get_NativeOutput")]
-                extern static Output GetNativeOutput(GraphicsOutput output);
-            }
-        }
-    }
-
-    extension (GraphicsPresenter @this)
-    {
-        internal static PropertyKey<PresentInterval?> ForcedPresentInterval
-        {
-            get
-            {
-                return GetForcedPresentInterval(null);
-
-                [UnsafeAccessor(UnsafeAccessorKind.StaticField, Name = "ForcedPresentInterval")]
-                extern static ref PropertyKey<PresentInterval?> GetForcedPresentInterval(GraphicsPresenter presenter);
-            }
-        }
-    }
-
-    extension (Texture @this)
-    {
-        internal Texture ParentTexture
-        {
-            get
-            {
-                return GetParentTexture(@this);
-
-                [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "get_ParentTexture")]
-                extern static Texture GetParentTexture(Texture texture);
-            }
-            set
-            {
-                SetParentTexture(@this, value);
-
-                [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "set_ParentTexture")]
-                extern static void SetParentTexture(Texture texture, Texture parentTexture);
-            }
-        }
-
-        internal Texture InitializeFromImpl(Texture2D texture, bool isSrgb)
-        {
-            return InitializeFromImpl(@this, texture, isSrgb);
-
-            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(InitializeFromImpl))]
-            extern static Texture InitializeFromImpl(Texture texture, Texture2D nativeTexture, bool isSrgb);
-        }
-
-        internal Texture InitializeFrom(Texture parentTexture, TextureViewDescription viewDescription, DataBox[] textureDatas = null)
-        {
-            return InitializeFrom(@this, parentTexture, viewDescription, textureDatas);
-
-            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(InitializeFrom))]
-            extern static Texture InitializeFrom(Texture texture, Texture parentTexture, TextureViewDescription viewDescription, DataBox[] textureDatas);
-        }
-
-        internal Texture InitializeFrom(TextureDescription description, DataBox[] textureDatas = null)
-        {
-            return InitializeFrom(@this, description, textureDatas);
-
-            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(InitializeFrom))]
-            extern static Texture InitializeFrom(Texture texture, TextureDescription description, DataBox[] textureDatas);
-        }
-
-        internal void OnDestroyed()
-        {
-            OnDestroyed(@this);
-
-            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(OnDestroyed))]
-            extern static void OnDestroyed(Texture texture);
-        }
-    }
-
-    extension (GraphicsResourceBase @this)
-    {
-        internal GraphicsResourceLifetimeState LifetimeState
-        {
-            get
-            {
-                return GetLifetimeState(@this);
-            }
-            set
-            {
-                GetLifetimeState(@this) = value;
-            }
-        }
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "LifetimeState")]
-        extern static ref GraphicsResourceLifetimeState GetLifetimeState(GraphicsResourceBase resource);
     }
 }
