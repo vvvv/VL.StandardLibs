@@ -34,7 +34,8 @@
     <!-- A pure package dependency so on install all VL packages come in -->
     <PackageReference Include="Stride.Assets.Models" />
     <PackageReference Include="Stride.Core" />
-    <PackageReference Include="Stride.Core.Assets.CompilerApp" />
+    <!-- We only want the compile time build targets, otherwise we'll get an app crash when having a reference on the asset compiler-->
+    <PackageReference Include="Stride.Core.Assets.CompilerApp" IncludeAssets="build;buildTransitive" />
     <PackageReference Include="Stride.Core.Yaml" />
     <PackageReference Include="Stride.Engine" />
     <PackageReference Include="Stride.Navigation" />
