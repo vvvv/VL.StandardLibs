@@ -37,7 +37,7 @@ public sealed class GameWindowManager : IDisposable
         logger = nodeContext.GetLogger();
         var game = nodeContext.AppHost.Services.GetRequiredService<Game>();
         var gameContext = VLGame.CreateGameContext(nodeContext, alwaysOnTop, extendIntoTitleBar, game.Context.ContextType, (int)boundsInPixels.Width, (int)boundsInPixels.Height, isUserManagingRun: true);
-        gameWindowRenderer = new GameWindowRenderer(game.Services, gameContext, inputPriority);
+        gameWindowRenderer = new GameWindowRenderer(game.Services, gameContext, inputPriority, logger);
         var windowManager = gameWindowRenderer.WindowManager;
         windowManager.PreferredBackBufferWidth = (int)boundsInPixels.Width;
         windowManager.PreferredBackBufferHeight = (int)boundsInPixels.Height;

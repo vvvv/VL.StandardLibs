@@ -29,6 +29,7 @@ namespace VL.Stride.Games
     {
         private readonly SerialDisposable FDarkModeSubscription = new();
         private readonly int inputPriority;
+        private readonly ILogger logger;
         private GraphicsPresenter savedPresenter;
         private bool beginDrawOk;
         private bool firstFramePresented;
@@ -39,10 +40,12 @@ namespace VL.Stride.Games
         /// <param name="registry">The registry.</param>
         /// <param name="gameContext">The window context.</param>
         /// <param name="inputPriority">The priority of the input devices. Larger means higher priority when selecting the first device of some type.</param>
-        public GameWindowRenderer(IServiceRegistry registry, GameContext gameContext, int inputPriority)
+        /// <param name="logger">The logger.</param>
+        public GameWindowRenderer(IServiceRegistry registry, GameContext gameContext, int inputPriority, ILogger logger)
             : base(registry)
         {
             GameContext = gameContext;
+            this.logger = logger;
             WindowManager = new GameWindowRendererManager();
             FDarkModeSubscription.DisposeBy(this);
             this.inputPriority = inputPriority;
@@ -165,11 +168,19 @@ namespace VL.Stride.Games
 
                 if (shouldUseStereoscopicSwapChain)
                 {
-                    Presenter = new StereoscopicSwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
-                    // Make it aware of actual swap chain
-                    stereographicVrDevice.Presenter = Presenter;
+                    if (stereographicVrDevice.StereoAvailable)
+                    {
+                        Presenter = new StereoscopicSwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
+                        // Make it aware of actual swap chain
+                        stereographicVrDevice.Presenter = Presenter;
+                    }
+                    else
+                    {
+                        logger.LogWarning("Stereoscopic rendering is not enabled on this system.");
+                    }
                 }
-                else
+                
+                if (Presenter is null)
                 {
                     Presenter = new SwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
                 }

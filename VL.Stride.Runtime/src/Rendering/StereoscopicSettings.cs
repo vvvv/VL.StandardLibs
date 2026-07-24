@@ -1,18 +1,11 @@
 ﻿#nullable enable
-using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Games;
 using Stride.Graphics;
-using Stride.Rendering;
 using Stride.Rendering.Compositing;
 using Stride.VirtualReality;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using VL.Core;
-using VL.Lib.Mathematics;
-using VL.Stride.Graphics;
 using VL.Stride.Rendering;
 
 [assembly: ImportType(typeof(StereoscopicSettings), Category = "Stride.VirtualReality")]
@@ -29,6 +22,7 @@ public sealed class StereoscopicSettings
     private float viewerDistance;
     private readonly VRRendererSettings vrSettings;
     private readonly StereoscopicVRDevice stereoscopicVRDevice;
+    private readonly bool stereoAvailable;
 
     public StereoscopicSettings(NodeContext nodeContext)
     {
@@ -38,6 +32,11 @@ public sealed class StereoscopicSettings
             IgnoreCameraRotation = false,
             VRDevice = stereoscopicVRDevice = new StereoscopicVRDevice(this)
         };
+        var graphicsDevice = nodeContext.AppHost.Services.GetRequiredService<Game>().GraphicsDevice;
+        using var dxgiDevice = graphicsDevice.NativeDevice.QueryInterface<SharpDX.DXGI.Device>();
+        using var dxgiAdapter = dxgiDevice.Adapter;
+        using var dxgiFactory = dxgiAdapter.GetParent<SharpDX.DXGI.Factory4>();
+        stereoAvailable = dxgiFactory.IsWindowedStereoEnabled;
     }
 
     /// <summary>
@@ -46,6 +45,7 @@ public sealed class StereoscopicSettings
     /// <param name="eyeSeparation">The distance between the eyes for stereoscopic rendering.</param>
     /// <param name="viewerDistance">The distance from the viewer to the screen for stereoscopic rendering.</param>
     /// <returns>The updated viewport settings.</returns>
+    [return: Pin(Name = "Output")]
     public VRRendererSettings Update(float eyeSeparation = 0.065f, float viewerDistance = 1.0f)
     {
         this.eyeSeparation = eyeSeparation;
@@ -53,6 +53,12 @@ public sealed class StereoscopicSettings
         this.vrSettings.VRDevice = stereoscopicVRDevice;
         return vrSettings;
     }
+
+    /// <summary>
+    /// Indicates whether stereoscopic rendering is available on the current system.
+    /// </summary>
+    [Fragment(IsDefault = true)]
+    public bool StereoAvailable => stereoAvailable;
 
     internal sealed class StereoscopicVRDevice : VRDevice
     {
@@ -87,6 +93,8 @@ public sealed class StereoscopicSettings
         public override bool CanInitialize => true;
 
         public GraphicsPresenter? Presenter { get; internal set; }
+
+        public bool StereoAvailable => parent.StereoAvailable;
 
         public StereoscopicVRDevice(StereoscopicSettings parent)
         {
