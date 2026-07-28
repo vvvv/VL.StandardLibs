@@ -396,8 +396,10 @@ namespace VL.Stride.Rendering.Compositing
                             s.Enabled = v.Enabled;
                             s.MaxBokehSize = v.MaxBokehSize;
                             s.DOFAreas = v.DOFAreas;
-                            s.QualityPreset = v.QualityPreset;
-                            s.Technique = v.Technique;
+                            if (v.QualityPreset != s.QualityPreset)
+                                s.QualityPreset = v.QualityPreset;
+                            if (v.Technique != s.Technique)
+                                s.Technique = v.Technique;
                             s.AutoFocus = v.AutoFocus;
                         }
                         else

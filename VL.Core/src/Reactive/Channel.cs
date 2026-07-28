@@ -268,7 +268,7 @@ namespace VL.Lib.Reactive
         public string? Path { get; protected set; }
 
         bool disposing = false;
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (disposing)
                 return;

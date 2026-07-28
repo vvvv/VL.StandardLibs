@@ -15,7 +15,12 @@ namespace VL.ImGui.Widgets
 
         internal override void UpdateCore(Context context)
         {
-            Value = ImGuiNET.ImGui.IsKeyReleased(Key.ToImGuiKey());
+            // Watch out for default, causes access violation in native code
+            var key = Key.ToImGuiKey();
+            if (key != default)
+                Value = ImGuiNET.ImGui.IsKeyReleased(key);
+            else
+                Value = false;
         }
     }
 }

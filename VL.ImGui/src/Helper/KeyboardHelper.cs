@@ -33,6 +33,11 @@ namespace VL.ImGui
         {
             switch (key)
             {
+                case Keys.LButton: return ImGuiKey.MouseLeft;
+                case Keys.RButton: return ImGuiKey.MouseRight;
+                case Keys.MButton: return ImGuiKey.MouseMiddle;
+                case Keys.XButton1: return ImGuiKey.MouseX1;
+                case Keys.XButton2: return ImGuiKey.MouseX2;
                 case Keys.Back: return ImGuiKey.Backspace;
                 case Keys.Tab: return ImGuiKey.Tab;
                 case Keys.Enter: return ImGuiKey.Enter;
