@@ -20,6 +20,8 @@ public sealed class StereoscopicSettings
 {
     private float eyeSeparation;
     private float viewerDistance;
+    private CameraComponent? leftEye;
+    private CameraComponent? rightEye;
     private readonly VRRendererSettings vrSettings;
     private readonly StereoscopicVRDevice stereoscopicVRDevice;
     private readonly bool stereoAvailable;
@@ -44,12 +46,16 @@ public sealed class StereoscopicSettings
     /// </summary>
     /// <param name="eyeSeparation">The distance between the eyes for stereoscopic rendering.</param>
     /// <param name="viewerDistance">The distance from the viewer to the screen for stereoscopic rendering.</param>
+    /// <param name="leftEye">The camera component for the left eye.</param>
+    /// <param name="rightEye">The camera component for the right eye.</param>
     /// <returns>The updated viewport settings.</returns>
     [return: Pin(Name = "Output")]
-    public VRRendererSettings Update(float eyeSeparation = 0.065f, float viewerDistance = 1.0f)
+    public VRRendererSettings Update(float eyeSeparation = 0.065f, float viewerDistance = 1.0f, CameraComponent? leftEye = null, CameraComponent? rightEye = null)
     {
         this.eyeSeparation = eyeSeparation;
         this.viewerDistance = viewerDistance;
+        this.leftEye = leftEye;
+        this.rightEye = rightEye;
         this.vrSettings.VRDevice = stereoscopicVRDevice;
         return vrSettings;
     }
@@ -116,6 +122,15 @@ public sealed class StereoscopicSettings
 
         public override void ReadEyeParameters(Eyes eye, float near, float far, ref Vector3 cameraPosition, ref Matrix cameraRotation, bool ignoreHeadRotation, bool ignoreHeadPosition, out Matrix view, out Matrix projection)
         {
+            var customCamera = (eye == Eyes.Left ? parent.leftEye : parent.rightEye);
+            if (customCamera != null)
+            {
+                view = customCamera.ViewMatrix; 
+                projection = customCamera.ProjectionMatrix;
+                return;
+            }
+            
+
             var halfEyeSeparation = parent.eyeSeparation * 0.5f;
             var convergenceDistance = parent.viewerDistance > MathUtil.ZeroTolerance ? parent.viewerDistance : 1.0f;
             var verticalFieldOfViewRadians = MathUtil.DegreesToRadians(verticalFieldOfViewDegrees);
