@@ -51,44 +51,13 @@ namespace VL.Stride.Core
 
     public sealed class Initialization : AssemblyInitializer<Initialization>
     {
-        public static string GetPathToAssetDatabase()
-        {
-            // Check if we have write access to the base directory of the app
-            // If yes, use it as it supports the portable case
-            // If no, setup a directory in the user profile
-            var appBasePath = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);
-            if (FileSystemUtils.HasWriteAccess(appBasePath))
-                return Path.Combine(appBasePath, "data");
-
-            var localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            if (localAppDataPath is null)
-                return null;
-
-            var entryAssembly = Assembly.GetEntryAssembly();
-            if (entryAssembly is null)
-                return null;
-
-            var appName = entryAssembly.GetName().Name;
-            if (appName == "vvvv" || appName == "vvvvc")
-#pragma warning disable CS0436 // Type conflicts with imported type
-                return Path.Combine(localAppDataPath, appName, ThisAssembly.NuGetPackageVersion, "data");
-#pragma warning restore CS0436 // Type conflicts with imported type
-
-            // User app
-            var appVersion = entryAssembly.GetName().Version?.ToString();
-            if (appName != null && appVersion != null)
-                return Path.Combine(localAppDataPath, appName, appVersion, "data");
-            if (appName != null)
-                return Path.Combine(localAppDataPath, appName, "data");
-
-            return null;
-        }
-
         public Initialization()
         {
-            var dataDir = GetPathToAssetDatabase();
-            if (dataDir != null)
-                ((FileSystemProvider)VirtualFileSystem.ApplicationData).ChangeBasePath(dataDir);
+#pragma warning disable CS0436 // Type conflicts with imported type
+            var workingDir = AppWorkingDirectory.GetWorkingDirectoryForVVVVOrApp(ThisAssembly.NuGetPackageVersion);
+#pragma warning restore CS0436 // Type conflicts with imported type
+            if (workingDir != null)
+                ((FileSystemProvider)VirtualFileSystem.ApplicationData).ChangeBasePath(Path.Combine(workingDir, "data"));
         }
 
         private void AppHost_PluginLoaded(object sender, PluginLoadedEventArgs args)
