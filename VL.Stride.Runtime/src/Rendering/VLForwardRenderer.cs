@@ -806,7 +806,7 @@ namespace VL.Stride.Rendering
                 if (vrSystem != null && vrSettings != null)
                     vrSystem.Visible = vrSettings.Enabled;
 
-                if (vrSettings != null && vrSettings.Enabled && vrSettings.VRDevice != null)
+                if (vrSettings != null && vrSettings.Enabled && vrSettings.VRDevice != null && vrSettings.VRDevice.CanInitialize)
                 {
                     var isFullViewport = (int)viewport.X == 0 && (int)viewport.Y == 0
                                          && (int)viewport.Width == drawContext.CommandList.RenderTarget.ViewWidth

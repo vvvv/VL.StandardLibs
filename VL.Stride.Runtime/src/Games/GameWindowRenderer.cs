@@ -146,7 +146,7 @@ namespace VL.Stride.Games
         protected virtual void EnsurePresenter()
         {
             var stereographicVrDevice = VRSettings?.VRDevice as StereoscopicSettings.StereoscopicVRDevice;
-            var shouldUseStereoscopicSwapChain = stereographicVrDevice is not null;
+            var shouldUseStereoscopicSwapChain = stereographicVrDevice is not null && stereographicVrDevice.StereoAvailable;
             var usesStereoscopicSwapChain = Presenter is StereoscopicSwapChainGraphicsPresenter;
 
             if (Presenter == null || shouldUseStereoscopicSwapChain != usesStereoscopicSwapChain)
@@ -168,16 +168,10 @@ namespace VL.Stride.Games
 
                 if (shouldUseStereoscopicSwapChain)
                 {
-                    if (stereographicVrDevice.StereoAvailable)
-                    {
-                        Presenter = new StereoscopicSwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
-                        // Make it aware of actual swap chain
-                        stereographicVrDevice.Presenter = Presenter;
-                    }
-                    else
-                    {
-                        logger.LogWarning("Stereoscopic rendering is not enabled on this system.");
-                    }
+                    logger.LogDebug("Setting up steroscopic swap chain.");
+                    Presenter = new StereoscopicSwapChainGraphicsPresenter(GraphicsDevice, presentationParameters);
+                    // Make it aware of actual swap chain
+                    stereographicVrDevice.Presenter = Presenter;
                 }
                 
                 if (Presenter is null)
