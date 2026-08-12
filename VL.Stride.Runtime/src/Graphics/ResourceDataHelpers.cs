@@ -26,7 +26,9 @@ namespace VL.Stride.Graphics
 
     public class DataPointerPinner : IMemoryPinner
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         public DataPointer DataPointer;
+#pragma warning restore CS0618 // Type or member is obsolete
 
         public unsafe IntPtr Pin()
         {
@@ -111,7 +113,9 @@ namespace VL.Stride.Graphics
     {
         public IMemoryPinner Pinner = new NonePinner();
 
+#pragma warning disable CS0618 // Type or member is obsolete
         public void SetDataPointer(DataPointer dataPointer, int offsetInBytes = 0, int sizeInBytes = 0, int elementSizeInBytes = 0, int rowSizeInBytes = 0, int sliceSizeInBytes = 0)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             var pnr = Pinner as DataPointerPinner;
             pnr ??= new DataPointerPinner();

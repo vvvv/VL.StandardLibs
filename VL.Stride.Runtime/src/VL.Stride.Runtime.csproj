@@ -16,6 +16,7 @@
     <RootNamespace>VL.Stride</RootNamespace>
     <Authors>vvvv and open-source contributors</Authors>
     <Company>vvvv</Company>
+    <NoWarn>$(NoWarn);STRDIAG010</NoWarn>
   </PropertyGroup>
 
   <Target Name="AdditionalThisAssemblyFields" BeforeTargets="GenerateAssemblyNBGVVersionInfo" DependsOnTargets="GetBuildVersion">
@@ -31,6 +32,13 @@
   </ItemGroup>
   
   <ItemGroup>
+    <!-- Direct reference of Stride internal dependencies to avoid vulnerability warnings -->
+    <PackageReference Include="Microsoft.Build.Tasks.Core" />
+    <PackageReference Include="NuGet.Commands" />
+    <PackageReference Include="NuGet.PackageManagement" />
+    <PackageReference Include="NuGet.Protocol" />
+    <PackageReference Include="NuGet.Resolver" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
     <!-- A pure package dependency so on install all VL packages come in -->
     <PackageReference Include="Stride.Assets.Models" />
     <PackageReference Include="Stride.Core" />

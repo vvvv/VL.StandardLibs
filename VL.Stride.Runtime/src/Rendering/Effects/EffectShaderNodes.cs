@@ -101,10 +101,10 @@ namespace VL.Stride.Rendering
 
         static IEnumerable<IVLNodeDescription> GetNodeDescriptions(ServiceRegistry serviceRegistry, IVLNodeDescriptionFactory factory, string? path = default, string? shadersPath = default)
         {
-            var graphicsDeviceService = serviceRegistry.GetService<IGraphicsDeviceService>();
+            var graphicsDeviceService = serviceRegistry.GetService<IGraphicsDeviceService>() ?? throw new InvalidOperationException("GraphicsDeviceService is not available.");
             var graphicsDevice = graphicsDeviceService.GraphicsDevice;
-            var contentManager = serviceRegistry.GetService<ContentManager>();
-            var effectSystem = serviceRegistry.GetService<EffectSystem>();
+            var contentManager = serviceRegistry.GetService<ContentManager>() ?? throw new InvalidOperationException("ContentManager is not available.");
+            var effectSystem = serviceRegistry.GetService<EffectSystem>() ?? throw new InvalidOperationException("EffectSystem is not available.");
 
             // Ensure path is visible to the effect system
             if (path != null)

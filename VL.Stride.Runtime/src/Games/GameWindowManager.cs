@@ -89,6 +89,9 @@ public sealed class GameWindowManager : IDisposable
     {
         if (outputColorSpace != this.outputColorSpace || backbufferFormat != this.backbufferFormat)
         {
+            this.outputColorSpace = outputColorSpace;
+            this.backbufferFormat = backbufferFormat;
+
             gameWindowRenderer.WindowManager.PreferredOutputColorSpace = outputColorSpace;
             gameWindowRenderer.WindowManager.PreferredBackBufferFormat = backbufferFormat;
             try

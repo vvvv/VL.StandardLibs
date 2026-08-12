@@ -61,7 +61,7 @@ namespace VL.Stride.Rendering
         public static bool TryGetShaderFilePath(string shaderName, [NotNullWhen(true)] out string? filePath)
         {
             var strideServices = VL.Stride.Core.Initialization.GetGlobalStrideServices();
-            var effectSystem = strideServices.GetService<EffectSystem>();
+            var effectSystem = strideServices.GetService<EffectSystem>() ?? throw new InvalidOperationException("EffectSystem is not available.");
             filePath = GetPathOfSdslShader(shaderName, effectSystem.FileProvider);
             return filePath != null;
         }

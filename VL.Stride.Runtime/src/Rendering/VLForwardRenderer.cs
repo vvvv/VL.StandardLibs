@@ -49,8 +49,8 @@ namespace VL.Stride.Rendering
 
         private readonly Logger logger = GlobalLogger.GetLogger(nameof(ForwardRenderer));
 
-        private readonly FastList<Texture> currentRenderTargets = new FastList<Texture>();
-        private readonly FastList<Texture> currentRenderTargetsNonMSAA = new FastList<Texture>();
+        private readonly List<Texture> currentRenderTargets = new List<Texture>();
+        private readonly List<Texture> currentRenderTargetsNonMSAA = new List<Texture>();
         private Texture currentDepthStencil;
         private Texture currentDepthStencilNonMSAA;
 
@@ -577,7 +577,7 @@ namespace VL.Stride.Rendering
         private void ResolveMSAA(RenderDrawContext drawContext)
         {
             // Resolve render targets
-            currentRenderTargetsNonMSAA.Resize(currentRenderTargets.Count, false);
+            CollectionsMarshal.SetCount(currentRenderTargetsNonMSAA, currentRenderTargets.Count);
             for (int index = 0; index < currentRenderTargets.Count; index++)
             {
                 var input = currentRenderTargets[index];
@@ -709,7 +709,7 @@ namespace VL.Stride.Rendering
                     {
                         // Run post effects
                         // Note: OpaqueRenderStage can't be null otherwise colorTargetIndex would be -1
-                        PostEffects.Draw(drawContext, OpaqueRenderStage.OutputValidator, renderTargets.Items, depthStencil, viewOutputTarget);
+                        PostEffects.Draw(drawContext, OpaqueRenderStage.OutputValidator, CollectionsMarshal.AsSpan(renderTargets), depthStencil, viewOutputTarget);
                     }
                     else
                     {
@@ -767,7 +767,7 @@ namespace VL.Stride.Rendering
                 {
                     // Run post effects
                     // Note: OpaqueRenderStage can't be null otherwise colorTargetIndex would be -1
-                    PostEffects.Draw(drawContext, OpaqueRenderStage.OutputValidator, renderTargets.Items, depthStencil, viewOutputTarget);
+                    PostEffects.Draw(drawContext, OpaqueRenderStage.OutputValidator, CollectionsMarshal.AsSpan(renderTargets), depthStencil, viewOutputTarget);
                 }
                 else
                 {
@@ -870,7 +870,7 @@ namespace VL.Stride.Rendering
                                     viewDepthStencil = eyeDepthStencil;
                                 }
 
-                                drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, currentRenderTargets.Items);
+                                drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, CollectionsMarshal.AsSpan(currentRenderTargets));
 
                                 if (!hasPostEffects && !isStereoscopic) // need to change the viewport between each eye
                                 {
@@ -932,7 +932,7 @@ namespace VL.Stride.Rendering
                             PrepareRenderTargets(drawContext, new Size2((int)viewport.Width, (int)viewport.Height));
 
                             ViewCount = ViewportSettings.Views.Count;
-                            drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, currentRenderTargets.Items);
+                            drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, CollectionsMarshal.AsSpan(currentRenderTargets));
 
                             Clear?.Draw(drawContext);
 
@@ -970,7 +970,7 @@ namespace VL.Stride.Rendering
 
                     using (drawContext.PushRenderTargetsAndRestore())
                     {
-                        drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, currentRenderTargets.Items);
+                        drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, CollectionsMarshal.AsSpan(currentRenderTargets));
 
                         // Clear render target and depth stencil
                         Clear?.Draw(drawContext);
@@ -1089,7 +1089,7 @@ namespace VL.Stride.Rendering
 
             var renderTargets = OpaqueRenderStage.OutputValidator.RenderTargets;
 
-            currentRenderTargets.Resize(renderTargets.Count, false);
+            CollectionsMarshal.SetCount(currentRenderTargets, renderTargets.Count);
 
             for (int index = 0; index < renderTargets.Count; index++)
             {
