@@ -807,7 +807,7 @@ namespace VL.Stride.Games
         {
             var clientSize = window.ClientBounds.Size;
             var backBufferDescription = windowRenderer.Presenter.Description;
-            if (!isChangingDevice && !window.IsFullscreen && ((clientSize.Height != 0) || (clientSize.Width != 0)) && (clientSize.Width != backBufferDescription.BackBufferWidth || clientSize.Height != backBufferDescription.BackBufferHeight))
+            if (!isChangingDevice && ((clientSize.Height != 0) || (clientSize.Width != 0)) && (clientSize.Width != backBufferDescription.BackBufferWidth || clientSize.Height != backBufferDescription.BackBufferHeight))
             {
                 resizedBackBufferWidth = clientSize.Width;
                 resizedBackBufferHeight = clientSize.Height;
