@@ -96,7 +96,7 @@ public sealed class StereoscopicSettings
 
         public override TrackedItem[] TrackedItems => Array.Empty<TrackedItem>();
 
-        public override bool CanInitialize => true;
+        public override bool CanInitialize => StereoAvailable;
 
         public GraphicsPresenter? Presenter { get; internal set; }
 
