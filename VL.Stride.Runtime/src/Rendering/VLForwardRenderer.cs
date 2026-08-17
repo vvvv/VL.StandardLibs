@@ -333,7 +333,7 @@ namespace VL.Stride.Rendering
                 CollectStages(context);
 
                 var vrSettings = this.VRSettings;
-                if (vrSettings != null && vrSettings.Enabled && vrSettings.VRDevice != null)
+                if (vrSettings != null && vrSettings.Enabled && vrSettings.VRDevice != null && vrSettings.VRDevice.CanInitialize)
                 {
                     Vector3 cameraPos, cameraScale;
                     Matrix cameraRot;
