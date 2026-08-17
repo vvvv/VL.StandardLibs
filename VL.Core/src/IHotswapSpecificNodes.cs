@@ -18,11 +18,7 @@ namespace VL.Core
 
         ISingleInstanceHelper<T> CreateSingleInstanceHelper<T>() where T : class;
 
-        bool TryGetStateType(Type publicType, out Type stateType);
-
-        T FromStateObject<T, TState>(TState state) where T : new();
-
-        TState GetStateObject<T, TState>(T obj);
+        Type GetLatestTypeIncarnation(Type type);
 
         event EventHandler ProgramInstantiated;
     }
