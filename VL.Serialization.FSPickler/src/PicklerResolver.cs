@@ -30,7 +30,7 @@ namespace VL.Serialization.FSPickler
         public CustomPicklerRegistration GetRegistration(Type type)
         {
             var typeInfo = AppHost.CurrentOrGlobal.TypeRegistry.GetTypeInfo(type);
-            if (typeInfo.IsPatched)
+            if (typeInfo.IsPatched && !typeInfo.IsInterface)
             {
                 var method = typeof(PicklerResolver)
                     .GetMethod(nameof(PicklerResolver.CreateVLObjectPickler), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
