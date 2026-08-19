@@ -8,18 +8,16 @@ using Stride.VirtualReality;
 using VL.Core;
 using VL.Stride.Rendering;
 
-[assembly: ImportType(typeof(StereoSettings), Category = "Stride.VirtualReality")]
+[assembly: ImportType(typeof(StereoscopicSettings), Category = "Stride.VirtualReality.Internal")]
 
 namespace VL.Stride.Rendering;
 
 /// <summary>
-/// VR settings for stereoscopic rendering
+/// Settings for stereoscopic rendering
 /// </summary>
 [ProcessNode]
-public sealed class StereoSettings
+public sealed class StereoscopicSettings
 {
-    private float eyeSeparation;
-    private float viewerDistance;
     private CameraComponent? leftEye;
     private CameraComponent? rightEye;
     private bool swapEyes;
@@ -27,7 +25,7 @@ public sealed class StereoSettings
     private readonly StereoscopicVRDevice stereoscopicVRDevice;
     private readonly bool stereoAvailable;
 
-    public StereoSettings(NodeContext nodeContext)
+    public StereoscopicSettings(NodeContext nodeContext)
     {
         vrSettings = new VRRendererSettings()
         {
@@ -45,17 +43,13 @@ public sealed class StereoSettings
     /// <summary>
     /// Updates the stereoscopic settings with the given eye separation and viewer distance.
     /// </summary>
-    /// <param name="eyeSeparation">The distance between the eyes for stereoscopic rendering.</param>
-    /// <param name="viewerDistance">The distance from the viewer to the screen for stereoscopic rendering.</param>
     /// <param name="leftEye">The camera component for the left eye.</param>
     /// <param name="rightEye">The camera component for the right eye.</param>
     /// <param name="swapEyes">Whether to swap the left and right eye cameras.</param>
     /// <returns>The updated viewport settings.</returns>
     [return: Pin(Name = "Output")]
-    public VRRendererSettings Update(float eyeSeparation = 0.065f, float viewerDistance = 1.0f, CameraComponent? leftEye = null, CameraComponent? rightEye = null, bool swapEyes = false)
+    public VRRendererSettings Update(CameraComponent? leftEye = null, CameraComponent? rightEye = null, bool swapEyes = false)
     {
-        this.eyeSeparation = eyeSeparation;
-        this.viewerDistance = viewerDistance;
         this.leftEye = leftEye;
         this.rightEye = rightEye;
         this.swapEyes = swapEyes;
@@ -71,7 +65,7 @@ public sealed class StereoSettings
 
     internal sealed class StereoscopicVRDevice : VRDevice
     {
-        private readonly StereoSettings parent;
+        private readonly StereoscopicSettings parent;
 
         private float verticalFieldOfViewDegrees = CameraComponent.DefaultVerticalFieldOfView;
         private float aspectRatio = CameraComponent.DefaultAspectRatio;
@@ -105,7 +99,7 @@ public sealed class StereoSettings
 
         public bool StereoAvailable => parent.StereoAvailable;
 
-        public StereoscopicVRDevice(StereoSettings parent)
+        public StereoscopicVRDevice(StereoscopicSettings parent)
         {
             this.parent = parent;
         }
@@ -137,36 +131,8 @@ public sealed class StereoSettings
                 projection = customCamera.ProjectionMatrix;
                 return;
             }
-            
 
-            var halfEyeSeparation = parent.eyeSeparation * 0.5f;
-            var convergenceDistance = parent.viewerDistance > MathUtil.ZeroTolerance ? parent.viewerDistance : 1.0f;
-            var verticalFieldOfViewRadians = MathUtil.DegreesToRadians(verticalFieldOfViewDegrees);
-            var baseProjectionY = 1.0f / MathF.Tan(verticalFieldOfViewRadians * 0.5f);
-            var baseProjectionX = baseProjectionY / aspectRatio;
-
-            // Shift each eye's frustum in opposite directions so both eyes converge at viewerDistance.
-            var horizontalOffset = (eye == Eyes.Left ? -1.0f : 1.0f) * halfEyeSeparation * baseProjectionX / convergenceDistance;
-            var zScale = far / (near - far);
-            var zOffset = near * far / (near - far);
-
-            projection = new Matrix(baseProjectionX, 0, 0, 0,
-                                    0, baseProjectionY, 0, 0,
-                                    horizontalOffset, projectionYOffset, zScale, -1,
-                                    0, 0, zOffset, 0);
-
-            // Move the camera to the selected eye, then build the usual inverse camera transform.
-            var eyeLocal = new Vector3((eye == Eyes.Left ? -halfEyeSeparation : halfEyeSeparation) * ViewScaling, 0.0f, 0.0f);
-            Vector3 eyeWorld;
-            Matrix fullRotation;
-            var headRotationMatrix = ignoreHeadRotation ? Matrix.Identity : Matrix.RotationQuaternion(HeadRotation);
-            Matrix.Multiply(ref headRotationMatrix, ref cameraRotation, out fullRotation);
-            Vector3.TransformCoordinate(ref eyeLocal, ref fullRotation, out eyeWorld);
-            var pos = cameraPosition + eyeWorld;
-
-            Matrix.Transpose(ref fullRotation, out view);
-            Vector3.TransformCoordinate(ref pos, ref view, out pos);
-            view.TranslationVector = -pos;
+            throw new NotSupportedException("Left and right eye cameras must be passed from outside.");
         }
 
         public override void Enable(GraphicsDevice device, GraphicsDeviceManager graphicsDeviceManager, bool requireMirror, int mirrorWidth, int mirrorHeight)
