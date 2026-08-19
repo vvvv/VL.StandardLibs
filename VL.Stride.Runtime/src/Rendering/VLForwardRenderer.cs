@@ -355,7 +355,7 @@ namespace VL.Stride.Rendering
                         cameraRot = Matrix.Identity;
                     }
 
-                    if (vrSettings.VRDevice is StereoscopicSettings.StereoscopicVRDevice stereoscopicDevice)
+                    if (vrSettings.VRDevice is StereoSettings.StereoscopicVRDevice stereoscopicDevice)
                     {
                         var cameraAspectRatio = camera.ActuallyUsedAspectRatio > MathUtil.ZeroTolerance ? camera.ActuallyUsedAspectRatio : camera.AspectRatio;
                         stereoscopicDevice.SetCameraProjectionParameters(camera.VerticalFieldOfView, cameraAspectRatio, camera.ProjectionMatrix.M32);

@@ -8,7 +8,7 @@ using Stride.VirtualReality;
 using VL.Core;
 using VL.Stride.Rendering;
 
-[assembly: ImportType(typeof(StereoscopicSettings), Category = "Stride.VirtualReality")]
+[assembly: ImportType(typeof(StereoSettings), Category = "Stride.VirtualReality")]
 
 namespace VL.Stride.Rendering;
 
@@ -16,17 +16,18 @@ namespace VL.Stride.Rendering;
 /// VR settings for stereoscopic rendering
 /// </summary>
 [ProcessNode]
-public sealed class StereoscopicSettings
+public sealed class StereoSettings
 {
     private float eyeSeparation;
     private float viewerDistance;
     private CameraComponent? leftEye;
     private CameraComponent? rightEye;
+    private bool swapEyes;
     private readonly VRRendererSettings vrSettings;
     private readonly StereoscopicVRDevice stereoscopicVRDevice;
     private readonly bool stereoAvailable;
 
-    public StereoscopicSettings(NodeContext nodeContext)
+    public StereoSettings(NodeContext nodeContext)
     {
         vrSettings = new VRRendererSettings()
         {
@@ -48,14 +49,16 @@ public sealed class StereoscopicSettings
     /// <param name="viewerDistance">The distance from the viewer to the screen for stereoscopic rendering.</param>
     /// <param name="leftEye">The camera component for the left eye.</param>
     /// <param name="rightEye">The camera component for the right eye.</param>
+    /// <param name="swapEyes">Whether to swap the left and right eye cameras.</param>
     /// <returns>The updated viewport settings.</returns>
     [return: Pin(Name = "Output")]
-    public VRRendererSettings Update(float eyeSeparation = 0.065f, float viewerDistance = 1.0f, CameraComponent? leftEye = null, CameraComponent? rightEye = null)
+    public VRRendererSettings Update(float eyeSeparation = 0.065f, float viewerDistance = 1.0f, CameraComponent? leftEye = null, CameraComponent? rightEye = null, bool swapEyes = false)
     {
         this.eyeSeparation = eyeSeparation;
         this.viewerDistance = viewerDistance;
         this.leftEye = leftEye;
         this.rightEye = rightEye;
+        this.swapEyes = swapEyes;
         this.vrSettings.VRDevice = stereoscopicVRDevice;
         return vrSettings;
     }
@@ -68,7 +71,7 @@ public sealed class StereoscopicSettings
 
     internal sealed class StereoscopicVRDevice : VRDevice
     {
-        private readonly StereoscopicSettings parent;
+        private readonly StereoSettings parent;
 
         private float verticalFieldOfViewDegrees = CameraComponent.DefaultVerticalFieldOfView;
         private float aspectRatio = CameraComponent.DefaultAspectRatio;
@@ -102,7 +105,7 @@ public sealed class StereoscopicSettings
 
         public bool StereoAvailable => parent.StereoAvailable;
 
-        public StereoscopicVRDevice(StereoscopicSettings parent)
+        public StereoscopicVRDevice(StereoSettings parent)
         {
             this.parent = parent;
         }
@@ -122,6 +125,11 @@ public sealed class StereoscopicSettings
 
         public override void ReadEyeParameters(Eyes eye, float near, float far, ref Vector3 cameraPosition, ref Matrix cameraRotation, bool ignoreHeadRotation, bool ignoreHeadPosition, out Matrix view, out Matrix projection)
         {
+            if (parent.swapEyes)
+            {
+                eye = (eye == Eyes.Left ? Eyes.Right : Eyes.Left);
+            }
+
             var customCamera = (eye == Eyes.Left ? parent.leftEye : parent.rightEye);
             if (customCamera != null)
             {

@@ -145,7 +145,7 @@ namespace VL.Stride.Games
 
         protected virtual void EnsurePresenter()
         {
-            var stereographicVrDevice = VRSettings?.VRDevice as StereoscopicSettings.StereoscopicVRDevice;
+            var stereographicVrDevice = VRSettings?.VRDevice as StereoSettings.StereoscopicVRDevice;
             var shouldUseStereoscopicSwapChain = stereographicVrDevice is not null && stereographicVrDevice.StereoAvailable;
             var usesStereoscopicSwapChain = Presenter is StereoscopicSwapChainGraphicsPresenter;
 
