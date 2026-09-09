@@ -278,6 +278,8 @@ namespace VL.Core
 
         internal abstract NodeContext RootContext { get; }
 
+        internal virtual AppHost GetLatest() => this;
+
         /// <summary>
         /// Loads a plugin from the specified directory. The specified directory should contain the plugin dll of the same name. For example myPlugin/myPlugin.dll
         /// </summary>
