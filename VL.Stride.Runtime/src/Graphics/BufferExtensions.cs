@@ -79,63 +79,63 @@ namespace VL.Stride.Graphics
 
         public static Buffer ToBufferView(this Buffer parentBuffer, Buffer bufferView, BufferViewDescription viewDescription, GraphicsDevice graphicsDevice)
         {
-            SetGraphicsDevice(bufferView, graphicsDevice);
+            //SetGraphicsDevice(bufferView, graphicsDevice);
 
-            //bufferDescription = description;
-            SetField(bufferView, "bufferDescription", parentBuffer.Description);
+            ////bufferDescription = description;
+            //SetField(bufferView, "bufferDescription", parentBuffer.Description);
 
-            //nativeDescription = ConvertToNativeDescription(Description);
-            SetField(bufferView, "nativeDescription", ConvertToNativeDescription(parentBuffer.Description));
+            ////nativeDescription = ConvertToNativeDescription(Description);
+            //SetField(bufferView, "nativeDescription", ConvertToNativeDescription(parentBuffer.Description));
 
-            //ViewFlags = viewFlags;
-            SetProp(bufferView, "ViewFlags", viewDescription.Flags);
+            ////ViewFlags = viewFlags;
+            //SetProp(bufferView, "ViewFlags", viewDescription.Flags);
 
-            //InitCountAndViewFormat(out this.elementCount, ref viewFormat);
-            InitCountAndViewFormat(bufferView, out var count, ref viewDescription.Format);
-            SetField(bufferView, "elementCount", count);
+            ////InitCountAndViewFormat(out this.elementCount, ref viewFormat);
+            //InitCountAndViewFormat(bufferView, out var count, ref viewDescription.Format);
+            //SetField(bufferView, "elementCount", count);
 
-            //ViewFormat = viewFormat;
-            SetProp(bufferView, "ViewFormat", viewDescription.Format);
+            ////ViewFormat = viewFormat;
+            //SetProp(bufferView, "ViewFormat", viewDescription.Format);
 
-            //NativeDeviceChild = new SharpDX.Direct3D11.Buffer(GraphicsDevice.NativeDevice, dataPointer, nativeDescription);
-            SetNativeChild(bufferView, GetNativeChild(parentBuffer));
+            ////NativeDeviceChild = new SharpDX.Direct3D11.Buffer(GraphicsDevice.NativeDevice, dataPointer, nativeDescription);
+            //SetNativeChild(bufferView, GetNativeChild(parentBuffer));
 
-            //if (nativeDescription.Usage != ResourceUsage.Staging)
-            //    this.InitializeViews();
-            InitializeViews(bufferView);
+            ////if (nativeDescription.Usage != ResourceUsage.Staging)
+            ////    this.InitializeViews();
+            //InitializeViews(bufferView);
 
-            if (parentBuffer is IReferencable referencable)
-            {
-                referencable.AddReference();
-                bufferView.Destroyed += (e, s) => referencable.Release();
-            }
+            //if (parentBuffer is IReferencable referencable)
+            //{
+            //    referencable.AddReference();
+            //    bufferView.Destroyed += (e, s) => referencable.Release();
+            //}
 
             return bufferView;
         }
 
-        static SharpDX.Direct3D11.DeviceChild GetNativeChild(GraphicsResourceBase graphicsResource)
-        {
-            var prop = typeof(GraphicsResourceBase).GetProperty("NativeDeviceChild", NonPunblicInst);
-            return (SharpDX.Direct3D11.DeviceChild)prop.GetValue(graphicsResource);
-        }
+        //static SharpDX.Direct3D11.DeviceChild GetNativeChild(GraphicsResourceBase graphicsResource)
+        //{
+        //    var prop = typeof(GraphicsResourceBase).GetProperty("NativeDeviceChild", NonPunblicInst);
+        //    return (SharpDX.Direct3D11.DeviceChild)prop.GetValue(graphicsResource);
+        //}
 
-        static void SetNativeChild(GraphicsResourceBase graphicsResource, SharpDX.Direct3D11.DeviceChild deviceChild)
-        {
-            var iUnknownObject = deviceChild as SharpDX.IUnknown;
-            if (iUnknownObject != null)
-            {
-                var refCountResult = iUnknownObject.AddReference();
-                Debug.Assert(refCountResult > 1);
-            }
-            var prop = typeof(GraphicsResourceBase).GetProperty("NativeDeviceChild", NonPunblicInst);
-            prop.SetValue(graphicsResource, deviceChild);
-        }
+        //static void SetNativeChild(GraphicsResourceBase graphicsResource, SharpDX.Direct3D11.DeviceChild deviceChild)
+        //{
+        //    var iUnknownObject = deviceChild as SharpDX.IUnknown;
+        //    if (iUnknownObject != null)
+        //    {
+        //        var refCountResult = iUnknownObject.AddReference();
+        //        Debug.Assert(refCountResult > 1);
+        //    }
+        //    var prop = typeof(GraphicsResourceBase).GetProperty("NativeDeviceChild", NonPunblicInst);
+        //    prop.SetValue(graphicsResource, deviceChild);
+        //}
 
-        static SharpDX.Direct3D11.BufferDescription ConvertToNativeDescription(BufferDescription description)
-        {
-            var method = typeof(Buffer).GetMethod("ConvertToNativeDescription", BindingFlags.Static | BindingFlags.NonPublic, null, new[] { typeof(BufferDescription) }, null);
-            return (SharpDX.Direct3D11.BufferDescription)method.Invoke(null, new object[] { description });
-        }
+        //static SharpDX.Direct3D11.BufferDescription ConvertToNativeDescription(BufferDescription description)
+        //{
+        //    var method = typeof(Buffer).GetMethod("ConvertToNativeDescription", BindingFlags.Static | BindingFlags.NonPublic, null, new[] { typeof(BufferDescription) }, null);
+        //    return (SharpDX.Direct3D11.BufferDescription)method.Invoke(null, new object[] { description });
+        //}
 
         static void SetField(Buffer buffer, string name, object arg)
         {
