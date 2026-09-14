@@ -64,10 +64,10 @@ namespace VL.Stride.Assets
 
         public void UpdateGameSettings(Game game)
         {
-            var configs = game.Settings.Configurations;
-            databaseGameSettings.GetOrCreate<EditorSettings>().RenderingMode = configs.Get<EditorSettings>().RenderingMode;
-            databaseGameSettings.GetOrCreate<RenderingSettings>().ColorSpace = configs.Get<RenderingSettings>().ColorSpace;
-            databaseGameSettings.GetOrCreate<RenderingSettings>().DefaultGraphicsProfile = configs.Get<RenderingSettings>().DefaultGraphicsProfile;
+            var settings = game.Settings;
+            databaseGameSettings.GetOrCreate<EditorSettings>().RenderingMode = settings.GetOrCreateConfiguration<EditorSettings>().RenderingMode;
+            databaseGameSettings.GetOrCreate<RenderingSettings>().ColorSpace = settings.GetOrCreateConfiguration<RenderingSettings>().ColorSpace;
+            databaseGameSettings.GetOrCreate<RenderingSettings>().DefaultGraphicsProfile = settings.GetOrCreateConfiguration<RenderingSettings>().DefaultGraphicsProfile;
         }
 
         internal static RuntimeDatabase Create(Game game)

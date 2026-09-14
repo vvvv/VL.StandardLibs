@@ -100,7 +100,7 @@ namespace VL.Stride.Graphics
         {
             const int bufferSize = 1024 * 1024 * 8;
             using var src = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, FileOptions.SequentialScan);
-            var ptr = Utilities.AllocateMemory((int)src.Length);
+            var ptr = MemoryUtilities.Allocate((int)src.Length);
             using var dst = new UnmanagedMemoryStream((byte*)ptr, 0, (int)src.Length, FileAccess.ReadWrite);
             src.CopyTo(dst, bufferSize);
             using var image = Image.Load(new IntPtr(ptr), (int)dst.Length, makeACopy: false, loadAsSRGB: loadAsSRGB);
@@ -118,7 +118,7 @@ namespace VL.Stride.Graphics
             try
             {
                 using var src = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, FileOptions.SequentialScan | FileOptions.Asynchronous);
-                var ptr = Utilities.AllocateMemory((int)src.Length);
+                var ptr = MemoryUtilities.Allocate((int)src.Length);
                 using var dst = CreateMemoryStream(ptr, src.Length);
                 try
                 {
@@ -126,7 +126,7 @@ namespace VL.Stride.Graphics
                 }
                 catch (OperationCanceledException)
                 {
-                    Utilities.FreeMemory(ptr);
+                    MemoryUtilities.Free(ptr);
                     throw;
                 }
                 using var image = Image.Load(new IntPtr(ptr), (int)dst.Length, makeACopy: false, loadAsSRGB: loadAsSRGB);
@@ -150,7 +150,7 @@ namespace VL.Stride.Graphics
             {
                 var stagingDescription = texture.Description.ToStagingDescription();
                 // Use the format of the view for typeless textures (like e.g. returned from SkiaTexture)
-                if (stagingDescription.Format.IsTypeless())
+                if (stagingDescription.Format.IsTypeless)
                     stagingDescription.Format = texture.ViewFormat;
                 using var staging = Texture.New(texture.GraphicsDevice, stagingDescription);
                 texture.Save(commandList, resultFileStream, staging, (ImageFileType)imageFileType);

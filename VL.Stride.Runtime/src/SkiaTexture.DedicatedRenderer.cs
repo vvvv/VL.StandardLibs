@@ -46,9 +46,9 @@ partial class SkiaTexture
             // Initialize global fences
             var renderContext = renderContextProvider.GetRenderContext();
             if (renderContext.EglContext.Display.TryGetD3D11DeviceInterface(out skiaDevice) &&
-                SharpDXInterop.GetNativeDevice(game.GraphicsDevice) is SharpDX.Direct3D11.Device strideNativeDevice)
+                GraphicsMarshal.GetNativeDevice(game.GraphicsDevice) is { } strideNativeDevice)
             {
-                var strideDevice = (ID3D11Device*)strideNativeDevice.NativePointer;
+                var strideDevice = (ID3D11Device*)strideNativeDevice.Handle;
 
                 skiaDeviceContext = GetDeviceContext(skiaDevice);
                 strideDeviceContext = GetDeviceContext(strideDevice);

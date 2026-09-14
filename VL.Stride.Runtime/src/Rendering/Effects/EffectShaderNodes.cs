@@ -38,8 +38,6 @@ namespace VL.Stride.Rendering
 
         public static NodeBuilding.FactoryImpl Init(ServiceRegistry serviceRegistry, IVLNodeDescriptionFactory factory)
         {
-            ShaderMetadata.RegisterAdditionalShaderAttributes();
-
             return new(GetNodeDescriptions(serviceRegistry, factory), forPath: path => factory =>
             {
                 // In case "shaders" directory gets added or deleted invalidate the whole factory
@@ -197,7 +195,7 @@ namespace VL.Stride.Rendering
 
                 foreach (var baseClass in shaderMetadata.ParsedShader?.BaseShaders ?? Enumerable.Empty<ParsedShader>())
                 {
-                    var baseClassPath = baseClass.Shader.Span.Location.FileSource;
+                    var baseClassPath = baseClass.FilePath;
                     if (baseClassPath.ToLowerInvariant().Contains("/stride."))
                         continue; //in stride package folder
 

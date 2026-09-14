@@ -1,5 +1,4 @@
-﻿using Silk.NET.SDL;
-using Stride.Core.Mathematics;
+﻿using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Graphics;
 using Stride.Rendering;

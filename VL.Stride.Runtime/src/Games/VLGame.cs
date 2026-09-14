@@ -1,3 +1,4 @@
+using Silk.NET.Direct3D11;
 using Stride.Core.Diagnostics;
 using Stride.Core.IO;
 using Stride.Core.Mathematics;
@@ -69,7 +70,7 @@ namespace VL.Stride.Games
 
         GraphicsDeviceType IGraphicsDeviceProvider.Type => GraphicsDevice.Platform == GraphicsPlatform.Direct3D11 ? GraphicsDeviceType.Direct3D11 : GraphicsDeviceType.None;
 
-        nint IGraphicsDeviceProvider.NativePointer => SharpDXInterop.GetNativeDevice(GraphicsDevice) is SharpDX.Direct3D11.Device d3d11 ? d3d11.NativePointer : default;
+        unsafe nint IGraphicsDeviceProvider.NativePointer => (nint)GraphicsDevice.NativeDevice.Handle;
 
         bool IGraphicsDeviceProvider.UseLinearColorspace => GraphicsDevice.ColorSpace == ColorSpace.Linear;
 
@@ -91,15 +92,15 @@ namespace VL.Stride.Games
         internal readonly List<GameWindowRenderer> PendingPresentCalls = new List<GameWindowRenderer>();
 
         // Used by performance meter (F2) to display the number of references on the device
-        public int DeviceRefCount
+        public unsafe int DeviceRefCount
         {
             get
             {
-                var nativeDevice = SharpDXInterop.GetNativeDevice(GraphicsDevice) as SharpDX.IUnknown;
-                if (nativeDevice != null)
+                var nativeDevice = GraphicsDevice.NativeDevice;
+                if (nativeDevice.Handle != null)
                 {
-                    nativeDevice.AddReference();
-                    return nativeDevice.Release();
+                    nativeDevice.AddRef();
+                    return (int)nativeDevice.Release();
                 }
                 return 0;
             }
@@ -112,11 +113,13 @@ namespace VL.Stride.Games
             // Copied from base method but without asset database initialization as we did that already
 
             var renderingSettings = new RenderingSettings();
-            if (Content.Exists(GameSettings.AssetUrl))
+            var gameSettingsUrl = $"/VL.Stride.Runtime/{GameSettings.AssetUrl}";
+            if (Content.Exists(gameSettingsUrl))
             {
-                WriteSettings(this, Content.Load<GameSettings>(GameSettings.AssetUrl));
+                var settings = Content.Load<GameSettings>(gameSettingsUrl);
+                WriteSettings(this, settings);
 
-                renderingSettings = Settings.Configurations.Get<RenderingSettings>();
+                renderingSettings = Settings.GetOrCreateConfiguration<RenderingSettings>();
 
                 // Set ShaderProfile even if AutoLoadDefaultSettings is false (because that is what shaders in effect logs are compiled against, even if actual instantiated profile is different)
                 if (renderingSettings.DefaultGraphicsProfile > 0)

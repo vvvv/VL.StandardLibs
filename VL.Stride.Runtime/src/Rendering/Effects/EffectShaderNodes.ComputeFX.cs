@@ -12,6 +12,7 @@ using System.Reactive.Linq;
 using VL.Core;
 using VL.Model;
 using VL.Stride.Rendering.ComputeEffect;
+using ComputeShaderBaseKeys = Stride.Rendering.ComputeEffect.ComputeShaderBaseKeys;
 using ServiceRegistry = VL.Core.ServiceRegistry;
 
 namespace VL.Stride.Rendering

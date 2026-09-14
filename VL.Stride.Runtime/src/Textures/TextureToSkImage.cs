@@ -20,7 +20,7 @@ namespace VL.Stride.Textures
         private static readonly PropertyKey<SKImage?> SKImageView = new (nameof(SKImageView), typeof(TextureToSkImage));
         private readonly RenderContextProvider renderContextProvider = AppHost.Current.GetRenderContextProvider();
 
-        public SKImage? Update(Texture? texture)
+        public unsafe SKImage? Update(Texture? texture)
         {
             if (texture is null)
                 return null;
@@ -28,15 +28,15 @@ namespace VL.Stride.Textures
             var device = texture.GraphicsDevice;
             if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
             {
-                var nativeTexture = SharpDXInterop.GetNativeResource(texture) as SharpDX.Direct3D11.Texture2D;
-                if (nativeTexture is null)
+                var nativeTexture = GraphicsMarshal.GetNativeResource(texture);
+                if (nativeTexture.Handle is null)
                     return null;
 
                 var image = texture.Tags.Get(SKImageView);
                 if (image is null)
                 {
                     var renderContext = renderContextProvider.GetRenderContext();
-                    image = D3D11Utils.TextureToSKImage(renderContext, nativeTexture.NativePointer, texture.ViewFormat.ToDXGIFormat()).DisposeBy(texture);
+                    image = D3D11Utils.TextureToSKImage(renderContext, (nint)nativeTexture.Handle, texture.ViewFormat.ToDXGIFormat()).DisposeBy(texture);
                     texture.Tags.Set(SKImageView, image);
                 }
                 return image;

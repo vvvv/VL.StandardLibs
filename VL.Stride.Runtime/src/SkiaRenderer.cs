@@ -1,4 +1,4 @@
-﻿using SharpDX.Direct3D11;
+﻿using Silk.NET.Direct3D11;
 using SkiaSharp;
 using Stride.Core.Mathematics;
 using Stride.Graphics;
@@ -60,7 +60,7 @@ namespace VL.Stride
             base.Destroy();
         }
 
-        protected override void DrawCore(RenderDrawContext context)
+        protected override unsafe void DrawCore(RenderDrawContext context)
         {
             if (Layer is null)
                 return;
@@ -103,8 +103,8 @@ namespace VL.Stride
             var eglContext = msaaAwareEglContext ?? skiaRenderContext.EglContext;
             using (eglContext.MakeCurrent(forRendering: false))
             {
-                var nativeTempRenderTarget = SharpDXInterop.GetNativeResource(renderTarget) as Texture2D;
-                eglSurface = eglContext.CreateSurfaceFromClientBuffer(nativeTempRenderTarget.NativePointer);
+                var nativeTempRenderTarget = GraphicsMarshal.GetNativeResource(renderTarget);
+                eglSurface = eglContext.CreateSurfaceFromClientBuffer((nint)nativeTempRenderTarget.Handle);
             }
             // Make the surface current (becomes default FBO)
             using (eglSurface)
@@ -173,14 +173,18 @@ namespace VL.Stride
                 colorspace: useLinearColorspace ? srgbLinearColorspace : srgbColorspace);
         }
 
-        static PixelFormat GetResourceFormat(Texture texture)
+        unsafe static PixelFormat GetResourceFormat(Texture texture)
         {
             // Since Stride switched to the new flip model, the backbuffer has a non-srgb format and only the view has a srgb format.
             // See for example https://walbourn.github.io/care-and-feeding-of-modern-swapchains/ where it explains that this is the recommended
             // setup in DirectX 11 and even required in DirectX 12.
             // Stride hides that fact from us, we therefor need to query the underlying API.
-            var nativeTexture = SharpDXInterop.GetNativeResource(texture) as Texture2D;
-            return nativeTexture != null ? (PixelFormat)nativeTexture.Description.Format : texture.Format;
+            var nativeTexture = GraphicsMarshal.GetNativeResource(texture);
+            nativeTexture.QueryInterface<ID3D11Texture2D>(out var texture2D);
+            Texture2DDesc desc = default;
+            texture2D.GetDesc(ref desc);
+            texture2D.Release();
+            return (PixelFormat)desc.Format;
         }
     }
 }

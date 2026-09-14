@@ -1,11 +1,11 @@
 ﻿using Stride.Core.Mathematics;
-using Stride.Core.Shaders.Ast;
-using Stride.Core.Shaders.Ast.Hlsl;
-using Stride.Core.Shaders.Ast.Stride;
 using Stride.Graphics;
 using Stride.Rendering;
 using Stride.Rendering.Materials;
 using Stride.Shaders;
+using Stride.Shaders.Core;
+using Stride.Shaders.Parsing;
+using Stride.Shaders.Parsing.SDSL.AST;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +18,8 @@ namespace VL.Stride.Rendering
 {
     public class ParsedShader
     {
-        public readonly Shader Shader;
-        public readonly ClassType ShaderClass;
+        public readonly ShaderFile Shader;
+        public readonly ShaderClass ShaderClass;
 
         // base shaders
         public IReadOnlyList<ParsedShader> BaseShaders => baseShaders;
@@ -33,8 +33,10 @@ namespace VL.Stride.Rendering
 
         Lazy<IReadOnlyDictionary<string, CompositionInput>> compositionsWithBaseShaders;
 
-        public readonly IReadOnlyList<Variable> Variables;
-        public readonly IReadOnlyDictionary<string, Variable> VariablesByName;
+        public readonly IReadOnlyList<ShaderMember> Variables;
+        public readonly IReadOnlyDictionary<string, ShaderMember> VariablesByName;
+
+        public string FilePath { get; }
 
         private IEnumerable<CompositionInput> GetCompositionsWithBaseShaders()
         {
@@ -52,15 +54,16 @@ namespace VL.Stride.Rendering
             }
         }
 
-        public ParsedShader(Shader shader)
+        public ParsedShader(ShaderFile shader, string filePath)
         {
             Shader = shader;
-            ShaderClass = Shader.GetFirstClassDecl();
-            Variables = ShaderClass?.Members.OfType<Variable>().Where(v => !v.Qualifiers.Contains(StrideStorageQualifier.Stream)).ToList() ?? new List<Variable>(); //should include parent shaders?
-            VariablesByName = Variables.ToDictionary(v => v.Name.Text);
+            FilePath = filePath;
+            ShaderClass = Shader.RootDeclarations.FirstOrDefault() as ShaderClass ?? Shader.Namespaces.FirstOrDefault()?.Declarations.FirstOrDefault() as ShaderClass; ;
+            Variables = ShaderClass?.Elements.OfType<ShaderMember>().Where(v => v.StreamKind == StreamKind.None).ToList() ?? new List<ShaderMember>(); //should include parent shaders?
+            VariablesByName = Variables.ToDictionary(v => v.Name.ToString());
             compositions = Variables
                 .Select((v, i) => (v, i))
-                .Where(v => v.v.Qualifiers.Contains(StrideStorageQualifier.Compose))
+                .Where(v => v.v.IsCompose)
                 .Select(v => new CompositionInput(v.v, v.i))
                 .ToDictionary(v => v.Name);
 
@@ -83,50 +86,47 @@ namespace VL.Stride.Rendering
 
                 switch (type)
                 {
-                    case ScalarType s when s.Name.Text == "float":
-                        yield return ParameterKeys.NewValue(v.GetDefault<float>(), keyName);
+                    case ScalarType s when s.Type == Scalar.Float:
+                        yield return ParameterKeys.NewValue((float)v.Value.GetNumberDefault<double>(), keyName);
                         break;
-                    case ScalarType s when s.Name.Text == "int":
-                        yield return ParameterKeys.NewValue(v.GetDefault<int>(), keyName);
+                    case ScalarType s when s.Type == Scalar.Int:
+                        yield return ParameterKeys.NewValue((int)v.Value.GetNumberDefault<long>(), keyName);
                         break;
-                    case ScalarType s when s.Name.Text == "uint":
-                        yield return ParameterKeys.NewValue(v.GetDefault<uint>(), keyName);
+                    case ScalarType s when s.Type == Scalar.UInt:
+                        yield return ParameterKeys.NewValue((uint)v.Value.GetNumberDefault<long>(), keyName);
                         break;
-                    case ScalarType s when s.Name.Text == "bool":
-                        yield return ParameterKeys.NewValue(v.GetDefault<bool>(), keyName);
+                    case ScalarType s when s.Type == Scalar.Boolean:
+                        yield return ParameterKeys.NewValue(v.Value.GetBoolDefault(), keyName);
                         break;
-                    case TypeName n when n.Name.Text == "float2":
-                        yield return ParameterKeys.NewValue(v.GetDefault<Vector2>(), keyName);
+                    case VectorType vt when vt.BaseType.Type == Scalar.Float && vt.Size == 2:
+                        yield return ParameterKeys.NewValue(v.Value.GetVector2(), keyName);
                         break;
-                    case TypeName n when n.Name.Text == "float3":
-                        yield return ParameterKeys.NewValue(v.GetDefault<Vector3>(), keyName);
+                    case VectorType vt when vt.BaseType.Type == Scalar.Float && vt.Size == 3:
+                        yield return ParameterKeys.NewValue(v.Value.GetVector3(), keyName);
                         break;
-                    case TypeName n when n.Name.Text == "float4":
-                        yield return ParameterKeys.NewValue(v.GetDefault<Vector4>(), keyName);
+                    case VectorType vt when vt.BaseType.Type == Scalar.Float && vt.Size == 4:
+                        yield return ParameterKeys.NewValue(v.Value.GetVector4(), keyName);
                         break;
-                    case TypeName m when m.Name.Text == "float4x4":
+                    case MatrixType m when m.BaseType.Type == Scalar.Float && m.Rows == 4 && m.Columns == 4:
                         yield return ParameterKeys.NewValue(Matrix.Identity, keyName);
                         break;
-                    case TypeName s when s.Name.Text == "int2":
-                        yield return ParameterKeys.NewValue(v.GetDefault<Int2>(), keyName);
+                    case VectorType vt when vt.BaseType.Type == Scalar.Int && vt.Size == 2:
+                        yield return ParameterKeys.NewValue(v.Value.GetInt2(), keyName);
                         break;
-                    case TypeName s when s.Name.Text == "int3":
-                        yield return ParameterKeys.NewValue(v.GetDefault<Int3>(), keyName);
+                    case VectorType vt when vt.BaseType.Type == Scalar.Int && vt.Size == 3:
+                        yield return ParameterKeys.NewValue(v.Value.GetInt3(), keyName);
                         break;
-                    case TypeName s when s.Name.Text == "int4":
-                        yield return ParameterKeys.NewValue(v.GetDefault<Int4>(), keyName);
+                    case VectorType vt when vt.BaseType.Type == Scalar.Int && vt.Size == 4:
+                        yield return ParameterKeys.NewValue(v.Value.GetInt4(), keyName);
                         break;
                     case TextureType t:
                         yield return new ObjectParameterKey<Texture>(keyName);
                         break;
-                    case ObjectType o when o.Name.Text == "SamplerState":
+                    case SamplerType:
                         yield return new ObjectParameterKey<SamplerState>(keyName);
                         break;
-                    case GenericType b when b.Name.Text.Contains("Buffer"):
+                    case BufferType:
                         yield return new ObjectParameterKey<Buffer>(keyName);
-                        break;
-                    case GenericType t when t.Name.Text.Contains("Texture"):
-                        yield return new ObjectParameterKey<Texture>(keyName);
                         break;
                     default:
                         break;
@@ -167,14 +167,14 @@ namespace VL.Stride.Rendering
         /// </summary>
         public readonly int LocalIndex;
 
-        public readonly Variable Variable;
+        public readonly ShaderMember Variable;
 
-        public CompositionInput(Variable v, int localIndex)
+        public CompositionInput(ShaderMember v, int localIndex)
         {
-            Name = v.Name.Text;
+            Name = v.Name.ToString();
 
             // parse attributes
-            foreach (var attr in v.Attributes.OfType<AttributeDeclaration>())
+            foreach (var attr in v.Attributes?.OfType<AnyShaderAttribute>() ?? Enumerable.Empty<AnyShaderAttribute>())
             {
                 switch (attr.Name)
                 {
@@ -182,17 +182,17 @@ namespace VL.Stride.Rendering
                         IsOptional = true;
                         break;
                     case ShaderMetadata.SummaryName:
-                        Summary = attr.ParseString();
+                        Summary = (attr.Parameters.ElementAtOrDefault(0) as StringLiteral)?.Value;
                         break;
                     case ShaderMetadata.RemarksName:
-                        Remarks = attr.ParseString();
+                        Remarks = (attr.Parameters.ElementAtOrDefault(0) as StringLiteral)?.Value;
                         break;
                     default:
                         break;
                 }
             }
 
-            TypeName = v.Type.Name.Text;
+            TypeName = v.TypeName;
 
             Key = new PermutationParameterKey<ShaderSource>(Name);
             LocalIndex = localIndex;

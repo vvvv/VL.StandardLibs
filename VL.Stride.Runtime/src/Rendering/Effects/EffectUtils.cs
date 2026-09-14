@@ -10,17 +10,15 @@ using Stride.Graphics;
 using Stride.Core.IO;
 using System.IO;
 using Stride.Shaders.Compiler;
-using Stride.Core.Shaders.Ast;
-using Stride.Shaders.Parser;
 using Stride.Core.Diagnostics;
 using Stride.Shaders;
-using ShaderMacro = Stride.Core.Shaders.Parser.ShaderMacro;
 using System.Reflection;
 using System.Diagnostics;
 using Stride.Core;
-using Stride.Shaders.Parser.Mixins;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
+using Stride.Shaders.Compilers;
+using Stride.Shaders.Parsing;
 
 namespace VL.Stride.Rendering
 {
@@ -102,13 +100,13 @@ namespace VL.Stride.Rendering
                 SourceDirectories = { EffectCompilerBase.DefaultSourceShaderFolder },
             };
 
-            return effectCompiler.GetMixinParser().SourceManager;
+            return effectCompiler.GetFileShaderLoader().SourceManager;
         }
 
         private static ShaderSourceManager? GetShaderSourceManager(this IEffectCompiler effectCompiler)
         {
             if (effectCompiler is EffectCompiler ec)
-                return ec.GetMixinParser().SourceManager;
+                return ec.GetFileShaderLoader().SourceManager;
             if (effectCompiler is EffectCompilerChain compilerChain)
                 return compilerChain.GetCompiler().GetShaderSourceManager();
             return null;
@@ -246,15 +244,15 @@ namespace VL.Stride.Rendering
                     var code = GetShaderSourceCode(shaderName, fileProvider, shaderSourceManager);
                     var inputFileName = GetPathOfSdslShader(shaderName, fileProvider) ?? shaderName + ".sdsl";
 
-                    var parsingResult = StrideShaderParser.TryPreProcessAndParse(code, inputFileName, macros);
+                    var parsingResult = SDSLParser.Parse(code);
 
-                    if (parsingResult.HasErrors)
+                    if (parsingResult.Errors.Any())
                     {
                         return false;
                     }
                     else //success
                     {
-                        localResult = new ParsedShader(parsingResult.Shader);
+                        localResult = new ParsedShader((ShaderFile)parsingResult.AST, inputFileName);
 
                         foreach (var parentShader in resultRef.ParentShaders)
                         {
@@ -269,10 +267,10 @@ namespace VL.Stride.Rendering
                         try
                         {
                             // base shaders
-                            var baseShaders = localResult.ShaderClass?.BaseClasses ?? Enumerable.Empty<TypeName>();
+                            var baseShaders = localResult.ShaderClass.Mixins;
                             foreach (var baseClass in baseShaders)
                             {
-                                var baseShaderName = baseClass.Name.Text;
+                                var baseShaderName = baseClass.Name;
                                 TryParseEffect(baseShaderName, fileProvider, shaderSourceManager, resultRef);
                             }
                         }
@@ -290,99 +288,6 @@ namespace VL.Stride.Rendering
                     return false;
                 } 
             }
-        }
-
-
-        static Lazy<EffectCompilerParameters> effectCompilerParameters = new Lazy<EffectCompilerParameters>(() =>
-        {
-            return new EffectCompilerParameters
-            {
-                Platform = GraphicsPlatform.Direct3D11,
-                Profile = GraphicsProfile.Level_11_0,
-                Debug = true,
-                OptimizationLevel = 0,
-            };
-        });
-
-        public static bool TryParseAndAnalyze(string shaderName, IVirtualFileProvider fileProvider, EffectCompiler effectCompiler, [NotNullWhen(true)] out Shader? shader)
-        {
-            shader = null;
-            try
-            {
-                var effectParameters = effectCompilerParameters.Value;
-                var log = new LoggerResult();
-
-
-                var source = new ShaderClassSource(shaderName);
-                var mixinTree = new ShaderMixinSource();
-                mixinTree.Mixins.Add(source);
-                var shaderMixinSource = mixinTree;
-                var fullEffectName = mixinTree.Name;
-
-                // Make a copy of shaderMixinSource. Use deep clone since shaderMixinSource can be altered during compilation (e.g. macros)
-                var shaderMixinSourceCopy = new ShaderMixinSource();
-                shaderMixinSourceCopy.DeepCloneFrom(shaderMixinSource);
-                shaderMixinSource = shaderMixinSourceCopy;
-
-                // Generate platform-specific macros
-                switch (effectParameters.Platform)
-                {
-                    case GraphicsPlatform.Direct3D11:
-                        shaderMixinSource.AddMacro("STRIDE_GRAPHICS_API_DIRECT3D", 1);
-                        shaderMixinSource.AddMacro("STRIDE_GRAPHICS_API_DIRECT3D11", 1);
-                        break;
-                    case GraphicsPlatform.Direct3D12:
-                        shaderMixinSource.AddMacro("STRIDE_GRAPHICS_API_DIRECT3D", 1);
-                        shaderMixinSource.AddMacro("STRIDE_GRAPHICS_API_DIRECT3D12", 1);
-                        break;
-                    case GraphicsPlatform.OpenGL:
-                        shaderMixinSource.AddMacro("STRIDE_GRAPHICS_API_OPENGL", 1);
-                        shaderMixinSource.AddMacro("STRIDE_GRAPHICS_API_OPENGLCORE", 1);
-                        break;
-                    case GraphicsPlatform.OpenGLES:
-                        shaderMixinSource.AddMacro("STRIDE_GRAPHICS_API_OPENGL", 1);
-                        shaderMixinSource.AddMacro("STRIDE_GRAPHICS_API_OPENGLES", 1);
-                        break;
-                    case GraphicsPlatform.Vulkan:
-                        shaderMixinSource.AddMacro("STRIDE_GRAPHICS_API_VULKAN", 1);
-                        break;
-                    default:
-                        throw new NotSupportedException();
-                }
-
-                // Generate profile-specific macros
-                shaderMixinSource.AddMacro("STRIDE_GRAPHICS_PROFILE", (int)effectParameters.Profile);
-                shaderMixinSource.AddMacro("GRAPHICS_PROFILE_LEVEL_9_1", (int)GraphicsProfile.Level_9_1);
-                shaderMixinSource.AddMacro("GRAPHICS_PROFILE_LEVEL_9_2", (int)GraphicsProfile.Level_9_2);
-                shaderMixinSource.AddMacro("GRAPHICS_PROFILE_LEVEL_9_3", (int)GraphicsProfile.Level_9_3);
-                shaderMixinSource.AddMacro("GRAPHICS_PROFILE_LEVEL_10_0", (int)GraphicsProfile.Level_10_0);
-                shaderMixinSource.AddMacro("GRAPHICS_PROFILE_LEVEL_10_1", (int)GraphicsProfile.Level_10_1);
-                shaderMixinSource.AddMacro("GRAPHICS_PROFILE_LEVEL_11_0", (int)GraphicsProfile.Level_11_0);
-                shaderMixinSource.AddMacro("GRAPHICS_PROFILE_LEVEL_11_1", (int)GraphicsProfile.Level_11_1);
-                shaderMixinSource.AddMacro("GRAPHICS_PROFILE_LEVEL_11_2", (int)GraphicsProfile.Level_11_2);
-
-                // In .sdsl, class has been renamed to shader to avoid ambiguities with HLSL
-                shaderMixinSource.AddMacro("class", "shader");
-                var parser = effectCompiler.GetMixinParser();
-                var parsingResult = parser.Parse(shaderMixinSource, shaderMixinSource.Macros.ToArray());
-                shader = parsingResult.Shader;
-                //parsingResult.Shader.
-                // Copy log from parser results to output
-                //CopyLogs(parsingResult, log);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public static ShaderMixinParser GetMixinParser(this EffectCompiler compiler)
-        {
-            return GetMixinParser(compiler);
-
-            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(GetMixinParser))]
-            extern static ShaderMixinParser GetMixinParser(EffectCompiler compiler);
         }
 
         private static EffectCompilerBase GetCompiler(this EffectCompilerChain compilerChain)

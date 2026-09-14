@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Silk.NET.DXGI;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Games;
@@ -33,11 +34,9 @@ public sealed class StereoscopicSettings
             IgnoreCameraRotation = false,
             VRDevice = stereoscopicVRDevice = new StereoscopicVRDevice(this)
         };
-        var graphicsDevice = nodeContext.AppHost.Services.GetRequiredService<Game>().GraphicsDevice;
-        using var dxgiDevice = graphicsDevice.NativeDevice.QueryInterface<SharpDX.DXGI.Device>();
-        using var dxgiAdapter = dxgiDevice.Adapter;
-        using var dxgiFactory = dxgiAdapter.GetParent<SharpDX.DXGI.Factory4>();
-        stereoAvailable = dxgiFactory.IsWindowedStereoEnabled;
+
+        var dxgiFactory = InternalGraphicsExtensions.CastComPtr<IDXGIFactory1, IDXGIFactory4>(InternalGraphicsExtensions.NativeDXGIFactory);
+        stereoAvailable = dxgiFactory.IsWindowedStereoEnabled();
     }
 
     /// <summary>

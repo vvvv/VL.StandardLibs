@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="UFzEbZy7D3GNY8xnLUU17p" LanguageVersion="2026.8.0-0115-gba3cc4b093" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="UFzEbZy7D3GNY8xnLUU17p" LanguageVersion="2026.8.0-0125-g4853fd8299" Version="0.128">
   <NugetDependency Id="EKAeSpl0TUSO67sl9VuE19" Location="VL.CoreLib" />
   <Patch Id="M3fVx2jjvOSLPGL4EJGFf9">
     <Canvas Id="JugVUmEZoitO7m1cCzT7W3" DefaultCategory="Stride" CanvasType="FullCategory">
@@ -3824,21 +3824,10 @@
                   <Pin Id="U4aFC7vJ2ZVO9kE8KNpdBz" Name="Output" Kind="StateOutputPin" />
                   <Pin Id="TG40DqthBIHOcwDpPVRi45" Name="Settings" Kind="OutputPin" />
                 </Node>
-                <Node Bounds="218,253,84,26" Id="IvuWsUsiTDYNVCDaZi1C7x">
+                <Node Bounds="232,310,135,26" Id="EqEy6OblKYDOab7tmYZZRY">
                   <p:NodeReference LastCategoryFullName="Stride.Engine.Design.GameSettings" LastDependency="Stride.Engine.dll">
                     <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <Choice Kind="OperationCallFlag" Name="Configurations" />
-                    <CategoryReference Kind="AssemblyCategory" Name="GameSettings" NeedsToBeDirectParent="true" />
-                  </p:NodeReference>
-                  <Pin Id="EmTVhMfsIy8OpJLhp18rAM" Name="Input" Kind="StateInputPin" />
-                  <Pin Id="RwCMYBfzMQBM2U2J19nHpZ" Name="Output" Kind="StateOutputPin" />
-                  <Pin Id="SLMpABFzgj4MkfTnZUPwNC" Name="Configurations" Kind="OutputPin" />
-                </Node>
-                <Node Bounds="232,310,99,26" Id="EqEy6OblKYDOab7tmYZZRY">
-                  <p:NodeReference LastCategoryFullName="Stride.Data.PlatformConfigurations" LastDependency="Stride.dll">
-                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                    <Choice Kind="OperationCallFlag" Name="Get" />
-                    <CategoryReference Kind="AssemblyCategory" Name="PlatformConfigurations" NeedsToBeDirectParent="true" />
+                    <Choice Kind="OperationCallFlag" Name="GetOrCreateConfiguration" />
                   </p:NodeReference>
                   <Pin Id="E4013weHZ1kNkHLJeA2EzO" Name="Input" Kind="StateInputPin" />
                   <Pin Id="Se0qOPYNpk4NBJUUDXceiw" Name="Output" Kind="StateOutputPin" />
@@ -3886,8 +3875,6 @@
                 <Fragment Id="R9pm8b8gTS6PF9rA7dntQr" Patch="N9gTqME6jgSN9lEXkRwcLT" Enabled="true" />
               </ProcessDefinition>
               <Link Id="UhTQGwTNUfpNu4D0pBSYe4" Ids="KOb9QM836V9PcqXXyk5DtZ,SXjaVz3ppKtNuC3c30oXxq" />
-              <Link Id="HZWx31rcthkN0fyDrXaeIs" Ids="TG40DqthBIHOcwDpPVRi45,EmTVhMfsIy8OpJLhp18rAM" />
-              <Link Id="KDZWlJ4yaLtNGnyM1z9nAZ" Ids="SLMpABFzgj4MkfTnZUPwNC,E4013weHZ1kNkHLJeA2EzO" />
               <Link Id="UlzvgWh6sKlPMBovTToGEm" Ids="U4I3BqhIea0O2HLfgnxQ7F,NMNoHmYrIlOMBhEET4x7td" />
               <Link Id="GHReBfYrRezMG8rhGvxhuh" Ids="UlV8b3xDpXzQKSNPs39l06,Jxh21hGS3vcPfPoRSKOtE8" />
               <Link Id="Qn8DK0jqiaVNICnmQ8muiD" Ids="OwD4yAviRnsNPKjedkkI38,UlV8b3xDpXzQKSNPs39l06" IsHidden="true" />
@@ -3895,6 +3882,7 @@
               <Link Id="TE7Z74lXDm2QAYq2InAJBz" Ids="UlV8b3xDpXzQKSNPs39l06,DVHBGFNXJTLQMJFWZYzkRe" />
               <Link Id="Qx8JfoJjlpMNmabMcOLKuN" Ids="KOb9QM836V9PcqXXyk5DtZ,FuXaiGtva89OImCwGwJtly" />
               <Link Id="VYUIOqeoIyvQFfb6kRCGbL" Ids="FuXaiGtva89OImCwGwJtly,BxwJvxgmvClOwlLjCVLsmR" IsHidden="true" />
+              <Link Id="BOoA1xJ4fDpMhk3zeMQ8mE" Ids="TG40DqthBIHOcwDpPVRi45,E4013weHZ1kNkHLJeA2EzO" />
             </Patch>
           </Node>
           <!--
@@ -15724,7 +15712,7 @@
                 <Pin Id="Tlhq6ohcNzKPSiAsa2nlfD" Name="Path" Kind="InputPin" />
                 <Pin Id="PgDkVbF3QCVOj6dUpgUiwI" Name="Result" Kind="OutputPin" />
               </Node>
-              <Pad Id="SQbiQLYGdtDNrPwUNpRLhX" Comment="Path" Bounds="504,225,124,15" ShowValueBox="true" isIOBox="true" Value="Textures/Skybox Texture">
+              <Pad Id="SQbiQLYGdtDNrPwUNpRLhX" Comment="Path" Bounds="504,225,317,15" ShowValueBox="true" isIOBox="true" Value="/VL.Stride.Runtime/Textures/Skybox Texture">
                 <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                   <Choice Kind="TypeFlag" Name="String" />
                 </p:TypeAnnotation>

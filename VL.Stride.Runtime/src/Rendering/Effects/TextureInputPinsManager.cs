@@ -54,11 +54,11 @@ namespace VL.Stride.Rendering
                     if (inputTexture != null)
                     {
                         var viewFormat = inputTexture.ViewFormat;
-                        if (viewFormat.IsSRgb())
+                        if (viewFormat.IsSRgb)
                         {
                             var resourceFormat = inputTexture.Format;
 
-                            if (resourceFormat.IsTypeless()) // Simple case, typeless resource with sRGB view
+                            if (resourceFormat.IsTypeless) // Simple case, typeless resource with sRGB view
                             {
                                 nonSRgbView = inputTexture.ToTextureView(new TextureViewDescription() { Format = viewFormat.ToNonSRgb() });
                             }
@@ -77,7 +77,7 @@ namespace VL.Stride.Rendering
             }
 
             // Input already has mips
-            if (!wantsMips || inputTexture?.MipLevels > 1)
+            if (!wantsMips || inputTexture?.MipLevelCount > 1)
             {
                 shaderTexturePin.Value = inputTexture;
                 generator?.Dispose();

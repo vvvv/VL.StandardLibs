@@ -126,7 +126,7 @@ namespace VL.Stride.Utils
             public TextureData(CommandList commandList, Texture texture)
             {
                 this.commandList = commandList;
-                mappedResource = commandList.MapSubresource(texture, 0, MapMode.Read);
+                mappedResource = commandList.MapSubResource(texture, 0, MapMode.Read);
                 memoryManager = new UnmanagedMemoryManager<byte>(mappedResource.DataBox.DataPointer, mappedResource.DataBox.SlicePitch);
             }
 
@@ -136,7 +136,7 @@ namespace VL.Stride.Utils
 
             public void Dispose()
             {
-                commandList.UnmapSubresource(mappedResource);
+                commandList.UnmapSubResource(mappedResource);
             }
         }
     }

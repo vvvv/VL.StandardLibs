@@ -451,7 +451,7 @@ namespace VL.Stride.Graphics
             if (!ReferenceEquals(thisBuffer, stagingBuffer))
                 commandList.Copy(thisBuffer, stagingBuffer);
 
-            var mappedResource = commandList.MapSubresource(stagingBuffer, 0, MapMode.Read, doNotWait, offsetInBytes, lengthInBytes);
+            var mappedResource = commandList.MapSubResource(stagingBuffer, 0, MapMode.Read, doNotWait, offsetInBytes, lengthInBytes);
             
             try
             {
@@ -468,7 +468,7 @@ namespace VL.Stride.Graphics
             finally
             {
                 // Make sure that we unmap the resource in case of an exception
-                commandList.UnmapSubresource(mappedResource);
+                commandList.UnmapSubResource(mappedResource);
             }
 
             return true;

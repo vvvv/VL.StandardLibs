@@ -377,7 +377,7 @@ namespace VL.Stride.Rendering
                                         // Base it on the input texture if it is not block compressed (BC1 - B7)
                                         var viewFormat = inputTexture.ViewFormat;
 
-                                        viewFormat = (viewFormat.IsCompressed(), viewFormat.IsSRgb(), viewFormat.IsHDR()) switch
+                                        viewFormat = (viewFormat.IsCompressed, viewFormat.IsSRgb, viewFormat.IsHDR) switch
                                         {
                                             (false, _, _) => viewFormat,
                                             (true, false, false) => PixelFormat.R8G8B8A8_UNorm,
@@ -403,7 +403,7 @@ namespace VL.Stride.Rendering
                                         // Watch out for feedback loops
                                         if (inputTexture == output1.texture)
                                         {
-                                            Utilities.Swap(ref output1, ref output2);
+                                            (output1, output2) = (output2, output1);
                                         }
                                     }
 
@@ -434,7 +434,7 @@ namespace VL.Stride.Rendering
                                         {
                                             if (desc.renderFormat != PixelFormat.None
                                             && desc.renderFormat != desc.format
-                                            && desc.renderFormat.BlockSize() == desc.format.BlockSize()
+                                            && desc.renderFormat.BlockSize == desc.format.BlockSize
                                             && desc.format.TryToTypeless(out var typelessFormat))
                                             {
                                                 var td = TextureDescription.New2D(desc.size.X, desc.size.Y, typelessFormat, textureFlags);

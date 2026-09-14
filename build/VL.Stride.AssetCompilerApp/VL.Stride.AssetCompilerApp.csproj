@@ -14,38 +14,19 @@
     <PackageReference Include="Microsoft.Build.Tasks.Core" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" ExcludeAssets="runtime" />
 
-    <PackageReference Include="Stride.Core.Assets.CompilerApp">
+    <PackageReference Include="Stride.AssetCompiler" GeneratePathProperty="true">
       <ExcludeAssets>build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyModel" />
-    <PackageReference Include="Stride.Assets" GeneratePathProperty="true" />
+    <PackageReference Include="Stride.Assets" />
     <!-- It's up to the project what runtime assembly to load (there are multiple) -->
     <PackageReference Include="Stride.Games" ExcludeAssets="runtime" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="$(PkgStride_Assets)\contentFiles\any\net10.0\ffmpeg.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(PkgStride_Assets)\contentFiles\any\net10.0\msdfgen.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Reference Include="$(PkgStride_AssetCompiler)\tools\net10.0\Stride.NuGetResolver.dll">
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
-
-  <!-- 
-    Remove the Stride.Core.Assets.CompilerApp.exe from runtime assets.
-    The NuGet package contains both a .dll and .exe in lib/net10.0,
-    but we only want the .dll and its dependencies.
-  -->
-  <Target Name="RemoveStrideCompilerExe" AfterTargets="ResolvePackageAssets">
-    <ItemGroup>
-      <RuntimeCopyLocalItems Remove="@(RuntimeCopyLocalItems)" 
-                             Condition="'%(Filename)%(Extension)' == 'Stride.Core.Assets.CompilerApp.exe'" />
-      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" 
-                               Condition="'%(Filename)%(Extension)' == 'Stride.Core.Assets.CompilerApp.exe'" />
-      <RuntimeTargetsCopyLocalItems Remove="@(RuntimeTargetsCopyLocalItems)"
-                                    Condition="'%(Filename)%(Extension)' == 'Stride.Core.Assets.CompilerApp.exe'" />
-    </ItemGroup>
-  </Target>
 
 </Project>

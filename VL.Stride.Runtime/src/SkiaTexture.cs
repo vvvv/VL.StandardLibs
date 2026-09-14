@@ -130,7 +130,7 @@ public unsafe sealed partial class SkiaTexture : IDisposable
         var strideDevice = game.GraphicsDevice;
         var isLinear = strideDevice.ColorSpace == ColorSpace.Linear;
         var textureFormat = format;
-        if (isLinear && format.IsSRgb() && format.TryToTypeless(out var typelessFormat))
+        if (isLinear && format.IsSRgb && format.TryToTypeless(out var typelessFormat))
             textureFormat = typelessFormat;
         strideTexture = Texture.New(strideDevice,
             description: new TextureDescription()
@@ -138,7 +138,7 @@ public unsafe sealed partial class SkiaTexture : IDisposable
                 Width = size.Width,
                 Height = size.Height,
                 ArraySize = 1,
-                MipLevels = 1,
+                MipLevelCount = 1,
                 Depth = 1,
                 MultisampleCount = MultisampleCount.None,
                 Format = textureFormat,
