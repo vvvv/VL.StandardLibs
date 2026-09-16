@@ -40,7 +40,7 @@ namespace VL.IO.Redis
         private readonly IChannelHub _channelHub;
         private readonly RedisConnectionManager _redisConnectionManager;
         private readonly Subject<Unit> _networkSync = new Subject<Unit>();
-        private readonly TransactionBuilder _transactionBuilder = new();
+        private readonly Dictionary<int, TransactionBuilder> _transactionBuilders = new();
         private readonly ConcurrentDictionary<string, IRedisBinding> _bindings = new();
         private RedisConnection? _redisConnection;
         private string _nickname = string.Empty;
@@ -425,17 +425,31 @@ namespace VL.IO.Redis
 
             try
             {
-                // 1) Collect changes and if necessary build a new transaction
-                _transactionBuilder.Clear();
-                foreach (var (_, binding) in _bindings)
-                    binding.BuildUp(_transactionBuilder);
+                // 1) Collect changes and if necessary build a new transaction per database
+                foreach (var (_, builder) in _transactionBuilders)
+                    builder.Clear();
 
-                if (_transactionBuilder.IsEmpty)
+                foreach (var (_, binding) in _bindings)
+                {
+                    // -1 means the connection default. Resolve it so that -1 and the default index share one transaction.
+                    var database = connection.GetDatabase(binding.Database).Database;
+                    if (!_transactionBuilders.TryGetValue(database, out var builder))
+                        _transactionBuilders[database] = builder = new TransactionBuilder();
+                    binding.BuildUp(builder);
+                }
+
+                // 2) Send the transactions
+                var tasks = new List<Task>();
+                foreach (var (database, builder) in _transactionBuilders)
+                {
+                    if (!builder.IsEmpty)
+                        tasks.Add(builder.BuildAndExecuteAsync(connection.GetDatabase(database)));
+                }
+
+                if (tasks.Count == 0)
                     return;
 
-                // 2) Send the transaction
-                var database = connection.GetDatabase(Database);
-                _lastTransaction = _transactionBuilder.BuildAndExecuteAsync(database);
+                _lastTransaction = Task.WhenAll(tasks);
             }
             catch (Exception ex)
             {

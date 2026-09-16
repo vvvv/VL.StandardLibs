@@ -8,6 +8,7 @@ namespace VL.IO.Redis.Internal
     interface IRedisBinding : IBinding
     {
         string RedisKey { get; }
+        int Database { get; }
         void Reset();
         void BuildUp(TransactionBuilder builder);
         void Invalidate();
