@@ -146,7 +146,8 @@ namespace VL.IO.Redis
                 CollisionHandling = collisionHandling,
                 SerializationFormat = serializationFormat,
                 Expiry = expiry.ToNullable(),
-                When = when
+                When = when,
+                Database = database
             };
 
             var changed = Model != newmodel;
