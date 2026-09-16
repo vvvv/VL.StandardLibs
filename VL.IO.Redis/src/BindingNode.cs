@@ -32,6 +32,7 @@ namespace VL.IO.Redis
 
         /// <param name="client">The Redis client.</param>
         /// <param name="key">The Redis key.</param>
+        /// <param name="database">The database to use. If not specified the one from the <paramref name="client"/> is used.</param>
         /// <param name="input">The channel to bind to.</param>
         /// <param name="bindingDirection">Defines the direction of the binding.</param>
         /// <param name="initialization">What to do on startup.</param>
@@ -43,6 +44,7 @@ namespace VL.IO.Redis
             RedisClient? client, 
             IChannel? input, 
             Optional<string> key,
+            [Pin(Visibility = PinVisibility.Optional)] Optional<int> database = default,
             Optional<BindingDirection> bindingDirection = default,
             Optional<Initialization> initialization = default,
             [Pin(Visibility = PinVisibility.Optional)] Optional<CollisionHandling> collisionHandling = default,
@@ -50,7 +52,7 @@ namespace VL.IO.Redis
             Optional<TimeSpan> expiry = default,
             Optional<When> when = default)
         {
-            var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat, expiry, when, CreatedViaNode: true);
+            var model = new BindingModel(key, initialization, bindingDirection, collisionHandling, serializationFormat, expiry, when, Database: database, CreatedViaNode: true);
             var resolvedModel = model.Resolve(client, input);
 
             if (client != _client || input != _channel || resolvedModel != _resolvedModel)
