@@ -17,6 +17,7 @@ namespace VL.IO.Redis
     /// <param name="SerializationFormat">The serialization format to used for this binding. If not specified the one from the <see cref="RedisClient"/> is used.</param>
     /// <param name="Expiry">Allows to make this key expire (and vanish) from the Redis database. The channel will persist and will pick up values as soon as the key in the Db exists again.</param>
     /// <param name="When">Which condition to set the value under (defaults to always).</param>
+    /// <param name="Database">The database to use. If not specified the one from the <see cref="RedisClient"/> is used.</param>
     public readonly record struct BindingModel(
         Optional<string> Key = default,
         Optional<Initialization> Initialization = default, //Initialization.Redis
@@ -25,6 +26,7 @@ namespace VL.IO.Redis
         Optional<SerializationFormat> SerializationFormat = default, //SerializationFormat.MessagePack
         Optional<TimeSpan> Expiry = default,
         Optional<When> When = default, //When.Always,
+        Optional<int> Database = default,
         bool CreatedViaNode = false)
     {
         public string ResolveKey(IChannel channel) => ResolveKey(channel.Path);
@@ -82,6 +84,13 @@ namespace VL.IO.Redis
                 changed = true;
             return value;
         }
+        int ResolvedDatabase(ResolvedBindingModel m, ref bool changed)
+        {
+            var value = Database.HasValue ? Database.Value : m.Database;
+            if (value != m.Database)
+                changed = true;
+            return value;
+        }
 
         public ResolvedBindingModel Resolve(RedisClient? client, IChannel? channel)
         {
@@ -97,6 +106,7 @@ namespace VL.IO.Redis
                 SerializationFormat: ResolvedSerializationFormat(model, ref changed),
                 Expiry: ResolvedExpiry(model, ref changed),
                 When: ResolvedWhen(model, ref changed),
+                Database: ResolvedDatabase(model, ref changed),
                 CreatedViaNode: CreatedViaNode,
                 IsDefault: !changed);
         }
@@ -119,6 +129,8 @@ namespace VL.IO.Redis
                 b.AppendLine($"Expiry: {Expiry}");
             if (When.HasValue)
                 b.AppendLine($"When: {When}");
+            if (Database.HasValue)
+                b.AppendLine($"Database: {Database}");
 
             var s = b.ToString();
             if (s.IsNullOrEmpty())
@@ -138,6 +150,7 @@ namespace VL.IO.Redis
         SerializationFormat SerializationFormat = SerializationFormat.MessagePack,
         TimeSpan? Expiry = default,
         When When = When.Always,
+        int Database = -1,
         bool CreatedViaNode = false,
         bool IsDefault = false)
     {
@@ -152,7 +165,8 @@ BindingType: {BindingType}
 CollisionHandling: {CollisionHandling}
 SerializationFormat: {SerializationFormat}
 Expiry: {e}
-When: {When}";
+When: {When}
+Database: {Database}";
         }
     }
 }
