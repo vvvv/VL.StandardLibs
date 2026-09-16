@@ -60,6 +60,8 @@ namespace VL.IO.Redis.Internal
 
         public string RedisKey => _resolvedBindingModel.Key!;
 
+        public int Database => _resolvedBindingModel.Database;
+
         void IRedisBinding.Reset()
         {
             _initialized = _resolvedBindingModel.Initialization == Initialization.None;
