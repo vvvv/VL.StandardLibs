@@ -16,13 +16,17 @@ namespace VL.Lib.IO
     {
         public static readonly Path Default = new Path(string.Empty);
 
-        private readonly string _path;
+        private string _path;
 
         [NonSerialized]
         private FileSystemInfo _info;
 
         [DataMember(Order = 0)]
-        public string Value => _path;
+        public string Value
+        {
+            get => _path;
+            private set => _path = value;
+        }
         
         public Path(string path)
         {
