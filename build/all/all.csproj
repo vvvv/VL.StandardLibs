@@ -9,18 +9,11 @@
     <NoWarn>MSB3270</NoWarn>
 
     <IsPackable>false</IsPackable>
-    
-    <OutputPath>..\..\dependencies\</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <!-- We want all dependencies in our output folder -->
-    <EnableDynamicLoading>true</EnableDynamicLoading>
-    <!-- Generates Stride asset database -->
-    <StrideIsExecutable>true</StrideIsExecutable>
   </PropertyGroup>
 
   <PropertyGroup>
     <!-- If you get crashes on startup (missing method, or type) it's most likely that the used vvvv version doesn't match -->
-    <VVVVInstallPath>$(ProgramW6432)\vvvv\vvvv_gamma_6.4</VVVVInstallPath>
+    <VVVVInstallPath>$(ProgramW6432)\vvvv\vvvv_gamma_8.0-0122-g54b562b797-win-x64</VVVVInstallPath>
     <!-- Set to true to copy VL.Core.dll to vvvv install folder. Needed in order to have modifications in that file to get picked up. -->
     <!-- When doing so the assembly major version must match with the used vvvv version. The version can be set in the Directory.Build.props file. -->
     <!-- Note that API changes on the surface level might lead to crashes because private implementations (VL.AppServices.dll) depend on them. -->
@@ -36,6 +29,7 @@
   </Target>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\VL.Buffers\src\VL.Buffers.csproj" />
     <ProjectReference Include="..\..\VL.CoreLib.Windows\src\VL.CoreLib.Windows.csproj" />
     <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
     <ProjectReference Include="..\..\VL.EditingFramework.Skia\src\VL.EditingFramework.Skia.csproj" />
@@ -45,8 +39,10 @@
     <ProjectReference Include="..\..\VL.ImGui.Skia\src\VL.ImGui.Skia.csproj" />
     <ProjectReference Include="..\..\VL.ImGui.Stride\src\VL.ImGui.Stride.csproj" />
     <ProjectReference Include="..\..\VL.ImGui\src\VL.ImGui.csproj" />
+    <ProjectReference Include="..\..\VL.IO.Pipes\src\VL.IO.Pipes.csproj" />
     <ProjectReference Include="..\..\VL.IO.Redis\src\VL.IO.Redis.csproj" />
     <ProjectReference Include="..\..\VL.LogView\src\VL.LogView.csproj" />
+    <ProjectReference Include="..\..\VL.Serialization.FSPickler.FSharp\VL.Serialization.FSPickler.FSharp.fsproj" />
     <ProjectReference Include="..\..\VL.Serialization.FSPickler\src\VL.Serialization.FSPickler.csproj" />
     <ProjectReference Include="..\..\VL.Serialization.MessagePack\src\VL.Serialization.MessagePack.csproj" />
     <ProjectReference Include="..\..\VL.Serialization.Raw\src\VL.Serialization.Raw.csproj" />

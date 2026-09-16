@@ -53,9 +53,13 @@ namespace VL.Stride.Core
     {
         public Initialization()
         {
+#if IN_PRIVATE_REPO
 #pragma warning disable CS0436 // Type conflicts with imported type
             var workingDir = AppWorkingDirectory.GetWorkingDirectoryForVVVVOrApp(ThisAssembly.NuGetPackageVersion);
 #pragma warning restore CS0436 // Type conflicts with imported type
+#else
+            var workingDir = AppWorkingDirectory.GetWorkingDirectoryForVVVVOrApp(null);
+#endif
             if (workingDir != null)
                 ((FileSystemProvider)VirtualFileSystem.ApplicationData).ChangeBasePath(Path.Combine(workingDir, "data"));
         }
