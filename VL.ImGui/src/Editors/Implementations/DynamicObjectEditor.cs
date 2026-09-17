@@ -13,6 +13,7 @@ using ImGui = ImGuiNET.ImGui;
 sealed class DynamicObjectEditor : IObjectEditor, IDisposable
 {
     readonly IChannel channel;
+    readonly IDisposable subscription;
     readonly ObjectEditorContext editorContext;
 
     Type? currentType;
@@ -22,11 +23,19 @@ sealed class DynamicObjectEditor : IObjectEditor, IDisposable
     {
         this.channel = channel;
         this.editorContext = editorContext;
+        subscription = this.channel.ChannelOfObject.Subscribe(v =>
+        {
+            // Kill editor on type change before subeditors can react (https://forum.vvvv.org/t/imgui-objecteditor-fails-on-changing-type/25244)
+            var type = v?.GetType();
+            if (type != currentType)
+                DisposeEditor();
+        });
         RecreateEditor(channel.Object?.GetType());
     }
 
     public void Dispose()
     {
+        subscription.Dispose();
         DisposeEditor();
     }
 
@@ -35,6 +44,7 @@ sealed class DynamicObjectEditor : IObjectEditor, IDisposable
         if (currentEditor is IDisposable disposable)
             disposable.Dispose();
         currentEditor = null;
+        currentType = null;
     }
 
     public bool NeedsMoreThanOneLine => Query(e => e.NeedsMoreThanOneLine);
