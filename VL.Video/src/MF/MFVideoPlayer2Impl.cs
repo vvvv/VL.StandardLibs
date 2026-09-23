@@ -15,6 +15,11 @@ namespace VL.Video.MF
         private readonly SourceReader sourceReader;
         private readonly IFrameClock frameClock;
 
+        public MFVideoPlayer2Impl(IFrameClock frameClock, string url, IntPtr device, bool useLinearColorspace)
+            : this(frameClock, url, device, useLinearColorspace, useLinearTextureFormat: false)
+        {
+        }
+
         public MFVideoPlayer2Impl(IFrameClock frameClock, string url, IntPtr device, bool useLinearColorspace, bool useLinearTextureFormat)
         {
             this.frameClock = frameClock;

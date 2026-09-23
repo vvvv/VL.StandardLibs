@@ -107,6 +107,7 @@ namespace VL.Video.MF
         private readonly SourceReaderCB? sourceReaderCB;
         private readonly bool useLinearColorspace;
         private readonly bool useLinearTextureFormat;
+        private readonly object copySyncRoot = new();
         private TexturePool? outputTexturePool;
         private Size2 outputTexturePoolSize;
         private ID3D11DeviceContext* copyContext;
@@ -211,51 +212,54 @@ namespace VL.Video.MF
                         d3D11Texture->GetDesc(out var desc);
                         if (useLinearColorspace && !useLinearTextureFormat && desc.Format == Windows.Win32.Graphics.Dxgi.Common.DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM)
                         {
-                            if (copyContext is null)
+                            lock (copySyncRoot)
                             {
-                                ID3D11Device* sourceDevice;
-                                d3D11Texture->GetDevice(&sourceDevice);
-                                ID3D11DeviceContext* context;
-                                sourceDevice->GetImmediateContext(&context);
-                                copyContext = context;
-                                sourceDevice->Release();
-                            }
-
-                            var requiredPoolSize = new Size2((int)desc.Width, (int)desc.Height);
-                            if (outputTexturePool is null || outputTexturePoolSize != requiredPoolSize)
-                            {
-                                outputTexturePool?.Dispose();
-                                ID3D11Device* sourceDevice;
-                                d3D11Texture->GetDevice(&sourceDevice);
-                                outputTexturePool = new TexturePool(sourceDevice, new D3D11_TEXTURE2D_DESC
+                                if (copyContext is null)
                                 {
-                                    Width = desc.Width,
-                                    Height = desc.Height,
-                                    MipLevels = 1,
-                                    ArraySize = 1,
-                                    Format = Windows.Win32.Graphics.Dxgi.Common.DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM_SRGB,
-                                    SampleDesc = new Windows.Win32.Graphics.Dxgi.Common.DXGI_SAMPLE_DESC { Count = 1, Quality = 0 },
-                                    Usage = D3D11_USAGE.D3D11_USAGE_DEFAULT,
-                                    BindFlags = D3D11_BIND_FLAG.D3D11_BIND_SHADER_RESOURCE,
-                                    CPUAccessFlags = 0,
-                                    MiscFlags = 0
-                                });
-                                sourceDevice->Release();
-                                outputTexturePoolSize = requiredPoolSize;
-                            }
+                                    ID3D11Device* sourceDevice;
+                                    d3D11Texture->GetDevice(&sourceDevice);
+                                    ID3D11DeviceContext* context;
+                                    sourceDevice->GetImmediateContext(&context);
+                                    copyContext = context;
+                                    sourceDevice->Release();
+                                }
 
-                            var outputTexture = outputTexturePool.Rent();
-                            copyContext->CopyResource((ID3D11Resource*)outputTexture.NativePointer.ToPointer(), (ID3D11Resource*)d3D11Texture);
-                            var outputFrame = new GpuVideoFrame<BgraPixel>(outputTexture, Timecode: time, FrameRate: frameRate);
-                            return ResourceProvider.Return(outputFrame, (texture: new IntPtr(pD3D11Texture), dxgiBuffer: new IntPtr(pDxgiBuffer), buffer: new IntPtr(buffer), sample: new IntPtr(sample), outputTexture, outputTexturePool),
-                                disposeAction: static x =>
+                                var requiredPoolSize = new Size2((int)desc.Width, (int)desc.Height);
+                                if (outputTexturePool is null || outputTexturePoolSize != requiredPoolSize)
                                 {
-                                    x.outputTexturePool.Return(x.outputTexture);
-                                    ((IUnknown*)x.texture)->Release();
-                                    ((IUnknown*)x.dxgiBuffer)->Release();
-                                    ((IUnknown*)x.buffer)->Release();
-                                    ((IUnknown*)x.sample)->Release();
-                                });
+                                    outputTexturePool?.Dispose();
+                                    ID3D11Device* sourceDevice;
+                                    d3D11Texture->GetDevice(&sourceDevice);
+                                    outputTexturePool = new TexturePool(sourceDevice, new D3D11_TEXTURE2D_DESC
+                                    {
+                                        Width = desc.Width,
+                                        Height = desc.Height,
+                                        MipLevels = 1,
+                                        ArraySize = 1,
+                                        Format = Windows.Win32.Graphics.Dxgi.Common.DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM_SRGB,
+                                        SampleDesc = new Windows.Win32.Graphics.Dxgi.Common.DXGI_SAMPLE_DESC { Count = 1, Quality = 0 },
+                                        Usage = D3D11_USAGE.D3D11_USAGE_DEFAULT,
+                                        BindFlags = D3D11_BIND_FLAG.D3D11_BIND_SHADER_RESOURCE,
+                                        CPUAccessFlags = 0,
+                                        MiscFlags = 0
+                                    });
+                                    sourceDevice->Release();
+                                    outputTexturePoolSize = requiredPoolSize;
+                                }
+
+                                var outputTexture = outputTexturePool.Rent();
+                                copyContext->CopyResource((ID3D11Resource*)outputTexture.NativePointer.ToPointer(), (ID3D11Resource*)d3D11Texture);
+                                var outputFrame = new GpuVideoFrame<BgraPixel>(outputTexture, Timecode: time, FrameRate: frameRate);
+                                return ResourceProvider.Return(outputFrame, (texture: new IntPtr(pD3D11Texture), dxgiBuffer: new IntPtr(pDxgiBuffer), buffer: new IntPtr(buffer), sample: new IntPtr(sample), outputTexture, outputTexturePool),
+                                    disposeAction: static x =>
+                                    {
+                                        x.outputTexturePool.Return(x.outputTexture);
+                                        ((IUnknown*)x.texture)->Release();
+                                        ((IUnknown*)x.dxgiBuffer)->Release();
+                                        ((IUnknown*)x.buffer)->Release();
+                                        ((IUnknown*)x.sample)->Release();
+                                    });
+                            }
                         }
 
                         var videoTexture = new VideoTexture(new IntPtr(pD3D11Texture), size.Width, size.Height, useLinearTextureFormat ? Lib.Basics.Imaging.PixelFormat.R16G16B16A16F : Lib.Basics.Imaging.PixelFormat.B8G8R8A8);
