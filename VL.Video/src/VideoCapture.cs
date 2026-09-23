@@ -109,7 +109,7 @@ namespace VL.Video
                 if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
                 {
                     var device = ctx.GraphicsDeviceType == GraphicsDeviceType.Direct3D11 ? ctx.GraphicsDevice : default;
-                    var capture = MF.MFVideoCaptureImpl.Create(config, device, useLinearFormat: ctx.UsesLinearColorspace);
+                    var capture = MF.MFVideoCaptureImpl.Create(config, device);
                     if (capture is null)
                         return null;
 

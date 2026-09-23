@@ -15,11 +15,11 @@ namespace VL.Video.MF
         private readonly SourceReader sourceReader;
         private readonly IFrameClock frameClock;
 
-        public MFVideoPlayer2Impl(IFrameClock frameClock, string url, IntPtr device, bool useLinearFormat)
+        public MFVideoPlayer2Impl(IFrameClock frameClock, string url, IntPtr device)
         {
             this.frameClock = frameClock;
 
-            sourceReader = SourceReader.CreateFromUrl(url, (ID3D11Device*)device, readAsync: false /* Only needed for devices */, useLinearFormat);
+            sourceReader = SourceReader.CreateFromUrl(url, (ID3D11Device*)device, readAsync: false /* Only needed for devices */);
         }
 
         /// <summary>
