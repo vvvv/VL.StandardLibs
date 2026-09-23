@@ -19,6 +19,7 @@ namespace VL.Video
         private int changeTicket;
         private VideoCaptureImpl? currentCapture;
         private bool enabled;
+        private bool useLinearTextureFormat;
 
         public VideoCaptureDeviceEnumEntry? Device
         {
@@ -92,6 +93,19 @@ namespace VL.Video
             }
         }
 
+        public bool UseLinearTextureFormat
+        {
+            get => useLinearTextureFormat;
+            set
+            {
+                if (value != useLinearTextureFormat)
+                {
+                    useLinearTextureFormat = value;
+                    changeTicket++;
+                }
+            }
+        }
+
         public float ActualFPS => currentCapture?.ActualFPS ?? default;
 
         public string SupportedFormats => currentCapture?.SupportedFormats ?? string.Empty;
@@ -109,7 +123,7 @@ namespace VL.Video
                 if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
                 {
                     var device = ctx.GraphicsDeviceType == GraphicsDeviceType.Direct3D11 ? ctx.GraphicsDevice : default;
-                    var capture = MF.MFVideoCaptureImpl.Create(config, device, useLinearFormat: ctx.UsesLinearColorspace);
+                    var capture = MF.MFVideoCaptureImpl.Create(config, device, useLinearColorspace: ctx.UsesLinearColorspace, useLinearTextureFormat: useLinearTextureFormat);
                     if (capture is null)
                         return null;
 

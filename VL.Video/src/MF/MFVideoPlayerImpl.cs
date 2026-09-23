@@ -35,10 +35,13 @@ namespace VL.Video.MF
         private readonly ID3D11Device* device;
         private readonly IMFMediaEngine* engine;
         private readonly IWICImagingFactory* imagingFactory;
-        private readonly bool useLinearFormat;
+        private readonly bool useLinearColorspace;
+        private readonly bool useLinearTextureFormat;
 
-        private TexturePool? texturePool;
+        private TexturePool? internalTexturePool;
+        private TexturePool? outputTexturePool;
         private BitmapPool? bitmapPool;
+        private ID3D11DeviceContext* copyContext;
         private Size2 renderTargetSize;
 
         private string? url;
@@ -48,13 +51,14 @@ namespace VL.Video.MF
         private NetworkState networkState;
         private ReadyState readyState;
 
-        public MFVideoPlayerImpl(VideoPlayer videoPlayer, IntPtr devicePtr, bool useLinearFormat)
+        public MFVideoPlayerImpl(VideoPlayer videoPlayer, IntPtr devicePtr, bool useLinearColorspace, bool useLinearTextureFormat)
         {
             // Initialize MediaFoundation
             mf = MediaFoundation.Use();
 
             this.videoPlayer = videoPlayer;
-            this.useLinearFormat = useLinearFormat;
+            this.useLinearColorspace = useLinearColorspace;
+            this.useLinearTextureFormat = useLinearTextureFormat;
 
             if (devicePtr != default)
             {
@@ -71,7 +75,7 @@ namespace VL.Video.MF
             MFCreateAttributes(&mediaEngineAttributes, 1).ThrowOnFailure();
             mediaEngineAttributes->SetUINT32(in MF_MEDIA_ENGINE_AUDIO_CATEGORY, (uint)AUDIO_STREAM_CATEGORY.AudioCategory_GameMedia);
             mediaEngineAttributes->SetUINT32(in MF_MEDIA_ENGINE_AUDIO_ENDPOINT_ROLE, (uint)ERole.eMultimedia);
-            if (useLinearFormat)
+            if (useLinearTextureFormat)
             {
                 // _SRGB doesn't work :/ Getting invalid argument exception later in TransferVideoFrame
                 mediaEngineAttributes->SetUINT32(in MF_MEDIA_ENGINE_VIDEO_OUTPUT_FORMAT, (uint)DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT);
@@ -306,8 +310,12 @@ namespace VL.Video.MF
                 var renderTargetSize = this.renderTargetSize;
                 if (renderTargetSize == default)
                 {
-                    texturePool?.Dispose();
-                    texturePool = null;
+                    internalTexturePool?.Dispose();
+                    internalTexturePool = null;
+                    outputTexturePool?.Dispose();
+                    outputTexturePool = null;
+                    copyContext?.Release();
+                    copyContext = null;
 
                     uint width, height;
                     engine->GetNativeVideoSize(&width, &height).ThrowOnFailure();
@@ -325,18 +333,35 @@ namespace VL.Video.MF
                     {
                         if (device != null)
                         {
-                            texturePool = new TexturePool(device, new()
+                            var internalFormat = useLinearTextureFormat ? DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM;
+                            internalTexturePool = new TexturePool(device, new()
                             {
                                 Width = (uint)renderTargetSize.Width,
                                 Height = (uint)renderTargetSize.Height,
                                 ArraySize = 1,
                                 BindFlags = D3D11_BIND_FLAG.D3D11_BIND_RENDER_TARGET | D3D11_BIND_FLAG.D3D11_BIND_SHADER_RESOURCE,
                                 // _SRGB doesn't work :/ Getting invalid argument exception in TransferVideoFrame
-                                Format = useLinearFormat ? DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM,
+                                Format = internalFormat,
                                 MipLevels = 1,
                                 SampleDesc = new DXGI_SAMPLE_DESC() { Count = 1, Quality = 0 },
                                 Usage = D3D11_USAGE.D3D11_USAGE_DEFAULT
                             });
+
+                            if (useLinearColorspace && !useLinearTextureFormat)
+                            {
+                                outputTexturePool = new TexturePool(device, new()
+                                {
+                                    Width = (uint)renderTargetSize.Width,
+                                    Height = (uint)renderTargetSize.Height,
+                                    ArraySize = 1,
+                                    BindFlags = D3D11_BIND_FLAG.D3D11_BIND_SHADER_RESOURCE,
+                                    Format = DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM_SRGB,
+                                    MipLevels = 1,
+                                    SampleDesc = new DXGI_SAMPLE_DESC() { Count = 1, Quality = 0 },
+                                    Usage = D3D11_USAGE.D3D11_USAGE_DEFAULT
+                                });
+                                device->GetImmediateContext(&copyContext);
+                            }
                         }
                         else
                         {
@@ -350,9 +375,9 @@ namespace VL.Video.MF
 
                 if (renderTargetSize != default)
                 {
-                    if (texturePool != null)
+                    if (internalTexturePool != null)
                     {
-                        var texture = texturePool.Rent();
+                        var texture = internalTexturePool.Rent();
 
                         engine->TransferVideoFrame(
                             (IUnknown*)texture.NativePointer.ToPointer(),
@@ -360,8 +385,20 @@ namespace VL.Video.MF
                             new RECT(0, 0, renderTargetSize.Width, renderTargetSize.Height),
                             ToRawColorBGRA(videoPlayer.BorderColor));
 
-                        VideoFrame videoFrame = useLinearFormat ? new GpuVideoFrame<Rgba16fPixel>(texture) : new GpuVideoFrame<RgbaPixel>(texture);
-                        return ResourceProvider.Return(videoFrame, (texture, texturePool), static x => x.texturePool.Return(x.texture));
+                        if (outputTexturePool != null && copyContext != null)
+                        {
+                            var outputTexture = outputTexturePool.Rent();
+                            copyContext->CopyResource((ID3D11Resource*)outputTexture.NativePointer.ToPointer(), (ID3D11Resource*)texture.NativePointer.ToPointer());
+                            var videoFrame = new GpuVideoFrame<BgraPixel>(outputTexture);
+                            return ResourceProvider.Return(videoFrame, (texture, outputTexture, internalTexturePool, outputTexturePool), static x =>
+                            {
+                                x.internalTexturePool.Return(x.texture);
+                                x.outputTexturePool.Return(x.outputTexture);
+                            });
+                        }
+
+                        VideoFrame videoFrame = useLinearTextureFormat ? new GpuVideoFrame<Rgba16fPixel>(texture) : new GpuVideoFrame<BgraPixel>(texture);
+                        return ResourceProvider.Return(videoFrame, (texture, internalTexturePool), static x => x.internalTexturePool.Return(x.texture));
                     }
                     else if (bitmapPool != null)
                     {
@@ -435,7 +472,10 @@ namespace VL.Video.MF
         {
             engine->Shutdown().ThrowOnFailure();
             engine->Release();
-            texturePool?.Dispose();
+            internalTexturePool?.Dispose();
+            outputTexturePool?.Dispose();
+            if (copyContext != null)
+                copyContext->Release();
 
             if (imagingFactory != null)
                 imagingFactory->Release();

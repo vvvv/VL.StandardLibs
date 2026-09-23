@@ -57,6 +57,8 @@ namespace VL.Video
         /// </summary>
         public Size2 TextureSize { internal get; set; }
 
+        public bool UseLinearTextureFormat { get; set; }
+
         /// <summary>
         /// Whether or not playback started.
         /// </summary>
@@ -105,7 +107,8 @@ namespace VL.Video
             float volume = 1f,
             Int2 textureSize = default,
             RectangleF? sourceBounds = default,
-            Color4? borderColor = default)
+            Color4? borderColor = default,
+            bool useLinearTextureFormat = false)
         {
             Url = url;
             Play = play;
@@ -119,6 +122,7 @@ namespace VL.Video
             TextureSize = new Size2(textureSize.X, textureSize.Y);
             SourceBounds = sourceBounds;
             BorderColor = borderColor;
+            UseLinearTextureFormat = useLinearTextureFormat;
 
             return this;
         }
@@ -133,7 +137,7 @@ namespace VL.Video
                 if (OperatingSystem.IsWindowsVersionAtLeast(8))
                 {
                     var devicePtr = ctx.GraphicsDeviceType == GraphicsDeviceType.Direct3D11 ? ctx.GraphicsDevice : default;
-                    return currentPlayer = new MF.MFVideoPlayerImpl(this, devicePtr, ctx.UsesLinearColorspace)
+                    return currentPlayer = new MF.MFVideoPlayerImpl(this, devicePtr, ctx.UsesLinearColorspace, UseLinearTextureFormat)
                     {
                         DisposeAction = () =>
                         {

@@ -25,7 +25,7 @@ namespace VL.Video.MF
     [SupportedOSPlatform("windows6.1")]
     internal sealed class SourceReader
     {
-        public static unsafe SourceReader CreateFromUrl(string url, ID3D11Device* device, bool readAsync, bool useLinearFormat)
+        public static unsafe SourceReader CreateFromUrl(string url, ID3D11Device* device, bool readAsync, bool useLinearColorspace, bool useLinearTextureFormat)
         {
             using var _ = MediaFoundation.Use();
 
@@ -35,7 +35,7 @@ namespace VL.Video.MF
             {
                 IMFSourceReader* sourceReader;
                 MFCreateSourceReaderFromURL(url, sourceReaderAttributes, &sourceReader).ThrowOnFailure();
-                return new SourceReader(sourceReader, sourceReaderCB, useLinearFormat);
+                return new SourceReader(sourceReader, sourceReaderCB, useLinearColorspace, useLinearTextureFormat);
             }
             finally
             {
@@ -43,7 +43,7 @@ namespace VL.Video.MF
             }
         }
 
-        public static unsafe SourceReader CreateFromMediaSource(IMFMediaSource* mediaSource, ID3D11Device* device, bool readAsync, bool useLinearFormat)
+        public static unsafe SourceReader CreateFromMediaSource(IMFMediaSource* mediaSource, ID3D11Device* device, bool readAsync, bool useLinearColorspace, bool useLinearTextureFormat)
         {
             using var _ = MediaFoundation.Use();
 
@@ -53,7 +53,7 @@ namespace VL.Video.MF
             {
                 IMFSourceReader* sourceReader;
                 MFCreateSourceReaderFromMediaSource(mediaSource, sourceReaderAttributes, &sourceReader).ThrowOnFailure();
-                return new SourceReader(sourceReader, sourceReaderCB, useLinearFormat);
+                return new SourceReader(sourceReader, sourceReaderCB, useLinearColorspace, useLinearTextureFormat);
             }
             finally
             {
@@ -105,21 +105,26 @@ namespace VL.Video.MF
         private readonly Size2 size;
         private readonly (int n, int d) frameRate;
         private readonly SourceReaderCB? sourceReaderCB;
-        private readonly bool useLinearFormat;
+        private readonly bool useLinearColorspace;
+        private readonly bool useLinearTextureFormat;
+        private TexturePool? outputTexturePool;
+        private Size2 outputTexturePoolSize;
+        private ID3D11DeviceContext* copyContext;
 
-        private unsafe SourceReader(IMFSourceReader* reader, SourceReaderCB? sourceReaderCB, bool useLinearFormat)
+        private unsafe SourceReader(IMFSourceReader* reader, SourceReaderCB? sourceReaderCB, bool useLinearColorspace, bool useLinearTextureFormat)
         {
             this.mf = MediaFoundation.Use();
             this.reader = new IntPtr(reader);
             this.sourceReaderCB = sourceReaderCB;
-            this.useLinearFormat = useLinearFormat;
+            this.useLinearColorspace = useLinearColorspace;
+            this.useLinearTextureFormat = useLinearTextureFormat;
 
             // Set output format to BGRA8
             {
                 IMFMediaType* mt;
                 MFCreateMediaType(&mt).ThrowOnFailure();
                 mt->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
-                if (useLinearFormat)
+                if (useLinearTextureFormat)
                     mt->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_A16B16G16R16F);
                 else
                     mt->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_ARGB32);
@@ -204,9 +209,56 @@ namespace VL.Video.MF
                     {
                         var d3D11Texture = (ID3D11Texture2D*)pD3D11Texture;
                         d3D11Texture->GetDesc(out var desc);
-                        var videoTexture = new VideoTexture(new IntPtr(pD3D11Texture), size.Width, size.Height, useLinearFormat ? Lib.Basics.Imaging.PixelFormat.R16G16B16A16F : Lib.Basics.Imaging.PixelFormat.B8G8R8A8);
-                        VideoFrame frame = useLinearFormat ? new GpuVideoFrame<Rgba16fPixel>(videoTexture, Timecode: time, FrameRate: frameRate) : new GpuVideoFrame<BgraPixel>(videoTexture, Timecode: time, FrameRate: frameRate);
-                        return ResourceProvider.Return(frame, (texture: new IntPtr(pD3D11Texture), dxgiBuffer: new IntPtr(pDxgiBuffer), buffer: new IntPtr(buffer), sample: new IntPtr(sample), videoTexture),
+                        if (useLinearColorspace && !useLinearTextureFormat && desc.Format == Windows.Win32.Graphics.Dxgi.Common.DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM)
+                        {
+                            if (copyContext is null)
+                            {
+                                ID3D11Device* sourceDevice;
+                                d3D11Texture->GetDevice(&sourceDevice);
+                                sourceDevice->GetImmediateContext(&copyContext);
+                                sourceDevice->Release();
+                            }
+
+                            var requiredPoolSize = new Size2((int)desc.Width, (int)desc.Height);
+                            if (outputTexturePool is null || outputTexturePoolSize != requiredPoolSize)
+                            {
+                                outputTexturePool?.Dispose();
+                                ID3D11Device* sourceDevice;
+                                d3D11Texture->GetDevice(&sourceDevice);
+                                outputTexturePool = new TexturePool(sourceDevice, new D3D11_TEXTURE2D_DESC
+                                {
+                                    Width = desc.Width,
+                                    Height = desc.Height,
+                                    MipLevels = 1,
+                                    ArraySize = 1,
+                                    Format = Windows.Win32.Graphics.Dxgi.Common.DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM_SRGB,
+                                    SampleDesc = new Windows.Win32.Graphics.Dxgi.Common.DXGI_SAMPLE_DESC { Count = 1, Quality = 0 },
+                                    Usage = D3D11_USAGE.D3D11_USAGE_DEFAULT,
+                                    BindFlags = D3D11_BIND_FLAG.D3D11_BIND_SHADER_RESOURCE,
+                                    CPUAccessFlags = 0,
+                                    MiscFlags = 0
+                                });
+                                sourceDevice->Release();
+                                outputTexturePoolSize = requiredPoolSize;
+                            }
+
+                            var outputTexture = outputTexturePool.Rent();
+                            copyContext->CopyResource((ID3D11Resource*)outputTexture.NativePointer.ToPointer(), (ID3D11Resource*)d3D11Texture);
+                            var outputFrame = new GpuVideoFrame<BgraPixel>(outputTexture, Timecode: time, FrameRate: frameRate);
+                            return ResourceProvider.Return(outputFrame, (texture: new IntPtr(pD3D11Texture), dxgiBuffer: new IntPtr(pDxgiBuffer), buffer: new IntPtr(buffer), sample: new IntPtr(sample), outputTexture, outputTexturePool),
+                                disposeAction: static x =>
+                                {
+                                    x.outputTexturePool.Return(x.outputTexture);
+                                    ((IUnknown*)x.texture)->Release();
+                                    ((IUnknown*)x.dxgiBuffer)->Release();
+                                    ((IUnknown*)x.buffer)->Release();
+                                    ((IUnknown*)x.sample)->Release();
+                                });
+                        }
+
+                        var videoTexture = new VideoTexture(new IntPtr(pD3D11Texture), size.Width, size.Height, useLinearTextureFormat ? Lib.Basics.Imaging.PixelFormat.R16G16B16A16F : Lib.Basics.Imaging.PixelFormat.B8G8R8A8);
+                        VideoFrame frame = useLinearTextureFormat ? new GpuVideoFrame<Rgba16fPixel>(videoTexture, Timecode: time, FrameRate: frameRate) : new GpuVideoFrame<BgraPixel>(videoTexture, Timecode: time, FrameRate: frameRate);
+                        return ResourceProvider.Return(frame, (texture: new IntPtr(pD3D11Texture), dxgiBuffer: new IntPtr(pDxgiBuffer), buffer: new IntPtr(buffer), sample: new IntPtr(sample)),
                             disposeAction: static x =>
                             {
                                 ((IUnknown*)x.texture)->Release();
@@ -280,6 +332,10 @@ namespace VL.Video.MF
         {
             if (sourceReaderCB != null)
                 sourceReaderCB.Samples.CompleteAdding();
+
+            outputTexturePool?.Dispose();
+            if (copyContext != null)
+                copyContext->Release();
 
             var reader = (IMFSourceReader*)this.reader;
             reader->Release();
