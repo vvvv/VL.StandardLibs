@@ -314,7 +314,8 @@ namespace VL.Video.MF
                     internalTexturePool = null;
                     outputTexturePool?.Dispose();
                     outputTexturePool = null;
-                    copyContext?.Release();
+                    if (copyContext != null)
+                        copyContext->Release();
                     copyContext = null;
 
                     uint width, height;
@@ -360,7 +361,9 @@ namespace VL.Video.MF
                                     SampleDesc = new DXGI_SAMPLE_DESC() { Count = 1, Quality = 0 },
                                     Usage = D3D11_USAGE.D3D11_USAGE_DEFAULT
                                 });
-                                device->GetImmediateContext(&copyContext);
+                                ID3D11DeviceContext* context;
+                                device->GetImmediateContext(&context);
+                                copyContext = context;
                             }
                         }
                         else
@@ -389,8 +392,8 @@ namespace VL.Video.MF
                         {
                             var outputTexture = outputTexturePool.Rent();
                             copyContext->CopyResource((ID3D11Resource*)outputTexture.NativePointer.ToPointer(), (ID3D11Resource*)texture.NativePointer.ToPointer());
-                            var videoFrame = new GpuVideoFrame<BgraPixel>(outputTexture);
-                            return ResourceProvider.Return(videoFrame, (texture, outputTexture, internalTexturePool, outputTexturePool), static x =>
+                            var outputVideoFrame = new GpuVideoFrame<BgraPixel>(outputTexture);
+                            return ResourceProvider.Return(outputVideoFrame, (texture, outputTexture, internalTexturePool, outputTexturePool), static x =>
                             {
                                 x.internalTexturePool.Return(x.texture);
                                 x.outputTexturePool.Return(x.outputTexture);

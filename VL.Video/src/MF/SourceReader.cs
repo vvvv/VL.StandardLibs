@@ -23,7 +23,7 @@ using static Windows.Win32.PInvoke;
 namespace VL.Video.MF
 {
     [SupportedOSPlatform("windows6.1")]
-    internal sealed class SourceReader
+    internal sealed unsafe class SourceReader
     {
         public static unsafe SourceReader CreateFromUrl(string url, ID3D11Device* device, bool readAsync, bool useLinearColorspace, bool useLinearTextureFormat)
         {
@@ -215,7 +215,9 @@ namespace VL.Video.MF
                             {
                                 ID3D11Device* sourceDevice;
                                 d3D11Texture->GetDevice(&sourceDevice);
-                                sourceDevice->GetImmediateContext(&copyContext);
+                                ID3D11DeviceContext* context;
+                                sourceDevice->GetImmediateContext(&context);
+                                copyContext = context;
                                 sourceDevice->Release();
                             }
 
