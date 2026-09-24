@@ -28,9 +28,11 @@ namespace VL.Stride.Rendering
                 invalidated: changes,
                 init: buildContext =>
                 {
+                    // Generate a unique node instance identifier
+                    var nodeInstanceId = Guid.NewGuid().ToString("N");
                     var outputType = shaderMetadata.GetShaderFXOutputType(out var innerType);
-                    var (_effect, _messages, _) = 
-                        CreateEffectInstance("ShaderFXEffect", shaderName, shaderMetadata, serviceRegistry, graphicsDevice);
+                    var (_effect, _messages, _) 
+                        = CreateEffectInstance("ShaderFXEffect", shaderName, shaderMetadata, serviceRegistry, graphicsDevice);
 
                     var _inputs = new List<IVLPinDescription>();
                     var _outputs = new List<IVLPinDescription>() { buildContext.Pin("Output", outputType) };
@@ -44,14 +46,15 @@ namespace VL.Stride.Rendering
                         var key = parameter.Key;
                         var name = key.Name;
 
+                        // Expose World only - all other world dependent parameters we can compute on our own
                         if (WellKnownParameters.PerDrawMap.ContainsKey(name))
                         {
-                            // Expose World only - all other world dependent parameters we can compute on our own
                             needsWorld = true;
                             continue;
                         }
 
-                        _inputs.Add(CreatePinDescription(in parameter, usedNames, shaderMetadata));
+                        // Pass nodeInstanceId to pin description for unique naming
+                        _inputs.Add(CreatePinDescription(in parameter, usedNames, shaderMetadata, nodeInstanceId: nodeInstanceId));
                     }
 
                     // local input values
@@ -59,14 +62,14 @@ namespace VL.Stride.Rendering
                     {
                         var name = key.Name;
 
+                        // Expose World only - all other world dependent parameters we can compute on our own
                         if (WellKnownParameters.PerDrawMap.ContainsKey(name))
                         {
-                            // Expose World only - all other world dependent parameters we can compute on our own
                             needsWorld = true;
                             continue;
                         }
 
-                        _inputs.Add(CreatePinDescription(key, 1, usedNames, shaderMetadata));
+                        _inputs.Add(CreatePinDescription(key, 1, usedNames, shaderMetadata, nodeInstanceId: nodeInstanceId));
                     }
 
                     if (needsWorld)
