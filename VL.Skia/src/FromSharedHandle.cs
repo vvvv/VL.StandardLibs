@@ -20,6 +20,7 @@ public sealed class FromSharedHandle : IDisposable
     private nint textureHandle;
     private RenderContext? renderContext;
     private SKImage? skImage;
+    private bool useLinearColorSpace;
 
     public FromSharedHandle()
     {
@@ -27,12 +28,13 @@ public sealed class FromSharedHandle : IDisposable
     }
 
     [SupportedOSPlatform("windows6.1")]
-    public SKImage? Update(nint textureHandle)
+    public SKImage? Update(nint textureHandle, bool useLinearColorspace = false)
     {
         var renderContext = renderContextProvider.GetRenderContext();
-        if (textureHandle != this.textureHandle || renderContext != this.renderContext)
+        if (textureHandle != this.textureHandle || renderContext != this.renderContext || useLinearColorspace != this.useLinearColorSpace)
         {
             this.textureHandle = textureHandle;
+            this.useLinearColorSpace = useLinearColorspace;
             this.renderContext = renderContext;
 
             Interlocked.Exchange(ref skImage, null)?.Dispose();
@@ -40,7 +42,7 @@ public sealed class FromSharedHandle : IDisposable
             if (textureHandle != 0)
             {
                 using var _ = renderContext.MakeCurrent(forRendering: false);
-                skImage = D3D11Utils.SharedHandleToSKImage(renderContext, textureHandle);
+                skImage = D3D11Utils.SharedHandleToSKImage(renderContext, textureHandle, useLinearColorspace);
             }
 
         }

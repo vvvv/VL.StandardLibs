@@ -59,7 +59,7 @@ namespace VL.Skia.Video
         private static SKImage FromTexture(VideoTexture texture, RenderContextProvider renderContextProvider)
         {
             var renderContext = renderContextProvider.GetRenderContext();
-            return D3D11Utils.TextureToSKImage(renderContext, texture.nativePointer);
+            return D3D11Utils.TextureToSKImage(renderContext, texture.nativePointer, useLinearColorspace: false);
         }
     }
 }

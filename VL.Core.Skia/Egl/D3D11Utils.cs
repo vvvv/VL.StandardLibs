@@ -41,7 +41,7 @@ namespace VL.Skia.Egl
         }
 
         [SupportedOSPlatform("windows6.1")]
-        public static unsafe SKImage SharedHandleToSKImage(RenderContext renderContext, nint sharedHandle)
+        public static unsafe SKImage SharedHandleToSKImage(RenderContext renderContext, nint sharedHandle, bool useLinearColorspace)
         {
             if (!renderContext.EglContext.Display.TryGetD3D11DeviceInterface(out var d3dDevice))
                 return null;
@@ -65,7 +65,7 @@ namespace VL.Skia.Egl
 
             try
             {
-                return TextureToSKImage(renderContext, (nint)d3d11Texture);
+                return TextureToSKImage(renderContext, (nint)d3d11Texture, useLinearColorspace: useLinearColorspace);
             }
             finally
             {
@@ -74,7 +74,7 @@ namespace VL.Skia.Egl
         }
 
         [SupportedOSPlatform("windows6.1")]
-        public static unsafe SKImage TextureToSKImage(RenderContext renderContext, nint d3d11Texture, DXGI_FORMAT? viewFormat = default)
+        public static unsafe SKImage TextureToSKImage(RenderContext renderContext, nint d3d11Texture, DXGI_FORMAT? viewFormat = default, bool useLinearColorspace = false)
         {
             using var _ = renderContext.MakeCurrent(forRendering: false);
 
@@ -111,8 +111,7 @@ namespace VL.Skia.Egl
                 GRSurfaceOrigin.TopLeft,
                 colorType,
                 SKAlphaType.Unpremul,
-                // Same as in Stride/SkiaRenderer
-                colorspace: renderContext.UseLinearColorspace && format == desc.Format ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb(),
+                colorspace: useLinearColorspace ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb(),
                 releaseProc: x =>
                 {
                     var (renderContext, textureId) = ((RenderContext, uint))x;
