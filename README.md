@@ -21,6 +21,8 @@ At this point you've replaced all libraries shipping with your vvvv installation
 
 Like this you still get the fast startup-time for all the other libraries that you don't work on.
 
+For agents migrating legacy VL nodes to C# imports, see the [C# import migration guide](AGENTS.md).
+
 ## Contributing to this repository
 
 Please see our [Contribution Guide](.github/CONTRIBUTING.md).
