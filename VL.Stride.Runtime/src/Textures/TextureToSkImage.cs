@@ -11,9 +11,6 @@ namespace VL.Stride.Textures
     /// <summary>
     /// Creates an image from the given texture. Note that the tooltip does not update correctly in case the texture mutates.
     /// </summary>
-    /// <remarks>
-    /// In case the texture is in sRGB format and the current color space is linear, a non-sRGB copy of the texture will be created internally.
-    /// </remarks>
     [ProcessNode]
     public class TextureToSkImage
     {
@@ -36,7 +33,8 @@ namespace VL.Stride.Textures
                 if (image is null)
                 {
                     var renderContext = renderContextProvider.GetRenderContext();
-                    image = D3D11Utils.TextureToSKImage(renderContext, nativeTexture.NativePointer, texture.ViewFormat.ToDXGIFormat()).DisposeBy(texture);
+                    var useLinearColorspace = device.ColorSpace == ColorSpace.Linear && texture.Format == texture.ViewFormat && (texture.ViewFormat.IsHDR() || texture.ViewFormat.IsSRgb());
+                    image = D3D11Utils.TextureToSKImage(renderContext, nativeTexture.NativePointer, texture.ViewFormat.ToDXGIFormat(), useLinearColorspace: useLinearColorspace).DisposeBy(texture);
                     texture.Tags.Set(SKImageView, image);
                 }
                 return image;

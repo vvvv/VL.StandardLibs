@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="GCeR2VbZxmMN6ZcU8vYNGe" LanguageVersion="2023.5.3-0183-g0ffc0cec62" Version="0.128">
-  <NugetDependency Id="OddDUH5t00UQDOaM5VIUbR" Location="VL.CoreLib" Version="2021.4.9" />
+<Document xmlns:p="property" xmlns:r="reflection" Id="GCeR2VbZxmMN6ZcU8vYNGe" LanguageVersion="2026.8.0-0143-geb1942ab76" Version="0.128">
+  <NugetDependency Id="OddDUH5t00UQDOaM5VIUbR" Location="VL.CoreLib" />
   <Patch Id="RGTfRCPLQo7PrXo7dPC5Ad">
     <Canvas Id="USHGZ5YZJZ5NCZiBRK95Vs" DefaultCategory="Video" CanvasType="FullCategory">
       <Canvas Id="E85TIfV85NyN7HiBWXsv1t" Name="Advanced" Position="730,270">
@@ -43,7 +43,7 @@
               <Pin Id="IFEOhPZ46VgQXnYljKQbfi" Name="Output" Kind="StateOutputPin" />
             </Node>
             <Pad Id="Q5GlOhudgMFPHZ1cEsuaks" SlotId="IZHFHiQgxnXODHaUfVgqgw" Bounds="225,279" />
-            <Node Bounds="222,431,245,26" AutoConnect="true" Id="VDhlwk7XQEUNc50QPLnmd9">
+            <Node Bounds="222,431,265,26" AutoConnect="true" Id="VDhlwk7XQEUNc50QPLnmd9">
               <p:NodeReference LastCategoryFullName="VL.Video.VideoPlayer" LastDependency="VL.Video.dll">
                 <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
                 <Choice Kind="OperationCallFlag" Name="Update" />
@@ -64,6 +64,7 @@
               <Pin Id="DgiWPLJSjBaOgcI7QcMtLx" Name="Border Color" Kind="InputPin" />
               <Pin Id="Sq1ch83AuvALztUlK1sHGT" Name="Output" Kind="StateOutputPin" />
               <Pin Id="E9U4SzQS3cQNkzcyXZM9tf" Name="Result" Kind="OutputPin" />
+              <Pin Id="JT8E1ipHtmCPqsAR9Z6Nv0" Name="Use Linear Texture Format" Kind="InputPin" />
             </Node>
             <Node Bounds="482,537,73,26" Id="TruiWxg44wtLpHr47ovonI">
               <p:NodeReference LastCategoryFullName="VL.Video.VideoPlayer" LastDependency="VL.Video.dll">
@@ -130,6 +131,7 @@
             <ControlPoint Id="KFIVXUUSquHLEYhba7iYRm" Bounds="493,324" />
             <ControlPoint Id="MLeusPLF483LwbWh5TV3k8" Bounds="480,300" />
             <ControlPoint Id="QMwCCliwohwNLrW5yS5fpD" Bounds="471,269" />
+            <ControlPoint Id="KeH6n1BuJ7dMI4nTGwiuJU" Bounds="512,370" />
           </Canvas>
           <ProcessDefinition Id="PKXjpVO2XO6PsNqnuWyZpN">
             <Fragment Id="G8RElS96Zs8PCF5i5NGSRi" Patch="TQc0bfDaHcnOzoxI15ZvAc" Enabled="true" />
@@ -184,9 +186,12 @@
             <Pin Id="SpaolKzy6kIP3S2HMpbE9l" Name="Ready State" Kind="OutputPin" Bounds="1333,537" />
             <Pin Id="F6j1PgAymUoM26I00BzHoj" Name="Network State" Kind="OutputPin" Bounds="1526,532" />
             <Pin Id="APcVyagOpeOLc2fNiJXc8M" Name="Error Code" Kind="OutputPin" Bounds="1613,524" />
+            <Pin Id="OjL5D73NDBOPhChQPmGjSJ" Name="Use Linear Texture Format" Kind="InputPin" Visibility="Optional" />
           </Patch>
           <Patch Id="RMSFBSQXkURPpQkEkDBXXp" Name="Dispose" />
           <Link Id="Te0i1BOgTYqNnlFnvTUTo5" Ids="E9U4SzQS3cQNkzcyXZM9tf,QiEVdpaxalqNBXlEExQCOe" />
+          <Link Id="AGUTxE38a2ANrmL45HtMQ4" Ids="KeH6n1BuJ7dMI4nTGwiuJU,JT8E1ipHtmCPqsAR9Z6Nv0" />
+          <Link Id="B8HlJPfGhIuLoEC9UKUFZy" Ids="OjL5D73NDBOPhChQPmGjSJ,KeH6n1BuJ7dMI4nTGwiuJU" IsHidden="true" />
         </Patch>
       </Node>
       <!--
@@ -225,6 +230,7 @@
               <Pin Id="QSQOW1GLecaQJRcGOwTg7h" Name="Ready State" Kind="OutputPin" />
               <Pin Id="FHZMGxzE8ULNR8rUm9VqKK" Name="Network State" Kind="OutputPin" />
               <Pin Id="C7oY6Dp0zzMOV6Fl2bvt6B" Name="Error Code" Kind="OutputPin" />
+              <Pin Id="KSAZ2H9xbSbLhjuFNzoRmh" Name="Use Linear Texture Format" Kind="InputPin" />
             </Node>
             <Node Bounds="274,285,55,19" Id="MlEqTO1z6PHMBbRjYiIWBd">
               <p:NodeReference LastCategoryFullName="System.Conversion" LastDependency="VL.CoreLib.vl">
@@ -235,10 +241,11 @@
               <Pin Id="IF65Nt82aoCNxtqZNQFh2C" Name="Result" Kind="OutputPin" />
             </Node>
             <ControlPoint Id="JNyeVIhs7anMkP64wa49Qq" Bounds="276,255" />
-            <Pad Id="MUfsknm81gYLnqOssYtbkJ" Comment="Network State" Bounds="458,391,71,15" ShowValueBox="true" isIOBox="true" />
+            <Pad Id="MUfsknm81gYLnqOssYtbkJ" Comment="Network State" Bounds="458,391,73,15" ShowValueBox="true" isIOBox="true" />
             <ControlPoint Id="GzyuRzo8sMyQY16DQc0MH7" Bounds="486,254" />
             <ControlPoint Id="UsHhnId4iGBLwAzMr9jWrl" Bounds="499,277" />
             <ControlPoint Id="BMEMSVcVJVQPPDLkFSamJk" Bounds="507,305" />
+            <ControlPoint Id="B3XNtWuQfWUMYwuIvd95bB" Bounds="525,320" />
           </Canvas>
           <ProcessDefinition Id="E932tPO7m65L8QfWGqWTza">
             <Fragment Id="AzaOnJMYD0HLJOPmzFi7MI" Patch="APcNIMg8kOzNtJA8GsjkQj" Enabled="true" />
@@ -278,7 +285,10 @@
             <Pin Id="PpM4I8LJfktPakab5URUJ0" Name="Duration" Kind="OutputPin" />
             <Pin Id="MTtGCVZu27gPiWU728nAMu" Name="Ready State" Kind="OutputPin" />
             <Pin Id="SYxJBBrmRL9NqvJFLD3Hy2" Name="Error Code" Kind="OutputPin" />
+            <Pin Id="QF61YmGV0lGLUrIyx5woT9" Name="Use Linear Texture Format" Kind="InputPin" Visibility="Optional" />
           </Patch>
+          <Link Id="E4mTTGRJFUPLVckEmZpBSn" Ids="B3XNtWuQfWUMYwuIvd95bB,KSAZ2H9xbSbLhjuFNzoRmh" />
+          <Link Id="CgZk04ODg98OPwps3uzvkO" Ids="QF61YmGV0lGLUrIyx5woT9,B3XNtWuQfWUMYwuIvd95bB" IsHidden="true" />
         </Patch>
       </Node>
       <!--
@@ -381,7 +391,7 @@
                 <Choice Kind="OperationCallFlag" Name="SupportedFormats" />
               </p:NodeReference>
               <Pin Id="Ge6hJO4CiNpPb6pDD7YQI9" Name="Input" Kind="StateInputPin" />
-              <Pin Id="Kt8hNHN4LVbPt3NvN5FKil" Name="Output" Kind="OutputPin" IsHidden="true" />
+              <Pin Id="Kt8hNHN4LVbPt3NvN5FKil" Name="Output" Kind="OutputPin" />
               <Pin Id="S8YJWfWjc3dL7f5F1WNYDr" Name="Supported Formats" Kind="OutputPin" />
             </Node>
           </Canvas>

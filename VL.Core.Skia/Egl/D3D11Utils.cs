@@ -74,7 +74,7 @@ namespace VL.Skia.Egl
         }
 
         [SupportedOSPlatform("windows6.1")]
-        public static unsafe SKImage TextureToSKImage(RenderContext renderContext, nint d3d11Texture, DXGI_FORMAT? viewFormat = default)
+        public static unsafe SKImage TextureToSKImage(RenderContext renderContext, nint d3d11Texture, DXGI_FORMAT? viewFormat = default, bool? useLinearColorspace = default)
         {
             using var _ = renderContext.MakeCurrent(forRendering: false);
 
@@ -105,14 +105,15 @@ namespace VL.Skia.Egl
                 mipmapped: false,
                 glInfo: glInfo);
 
+            var linear = useLinearColorspace ?? renderContext.UseLinearColorspace && (IsHdrFormat(format) || IsSrgbFormat(format));
+
             return SKImage.FromTexture(
                 renderContext.SkiaContext,
                 backendTexture,
                 GRSurfaceOrigin.TopLeft,
                 colorType,
                 SKAlphaType.Unpremul,
-                // Same as in Stride/SkiaRenderer
-                colorspace: renderContext.UseLinearColorspace && format == desc.Format ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb(),
+                colorspace: linear ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb(),
                 releaseProc: x =>
                 {
                     var (renderContext, textureId) = ((RenderContext, uint))x;
@@ -168,12 +169,15 @@ namespace VL.Skia.Egl
             switch (format)
             {
                 // Standard formats
+                case DXGI_FORMAT_R8G8B8A8_TYPELESS:
                 case DXGI_FORMAT_R8G8B8A8_UNORM:
                 case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
                     return SKColorType.Rgba8888;
 
+                case DXGI_FORMAT_B8G8R8A8_TYPELESS:
                 case DXGI_FORMAT_B8G8R8A8_UNORM:
                 case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+                case DXGI_FORMAT_B8G8R8X8_TYPELESS:
                 case DXGI_FORMAT_B8G8R8X8_UNORM:
                 case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
                     return SKColorType.Bgra8888;

@@ -332,7 +332,7 @@ namespace VL.Video.MF
                                 ArraySize = 1,
                                 BindFlags = D3D11_BIND_FLAG.D3D11_BIND_RENDER_TARGET | D3D11_BIND_FLAG.D3D11_BIND_SHADER_RESOURCE,
                                 // _SRGB doesn't work :/ Getting invalid argument exception in TransferVideoFrame
-                                Format = useLinearFormat ? DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM,
+                                Format = useLinearFormat ? DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM,
                                 MipLevels = 1,
                                 SampleDesc = new DXGI_SAMPLE_DESC() { Count = 1, Quality = 0 },
                                 Usage = D3D11_USAGE.D3D11_USAGE_DEFAULT
@@ -360,7 +360,7 @@ namespace VL.Video.MF
                             new RECT(0, 0, renderTargetSize.Width, renderTargetSize.Height),
                             ToRawColorBGRA(videoPlayer.BorderColor));
 
-                        VideoFrame videoFrame = useLinearFormat ? new GpuVideoFrame<Rgba16fPixel>(texture) : new GpuVideoFrame<RgbaPixel>(texture);
+                        VideoFrame videoFrame = useLinearFormat ? new GpuVideoFrame<Rgba16fPixel>(texture) : new GpuVideoFrame<BgraPixel>(texture);
                         return ResourceProvider.Return(videoFrame, (texture, texturePool), static x => x.texturePool.Return(x.texture));
                     }
                     else if (bitmapPool != null)
