@@ -67,6 +67,8 @@ namespace VL.Stride
 
             var commandList = context.CommandList;
             var renderTarget = commandList.RenderTarget;
+            if (renderTarget is null)
+                return;
             var sampleCount = (int)renderTarget.MultisampleCount;
 
             // Fetch the skia render context (uses ANGLE -> DirectX11)
