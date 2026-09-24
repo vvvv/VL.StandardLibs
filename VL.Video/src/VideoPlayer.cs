@@ -1,17 +1,26 @@
 ﻿#nullable enable
 using Stride.Core.Mathematics;
 using System;
-using VL.Lib.Basics.Video;
+using System.ComponentModel;
 using System.Threading;
+using VL.Core.Import;
+using VL.Lib.Basics.Video;
+using VL.Model;
 
 namespace VL.Video
 {
+    [ProcessNode(Name = "VideoPlayer (Url)", Category = "Video", FragmentSelection = FragmentSelection.Explicit, Summary = "Play videos from a given web url", Tags = "web,avi,wmv,mp4,h264,mjpeg,mpeg,dv,mov")]
     public sealed partial class VideoPlayer : IVideoSource2
     {
         private readonly object syncRoot = new();
         private VideoPlayerImpl? currentPlayer;
         private int changedTicket;
         private bool useLinearTextureFormat;
+
+        [Fragment]
+        public VideoPlayer()
+        {
+        }
 
         /// <summary>
         /// The URL of the media to play.
@@ -128,6 +137,59 @@ namespace VL.Video
             }
 
             return this;
+        }
+
+        /// <summary>Configures playback and exposes the current player status.</summary>
+        /// <param name="url">URL of the media to play.</param>
+        /// <param name="play">Whether playback is active.</param>
+        /// <param name="rate">Playback speed multiplier: e.g: 1.0 = normal speed, 0.5 = half speed, 2.0 = double speed</param>
+        /// <param name="seekTime">Target playback position in seconds.</param>
+        /// <param name="seek">Whether to seek to the specified position.</param>
+        /// <param name="loopStartTime">Start of the loop in seconds.</param>
+        /// <param name="loopEndTime">End of the loop in seconds.</param>
+        /// <param name="loop">Whether looping is enabled.</param>
+        /// <param name="volume">Audio volume.</param>
+        /// <param name="textureSize">Output texture size; zero uses the source dimensions.</param>
+        /// <param name="sourceBounds">Normalized source rectangle.</param>
+        /// <param name="borderColor">Border color.</param>
+        /// <param name="useLinearTextureFormat">Whether to use a linear texture format.</param>
+        /// <param name="playing">Whether playback started.</param>
+        /// <param name="currentTime">Current playback time in seconds.</param>
+        /// <param name="duration">Media duration in seconds.</param>
+        /// <param name="readyState">Readiness state of the media.</param>
+        /// <param name="networkState">Current network loading state.</param>
+        /// <param name="errorCode">Most recent error status.</param>
+        [Fragment]
+        [return: Pin(Name = "Output")]
+        public IVideoSource Update(
+            [Pin(Name = "Url"), DefaultValue("")] string? url,
+            [Pin(Name = "Play"), DefaultValue(false)] bool play,
+            [Pin(Name = "Rate"), DefaultValue(1f)] float rate,
+            [Pin(Name = "Seek Time"), DefaultValue(0f)] float seekTime,
+            [Pin(Name = "Seek"), DefaultValue(false)] bool seek,
+            [Pin(Name = "Loop Start Time"), DefaultValue(0f)] float loopStartTime,
+            [Pin(Name = "Loop End Time"), DefaultValue(-1f)] float loopEndTime,
+            [Pin(Name = "Loop"), DefaultValue(false)] bool loop,
+            [Pin(Name = "Volume"), DefaultValue(1f)] float volume,
+            [Pin(Name = "Texture Size", Visibility = PinVisibility.Optional)] Int2 textureSize,
+            [Pin(Name = "Source Bounds", Visibility = PinVisibility.Optional)] RectangleF? sourceBounds,
+            [Pin(Name = "Border Color", Visibility = PinVisibility.Optional)] Color4? borderColor,
+            [Pin(Name = "Use Linear Texture Format", Visibility = PinVisibility.Optional), DefaultValue(false)] bool useLinearTextureFormat,
+            [Pin(Name = "Playing")] out bool playing,
+            [Pin(Name = "Current Time")] out float currentTime,
+            [Pin(Name = "Duration")] out float duration,
+            [Pin(Name = "Ready State")] out ReadyState readyState,
+            [Pin(Name = "Network State")] out NetworkState networkState,
+            [Pin(Name = "Error Code")] out ErrorState errorCode)
+        {
+            var output = Update(url ?? string.Empty, play, rate, seekTime, seek, loopStartTime, loopEndTime, loop, volume, textureSize, sourceBounds, borderColor, useLinearTextureFormat);
+            playing = Playing;
+            currentTime = CurrentTime;
+            duration = Duration;
+            readyState = ReadyState;
+            networkState = NetworkState;
+            errorCode = ErrorCode;
+            return output;
         }
 
         IVideoPlayer? IVideoSource2.Start(VideoPlaybackContext ctx)

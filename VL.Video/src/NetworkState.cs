@@ -1,7 +1,11 @@
 ﻿#nullable enable
 
+using VL.Core;
+using VL.Core.Import;
+
 namespace VL.Video
 {
+    [Smell(SymbolSmell.Advanced)]
     public enum NetworkState : short
     {
         /// <summary>

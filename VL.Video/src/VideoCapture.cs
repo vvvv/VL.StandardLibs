@@ -1,17 +1,26 @@
 ﻿#nullable enable
 using Stride.Core.Mathematics;
 using System;
+using System.ComponentModel;
 using System.Reactive.Subjects;
 using System.Threading;
+using VL.Core.Import;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
+using VL.Model;
 using VL.Video.CaptureControl;
 
 namespace VL.Video
 {
+    [ProcessNode(Name = "VideoIn", Category = "Video", FragmentSelection = FragmentSelection.Explicit, Summary = "Capture video from USB cameras", Remarks = "Supports any camera that comes with a UVC 1.1 driver", Tags = "capture,stream,webcam,camera")]
     public sealed partial class VideoCapture : IVideoSource2
     {
         private readonly object syncRoot = new();
+
+        [Fragment]
+        public VideoCapture()
+        {
+        }
 
         private string? deviceLink;
         private Int2 preferredSize;
@@ -97,6 +106,29 @@ namespace VL.Video
         public string SupportedFormats => currentCapture?.SupportedFormats ?? string.Empty;
 
         int IVideoSource2.ChangedTicket => changeTicket;
+
+        [Fragment]
+        [return: Pin(Name = "Output")]
+        public IVideoSource Update(
+            [Pin(Name = "Device")] VideoCaptureDeviceEnumEntry? device,
+            [Pin(Name = "Preferred Size"), DefaultValue(typeof(Int2), "1920, 1080")] Int2 preferredSize,
+            [Pin(Name = "Preferred FPS"), DefaultValue(30f)] float preferredFps,
+            [Pin(Name = "Camera Controls")] CameraControls cameraControls,
+            [Pin(Name = "Video Controls")] VideoControls videoControls,
+            [DefaultValue(true)] bool enabled,
+            [Pin(Name = "Actual FPS")] out float actualFps,
+            [Pin(Name = "Supported Formats")] out string supportedFormats)
+        {
+            Device = device;
+            PreferredSize = preferredSize;
+            PreferredFps = preferredFps;
+            CameraControls = cameraControls;
+            VideoControls = videoControls;
+            Enabled = enabled;
+            actualFps = ActualFPS;
+            supportedFormats = SupportedFormats;
+            return this;
+        }
 
         IVideoPlayer? IVideoSource2.Start(VideoPlaybackContext ctx)
         {

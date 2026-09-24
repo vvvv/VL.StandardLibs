@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using VL.Core;
+using VL.Core.Import;
 using VL.Lib;
 using VL.Lib.Collections;
 using VL.Video.MF;
@@ -11,6 +13,7 @@ namespace VL.Video
     /// <summary>
     /// Dynamic enum of available video input devices
     /// </summary>
+    [Smell(SymbolSmell.Hidden)]
     public class VideoCaptureDeviceEnum : DynamicEnumDefinitionBase<VideoCaptureDeviceEnum>
     {
         //return the current enum entries
