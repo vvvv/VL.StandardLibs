@@ -9,11 +9,13 @@ using Windows.Win32.Media.DirectShow;
 
 namespace VL.Video.CaptureControl
 {
+    /// <summary>Holds optional values for camera controls such as pan, zoom, and focus.</summary>
     [ProcessNode(Name = "CameraControls", Category = "Video", FragmentSelection = FragmentSelection.Explicit, Summary = "Controls camera parameters like zoom, exposure,...", Remarks = "Connects to the VideoIn node.\r\nNote that not all cameras will support all of the available properties")]
     public sealed class CameraControls : IControls<CameraControlProperty>
     {
         internal static readonly CameraControls Default = new CameraControls();
 
+        /// <summary>Creates a control set with all values unset.</summary>
         [Fragment]
         public CameraControls()
         {
@@ -26,6 +28,15 @@ namespace VL.Video.CaptureControl
 
         internal readonly ImmutableArray<Property<CameraControlProperty>> Properties;
 
+        /// <summary>Sets optional camera controls. Valid values and supported controls vary by device.</summary>
+        /// <param name="pan">Optional pan value; units and range are device-specific.</param>
+        /// <param name="tilt">Optional tilt value; units and range are device-specific.</param>
+        /// <param name="roll">Optional roll value; units and range are device-specific.</param>
+        /// <param name="zoom">Optional zoom value; units and range are device-specific.</param>
+        /// <param name="exposure">Optional exposure value; units and range are device-specific.</param>
+        /// <param name="iris">Optional iris value; units and range are device-specific.</param>
+        /// <param name="focus">Optional focus value; units and range are device-specific.</param>
+        /// <returns>The updated camera-control set.</returns>
         [Fragment]
         [return: Pin(Name = "Output")]
         public CameraControls Update(

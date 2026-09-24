@@ -12,11 +12,13 @@ using VL.Video.CaptureControl;
 
 namespace VL.Video
 {
+    /// <summary>Captures video from a selected video-capture device.</summary>
     [ProcessNode(Name = "VideoIn", Category = "Video", FragmentSelection = FragmentSelection.Explicit, Summary = "Capture video from USB cameras", Remarks = "Supports any camera that comes with a UVC 1.1 driver", Tags = "capture,stream,webcam,camera")]
     public sealed partial class VideoCapture : IVideoSource2
     {
         private readonly object syncRoot = new();
 
+        /// <summary>Creates a video-capture source.</summary>
         [Fragment]
         public VideoCapture()
         {
@@ -107,6 +109,16 @@ namespace VL.Video
 
         int IVideoSource2.ChangedTicket => changeTicket;
 
+        /// <summary>Configures the capture device and reports active capture details.</summary>
+        /// <param name="device">Device to capture from. The Default entry lets the system choose a device.</param>
+        /// <param name="preferredSize">Requested capture size. The default is 1920 by 1080.</param>
+        /// <param name="preferredFps">Requested capture frame rate. The device may provide a different rate.</param>
+        /// <param name="cameraControls">Optional camera-control values to apply; support depends on the device.</param>
+        /// <param name="videoControls">Optional video-processing values to apply; support depends on the device.</param>
+        /// <param name="enabled">Whether this capture source is enabled.</param>
+        /// <param name="actualFps">Frame rate reported by the active capture, or zero when inactive.</param>
+        /// <param name="supportedFormats">Formats reported by the active capture, or an empty string when inactive.</param>
+        /// <returns>The configured video source.</returns>
         [Fragment]
         [return: Pin(Name = "Output")]
         public IVideoSource Update(

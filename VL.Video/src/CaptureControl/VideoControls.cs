@@ -9,11 +9,13 @@ using Windows.Win32.Media.DirectShow;
 
 namespace VL.Video.CaptureControl
 {
+    /// <summary>Holds optional values for video-processing controls such as brightness and contrast.</summary>
     [ProcessNode(Name = "VideoControls", Category = "Video", FragmentSelection = FragmentSelection.Explicit, Summary = "Controls video parameters like brightness, contrast,...", Remarks = "Connects to the VideoIn node.\r\nNote that not all cameras will support all of the available properties")]
     public sealed class VideoControls : IControls<VideoProcAmpProperty>
     {
         internal static readonly VideoControls Default = new VideoControls();
 
+        /// <summary>Creates a control set with all values unset.</summary>
         [Fragment]
         public VideoControls()
         {
@@ -26,6 +28,18 @@ namespace VL.Video.CaptureControl
 
         internal readonly ImmutableArray<Property<VideoProcAmpProperty>> Properties;
 
+        /// <summary>Sets optional video-processing controls. Valid values and supported controls vary by device.</summary>
+        /// <param name="brightness">Optional brightness value; units and range are device-specific.</param>
+        /// <param name="contrast">Optional contrast value; units and range are device-specific.</param>
+        /// <param name="hue">Optional hue value; units and range are device-specific.</param>
+        /// <param name="saturation">Optional saturation value; units and range are device-specific.</param>
+        /// <param name="sharpness">Optional sharpness value; units and range are device-specific.</param>
+        /// <param name="gamma">Optional gamma value; units and range are device-specific.</param>
+        /// <param name="colorEnable">Optional color-enable value; interpretation is device-specific.</param>
+        /// <param name="whiteBalance">Optional white-balance value; units and range are device-specific.</param>
+        /// <param name="backlightCompensation">Optional backlight-compensation value; interpretation is device-specific.</param>
+        /// <param name="gain">Optional gain value; units and range are device-specific.</param>
+        /// <returns>The updated video-control set.</returns>
         [Fragment]
         [return: Pin(Name = "Output")]
         public VideoControls Update(

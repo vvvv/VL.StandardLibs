@@ -9,6 +9,7 @@ using VL.Model;
 
 namespace VL.Video
 {
+    /// <summary>Plays media from a URL and exposes the player's playback state.</summary>
     [ProcessNode(Name = "VideoPlayer (Url)", Category = "Video", FragmentSelection = FragmentSelection.Explicit, Summary = "Play videos from a given web url", Tags = "web,avi,wmv,mp4,h264,mjpeg,mpeg,dv,mov")]
     public sealed partial class VideoPlayer : IVideoSource2
     {
@@ -17,6 +18,7 @@ namespace VL.Video
         private int changedTicket;
         private bool useLinearTextureFormat;
 
+        /// <summary>Creates a URL-backed video player.</summary>
         [Fragment]
         public VideoPlayer()
         {
@@ -159,6 +161,7 @@ namespace VL.Video
         /// <param name="readyState">Readiness state of the media.</param>
         /// <param name="networkState">Current network loading state.</param>
         /// <param name="errorCode">Most recent error status.</param>
+        /// <returns>The configured video source.</returns>
         [Fragment]
         [return: Pin(Name = "Output")]
         public IVideoSource Update(
