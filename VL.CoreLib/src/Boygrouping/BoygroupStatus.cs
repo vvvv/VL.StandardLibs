@@ -4,6 +4,7 @@ using VL.Core;
 using VL.Core.Boygrouping;
 using VL.Core.Import;
 using VL.Lib.Boygrouping;
+using VL.Lib.Collections;
 
 [assembly: ImportType(typeof(BoygroupServerStatus), Category = "System.Boygrouping")]
 [assembly: ImportType(typeof(BoygroupClientStatus), Category = "System.Boygrouping")]
@@ -15,6 +16,8 @@ namespace VL.Lib.Boygrouping;
 public sealed class BoygroupServerStatus
 {
     private readonly IBoygroupServerStatusProvider? statusProvider;
+    private Spread<BoygroupClientInfo> connectedClients = Spread<BoygroupClientInfo>.Empty;
+    private Spread<BoygroupClientInfo> allClients = Spread<BoygroupClientInfo>.Empty;
 
     public BoygroupServerStatus(NodeContext nodeContext)
     {
@@ -26,13 +29,20 @@ public sealed class BoygroupServerStatus
 
     /// <inheritdoc cref="IBoygroupServerStatusProvider.ConnectedClients"/>
     [Fragment(IsDefault = true)]
-    public ImmutableArray<BoygroupClientInfo> ConnectedClients => statusProvider != null ? statusProvider.ConnectedClients : ImmutableArray<BoygroupClientInfo>.Empty;
+    public Spread<BoygroupClientInfo> ConnectedClients => AsSpread(ref connectedClients, statusProvider?.ConnectedClients);
 
     /// <inheritdoc cref="IBoygroupServerStatusProvider.AllClients"/>
-    public ImmutableArray<BoygroupClientInfo> AllClients => statusProvider != null ? statusProvider.AllClients : ImmutableArray<BoygroupClientInfo>.Empty;
+    public Spread<BoygroupClientInfo> AllClients => AsSpread(ref allClients, statusProvider?.AllClients);
 
     /// <inheritdoc cref="IBoygroupServerStatusProvider.WorkingDirectory"/>
     public string WorkingDirectory => statusProvider?.WorkingDirectory ?? string.Empty;
+
+    private static Spread<T> AsSpread<T>(ref Spread<T> spread, ImmutableArray<T>? array)
+    {
+        if (array != spread._array)
+            spread = array.HasValue ? new(array.Value) : Spread<T>.Empty;
+        return spread;
+    }
 }
 
 [ProcessNode]
