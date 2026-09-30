@@ -13,7 +13,7 @@ using VL.Lib;
 
 namespace VL.Lib
 {
-    [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
+    [ProcessNode(FragmentSelection = FragmentSelection.Explicit, HasStateOutput = true /* Needed by VL.Elementa */, StateOutputNotVisibleByDefault = true)]
     public class ManageProcess<TState, TOutput> : IDisposable
     {
         TState FState;
