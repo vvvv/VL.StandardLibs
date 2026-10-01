@@ -126,13 +126,13 @@ namespace VL.Core.PublicAPI
     /// while output control points other than splicers and accumulators can be used from multiple moments.
     /// This restriction might be lifted in the future.
     /// </remarks>
-    public interface IRegion<TInlay>
+    public interface IRegion<TInlayFactory, TInlay>
     {
         /// <summary>
-        /// Sets the factory method used to create instances of user patched <typeparamref name="TInlay"/>.
+        /// Sets the factory used to create instances of user patched <typeparamref name="TInlay"/>.
         /// </summary>
-        /// <param name="patchInlayFactory">A function that returns a new instance of <typeparamref name="TInlay"/>.</param>
-        void SetPatchInlayFactory(Func<TInlay> patchInlayFactory);
+        /// <param name="patchInlayFactory">A factory that returns a new instance of <typeparamref name="TInlay"/>.</param>
+        void SetPatchInlayFactory(TInlayFactory patchInlayFactory);
 
         /// <summary>
         /// Called for each input (including links) that is connected to the region from the outside.
@@ -163,6 +163,40 @@ namespace VL.Core.PublicAPI
         /// <param name="patchInlay">The patch inlay which writes the value.</param>
         /// <param name="innerValue">The value the patch inlay produced.</param>
         void AcknowledgeOutput(in OutputDescription description, TInlay patchInlay, object? innerValue);
+    }
+
+    /// <summary>
+    /// Implemented by the region designer. <typeparamref name="TInlay"/> defines how the patch inlay looks like and will be implemented by the user.
+    /// </summary>
+    /// <remarks>
+    /// This interface uses a parameterless factory. Use <see cref="IRegion{TInlayFactory, TInlay}"/> to provide a factory with inputs.
+    /// </remarks>
+    public interface IRegion<TInlay> : IRegion<Func<TInlay>, TInlay>
+    {
+        new void SetPatchInlayFactory(Func<TInlay> patchInlayFactory);
+
+        new void AcknowledgeInput(in InputDescription description, object? outerValue);
+
+        new void RetrieveOutput(in OutputDescription description, out object? outerValue);
+
+        new void RetrieveInput(in InputDescription description, TInlay patchInlay, out object? innerValue);
+
+        new void AcknowledgeOutput(in OutputDescription description, TInlay patchInlay, object? innerValue);
+
+        void IRegion<Func<TInlay>, TInlay>.SetPatchInlayFactory(Func<TInlay> patchInlayFactory)
+            => SetPatchInlayFactory(patchInlayFactory);
+
+        void IRegion<Func<TInlay>, TInlay>.AcknowledgeInput(in InputDescription description, object? outerValue)
+            => AcknowledgeInput(in description, outerValue);
+
+        void IRegion<Func<TInlay>, TInlay>.RetrieveOutput(in OutputDescription description, out object? outerValue)
+            => RetrieveOutput(in description, out outerValue);
+
+        void IRegion<Func<TInlay>, TInlay>.RetrieveInput(in InputDescription description, TInlay patchInlay, out object? innerValue)
+            => RetrieveInput(in description, patchInlay, out innerValue);
+
+        void IRegion<Func<TInlay>, TInlay>.AcknowledgeOutput(in OutputDescription description, TInlay patchInlay, object? innerValue)
+            => AcknowledgeOutput(in description, patchInlay, innerValue);
     }
 
     /// <summary>
