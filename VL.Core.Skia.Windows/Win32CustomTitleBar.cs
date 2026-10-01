@@ -91,6 +91,7 @@ namespace VL.Core.Windows
         // Minimal draggable space (in DIP) that must remain beside the window control buttons
         private const int MinimalDraggableSpace = 50;
 
+        private readonly bool showCustomSystemMenuItems;
         private bool alwaysOnTop = false;
 
         /// <summary>
@@ -105,12 +106,19 @@ namespace VL.Core.Windows
         private int interactionWidth = 0;
 
         public Win32CustomTitleBar(Form form)
+            : this(form, showCustomSystemMenuItems: true)
+        {
+        }
+
+        public Win32CustomTitleBar(Form form, bool showCustomSystemMenuItems)
         {
             this.form = form ?? throw new ArgumentNullException(nameof(form));
+            this.showCustomSystemMenuItems = showCustomSystemMenuItems;
             this.alwaysOnTop = form.TopMost;
             form.HandleCreated += (s, e) =>
             {
-                InitializeCustomMenu();
+                if (this.showCustomSystemMenuItems)
+                    InitializeCustomMenu();
                 UpdateTitleBarButtonRects();
             };
             form.Shown += (s, e) =>
@@ -118,6 +126,7 @@ namespace VL.Core.Windows
                 form.TopMost = alwaysOnTop;
             };
             form.Resize += (s, e) => UpdateTitleBarButtonRects();
+            form.DpiChanged += (s, e) => UpdateTitleBarButtonRects();
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -134,7 +143,8 @@ namespace VL.Core.Windows
                     if (form.IsHandleCreated)
                     {
                         form.TopMost = alwaysOnTop;
-                        ToggleMenu(ID_TOGGLE_TOPMOST, alwaysOnTop);
+                        if (showCustomSystemMenuItems)
+                            ToggleMenu(ID_TOGGLE_TOPMOST, alwaysOnTop);
                     }
 
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AlwaysOnTop)));
@@ -162,7 +172,8 @@ namespace VL.Core.Windows
                             SET_WINDOW_POS_FLAGS.SWP_FRAMECHANGED | SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER);
                         form.Invalidate();
 
-                        ToggleMenu(ID_TOGGLE_EXTEND_INTO_TITLEBAR, extendIntoTitleBar);
+                        if (showCustomSystemMenuItems)
+                            ToggleMenu(ID_TOGGLE_EXTEND_INTO_TITLEBAR, extendIntoTitleBar);
                     }
 
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ExtendIntoTitleBar)));
@@ -575,6 +586,14 @@ namespace VL.Core.Windows
         public Rectangle CloseButtonRect => closeButtonRect;
         public Rectangle MaximizeButtonRect => maximizeButtonRect;
         public Rectangle MinimizeButtonRect => minimizeButtonRect;
+        public Rectangle TitleBarRect
+        {
+            get
+            {
+                var rect = win32_titlebar_rect((HWND)form.Handle);
+                return Rectangle.FromLTRB(rect.left, rect.top, rect.right, rect.bottom);
+            }
+        }
         public bool CloseButtonHovered => closeButtonHovered;
         public bool MaximizeButtonHovered => maximizeButtonHovered;
         public bool MinimizeButtonHovered => minimizeButtonHovered;
