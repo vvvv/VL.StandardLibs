@@ -31,24 +31,24 @@ internal sealed class SkiaInputDevices
 
     static Mouse CreateMouse(Control c)
     {
-        var mouseDowns = Observable.FromEventPattern<MouseEventArgs>(c, nameof(c.MouseDown))
+        var mouseDowns = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(addHandler: h => c.MouseDown += h, removeHandler: h => c.MouseDown -= h)
             .Select(p => p.EventArgs.ToMouseDownNotification(c, c));
-        var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(c, nameof(c.MouseMove))
+        var mouseMoves = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(addHandler: h => c.MouseMove += h, removeHandler: h => c.MouseMove -= h)
             .Select(p => p.EventArgs.ToMouseMoveNotification(c, c));
-        var mouseUps = Observable.FromEventPattern<MouseEventArgs>(c, nameof(c.MouseUp))
+        var mouseUps = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(addHandler: h => c.MouseUp += h, removeHandler: h => c.MouseUp -= h)
             .Select(p => p.EventArgs.ToMouseUpNotification(c, c));
-        var mouseWheels = Observable.FromEventPattern<MouseEventArgs>(c, nameof(c.MouseWheel))
+        var mouseWheels = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(addHandler: h => c.MouseWheel += h, removeHandler: h => c.MouseWheel -= h)
             .Select(p => p.EventArgs.ToMouseWheelNotification(c, c));
         return new Mouse(mouseDowns.Merge<MouseNotification>(mouseMoves).Merge(mouseUps).Merge(mouseWheels));
     }
 
     static Keyboard CreateKeyboard(Control c)
     {
-        var keyDowns = Observable.FromEventPattern<KeyEventArgs>(c, nameof(c.KeyDown))
+        var keyDowns = Observable.FromEventPattern<KeyEventHandler, KeyEventArgs>(addHandler: h => c.KeyDown += h, removeHandler: h => c.KeyDown -= h)
             .Select(p => p.EventArgs.ToKeyDownNotification(c));
-        var keyUps = Observable.FromEventPattern<KeyEventArgs>(c, nameof(c.KeyUp))
+        var keyUps = Observable.FromEventPattern<KeyEventHandler, KeyEventArgs>(addHandler: h => c.KeyUp += h, removeHandler: h => c.KeyUp -= h)
             .Select(p => p.EventArgs.ToKeyUpNotification(c));
-        var keyPresses = Observable.FromEventPattern<KeyPressEventArgs>(c, nameof(c.KeyPress))
+        var keyPresses = Observable.FromEventPattern<KeyPressEventHandler, KeyPressEventArgs>(addHandler: h => c.KeyPress += h, removeHandler: h => c.KeyPress -= h)
             .Select(p => p.EventArgs.ToKeyPressNotification(c));
         return new Keyboard(keyDowns.Merge<KeyNotification>(keyUps).Merge(keyPresses));
     }

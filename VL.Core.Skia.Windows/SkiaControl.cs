@@ -1,14 +1,15 @@
 ﻿#nullable enable
 
 using System;
-using VL.Lib.IO;
-using VL.Lib.IO.Notifications;
-using System.Windows.Forms;
-using Vector2 = Stride.Core.Mathematics.Vector2;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using Keys = System.Windows.Forms.Keys;
+using System.Windows.Forms;
+using VL.Lib.IO;
+using VL.Lib.IO.Notifications;
 using VL.Skia.Egl;
+using Keys = System.Windows.Forms.Keys;
+using Vector2 = Stride.Core.Mathematics.Vector2;
 
 namespace VL.Skia
 {
@@ -24,6 +25,22 @@ namespace VL.Skia
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             ResizeRedraw = true;
+
+            var lostfocus = Observable.Never<EventPattern<EventArgs>>()
+                .Merge(Observable.FromEventPattern<EventHandler, EventArgs>(addHandler: h => MouseLeave += h, removeHandler: h => MouseLeave -= h)) // leave with mouse
+                .Merge(Observable.FromEventPattern<EventHandler, EventArgs>(addHandler: h => LostFocus += h, removeHandler: h => LostFocus -= h)) // alt-tab away from window
+                .Select(p => p.EventArgs.ToLostFocusNotification(this, this));
+            var gotfocus = Observable.Never<EventPattern<EventArgs>>()
+                .Merge(Observable.FromEventPattern<EventHandler, EventArgs>(addHandler: h => MouseEnter += h, removeHandler: h => MouseEnter -= h)) // enter with mouse
+                .Merge(Observable.FromEventPattern<EventHandler, EventArgs>(addHandler: h => GotFocus += h, removeHandler: h => GotFocus -= h)) // alt-tab into window
+                .Select(p => p.EventArgs.ToGotFocusNotification(this, this));
+            Notifications = Observable.Merge(new IObservable<INotification>[] {
+                Mouse.Notifications,
+                Keyboard.Notifications,
+                TouchDevice.Notifications,
+                lostfocus,
+                gotfocus
+                });
         }
 
         public CallerInfo CallerInfo { get; protected set; } =  CallerInfo.Default;
@@ -38,6 +55,7 @@ namespace VL.Skia
         public Keyboard Keyboard => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Keyboard;
         public TouchDevice TouchDevice => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).TouchDevice;
         public IObservable<TouchNotification> TouchNotifications => touchNotifications;
+        public IObservable<INotification> Notifications { get; }
 
         protected override CreateParams CreateParams
         {
@@ -100,7 +118,7 @@ namespace VL.Skia
             }
         }
 
-        protected virtual void OnPaint(CallerInfo callerInfo) => OnRender?.Invoke(CallerInfo);
+        protected virtual void OnPaint(CallerInfo callerInfo) => OnRender?.Invoke(callerInfo);
 
         public void MapFromPixels(INotificationWithPosition notification, out Vector2 inNormalizedProjection, out Vector2 inProjection)
             => SpaceHelpers.DoMapFromPixels(notification.Position, notification.ClientArea, out inNormalizedProjection, out inProjection);
