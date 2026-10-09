@@ -83,3 +83,11 @@ public abstract class RegionBase<TInlayFactory, TInlay> : IRegion<TInlayFactory,
         outputs[description] = innerValue;
     }
 }
+
+/// <summary>
+/// Provides the standard storage and <see cref="IRegion{TInlayFactory, TInlay}"/> implementation for a custom region with a factory delegate that takes no parameters.
+/// </summary>
+/// <typeparam name="TInlay">The type of the patch inlay.</typeparam>
+public abstract class RegionBase<TInlay> : RegionBase<Func<TInlay>, TInlay>
+{
+}
