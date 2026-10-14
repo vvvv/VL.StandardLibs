@@ -1,10 +1,12 @@
 ﻿#nullable enable
 using System.Collections.Immutable;
+using System.Net;
 using VL.Core;
 using VL.Core.Boygrouping;
 using VL.Core.Import;
 using VL.Lib.Boygrouping;
 using VL.Lib.Collections;
+using VL.Lib.IO.Net;
 
 [assembly: ImportType(typeof(BoygroupServerStatus), Category = "System.Boygrouping")]
 [assembly: ImportType(typeof(BoygroupClientStatus), Category = "System.Boygrouping")]
@@ -36,6 +38,9 @@ public sealed class BoygroupServerStatus
 
     /// <inheritdoc cref="IBoygroupServerStatusProvider.WorkingDirectory"/>
     public string WorkingDirectory => statusProvider?.WorkingDirectory ?? string.Empty;
+
+    /// <inheritdoc cref="IBoygroupServerStatusProvider.BindingAddress"/>
+    public IPEndPoint BindingAddress => statusProvider?.BindingAddress ?? NetUtils.DefaultIPEndPoint;
 
     private static Spread<T> AsSpread<T>(ref Spread<T> spread, ImmutableArray<T>? array)
     {
