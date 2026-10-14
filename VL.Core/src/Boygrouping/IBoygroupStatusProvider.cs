@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System.Collections.Immutable;
+using System.Net;
 
 namespace VL.Core.Boygrouping
 {
@@ -19,6 +20,11 @@ namespace VL.Core.Boygrouping
         /// The working directory of the server. Only files within the working directory are synchronized with the clients.
         /// </summary>
         string WorkingDirectory { get; }
+
+        /// <summary>
+        /// The address the server is bound to.
+        /// </summary>
+        IPEndPoint BindingAddress { get; }
     }
 
     internal interface IBoygroupClientStatusProvider

@@ -93,9 +93,9 @@ sealed class DynamicObjectEditor : IObjectEditor, IDisposable
 
     private void RecreateEditor(Type? type)
     {
-        currentType = type;
-
         DisposeEditor();
+
+        currentType = type;
 
         if (type != null && type != typeof(object))
         {
