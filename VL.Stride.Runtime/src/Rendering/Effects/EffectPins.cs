@@ -77,16 +77,26 @@ namespace VL.Stride.Rendering
         public readonly ParameterKey Key;
         public readonly int Count;
         public readonly bool IsPermutationKey;
-
-        // This value gets passed to the live pin - for example SetVar<Vector4> (and not just the plain vector)
         public readonly object RuntimeDefaultValue;
+        private readonly string? nodeInstanceId;
+        private readonly bool isStage;
+        private readonly ParameterKey internalKey;
 
-        public ParameterPinDescription(HashSet<string> usedNames, ParameterKey key, int count = 1, object compilationDefaultValue = null, bool isPermutationKey = false, string name = null, Type typeInPatch = null, object runtimeDefaultValue = null)
+        // Accept isStage as a parameter, determined by the caller from shader metadata/variable attributes
+        public ParameterPinDescription(HashSet<string> usedNames, ParameterKey key, int count = 1, object compilationDefaultValue = null, bool isPermutationKey = false, string name = null, Type typeInPatch = null, object runtimeDefaultValue = null, string? nodeInstanceId = null, bool isStage = false)
         {
             Key = key;
             IsPermutationKey = isPermutationKey;
             Count = count;
+            this.nodeInstanceId = nodeInstanceId;
+            this.isStage = isStage;
+            // User-facing name should not include nodeInstanceId
             Name = name ?? key.GetPinName(usedNames);
+            // Internal shader key: unique per node unless 'stage'
+            if (!isStage && nodeInstanceId != null)
+                internalKey = key.WithUniqueInstance(nodeInstanceId);
+            else
+                internalKey = key;
             var elementType = typeInPatch ?? key.PropertyType;
             compilationDefaultValue = compilationDefaultValue ?? key.DefaultValueMetadata?.GetDefaultValue();
             // TODO: This should be fixed in Stride
@@ -110,12 +120,11 @@ namespace VL.Stride.Rendering
 
         public override string Name { get; }
         public override Type Type { get; }
-
-        // The plain value read by the compiler, for example in case of IComputeValue<Vector4> this would be just the vector itself
         public override object DefaultValueBoxed { get; }
         public override IVLPin CreatePin(GraphicsDevice graphicsDevice, ParameterCollection parameters)
         {
-            return EffectPins.CreatePin(graphicsDevice, parameters, Key, Count, IsPermutationKey, RuntimeDefaultValue, Type);
+            // Use the internalKey for shader parameter assignment
+            return EffectPins.CreatePin(graphicsDevice, parameters, internalKey, Count, IsPermutationKey, RuntimeDefaultValue, Type);
         }
 
         public override string ToString()
