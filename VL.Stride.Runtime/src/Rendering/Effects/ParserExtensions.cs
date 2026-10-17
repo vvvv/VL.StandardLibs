@@ -1,41 +1,28 @@
-﻿using Stride.Core.Shaders.Ast.Hlsl;
-using System;
+﻿using System;
 using System.Linq;
 using Stride.Core.Mathematics;
-using Stride.Core.Shaders.Ast.Stride;
-using Stride.Core.Shaders.Ast;
 using System.Collections.Generic;
+using Stride.Shaders.Parsing.SDSL.AST;
+using System.Numerics;
+using Vector2 = Stride.Core.Mathematics.Vector2;
+using Vector3 = Stride.Core.Mathematics.Vector3;
+using Vector4 = Stride.Core.Mathematics.Vector4;
 
 namespace VL.Stride.Rendering
 {
     public static class ParserExtensions
     {
-        public static ClassType GetFirstClassDecl(this Shader shader)
+        public static bool TryGetAttribute(this ShaderMember v, string attrName, out AnyShaderAttribute attribute)
         {
-
-            var result = shader.Declarations.OfType<ClassType>().FirstOrDefault();
-
-            if (result == null)
+            if (v.Attributes is not null)
             {
-                var nameSpace = shader.Declarations.OfType<NamespaceBlock>().FirstOrDefault();
-                if (nameSpace != null)
+                foreach (var a in v.Attributes)
                 {
-                    result = nameSpace.Body.OfType<ClassType>().FirstOrDefault();
-                }
-
-            }
-
-            return result;
-        }
-
-        public static bool TryGetAttribute(this Variable v, string attrName, out AttributeDeclaration attribute)
-        {
-            foreach (var a in v.Attributes)
-            {
-                if (a is AttributeDeclaration decl && decl.Name.Text == attrName)
-                {
-                    attribute = decl;
-                    return true;
+                    if (a is AnyShaderAttribute decl && decl.Name == attrName)
+                    {
+                        attribute = decl;
+                        return true;
+                    }
                 }
             }
 
@@ -43,26 +30,27 @@ namespace VL.Stride.Rendering
             return false;
         }
 
-        public static string GetKeyName(this Variable v, ClassType shader)
-            => shader.Name.Text + "." + v.Name.Text;
+        public static string GetKeyName(this ShaderMember v, ShaderClass shader)
+            => shader.Name + "." + v.Name;
 
-        public static string ParseString(this AttributeDeclaration attr)
+        public static string ParseString(this AnyShaderAttribute attr)
         {
-            return attr.Parameters.FirstOrDefault()?.Value as string;
+            return attr.Parameters.FirstOrDefault()?.GetStringValue();
         }
 
-        public static List<string> ParseStringList(this AttributeDeclaration attr)
+        public static List<string> ParseStringList(this AnyShaderAttribute attr)
         {
             return attr.Parameters
-                .Select(p => p?.Value as string)
+                .Select(p => p?.GetStringValue())
                 .Where(s => !string.IsNullOrWhiteSpace(s))
                 .ToList();
         }
 
-        public static List<string> ParseStringAsCommaSeparatedList(this AttributeDeclaration attr)
+        public static List<string> ParseStringAsCommaSeparatedList(this AnyShaderAttribute attr)
         {
             return attr.Parameters
-                .Select(p => p?.Value as string)
+                .Select(p => p?.GetStringValue())
+                .Where(s => s != null)
                 .SelectMany(s => s.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 .Where(s => !string.IsNullOrWhiteSpace(s))
                 .Select(s => s.Trim())
@@ -70,149 +58,107 @@ namespace VL.Stride.Rendering
                 .ToList();
         }
 
-        public static bool ParseBool(this AttributeDeclaration attr, int index = 0) => attr.GetParameter<bool>(index);
+        public static bool ParseBool(this AnyShaderAttribute attr, int index = 0) => attr.Parameters.ElementAtOrDefault(index).GetBoolDefault();
 
-        public static float ParseFloat(this AttributeDeclaration attr, int index = 0) => attr.GetParameter<float>(index);
+        public static float ParseFloat(this AnyShaderAttribute attr, int index = 0) => attr.Parameters.ElementAtOrDefault(index).GetFloatValue();
 
-        public static int ParseInt(this AttributeDeclaration attr, int index = 0) => attr.GetParameter<int>(index);
+        public static int ParseInt(this AnyShaderAttribute attr, int index = 0) => attr.Parameters.ElementAtOrDefault(index).GetIntValue();
 
-        public static Int2 ParseInt2(this AttributeDeclaration attr)
-        {
-            return new Int2(attr.ParseInt(0), attr.ParseInt(1));
-        }
+        public static Int2 ParseInt2(this AnyShaderAttribute attr) => new Int2(attr.ParseInt(0), attr.ParseInt(1));
 
-        public static Int3 ParseInt3(this AttributeDeclaration attr)
-        {
-            return new Int3(attr.ParseInt(0), attr.ParseInt(1), attr.ParseInt(2));
-        }
+        public static Int3 ParseInt3(this AnyShaderAttribute attr) => new Int3(attr.ParseInt(0), attr.ParseInt(1), attr.ParseInt(2));
 
-        public static Int4 ParseInt4(this AttributeDeclaration attr)
-        {
-            return new Int4(attr.ParseInt(0), attr.ParseInt(1), attr.ParseInt(2), attr.ParseInt(3));
-        }
+        public static Int4 ParseInt4(this AnyShaderAttribute attr) => new Int4(attr.ParseInt(0), attr.ParseInt(1), attr.ParseInt(2), attr.ParseInt(3));
 
-        public static uint ParseUInt(this AttributeDeclaration attr, int index = 0) => attr.GetParameter<uint>(index);
-
-        public static Vector2 ParseVector2(this AttributeDeclaration attr)
-        {
-            return new Vector2(attr.ParseFloat(0), attr.ParseFloat(1));
-        }
-
-        public static Vector3 ParseVector3(this AttributeDeclaration attr)
-        {
-            return new Vector3(attr.ParseFloat(0), attr.ParseFloat(1), attr.ParseFloat(2));
-        }
-
-        public static Vector4 ParseVector4(this AttributeDeclaration attr)
-        {
-            return new Vector4(attr.ParseFloat(0), attr.ParseFloat(1), attr.ParseFloat(2), attr.ParseFloat(3));
-        }
-
-        public static object ParseBoxed(this AttributeDeclaration attr, Type type, object defaultVlaue = null)
+        public static object ParseBoxed(this AnyShaderAttribute attr, Type type, object defaultVlaue = null)
         {
             if (type == typeof(float))
-                return attr.ParseFloat();
+                return attr.Parameters.ElementAtOrDefault(0).GetFloatValue();
 
             if (type == typeof(Vector2))
-                return attr.ParseVector2();
+                return new Vector2(attr.Parameters.ElementAtOrDefault(0).GetFloatValue(), attr.Parameters.ElementAtOrDefault(1).GetFloatValue());
 
             if (type == typeof(Vector3))
-                return attr.ParseVector3();
+                return new Vector3(attr.Parameters.ElementAtOrDefault(0).GetFloatValue(), attr.Parameters.ElementAtOrDefault(1).GetFloatValue(), attr.Parameters.ElementAtOrDefault(2).GetFloatValue());
 
             if (type == typeof(Vector4))
-                return attr.ParseVector4();
+                return new Vector4(attr.Parameters.ElementAtOrDefault(0).GetFloatValue(), attr.Parameters.ElementAtOrDefault(1).GetFloatValue(), attr.Parameters.ElementAtOrDefault(2).GetFloatValue(), attr.Parameters.ElementAtOrDefault(3).GetFloatValue());
 
             if (type == typeof(Color4))
-                return new Color4(attr.ParseVector4());
+                return new Color4(attr.Parameters.ElementAtOrDefault(0).GetFloatValue(), attr.Parameters.ElementAtOrDefault(1).GetFloatValue(), attr.Parameters.ElementAtOrDefault(2).GetFloatValue(), attr.Parameters.ElementAtOrDefault(3).GetFloatValue());
 
             if (type == typeof(bool))
-                return attr.ParseBool();
+                return attr.Parameters.ElementAtOrDefault(0).GetBoolDefault();
 
             if (type == typeof(int))
-                return attr.ParseInt();
+                return attr.Parameters.ElementAtOrDefault(0).GetIntValue();
 
             if (type == typeof(Int2))
-                return attr.ParseInt2();
+                return new Int2(attr.Parameters.ElementAtOrDefault(0).GetIntValue(), attr.Parameters.ElementAtOrDefault(1).GetIntValue());
 
             if (type == typeof(Int3))
-                return attr.ParseInt3();
+                return new Int3(attr.Parameters.ElementAtOrDefault(0).GetIntValue(), attr.Parameters.ElementAtOrDefault(1).GetIntValue(), attr.Parameters.ElementAtOrDefault(2).GetIntValue());
 
             if (type == typeof(Int4))
-                return attr.ParseInt4();
+                return new Int4(attr.Parameters.ElementAtOrDefault(0).GetIntValue(), attr.Parameters.ElementAtOrDefault(1).GetIntValue(), attr.Parameters.ElementAtOrDefault(2).GetIntValue(), attr.Parameters.ElementAtOrDefault(3).GetIntValue());
 
             if (type == typeof(uint))
-                return attr.ParseUInt();
+                return (uint)attr.Parameters.ElementAtOrDefault(0).GetIntValue();
 
             if (type == typeof(string))
-                return attr.ParseString();
+                return attr.Parameters.ElementAtOrDefault(0).GetStringValue();
 
             return defaultVlaue ?? Activator.CreateInstance(type);
         }
 
-        public static T GetDefault<T>(this Variable v)
-        {
-            var inital = v.InitialValue;
-            if (inital != null)
-                return inital.ParseDefault<T>();
+        public static T GetNumberDefault<T>(this Expression e) where T : struct, INumber<T> => e is NumberLiteral<T> l ? l.Value : default;
 
+        public static bool GetBoolDefault(this Expression e) => e is BoolLiteral l ? l.Value : default;
+
+        public static float GetFloatValue(this Expression e) => e is FloatLiteral l ? (float)l.Value : default;
+        public static int GetIntValue(this Expression e) => e is IntegerLiteral l ? (int)l.Value : default;
+        public static string GetStringValue(this Expression e) => e is StringLiteral l ? l.Value : default;
+
+        public static Vector2 GetVector2(this Expression e)
+        {
+            if (e is VectorLiteral v)
+                return new Vector2((float)((FloatLiteral)v.Values[0]).Value, (float)((FloatLiteral)v.Values[1]).Value);
+            return default;
+        }
+        
+        public static Vector3 GetVector3(this Expression e)
+        {
+            if (e is VectorLiteral v)
+                return new Vector3((float)((FloatLiteral)v.Values[0]).Value, (float)((FloatLiteral)v.Values[1]).Value, (float)((FloatLiteral)v.Values[2]).Value);
             return default;
         }
 
-        static T GetValue<T>(this Literal literal)
+        public static Vector4 GetVector4(this Expression e)
         {
-            if (Convert.ChangeType(literal?.Value, typeof(T)) is T value)
-                return value;
-
+            if (e is VectorLiteral v)
+                return new Vector4((float)((FloatLiteral)v.Values[0]).Value, (float)((FloatLiteral)v.Values[1]).Value, (float)((FloatLiteral)v.Values[2]).Value, (float)((FloatLiteral)v.Values[3]).Value);
             return default;
         }
 
-        static T GetParameter<T>(this AttributeDeclaration attr, int index)
+        public static Int2 GetInt2(this Expression e)
         {
-            if (index < attr.Parameters.Count)
-                return attr.Parameters[index].GetValue<T>();
-
+            if (e is VectorLiteral v)
+                return new Int2((int)((IntegerLiteral)v.Values[0]).Value, (int)((IntegerLiteral)v.Values[1]).Value);
             return default;
         }
 
-        static T ParseDefault<T>(this Expression e)
+        public static Int3 GetInt3(this Expression e)
         {
-            if (e is LiteralExpression l)
-                return l.Literal.GetValue<T>();
-
-            if (e is MethodInvocationExpression m)
-                return m.ParseMethod<T>();
-
+            if (e is VectorLiteral v)
+                return new Int3((int)((IntegerLiteral)v.Values[0]).Value, (int)((IntegerLiteral)v.Values[1]).Value, (int)((IntegerLiteral)v.Values[2]).Value);
             return default;
         }
 
-        static T ParseArg<T>(this MethodInvocationExpression m, int i)
+        public static Int4 GetInt4(this Expression e)
         {
-            if (m.Arguments.Count > i)
-                return m.Arguments[i].ParseDefault<T>();
-
+            if (e is VectorLiteral v)
+                return new Int4((int)((IntegerLiteral)v.Values[0]).Value, (int)((IntegerLiteral)v.Values[1]).Value, (int)((IntegerLiteral)v.Values[2]).Value, (int)((IntegerLiteral)v.Values[3]).Value);
             return default;
-        }
-
-        static T ParseMethod<T>(this MethodInvocationExpression m)
-        {
-            var type = typeof(T);
-
-            if (type == typeof(Vector2))
-                return (T)(object)new Vector2(m.ParseArg<float>(0), m.ParseArg<float>(1));
-            if (type == typeof(Vector3))
-                return (T)(object)new Vector3(m.ParseArg<float>(0), m.ParseArg<float>(1), m.ParseArg<float>(2));
-            if (type == typeof(Vector4))
-                return (T)(object)new Vector4(m.ParseArg<float>(0), m.ParseArg<float>(1), m.ParseArg<float>(2), m.ParseArg<float>(3));
-
-            if (type == typeof(Int2))
-                return (T)(object)new Int2(m.ParseArg<int>(0), m.ParseArg<int>(1));
-            if (type == typeof(Int3))
-                return (T)(object)new Int3(m.ParseArg<int>(0), m.ParseArg<int>(1), m.ParseArg<int>(2));
-            if (type == typeof(Int4))
-                return (T)(object)new Int4(m.ParseArg<int>(0), m.ParseArg<int>(1), m.ParseArg<int>(2), m.ParseArg<int>(3));
-
-            return default;
-
         }
     }
 }

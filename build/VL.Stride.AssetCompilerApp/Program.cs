@@ -13,7 +13,7 @@ using Stride.Assets.Models;
 using Stride.Assets.SpriteFont;
 using Stride.Core;
 using Stride.Core.Assets;
-using Stride.Core.Assets.CompilerApp;
+using Stride.AssetCompiler;
 using Stride.Core.Assets.Diagnostics;
 using Stride.Core.BuildEngine;
 using Stride.Core.Diagnostics;
@@ -142,6 +142,18 @@ class Program
         try
         {
             var unexpectedArgs = p.Parse(args);
+
+            // The lone positional argument is the input file, routed by extension
+            // (matching upstream Stride.AssetCompiler's PackageBuilderApp behavior).
+            if (options.SlavePipe == null && unexpectedArgs.Count > 0)
+            {
+                var input = unexpectedArgs[0];
+                unexpectedArgs.RemoveAt(0);
+                if (input.EndsWith(".sdbuild", StringComparison.OrdinalIgnoreCase))
+                    options.PackageManifestFile = input;
+                else
+                    options.PackageFile = input;
+            }
 
             if (showHelp)
             {

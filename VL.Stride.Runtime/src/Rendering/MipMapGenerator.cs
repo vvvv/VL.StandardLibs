@@ -104,7 +104,7 @@ namespace VL.Stride.Rendering
         {
             DeallocateTextureViewsForMipMaps();
 
-            for (int i = 0; i < parentTexture.MipLevels; ++i)
+            for (int i = 0; i < parentTexture.MipLevelCount; ++i)
             {
                 var renderTargetMipMapTextureViewDescription = new TextureViewDescription
                 {

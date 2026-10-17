@@ -172,10 +172,10 @@ namespace VL.Stride.Assets
 
         public void UpdateGameSettings(Game game)
         {
-            var configs = game.Settings.Configurations;
-            currentRenderingMode = configs.Get<EditorSettings>().RenderingMode;
-            currentColorSpace = configs.Get<RenderingSettings>().ColorSpace;
-            currentNavigationGroupsHash = configs.Get<NavigationSettings>().ComputeGroupsHash();
+            var settings = game.Settings;
+            currentRenderingMode = settings.GetOrCreateConfiguration<EditorSettings>().RenderingMode;
+            currentColorSpace = settings.GetOrCreateConfiguration<RenderingSettings>().ColorSpace;
+            currentNavigationGroupsHash = settings.GetOrCreateConfiguration<NavigationSettings>().ComputeGroupsHash();
         }
 
         /// <summary>

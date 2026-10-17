@@ -1,4 +1,5 @@
 ﻿using Stride.Graphics;
+using static Stride.Graphics.BlendStateDescription;
 
 namespace VL.Stride.Graphics
 {
@@ -7,6 +8,15 @@ namespace VL.Stride.Graphics
     /// </summary>
     public static class BlendStateDescriptions
     {
+        static BlendStateDescriptions()
+        {
+            AlphaBlend = new BlendStateDescription(Blend.SourceAlpha, Blend.InverseSourceAlpha);
+            AlphaBlend.RenderTargets[0].AlphaSourceBlend = Blend.One;
+            AlphaBlend.RenderTargets[0].AlphaDestinationBlend = Blend.InverseSourceAlpha;
+
+            AlphaBlendPremultiplied = new BlendStateDescription(Blend.One, Blend.InverseSourceAlpha);
+        }
+
         /// <summary>
         /// No blending.
         /// </summary>
@@ -28,14 +38,7 @@ namespace VL.Stride.Graphics
         /// Color = Src.RGB * Src.A + Dst.RGB * (1 - Src.A)
         /// Alpha = Src.A + Dst.A * (1 - Src.A)
         /// </remarks>
-        public static readonly BlendStateDescription AlphaBlend = new BlendStateDescription(Blend.SourceAlpha, Blend.InverseSourceAlpha)
-        {
-            RenderTarget0 =
-            {
-                AlphaSourceBlend = Blend.One,
-                AlphaDestinationBlend = Blend.InverseSourceAlpha
-            }
-        };
+        public static readonly BlendStateDescription AlphaBlend;
 
         /// <summary>
         /// The source and destination get blended using the alpha value of the source assuming premultiplied alpha.
@@ -44,13 +47,6 @@ namespace VL.Stride.Graphics
         /// Color = Src.RGB + Dst.RGB * (1 - Src.A)
         /// Alpha = Src.A + Dst.A * (1 - Src.A)
         /// </remarks>
-        public static readonly BlendStateDescription AlphaBlendPremultiplied = new BlendStateDescription(Blend.One, Blend.InverseSourceAlpha)
-        {
-            RenderTarget0 =
-            {
-                AlphaSourceBlend = Blend.One,
-                AlphaDestinationBlend = Blend.InverseSourceAlpha
-            }
-        };
+        public static readonly BlendStateDescription AlphaBlendPremultiplied;
     }
 }

@@ -40,7 +40,7 @@ namespace VL.Stride.Graphics
                 try
                 {
                     var commandList = ctx.CommandList;
-                    var mappedResource = commandList.MapSubresource(stagingResource, 0, MapMode.Read, doNotWait: true);
+                    var mappedResource = commandList.MapSubResource(stagingResource, 0, MapMode.Read, doNotWait: true);
                     if (mappedResource.DataBox.IsEmpty)
                     {
                         // Try again in next frame
@@ -48,7 +48,7 @@ namespace VL.Stride.Graphics
                     }
                     else
                     {
-                        commandList.UnmapSubresource(mappedResource);
+                        commandList.UnmapSubResource(mappedResource);
                         tcs.SetResult();
                     }
                 }

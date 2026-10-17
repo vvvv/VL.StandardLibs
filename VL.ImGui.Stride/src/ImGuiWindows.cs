@@ -259,7 +259,7 @@ namespace VL.ImGui.Stride
                     for (int i = 0; i < numMonitors; i++)
                     {
                         Vector2 pos = new Vector2(outputs[i].DesktopBounds.X, outputs[i].DesktopBounds.Y);
-                        Vector2 size = new Vector2(outputs[i].CurrentDisplayMode.Width, outputs[i].CurrentDisplayMode.Height);
+                        Vector2 size = new Vector2(outputs[i].CurrentDisplayMode.Value.Width, outputs[i].CurrentDisplayMode.Value.Height);
 
                         ImGuiPlatformMonitorPtr monitor = platformIO.Monitors[i];
                         monitor.DpiScale = 1f; // TODO GET SCALE PER MONITOR

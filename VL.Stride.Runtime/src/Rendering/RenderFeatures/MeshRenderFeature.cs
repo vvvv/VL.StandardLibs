@@ -13,6 +13,8 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using VL.Lib.Reactive;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D11;
 
 namespace VL.Stride.Rendering
 {
@@ -125,25 +127,15 @@ namespace VL.Stride.Rendering
         [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(PrepareDraw))]
         extern static void PrepareDraw(this CommandList c);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "nativeDeviceContext")]
-        extern static ref SharpDX.Direct3D11.DeviceContext NativeDeviceContext(this CommandList commandList);
-
-        static SharpDX.Direct3D11.Buffer NativeBuffer(this Buffer buffer)
-        {
-            ref var buf = ref NativeBuffer(buffer);
-
-            return (SharpDX.Direct3D11.Buffer)buf;
-
-            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "nativeDeviceChild")]
-            extern static ref SharpDX.Direct3D11.DeviceChild NativeBuffer(GraphicsResourceBase buffer);
-        }
+        [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "get_NativeDeviceContext")]
+        extern static ComPtr<ID3D11DeviceContext> NativeDeviceContext(this CommandList commandList);
 
         static CommandList DrawInstanced(this CommandList commandList, Buffer argumentsBuffer, int alignedByteOffsetForArgs = 0)
         {
             if (argumentsBuffer == null) throw new ArgumentNullException("argumentsBuffer");
 
             commandList.PrepareDraw();  
-            commandList.NativeDeviceContext().DrawInstancedIndirect(argumentsBuffer.NativeBuffer(), alignedByteOffsetForArgs);
+            commandList.NativeDeviceContext().DrawInstancedIndirect(argumentsBuffer.NativeBuffer, (uint)alignedByteOffsetForArgs);
             commandList.GraphicsDevice.FrameDrawCalls++;
 
             return commandList;

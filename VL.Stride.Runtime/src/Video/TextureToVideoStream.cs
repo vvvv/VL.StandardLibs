@@ -69,7 +69,7 @@ namespace VL.Stride.Video
                 var (stagedTexture, stagedMetadata) = textureDownloads.Peek();
                 var doNotWait = textureDownloads.Count <= 8 /* Under normal scenarios we shouldn't reach this limit */;
                 var commandList = context.CommandList;
-                var mappedResource = commandList.MapSubresource(stagedTexture, 0, MapMode.Read, doNotWait);
+                var mappedResource = commandList.MapSubResource(stagedTexture, 0, MapMode.Read, doNotWait);
                 var data = mappedResource.DataBox;
                 if (!data.IsEmpty)
                 {
@@ -96,14 +96,14 @@ namespace VL.Stride.Video
                             {
                                 memoryOwner.Dispose();
                                 if (!IsDisposed)
-                                    commandList.UnmapSubresource(mappedResource);
+                                    commandList.UnmapSubResource(mappedResource);
                                 texturePool.Return(stagedTexture);
                             }
                         }
                     }
                     catch
                     {
-                        commandList.UnmapSubresource(mappedResource);
+                        commandList.UnmapSubResource(mappedResource);
                         texturePool.Return(stagedTexture);
                         throw;
                     }

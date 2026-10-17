@@ -78,7 +78,7 @@ namespace VL.Lib.Basics.Resources
                 if (needsSwap)
                 {
                     needsSwap = false;
-                    Utilities.Swap(ref front, ref back);
+                    (front, back) = (back, front);
                 }
             }
 

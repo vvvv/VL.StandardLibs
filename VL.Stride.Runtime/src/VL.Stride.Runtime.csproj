@@ -43,7 +43,7 @@
     <PackageReference Include="Stride.Assets.Models" />
     <PackageReference Include="Stride.Core" />
     <!-- We only want the compile time build targets, otherwise we'll get an app crash when having a reference on the asset compiler-->
-    <PackageReference Include="Stride.Core.Assets.CompilerApp" IncludeAssets="build;buildTransitive" />
+    <PackageReference Include="Stride.AssetCompiler" IncludeAssets="build;buildTransitive" />
     <PackageReference Include="Stride.Core.Yaml" />
     <PackageReference Include="Stride.Engine" />
     <PackageReference Include="Stride.Navigation" />
@@ -53,6 +53,8 @@
     <PackageReference Include="Stride.Video" />
     <PackageReference Include="Stride.VirtualReality" />
 	  <PackageReference Include="Stride.Graphics.RenderDocPlugin" />
+    <!-- Native spirv-cross.dll comes from Stride.Dependencies.SpirvCross (via Stride.Shaders.Compilers), not Silk -->
+    <PackageReference Include="Silk.NET.SPIRV.Cross.Native" ExcludeAssets="native" />
   </ItemGroup>
   <Target Name="IncludeStridePackageContent" BeforeTargets="InferPackageContents" DependsOnTargets="_StridePrepareAssetsForPack">
     <Message Importance="high" Text="Called Stride package targets" />
@@ -80,84 +82,4 @@
     <Using Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
   
-  <ItemGroup>
-    <Compile Update="**\*.sdsl.cs">
-      <DesignTime>True</DesignTime>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>%(Filename).sdsl</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="**\*.sdsl">
-      <LastGenOutput>%(Filename).sdsl.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Effects\Demos\DrawParticles.sdsl.cs">
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Update="Effects\Demos\ParticleStructPos4Vel4.sdsl.cs">
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Update="Effects\Demos\Simulation.sdsl.cs">
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Update="Effects\EffectNodeBaseKeys.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>%(Filename)</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Update="Effects\HappyLibs\HappyRaymarch.sdsl.cs">
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Update="Effects\HappyLibs\HappySDF.sdsl.cs">
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Update="Effects\ShaderFX\ComputeValue\ComputeTexture2D.sdsl.cs">
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Update="Effects\ShaderFX\ComputeValue\ComputeTexture2DArray.sdsl.cs">
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Update="Effects\ShaderFX\TextureFXEffect.sdfx.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>%(Filename)</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Update="Effects\TextureFX\TextureFXGraphEffect - Kopie.sdfx.cs">
-      <DesignTime>True</DesignTime>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Update="Effects\Utils\CalcDispatchArgs.sdsl.cs">
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Update="Rendering\Materials\FallbackMaterial\SceneEditorParameters.sdfx.cs">
-      <DesignTime>True</DesignTime>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Update="Rendering\Materials\FallbackMaterial\StrideEditorForwardShadingEffect.sdfx.cs">
-      <DesignTime>True</DesignTime>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Effects\ShaderFX\TextureFXEffect.sdfx">
-      <LastGenOutput>TextureFXEffect.sdfx.cs</LastGenOutput>
-    </None>
-    <None Update="Effects\TextureFX\TextureFXGraphEffect - Kopie.sdfx">
-      <LastGenOutput>TextureFXGraphEffect - Kopie.sdfx.cs</LastGenOutput>
-    </None>
-    <None Update="Rendering\Materials\FallbackMaterial\SceneEditorParameters.sdfx">
-      <LastGenOutput>SceneEditorParameters.sdfx.cs</LastGenOutput>
-    </None>
-    <None Update="Rendering\Materials\FallbackMaterial\StrideEditorForwardShadingEffect.sdfx">
-      <LastGenOutput>StrideEditorForwardShadingEffect.sdfx.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
 </Project>

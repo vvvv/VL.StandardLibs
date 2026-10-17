@@ -1,20 +1,18 @@
 ﻿#nullable enable
-using System;
-using Stride.Graphics;
-using Stride.Core.Shaders.Ast;
-using System.Linq;
-using Stride.Core.Shaders.Ast.Hlsl;
-using System.Collections.Generic;
 using Stride.Core.IO;
-using Stride.Rendering;
-using Stride.Core.Shaders.Ast.Stride;
-using Stride.Shaders;
-using VL.Stride.Shaders.ShaderFX;
 using Stride.Core.Mathematics;
-using Stride.Rendering.Materials;
-using System.ComponentModel;
-using Stride.Shaders.Parser.Mixins;
 using Stride.Engine;
+using Stride.Graphics;
+using Stride.Rendering;
+using Stride.Rendering.Materials;
+using Stride.Shaders;
+using Stride.Shaders.Compilers;
+using Stride.Shaders.Parsing.SDSL.AST;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using VL.Stride.Shaders.ShaderFX;
 
 namespace VL.Stride.Rendering
 {
@@ -108,22 +106,16 @@ namespace VL.Stride.Rendering
         Dictionary<string, EnumMetadata> pinEnumTypes = new Dictionary<string, EnumMetadata>();
         HashSet<string> optionalPins = new HashSet<string>();
 
-        private void AddEnumTypePinAttribute(string name, string enumTypeName, Expression initialValue)
+        private void AddEnumTypePinAttribute(string name, string enumTypeName, Expression? initialValue)
         {
             var type = Type.GetType(enumTypeName);
             if (type != null && type.IsEnum)
             {
                 object initalVal = Activator.CreateInstance(type)!;
-                if (initialValue is LiteralExpression literal)
+                if (initialValue is IntegerLiteral literal)
                 {
-                    var defaultText = literal.Text;
-                    var converter = TypeDescriptor.GetConverter(Enum.GetUnderlyingType(type));
-
-                    if (converter != null && converter.IsValid(defaultText))
-                    {
-                        var underVal = converter.ConvertFromString(defaultText)!;
-                        initalVal = Enum.ToObject(type, underVal);
-                    }
+                    var value = literal.Value;
+                    initalVal = Enum.ToObject(type, value);
                 }
 
                 pinEnumTypes[name] = new EnumMetadata(type, initalVal);
@@ -189,7 +181,7 @@ namespace VL.Stride.Rendering
             var varName = key.GetVariableName();
             if (ParsedShader != null && ParsedShader.VariablesByName.TryGetValue(varName, out var variable))
             {
-                var varType = variable.Type.ToString();
+                var varType = variable.TypeName.ToString();
                 if (!(varType.StartsWith("float", StringComparison.OrdinalIgnoreCase) 
                     || varType.StartsWith("int", StringComparison.OrdinalIgnoreCase)
                     || varType.StartsWith("bool", StringComparison.OrdinalIgnoreCase)
@@ -338,20 +330,6 @@ namespace VL.Stride.Rendering
         public const string DefaultName = "Default";
         public const string AssetName = "Asset";
 
-        /// <summary>
-        /// Registers the additional stride variable attributes. Avoids writing them to the final shader, which would create an error in the native platform compiler.
-        /// </summary>
-        public static void RegisterAdditionalShaderAttributes()
-        {
-            // only pin attributes need to be registered
-            StrideAttributes.AvailableAttributes.Add(EnumTypeName);
-            StrideAttributes.AvailableAttributes.Add(OptionalName);
-            StrideAttributes.AvailableAttributes.Add(DefaultName);
-            StrideAttributes.AvailableAttributes.Add(SummaryName);
-            StrideAttributes.AvailableAttributes.Add(RemarksName);
-            StrideAttributes.AvailableAttributes.Add(AssetName);
-        }
-
         public static ShaderMetadata CreateMetadata(string effectName, string url, IVirtualFileProvider fileProvider, ShaderSourceManager shaderSourceManager)
         {
             //create metadata with default values
@@ -369,7 +347,7 @@ namespace VL.Stride.Rendering
                 if (shaderDecl != null)
                 {
                     //shader 
-                    foreach (var attr in shaderDecl.Attributes.OfType<AttributeDeclaration>())
+                    foreach (var attr in shaderDecl.Attributes?.Attributes.OfType<AnyShaderAttribute>() ?? Enumerable.Empty<AnyShaderAttribute>())
                     {
                         switch (attr.Name)
                         {
@@ -414,15 +392,15 @@ namespace VL.Stride.Rendering
                     }
 
                     //pins
-                    var pinDecls = shaderDecl.Members.OfType<Variable>().Where(v => !v.Qualifiers.Contains(StrideStorageQualifier.Compose) && !v.Qualifiers.Contains(StrideStorageQualifier.Stream));
+                    var pinDecls = shaderDecl.Elements.OfType<ShaderMember>().Where(v => !v.IsCompose && v.StreamKind == StreamKind.None);
                     foreach (var pinDecl in pinDecls)
                     {
-                        foreach (var attr in pinDecl.Attributes.OfType<AttributeDeclaration>())
+                        foreach (var attr in pinDecl.Attributes?.OfType<AnyShaderAttribute>() ?? Enumerable.Empty<AnyShaderAttribute>())
                         {
                             switch (attr.Name)
                             {
                                 case EnumTypeName:
-                                    shaderMetadata.AddEnumTypePinAttribute(pinDecl.GetKeyName(shaderDecl), attr.ParseString(), pinDecl.InitialValue);
+                                    shaderMetadata.AddEnumTypePinAttribute(pinDecl.GetKeyName(shaderDecl), attr.ParseString(), pinDecl.Value);
                                     break;
                                 case OptionalName:
                                     shaderMetadata.AddOptionalPinAttribute(pinDecl.GetKeyName(shaderDecl));

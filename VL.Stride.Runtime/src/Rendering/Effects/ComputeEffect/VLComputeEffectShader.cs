@@ -191,7 +191,7 @@ namespace VL.Stride.Rendering.ComputeEffect
                 }
 
                 // Clear render targets
-                context.CommandList.SetRenderTargets(null);
+                context.CommandList.SetRenderTargets(null, []);
 
                 // Apply pipeline state
                 context.CommandList.SetPipelineState(pipelineState.CurrentState);

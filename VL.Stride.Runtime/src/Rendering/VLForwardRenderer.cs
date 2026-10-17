@@ -156,12 +156,8 @@ namespace VL.Stride.Rendering
                 actualMultisampleCount = (MultisampleCount)Math.Min((int)actualMultisampleCount, (int)GraphicsDevice.Features[DepthBufferFormat].MultisampleCountMax);
 
                 // Note: we cannot support MSAA on DX10 now
-                if (GraphicsDevice.Features.HasMultisampleDepthAsSRV == false && // TODO: Try enabling MSAA on DX9!
-                    GraphicsDevice.Platform != GraphicsPlatform.OpenGL &&
-                    GraphicsDevice.Platform != GraphicsPlatform.OpenGLES)
+                if (GraphicsDevice.Features.HasMultiSampleDepthAsSRV == false)
                 {
-                    // OpenGL has MSAA support on every version.
-                    // OpenGL ES has MSAA support starting from version 3.0.
                     // Direct3D has MSAA support starting from version 11 because it requires multisample depth buffers as shader resource views.
                     // Therefore we force-disable MSAA on any platform that doesn't support MSAA.
 
@@ -220,7 +216,7 @@ namespace VL.Stride.Rendering
                         {
                             if (overlay != null && overlay.Texture != null)
                             {
-                                overlay.Overlay = vrSettings.VRDevice.CreateOverlay(overlay.Texture.Width, overlay.Texture.Height, overlay.Texture.MipLevels, (int)overlay.Texture.MultisampleCount);
+                                overlay.Overlay = vrSettings.VRDevice.CreateOverlay(overlay.Texture.Width, overlay.Texture.Height, overlay.Texture.MipLevelCount, (int)overlay.Texture.MultisampleCount);
                             }
                         }
                     }
@@ -870,7 +866,7 @@ namespace VL.Stride.Rendering
                                     viewDepthStencil = eyeDepthStencil;
                                 }
 
-                                drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, CollectionsMarshal.AsSpan(currentRenderTargets));
+                                drawContext.CommandList.SetRenderTargets(currentDepthStencil, CollectionsMarshal.AsSpan(currentRenderTargets));
 
                                 if (!hasPostEffects && !isStereoscopic) // need to change the viewport between each eye
                                 {
@@ -932,7 +928,7 @@ namespace VL.Stride.Rendering
                             PrepareRenderTargets(drawContext, new Size2((int)viewport.Width, (int)viewport.Height));
 
                             ViewCount = ViewportSettings.Views.Count;
-                            drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, CollectionsMarshal.AsSpan(currentRenderTargets));
+                            drawContext.CommandList.SetRenderTargets(currentDepthStencil, CollectionsMarshal.AsSpan(currentRenderTargets));
 
                             Clear?.Draw(drawContext);
 
@@ -970,7 +966,7 @@ namespace VL.Stride.Rendering
 
                     using (drawContext.PushRenderTargetsAndRestore())
                     {
-                        drawContext.CommandList.SetRenderTargets(currentDepthStencil, currentRenderTargets.Count, CollectionsMarshal.AsSpan(currentRenderTargets));
+                        drawContext.CommandList.SetRenderTargets(currentDepthStencil, CollectionsMarshal.AsSpan(currentRenderTargets));
 
                         // Clear render target and depth stencil
                         Clear?.Draw(drawContext);
@@ -1033,7 +1029,7 @@ namespace VL.Stride.Rendering
                 }
             }
 
-            context.CommandList.SetRenderTargets(null, context.CommandList.RenderTargetCount, context.CommandList.RenderTargets);
+            context.CommandList.SetRenderTargets(null, context.CommandList.RenderTargets);
 
             var depthStencilROCached = context.Resolver.GetDepthStencilAsRenderTarget(depthStencil, this.depthStencilROCached);
             if (depthStencilROCached != this.depthStencilROCached)
@@ -1042,7 +1038,7 @@ namespace VL.Stride.Rendering
                 this.depthStencilROCached?.Dispose();
                 this.depthStencilROCached = depthStencilROCached;
             }
-            context.CommandList.SetRenderTargets(depthStencilROCached, context.CommandList.RenderTargetCount, context.CommandList.RenderTargets);
+            context.CommandList.SetRenderTargets(depthStencilROCached, context.CommandList.RenderTargets);
 
             return depthStencilSRV;
         }

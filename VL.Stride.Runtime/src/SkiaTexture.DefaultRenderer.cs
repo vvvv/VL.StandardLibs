@@ -1,6 +1,5 @@
 #nullable enable
 
-using Silk.NET.SDL;
 using Stride.Graphics;
 using System.Runtime.Versioning;
 using VL.Core;
@@ -99,8 +98,8 @@ partial class SkiaTexture
         public override EglSurface CreateEglSurface(Texture texture)
         {
             var renderContext = renderContextProvider.GetRenderContext();
-            var nativeTexture = (SharpDX.Direct3D11.Texture2D)SharpDXInterop.GetNativeResource(texture);
-            return renderContext.EglContext.CreateSurfaceFromClientBuffer(nativeTexture.NativePointer);
+            var nativeTexture = GraphicsMarshal.GetNativeResource(texture);
+            return renderContext.EglContext.CreateSurfaceFromClientBuffer((nint)nativeTexture.Handle);
         }
     }
 }

@@ -96,7 +96,7 @@ namespace VL.Stride.Graphics
 
                     if (dataCount > 0)
                     {
-                        var pixelSize = description.Format.BlockSize();
+                        var pixelSize = description.Format.BlockSize;
                         var minRowSize = description.Width * pixelSize;
                         var minSliceSize = description.Depth * minRowSize;
 
@@ -218,7 +218,7 @@ namespace VL.Stride.Graphics
                     if (texture != null && (
                         viewDescription.Format == PixelFormat.None
                         || (texture.Format == viewDescription.Format)
-                        || (texture.Format.IsTypeless() && (texture.Format.BlockSize() == viewDescription.Format.BlockSize()))
+                        || (texture.Format.IsTypeless && (texture.Format.BlockSize == viewDescription.Format.BlockSize))
                         ))
                     {
                         var game = gameHandle.Resource;

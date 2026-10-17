@@ -258,7 +258,7 @@ namespace VL.Stride.Games
                     else
                         PresentCallIntercept.Present(Presenter);
                 }
-                catch (GraphicsException ex)
+                catch (GraphicsDeviceException ex)
                 {
                     if (ex.Status != GraphicsDeviceStatus.Removed && ex.Status != GraphicsDeviceStatus.Reset)
                     {

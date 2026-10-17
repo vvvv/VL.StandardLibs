@@ -11,6 +11,7 @@ using System.Threading;
 using Buffer = Stride.Graphics.Buffer;
 using System.Reactive.Disposables;
 using Stride.Core;
+using ComputeShaderBaseKeys = Stride.Rendering.ComputeEffect.ComputeShaderBaseKeys;
 
 namespace VL.Stride.Shaders
 {

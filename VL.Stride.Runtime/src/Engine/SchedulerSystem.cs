@@ -128,7 +128,7 @@ namespace VL.Stride.Engine
             renderContext.Allocator.Recycle(r => r.AccessCountSinceLastRecycle == 0);
 
             var queue = front;
-            Utilities.Swap(ref front, ref back);
+            (front, back) = (back, front);
             try
             {
                 foreach (var system in queue)
@@ -192,7 +192,7 @@ namespace VL.Stride.Engine
             public override void Draw(GameTime gameTime)
             {
                 var renderers = front;
-                Utilities.Swap(ref front, ref back);
+                (front, back) = (back, front);
                 try
                 {
                     using (renderContext!.PushRenderViewAndRestore(renderView))

@@ -89,7 +89,7 @@ namespace VL.Stride.Games
 
             // Set defaults
             PreferredBackBufferFormat = PixelFormat.R8G8B8A8_UNorm;
-            PreferredOutputColorSpace = ColorSpaceType.RgbFullG22NoneP709;
+            PreferredOutputColorSpace = ColorSpaceType.Rgb_Full_G22_None_P709;
             PreferredDepthStencilFormat = PixelFormat.D24_UNorm_S8_UInt;
             PreferredBackBufferWidth = 1280;
             PreferredBackBufferHeight = 720;
@@ -665,12 +665,12 @@ namespace VL.Stride.Games
                             PreferredFullScreenOutputIndex < leftAdapter.Outputs.Length &&
                             PreferredFullScreenOutputIndex < rightAdapter.Outputs.Length)
                         {
-                            // assume we got here only adapters that have the needed number of outputs:
-                            var leftOutput = leftAdapter.Outputs[PreferredFullScreenOutputIndex];
-                            var rightOutput = rightAdapter.Outputs[PreferredFullScreenOutputIndex];
+                            // Assume we got here only adapters that have the needed number of outputs:
+                            var leftOutput = leftAdapter.Outputs[PreferredFullScreenOutputIndex].CurrentDisplayMode ?? default;
+                            var rightOutput = rightAdapter.Outputs[PreferredFullScreenOutputIndex].CurrentDisplayMode ?? default;
 
-                            leftPixelCount = leftOutput.CurrentDisplayMode.Width * leftOutput.CurrentDisplayMode.Height;
-                            rightPixelCount = rightOutput.CurrentDisplayMode.Width * rightOutput.CurrentDisplayMode.Height;
+                            leftPixelCount = leftOutput.Width * leftOutput.Height;
+                            rightPixelCount = rightOutput.Width * rightOutput.Height;
                         }
                         else
                         {
@@ -852,7 +852,7 @@ namespace VL.Stride.Games
                     windowBounds.X = window.Position.X;
                     windowBounds.Y = window.Position.Y;
 
-                    var outputs = GraphicsDevice.Adapter.Outputs.ToList();
+                    var outputs = GraphicsDevice.Adapter.Outputs.ToArray();
 
                     var output = outputs.OrderByDescending(o => GetIntersectionSize(o, windowBounds)).First();
 
@@ -861,14 +861,14 @@ namespace VL.Stride.Games
                     if (window.PreferredFullscreenSize.X > 0)
                         resizedBackBufferWidth = window.PreferredFullscreenSize.X;
                     else if (output.CurrentDisplayMode != null) // Can be null in EyeFinity span setups
-                        resizedBackBufferWidth = output.CurrentDisplayMode.Width;
+                        resizedBackBufferWidth = output.CurrentDisplayMode.Value.Width;
                     else
                         resizedBackBufferWidth = ApplyDesktopBoundsFix(output.DesktopBounds).Width;
 
                     if (window.PreferredFullscreenSize.Y > 0)
                         resizedBackBufferHeight = window.PreferredFullscreenSize.Y;
                     else if (output.CurrentDisplayMode != null) // Can be null in EyeFinity span setups
-                        resizedBackBufferHeight = output.CurrentDisplayMode.Height;
+                        resizedBackBufferHeight = output.CurrentDisplayMode.Value.Height;
                     else
                         resizedBackBufferHeight = ApplyDesktopBoundsFix(output.DesktopBounds).Height;
 

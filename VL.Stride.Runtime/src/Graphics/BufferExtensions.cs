@@ -73,100 +73,13 @@ namespace VL.Stride.Graphics
             extern static Buffer InitializeFromImpl(Buffer buffer, BufferDescription description, BufferFlags flags, PixelFormat viewFormat, nint data);
         }
 
-        const BindingFlags NonPunblicInst = BindingFlags.NonPublic | BindingFlags.Instance;
-
         internal static readonly PropertyKey<Buffer> ParentBuffer = new PropertyKey<Buffer>(nameof(ParentBuffer), typeof(Buffer));
 
+        // TODO: The previous implementation used reflection to create a view on the native SharpDX buffer of the parent buffer.
+        // Stride 4.4 uses Silk.NET.Direct3D11 and the internals of Stride.Graphics.Buffer changed, so this needs to be ported.
         public static Buffer ToBufferView(this Buffer parentBuffer, Buffer bufferView, BufferViewDescription viewDescription, GraphicsDevice graphicsDevice)
         {
-            SetGraphicsDevice(bufferView, graphicsDevice);
-
-            //bufferDescription = description;
-            SetField(bufferView, "bufferDescription", parentBuffer.Description);
-
-            //nativeDescription = ConvertToNativeDescription(Description);
-            SetField(bufferView, "nativeDescription", ConvertToNativeDescription(parentBuffer.Description));
-
-            //ViewFlags = viewFlags;
-            SetProp(bufferView, "ViewFlags", viewDescription.Flags);
-
-            //InitCountAndViewFormat(out this.elementCount, ref viewFormat);
-            InitCountAndViewFormat(bufferView, out var count, ref viewDescription.Format);
-            SetField(bufferView, "elementCount", count);
-
-            //ViewFormat = viewFormat;
-            SetProp(bufferView, "ViewFormat", viewDescription.Format);
-
-            //NativeDeviceChild = new SharpDX.Direct3D11.Buffer(GraphicsDevice.NativeDevice, dataPointer, nativeDescription);
-            SetNativeChild(bufferView, GetNativeChild(parentBuffer));
-
-            //if (nativeDescription.Usage != ResourceUsage.Staging)
-            //    this.InitializeViews();
-            InitializeViews(bufferView);
-
-            if (parentBuffer is IReferencable referencable)
-            {
-                referencable.AddReference();
-                bufferView.Destroyed += (e, s) => referencable.Release();
-            }
-
-            return bufferView;
-        }
-
-        static SharpDX.Direct3D11.DeviceChild GetNativeChild(GraphicsResourceBase graphicsResource)
-        {
-            var prop = typeof(GraphicsResourceBase).GetProperty("NativeDeviceChild", NonPunblicInst);
-            return (SharpDX.Direct3D11.DeviceChild)prop.GetValue(graphicsResource);
-        }
-
-        static void SetNativeChild(GraphicsResourceBase graphicsResource, SharpDX.Direct3D11.DeviceChild deviceChild)
-        {
-            var iUnknownObject = deviceChild as SharpDX.IUnknown;
-            if (iUnknownObject != null)
-            {
-                var refCountResult = iUnknownObject.AddReference();
-                Debug.Assert(refCountResult > 1);
-            }
-            var prop = typeof(GraphicsResourceBase).GetProperty("NativeDeviceChild", NonPunblicInst);
-            prop.SetValue(graphicsResource, deviceChild);
-        }
-
-        static SharpDX.Direct3D11.BufferDescription ConvertToNativeDescription(BufferDescription description)
-        {
-            var method = typeof(Buffer).GetMethod("ConvertToNativeDescription", BindingFlags.Static | BindingFlags.NonPublic, null, new[] { typeof(BufferDescription) }, null);
-            return (SharpDX.Direct3D11.BufferDescription)method.Invoke(null, new object[] { description });
-        }
-
-        static void SetField(Buffer buffer, string name, object arg)
-        {
-            var field = typeof(Buffer).GetField(name, NonPunblicInst);
-            field.SetValue(buffer, arg);
-        }
-
-        static void SetGraphicsDevice(Buffer buffer, object arg)
-        {
-            var prop = typeof(GraphicsResourceBase).GetProperty("GraphicsDevice", BindingFlags.Public | BindingFlags.Instance);
-            prop.SetValue(buffer, arg);
-        }
-
-        static void SetProp(Buffer buffer, string name, object arg)
-        {
-            var prop = typeof(Buffer).GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
-            prop.SetValue(buffer, arg);
-        }
-        
-        static void InitCountAndViewFormat(Buffer buffer, out int count, ref PixelFormat viewFormat)
-        {
-            var method = typeof(Buffer).GetMethod("InitCountAndViewFormat", NonPunblicInst);
-            var args = new object[] { 0, viewFormat };
-            method.Invoke(buffer, args);
-            count = (int)args[0];
-        }
-
-        static void InitializeViews(Buffer buffer)
-        {
-            var method = typeof(Buffer).GetMethod("InitializeViews", NonPunblicInst);
-            method.Invoke(buffer, null);
+            throw new NotImplementedException("Buffer views are not yet supported with Stride 4.4.");
         }
 
         /// <summary>
@@ -451,7 +364,7 @@ namespace VL.Stride.Graphics
             if (!ReferenceEquals(thisBuffer, stagingBuffer))
                 commandList.Copy(thisBuffer, stagingBuffer);
 
-            var mappedResource = commandList.MapSubresource(stagingBuffer, 0, MapMode.Read, doNotWait, offsetInBytes, lengthInBytes);
+            var mappedResource = commandList.MapSubResource(stagingBuffer, 0, MapMode.Read, doNotWait, offsetInBytes, lengthInBytes);
             
             try
             {
@@ -468,7 +381,7 @@ namespace VL.Stride.Graphics
             finally
             {
                 // Make sure that we unmap the resource in case of an exception
-                commandList.UnmapSubresource(mappedResource);
+                commandList.UnmapSubResource(mappedResource);
             }
 
             return true;

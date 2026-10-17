@@ -25,16 +25,16 @@ namespace VL.Stride.Video
 
             var graphicsDevice = renderContext.GraphicsDevice;
             var frameClock = AppHost.Current.Services.GetRequiredService<IFrameClock>();
-            if (SharpDXInterop.GetNativeDevice(graphicsDevice) is SharpDX.Direct3D11.Device device)
+            if (GraphicsMarshal.GetNativeDevice(graphicsDevice) is { } device)
                 ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger(), GetGraphicsDevice, GraphicsDeviceType.Direct3D11, graphicsDevice.ColorSpace == ColorSpace.Linear);
             else
                 ctx = new VideoPlaybackContext(frameClock, nodeContext.GetLogger());
 
-            IntPtr GetGraphicsDevice()
+            unsafe IntPtr GetGraphicsDevice()
             {
                 var graphicsDevice = renderContext.GraphicsDevice;
-                if (SharpDXInterop.GetNativeDevice(graphicsDevice) is SharpDX.Direct3D11.Device device)
-                    return device.NativePointer;
+                if (GraphicsMarshal.GetNativeDevice(graphicsDevice) is { } device)
+                    return new IntPtr(device.Handle);
                 return IntPtr.Zero;
             }
         }

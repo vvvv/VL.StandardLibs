@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Reactive.Disposables;
 using VL.Core;
 using VL.Lang;
+using ComputeShaderBaseKeys = Stride.Rendering.ComputeEffect.ComputeShaderBaseKeys;
 
 namespace VL.Stride.Rendering.ComputeEffect
 {

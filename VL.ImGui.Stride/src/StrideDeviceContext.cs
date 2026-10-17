@@ -113,7 +113,7 @@ namespace VL.ImGui
                 };
 
                 // finally set up the pipeline
-                var pipelineState = PipelineState.New(device, ref pipeline);
+                var pipelineState = PipelineState.New(device, pipeline);
                 imPipeline = pipelineState;
 
                 // Setup Buffers

@@ -229,7 +229,7 @@ namespace VL.Stride.Rendering.Lights
                 if (textureSize < 64) textureSize = 64;
 
                 // TODO: Add support for HDR 32bits 
-                var filteringTextureFormat = skyboxTexture.Format.IsHDR() ? skyboxTexture.Format : PixelFormat.R8G8B8A8_UNorm;
+                var filteringTextureFormat = skyboxTexture.Format.IsHDR ? skyboxTexture.Format : PixelFormat.R8G8B8A8_UNorm;
 
                 //var outputTexture = Texture.New2D(graphicsDevice, 256, 256, skyboxTexture.Format, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess, 6);
                 var outputTexture = PushScopedResource(context.GraphicsContext.Allocator.GetTemporaryTexture2D(textureSize, textureSize, filteringTextureFormat, true, arraySize: 6));
