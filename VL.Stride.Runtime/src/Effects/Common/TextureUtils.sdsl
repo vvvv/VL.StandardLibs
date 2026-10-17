@@ -232,7 +232,7 @@
 
     float4 reduce4(float3 A, float3 B, float3 C, float3 D)
     {
-        return mul(float3x4(A, B, C, D), dtt);
+        return float4(dot(A, dtt), dot(B, dtt), dot(C, dtt), dot(D, dtt));
     }
 
     // Calculates the distance between two points
@@ -326,10 +326,10 @@
         float3 min_sample = min4(c11, c21, c12, c22);
         float3 max_sample = max4(c11, c21, c12, c22);
 
-        color = mul(weights[0], transpose(float3x4(c00, c10, c20, c30)));
-        color += mul(weights[1], transpose(float3x4(c01, c11, c21, c31)));
-        color += mul(weights[2], transpose(float3x4(c02, c12, c22, c32)));
-        color += mul(weights[3], transpose(float3x4(c03, c13, c23, c33)));
+        color = mul(weights[0], float4x3(c00, c10, c20, c30));
+        color += mul(weights[1], float4x3(c01, c11, c21, c31));
+        color += mul(weights[2], float4x3(c02, c12, c22, c32));
+        color += mul(weights[3], float4x3(c03, c13, c23, c33));
         color = color / dot(mul(float4(1, 1, 1, 1), weights), float4(1, 1, 1, 1));
 
         // Anti-ringing
