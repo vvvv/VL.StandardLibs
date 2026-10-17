@@ -183,9 +183,8 @@ namespace VL.Stride.Graphics
                         && viewDescription.Flags != BufferFlags.None
                         && ((buffer.Flags & BufferFlags.RawBuffer) != 0))
                     {
-                        bufferView ??= new Buffer();
                         var game = gameHandle.Resource;
-                        bufferView = buffer.ToBufferView(bufferView, viewDescription, game.GraphicsDevice);
+                        bufferView = buffer.ToBufferView(viewDescription, game.GraphicsDevice);
                     }
                     else
                     {

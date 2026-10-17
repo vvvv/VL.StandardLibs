@@ -9,6 +9,8 @@ using Buffer = Stride.Graphics.Buffer;
 using VL.Core;
 using System.Reflection;
 using Stride.Core;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D11;
 using System.Diagnostics;
 using MapMode = Stride.Graphics.MapMode;
 using System.Threading.Tasks;
@@ -64,24 +66,101 @@ namespace VL.Stride.Graphics
         public static Buffer New(GraphicsDevice graphicsDevice, BufferDescription description, BufferViewDescription viewDescription, IntPtr intialData)
         {
             var buffer = BufferCtor(graphicsDevice);
-            return InitializeFromImpl(buffer, description, viewDescription.Flags, viewDescription.Format, intialData);
+            return InitializeFromImpl(buffer, in description, viewDescription.Flags, viewDescription.Format, intialData);
 
             [UnsafeAccessor(UnsafeAccessorKind.Constructor)]
             extern static Buffer BufferCtor(GraphicsDevice graphicsDevice);
 
             [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(InitializeFromImpl))]
-            extern static Buffer InitializeFromImpl(Buffer buffer, BufferDescription description, BufferFlags flags, PixelFormat viewFormat, nint data);
+            extern static Buffer InitializeFromImpl(Buffer buffer, in BufferDescription description, BufferFlags flags, PixelFormat viewFormat, nint data);
         }
 
         internal static readonly PropertyKey<Buffer> ParentBuffer = new PropertyKey<Buffer>(nameof(ParentBuffer), typeof(Buffer));
 
-        // TODO: The previous implementation used reflection to create a view on the native SharpDX buffer of the parent buffer.
-        // Stride 4.4 uses Silk.NET.Direct3D11 and the internals of Stride.Graphics.Buffer changed, so this needs to be ported.
-        public static Buffer ToBufferView(this Buffer parentBuffer, Buffer bufferView, BufferViewDescription viewDescription, GraphicsDevice graphicsDevice)
+        /// <summary>
+        /// Creates a new buffer which shares the native Direct3D 11 buffer of the <paramref name="parentBuffer"/>
+        /// but has its own views (SRV/UAV) according to the <paramref name="viewDescription"/>.
+        /// Mirrors what Stride's Buffer.InitializeFromImpl does, just without creating a new native buffer.
+        /// </summary>
+        public static unsafe Buffer ToBufferView(this Buffer parentBuffer, BufferViewDescription viewDescription, GraphicsDevice graphicsDevice)
         {
-            throw new NotImplementedException("Buffer views are not yet supported with Stride 4.4.");
-        }
+            var bufferView = BufferCtor(graphicsDevice);
 
+            var description = parentBuffer.Description;
+            BufferDescriptionField(bufferView) = description;
+            NativeDescriptionField(bufferView) = NativeDescriptionField(parentBuffer);
+
+            var viewFlags = viewDescription.Flags;
+            var viewFormat = viewDescription.Format;
+            SetViewFlags(bufferView, viewFlags);
+
+            // Same as InitCountAndViewFormat in Stride.Graphics.Buffer
+            int count;
+            if (description.StructureByteStride == 0)
+            {
+                count = viewFlags.HasFlag(BufferFlags.RawBuffer) ? description.SizeInBytes / sizeof(int)
+                    : viewFlags.HasFlag(BufferFlags.ShaderResource) ? description.SizeInBytes / viewFormat.SizeInBytes
+                    : 0;
+            }
+            else
+            {
+                count = description.SizeInBytes / description.StructureByteStride;
+                viewFormat = PixelFormat.None;
+            }
+            ElementCountField(bufferView) = count;
+            SetViewFormat(bufferView, viewFormat);
+
+            // Share the native buffer. SetNativeDeviceChild doesn't AddRef, the matching Release happens when the view gets destroyed.
+            var nativeBuffer = NativeBufferField(parentBuffer);
+            nativeBuffer->AddRef();
+            NativeBufferField(bufferView) = nativeBuffer;
+            SetNativeDeviceChild(bufferView, new ComPtr<ID3D11DeviceChild>((ID3D11DeviceChild*)nativeBuffer));
+
+            // Staging resources don't have any views
+            if (NativeDescriptionField(bufferView).Usage != Usage.Staging)
+                InitializeViews(bufferView);
+
+            // Buffer.OnDestroyed unregisters the memory usage
+            RegisterBufferMemoryUsage(graphicsDevice, bufferView.SizeInBytes);
+
+            if (parentBuffer is IReferencable referencable)
+            {
+                referencable.AddReference();
+                bufferView.Destroyed += (e, s) => referencable.Release();
+            }
+
+            return bufferView;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Constructor)]
+            extern static Buffer BufferCtor(GraphicsDevice graphicsDevice);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "bufferDescription")]
+            extern static ref BufferDescription BufferDescriptionField(Buffer buffer);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "nativeDescription")]
+            extern static ref BufferDesc NativeDescriptionField(Buffer buffer);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "elementCount")]
+            extern static ref int ElementCountField(Buffer buffer);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "nativeBuffer")]
+            extern static ref ID3D11Buffer* NativeBufferField(Buffer buffer);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "set_ViewFlags")]
+            extern static void SetViewFlags(Buffer buffer, BufferFlags flags);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "set_ViewFormat")]
+            extern static void SetViewFormat(Buffer buffer, PixelFormat format);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "SetNativeDeviceChild")]
+            extern static void SetNativeDeviceChild(GraphicsResourceBase resource, ComPtr<ID3D11DeviceChild> deviceChild);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "InitializeViews")]
+            extern static void InitializeViews(Buffer buffer);
+
+            [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "RegisterBufferMemoryUsage")]
+            extern static void RegisterBufferMemoryUsage(GraphicsDevice device, long size);
+        }
         /// <summary>
         /// Copies the <paramref name="fromData"/> to the given <paramref name="buffer"/> on GPU memory.
         /// </summary>
