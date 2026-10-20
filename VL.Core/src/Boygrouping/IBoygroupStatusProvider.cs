@@ -25,6 +25,11 @@ namespace VL.Core.Boygrouping
         /// The address the server is bound to.
         /// </summary>
         IPEndPoint BindingAddress { get; }
+
+        /// <summary>
+        /// The errors which occurred while starting the server. Empty if the server started successfully.
+        /// </summary>
+        ImmutableArray<string> StartupErrors { get; }
     }
 
     internal interface IBoygroupClientStatusProvider
@@ -43,5 +48,10 @@ namespace VL.Core.Boygrouping
         /// The working directory of the client.
         /// </summary>
         string WorkingDirectory { get; }
+
+        /// <summary>
+        /// The errors which occurred while starting the client. Empty if the client started successfully.
+        /// </summary>
+        ImmutableArray<string> StartupErrors { get; }
     }
 }

@@ -20,6 +20,7 @@ public sealed class BoygroupServerStatus
     private readonly IBoygroupServerStatusProvider? statusProvider;
     private Spread<BoygroupClientInfo> connectedClients = Spread<BoygroupClientInfo>.Empty;
     private Spread<BoygroupClientInfo> allClients = Spread<BoygroupClientInfo>.Empty;
+    private Spread<string> startupErrors = Spread<string>.Empty;
 
     public BoygroupServerStatus(NodeContext nodeContext)
     {
@@ -42,7 +43,10 @@ public sealed class BoygroupServerStatus
     /// <inheritdoc cref="IBoygroupServerStatusProvider.BindingAddress"/>
     public IPEndPoint BindingAddress => statusProvider?.BindingAddress ?? NetUtils.DefaultIPEndPoint;
 
-    private static Spread<T> AsSpread<T>(ref Spread<T> spread, ImmutableArray<T>? array)
+    /// <inheritdoc cref="IBoygroupServerStatusProvider.StartupErrors"/>
+    public Spread<string> StartupErrors => AsSpread(ref startupErrors, statusProvider?.StartupErrors);
+
+    internal static Spread<T> AsSpread<T>(ref Spread<T> spread, ImmutableArray<T>? array)
     {
         if (array != spread._array)
             spread = array.HasValue ? new(array.Value) : Spread<T>.Empty;
@@ -54,6 +58,7 @@ public sealed class BoygroupServerStatus
 public sealed class BoygroupClientStatus
 {
     private readonly IBoygroupClientStatusProvider? statusProvider;
+    private Spread<string> startupErrors = Spread<string>.Empty;
 
     public BoygroupClientStatus(NodeContext nodeContext)
     {
@@ -72,4 +77,7 @@ public sealed class BoygroupClientStatus
 
     /// <inheritdoc cref="IBoygroupClientStatusProvider.WorkingDirectory"/>
     public string WorkingDirectory => statusProvider?.WorkingDirectory ?? string.Empty;
+
+    /// <inheritdoc cref="IBoygroupClientStatusProvider.StartupErrors"/>
+    public Spread<string> StartupErrors => BoygroupServerStatus.AsSpread(ref startupErrors, statusProvider?.StartupErrors);
 }
