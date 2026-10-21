@@ -8,7 +8,7 @@ using VL.Lib.Reactive;
 namespace VL.IO.Redis
 {
     /// <summary>
-    /// A description of a Redis binding. The <see cref="RedisClientManager"/> holds one of these per global channel.
+    /// A description of a Redis binding. The <see cref="RedisClient"/> holds one of these per global channel.
     /// </summary>
     /// <param name="Key">The Redis key.</param>
     /// <param name="Initialization">What to do on startup.</param>
@@ -18,6 +18,7 @@ namespace VL.IO.Redis
     /// <param name="Expiry">Allows to make this key expire (and vanish) from the Redis database. The channel will persist and will pick up values as soon as the key in the Db exists again.</param>
     /// <param name="When">Which condition to set the value under (defaults to always).</param>
     /// <param name="Database">The database to use. If not specified the one from the <see cref="RedisClient"/> is used.</param>
+    /// <param name="CreatedViaNode">Whether the binding was created by a binding node (as opposed to a global channel).</param>
     public readonly record struct BindingModel(
         Optional<string> Key = default,
         Optional<Initialization> Initialization = default, //Initialization.Redis
