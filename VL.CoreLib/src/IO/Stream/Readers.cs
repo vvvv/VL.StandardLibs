@@ -117,7 +117,7 @@ namespace VL.Lib.IO
                     try
                     {
                         var streamLength = stream.CanSeek ? stream.Length : long.MaxValue;
-                        while (!reader.EndOfStream)
+                        while (true)
                         {
                             var charsRead = reader.Read(buffer, 0, buffer.Length);
                             if (charsRead > 0)
@@ -269,7 +269,7 @@ namespace VL.Lib.IO
                         try
                         {
                             var streamLength = stream.CanSeek ? stream.Length : long.MaxValue;
-                            while (!reader.EndOfStream && !token.IsCancellationRequested)
+                            while (!token.IsCancellationRequested)
                             {
                                 var charsRead = await reader.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
                                 if (charsRead > 0)
