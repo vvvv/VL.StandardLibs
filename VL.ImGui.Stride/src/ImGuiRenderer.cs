@@ -26,7 +26,7 @@ namespace VL.ImGui
     public partial class ImGuiRenderer : RendererBase, IDisposable
     {
         private readonly StrideDeviceContext _context;
-        private readonly ImGuiWindow _window;
+        private readonly ImGuiWindow? _window;
 
         private ImDrawDataPtr _drawData;
 

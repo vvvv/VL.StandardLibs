@@ -6,8 +6,8 @@ namespace VL.ImGui.Widgets
         where T : unmanaged
         where TComponent : unmanaged
     {
-        protected ValueSelector<TComponent> min;
-        protected ValueSelector<TComponent> max;
+        protected ValueSelector<TComponent> min = null!;
+        protected ValueSelector<TComponent> max = null!;
 
         public DragWidgetBase()
         {

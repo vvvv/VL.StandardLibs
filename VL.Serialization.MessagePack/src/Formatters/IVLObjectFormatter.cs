@@ -17,7 +17,7 @@ namespace VL.Serialization.MessagePack.Formatters
 
     sealed class IVLObjectFormatter<T> : IMessagePackFormatter<T>
     {
-        private delegate void SerializeMethod(object dynamicContractlessFormatter, ref MessagePackWriter writer, object value, MessagePackSerializerOptions options);
+        private delegate void SerializeMethod(object dynamicContractlessFormatter, ref MessagePackWriter writer, object? value, MessagePackSerializerOptions options);
         private delegate object DeserializeMethod(object dynamicContractlessFormatter, ref MessagePackReader reader, MessagePackSerializerOptions options);
         private static readonly ThreadsafeTypeKeyHashTable<SerializeMethod> Serializers = new();
         private static readonly ThreadsafeTypeKeyHashTable<DeserializeMethod> Deserializers = new();

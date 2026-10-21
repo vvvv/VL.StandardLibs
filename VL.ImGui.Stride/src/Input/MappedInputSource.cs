@@ -46,10 +46,10 @@
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    AddMappedDevice((IInputDevice)e.Item);
+                    AddMappedDevice((IInputDevice)e.Item!);
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    RemoveMappedDeviceBySourceDeviceID((Guid)e.Key);
+                    RemoveMappedDeviceBySourceDeviceID((Guid)e.Key!);
                     break;
                 case NotifyCollectionChangedAction.Replace:
                     break;

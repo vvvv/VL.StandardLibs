@@ -8,7 +8,7 @@ namespace VL.Serialization.FSPickler.Tests
     [TestFixture]
     public class FSPicklerTests
     {
-        private TestAppHost appHost;
+        private TestAppHost appHost = null!;
 
         [SetUp]
         public void Setup()

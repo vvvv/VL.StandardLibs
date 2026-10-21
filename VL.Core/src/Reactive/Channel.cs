@@ -201,7 +201,7 @@ namespace VL.Lib.Reactive
         public void SetObjectDirectly(object? @object, string? author)
         {
             LatestAuthor = author;
-            this.value = (T)@object;
+            this.value = (T)@object!;
         }
 
         public IChannel<object> ChannelOfObject => channelOfObject;
