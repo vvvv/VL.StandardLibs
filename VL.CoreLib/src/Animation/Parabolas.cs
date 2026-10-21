@@ -1021,7 +1021,7 @@ namespace VL.Lib.Animation
             }
         }
 
-        public void SetGoToPosition(TMValue value)
+        public new void SetGoToPosition(TMValue value)
         {
             FilterChanged |= 
                 (((Math.Abs(FGoToPosition - value) > Helpers.EPSILON_DEFAULT) && FCyclic) || ((FGoToPosition != value) && !FCyclic)) &&
