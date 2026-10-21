@@ -62,7 +62,8 @@ namespace VL.Stride.Spout
             using (var mmvs = SenderNamesMap.CreateViewStream())
             {
                 var b = new byte[len];
-                mmvs.Read(b, 0, len);
+                // The view can be shorter than len; a short read leaves the rest zero, which ends the names below
+                mmvs.ReadAtLeast(b, len, throwOnEndOfStream: false);
 
                 //split into strings searching for the nulls 
                 for (int i = 0; i < len; i++)
