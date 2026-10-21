@@ -37,7 +37,7 @@ namespace VL.ImGui
             }
         }
 
-        void UpdateBuffers(CommandList commandList, ImDrawDataPtr drawData)
+        unsafe void UpdateBuffers(CommandList commandList, ImDrawDataPtr drawData)
         {
             // copy de dators
             int vtxOffsetBytes = 0;
@@ -46,8 +46,8 @@ namespace VL.ImGui
             for (int n = 0; n < drawData.CmdListsCount; n++)
             {
                 ImDrawListPtr cmdList = drawData.CmdLists[n];
-                vertexBinding.Buffer.SetData(commandList, new DataPointer(cmdList.VtxBuffer.Data, cmdList.VtxBuffer.Size * Unsafe.SizeOf<ImDrawVert>()), vtxOffsetBytes);
-                indexBinding.Buffer.SetData(commandList, new DataPointer(cmdList.IdxBuffer.Data, cmdList.IdxBuffer.Size * sizeof(ushort)), idxOffsetBytes);
+                vertexBinding.Buffer.SetData(commandList, new ReadOnlySpan<byte>((void*)cmdList.VtxBuffer.Data, cmdList.VtxBuffer.Size * Unsafe.SizeOf<ImDrawVert>()), vtxOffsetBytes);
+                indexBinding.Buffer.SetData(commandList, new ReadOnlySpan<byte>((void*)cmdList.IdxBuffer.Data, cmdList.IdxBuffer.Size * sizeof(ushort)), idxOffsetBytes);
                 vtxOffsetBytes += cmdList.VtxBuffer.Size * Unsafe.SizeOf<ImDrawVert>();
                 idxOffsetBytes += cmdList.IdxBuffer.Size * sizeof(ushort);
             }
