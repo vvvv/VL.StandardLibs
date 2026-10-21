@@ -738,12 +738,12 @@ namespace VL.Lib.Animation
         }
 
 
-        struct tmsolution
+        struct TMSolution
         {
             public TMValue a0, a2, v1;
             public TMTime t0, t1, dt;
 
-            public tmsolution(TMValue a0_, TMValue a2_, TMValue v1_, TMTime t0_, TMTime t1_, TMTime dt_)
+            public TMSolution(TMValue a0_, TMValue a2_, TMValue v1_, TMTime t0_, TMTime t1_, TMTime dt_)
             {
                 a0 = a0_;
                 a2 = a2_;
@@ -759,7 +759,7 @@ namespace VL.Lib.Animation
         {
             TMTime dtv, dtmin;
             TMValue vadd, dv, dp, gamma, gamma2;
-            tmsolution solution;
+            TMSolution solution;
             bool solutionfound;
 
             void Core(TMValue a0)
@@ -823,7 +823,7 @@ namespace VL.Lib.Animation
                         if (bettersolution)
                         {
                             solutionfound = true;
-                            solution = new tmsolution(a0, a2, v1, t0, t1, dt); // just use functionality of constructor
+                            solution = new TMSolution(a0, a2, v1, t0, t1, dt); // just use functionality of constructor
                         }
                     }
                 }
@@ -873,7 +873,7 @@ namespace VL.Lib.Animation
                 }
 
                 solutionfound = true;
-                solution = new tmsolution(a, a, v1, t0, t1, dt); // just use functionality of constructor
+                solution = new TMSolution(a, a, v1, t0, t1, dt); // just use functionality of constructor
             }
 
             TMValue middle, dpc, x, a, dp1, dp2;
@@ -913,7 +913,7 @@ namespace VL.Lib.Animation
                         if (middle >= 0 && middle <= 1) dp = dpc;
                     }
 
-                    solution = new tmsolution(0, 0, 0, double.MaxValue, double.MaxValue, double.MaxValue);
+                    solution = new TMSolution(0, 0, 0, double.MaxValue, double.MaxValue, double.MaxValue);
                     solutionfound = false;
                     try
                     {
