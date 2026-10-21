@@ -52,6 +52,9 @@
                                Condition="'%(Filename)%(Extension)' == 'Stride.Core.Assets.CompilerApp.exe'" />
       <RuntimeTargetsCopyLocalItems Remove="@(RuntimeTargetsCopyLocalItems)"
                                     Condition="'%(Filename)%(Extension)' == 'Stride.Core.Assets.CompilerApp.exe'" />
+      <!-- The exe has no managed metadata and clashes with the dll of the same assembly name (MSB3243/MSB3246) -->
+      <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)"
+                                      Condition="'%(Filename)%(Extension)' == 'Stride.Core.Assets.CompilerApp.exe'" />
     </ItemGroup>
   </Target>
 

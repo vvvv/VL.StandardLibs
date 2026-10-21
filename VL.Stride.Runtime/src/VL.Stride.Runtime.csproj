@@ -16,7 +16,8 @@
     <RootNamespace>VL.Stride</RootNamespace>
     <Authors>vvvv and open-source contributors</Authors>
     <Company>vvvv</Company>
-    <NoWarn>$(NoWarn);STRDIAG010</NoWarn>
+    <!-- CA2255: module initializers are how this library registers itself, and Stride's source generator emits one too -->
+    <NoWarn>$(NoWarn);STRDIAG010;CA2255</NoWarn>
   </PropertyGroup>
 
   <Target Name="AdditionalThisAssemblyFields" BeforeTargets="GenerateAssemblyNBGVVersionInfo" DependsOnTargets="GetBuildVersion">
