@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance;
+using Stride.Engine;
 using Stride.Graphics;
 using Stride.Rendering;
 using System;
@@ -12,19 +13,37 @@ using System.Threading;
 using VL.Core;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
+using VL.Stride.Engine;
 using MapMode = Stride.Graphics.MapMode;
 using StridePixelFormat = Stride.Graphics.PixelFormat;
 
+[assembly: ImportType(typeof(VL.Stride.Video.TextureToVideoStream))]
+
 namespace VL.Stride.Video
 {
+    /// <summary>
+    /// Converts a texture into a video stream by copying it to staging textures and reading them back from the GPU asynchronously.
+    /// </summary>
+    /// <remarks>
+    /// The frame rate pins only label the produced frames, no frame rate conversion takes place.
+    /// If changed, make sure the values match the main loop settings of vvvv.
+    /// </remarks>
+    [ProcessNode(Category = "Stride.Video")]
     public sealed class TextureToVideoStream : RendererBase
     {
+        record struct MetadataAndFramerate(string Metadata, (int N, int D) FrameRate);
+
         private readonly SynchronizationContext synchronizationContext = SynchronizationContext.Current;
-        private readonly Queue<(Texture texture, string metadata)> textureDownloads = new Queue<(Texture texture, string metadata)>();
+        private readonly Queue<(Texture texture, MetadataAndFramerate metadata)> textureDownloads = new();
         private readonly Subject<IResourceProvider<VideoFrame>> frames = new Subject<IResourceProvider<VideoFrame>>();
         private readonly AppHost appHost;
         private readonly CompositeDisposable subscriptions;
         private readonly SerialDisposable texturePoolSubscription;
+        private readonly SchedulerSystem schedulerSystem;
+
+        private Texture texture;
+        private MetadataAndFramerate metadata;
+        private VideoStream videoStream;
 
         public TextureToVideoStream()
         {
@@ -33,19 +52,34 @@ namespace VL.Stride.Video
             {
                 (texturePoolSubscription = new SerialDisposable()),
             };
-            VideoStream = new VideoStream(frames);
+            videoStream = new VideoStream(frames);
+            schedulerSystem = appHost.Services.GetRequiredService<Game>().Services.GetService<SchedulerSystem>();
         }
 
-        public Texture Texture { get; set; }
+        /// <param name="input">The texture to stream. If null, no frame is produced.</param>
+        /// <param name="metadata">Optional metadata attached to each video frame.</param>
+        /// <param name="frameRateN">Numerator of the frame rate. Must match the main loop settings of vvvv, no conversion is done.</param>
+        /// <param name="frameRateD">Denominator of the frame rate. Must match the main loop settings of vvvv, no conversion is done.</param>
+        /// <returns>The stream of video frames. Frames arrive with a delay of a few updates due to the asynchronous readback.</returns>
+        [return: Pin(Name = "Output")]
+        public VideoStream Update(
+            Texture input,
+            string metadata,
+            int frameRateN = Constants.DefaultFrameRateN, 
+            int frameRateD = Constants.DefaultFrameRateD)
+        {
+            texture = input;
+            this.metadata = new MetadataAndFramerate(metadata, (frameRateN, frameRateD));
 
-        public string Metadata { get; set; }
+            schedulerSystem.Schedule(this);
 
-        public VideoStream VideoStream { get; }
+            return videoStream;
+        }
 
         /// <inheritdoc />
         protected override void DrawCore(RenderDrawContext context)
         {
-            var texture = Texture;
+            var texture = this.texture;
             if (texture is null)
             {
                 texturePoolSubscription.Disposable = null;
@@ -61,7 +95,7 @@ namespace VL.Stride.Video
                 // Request copy
                 var stagingTexture = texturePool.Rent();
                 context.CommandList.Copy(texture, stagingTexture);
-                textureDownloads.Enqueue((stagingTexture, Metadata));
+                textureDownloads.Enqueue((stagingTexture, metadata));
             }
 
             {
@@ -111,7 +145,7 @@ namespace VL.Stride.Video
             }
         }
 
-        static (IDisposable memoryOwner, VideoFrame videoFrame) CreateVideoFrame(Texture texture, DataBox data, string metadata)
+        static (IDisposable memoryOwner, VideoFrame videoFrame) CreateVideoFrame(Texture texture, DataBox data, MetadataAndFramerate metadata)
         {
             switch (texture.Format)
             {
@@ -132,12 +166,12 @@ namespace VL.Stride.Video
             }
         }
 
-        static (IMemoryOwner<T> memoryOwner, VideoFrame<T> videoFrame) CreateVideoFrame<T>(Texture texture, DataBox data, string metadata)
+        static (IMemoryOwner<T> memoryOwner, VideoFrame<T> videoFrame) CreateVideoFrame<T>(Texture texture, DataBox data, MetadataAndFramerate metadata)
             where T : unmanaged, IPixel
         {
             var memoryOwner = new UnmanagedMemoryManager<T>(data.DataPointer, data.SlicePitch);
             var pitch = data.RowPitch - texture.Width * Unsafe.SizeOf<T>();
-            var videoFrame = new VideoFrame<T>(memoryOwner.Memory.AsMemory2D(0, texture.Height, texture.Width, pitch), metadata);
+            var videoFrame = new VideoFrame<T>(memoryOwner.Memory.AsMemory2D(0, texture.Height, texture.Width, pitch), metadata.Metadata, FrameRate: metadata.FrameRate);
             return (memoryOwner, videoFrame);
         }
 

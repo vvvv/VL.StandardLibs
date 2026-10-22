@@ -12,20 +12,34 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using VL.Core;
+using VL.Core.Import;
 using VL.Lib.Basics.Imaging;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
 using VL.Skia.Egl;
 using MapMode = SharpDX.Direct3D11.MapMode;
 
+[assembly: ImportType(typeof(VL.Skia.Video.SKImageToVideoStream))]
+
 namespace VL.Skia.Video
 {
+    /// <summary>
+    /// Converts a Skia image into a video stream by reading the pixels back from the GPU asynchronously.
+    /// Each call to Update produces one video frame.
+    /// </summary>
+    /// <remarks>
+    /// The frame rate pins only label the produced frames, no frame rate conversion takes place.
+    /// If changed, make sure the values match the main loop settings of vvvv.
+    /// </remarks>
+    [ProcessNode(Category = "Graphics.Skia.Video")]
     public sealed class SKImageToVideoStream : IDisposable
     {
+        record struct MetadataAndFrameRate(string Metadata, (int N, int D) FrameRate);
+
         private static readonly IRefCounter<SKImage> refCounter = RefCounting.GetRefCounter<SKImage>();
 
         private readonly SynchronizationContext synchronizationContext = SynchronizationContext.Current;
-        private readonly Queue<(Texture2D texture, string metadata)> textureDownloads = new Queue<(Texture2D texture, string metadata)>();
+        private readonly Queue<(Texture2D texture, MetadataAndFrameRate metadata)> textureDownloads = new();
         private readonly Subject<IResourceProvider<VideoFrame>> frames = new Subject<IResourceProvider<VideoFrame>>();
         private readonly SerialDisposable texturePoolSubscription = new SerialDisposable();
         private readonly RenderContextProvider renderContextProvider;
@@ -44,9 +58,19 @@ namespace VL.Skia.Video
             videoStream = new VideoStream(frames);
         }
 
-        public VideoStream Update(SKImage image, string metadata)
+        /// <param name="input">The image to stream. If null, no frame is produced.</param>
+        /// <param name="metadata">Optional metadata attached to each video frame.</param>
+        /// <param name="frameRateN">Numerator of the frame rate. Must match the main loop settings of vvvv, no conversion is done.</param>
+        /// <param name="frameRateD">Denominator of the frame rate. Must match the main loop settings of vvvv, no conversion is done.</param>
+        /// <returns>The stream of video frames. Frames arrive with a delay of a few updates due to the asynchronous readback.</returns>
+        [return: Pin(Name = "Output")]
+        public VideoStream Update(
+            SKImage input,
+            string metadata, 
+            int frameRateN = Constants.DefaultFrameRateN, 
+            int frameRateD = Constants.DefaultFrameRateD)
         {
-            if (image is null)
+            if (input is null)
                 return null;
 
             var renderContext = renderContextProvider.GetRenderContext();
@@ -60,14 +84,14 @@ namespace VL.Skia.Video
 
             using var _ = renderContext.MakeCurrent(forRendering: false);
             if (device != null)
-                DownloadWithStagingTexture(renderContext, image, metadata);
+                DownloadWithStagingTexture(renderContext, input, metadata, (frameRateN, frameRateD));
             else
-                DownloadWithRasterImage(image, metadata);
+                DownloadWithRasterImage(input, metadata, (frameRateN, frameRateD));
 
             return videoStream;
         }
 
-        private void DownloadWithStagingTexture(RenderContext renderContext, SKImage skImage, string metadata)
+        private void DownloadWithStagingTexture(RenderContext renderContext, SKImage skImage, string metadata, (int N, int D) frameRate)
         {
             // Fast path
             // - Create render texture
@@ -122,7 +146,7 @@ namespace VL.Skia.Video
 
                 var stagingTexture = texturePool.Rent();
                 device.ImmediateContext.CopyResource(renderTarget, stagingTexture);
-                textureDownloads.Enqueue((stagingTexture, metadata));
+                textureDownloads.Enqueue((stagingTexture, new MetadataAndFrameRate(metadata, frameRate)));
             }
 
             // Download recently staged
@@ -139,7 +163,7 @@ namespace VL.Skia.Video
                     var stagedDescription = stagedTexture.Description;
                     var memoryOwner = new UnmanagedMemoryManager<BgraPixel>(data.DataPointer, data.SlicePitch);
                     var pitch = data.RowPitch - (stagedDescription.Width * Unsafe.SizeOf<BgraPixel>());
-                    var videoFrame = new VideoFrame<BgraPixel>(memoryOwner.Memory.AsMemory2D(0, stagedDescription.Height, stagedDescription.Width, pitch), stagedMetadata);
+                    var videoFrame = new VideoFrame<BgraPixel>(memoryOwner.Memory.AsMemory2D(0, stagedDescription.Height, stagedDescription.Width, pitch), stagedMetadata.Metadata, FrameRate: stagedMetadata.FrameRate);
                     var videoFrameProvider = ResourceProvider.Return(videoFrame, ReleaseVideoFrame);
                     using (videoFrameProvider.GetHandle())
                     {
@@ -214,7 +238,7 @@ namespace VL.Skia.Video
             static extern void glFramebufferTexture2D(uint target, uint attachment, uint textarget, uint texture, int level);
         }
 
-        private void DownloadWithRasterImage(SKImage skImage, string metadata)
+        private void DownloadWithRasterImage(SKImage skImage, string metadata, (int N, int D) frameRate)
         {
             // Slow path through ToRasterImage
             if (skImage is null)
@@ -235,7 +259,7 @@ namespace VL.Skia.Video
             var pixmap = rasterImage.PeekPixels();
             var memoryOwner = new UnmanagedMemoryManager<BgraPixel>(pixmap.GetPixels(), pixmap.BytesSize);
             var pitch = pixmap.RowBytes - (pixmap.Width * pixmap.BytesPerPixel);
-            var videoFrame = new VideoFrame<BgraPixel>(memoryOwner.Memory.AsMemory2D(0, pixmap.Height, pixmap.Width, pitch), metadata);
+            var videoFrame = new VideoFrame<BgraPixel>(memoryOwner.Memory.AsMemory2D(0, pixmap.Height, pixmap.Width, pitch), metadata, FrameRate: frameRate);
             var videoFrameProvider = ResourceProvider.Return(videoFrame, (rasterImage, pixmap, (IDisposable)memoryOwner), static x =>
             {
                 var (rasterImage, pixmap, memoryOwner) = x;
