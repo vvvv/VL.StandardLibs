@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Core.Logging;
 
 namespace VL.IO.Redis
 {
@@ -73,6 +74,11 @@ namespace VL.IO.Redis
         public IObservable<RedisConnection?> ConnectionObservable => _redisConnection;
         public RedisConnection? CurrentConnection => _redisConnection.Value;
 
+        private static LogLevel DemoteRedisInformationToDebug(string categoryName, LogLevel level)
+            => level == LogLevel.Information && categoryName.StartsWith("StackExchange.Redis", StringComparison.Ordinal)
+                ? LogLevel.Debug
+                : level;
+
         private async Task Reconnect(string? configuration, Action<ConfigurationOptions>? configure, bool connectAsync, RedisClient client, CancellationToken cancellationToken, ClientSideCachingOptions cachingOptions, Task? existingConnectTask)
         {
             // Reset options while reconnecting - they are used for display in tooltip
@@ -84,7 +90,8 @@ namespace VL.IO.Redis
             if (configure != null)
                 options.Apply(configure);
 
-            options.LoggerFactory ??= _nodeContext.AppHost.LoggerFactory;
+            // StackExchange.Redis logs the whole connection handshake on Information level. Keep that for troubleshooting, but on Debug.
+            options.LoggerFactory ??= _nodeContext.AppHost.LoggerFactory.WithLogLevelMapping(DemoteRedisInformationToDebug);
             options.Protocol = RedisProtocol.Resp2;
             // Attach our unique id so we can identify our pub/sub connection later (see below)
             options.ClientName = $"{options.ClientName ?? options.Defaults.ClientName}{GetHashCode()}";
@@ -95,6 +102,9 @@ namespace VL.IO.Redis
             options.ConnectRetry = 0;
             // Don't queue commands while disconnected
             options.BacklogPolicy = BacklogPolicy.FailFast;
+
+            var endPoints = string.Join(", ", options.EndPoints);
+            _logger.LogInformation("Connecting to Redis server {EndPoints}", endPoints);
 
             _connectCancellationTokenSource = new CancellationTokenSource();
             var token = _connectCancellationTokenSource.Token;
@@ -110,7 +120,10 @@ namespace VL.IO.Redis
                         : ConnectionMultiplexer.Connect(options);
 
                     if (!_disposed && !token.IsCancellationRequested)
+                    {
+                        _logger.LogInformation("Connected to Redis server {EndPoints}", endPoints);
                         _redisConnection.OnNext(new RedisConnection(multiplexer, _logger, client, cachingOptions));
+                    }
                     else
                         multiplexer.Dispose();
 
