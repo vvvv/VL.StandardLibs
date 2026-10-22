@@ -26,4 +26,11 @@
     <ProjectReference Include="..\src\VL.Serialization.MessagePack.csproj" />
   </ItemGroup>
 
+  <!-- The tests rely on the runtime VLResolver. Disable MessagePack's source generator/analyzers flowing in transitively. -->
+  <Target Name="RemoveMessagePackAnalyzers" AfterTargets="ResolveLockFileAnalyzers">
+    <ItemGroup>
+      <Analyzer Remove="@(Analyzer)" Condition="$([System.String]::Copy('%(Analyzer.Identity)').ToLowerInvariant().Contains('messagepack'))" />
+    </ItemGroup>
+  </Target>
+
 </Project>
