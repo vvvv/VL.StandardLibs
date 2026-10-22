@@ -6,6 +6,10 @@ using Stride.Core.Mathematics;
 using VL.Serialization.MessagePack.Formatters;
 using Half = Stride.Core.Mathematics.Half;
 using HalfFormatter = VL.Serialization.MessagePack.Formatters.HalfFormatter;
+using Vector2Formatter = VL.Serialization.MessagePack.Formatters.Vector2Formatter;
+using Vector3Formatter = VL.Serialization.MessagePack.Formatters.Vector3Formatter;
+using Vector4Formatter = VL.Serialization.MessagePack.Formatters.Vector4Formatter;
+using QuaternionFormatter = VL.Serialization.MessagePack.Formatters.QuaternionFormatter;
 
 
 namespace VL.Serialization.MessagePack
