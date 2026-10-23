@@ -97,8 +97,16 @@ namespace VL.Core.Reactive
                 OnChannelsChanged.Value = this;
         }
 
+        static string normalize(string key)
+        {
+            // if it starts with '/' or '.' it will just skip this char
+
+            return key.TrimStart('.', '/');
+        }
+
         public IChannel<object>? TryAddChannel(string key, Type typeOfValues)
         {
+            key = normalize(key);
             if (string.IsNullOrWhiteSpace(key))
                 return default;
 
@@ -127,6 +135,7 @@ namespace VL.Core.Reactive
 
         public IChannel<object>? TryGetChannel(string key)
         {
+            key = normalize(key);
             Channels.TryGetValue(key, out var c);
             if (c?.ChannelOfObject is IInternalChannel ic)
                 ic.Request(); // mark channel as asked for, so that it can be used in the UI
@@ -161,6 +170,7 @@ namespace VL.Core.Reactive
 
         public bool TryRemoveChannel(string key)
         {
+            key = normalize(key);
             using var _ = BeginChange();
             var gotRemoved = Channels.TryRemove(key, out var c);
             if (c != null)
@@ -173,6 +183,7 @@ namespace VL.Core.Reactive
 
         public IChannel<object>? TryRenameChannel(string key, string newKey)
         {
+            key = normalize(key);
             using var _ = BeginChange();
             var gotRemoved = Channels.TryRemove(key, out var c);
             if (c != null)
@@ -190,6 +201,7 @@ namespace VL.Core.Reactive
 
         public IChannel<object>? TryChangeType(string key, Type typeOfValues)
         {
+            key = normalize(key);
             using var _ = BeginChange();
             var gotRemoved = Channels.TryRemove(key, out var c);
             if (c != null)
