@@ -133,9 +133,6 @@ namespace VL.Core.Reactive
 
         public void Save(IEnumerable<PublicChannelDescription> descriptions)
         {
-            if (descriptions.SequenceEqual(Descriptions.Value))
-                return;
-
             if (descriptions.Any())
             {
                 XElement rootElement = new XElement("PublicChannels",
