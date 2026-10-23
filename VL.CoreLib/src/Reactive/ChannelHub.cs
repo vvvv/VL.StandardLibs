@@ -109,11 +109,17 @@ namespace VL.Core.Reactive
                 ((IInternalChannel)c).SetPath(key);
                 if (!c.IsAnonymous()) revision++;
                 if (typeOfValues.IsValueType)
-                    ((IInternalChannel)c).SetObjectDirectly(Activator.CreateInstance(typeOfValues), "initial value of public channel");
+                {
+                    object? o;
+                    var typeInfo = AppHost.TypeRegistry.GetTypeInfo(typeOfValues);
+                    if (typeInfo != null && !typeInfo.IsPatched) 
+                        // if we at some point support patched value types we might want to rediscuss if we can just use the VL default for that type
+                        o = AppHost.TypeRegistry.GetTypeInfo(typeOfValues).GetDefaultValue();
+                    else
+                        o = Activator.CreateInstance(typeOfValues);
 
-                //var typeInfo = AppHost.TypeRegistry.GetTypeInfo(typeOfValues);
-                //if (typeInfo != null && !typeInfo.IsPatched)
-                //    c.Value = AppHost.TypeRegistry.GetTypeInfo(typeOfValues).GetDefaultValue();
+                    ((IInternalChannel)c).SetObjectDirectly(o, "initial value of public channel");
+                }
 
                 var cv = ChannelHelpers.CreateChannelViewOfType(typeOfValues, c);
                 return cv;
