@@ -256,7 +256,9 @@ namespace VL.ImGui.Generator
             string ctxPara = hasConstructorWithNodeContext ? "c.NodeContext" : default;
 
             return $@"
+using System;
 using VL.Core;
+using VL.ImGui;
 
 namespace {typeSymbol.ContainingNamespace}
 {{
