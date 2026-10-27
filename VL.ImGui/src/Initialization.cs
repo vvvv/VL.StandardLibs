@@ -9,7 +9,7 @@ namespace VL.ImGui
     {
         public override void Configure(AppHost appHost)
         {
-            NodeBuildingUtils.RegisterGeneratedNodes(appHost, "VL.ImGUI.Nodes", typeof(Initialization).Assembly);
+            NodeBuildingUtils.RegisterGeneratedNodes(appHost, "VL.ImGUI.Nodes", VL.ImGui.Generated.GeneratedNodes.GetNodeDescriptions);
         }
     }
 }

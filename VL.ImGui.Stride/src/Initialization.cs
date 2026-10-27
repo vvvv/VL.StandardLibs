@@ -18,7 +18,7 @@ namespace VL.ImGui.Stride
 
         public override void Configure(AppHost appHost)
         {
-            NodeBuildingUtils.RegisterGeneratedNodes(appHost, "VL.ImGUI.Stride.Nodes", typeof(Initialization).Assembly);
+            NodeBuildingUtils.RegisterGeneratedNodes(appHost, "VL.ImGUI.Stride.Nodes", VL.ImGui.Stride.Generated.GeneratedNodes.GetNodeDescriptions);
 
             var assemblyDir = Path.GetDirectoryName(typeof(Initialization).Assembly.Location);
             if (assemblyDir != null)

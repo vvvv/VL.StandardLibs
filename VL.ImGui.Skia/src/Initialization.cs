@@ -9,7 +9,7 @@ namespace VL.ImGui.Skia
     {
         public override void Configure(AppHost appHost)
         {
-            NodeBuildingUtils.RegisterGeneratedNodes(appHost, "VL.ImGUI.Skia.Nodes", typeof(Initialization).Assembly);
+            NodeBuildingUtils.RegisterGeneratedNodes(appHost, "VL.ImGUI.Skia.Nodes", VL.ImGui.Skia.Generated.GeneratedNodes.GetNodeDescriptions);
         }
     }
 }

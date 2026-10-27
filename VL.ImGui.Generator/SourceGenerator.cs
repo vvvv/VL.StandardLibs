@@ -68,6 +68,8 @@ namespace VL.ImGui.Generator
 
             //Debugger.Launch();
 
+            var calls = new List<string>();
+
             foreach (var syntax in classes.Distinct())
             {
                 var semanticModel = compilation.GetSemanticModel(syntax.SyntaxTree);
@@ -76,12 +78,35 @@ namespace VL.ImGui.Generator
                 build(Mode.RetainedMode);
                 build(Mode.ImmediateMode);
 
+                var typeName = classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                if (!(data.GetValueOrDefault("GenerateRetained").Value is bool genRetained) || genRetained)
+                    calls.Add($"            yield return {typeName}.GetNodeDescription_RetainedMode(factory);");
+                if (!(data.GetValueOrDefault("GenerateImmediate").Value is bool genImmediate) || genImmediate)
+                    calls.Add($"            yield return {typeName}.GetNodeDescription_ImmediateMode(factory);");
+
                 void build(Mode mode)
                 {
                     var source = CreateSource(context, syntax, semanticModel, classSymbol, data, pinAttributeSymbol, mode);
                     context.AddSource($"{syntax.Identifier}.{mode}.g.cs", source);
                 }
             }
+
+            var nodesSource = $@"using System.Collections.Generic;
+using VL.Core;
+
+namespace {compilation.AssemblyName}.Generated
+{{
+    internal static class GeneratedNodes
+    {{
+        public static IEnumerable<IVLNodeDescription> GetNodeDescriptions(IVLNodeDescriptionFactory factory)
+        {{
+{string.Join("\n", calls)}
+            yield break;
+        }}
+    }}
+}}
+";
+            context.AddSource("GeneratedNodes.g.cs", nodesSource);
         }
 
         private static ImmutableDictionary<string, TypedConstant> GetAttributeData(INamedTypeSymbol attributeSymbol, ISymbol symbol)
