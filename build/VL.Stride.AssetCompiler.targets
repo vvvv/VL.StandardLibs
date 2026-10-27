@@ -35,8 +35,13 @@
           Condition="'$(VLStrideCompileAssets)' == 'true' AND !Exists('$(VLStrideAssetCompilerOutput)')">
     <Message Importance="High" Text="[VL] Building custom Stride asset compiler..." />
 
-    <MSBuild Projects="$(VLStrideAssetCompilerProject)" 
-             Targets="Restore;Build" 
+    <!-- Restore in a separate evaluation (unique global property), otherwise Build reuses the evaluation from before
+         the restore, which lacks the imports of nuget.g.props such as $(PkgStride_Assets) -->
+    <MSBuild Projects="$(VLStrideAssetCompilerProject)"
+             Targets="Restore"
+             Properties="Configuration=$(Configuration);MSBuildRestoreSessionId=$([System.Guid]::NewGuid())" />
+    <MSBuild Projects="$(VLStrideAssetCompilerProject)"
+             Targets="Build"
              Properties="Configuration=$(Configuration)" />
   </Target>
 
