@@ -145,7 +145,9 @@ namespace VL.Stride
                         logger.LogError("Failed to create EGL surface for render target {RenderTarget}.", renderTarget);
                         return;
                     }
-
+                }
+                using (skiaRenderContext.MakeCurrent(forRendering: true, eglSurface))
+                {
                     surface = CreateSkSurface(skiaRenderContext.SkiaContext, renderTarget);
                     if (surface is null)
                     {
@@ -159,7 +161,7 @@ namespace VL.Stride
                 return;
 
             // Make the surface current (becomes default FBO)
-            using ((msaaAwareEglContext ?? skiaRenderContext.EglContext).MakeCurrent(forRendering: true, eglSurface))
+            using (skiaRenderContext.MakeCurrent(forRendering: true, eglSurface))
             {
                 // Render
                 var canvas = surface.Canvas;
