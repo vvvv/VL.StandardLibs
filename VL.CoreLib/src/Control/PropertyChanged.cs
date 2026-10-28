@@ -5,10 +5,13 @@ using System.Threading;
 using VL.Core.Import;
 using VL.Lib.Control;
 
-[assembly: ImportType(typeof(PropertyChanged))]
+[assembly: ImportType(typeof(PropertyChanged), Category = "Control")]
 
 namespace VL.Lib.Control;
 
+/// <summary>
+/// Listens for property changes on objects implementing INotifyPropertyChanged.
+/// </summary>
 [ProcessNode]
 public sealed class PropertyChanged : IDisposable
 {
@@ -22,9 +25,9 @@ public sealed class PropertyChanged : IDisposable
     }
 
     /// <summary>
-    /// 
+    /// Updates the listener with a new instance and property name, and outputs whether a property changed or remained unchanged.
     /// </summary>
-    /// <param name="instance">The </param>
+    /// <param name="instance">The instance to listen for property changes on</param>
     /// <param name="propertyName">Leave empty to listen for changes on all properties</param>
     /// <param name="result">Whether or not a property changed</param>
     /// <param name="unchanged">Whether or not all properties stayed the same</param>
