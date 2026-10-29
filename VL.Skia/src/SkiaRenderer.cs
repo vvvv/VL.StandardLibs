@@ -312,9 +312,11 @@ namespace VL.Skia
         {
             get
             {
+                const int WS_EX_NOACTIVATE = 0x08000000;
                 const int WS_EX_TOPMOST = 0x00000008;
                 var cp = base.CreateParams;
                 cp.ExStyle |= WS_EX_TOPMOST;
+                cp.ExStyle |= WS_EX_NOACTIVATE;
                 return cp;
             }
         }
