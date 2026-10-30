@@ -40,16 +40,16 @@ public sealed class PropertyChannel<T> : IDisposable
     /// <summary>
     /// Binds the channel to the property of the given instance. Rebinds when the instance or the property name changes.
     /// </summary>
-    /// <param name="instance">The object whose property shall be bound</param>
+    /// <param name="input">The object whose property shall be bound</param>
     /// <param name="propertyName">The name of the property</param>
     /// <returns>The channel bound to the property</returns>
     [Fragment(Order = -1)]
     [return: Pin(Name = "Output")]
-    public IChannel<T> Update(object? instance, [NodeLabel, Pin(Visibility = Model.PinVisibility.Optional)] string? propertyName)
+    public IChannel<T> Update(object? input, [NodeLabel(Prefix = "."), Pin(Visibility = Model.PinVisibility.Optional)] string? propertyName)
     {
-        if (!ReferenceEquals(instance, this.instance) || propertyName != this.propertyName)
-            Rebind(instance, propertyName);
-        else if (property != null && instance is not INotifyPropertyChanged)
+        if (!ReferenceEquals(input, this.instance) || propertyName != this.propertyName)
+            Rebind(input, propertyName);
+        else if (property != null && input is not INotifyPropertyChanged)
             Read();
 
         return channel;
@@ -60,6 +60,7 @@ public sealed class PropertyChannel<T> : IDisposable
     /// </summary>
     public T? Value
     {
+        [Fragment(IsDefault = true)] 
         get => channel.Value;
         set
         {
