@@ -45,7 +45,7 @@ public sealed class PropertyChannel<T> : IDisposable
     /// <returns>The channel bound to the property</returns>
     [Fragment(Order = -1)]
     [return: Pin(Name = "Output")]
-    public IChannel<T> Update(object? instance, [NodeLabel] string? propertyName)
+    public IChannel<T> Update(object? instance, [NodeLabel, Pin(Visibility = Model.PinVisibility.Optional)] string? propertyName)
     {
         if (!ReferenceEquals(instance, this.instance) || propertyName != this.propertyName)
             Rebind(instance, propertyName);
