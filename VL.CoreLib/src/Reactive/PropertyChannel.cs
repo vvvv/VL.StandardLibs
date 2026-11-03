@@ -128,10 +128,10 @@ public sealed class PropertyChannel<T> : IDisposable
     private void Instance_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == propertyName)
-            Read();
+            Read(force: true);
     }
 
-    private void Read()
+    private void Read(bool force = false)
     {
         if (property is null || instance is null)
             return;
@@ -141,7 +141,10 @@ public sealed class PropertyChannel<T> : IDisposable
         isReading = true;
         try
         {
-            channel.EnsureValue(value, author: nameof(PropertyChannel<T>));
+            if (force)
+                channel.SetValueAndAuthor(value, author: propertyName);
+            else
+                channel.EnsureValue(value, author: propertyName);
         }
         finally
         {
