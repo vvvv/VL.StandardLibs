@@ -947,7 +947,7 @@ namespace VL.Core
         /// <param name="value">The returned value.</param>
         /// <param name="pathExists">The path exists.</param>
         /// <returns>True if the lookup succeeded: Correct path and found data of the requested type.</returns>
-        public static bool TryGetValueByPath<T>(this object instance, string path, T defaultValue, out T value, out bool pathExists)
+        public static bool TryGetValueByPath<T>(this object instance, [ChoiceProvider(typeof(ValuePathChoiceProvider))] string path, T defaultValue, out T value, out bool pathExists)
         {
             return TryGetValueByPathSpan(instance, path.AsSpan(), defaultValue, out value, out pathExists);
         }
@@ -1044,7 +1044,7 @@ namespace VL.Core
             return false;
         }
 
-        public static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath(this object instance, string path, string rootpath = "")
+        public static Optional<ObjectGraphNode> TryGetObjectGraphNodeByPath(this object instance, [ChoiceProvider(typeof(ValuePathChoiceProvider))] string path, string rootpath = "")
         {
             if (path.Length == 0)
                 return default;
@@ -1263,7 +1263,7 @@ namespace VL.Core
         /// <param name="value">The value to set.</param>
         /// <param name="pathExists">The path exists.</param>
         /// <returns>The new root instance (if it is a record) with the updated spine.</returns>
-        public static TInstance WithValueByPath<TInstance, TValue>(this TInstance instance, string path, TValue value, out bool pathExists)
+        public static TInstance WithValueByPath<TInstance, TValue>(this TInstance instance, [ChoiceProvider(typeof(ValuePathChoiceProvider))] string path, TValue value, out bool pathExists)
             => (TInstance)WithValueByPathCore(instance, path.AsSpan(), value, out pathExists);
 
         private static object WithValueByPathCore(this object instance, ReadOnlySpan<char> path, object value, out bool pathExists)

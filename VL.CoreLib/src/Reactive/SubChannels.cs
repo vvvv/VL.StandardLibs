@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using VL.Core.Reactive;
 using VL.Core;
+using VL.Core.Import;
 using VL.Lib.Basics.Resources;
 using VL.Lang;
 using Microsoft.Extensions.Logging;
@@ -58,7 +59,7 @@ namespace VL.Lib.Reactive
             yield return node;
         }
 
-        public static void GetOrAddSubChannel<A, B>(this IChannel<A> main, string relativePath,
+        public static void GetOrAddSubChannel<A, B>(this IChannel<A> main, [ChoiceProvider(typeof(ValuePathChoiceProvider))] string relativePath,
             NodeContext nodeContext, out IChannel<B> subChannel, out IDisposable handle)
             where A : class
         {
