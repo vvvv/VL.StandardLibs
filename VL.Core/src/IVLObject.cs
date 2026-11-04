@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using VL.Core.CompilerServices;
+using VL.Core.Import;
 using VL.Core.EditorAttributes;
 using VL.Core.Logging;
 using VL.Lang;
@@ -505,81 +506,40 @@ namespace VL.Core
 
         public static readonly IVLObject Default = new DefaultImpl();
 
-        // Span-based parsing methods for zero-allocation path parsing
-        private static bool TryParseProperty(ReadOnlySpan<char> path, out ReadOnlySpan<char> propertyName, out ReadOnlySpan<char> rest)
+        // The parsing is shared with ValuePath, these only pick the kind of segment the walkers below expect
+        private static bool TryParseProperty(ReadOnlySpan<char> path, out string propertyName, out ReadOnlySpan<char> rest)
         {
-            var span = path;
-
-            // Skip leading dot if present
-            if (span.Length > 0 && span[0] == '.')
-                span = span.Slice(1);
-
-            if (span.IsEmpty)
+            if (ValuePath.TryParseSegment(path, out var segment, out rest) && segment.Kind == ValuePathSegmentKind.Property)
             {
-                propertyName = default;
-                rest = default;
-                return false;
-            }
-
-            // Find the end of property name (next . or [ or end)
-            int endIndex = 0;
-            while (endIndex < span.Length && span[endIndex] != '.' && span[endIndex] != '[')
-                endIndex++;
-
-            if (endIndex > 0)
-            {
-                propertyName = span.Slice(0, endIndex);
-                rest = span.Slice(endIndex);
+                propertyName = segment.Name!;
                 return true;
             }
 
-            propertyName = default;
-            rest = default;
+            propertyName = default!;
             return false;
         }
 
         private static bool TryParseValueIndexer(ReadOnlySpan<char> path, out int index, out ReadOnlySpan<char> rest)
         {
-            if (path.Length >= 3 && path[0] == '[')
+            if (ValuePath.TryParseSegment(path, out var segment, out rest) && segment.Kind == ValuePathSegmentKind.Index)
             {
-                // Find closing bracket
-                int closeIndex = path.IndexOf(']');
-                if (closeIndex > 1)
-                {
-                    var numberSpan = path.Slice(1, closeIndex - 1);
-                    if (int.TryParse(numberSpan, out index))
-                    {
-                        rest = path.Slice(closeIndex + 1);
-                        return true;
-                    }
-                }
+                index = segment.Index;
+                return true;
             }
 
             index = 0;
-            rest = default;
             return false;
         }
 
-        private static bool TryParseStringIndexer(ReadOnlySpan<char> path, out ReadOnlySpan<char> key, out ReadOnlySpan<char> rest)
+        private static bool TryParseStringIndexer(ReadOnlySpan<char> path, out string key, out ReadOnlySpan<char> rest)
         {
-            if (path.Length >= 4 && path[0] == '[' && path[1] == '"')
+            if (ValuePath.TryParseSegment(path, out var segment, out rest) && segment.Kind == ValuePathSegmentKind.Key)
             {
-                // Find closing quote
-                int quoteIndex = path.Slice(2).IndexOf('"');
-                if (quoteIndex >= 0)
-                {
-                    int closeIndex = 2 + quoteIndex;
-                    if (closeIndex + 1 < path.Length && path[closeIndex + 1] == ']')
-                    {
-                        key = path.Slice(2, quoteIndex);
-                        rest = path.Slice(closeIndex + 2);
-                        return true;
-                    }
-                }
+                key = segment.Name!;
+                return true;
             }
 
-            key = default;
-            rest = default;
+            key = default!;
             return false;
         }
 
@@ -650,12 +610,12 @@ namespace VL.Core
                         {
                             if (obj.Identity == descendant.Identity)
                             {
-                                path = $"{property.OriginalName}[\"{entry.Key}\"]";
+                                path = ValuePathSegment.ForKey(entry.Key.ToString()).AppendTo(property.OriginalName);
                                 return true;
                             }
                             else if (obj.TryGetPath(descendant, out string subPath))
                             {
-                                path = $"{property.OriginalName}[\"{entry.Key}\"].{subPath}";
+                                path = $"{ValuePathSegment.ForKey(entry.Key.ToString()).AppendTo(property.OriginalName)}.{subPath}";
                                 return true;
                             }
                         }
@@ -904,7 +864,7 @@ namespace VL.Core
                 {
                     var entry = enumerator.Entry;
                     var value = entry.Value;
-                    var localID = $"[\"{entry.Key}\"]";
+                    var localID = ValuePathSegment.ForKey(entry.Key.ToString()).ToString();
                     var path = $"{node.Path}{localID}";
                     if ((filter.AlsoCollectNulls || value is not null) && filter.Include(path, localID, value, depth, entry.Key))
                     {
@@ -1012,7 +972,7 @@ namespace VL.Core
             {
                 if (TryParseProperty(path, out var propertyName, out var rest))
                 {
-                    var property = propertyName.ToString();
+                    var property = propertyName;
                     if (vlObj.TryGetValue(property, default(object), out var o, out pathExists))
                     {
                         return TryGetValueByPathSpan(o, rest, defaultValue, out value, out pathExists);
@@ -1040,7 +1000,7 @@ namespace VL.Core
             {
                 if (TryParseStringIndexer(path, out var key, out var rest))
                 {
-                    var keyStr = key.ToString();
+                    var keyStr = key;
                     if (dict.Contains(keyStr))
                     {
                         var o = dict[keyStr];
@@ -1051,7 +1011,7 @@ namespace VL.Core
                 return false;
             }
 
-            if (instance is IList list)
+            if (ListAdapter.TryGetList(instance, out var list))
             {
                 if (TryParseValueIndexer(path, out var index, out var rest))
                 {
@@ -1070,7 +1030,7 @@ namespace VL.Core
                 if (TryParseProperty(path, out var propertyName, out var rest))
                 {
                     var type = instance.GetType();
-                    var propStr = propertyName.ToString();
+                    var propStr = propertyName;
                     var property = type.GetProperty(propStr);
                     if (property != null)
                     {
@@ -1113,7 +1073,7 @@ namespace VL.Core
             {
                 if (TryParseProperty(path, out var propertyName, out var rest))
                 {
-                    var propStr = propertyName.ToString();
+                    var propStr = propertyName;
                     var property = vlObj.Type.GetProperty(propStr);
                     if (property != null)
                     {
@@ -1143,19 +1103,20 @@ namespace VL.Core
             {
                 if (TryParseStringIndexer(path, out var key, out var rest))
                 {
-                    var keyStr = key.ToString();
+                    var keyStr = key;
                     if (dict.Contains(keyStr))
                     {
                         var o = dict[keyStr];
-                        var node = new ObjectGraphNode($"{parent.Path}[\"{keyStr}\"]", o, 
-                            o?.GetType() /* should be something like dict.TypeOfValues */, keyStr, parent, $"[\"{keyStr}\"]");
+                        var segment = ValuePathSegment.ForKey(keyStr);
+                        var node = new ObjectGraphNode(segment.AppendTo(parent.Path), o, 
+                            o?.GetType() /* should be something like dict.TypeOfValues */, keyStr, parent, segment.ToString());
                         return TryGetObjectGraphNodeByPath_(rest, node);
                     }
                 }
                 return default;
             }
 
-            if (instance is IList list)
+            if (ListAdapter.TryGetList(instance, out var list))
             {
                 if (TryParseValueIndexer(path, out var index, out var rest))
                 {
@@ -1175,7 +1136,7 @@ namespace VL.Core
                 if (TryParseProperty(path, out var propertyName, out var rest))
                 {
                     var type = instance.GetType();
-                    var propStr = propertyName.ToString();
+                    var propStr = propertyName;
                     var property = type.GetProperty(propStr);
                     if (property != null)
                     {
@@ -1319,7 +1280,7 @@ namespace VL.Core
             {
                 if (TryParseProperty(path, out var propertyName, out var rest))
                 {
-                    var property = propertyName.ToString();
+                    var property = propertyName;
                     if (vlObj.TryGetValue(property, default(object), out var o, out pathExists))
                     {
                         o = o.WithValueByPathCore(rest, value, out pathExists);
@@ -1351,7 +1312,7 @@ namespace VL.Core
             {
                 if (TryParseStringIndexer(path, out var key, out var rest))
                 {
-                    var keyStr = key.ToString();
+                    var keyStr = key;
                     if (dict.Contains(keyStr))
                     {
                         var o = dict[keyStr];
@@ -1381,7 +1342,7 @@ namespace VL.Core
                 if (TryParseProperty(path, out var propertyName, out var rest))
                 { 
                     var type = instance.GetVLTypeInfo();
-                    var propStr = propertyName.ToString();
+                    var propStr = propertyName;
                     var property = type.GetProperty(propStr);
                     if (property != null)
                     {
