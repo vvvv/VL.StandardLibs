@@ -1,3 +1,19 @@
+# Notes for agents working in this repository
+
+## Line endings
+
+- Git handles line endings through `.gitattributes` (`* text=auto`): files are stored with LF, checked out with the
+  platform's line ending (CRLF on Windows, LF on Linux/macOS), and normalized on commit.
+- Don't convert, check or preserve line endings by hand. Edit files the normal way; if an edit leaves a file with mixed
+  line endings, git fixes it on commit, and `git diff` doesn't show line ending changes.
+- Exceptions with a fixed line ending on every platform: `*.sh` (LF) and `*.bat`/`*.cmd` (CRLF). When writing such a
+  file, use that line ending, because the file on disk is used before git normalizes it.
+- Multi-line verbatim or raw string literals in C# get the checkout's line ending (CRLF on Windows, LF elsewhere). Don't
+  compare them, or checked-in expected-output files, byte for byte against generated text; normalize line endings first.
+- The submodule `VL.ImGui/dependencies/ImGui.NET-nativebuild` is a separate repository with its own settings; keep the
+  line endings of files there as they are.
+- Don't change byte order marks or trailing whitespace in lines you don't edit.
+
 # Migrating VL node exposure to C#
 
 Use this guide when a task asks to replace legacy VL-authored process nodes, node factories, or type forwards with the C# import system. It describes the migration path demonstrated by `VL.Video`; it is not a requirement to rewrite unrelated packages.
