@@ -5,9 +5,9 @@ namespace VL.Stride.Utils;
 
 internal static class BundleUtils
 {
-    public static void LoadBundle(this DatabaseFileProvider databaseFileProvider, string bundleFile)
+    public static void LoadBundle(this DatabaseFileProvider databaseFileProvider, string bundleFile, string bundleName = null)
     {
-        var bundleName = Path.GetFileNameWithoutExtension(bundleFile);
+        bundleName ??= Path.GetFileNameWithoutExtension(bundleFile);
         var mountPoint = $"/{bundleName}";
         var bundlesPath = Path.GetDirectoryName(bundleFile);
         if (!VirtualFileSystem.DirectoryExists(mountPoint)) // or just use RemountFileSystem?
@@ -37,5 +37,7 @@ internal static class BundleUtils
         {
             bundleBackend.BundleResolve -= resolver;
         }
+
+        BundleSourcePaths.AddBundle(bundleFile);
     }
 }

@@ -18,7 +18,6 @@ using VL.Stride.Rendering.Compositing;
 using VL.Stride.Rendering.Lights;
 using VL.Stride.Rendering.Materials;
 using VL.Stride.Utils;
-using static Stride.Core.Storage.BundleOdbBackend;
 using ServiceRegistry = global::Stride.Core.ServiceRegistry;
 using VirtualFileSystem = Stride.Core.IO.VirtualFileSystem;
 
@@ -72,39 +71,9 @@ namespace VL.Stride.Core
 
         private static void LoadBundle(DatabaseFileProvider databaseFileProvider, PluginInfo plugin)
         {
-            var mountPoint = $"/{plugin.Name}";
-            var bundlesPath = Path.Combine(plugin.Path, "data", "db", "bundles");
-            var defaultBundlePath = Path.Combine(bundlesPath, "default.bundle");
-            if (!File.Exists(defaultBundlePath))
-                return;
-
-            if (!VirtualFileSystem.DirectoryExists(mountPoint)) // or just use RemountFileSystem?
-            {
-                VirtualFileSystem.MountFileSystem(mountPoint, bundlesPath);
-            }
-
-            BundleResolveDelegate resolver = async bundleName =>
-            {
-                if (bundleName == plugin.Name)
-                {
-                    return $"/{plugin.Name}/default.bundle";
-                }
-                return null;
-            };
-
-            var objDb = databaseFileProvider.ObjectDatabase;
-            var bundleBackend = objDb.BundleBackend;
-            bundleBackend.BundleResolve += resolver;
-
-            try
-            {
-                var bundleLoadTask = bundleBackend.LoadBundle(plugin.Name, objDb.ContentIndexMap);
-                bundleLoadTask.Wait();
-            }
-            finally
-            {
-                bundleBackend.BundleResolve -= resolver;
-            }
+            var defaultBundlePath = Path.Combine(plugin.Path, "data", "db", "bundles", "default.bundle");
+            if (File.Exists(defaultBundlePath))
+                databaseFileProvider.LoadBundle(defaultBundlePath, bundleName: plugin.Name);
         }
 
         public override void Configure(AppHost appHost)

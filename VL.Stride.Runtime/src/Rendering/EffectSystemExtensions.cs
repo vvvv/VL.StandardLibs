@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using VL.Stride.Core.IO;
+using VL.Stride.Utils;
 
 namespace VL.Stride.Rendering
 {
@@ -52,6 +53,21 @@ namespace VL.Stride.Rendering
                         fileProviders.Add(path, fileProvider);
                     }
                 }
+            }
+
+            public override bool FileExists(string url)
+            {
+                if (!base.FileExists(url))
+                    return false;
+
+                // Hide the source path recorded for a shader if it points outside the packages of the loaded bundles, see BundleSourcePaths
+                if (url.EndsWith(BundleSourcePaths.UrlSuffix, StringComparison.Ordinal))
+                {
+                    using var reader = new StreamReader(OpenStream(url, VirtualFileMode.Open, VirtualFileAccess.Read));
+                    return BundleSourcePaths.IsInsidePackageOfLoadedBundle(reader.ReadToEnd());
+                }
+
+                return true;
             }
 
             public bool TryGetFileProvider(string path, out FileSystemProvider fileProvider)
