@@ -13,6 +13,13 @@
 - The submodule `VL.ImGui/dependencies/ImGui.NET-nativebuild` is a separate repository with its own settings; keep the
   line endings of files there as they are.
 - Don't change byte order marks or trailing whitespace in lines you don't edit.
+- Merging or rebasing a branch that was started before the line ending normalization (the commit listed in
+  `.git-blame-ignore-revs`): use `git merge -X renormalize <branch>` or `git rebase -X renormalize <base>`. Without it,
+  every file the branch touched conflicts over line endings. If a merge shows conflicts where whole files differ, abort
+  it (`git merge --abort` / `git rebase --abort`) and retry with `-X renormalize` instead of resolving them by hand.
+  Don't change the user's global git config (`merge.renormalize`) for this.
+- To find who really changed a line that the normalization commit touched, use
+  `git blame --ignore-revs-file .git-blame-ignore-revs` (unless `blame.ignoreRevsFile` is already configured).
 
 # Migrating VL node exposure to C#
 
