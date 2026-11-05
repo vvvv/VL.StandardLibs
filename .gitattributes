@@ -1,3 +1,50 @@
+# Line endings are handled by git for everyone, independent of personal settings (core.autocrlf etc.):
+# - text files are stored with LF in the repository,
+# - on checkout they get the platform's native line ending (CRLF on Windows, LF on Linux/macOS),
+# - on commit any CRLF/LF mix an editor or tool produced is normalized again.
+# So nobody needs to care about line endings in their editor; diffs never show line ending changes.
+# Git detects text vs. binary by itself; the binary list below only makes sure for common formats.
+* text=auto
+
+# Need a fixed line ending regardless of platform
+*.sh   text eol=lf
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+*.cs   text diff=csharp
+
+# Binary (never converted, no text diff)
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.bmp    binary
+*.ico    binary
+*.dds    binary
+*.xcf    binary
+*.psd    binary
+*.fbx    binary
+*.pdf    binary
+*.odp    binary
+*.odt    binary
+*.docx   binary
+*.xlsx   binary
+*.zip    binary
+*.7z     binary
+*.nupkg  binary
+*.dll    binary
+*.exe    binary
+*.pdb    binary
+*.snk    binary
+*.p12    binary
+*.pfx    binary
+*.ttf    binary
+*.otf    binary
+*.wav    binary
+*.mp3    binary
+*.mp4    binary
+
+# Git LFS
 VL.Skia/ext/win-x64/libEGL.dll filter=lfs diff=lfs merge=lfs -text
 VL.Skia/ext/win-x64/libGLESv2.dll filter=lfs diff=lfs merge=lfs -text
 VL.Skia/ext/win-x64/d3dcompiler_47.dll filter=lfs diff=lfs merge=lfs -text
