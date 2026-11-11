@@ -10,7 +10,7 @@ using VL.Core;
 namespace VL.Lib.Reactive;
 
 /// <summary>
-/// Follows a <see cref="ValuePath"/> into an object graph to the object owning the property the path ends with, and notices when the objects on the way may have been replaced.
+/// Follows a <see cref="ValuePath"/> into an object graph to the object owning what the path ends with (a property, or an item if the owner is a collection), and notices when the objects on the way may have been replaced.
 /// For each object on the way it only does what is needed to learn about a change of the part the path takes from it:
 /// <list type="bullet">
 /// <item>Immutable objects can't change, a replacement shows up at the object holding them.</item>
@@ -32,25 +32,25 @@ sealed class PropertyPathWatcher : IDisposable
 
     /// <param name="typeRegistry">To find out if objects are immutable.</param>
     /// <param name="root">The object the path starts at.</param>
-    /// <param name="text">The path, the last segment being the name of the property. Anything that isn't a path is taken as the name of a property of the root.</param>
+    /// <param name="text">The path. Anything that isn't a path is taken as the name of a property of the root.</param>
     public PropertyPathWatcher(TypeRegistry typeRegistry, object? root, string? text)
     {
         this.typeRegistry = typeRegistry;
         this.root = root;
-        Name = text;
 
         if (ValuePath.TryParse(text, out var parsed) && parsed.Count > 0)
         {
-            var last = parsed[parsed.Count - 1];
-            Name = last.Name ?? last.ToString();
+            Last = parsed[parsed.Count - 1];
             hops.AddRange(parsed.Take(parsed.Count - 1));
         }
+        else if (!string.IsNullOrEmpty(text))
+            Last = ValuePathSegment.ForProperty(text);
 
         Walk();
     }
 
     /// <summary>
-    /// The object owning the property, null if the path doesn't lead to one.
+    /// The object owning what the path ends with, null if the path doesn't lead to one.
     /// </summary>
     public object? Owner { get; private set; }
 
@@ -60,9 +60,9 @@ sealed class PropertyPathWatcher : IDisposable
     public string? Problem { get; private set; }
 
     /// <summary>
-    /// The name of the property of the <see cref="Owner"/>.
+    /// The last segment of the path, what is taken from the <see cref="Owner"/>. Null if there is no path.
     /// </summary>
-    public string? Name { get; }
+    public ValuePathSegment? Last { get; }
 
     /// <summary>
     /// Whether <see cref="Refresh"/> has to look at the graph each time, because there are objects that can't tell when they change.
@@ -81,6 +81,20 @@ sealed class PropertyPathWatcher : IDisposable
         var previous = Owner;
         Walk();
         return !ReferenceEquals(previous, Owner);
+    }
+
+    /// <summary>
+    /// Writes another object in place of the <see cref="Owner"/> into the object holding it, and that one into its holder and so on, as far as the objects on the way are mutable.
+    /// This is how the owner is changed if it is immutable, like a spread or a record.
+    /// </summary>
+    /// <returns>False if it couldn't be done because the owner is the root or the root itself would have to be replaced, which only the user of the watcher can do.</returns>
+    public bool TryReplaceOwner(object? replacement)
+    {
+        if (root is null)
+            return false;
+
+        var result = root.WithValueByPath(ValuePath.Format(hops), replacement, out var exists);
+        return exists && ReferenceEquals(result, root);
     }
 
     public void Dispose() => subscriptions.Dispose();

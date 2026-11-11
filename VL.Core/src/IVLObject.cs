@@ -1323,7 +1323,7 @@ namespace VL.Core
                 return instance;
             }
 
-            if (instance is IList list)
+            if (ListAdapter.TryGetList(instance, out var list))
             {
                 if (TryParseValueIndexer(path, out var index, out var rest))
                 {
@@ -1331,7 +1331,11 @@ namespace VL.Core
                     {
                         var o = list[index];
                         o = o.WithValueByPathCore(rest, value, out pathExists);
-                        return SetItem(list, index, o);
+                        // A list that only implements the generic interfaces is written through its adapter, which is not the instance
+                        if (!ReferenceEquals(list, instance) && list.IsReadOnly)
+                            return instance;
+                        var updated = SetItem(list, index, o);
+                        return ReferenceEquals(updated, list) ? instance : updated;
                     }
                 }
                 return instance;

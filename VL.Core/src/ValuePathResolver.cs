@@ -66,6 +66,16 @@ public static class ValuePathResolver
     }
 
     /// <summary>
+    /// Gets the declared type of what a segment leads to from a value, for example the element type of a list for an index, whether or not there is such an item.
+    /// </summary>
+    /// <param name="value">The value the segment is taken from.</param>
+    /// <param name="segment">The segment.</param>
+    /// <param name="typeRegistry">Used to look at the properties of VL objects.</param>
+    /// <returns>The type, or null if the segment doesn't lead anywhere from the value.</returns>
+    internal static Type? GetSegmentType(object? value, ValuePathSegment segment, TypeRegistry? typeRegistry)
+        => TryStep(new Node(value, null), segment, typeRegistry, out var next) ? next.Type : null;
+
+    /// <summary>
     /// A place in the graph: the value (null if there is none) and the declared type.
     /// </summary>
     readonly record struct Node(object? Value, Type? Type)
