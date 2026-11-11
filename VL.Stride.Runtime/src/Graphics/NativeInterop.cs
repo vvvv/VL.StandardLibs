@@ -67,4 +67,17 @@ public static class NativeInterop
             && SharpDXInterop.GetNativeResource(graphicsResource) is SharpDX.ComObject resource
             && (pointer = resource.NativePointer) != default;
     }
+    /// <summary>
+    /// Call this after native code has changed the state of the graphics context behind Stride's back (for example by
+    /// drawing with a native renderer into the current render target). Stride caches the state it believes is current and
+    /// skips redundant changes, so without this the next Stride draw call may run with the state the native code left behind.
+    /// Makes the context match the pipeline state of the command list again: shaders, blend, rasterizer, depth-stencil,
+    /// input layout and primitive topology. Render targets, viewports, scissor rectangles and buffer or resource bindings
+    /// are not touched. Does nothing if the device doesn't use a graphics API this is implemented for.
+    /// </summary>
+    public static void RestoreCommandListState(this CommandList commandList)
+    {
+        if (commandList.GraphicsDevice.GetGraphicsDeviceType() == GraphicsDeviceType.Direct3D11)
+            D3D11StateRestore.Restore(commandList);
+    }
 }
