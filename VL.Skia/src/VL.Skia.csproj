@@ -64,6 +64,7 @@
 
   <!-- Exclude Windows-specific embedded resources from non-Windows builds -->
   <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-windows' AND '$(TargetFramework)' != ''">
+    <Compile Remove="Properties\Resources.Designer.cs" />
     <EmbeddedResource Remove="Properties\Resources.resx" />
     <EmbeddedResource Remove="SkiaRenderer.resx" />
   </ItemGroup>
