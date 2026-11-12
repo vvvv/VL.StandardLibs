@@ -26,6 +26,7 @@ namespace VL.Lib.Reactive
     /// You should only use one multimedia timer at a time!
     /// </remarks>
     [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class MultimediaTimerObservable
     {
         readonly Subject<TimerClock> FSubject;
