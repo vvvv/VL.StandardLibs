@@ -50,10 +50,7 @@ namespace VL.Video
         //inform the system that the enum has changed
         protected override IObservable<object> GetEntriesChangedObservable()
         {
-            if (OperatingSystem.IsWindows())
-                return HardwareChangedEvents.HardwareChanged;
-
-            return Observable.Empty<object>();
+            return HardwareChangedEvents.HardwareChanged;
         }
 
         //disable alphabetic sorting

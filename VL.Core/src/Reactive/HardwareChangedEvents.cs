@@ -11,7 +11,9 @@ using System.Threading.Tasks;
 
 namespace VL.Lib
 {
-    [SupportedOSPlatform("windows")]
+    /// <summary>
+    /// Reports devices getting added or removed. Only implemented on Windows: on other systems the observables never fire.
+    /// </summary>
     public static class HardwareChangedEvents
     {
 
@@ -31,6 +33,17 @@ namespace VL.Lib
         public static IObservable<IReadOnlyList<ManagementBaseObject>> HardwareChanged { get; private set; }
 
         static HardwareChangedEvents()
+        {
+            if (OperatingSystem.IsWindows())
+                InitializeWindows();
+            else
+#pragma warning disable CA1416 // The type is only named here, never created
+                HardwareAdded = HardwareRemoved = HardwareChanged = Observable.Empty<IReadOnlyList<ManagementBaseObject>>();
+#pragma warning restore CA1416
+        }
+
+        [SupportedOSPlatform("windows")]
+        static void InitializeWindows()
         {
             //var queryStringAdded = "SELECT * FROM __InstanceCreationEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_PnPEntity'";
             var queryStringAdded = "SELECT * FROM Win32_DeviceChangeEvent where EventType = 2";
@@ -65,6 +78,7 @@ namespace VL.Lib
 
         }
 
+        [SupportedOSPlatform("windows")]
         class WatcherWrapper : IDisposable
         { 
             public readonly ManagementEventWatcher Watcher;
@@ -110,6 +124,7 @@ namespace VL.Lib
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private static WatcherWrapper CreateWatcher(string queryString)
         {
             var query = new WqlEventQuery(queryString);
@@ -118,6 +133,7 @@ namespace VL.Lib
             return new WatcherWrapper(watcher);
         }
 
+        [SupportedOSPlatform("windows")]
         private static ManagementBaseObject GetNewDeviceCreatedEvent(EventPattern<EventArrivedEventArgs> e)
         {
             //wait for pending device installtions
@@ -125,6 +141,7 @@ namespace VL.Lib
             return e.EventArgs.NewEvent;
         }
 
+        [SupportedOSPlatform("windows")]
         private static ManagementBaseObject GetNewDeviceDeletedEvent(EventPattern<EventArrivedEventArgs> e)
         {
             //just for setting breakpoints
