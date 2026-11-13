@@ -29,7 +29,7 @@ public sealed class PropertyChannel<T> : IDisposable
     private readonly SerialDisposable notifications = new();
 
     private object? input;
-    private string? path;
+    private string? boundPath;
     private PropertyPathWatcher? watcher;
     private object? instance;
     private ValuePathSegment? segment;
@@ -53,18 +53,18 @@ public sealed class PropertyChannel<T> : IDisposable
     /// Objects on the way are listened to where they allow it (see <see cref="PropertyPathWatcher"/>), the path is only walked again when one of them reports a change or can't tell.
     /// </summary>
     /// <param name="input">The object the path starts at</param>
-    /// <param name="propertyName">The path to the property or item, a plain property name for a property of the input itself</param>
+    /// <param name="path">The path to the property or item, a plain property name for a property of the input itself</param>
     /// <returns>The channel bound to the property or item</returns>
     [Fragment(Order = -1)]
     [return: Pin(Name = "Output")]
-    public IChannel<T> Update(object? input, [NodeLabel, ChoiceProvider(typeof(ValuePathChoiceProvider))] string? propertyName)
+    public IChannel<T> Update(object? input, [NodeLabel, ChoiceProvider(typeof(ValuePathChoiceProvider))] string? path)
     {
-        if (watcher is null || !ReferenceEquals(input, this.input) || propertyName != path)
+        if (watcher is null || !ReferenceEquals(input, this.input) || path != boundPath)
         {
             this.input = input;
-            path = propertyName;
+            boundPath = path;
             watcher?.Dispose();
-            watcher = new PropertyPathWatcher(nodeContext.AppHost.TypeRegistry, input, propertyName);
+            watcher = new PropertyPathWatcher(nodeContext.AppHost.TypeRegistry, input, path);
             Rebind(watcher.Owner, watcher.Last);
         }
         else if (watcher.Refresh())
