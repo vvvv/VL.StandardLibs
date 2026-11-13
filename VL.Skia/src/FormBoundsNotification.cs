@@ -6,7 +6,6 @@ using Stride.Core.Mathematics;
 using System.Windows.Forms;
 using sw::System.Windows.Forms;
 using VL.Core;
-using VL.Core;
 using VL.Core.Import;
 
 namespace Graphics.Skia;
