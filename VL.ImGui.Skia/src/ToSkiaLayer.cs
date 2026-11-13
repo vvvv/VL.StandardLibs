@@ -357,6 +357,16 @@ namespace VL.ImGui
             }
         }
 
+        /// <summary>The mouse cursor ImGui asks for after the last frame (<c>ImGuiMouseCursor</c>), for hosts which show the image in another window.</summary>
+        public ImGuiMouseCursor MouseCursor
+        {
+            get
+            {
+                using (_context.MakeCurrent())
+                    return ImGui.GetMouseCursor();
+            }
+        }
+
         public RectangleF? Bounds => default;
         //public RectangleF? Bounds
         //{

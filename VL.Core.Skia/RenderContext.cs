@@ -94,6 +94,18 @@ namespace VL.Skia
             this.eglContextProvider = eglContextProvider;
         }
 
+        /// <summary>
+        /// A provider with an ANGLE/Direct3D 11 device of its own, without an app host: for hosts which render outside of the program (the proxy windows of the side car
+        /// in the runner, test programs). The caller disposes it.
+        /// </summary>
+        public static RenderContextProvider CreateStandalone(Microsoft.Extensions.Logging.ILogger? logger = null)
+        {
+            var deviceProvider = new EglDeviceProvider(null, logger, null);
+            var displayProvider = new EglDisplayProvider(deviceProvider);
+            var contextProvider = new EglContextProvider(displayProvider);
+            return new RenderContextProvider(contextProvider);
+        }
+
         public bool IsDisposed => onDeviceLost.IsDisposed;
 
         public IObservable<Unit> OnDeviceLost => onDeviceLost;
