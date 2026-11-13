@@ -26,7 +26,8 @@ namespace VL.Stride.Assets
             }
             catch (Exception e)
             {
-                Log.Warning("MSBuild not found", e);
+                // Not needed to build the assets of a running program; only the nodes which load Stride projects (design time, in the editor) need it. A runner does not have it: no noise.
+                Log.Debug($"MSBuild was not found ({e.GetType().Name}): nodes which edit or build Stride projects do not work in this process.");
             }
         }
 
