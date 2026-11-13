@@ -71,7 +71,8 @@ namespace VL.Skia
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            if (RenderContextProvider != null)
+            // VVVV_SOFTWARE_CANVAS=1: the software renderer, which a window capture can see (a GPU swap chain is not captured). Used by test drivers.
+            if (RenderContextProvider != null && Environment.GetEnvironmentVariable("VVVV_SOFTWARE_CANVAS") != "1")
             {
                 renderer = new EglSkiaRenderer(RenderContextProvider);
                 DoubleBuffered = false;
