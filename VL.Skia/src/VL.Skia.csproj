@@ -95,7 +95,7 @@
     </Task>
   </UsingTask>
 
-  <Target Name="UsePortableVlDocument" BeforeTargets="_GetPackageFiles" Condition="!$([MSBuild]::IsOSPlatform('Windows'))">
+  <Target Name="UsePortableVlDocument" BeforeTargets="_GetPackageFiles" Condition="!$([MSBuild]::IsOSPlatform('Windows')) Or '$(PortableVlDocument)' == 'true'">
     <StripWindowsFromVlDocument Input="$(MSBuildProjectDirectory)\..\VL.Skia.vl" Output="$(MSBuildProjectDirectory)\$(IntermediateOutputPath)portable\VL.Skia.vl" />
     <ItemGroup>
       <Content Remove="$(VLPackageBasePath)VL.Skia.vl" />
