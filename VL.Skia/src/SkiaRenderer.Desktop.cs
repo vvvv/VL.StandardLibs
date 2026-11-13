@@ -64,6 +64,23 @@ namespace VL.Skia
 
         public ICommandList? CommandList { get; set; }
 
+        // The members the Windows flavor has and the document VL.Skia.vl forwards
+        public Mouse Mouse => (Mouse)Window.Mouse;
+
+        public Keyboard Keyboard => (Keyboard)Window.Keyboard;
+
+        public TouchDevice TouchDevice => (TouchDevice)Window.TouchDevice;
+
+        public bool FullScreen
+        {
+            get => Window.IsFullscreen;
+            set => Window.IsFullscreen = value;
+        }
+
+        /// <summary>Called from the patch. The bounds are in DIP.</summary>
+        public void SetSize(System.Drawing.Rectangle boundsInDIP)
+            => SetBounds(new RectangleF(boundsInDIP.X, boundsInDIP.Y, boundsInDIP.Width, boundsInDIP.Height));
+
         public ILayer? Input
         {
             get => layer;

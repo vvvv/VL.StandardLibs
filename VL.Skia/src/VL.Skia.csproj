@@ -68,4 +68,38 @@
     <EmbeddedResource Remove="Properties\Resources.resx" />
     <EmbeddedResource Remove="SkiaRenderer.resx" />
   </ItemGroup>
+  <!--
+    The document VL.Skia.vl is written in the editor on Windows: its node "RenderWindow (Upcoming Experimental)" is made of Windows Forms nodes, and it depends on the packages
+    VL.CoreLib.Windows and VL.Core.Skia.Windows and on System.Windows.Forms. Where those do not exist (Linux, macOS) the document can't be compiled.
+    The package made on a system other than Windows therefore gets a copy of the document without these parts. Everything else is the same document: the Renderer node, which is built on
+    the SkiaRendererNode of the flavor of the assembly, is in it. (The long term solution is to move the Windows part into a document of the Windows packages.)
+  -->
+  <UsingTask TaskName="StripWindowsFromVlDocument" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Input ParameterType="System.String" Required="true" />
+      <Output ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Xml.Linq" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        var doc = XDocument.Load(Input, LoadOptions.PreserveWhitespace);
+        var windowsOnly = new System.Collections.Generic.HashSet<string> { "VL.CoreLib.Windows", "VL.Core.Skia.Windows", "System.Windows.Forms", "./lib/net10.0-windows/VL.CoreLib.dll" };
+        foreach (var d in doc.Root.Elements().Where(e => (e.Name.LocalName == "NugetDependency" || e.Name.LocalName == "PlatformDependency") && windowsOnly.Contains((string)e.Attribute("Location") ?? "")).ToList())
+            d.Remove();
+        foreach (var n in doc.Root.Descendants("Node").Where(e => (string)e.Attribute("Name") == "RenderWindow (Upcoming Experimental)").ToList())
+            n.Remove();
+        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Output));
+        doc.Save(Output);
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="UsePortableVlDocument" BeforeTargets="_GetPackageFiles" Condition="!$([MSBuild]::IsOSPlatform('Windows'))">
+    <StripWindowsFromVlDocument Input="$(MSBuildProjectDirectory)\..\VL.Skia.vl" Output="$(MSBuildProjectDirectory)\$(IntermediateOutputPath)portable\VL.Skia.vl" />
+    <ItemGroup>
+      <Content Remove="$(MSBuildProjectDirectory)\..\VL.Skia.vl" />
+      <Content Include="$(MSBuildProjectDirectory)\$(IntermediateOutputPath)portable\VL.Skia.vl" PackagePath="VL.Skia.vl" Pack="true" />
+    </ItemGroup>
+  </Target>
 </Project>
