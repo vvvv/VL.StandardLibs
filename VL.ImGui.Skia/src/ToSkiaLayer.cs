@@ -367,6 +367,16 @@ namespace VL.ImGui
             }
         }
 
+        /// <summary>Whether ImGui wants the keyboard now (a text field has focus): a host which shows the image elsewhere answers "handled" to key events with it.</summary>
+        public bool WantsKeyboard
+        {
+            get
+            {
+                using (_context.MakeCurrent())
+                    return ImGui.GetIO().WantCaptureKeyboard;
+            }
+        }
+
         public RectangleF? Bounds => default;
         //public RectangleF? Bounds
         //{
