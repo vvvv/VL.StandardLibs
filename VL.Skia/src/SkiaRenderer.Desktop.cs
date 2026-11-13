@@ -64,6 +64,12 @@ namespace VL.Skia
 
         public ICommandList? CommandList { get; set; }
 
+        /// <summary>Only for the document that forwards it: nothing to do off Windows.</summary>
+        public static int SetForegroundWindow(int hWnd) => 0;
+
+        /// <summary>Obsolete, in DIP. Use <see cref="BoundsStream"/>.</summary>
+        public BehaviorSubject<System.Drawing.Rectangle> BoundsChanged { get; } = new(new System.Drawing.Rectangle());
+
         // The members the Windows flavor has and the document VL.Skia.vl forwards
         public Mouse Mouse => (Mouse)Window.Mouse;
 
@@ -157,7 +163,12 @@ namespace VL.Skia
             });
         }
 
-        void PublishBounds() => boundsStream.OnNext(ClientBounds);
+        void PublishBounds()
+        {
+            var b = ClientBounds;
+            BoundsChanged.OnNext(new System.Drawing.Rectangle((int)b.X, (int)b.Y, (int)b.Width, (int)b.Height));
+            boundsStream.OnNext(b);
+        }
 
         void OnNotification(INotification n)
         {

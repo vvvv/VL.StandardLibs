@@ -87,7 +87,7 @@
         var windowsOnly = new System.Collections.Generic.HashSet<string> { "VL.CoreLib.Windows", "VL.Core.Skia.Windows", "System.Windows.Forms", "./lib/net10.0-windows/VL.CoreLib.dll" };
         foreach (var d in doc.Root.Elements().Where(e => (e.Name.LocalName == "NugetDependency" || e.Name.LocalName == "PlatformDependency") && windowsOnly.Contains((string)e.Attribute("Location") ?? "")).ToList())
             d.Remove();
-        foreach (var n in doc.Root.Descendants("Node").Where(e => (string)e.Attribute("Name") == "RenderWindow (Upcoming Experimental)").ToList())
+        foreach (var n in doc.Root.Descendants("Node").Where(e => (string)e.Attribute("Name") == "RenderWindow (Upcoming Experimental)" || (string)e.Attribute("Name") == "VideoSourceToSKImage").ToList())
             n.Remove();
         System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Output));
         doc.Save(Output);
