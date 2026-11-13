@@ -20,6 +20,9 @@
     <NoWarn>$(NoWarn);STRDIAG010;CA2255</NoWarn>
   </PropertyGroup>
 
+  <!-- Linux x64: built for the host (runtime identifier, graphics API), see the file. No effect on Windows. -->
+  <Import Project="..\..\build\VL.Stride.Host.props" />
+
   <Target Name="AdditionalThisAssemblyFields" BeforeTargets="GenerateAssemblyNBGVVersionInfo" DependsOnTargets="GetBuildVersion">
     <ItemGroup>
       <AdditionalThisAssemblyFields Include="NuGetPackageVersion" String="$(NuGetPackageVersion)" />

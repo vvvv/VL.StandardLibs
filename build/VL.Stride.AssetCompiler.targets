@@ -18,6 +18,14 @@
     <VLStrideAssetCompilerProject>$(MSBuildThisFileDirectory)VL.Stride.AssetCompilerApp\VL.Stride.AssetCompilerApp.csproj</VLStrideAssetCompilerProject>
     <VLStrideAssetCompilerOutput>$(MSBuildThisFileDirectory)VL.Stride.AssetCompilerApp\bin\$(Configuration)\net10.0\VL.Stride.AssetCompilerApp.dll</VLStrideAssetCompilerOutput>
 
+    <!-- Off Windows (see VL.Stride.Host.props) the app is built for the host's runtime identifier and with the graphics API
+         of the project: Stride copies the Stride.Graphics.dll of the API when the app is built. One output and one
+         intermediate folder per combination, so a change of the API builds again and nothing is mixed up. -->
+    <VLStrideAssetCompilerKey Condition="'$(VLStrideHostRid)' != ''">$(VLStrideHostRid)-$(StrideGraphicsApi)</VLStrideAssetCompilerKey>
+    <VLStrideAssetCompilerOutputDir Condition="'$(VLStrideHostRid)' != ''">$(MSBuildThisFileDirectory)VL.Stride.AssetCompilerApp\bin\$(Configuration)\$(VLStrideAssetCompilerKey)\</VLStrideAssetCompilerOutputDir>
+    <VLStrideAssetCompilerOutput Condition="'$(VLStrideHostRid)' != ''">$(VLStrideAssetCompilerOutputDir)VL.Stride.AssetCompilerApp.dll</VLStrideAssetCompilerOutput>
+    <VLStrideAssetCompilerProperties Condition="'$(VLStrideHostRid)' != ''">RuntimeIdentifier=$(VLStrideHostRid);SelfContained=false;AppendRuntimeIdentifierToOutputPath=false;StrideGraphicsApi=$(StrideGraphicsApi);OutputPath=$(VLStrideAssetCompilerOutputDir);BaseIntermediateOutputPath=$(MSBuildThisFileDirectory)VL.Stride.AssetCompilerApp\obj\$(VLStrideAssetCompilerKey)\</VLStrideAssetCompilerProperties>
+
     <!-- Use PackageRepositories property from top-level Directory.Build.props -->
     <!-- Fallback to parent directory if not set (for standalone VL.StandardLibs repo) -->
     <VLStridePackageRepositories Condition="'$(VLStridePackageRepositories)' == '' AND '$(PackageRepositories)' != ''">$(PackageRepositories)</VLStridePackageRepositories>
@@ -39,10 +47,41 @@
          the restore, which lacks the imports of nuget.g.props such as $(PkgStride_Assets) -->
     <MSBuild Projects="$(VLStrideAssetCompilerProject)"
              Targets="Restore"
-             Properties="Configuration=$(Configuration);MSBuildRestoreSessionId=$([System.Guid]::NewGuid())" />
+             Properties="Configuration=$(Configuration);MSBuildRestoreSessionId=$([System.Guid]::NewGuid());$(VLStrideAssetCompilerProperties)" />
     <MSBuild Projects="$(VLStrideAssetCompilerProject)"
              Targets="Build"
-             Properties="Configuration=$(Configuration)" />
+             Properties="Configuration=$(Configuration);$(VLStrideAssetCompilerProperties)" />
+  </Target>
+
+  <!-- MSBuild has no property function to set an environment variable -->
+  <UsingTask TaskName="VLSetEnvironmentVariable" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Name Required="true" />
+      <Value Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Fragment" Language="cs"><![CDATA[Environment.SetEnvironmentVariable(Name, Value);]]></Code>
+    </Task>
+  </UsingTask>
+  <!-- Linux: what the asset compiler (and Stride's pack step, which runs it again) needs from the machine -->
+  <Target Name="_VLPrepareStrideOnLinux"
+          BeforeTargets="VLCompileStrideAssets;_StridePrepareAssetsForPack"
+          DependsOnTargets="_VLBuildStrideAssetCompiler"
+          Condition="'$(VLStrideCompileAssets)' == 'true' AND '$(VLStrideHostRid)' != ''">
+    <!-- Stride asks for libassimp.so, the package ships libassimp.so.5 -->
+    <ItemGroup>
+      <_VLAssimp Include="$(VLStrideAssetCompilerOutputDir)libassimp.so.5;$(VLStrideAssetCompilerOutputDir)runtimes\$(VLStrideHostRid)\native\libassimp.so.5"
+                 Condition="Exists('$(VLStrideAssetCompilerOutputDir)libassimp.so.5') OR Exists('$(VLStrideAssetCompilerOutputDir)runtimes\$(VLStrideHostRid)\native\libassimp.so.5')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_VLAssimp)" DestinationFiles="$(VLStrideAssetCompilerOutputDir)libassimp.so"
+          Condition="Exists('%(_VLAssimp.FullPath)') AND !Exists('$(VLStrideAssetCompilerOutputDir)libassimp.so')" />
+
+    <!-- Stride's pack step restores old runtime.* packages whose signature check fails when the package folder is empty.
+         Set for this build only (the msbuild process and what it starts). -->
+    <VLSetEnvironmentVariable Name="DOTNET_NUGET_SIGNATURE_VERIFICATION" Value="false" />
+
+    <Warning Condition="'$(StrideGraphicsApi)' == 'OpenGL' AND '$(DISPLAY)' == '' AND '$(WAYLAND_DISPLAY)' == ''"
+             Text="[VL] The OpenGL asset compile needs a display. Without one, run the build under a virtual one: xvfb-run -a dotnet build ... (packages: xvfb libgl1-mesa-dri libglx-mesa0 libegl-mesa0), or set VLStrideLinuxGraphicsApi=Vulkan." />
   </Target>
 
   <!-- Collect up-to-date check inputs (matching Stride's behavior) -->

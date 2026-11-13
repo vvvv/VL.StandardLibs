@@ -1,0 +1,31 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    Stride picks its graphics API and its platform at build time from the runtime identifier of the project:
+    only a runtime identifier starting with "linux" makes StridePlatform "Linux" (Stride.Core.targets), and
+    Stride.Graphics.targets then copies the Stride.Graphics.dll of $(StrideGraphicsApi) (Direct3D11, OpenGL, Vulkan).
+
+    On Windows nothing here applies: the projects are built for "any" runtime with Direct3D11, as before.
+    On Linux x64 the projects which compile Stride assets (VLStrideCompileAssets) import this file to be built for the
+    host. Linux arm64 and macOS are not supported by Stride (no native libraries), nothing is set there.
+
+    VLStrideLinuxGraphicsApi: the graphics API for Linux, the one property to switch.
+      OpenGL (default): works, but the asset compile creates an OpenGL context: it needs a display (Xvfb on a machine
+                        without one: xvfb-run -a dotnet build ...) and Mesa's software driver (libgl1-mesa-dri).
+      Vulkan:           needs no display, but the skybox compile crashes on Mesa's software Vulkan (lavapipe) with Stride 4.3.
+    See vvvv50/doc/xplat-proposals/stride-on-linux.md
+  -->
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">
+    <VLStrideHostRid>linux-x64</VLStrideHostRid>
+    <VLStrideLinuxGraphicsApi Condition="'$(VLStrideLinuxGraphicsApi)' == ''">OpenGL</VLStrideLinuxGraphicsApi>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(VLStrideHostRid)' != ''">
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">$(VLStrideHostRid)</RuntimeIdentifier>
+    <SelfContained Condition="'$(SelfContained)' == ''">false</SelfContained>
+    <!-- OutputPath is fixed (..\lib): the packages and the neighbors expect the build there -->
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <StrideGraphicsApi Condition="'$(StrideGraphicsApi)' == ''">$(VLStrideLinuxGraphicsApi)</StrideGraphicsApi>
+  </PropertyGroup>
+
+</Project>
