@@ -113,9 +113,12 @@ namespace VL.Skia
 
         bool CreateContext()
         {
-            // Skia's own loader first: it knows which functions it needs and how the platform finds them.
-            // The function pointers of the window library are the fallback.
-            glInterface = GRGlInterface.Create() ?? GRGlInterface.Create(name => gl.GetProcAddress(name));
+            // Desktop OpenGL: Skia's own loader knows which functions it needs and how the platform finds them
+            // (function pointers from a window library made Skia crash on Mesa with GLX).
+            // OpenGL ES (EGL): Skia's loader looks for desktop OpenGL, the pointers of the context are the way.
+            glInterface = gl.IsOpenGlEs
+                ? GRGlInterface.Create(name => gl.GetProcAddress(name))
+                : GRGlInterface.Create() ?? GRGlInterface.Create(name => gl.GetProcAddress(name));
             if (glInterface is null)
                 return false;
             grContext = GRContext.CreateGl(glInterface);

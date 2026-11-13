@@ -20,6 +20,9 @@ namespace VL.Core.Windowing
         /// <summary>The function pointer of an OpenGL function of the current context, or 0.</summary>
         nint GetProcAddress(string name);
 
+        /// <summary>True for an OpenGL ES context, false for desktop OpenGL.</summary>
+        bool IsOpenGlEs { get; }
+
         /// <summary>Size of the drawable in pixels. This is what the framebuffer 0 has.</summary>
         Int2 DrawableSize { get; }
     }
