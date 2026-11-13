@@ -210,7 +210,14 @@ namespace VL.Skia
         {
             FDarkModeSubscription.Disposable = DarkTitleBarClass.Install(Handle);
             base.OnHandleCreated(e);
-            renderer = new EglSkiaRenderer(RenderContextProvider);
+            // VVVV_SOFTWARE_CANVAS=1: the software renderer, which a window capture can see (a GPU swap chain is not captured). Used by test drivers.
+            if (Environment.GetEnvironmentVariable("VVVV_SOFTWARE_CANVAS") == "1")
+            {
+                renderer = new SoftwareSkiaRenderer();
+                DoubleBuffered = true;
+            }
+            else
+                renderer = new EglSkiaRenderer(RenderContextProvider);
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
