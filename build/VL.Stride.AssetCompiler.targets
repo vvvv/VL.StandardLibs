@@ -26,6 +26,8 @@
     <VLStrideAssetCompilerOutput Condition="'$(VLStrideHostRid)' != ''">$(VLStrideAssetCompilerOutputDir)VL.Stride.AssetCompilerApp.dll</VLStrideAssetCompilerOutput>
     <VLStrideAssetCompilerProperties Condition="'$(VLStrideHostRid)' != ''">RuntimeIdentifier=$(VLStrideHostRid);SelfContained=false;AppendRuntimeIdentifierToOutputPath=false;StrideGraphicsApi=$(StrideGraphicsApi);OutputPath=$(VLStrideAssetCompilerOutputDir);BaseIntermediateOutputPath=$(MSBuildThisFileDirectory)VL.Stride.AssetCompilerApp\obj\$(VLStrideAssetCompilerKey)\</VLStrideAssetCompilerProperties>
 
+    <VLStrideAssetCompilerWorkingDirectory Condition="'$(VLStrideAssetCompilerWorkingDirectory)' == ''">$(ProjectDir)</VLStrideAssetCompilerWorkingDirectory>
+
     <!-- Use PackageRepositories property from top-level Directory.Build.props -->
     <!-- Fallback to parent directory if not set (for standalone VL.StandardLibs repo) -->
     <VLStridePackageRepositories Condition="'$(VLStridePackageRepositories)' == '' AND '$(PackageRepositories)' != ''">$(PackageRepositories)</VLStridePackageRepositories>
@@ -79,6 +81,16 @@
     <!-- Stride's pack step restores old runtime.* packages whose signature check fails when the package folder is empty.
          Set for this build only (the msbuild process and what it starts). -->
     <VLSetEnvironmentVariable Name="DOTNET_NUGET_SIGNATURE_VERIFICATION" Value="false" />
+
+    <!-- Vulkan only: Stride starts its shader tool by the relative path linux-x64/glslangValidator.bin, which only exists in
+         the content files of Stride.Shaders.Compiler. Put it under the output folder of the app and run the app there. -->
+    <ItemGroup Condition="'$(StrideGraphicsApi)' == 'Vulkan'">
+      <_VLGlslang Include="$([MSBuild]::EnsureTrailingSlash('$(NuGetPackageRoot)'))stride.shaders.compiler\*\contentFiles\any\any\$(VLStrideHostRid)\glslangValidator.bin" />
+    </ItemGroup>
+    <Copy Condition="'@(_VLGlslang)' != ''" SourceFiles="%(_VLGlslang.FullPath)" DestinationFolder="$(VLStrideAssetCompilerOutputDir)$(VLStrideHostRid)" SkipUnchangedFiles="true" />
+    <PropertyGroup Condition="'$(StrideGraphicsApi)' == 'Vulkan'">
+      <VLStrideAssetCompilerWorkingDirectory>$(VLStrideAssetCompilerOutputDir)</VLStrideAssetCompilerWorkingDirectory>
+    </PropertyGroup>
 
     <Warning Condition="'$(StrideGraphicsApi)' == 'OpenGL' AND '$(DISPLAY)' == '' AND '$(WAYLAND_DISPLAY)' == ''"
              Text="[VL] The OpenGL asset compile needs a display. Without one, run the build under a virtual one: xvfb-run -a dotnet build ... (packages: xvfb libgl1-mesa-dri libglx-mesa0 libegl-mesa0), or set VLStrideLinuxGraphicsApi=Vulkan." />
@@ -155,7 +167,7 @@
     <Message Importance="High" Text="[VL] $(VLStrideAssetCompilerCommand)" />
 
     <Exec Command="$(VLStrideAssetCompilerCommand)" 
-          WorkingDirectory="$(ProjectDir)" />
+          WorkingDirectory="$(VLStrideAssetCompilerWorkingDirectory)" />
 
     <!-- Create stamp file to track incremental builds -->
     <Touch Files="$(IntermediateOutputPath)VLStrideAssets.stamp" AlwaysCreate="true" />
