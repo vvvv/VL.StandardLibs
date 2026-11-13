@@ -71,7 +71,7 @@
   <!--
     The document VL.Skia.vl is written in the editor on Windows: its node "RenderWindow (Upcoming Experimental)" is made of Windows Forms nodes, and it depends on the packages
     VL.CoreLib.Windows and VL.Core.Skia.Windows and on System.Windows.Forms. Where those do not exist (Linux, macOS) the document can't be compiled.
-    The package made on a system other than Windows therefore gets a copy of the document without these parts. Everything else is the same document: the Renderer node, which is built on
+    The package therefore carries a copy of the document without these parts too (folder portable). Everything else is the same document: the Renderer node, which is built on
     the SkiaRendererNode of the flavor of the assembly, is in it. (The long term solution is to move the Windows part into a document of the Windows packages.)
   -->
   <UsingTask TaskName="StripWindowsFromVlDocument" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
@@ -95,11 +95,17 @@
     </Task>
   </UsingTask>
 
-  <Target Name="UsePortableVlDocument" BeforeTargets="_GetPackageFiles" Condition="!$([MSBuild]::IsOSPlatform('Windows')) Or '$(PortableVlDocument)' == 'true'">
-    <StripWindowsFromVlDocument Input="$(MSBuildProjectDirectory)\..\VL.Skia.vl" Output="$(MSBuildProjectDirectory)\$(IntermediateOutputPath)portable\VL.Skia.vl" />
+  <!--
+    The package serves both targets of an app: the document of the editor (VL.Skia.vl in the root) and, in the folder portable, a copy without the Windows Forms parts.
+    The compiler takes the one which matches the target of the compilation (PackageInfo.PortableDocumentFolder): an app for Linux or macOS, also when made on Windows, gets the portable one.
+  -->
+  <!-- Made on every build (it sits in the folder of the package, where the compiler looks for it when a package is used as a source package) and packed -->
+  <Target Name="MakePortableVlDocument" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net10.0'">
+    <StripWindowsFromVlDocument Input="$(MSBuildProjectDirectory)\..\VL.Skia.vl" Output="$(MSBuildProjectDirectory)\..\portable\VL.Skia.vl" />
+  </Target>
+  <Target Name="PackPortableVlDocument" BeforeTargets="_GetPackageFiles" DependsOnTargets="MakePortableVlDocument">
     <ItemGroup>
-      <Content Remove="$(VLPackageBasePath)VL.Skia.vl" />
-      <Content Include="$(MSBuildProjectDirectory)\$(IntermediateOutputPath)portable\VL.Skia.vl" PackagePath="VL.Skia.vl" Pack="true" />
+      <Content Include="$(MSBuildProjectDirectory)\..\portable\VL.Skia.vl" PackagePath="portable\VL.Skia.vl" Pack="true" />
     </ItemGroup>
   </Target>
 </Project>
