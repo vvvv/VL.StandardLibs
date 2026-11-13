@@ -46,6 +46,18 @@
       <Visible>false</Visible>
     </None>
 
+    <!-- The natives of Linux and macOS come from the ImGui.NET package. The ones for Windows are ours (runtimes folder above). -->
+    <None Include="$(PkgImGui_NET)\runtimes\linux-x64\native\*">
+      <Pack>true</Pack>
+      <PackagePath>runtimes\linux-x64\native\%(Filename)%(Extension)</PackagePath>
+      <Visible>false</Visible>
+    </None>
+    <None Include="$(PkgImGui_NET)\runtimes\osx\native\*">
+      <Pack>true</Pack>
+      <PackagePath>runtimes\osx\native\%(Filename)%(Extension)</PackagePath>
+      <Visible>false</Visible>
+    </None>
+
     <None Include="$(VLPackageBasePath)\vl.subs.json">
       <Pack>true</Pack>
       <PackagePath>%(Filename)%(Extension)</PackagePath>
