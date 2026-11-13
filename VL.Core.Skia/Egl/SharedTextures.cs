@@ -108,6 +108,14 @@ public sealed unsafe class SharedTextureTarget : IDisposable
         immediateContext->Flush();
     }
 
+    /// <summary>Copies the pixels of the last <see cref="Render"/> to memory (BGRA, premultiplied): the transport alternative to sharing the texture. Measured by the spike.</summary>
+    public bool ReadPixels(nint destination, int rowBytes)
+    {
+        ObjectDisposedException.ThrowIf(eglSurface is null, this);
+        using var _ = renderContext.MakeCurrent(forRendering: true, eglSurface);
+        return skSurface!.ReadPixels(new SKImageInfo(Width, Height, SKColorType.Bgra8888, SKAlphaType.Premul), destination, rowBytes, 0, 0);
+    }
+
     /// <summary>True when the GPU has executed everything of the last <see cref="Render"/>.</summary>
     public bool IsGpuDone()
     {
