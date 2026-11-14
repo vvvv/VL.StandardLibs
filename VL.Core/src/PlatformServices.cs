@@ -53,7 +53,8 @@ namespace VL.Core
     /// <param name="WorkArea">The part of <paramref name="Bounds"/> that is not taken by system bars, in virtual screen pixels.</param>
     /// <param name="ScaleFactor">Pixels per DIP.</param>
     /// <param name="RefreshRate">In Hz, 0 if unknown.</param>
-    public sealed record DisplayInfo(int Id, string Name, RectangleF Bounds, RectangleF WorkArea, float ScaleFactor, float RefreshRate, bool IsPrimary);
+    /// <param name="CanCoverWithFullscreenWindow">False for a display that is known but that the window system gives no handle for right now (macOS: the screen sleeps, the display comes from CoreGraphics): a request for a fullscreen window on it is refused, <see cref="Windowing.IAppWindow.IsFullscreen"/> stays false.</param>
+    public sealed record DisplayInfo(int Id, string Name, RectangleF Bounds, RectangleF WorkArea, float ScaleFactor, float RefreshRate, bool IsPrimary, bool CanCoverWithFullscreenWindow = true);
 
     public sealed class NoDisplays : IDisplays
     {
