@@ -15,7 +15,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="SharpDX.Direct3D11" />
+    <!-- DirectX is Windows: its managed side stays out of the portable flavor (and so out of apps for Linux and macOS) -->
+    <PackageReference Include="SharpDX.Direct3D11" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
     <PackageReference Include="SkiaSharp.Skottie" ExcludeAssets="build;buildTransitive" />
   </ItemGroup>
   <ItemGroup>
@@ -25,6 +26,11 @@
     <ProjectReference Include="..\..\VL.CoreLib.Windows\src\VL.CoreLib.Windows.csproj" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
     <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
     <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
+  </ItemGroup>
+
+  <!-- Helpers of the Direct3D11 video nodes (no node of a document uses them off Windows): Windows flavor only -->
+  <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-windows' AND '$(TargetFramework)' != ''">
+    <Compile Remove="Video\SKImageToVideoStream.cs;Video\TexturePool.cs" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
