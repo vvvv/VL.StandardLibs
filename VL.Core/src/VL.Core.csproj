@@ -14,9 +14,11 @@
     <PackageReference Include="Microsoft.Extensions.ObjectPool" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="NuGet.Versioning" />
-    <PackageReference Include="System.Drawing.Common" />
+    <!-- Only for the Windows only bitmap interop (BitmapImage, FromImage). Not handed on to projects referencing us: GDI+ is not available on macOS and Linux. -->
+    <PackageReference Include="System.Drawing.Common" PrivateAssets="compile" />
     <PackageReference Include="System.Interactive" />
-    <PackageReference Include="System.Management" />
+    <!-- Only for HardwareChangedEvents (Windows only) -->
+    <PackageReference Include="System.Management" PrivateAssets="compile" />
     <PackageReference Include="System.Reactive" />
     <PackageReference Include="Stride.Core.Mathematics">
       <!-- We don't want all those Stride targets to flow up to all our projects -->

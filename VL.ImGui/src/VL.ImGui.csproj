@@ -14,6 +14,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Only for the default font on Windows -->
+    <PackageReference Include="System.Drawing.Common" PrivateAssets="compile" />
     <PackageReference Include="ImGui.NET" GeneratePathProperty="true">
       <PrivateAssets>all</PrivateAssets>
       <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
@@ -41,6 +43,18 @@
       <LinkBase>runtimes</LinkBase>
       <Pack>true</Pack>
       <PackagePath>runtimes\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+      <Visible>false</Visible>
+    </None>
+
+    <!-- The natives of Linux and macOS come from the ImGui.NET package. The ones for Windows are ours (runtimes folder above). -->
+    <None Include="$(PkgImGui_NET)\runtimes\linux-x64\native\*">
+      <Pack>true</Pack>
+      <PackagePath>runtimes\linux-x64\native\%(Filename)%(Extension)</PackagePath>
+      <Visible>false</Visible>
+    </None>
+    <None Include="$(PkgImGui_NET)\runtimes\osx\native\*">
+      <Pack>true</Pack>
+      <PackagePath>runtimes\osx\native\%(Filename)%(Extension)</PackagePath>
       <Visible>false</Visible>
     </None>
 

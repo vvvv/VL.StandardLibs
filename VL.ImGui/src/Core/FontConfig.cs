@@ -27,12 +27,22 @@ namespace VL.ImGui
 
         public Spread<Range<int>>? CustomRanges { get; init; } = CheckValidRange(CustomGlyphRange);
 
+        static readonly string[] preferredFamilies = ["DejaVu Sans", "Liberation Sans", "Noto Sans", "Ubuntu", "Helvetica Neue", "Helvetica", "Arial"];
+
         static FontConfig()
         {
             if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
             {
                 using var defaultTypeFace = System.Drawing.SystemFonts.MessageBoxFont ?? System.Drawing.SystemFonts.DefaultFont;
                 Default = new FontConfig(new FontList(defaultTypeFace.FontFamily.Name));
+            }
+            else if (!OperatingSystem.IsWindows())
+            {
+                var families = FontListDefinition.Instance.Entries;
+                var family = preferredFamilies.FirstOrDefault(p => families.Contains(p, StringComparer.OrdinalIgnoreCase))
+                    ?? families.FirstOrDefault();
+                if (family != null)
+                    Default = new FontConfig(new FontList(family));
             }
         }
 

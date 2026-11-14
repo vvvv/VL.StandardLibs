@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace JobManagement
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class Job : IDisposable
     {
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]

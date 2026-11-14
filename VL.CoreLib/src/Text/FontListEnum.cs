@@ -43,6 +43,8 @@ namespace VL.Lib.Text
                 GetFonts_DirectWrite(fonts);
             else if (OperatingSystem.IsWindowsVersionAtLeast(5))
                 GetFonts_Gdi32(fonts);
+            else if (!OperatingSystem.IsWindows())
+                fonts.AddRange(FontFileCatalog.System.Families);
 
             foreach (var family in fonts)
                 fontFaces[family] = family;
@@ -151,6 +153,11 @@ namespace VL.Lib.Text
 #pragma warning restore CA1416 // Validate platform compatibility
             else if (OperatingSystem.IsWindowsVersionAtLeast(5))
                 return default;
+            else if (!OperatingSystem.IsWindows())
+            {
+                var face = FontFileCatalog.System.Find(familyName, fontStyle);
+                return face.HasValue ? new FontPath(face.Value.Path, face.Value.Index) : default;
+            }
             else
                 return default;
         }

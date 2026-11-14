@@ -4,6 +4,12 @@
   <!-- Import VL custom Stride asset compiler targets -->
   <Import Project="$(MSBuildThisFileDirectory)build\VL.Stride.AssetCompiler.targets" />
 
+  <!-- Projects which don't target Windows must build and run on macOS and Linux: an unguarded call of a Windows only API is an error. -->
+  <!-- Lives in the targets file because the target framework isn't known yet when the props file gets evaluated. -->
+  <PropertyGroup Condition="'$(TargetFramework)' != '' AND !$(TargetFramework.EndsWith('-windows'))">
+    <WarningsAsErrors>$(WarningsAsErrors);CA1416</WarningsAsErrors>
+  </PropertyGroup>
+
   <ItemGroup Condition="$(VLPackageBasePath) != ''">
     <Content Include="$(VLPackageBasePath)*.vl" PackagePath="%(RecursiveDir)%(Filename)%(Extension)" />
     <Content Include="$(VLPackageBasePath)Assets\**" PackagePath="Assets\%(RecursiveDir)%(Filename)%(Extension)" LinkBase="Assets" />
