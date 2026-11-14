@@ -14,11 +14,23 @@ namespace VL.Core.Tests
         [Test]
         public static void MakePathRelativeTest()
         {
-            var basePath = @"C:\Some\Folder\";
-            TestRelativeToAbsoluteRoundTrip(basePath, @"C:\Some\Folder\");
-            TestRelativeToAbsoluteRoundTrip(basePath, @"C:\Some\Folder\Sub\File.txt");
-            TestRelativeToAbsoluteRoundTrip(basePath, @"C:\Some\Folder\Sub\");
-            TestRelativeToAbsoluteRoundTrip(basePath, @"C:\Some\");
+            // A path with a drive letter is only absolute on Windows
+            if (OperatingSystem.IsWindows())
+            {
+                var basePath = @"C:\Some\Folder\";
+                TestRelativeToAbsoluteRoundTrip(basePath, @"C:\Some\Folder\");
+                TestRelativeToAbsoluteRoundTrip(basePath, @"C:\Some\Folder\Sub\File.txt");
+                TestRelativeToAbsoluteRoundTrip(basePath, @"C:\Some\Folder\Sub\");
+                TestRelativeToAbsoluteRoundTrip(basePath, @"C:\Some\");
+            }
+            else
+            {
+                var basePath = "/some/folder/";
+                TestRelativeToAbsoluteRoundTrip(basePath, "/some/folder/");
+                TestRelativeToAbsoluteRoundTrip(basePath, "/some/folder/sub/file.txt");
+                TestRelativeToAbsoluteRoundTrip(basePath, "/some/folder/sub/");
+                TestRelativeToAbsoluteRoundTrip(basePath, "/some/");
+            }
         }
 
         static void TestRelativeToAbsoluteRoundTrip(string from, string to)

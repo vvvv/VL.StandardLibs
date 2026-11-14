@@ -30,9 +30,7 @@ namespace VL.Lib.IO.Ports
     {
         protected override IObservable<object> GetEntriesChangedObservable()
         {
-            if (OperatingSystem.IsWindows())
-                return HardwareChangedEvents.HardwareChanged;
-            return Observable.Empty<object>();
+            return HardwareChangedEvents.HardwareChanged;
         }
 
         //actual work
