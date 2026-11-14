@@ -32,6 +32,7 @@ namespace VL.Skia.Video
     /// If changed, make sure the values match the main loop settings of vvvv.
     /// </remarks>
     [ProcessNode(Category = "Graphics.Skia.Video")]
+    [System.Runtime.Versioning.SupportedOSPlatform("windows6.1")]
     public sealed class SKImageToVideoStream : IDisposable
     {
         record struct MetadataAndFrameRate(string Metadata, (int N, int D) FrameRate);

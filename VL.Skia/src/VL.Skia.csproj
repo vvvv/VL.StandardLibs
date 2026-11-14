@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net10.0;net10.0-windows</TargetFrameworks>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <!-- The Windows flavor (WinForms renderer) can only be built on Windows -->
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0;net10.0-windows</TargetFrameworks>
     <OutputPath>..\lib</OutputPath>
     
     <!-- We pack native dll in our own NuGet package -->
@@ -13,7 +15,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="SharpDX.Direct3D11" />
+    <!-- DirectX is Windows: its managed side stays out of the portable flavor (and so out of apps for Linux and macOS) -->
+    <PackageReference Include="SharpDX.Direct3D11" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
     <PackageReference Include="SkiaSharp.Skottie" ExcludeAssets="build;buildTransitive" />
   </ItemGroup>
   <ItemGroup>
@@ -23,6 +26,11 @@
     <ProjectReference Include="..\..\VL.CoreLib.Windows\src\VL.CoreLib.Windows.csproj" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
     <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
     <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
+  </ItemGroup>
+
+  <!-- Helpers of the Direct3D11 video nodes (no node of a document uses them off Windows): Windows flavor only -->
+  <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-windows' AND '$(TargetFramework)' != ''">
+    <Compile Remove="Video\SKImageToVideoStream.cs;Video\TexturePool.cs" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
@@ -62,7 +70,48 @@
 
   <!-- Exclude Windows-specific embedded resources from non-Windows builds -->
   <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-windows' AND '$(TargetFramework)' != ''">
+    <Compile Remove="Properties\Resources.Designer.cs" />
     <EmbeddedResource Remove="Properties\Resources.resx" />
     <EmbeddedResource Remove="SkiaRenderer.resx" />
   </ItemGroup>
+  <!--
+    The document VL.Skia.vl is written in the editor on Windows: its node "RenderWindow (Upcoming Experimental)" is made of Windows Forms nodes, and it depends on the packages
+    VL.CoreLib.Windows and VL.Core.Skia.Windows and on System.Windows.Forms. Where those do not exist (Linux, macOS) the document can't be compiled.
+    The package therefore carries a copy of the document without these parts too (folder portable). Everything else is the same document: the Renderer node, which is built on
+    the SkiaRendererNode of the flavor of the assembly, is in it. (The long term solution is to move the Windows part into a document of the Windows packages.)
+  -->
+  <UsingTask TaskName="StripWindowsFromVlDocument" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Input ParameterType="System.String" Required="true" />
+      <Output ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Xml.Linq" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        var doc = XDocument.Load(Input, LoadOptions.PreserveWhitespace);
+        var windowsOnly = new System.Collections.Generic.HashSet<string> { "VL.CoreLib.Windows", "VL.Core.Skia.Windows", "System.Windows.Forms", "./lib/net10.0-windows/VL.CoreLib.dll" };
+        foreach (var d in doc.Root.Elements().Where(e => (e.Name.LocalName == "NugetDependency" || e.Name.LocalName == "PlatformDependency") && windowsOnly.Contains((string)e.Attribute("Location") ?? "")).ToList())
+            d.Remove();
+        foreach (var n in doc.Root.Descendants("Node").Where(e => (string)e.Attribute("Name") == "RenderWindow (Upcoming Experimental)" || (string)e.Attribute("Name") == "VideoSourceToSKImage").ToList())
+            n.Remove();
+        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Output));
+        doc.Save(Output);
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <!--
+    The package serves both targets of an app: the document of the editor (VL.Skia.vl in the root) and, in the folder portable, a copy without the Windows Forms parts.
+    The compiler takes the one which matches the target of the compilation (PackageInfo.PortableDocumentFolder): an app for Linux or macOS, also when made on Windows, gets the portable one.
+  -->
+  <!-- Made on every build (it sits in the folder of the package, where the compiler looks for it when a package is used as a source package) and packed -->
+  <Target Name="MakePortableVlDocument" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net10.0'">
+    <StripWindowsFromVlDocument Input="$(MSBuildProjectDirectory)\..\VL.Skia.vl" Output="$(MSBuildProjectDirectory)\..\portable\VL.Skia.vl" />
+  </Target>
+  <Target Name="PackPortableVlDocument" BeforeTargets="_GetPackageFiles" DependsOnTargets="MakePortableVlDocument">
+    <ItemGroup>
+      <Content Include="$(MSBuildProjectDirectory)\..\portable\VL.Skia.vl" PackagePath="portable\VL.Skia.vl" Pack="true" />
+    </ItemGroup>
+  </Target>
 </Project>

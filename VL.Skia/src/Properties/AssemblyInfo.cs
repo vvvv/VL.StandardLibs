@@ -16,7 +16,5 @@ using VL.Core.Import;
 [assembly: IncludeForeign]
 [assembly: ImportType(typeof(VL.Skia.FromSharedHandle))]
 
-#if WINDOWS
 [assembly: ImportType(typeof(Graphics.Skia.FormBoundsNotification))]
 [assembly: ImportType(typeof(Graphics.Skia.SkiaRendererNode))]
-#endif
