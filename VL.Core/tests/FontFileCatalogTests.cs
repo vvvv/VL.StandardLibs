@@ -40,7 +40,7 @@ namespace VL.Core.Tests
         }
 
         [Test]
-        public void RegularAndBoldResolveToDifferentFiles()
+        public void RegularAndBoldResolveToDifferentFaces()
         {
             var catalog = CreateCatalog();
             var family = OperatingSystem.IsWindows()
@@ -53,7 +53,8 @@ namespace VL.Core.Tests
             var bold = catalog.Find(family, FontStyle.Bold).Value;
             Assert.That(regular.IsBold, Is.False);
             Assert.That(bold.IsBold, Is.True);
-            Assert.That(bold.Path, Is.Not.EqualTo(regular.Path));
+            // A different file, or the same collection (.ttc: most system fonts of macOS) with another face in it
+            Assert.That((bold.Path, bold.Index), Is.Not.EqualTo((regular.Path, regular.Index)), "Regular and bold are the same face of the same file.");
             Assert.That(File.Exists(bold.Path));
         }
 
