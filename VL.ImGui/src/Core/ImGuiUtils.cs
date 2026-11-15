@@ -365,8 +365,26 @@ namespace VL.ImGui
 
     public static class ImGuiConversion
     {
+        // The scale of the process (Windows: its DPI; 1 elsewhere) until a layer sets the one of its window (UseScaling)
         public static float ToImGuiScaling = VL.UI.Core.DIPHelpers.DIPFactor() * 100f;
         public static float FromImGuiScaling = 1.0f / (VL.UI.Core.DIPHelpers.DIPFactor() * 100f);
+
+        /// <summary>The units of ImGui are pixels of the window a layer draws in (<paramref name="scaling"/> pixels per DIP): the conversions follow it
+        /// while the layer updates, draws and takes notifications, as ImGui's current context does; the values of before come back with the result.</summary>
+        public static IDisposable UseScaling(float scaling)
+        {
+            var to = ToImGuiScaling;
+            var from = FromImGuiScaling;
+            if (scaling <= 0)
+                scaling = 1f;
+            ToImGuiScaling = scaling * 100f;
+            FromImGuiScaling = 1f / (scaling * 100f);
+            return System.Reactive.Disposables.Disposable.Create(() =>
+            {
+                ToImGuiScaling = to;
+                FromImGuiScaling = from;
+            });
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static System.Numerics.Vector4 ToImGui(this Color4 v)

@@ -74,7 +74,13 @@ namespace VL.ImGui
                 return this;
 
             using (_context.MakeCurrent())
+            using (WindowScaling())
             {
+                // The scale of the window the layer draws in (pixels per DIP), not the one of the process: on a Retina display the window has 2 while
+                // DIPHelpers.DIPFactor() says 1 off Windows, and the fonts were built at 1, magnified, and the display was twice as wide as the window
+                if (_lastCallerInfo.Scaling > 0)
+                    updateScaling(fontScaling: _lastCallerInfo.Scaling, uiScaling: _lastCallerInfo.Scaling);
+
                 if (!_fonts.SequenceEqual(fonts))
                 {
                     _fonts = fonts;
@@ -151,10 +157,13 @@ namespace VL.ImGui
             }
             if (uiScaling != _uiScaling) 
             {
+                // ScaleAllSizes multiplies the sizes of the style it has: from the scale before to the new one
+                RenderHelper.UpdateUIScaling(_uiScaling > 0 ? uiScaling / _uiScaling : uiScaling);
                 _uiScaling = uiScaling;
-                RenderHelper.UpdateUIScaling(uiScaling);
             }
         }
+
+        IDisposable WindowScaling() => ImGuiConversion.UseScaling(_uiScaling);
 
         public unsafe void Render(CallerInfo caller)
         {
@@ -210,12 +219,12 @@ namespace VL.ImGui
             // Where the solid shapes take their colour from: the white pixel of the font atlas
             var whitePixel = new SKPoint(_io.Fonts.TexUvWhitePixel.X, _io.Fonts.TexUvWhitePixel.Y);
             //using var _ = new SKAutoCanvasRestore(canvas, true);
+            using var scaling = WindowScaling();
             canvas.Save();
             try
             {
                 var us = PushTransformation(caller, SKMatrix.CreateScale(ImGuiConversion.FromImGuiScaling, ImGuiConversion.FromImGuiScaling));
                     canvas.SetMatrix(us.Transformation);
-                //updateScaling(us.Transformation.ScaleY);
 
                 for (int i = 0; i < drawData.CmdListsCount; ++i)
                 {
@@ -324,6 +333,7 @@ namespace VL.ImGui
             ObjectDisposedException.ThrowIf(_disposed, this);
 
             using (_context.MakeCurrent())
+            using (WindowScaling())
             {
                 _io.HandleNotification(notification);
 
