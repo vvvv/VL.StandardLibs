@@ -61,7 +61,9 @@ namespace VL.ImGui
 
                 _fontPaint = new Handle<SKPaint>(new SKPaint());
 
-                var scaling = VL.UI.Core.DIPHelpers.DIPFactor();
+                // Unscaled until the first update takes the scale of the window: scaling the style from the one of the process first and then to the one of the window
+                // would round twice (a window of scale 1 in a process at 150 % got rows 1 pixel closer than one in a process at 100 %)
+                var scaling = 1f;
                 updateScaling(fontScaling: scaling, uiScaling: scaling);
             }
         }
