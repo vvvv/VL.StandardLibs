@@ -98,11 +98,12 @@ namespace VL.ImGui
                         break;
                     case MouseNotificationKind.MouseWheel:
                         if (mouseNotification is MouseWheelNotification wheel)
-                            _io.AddMouseWheelEvent(0, wheel.WheelDelta / 120);
+                            // A notch of a wheel is 120; a trackpad and the wheel of macOS give fractions of it, which an integer division dropped
+                            _io.AddMouseWheelEvent(0, wheel.WheelDelta / 120f);
                         break;
                     case MouseNotificationKind.MouseHorizontalWheel:
                         if (mouseNotification is MouseHorizontalWheelNotification hWheel)
-                            _io.AddMouseWheelEvent(hWheel.WheelDelta / 120, 0);
+                            _io.AddMouseWheelEvent(hWheel.WheelDelta / 120f, 0);
                         break;
                     case MouseNotificationKind.DeviceLost:
                         _io.ClearInputKeys();
