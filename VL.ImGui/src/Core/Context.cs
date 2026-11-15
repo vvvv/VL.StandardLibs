@@ -89,6 +89,12 @@ namespace VL.ImGui
         public Context()
         {
             _context = ImGui.CreateContext();
+            // The key notifications of VL give the Command key of macOS as Ctrl; ImGui built for Apple expects it as Super (ConfigMacOSXBehaviors), so Cmd+A typed
+            // nothing and Ctrl+A moved to the start of the line in a text field
+            var previous = ImGui.GetCurrentContext();
+            ImGui.SetCurrentContext(_context);
+            ImGui.GetIO().ConfigMacOSXBehaviors = false;
+            ImGui.SetCurrentContext(previous);
         }
 
         public virtual void NewFrame()
