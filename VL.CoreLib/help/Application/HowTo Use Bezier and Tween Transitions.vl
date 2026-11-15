@@ -1,0 +1,362 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="DGzM7UcsCruQIHDrjZwb3y" LanguageVersion="2026.8.0-0362-gf03ae87548" Version="0.128">
+  <Patch Id="E4epwmxK21UNruwwYzoqEj">
+    <Canvas Id="MOoox3mUoGOPAapYy6XO9m" DefaultCategory="Main" CanvasType="FullCategory">
+      <!--
+
+    ************************ MyStartup ************************
+
+-->
+      <Node Name="MyStartup" Bounds="100,100" Id="AlK4BTLdF78Ljieta7ve4N">
+        <p:NodeReference>
+          <Choice Kind="ClassDefinition" />
+        </p:NodeReference>
+        <p:Interfaces>
+          <TypeReference>
+            <Choice Kind="InterfaceTypeFlag" Name="IStartup" />
+          </TypeReference>
+        </p:Interfaces>
+        <Patch Id="MvHoV70p3CZOpHviSp1iLv">
+          <Canvas Id="CQauN9m1EopM5mheQexYVJ" CanvasType="Group">
+            <Pad Id="DzRlGEiEnyROyEFVbm9ylN" Bounds="-460,100" ShowValueBox="true" isIOBox="true" Value="Each help patch in this folder keeps its presets in its own folder, so they match the channels of the patch.">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="String" />
+              </p:TypeAnnotation>
+              <p:ValueBoxSettings>
+                <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+              </p:ValueBoxSettings>
+            </Pad>
+            <ControlPoint Id="DmfwpjXZ8P1QMvF48SKNhK" Bounds="100,210" />
+            <Node Bounds="250,100" Id="PuWuErN4OODPIpzwz9q6wa">
+              <p:NodeReference LastCategoryFullName="Microsoft.Extensions.Configuration.ConfigurationManager" LastDependency="Microsoft.Extensions.Configuration.dll">
+                <Choice Kind="OperationNode" Name="Create" />
+                <FullNameCategoryReference ID="Microsoft.Extensions.Configuration.ConfigurationManager" />
+              </p:NodeReference>
+              <Pin Id="NhEDTgvL9SmLzRlDUyUiKU" Name="Output" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="320,100" Id="KkMH4lXYL38QNordNTSXf6">
+              <p:NodeReference LastCategoryFullName="System.Application.AppHost" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="OperationNode" Name="AppBasePath" />
+                <FullNameCategoryReference ID="System.Application.AppHost" />
+              </p:NodeReference>
+              <Pin Id="QDHV6VeTnpUOmkEy6oPyIT" Name="Output" Kind="OutputPin" />
+              <Pin Id="HWx0RrdDk6XLSIUAnpOn2k" Name="App Base Path" Kind="OutputPin" />
+              <Pin Id="N5I79zXL4D8NoXs4rCRozd" Name="Input" Kind="InputPin" />
+            </Node>
+            <Pad Id="Iz64rPCVRG2NxP2ZnP45mS" Comment="v1" Bounds="180,100" ShowValueBox="true" isIOBox="true" Value="\presets_Transitions">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="String" />
+              </p:TypeAnnotation>
+            </Pad>
+            <Node Bounds="220,150" Id="UxiZr4R74MIMp16emjruyB">
+              <p:NodeReference LastCategoryFullName="Math" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="OperationNode" Name="+" />
+                <FullNameCategoryReference ID="Math" />
+              </p:NodeReference>
+              <Pin Id="Gt0ixz52o9oNOJOmgwJvQ0" Name="Input" Kind="InputPin" />
+              <Pin Id="KAjJ4WbCeSMP95Cce6Oi2q" Name="Input 2" Kind="InputPin" />
+              <Pin Id="AUUEV0BhONlPFviv3WMRi1" Name="Output" Kind="OutputPin" />
+            </Node>
+            <Pad Id="Ig4QEd3xgnNMx6aaCFCS8a" Comment="Key" Bounds="270,160" ShowValueBox="true" isIOBox="true" Value="Presets:Folder">
+              <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="String" />
+              </p:TypeAnnotation>
+            </Pad>
+            <Node Bounds="268,200" Id="T8cZpDJkwXoLe27iMhR38p">
+              <p:NodeReference LastCategoryFullName="Microsoft.Extensions.Configuration.ConfigurationManager" LastDependency="Microsoft.Extensions.Configuration.dll">
+                <Choice Kind="OperationNode" Name="SetItem" />
+                <FullNameCategoryReference ID="Microsoft.Extensions.Configuration.ConfigurationManager" />
+              </p:NodeReference>
+              <Pin Id="Pkl0aLnLo7qMVEGP64bcqR" Name="Input" Kind="InputPin" />
+              <Pin Id="MJLmFNre4pVOkJzSq3QxKU" Name="Key" Kind="InputPin" />
+              <Pin Id="MxcAPQGqUE1M8M0Skr7yzJ" Name="Value" Kind="InputPin" />
+              <Pin Id="Hns9ZDvd2UvNhdzYcRvXLg" Name="Output" Kind="OutputPin" />
+            </Node>
+            <Node Bounds="190,250" Id="CMhQTvC05INMsovdZX9Vhw">
+              <p:NodeReference LastCategoryFullName="Microsoft.Extensions.Configuration.ChainedBuilderExtensions" LastDependency="Microsoft.Extensions.Configuration.dll">
+                <Choice Kind="OperationNode" Name="AddConfiguration" />
+                <FullNameCategoryReference ID="Microsoft.Extensions.Configuration.ChainedBuilderExtensions" />
+              </p:NodeReference>
+              <Pin Id="DpBm51rfrytMXQjPuQjr5f" Name="Input" Kind="InputPin" />
+              <Pin Id="BDM7wpbQypJPwi7gpf2GTI" Name="Config" Kind="InputPin" />
+              <Pin Id="Mp0jYSOsMFaOPNbMBgo6Dg" Name="Output" Kind="OutputPin" />
+            </Node>
+          </Canvas>
+          <Patch Id="NyPaROeYVR4LHpwPHEbtq9" Name="Create" />
+          <ProcessDefinition Id="Mrq0rB50PWiNYDOddTb7TV" IsHidden="true">
+            <Fragment Id="KyiGyu6zNmVLEO4aCWfcVF" Patch="NyPaROeYVR4LHpwPHEbtq9" Enabled="true" />
+            <Fragment Id="SoOdejXiA65QE8YEH1feLQ" Patch="Fvpd9sTtOMhLJayFWMrseO" />
+          </ProcessDefinition>
+          <Patch Id="Fvpd9sTtOMhLJayFWMrseO" Name="SetupConfiguration" ParticipatingElements="AfSxfQ6KpEXNWCmtbF1i0p,OVT6P9Q9O5FM9m6EqHJZOk,OaAJEruRkqVMeEYY7PY5Di,V7zfJKy28BjNnYijDPNfpM,LER2vlkaq18Ldbs4Ymrupp,TXKaQ5keWwkQIBkZsRrnXl,TXyCM1apetsQHiB1fEb9KR">
+            <Pin Id="Vz69l0jLRk5L9Rxa9ZTz6a" Name="App Host" Kind="InputPin" />
+            <Pin Id="AP8jrtmol1WOZ0fIfHvUOQ" Name="Configuration Builder" Kind="InputPin" />
+          </Patch>
+          <Link Id="Jk5dNUgVDfpPMXJk1Q2tF5" Ids="AP8jrtmol1WOZ0fIfHvUOQ,DmfwpjXZ8P1QMvF48SKNhK" IsHidden="true" />
+          <Link Id="AfSxfQ6KpEXNWCmtbF1i0p" Ids="HWx0RrdDk6XLSIUAnpOn2k,Gt0ixz52o9oNOJOmgwJvQ0" />
+          <Link Id="OVT6P9Q9O5FM9m6EqHJZOk" Ids="Iz64rPCVRG2NxP2ZnP45mS,KAjJ4WbCeSMP95Cce6Oi2q" />
+          <Link Id="OaAJEruRkqVMeEYY7PY5Di" Ids="NhEDTgvL9SmLzRlDUyUiKU,Pkl0aLnLo7qMVEGP64bcqR" />
+          <Link Id="V7zfJKy28BjNnYijDPNfpM" Ids="Ig4QEd3xgnNMx6aaCFCS8a,MJLmFNre4pVOkJzSq3QxKU" />
+          <Link Id="LER2vlkaq18Ldbs4Ymrupp" Ids="AUUEV0BhONlPFviv3WMRi1,MxcAPQGqUE1M8M0Skr7yzJ" />
+          <Link Id="TXyCM1apetsQHiB1fEb9KR" Ids="Hns9ZDvd2UvNhdzYcRvXLg,BDM7wpbQypJPwi7gpf2GTI" />
+          <Link Id="TXKaQ5keWwkQIBkZsRrnXl" Ids="DmfwpjXZ8P1QMvF48SKNhK,DpBm51rfrytMXQjPuQjr5f" />
+        </Patch>
+      </Node>
+    </Canvas>
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="RQn9div9MKePzpk0Vwu2Jz">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="BGZ5gz9iYAGLUu9C3VAlzk">
+        <Canvas Id="KzSsgD9Ax2DLX421W3MarP" CanvasType="Group">
+          <Pad Id="HuLHBcIcGiNNfGlle3TWUP" Bounds="100,30,560,119" ShowValueBox="true" isIOBox="true" Value="A transition decides how a public channel moves from its current value to the value stored in a preset.&#xD;&#xA;&#xD;&#xA;TriggerPreset takes one on its Transition input. Without one, the default transitions apply: floats, vectors and colors glide, everything else jumps.&#xD;&#xA;&#xD;&#xA;Two channels, Bezier and Tween, are moved by the same duration with different transitions. Click the Apply buttons and watch the values.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="G4ygomsHmHzLDZ2ufoV6Ic" Bounds="100,180,300,136" ShowValueBox="true" isIOBox="true" Value="BezierTransition: a smooth curve that takes the current velocity of the channel into account.&#xD;&#xA;- Turning Point (0..1): when to get going into the right direction&#xD;&#xA;- Dynamics: 0 = linear, 0.3333 = default, 1 = nuts&#xD;&#xA;- Max Warmup Duration (in seconds): tries to avoid going into the wrong direction for too long">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="RPaVyQrOKw4M077fcqEDKr" Bounds="500,180,300,85" ShowValueBox="true" isIOBox="true" Value="TweenTransition: classic easing functions.&#xD;&#xA;- Transition: the easing function (Linear, Quad, Cubic, Elastic, Bounce, ...)&#xD;&#xA;- Mode: where the easing is applied (In, Out, InOut)">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="160,340,90,19" Id="D2aTlprHHARM2h6iWQeeOL">
+            <p:NodeReference LastCategoryFullName="Application.Transitions" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ProcessNode" Name="BezierTransition" />
+              <FullNameCategoryReference ID="Application.Transitions" />
+            </p:NodeReference>
+            <Pin Id="O1Hyi3Vw7MCPdX7QYM45B6" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="HQQHuKfBaAwLsaYnDegqDW" Name="Turning Point" Kind="InputPin" DefaultValue="0.5" />
+            <Pin Id="VSFqhR865aNNfPkUk1Yvfn" Name="Dynamics" Kind="InputPin" DefaultValue="0.33333334" />
+            <Pin Id="CpKGRZ6dYtoNa13Q9aNyNo" Name="Max Warmup Duration" Kind="InputPin" DefaultValue="3" />
+            <Pin Id="LOp2h7SacwIQGU1v5jmqmD" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="VTJvYO94kQBONQx31yJrg2" Comment="B" Bounds="182,430,35,35" ShowValueBox="true" isIOBox="true" Value="false">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Type="String">Bang</p:buttonmode>
+              <p:fontsize p:Type="Int32">7</p:fontsize>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="100,480,77,19" Id="Bz75ddbLeutLCDvVw8qCG2">
+            <p:NodeReference LastCategoryFullName="Application" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ProcessNode" Name="TriggerPreset" />
+              <FullNameCategoryReference ID="Application" />
+            </p:NodeReference>
+            <Pin Id="LEaKaEtvPPTO4KJkXJWFie" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="I8e5bfGeYAeN57oKF06iLI" Name="Presets" Kind="InputPin" />
+            <Pin Id="Lapnd1WhNwCLssyHnlGADC" Name="Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="AXgaa7JsU4cL5wsdaG6vpv" Name="Preset Name" Kind="InputPin" DefaultValue="Bezier B" />
+            <Pin Id="QA0vn9byc19Mw7NyWXPq5y" Name="Transition Duration" Kind="InputPin" DefaultValue="2" />
+            <Pin Id="L6UCTgNfRi1QdggRJDc2F9" Name="Transition" Kind="InputPin" />
+            <Pin Id="G1x4jmAFy4VPix1uLbK2rc" Name="Pick Channels Manually" Kind="InputPin" IsHidden="true" />
+            <Pin Id="I7ceZn5bGtqP65Trk0VtPd" Name="Channels" Kind="InputPin" IsHidden="true" />
+            <Pin Id="SrtFqtxFdOrNkWB6Wqkz71" Name="Clamping By Default" Kind="InputPin" IsHidden="true" />
+            <Pin Id="V7n6Uc2lTJQLIDA5nHddsT" Name="Apply" Kind="InputPin" />
+            <Pin Id="P47w5rgyH9ZOGOFJpXumUL" Name="Presets" Kind="OutputPin" />
+          </Node>
+          <Pad Id="EMseyOY6qyONWmFZscI7JI" Comment="A" Bounds="332,430,35,35" ShowValueBox="true" isIOBox="true" Value="false">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Type="String">Bang</p:buttonmode>
+              <p:fontsize p:Type="Int32">7</p:fontsize>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="250,480,77,19" Id="CHYEixNXK4QPlJo21lZr09">
+            <p:NodeReference LastCategoryFullName="Application" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ProcessNode" Name="TriggerPreset" />
+              <FullNameCategoryReference ID="Application" />
+            </p:NodeReference>
+            <Pin Id="K9R94wjlbR1LgOMFaFUbBr" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Pqu3KZtBC4NM4rsAZOJtGH" Name="Presets" Kind="InputPin" />
+            <Pin Id="F5rDaYBkfDcQH7tHSV78FE" Name="Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="NIOFlWMtYvyN3NF47YzJIB" Name="Preset Name" Kind="InputPin" DefaultValue="Bezier A" />
+            <Pin Id="BruZKEpmx8hM0WiGFLn32H" Name="Transition Duration" Kind="InputPin" DefaultValue="2" />
+            <Pin Id="SZZxTuyBvk2O4jlKbpuh0I" Name="Transition" Kind="InputPin" />
+            <Pin Id="LMWFAcRmoskMj48TeuV6nB" Name="Pick Channels Manually" Kind="InputPin" IsHidden="true" />
+            <Pin Id="NZeSrfhbVowMh8Xvf26RrU" Name="Channels" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Q5eYGHBd14VPhhEl3EGt9A" Name="Clamping By Default" Kind="InputPin" IsHidden="true" />
+            <Pin Id="KoLI7vsUcs0M56J8pD9kkv" Name="Apply" Kind="InputPin" />
+            <Pin Id="BZ03BTN0o6QPT2bbJ5yjDB" Name="Presets" Kind="OutputPin" />
+          </Node>
+          <Pad Id="HRhe89L6WbkPDmLKr2mq4F" Comment="BezierPath" Bounds="100,560,36,15" ShowValueBox="true" isIOBox="true" Value="Bezier">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="98,600,80,19" Id="IZYpVzcVU78QDpOqbbZd2P">
+            <p:NodeReference LastCategoryFullName="Application" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ProcessNode" Name="PublicChannel" />
+              <FullNameCategoryReference ID="Application" />
+            </p:NodeReference>
+            <Pin Id="B8pb0hQtk80NH6i8KBqcBE" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="R5mdu0Il3riOstI4uHQ0Rl" Name="Path" Kind="InputPin" />
+            <Pin Id="BuFxzIDKdLDMEKKm27iRG4" Name="Path" Kind="OutputPin" IsHidden="true" />
+            <Pin Id="LIT4ZaDv2HKMz26nfa52Bh" Name="Output" Kind="OutputPin" />
+            <Pin Id="OtTFLV4h6BENwNXIjekqar" Name="Value" Kind="OutputPin" />
+            <Pin Id="Pn5qAb5vNWHMlJd8ZXNXNf" Name="Value" Kind="InputPin" />
+            <Pin Id="H6C5A17NhCfMup7e39Dcxl" Name="Author" Kind="InputPin" IsHidden="true" />
+          </Node>
+          <Pad Id="VZPIGZG6gUFOjIG62kXuPk" Comment="bezierValue" Bounds="175,650,35,15" ShowValueBox="true" isIOBox="true">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="560,340,92,19" Id="IOW0uSAa7o0ORV9nPVu9DU">
+            <p:NodeReference LastCategoryFullName="Application.Transitions" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ProcessNode" Name="TweenTransition" />
+              <FullNameCategoryReference ID="Application.Transitions" />
+            </p:NodeReference>
+            <Pin Id="LSNbazRgBfPPFYzKlTwhfr" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="F8KThLPzKJ6PORF1M34hzR" Name="Transition" Kind="InputPin" DefaultValue="Elastic">
+              <p:TypeAnnotation LastCategoryFullName="Math.Tweener" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="TweenerTransition" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="U3lqm2yLouCO45unTZfhsS" Name="Mode" Kind="InputPin" DefaultValue="Out">
+              <p:TypeAnnotation LastCategoryFullName="Math.Tweener" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="TweenerMode" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="UKvG6dLQ2R9OgjxaBwwOwc" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="Bhcchv4THkyMk4dcmjBTZh" Comment="B" Bounds="582,430,35,35" ShowValueBox="true" isIOBox="true" Value="false">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Type="String">Bang</p:buttonmode>
+              <p:fontsize p:Type="Int32">7</p:fontsize>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="500,480,77,19" Id="G5IN0SQUdA4PlDoVYOBuBW">
+            <p:NodeReference LastCategoryFullName="Application" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ProcessNode" Name="TriggerPreset" />
+              <FullNameCategoryReference ID="Application" />
+            </p:NodeReference>
+            <Pin Id="AIqLKw5bDGXMmjbsAJZj1E" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="R9d80fEKNteLPjMYr1RUST" Name="Presets" Kind="InputPin" />
+            <Pin Id="Upb2K9OKAomOxwigzBlrmb" Name="Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="A6IeDB5uTRfOZEE6Kvv9gb" Name="Preset Name" Kind="InputPin" DefaultValue="Tween B" />
+            <Pin Id="LET12givJzbMj8qxxaF9Jy" Name="Transition Duration" Kind="InputPin" DefaultValue="2" />
+            <Pin Id="C5UKV3CdBK7PvMW1pqe9VU" Name="Transition" Kind="InputPin" />
+            <Pin Id="B6JIcjLLqbZL4PV0yJXO44" Name="Pick Channels Manually" Kind="InputPin" IsHidden="true" />
+            <Pin Id="JMxuC1qtS9dNUsYGHqlpOA" Name="Channels" Kind="InputPin" IsHidden="true" />
+            <Pin Id="MCUbMepm8ZvM816cdN7PtQ" Name="Clamping By Default" Kind="InputPin" IsHidden="true" />
+            <Pin Id="GHRAbTz1YIWOS8sdUmGfyi" Name="Apply" Kind="InputPin" />
+            <Pin Id="M4s94lXjPPvPjlKN2owqZI" Name="Presets" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="710,340,92,19" Id="QinlU3d45sJNkT4Gmzc962">
+            <p:NodeReference LastCategoryFullName="Application.Transitions" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ProcessNode" Name="TweenTransition" />
+              <FullNameCategoryReference ID="Application.Transitions" />
+            </p:NodeReference>
+            <Pin Id="P5Jnsr7igQsLxXGEIHxas3" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="NyB81YEWdpbMJkGVGEDWds" Name="Transition" Kind="InputPin" DefaultValue="Elastic">
+              <p:TypeAnnotation LastCategoryFullName="Math.Tweener" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="TweenerTransition" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="VJEDskFIWDoMiwCKvHP0cT" Name="Mode" Kind="InputPin" DefaultValue="Out">
+              <p:TypeAnnotation LastCategoryFullName="Math.Tweener" LastDependency="VL.CoreLib.vl">
+                <Choice Kind="TypeFlag" Name="TweenerMode" />
+              </p:TypeAnnotation>
+            </Pin>
+            <Pin Id="Q6piCM6ThHPPZUF3Oo59G9" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="ObNBqSWIj5UOXtxRcVNoGu" Comment="A" Bounds="732,430,35,35" ShowValueBox="true" isIOBox="true" Value="false">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Type="String">Bang</p:buttonmode>
+              <p:fontsize p:Type="Int32">7</p:fontsize>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="650,480,77,19" Id="Oxc9iPgNhASMMR06aZFcAj">
+            <p:NodeReference LastCategoryFullName="Application" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ProcessNode" Name="TriggerPreset" />
+              <FullNameCategoryReference ID="Application" />
+            </p:NodeReference>
+            <Pin Id="RWfaJDRAWIXLIpGXopNgsx" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="UW5B4nulL4sLC79ALo6ORR" Name="Presets" Kind="InputPin" />
+            <Pin Id="CqVcUHEy08iN5BFOWHzxuM" Name="Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="DWK3qDW52AxO8GEPUNZSaa" Name="Preset Name" Kind="InputPin" DefaultValue="Tween A" />
+            <Pin Id="BXsEisnvznSNkYAmLQ7gET" Name="Transition Duration" Kind="InputPin" DefaultValue="2" />
+            <Pin Id="Jt62RZlazHtQFfw0fLlSNa" Name="Transition" Kind="InputPin" />
+            <Pin Id="CWVSQWZ3rrhMH0SxQgk1ss" Name="Pick Channels Manually" Kind="InputPin" IsHidden="true" />
+            <Pin Id="VzMYbm0M5CBOOl0AbSzonw" Name="Channels" Kind="InputPin" IsHidden="true" />
+            <Pin Id="TMiqh8GddOzPCCeHm2BQ7g" Name="Clamping By Default" Kind="InputPin" IsHidden="true" />
+            <Pin Id="BCR4iQSDJCfLeKhofC9Lcs" Name="Apply" Kind="InputPin" />
+            <Pin Id="UMIuUInEneWQM63wqL5TQP" Name="Presets" Kind="OutputPin" />
+          </Node>
+          <Pad Id="Sk1siCeLalnMzApIVgOs05" Comment="TweenPath" Bounds="500,560,38,15" ShowValueBox="true" isIOBox="true" Value="Tween">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="498,600,80,19" Id="AM1l5UTULyyL650Us5VCx4">
+            <p:NodeReference LastCategoryFullName="Application" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ProcessNode" Name="PublicChannel" />
+              <FullNameCategoryReference ID="Application" />
+            </p:NodeReference>
+            <Pin Id="Q4TbtRSxRLkOrq5jSGfids" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="R2maxuaeziKNDwKhLd5Alp" Name="Path" Kind="InputPin" />
+            <Pin Id="Fg4HjTAzBlCN5JVI5j6hlL" Name="Path" Kind="OutputPin" IsHidden="true" />
+            <Pin Id="AF40DWq383hL67z52MZLEj" Name="Output" Kind="OutputPin" />
+            <Pin Id="NYwRkzrcXELPiVKUtscVsu" Name="Value" Kind="OutputPin" />
+            <Pin Id="UmWrBqzesswORrl2z9W1bl" Name="Value" Kind="InputPin" />
+            <Pin Id="Jb4n7BkPwXLNHrc98X8YqX" Name="Author" Kind="InputPin" IsHidden="true" />
+          </Node>
+          <Pad Id="SIpdJ5vUQyAMkW4mO1utlv" Comment="tweenValue" Bounds="575,650,35,15" ShowValueBox="true" isIOBox="true">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
+        </Canvas>
+        <Patch Id="MB3AUK3VFTMNSAErdhJScM" Name="Create" />
+        <Patch Id="VgODsBiQznOLnHlURLIK4W" Name="Update" />
+        <ProcessDefinition Id="IdvKZ7ELZyHLTzO0baVabv">
+          <Fragment Id="Ec4DaAcs7xdN87RMnOd8Iv" Patch="MB3AUK3VFTMNSAErdhJScM" Enabled="true" />
+          <Fragment Id="HTIC5DHybVBLHwT6JhzzGF" Patch="VgODsBiQznOLnHlURLIK4W" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="OlCV3J7E1whLpQfWPyoXbF" Ids="LOp2h7SacwIQGU1v5jmqmD,L6UCTgNfRi1QdggRJDc2F9" />
+        <Link Id="Jz5fIIlY6R5Nxq5wH8c2jS" Ids="VTJvYO94kQBONQx31yJrg2,V7n6Uc2lTJQLIDA5nHddsT" />
+        <Link Id="S2e0EWp8jX9NIrU7kOwyux" Ids="LOp2h7SacwIQGU1v5jmqmD,SZZxTuyBvk2O4jlKbpuh0I" />
+        <Link Id="VGekcR398IENBOZBynaAxu" Ids="EMseyOY6qyONWmFZscI7JI,KoLI7vsUcs0M56J8pD9kkv" />
+        <Link Id="LNMaKB3waKoO3YdDKWuyYz" Ids="HRhe89L6WbkPDmLKr2mq4F,R5mdu0Il3riOstI4uHQ0Rl" />
+        <Link Id="FLxwO8bN9xvPQJIYNhT2L8" Ids="OtTFLV4h6BENwNXIjekqar,VZPIGZG6gUFOjIG62kXuPk" />
+        <Link Id="UOsjVe3L0edMN4TTLpulsS" Ids="UKvG6dLQ2R9OgjxaBwwOwc,C5UKV3CdBK7PvMW1pqe9VU" />
+        <Link Id="LfWNOErtk1dNZ3WN3qG5Ju" Ids="Bhcchv4THkyMk4dcmjBTZh,GHRAbTz1YIWOS8sdUmGfyi" />
+        <Link Id="IB6VeOqWZXcOekEP0EV0zw" Ids="Q6piCM6ThHPPZUF3Oo59G9,Jt62RZlazHtQFfw0fLlSNa" />
+        <Link Id="TrFMiXrVnENPbla1nQNKLY" Ids="ObNBqSWIj5UOXtxRcVNoGu,BCR4iQSDJCfLeKhofC9Lcs" />
+        <Link Id="EF0s7a41iWWMRJOzJZ6Fae" Ids="Sk1siCeLalnMzApIVgOs05,R2maxuaeziKNDwKhLd5Alp" />
+        <Link Id="APVbkPr1gEoNDzatcQYBmV" Ids="NYwRkzrcXELPiVKUtscVsu,SIpdJ5vUQyAMkW4mO1utlv" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="O0Wj0TGPEuTOuB5YwTmcyn" Location="VL.CoreLib" />
+  <NugetDependency Id="SvXG1FgzkXdNLAwUpyLE3Q" Location="Microsoft.Extensions.Configuration" />
+</Document>

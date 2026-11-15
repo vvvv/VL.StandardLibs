@@ -1,8 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="JgN1kvyb6KNO2vvtd2tW9e" LanguageVersion="2025.7.0-0485-g6e38cc488b" Version="0.128">
-  <NugetDependency Id="ApxQlUkWdGOMMQbMKT1tN8" Location="VL.CoreLib" Version="2024.6.3-0011-g5f9dac9c10" />
+<Document xmlns:p="property" xmlns:r="reflection" Id="JgN1kvyb6KNO2vvtd2tW9e" LanguageVersion="2026.8.0-0362-gf03ae87548" Version="0.128">
+  <NugetDependency Id="ApxQlUkWdGOMMQbMKT1tN8" Location="VL.CoreLib" />
   <Patch Id="Tvb0DVyeh7nPJF2KiTXmOa">
-    <Canvas Id="U7VgMtGEFvxNx0o1yNklJ7" DefaultCategory="Main" CanvasType="FullCategory" />
+    <Canvas Id="U7VgMtGEFvxNx0o1yNklJ7" DefaultCategory="Main" CanvasType="FullCategory">
+      <!--
+
+    ************************ MyStartup ************************
+
+-->
+      <Node Name="MyStartup" Bounds="100,100" Id="Cz4MzP575kROO6uAZVDDMx">
+        <p:NodeReference>
+          <Choice Kind="ClassDefinition" />
+        </p:NodeReference>
+        <p:Interfaces>
+          <TypeReference>
+            <Choice Kind="InterfaceTypeFlag" Name="IStartup" />
+          </TypeReference>
+        </p:Interfaces>
+        <Patch Id="JRS4I5o94xOOjLp9Z7n80k">
+          <Canvas Id="SpTYclygtARMECcjmDBGwl" CanvasType="Group" />
+          <ProcessDefinition Id="TANfR38PboIQOR5UwATL6m" IsHidden="true" />
+        </Patch>
+      </Node>
+    </Canvas>
     <!--
 
     ************************ Application ************************
@@ -23,15 +43,15 @@
             <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="CwMNMt0SFwKNpJBU9SamYX" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="UHSnux2XhNXNUyZ0hozeIR" Name="Presets" Kind="InputPin" />
+            <Pin Id="DlNdgvSwVHGN2LR4bzfMWx" Name="Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="KiPQJiOc1B2N28XVyzwZuk" Name="Preset Name" Kind="InputPin" />
             <Pin Id="DkyubhdftMxLYq7AzIHPE0" Name="Transition Duration" Kind="InputPin" />
             <Pin Id="O2m0SqYWMYwQRk3V0L5amq" Name="Transition" Kind="InputPin" />
             <Pin Id="UOL4MifZkgRMKKJwjRjMY4" Name="Pick Channels Manually" Kind="InputPin" />
             <Pin Id="Q6V4JEXtjtVQM0dBjqjfpX" Name="Channels" Kind="InputPin" />
-            <Pin Id="DlNdgvSwVHGN2LR4bzfMWx" Name="Context" Kind="InputPin" IsHidden="true" />
-            <Pin Id="Aap9IcSJZU7LGSAOCxfjhD" Name="Apply" Kind="InputPin" />
             <Pin Id="ExmTXldKYX8OrDW8oasu4g" Name="Clamping By Default" Kind="InputPin" IsHidden="true" />
             <Pin Id="E1rE5UTwtVGN1vlTkrBfEr" Name="Presets" Kind="OutputPin" />
+            <Pin Id="Aap9IcSJZU7LGSAOCxfjhD" Name="Apply" Kind="InputPin" />
           </Node>
           <Node Bounds="166,453,82,19" Id="KplEQ03Vs21NvYHt1TgmBX">
             <p:NodeReference LastCategoryFullName="Reactive.ChannelHub" LastDependency="VL.CoreLib.vl">
@@ -629,15 +649,15 @@
             </p:NodeReference>
             <Pin Id="FelmwBF3JfkP12fgsAgoE0" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="RljGtkM2pwvPvU9F8N5ADr" Name="Presets" Kind="InputPin" />
+            <Pin Id="TLujnWJOJSpN3ycT8ZahYI" Name="Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="GaVZIKwLKd1OP2cutjtob6" Name="Preset Name" Kind="InputPin" />
             <Pin Id="Goar5E9bCAHMmxNZoILaTk" Name="Transition Duration" Kind="InputPin" DefaultValue="1" />
             <Pin Id="EpoV1RdjfaoLTM6S3S6LlI" Name="Transition" Kind="InputPin" />
             <Pin Id="PKEF8RMWwMpMDExQrCjIqK" Name="Pick Channels Manually" Kind="InputPin" />
             <Pin Id="TIVvC1GHTvXPo8ikT0Qtmo" Name="Channels" Kind="InputPin" />
-            <Pin Id="TLujnWJOJSpN3ycT8ZahYI" Name="Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="Fqov4uNadQ1MZBfpUgFBps" Name="Clamping By Default" Kind="InputPin" IsHidden="true" />
             <Pin Id="UcqJRMalKN8PuWVEEm72dT" Name="Apply" Kind="InputPin" />
             <Pin Id="VEVLfVkB6W1LqjoSw893Dj" Name="Presets" Kind="OutputPin" />
-            <Pin Id="Fqov4uNadQ1MZBfpUgFBps" Name="Clamping By Default" Kind="InputPin" IsHidden="true" />
           </Node>
           <Pad Id="V2VoYVaTJXxPLiJFoOqlk3" Bounds="376,1201,143,43" ShowValueBox="true" isIOBox="true" Value="You can specify a transition duration">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
@@ -702,4 +722,5 @@
       </Patch>
     </Node>
   </Patch>
+  <NugetDependency Id="UeGv1ZEQL4yPq3QNqgwSuw" Location="Microsoft.Extensions.Configuration" />
 </Document>
