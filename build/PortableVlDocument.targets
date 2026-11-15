@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!--
+    The portable document of a package: a copy of its document without what needs Windows (folder portable). A package whose document is written in the editor
+    on Windows and uses Windows only packages or nodes sets PortableVlDocument (the file name of its document) and what to leave out:
+      PortableVlDocumentRemoveDependencies  locations of NugetDependency / PlatformDependency elements (VL.CoreLib.Windows, System.Windows.Forms, ...)
+      PortableVlDocumentRemoveNodes         names (definitions) or ids (applications) of nodes; links to what is left out go with them
+    The compiler takes it for a target other than Windows, and an editor without Windows Forms on every system (PackageInfo.PortableDocumentFolder,
+    SessionConfiguration.PortablePackages). Made by every build of the net10.0 flavor (it sits in the folder of the package, where the compiler looks for it
+    when a package is used from source) and packed.
+  -->
+  <UsingTask TaskName="StripWindowsFromVlDocument" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Input ParameterType="System.String" Required="true" />
+      <Output ParameterType="System.String" Required="true" />
+      <RemoveDependencies ParameterType="System.String" />
+      <RemoveNodes ParameterType="System.String" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Xml.Linq" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        var doc = XDocument.Load(Input, LoadOptions.PreserveWhitespace);
+        var dependencies = new System.Collections.Generic.HashSet<string>((RemoveDependencies ?? "").Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
+        var nodes = new System.Collections.Generic.HashSet<string>((RemoveNodes ?? "").Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
+        foreach (var d in doc.Root.Elements().Where(e => (e.Name.LocalName == "NugetDependency" || e.Name.LocalName == "PlatformDependency") && dependencies.Contains((string)e.Attribute("Location") ?? "")).ToList())
+            d.Remove();
+        foreach (var n in doc.Root.Descendants("Node").Where(e => nodes.Contains((string)e.Attribute("Name") ?? "") || nodes.Contains((string)e.Attribute("Id") ?? "")).ToList())
+            n.Remove();
+        var ids = new System.Collections.Generic.HashSet<string>(doc.Root.Descendants().Select(e => (string)e.Attribute("Id")).Where(i => i != null));
+        foreach (var l in doc.Root.Descendants("Link").Where(e => ((string)e.Attribute("Ids") ?? "").Split(',').Any(i => !ids.Contains(i))).ToList())
+            l.Remove();
+        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Output));
+        doc.Save(Output);
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="MakePortableVlDocument" AfterTargets="Build" Condition="'$(PortableVlDocument)' != '' AND '$(TargetFramework)' == 'net10.0'">
+    <StripWindowsFromVlDocument Input="$(VLPackageBasePath)$(PortableVlDocument)" Output="$(VLPackageBasePath)portable\$(PortableVlDocument)"
+                                RemoveDependencies="$(PortableVlDocumentRemoveDependencies)" RemoveNodes="$(PortableVlDocumentRemoveNodes)" />
+  </Target>
+  <Target Name="PackPortableVlDocument" BeforeTargets="_GetPackageFiles" DependsOnTargets="MakePortableVlDocument" Condition="'$(PortableVlDocument)' != ''">
+    <ItemGroup>
+      <Content Include="$(VLPackageBasePath)portable\$(PortableVlDocument)" PackagePath="portable\$(PortableVlDocument)" Pack="true" />
+    </ItemGroup>
+  </Target>
+</Project>
