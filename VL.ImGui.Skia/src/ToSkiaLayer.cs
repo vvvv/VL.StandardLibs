@@ -74,12 +74,14 @@ namespace VL.ImGui
                 return this;
 
             using (_context.MakeCurrent())
-            using (WindowScaling())
             {
                 // The scale of the window the layer draws in (pixels per DIP), not the one of the process: on a Retina display the window has 2 while
                 // DIPHelpers.DIPFactor() says 1 off Windows, and the fonts were built at 1, magnified, and the display was twice as wide as the window
                 if (_lastCallerInfo.Scaling > 0)
                     updateScaling(fontScaling: _lastCallerInfo.Scaling, uiScaling: _lastCallerInfo.Scaling);
+
+                // after the scale is known, so that the conversions of this update are the new ones
+                using var scaling = WindowScaling();
 
                 if (!_fonts.SequenceEqual(fonts))
                 {

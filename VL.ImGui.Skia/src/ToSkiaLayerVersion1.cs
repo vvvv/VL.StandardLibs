@@ -74,11 +74,13 @@ namespace VL.ImGui
                 return this;
 
             using (_context.MakeCurrent())
-            using (WindowScaling())
             {
                 // The scale of the window the layer draws in, not the one of the process (see ToSkiaLayer)
                 if (_lastCallerInfo.Scaling > 0)
                     updateScaling(fontScaling: _lastCallerInfo.Scaling, uiScaling: _lastCallerInfo.Scaling);
+
+                // after the scale is known, so that the conversions of this update are the new ones
+                using var scaling = WindowScaling();
 
                 if (!_fonts.SequenceEqual(fonts))
                 {
