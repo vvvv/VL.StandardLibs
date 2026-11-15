@@ -11,3 +11,4 @@ using System.Runtime.CompilerServices;
 
 [assembly: ImportAsIs(Namespace = "VL.Core", Category = "System")]
 [assembly: InternalsVisibleTo("VL.UI.Forms")]
+[assembly: InternalsVisibleTo("VL.UI.PatchEditor")]
