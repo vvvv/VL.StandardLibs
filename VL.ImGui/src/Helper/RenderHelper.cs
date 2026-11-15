@@ -145,6 +145,8 @@ namespace VL.ImGui
 
                 var fontPath = FontListDefinition.GetFontPath(font.FamilyName.Value, font.FontStyle);
                 if (fontPath.IsDefault)
+                    fontPath = GetSubstitutePath(font.FamilyName.Value, font.FontStyle);
+                if (fontPath.IsDefault)
                     continue;
 
                 var size = Math.Clamp(font.Size * 100 /* hecto pixel */ * scaling, 1, short.MaxValue);
@@ -182,12 +184,40 @@ namespace VL.ImGui
 
             if (!anyFontLoaded)
             {
-                atlas.AddFontDefault();
+                // The font of ImGui (13 pixels) at the scale of the window too
+                unsafe
+                {
+                    var cfg = ImGuiNative.ImFontConfig_ImFontConfig();
+                    cfg->SizePixels = 13f * scaling;
+                    atlas.AddFontDefault(cfg);
+                    ImGuiNative.ImFontConfig_destroy(cfg);
+                }
             }
 
             atlas.Build();
 
             return atlas;
+
+            // A family which the system does not have (Consolas of the log view on macOS and Linux) is replaced by one of the same kind which it has: before, it was
+            // left out, and with nothing loaded ImGui drew its own pixel font of 13 pixels, which does not follow the scale of the window
+            static FontListDefinition.FontPath GetSubstitutePath(string family, FontStyle style)
+            {
+                var monospaced = family.Contains("Mono", StringComparison.OrdinalIgnoreCase) || family.Contains("Consol", StringComparison.OrdinalIgnoreCase)
+                    || family.Contains("Courier", StringComparison.OrdinalIgnoreCase) || family.Contains("Code", StringComparison.OrdinalIgnoreCase)
+                    || family.Contains("Menlo", StringComparison.OrdinalIgnoreCase);
+                string[] substitutes = monospaced
+                    ? ["Consolas", "Menlo", "SF Mono", "Monaco", "DejaVu Sans Mono", "Liberation Mono", "Noto Sans Mono", "Ubuntu Mono", "Courier New"]
+                    : [FontConfig.Default?.FamilyName.Value ?? "", "Segoe UI", "Helvetica Neue", "Helvetica", "DejaVu Sans", "Liberation Sans", "Arial"];
+                foreach (var substitute in substitutes)
+                {
+                    if (string.IsNullOrEmpty(substitute) || string.Equals(substitute, family, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    var path = FontListDefinition.GetFontPath(substitute, style);
+                    if (!path.IsDefault)
+                        return path;
+                }
+                return default;
+            }
 
             static IntPtr GetGlypthRange(ImFontAtlasPtr atlas, GlyphRange glyphRange)
             {
