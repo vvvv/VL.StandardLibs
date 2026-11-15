@@ -74,7 +74,12 @@ namespace VL.ImGui
                 return this;
 
             using (_context.MakeCurrent())
+            using (WindowScaling())
             {
+                // The scale of the window the layer draws in, not the one of the process (see ToSkiaLayer)
+                if (_lastCallerInfo.Scaling > 0)
+                    updateScaling(fontScaling: _lastCallerInfo.Scaling, uiScaling: _lastCallerInfo.Scaling);
+
                 if (!_fonts.SequenceEqual(fonts))
                 {
                     _fonts = fonts;
@@ -151,10 +156,13 @@ namespace VL.ImGui
             }
             if (uiScaling != _uiScaling) 
             {
+                // ScaleAllSizes multiplies the sizes of the style it has: from the scale before to the new one
+                RenderHelper.UpdateUIScaling(_uiScaling > 0 ? uiScaling / _uiScaling : uiScaling);
                 _uiScaling = uiScaling;
-                RenderHelper.UpdateUIScaling(uiScaling);
             }
         }
+
+        IDisposable WindowScaling() => ImGuiConversion.UseScaling(_uiScaling);
 
         public unsafe void Render(CallerInfo caller)
         {
@@ -206,12 +214,12 @@ namespace VL.ImGui
         {
             var canvas = caller.Canvas;
             //using var _ = new SKAutoCanvasRestore(canvas, true);
+            using var scaling = WindowScaling();
             canvas.Save();
             try
             {
                 var us = PushTransformation(caller, SKMatrix.CreateScale(ImGuiConversion.FromImGuiScaling, ImGuiConversion.FromImGuiScaling));
                     canvas.SetMatrix(us.Transformation);
-                //updateScaling(us.Transformation.ScaleY);
 
                 for (int i = 0; i < drawData.CmdListsCount; ++i)
                 {
@@ -340,6 +348,7 @@ namespace VL.ImGui
         public bool Notify(INotification notification, CallerInfo caller)
         {
             using (_context.MakeCurrent())
+            using (WindowScaling())
             {
                 _io.HandleNotification(notification);
 
