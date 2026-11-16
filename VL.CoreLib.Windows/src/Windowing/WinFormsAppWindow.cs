@@ -46,8 +46,7 @@ public sealed class WinFormsAppWindow : Form, IAppWindow, IWindowActivation
     private VL.Lib.IO.Keyboard? keyboard;
     private TouchDevice? touchDevice;
 
-    private bool isBorderless;
-    private bool isResizable;
+    private WindowBorderStyle borderStyle;
     private bool isFullscreen;
     private FormBorderStyle windowedBorderStyle;
     private Rectangle windowedBounds;
@@ -82,8 +81,7 @@ public sealed class WinFormsAppWindow : Form, IAppWindow, IWindowActivation
         titleBar = new Win32CustomTitleBar(this) { IsFullScreen = () => isFullscreen, AlwaysOnTop = options.IsAlwaysOnTop };
         titleBar.PropertyChanged += OnTitleBarChanged;
 
-        isBorderless = options.IsBorderless;
-        isResizable = options.IsResizable;
+        borderStyle = options.BorderStyle;
         FormBorderStyle = WindowedBorderStyle;
 
         // The handle exists from the start: the native handle of the contract does not change, DPI and the client area are known
@@ -175,16 +173,10 @@ public sealed class WinFormsAppWindow : Form, IAppWindow, IWindowActivation
         set { Check(); SetFullscreen(value); }
     }
 
-    bool IAppWindow.IsBorderless
+    WindowBorderStyle IAppWindow.BorderStyle
     {
-        get { Check(); return isBorderless; }
-        set { Check(); isBorderless = value; ApplyBorderStyle(); }
-    }
-
-    bool IAppWindow.IsResizable
-    {
-        get { Check(); return isResizable; }
-        set { Check(); isResizable = value; ApplyBorderStyle(); }
+        get { Check(); return borderStyle; }
+        set { Check(); borderStyle = value; ApplyBorderStyle(); }
     }
 
     bool IAppWindow.IsAlwaysOnTop
@@ -435,7 +427,12 @@ public sealed class WinFormsAppWindow : Form, IAppWindow, IWindowActivation
             notifications.OnNext(notification);
     }
 
-    private FormBorderStyle WindowedBorderStyle => isBorderless ? FormBorderStyle.None : isResizable ? FormBorderStyle.Sizable : FormBorderStyle.FixedSingle;
+    private FormBorderStyle WindowedBorderStyle => borderStyle switch
+    {
+        WindowBorderStyle.None => FormBorderStyle.None,
+        WindowBorderStyle.Fixed => FormBorderStyle.FixedSingle,
+        _ => FormBorderStyle.Sizable,
+    };
 
     private void ApplyBorderStyle()
     {

@@ -45,9 +45,8 @@ namespace VL.Core.Windowing
         /// <summary>Borderless on the display the window is on. Switching it off restores the bounds and the decorations the window had before.</summary>
         bool IsFullscreen { get; set; }
 
-        bool IsBorderless { get; set; }
-
-        bool IsResizable { get; set; }
+        /// <summary>The frame of the window: none, one of fixed size, or one the user can size. Fullscreen has no frame; switching it off brings this one back.</summary>
+        WindowBorderStyle BorderStyle { get; set; }
 
         /// <summary>Above the other windows. A change, by the program or by the user (the system menu of a Windows window), is announced by <see cref="WindowAlwaysOnTopChangedNotification"/>.</summary>
         bool IsAlwaysOnTop { get; set; }
@@ -92,6 +91,17 @@ namespace VL.Core.Windowing
         Normal,
         Minimized,
         Maximized
+    }
+
+    /// <summary>The frame of a window (<see cref="IAppWindow.BorderStyle"/>).</summary>
+    public enum WindowBorderStyle
+    {
+        /// <summary>No frame and no title bar; the user cannot size the window.</summary>
+        None,
+        /// <summary>A frame with a title bar; the user cannot size the window.</summary>
+        Fixed,
+        /// <summary>A frame with a title bar; the user can size the window.</summary>
+        Sizable,
     }
 
     public enum WindowCursor

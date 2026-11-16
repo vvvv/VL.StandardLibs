@@ -603,6 +603,11 @@ namespace VL.Core.Windows
         public int LogicalToDeviceUnits(int value) => form.LogicalToDeviceUnits(value);
 
         bool IWindowTitleBar.ShouldDrawButtons => ShouldDrawTitleBarButtons;
+        bool IWindowTitleBar.ControlBox
+        {
+            get => form.ControlBox;
+            set => form.ControlBox = value;
+        }
         TitleBarButton IWindowTitleBar.MinimizeButton => new(ToStride(minimizeButtonRect), minimizeButtonHovered);
         TitleBarButton IWindowTitleBar.MaximizeButton => new(ToStride(maximizeButtonRect), maximizeButtonHovered);
         TitleBarButton IWindowTitleBar.CloseButton => new(ToStride(closeButtonRect), closeButtonHovered);
