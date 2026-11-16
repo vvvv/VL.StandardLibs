@@ -20,10 +20,10 @@ namespace VL.Core
         Optional<string> ShowDirectoryDialog(string initialDirectory, string selectedPath);
 
         /// <summary>
-        /// Asks the person for an existing file without blocking the caller: the task gives its path, none when the person cancels or the host has no dialogs (the default).
-        /// <paramref name="filter"/> names the kinds of files with their patterns: "Text files|*.txt;*.log|All files|*.*".
+        /// Asks the person for existing files without blocking the caller: the task gives their paths (one unless <paramref name="allowMultiple"/>), none when the person cancels
+        /// or the host has no dialogs (the default). <paramref name="filter"/> names the kinds of files with their patterns: "Text files|*.txt;*.log|All files|*.*".
         /// </summary>
-        Task<Optional<string>> ShowOpenFileDialogAsync(string? title, string? initialDirectory, string filter = "All files (*.*)|*.*") => Task.FromResult(default(Optional<string>));
+        Task<IReadOnlyList<string>> ShowOpenFileDialogAsync(string? title, string? initialDirectory, string filter = "All files (*.*)|*.*", bool allowMultiple = false) => Task.FromResult<IReadOnlyList<string>>(Array.Empty<string>());
 
         /// <summary>
         /// Asks the person for the path to save a file to without blocking the caller: the task gives the path, none when the person cancels or the host has no dialogs (the default).
