@@ -29,9 +29,10 @@ namespace VL.Core.Windows;
 /// <remarks>
 /// Fullscreen is borderless and covers the bounds of the display the window is on; the state (normal, maximized) stays what it was and comes back with the bounds.
 /// The window has the custom title bar of <see cref="Win32CustomTitleBar"/>: its system menu ("always on top", "extend into title bar") and the feature <see cref="IWindowTitleBar"/>.
-/// Touch comes from the pointer messages (Windows 8 and later).
+/// Touch comes from the pointer messages (Windows 8 and later). Focus notifications mean the keyboard focus; the mouse entering and leaving is
+/// <see cref="MouseEnterNotification"/> and <see cref="MouseLostNotification"/>. The window offers <see cref="IWindowActivation"/> (<c>WS_EX_NOACTIVATE</c>).
 /// </remarks>
-public sealed class WinFormsAppWindow : Form, IAppWindow
+public sealed class WinFormsAppWindow : Form, IAppWindow, IWindowActivation
 {
     static int lastId;
 
@@ -54,6 +55,7 @@ public sealed class WinFormsAppWindow : Form, IAppWindow
     private FormWindowState windowedState;
     private WindowCursor cursor;
     private bool cursorHiddenByUs;
+    private bool neverActivates;
     private Int2 lastClientSize;
     private Int2 lastPosition;
     private AppWindowState lastState;
@@ -224,11 +226,45 @@ public sealed class WinFormsAppWindow : Form, IAppWindow
         get { Check(); return new NativeWindowHandle(NativeWindowKind.Win32, Handle); }
     }
 
-    T? IAppWindow.GetFeature<T>() where T : class => typeof(T) == typeof(IWindowTitleBar) ? (T)(object)titleBar : null;
+    T? IAppWindow.GetFeature<T>() where T : class
+    {
+        if (typeof(T) == typeof(IWindowTitleBar))
+            return (T)(object)titleBar;
+        if (typeof(T) == typeof(IWindowActivation))
+            return (T)(object)this;
+        return null;
+    }
+
+    bool IWindowActivation.NeverActivates
+    {
+        get { Check(); return neverActivates; }
+        set
+        {
+            Check();
+            if (neverActivates == value)
+                return;
+            neverActivates = value;
+            // Applies the extended style of CreateParams to the window that exists
+            if (IsHandleCreated)
+                UpdateStyles();
+        }
+    }
 
     // Windows Forms
 
-    protected override bool ShowWithoutActivation => options.ShowWithoutActivation;
+    protected override bool ShowWithoutActivation => options.ShowWithoutActivation || neverActivates;
+
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            const int WS_EX_NOACTIVATE = 0x08000000;
+            var cp = base.CreateParams;
+            if (neverActivates)
+                cp.ExStyle |= WS_EX_NOACTIVATE;
+            return cp;
+        }
+    }
 
     protected override void OnHandleCreated(EventArgs e)
     {
@@ -275,22 +311,23 @@ public sealed class WinFormsAppWindow : Form, IAppWindow
         Raise(e.ToMouseWheelNotification(this, this));
     }
 
-    // The render window of patches tells a layer that it lost the focus when the mouse leaves, and that it got it when the mouse comes in
+    // The mouse entering and leaving is not focus: own notifications
     protected override void OnMouseEnter(EventArgs e)
     {
         base.OnMouseEnter(e);
         if (cursor == WindowCursor.Hidden)
             HideSystemCursor();
-        Raise(e.ToGotFocusNotification(this, this));
+        Raise(new MouseEnterNotification(PointToClient(MousePosition).ToVector2(), ClientSize.ToVector2(), ModifierKeys.ToOurs(), this));
     }
 
     protected override void OnMouseLeave(EventArgs e)
     {
         base.OnMouseLeave(e);
         ShowSystemCursor();
-        Raise(e.ToLostFocusNotification(this, this));
+        Raise(e.ToMouseLostNotification(this, this));
     }
 
+    // The keyboard focus
     protected override void OnGotFocus(EventArgs e)
     {
         base.OnGotFocus(e);
@@ -300,6 +337,7 @@ public sealed class WinFormsAppWindow : Form, IAppWindow
     protected override void OnLostFocus(EventArgs e)
     {
         base.OnLostFocus(e);
+        Raise(new KeyboardLostNotification(this));
         Raise(e.ToLostFocusNotification(this, this));
     }
 

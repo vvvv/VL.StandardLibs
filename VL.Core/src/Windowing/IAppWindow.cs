@@ -21,6 +21,7 @@ namespace VL.Core.Windowing
 
         bool Visible { get; set; }
 
+        /// <summary>Has the keyboard focus. The mouse over the window is not focus.</summary>
         bool IsFocused { get; }
 
         /// <summary>Position of the client area in virtual screen pixels.</summary>
@@ -60,9 +61,11 @@ namespace VL.Core.Windowing
         void SetBounds(Int2 position, Int2 clientSize);
 
         /// <summary>
-        /// Everything the user or the system does to the window, in the order it happened: mouse, keyboard, touch, text input,
-        /// <see cref="GotFocusNotification"/>, <see cref="LostFocusNotification"/>, drops and the window notifications
-        /// (<see cref="WindowResizedNotification"/>, <see cref="WindowMovedNotification"/>, ...).
+        /// Everything the user or the system does to the window, in the order it happened: mouse, keyboard, touch, text input, drops and the
+        /// window notifications (<see cref="WindowResizedNotification"/>, <see cref="WindowMovedNotification"/>, ...).
+        /// <see cref="GotFocusNotification"/> and <see cref="LostFocusNotification"/> mean the keyboard focus and nothing else (a <see cref="KeyboardLostNotification"/>
+        /// comes before the <see cref="LostFocusNotification"/>); the mouse entering and leaving the client area is <see cref="MouseEnterNotification"/> and
+        /// <see cref="MouseLostNotification"/>.
         /// Hot and shared; raised on the UI thread, in the call that pumps the events. Positions are in client pixels.
         /// A subscriber sets <see cref="INotification.Handled"/> to tell the window that it dealt with the notification:
         /// for <see cref="WindowCloseRequestedNotification"/> that means "do not close".
