@@ -3,6 +3,7 @@ using Stride.Core.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Reactive;
+using System.Threading.Tasks;
 using VL.Core.Windowing;
 
 namespace VL.Core
@@ -17,6 +18,18 @@ namespace VL.Core
         IClipboard Clipboard { get; }
         Optional<string> ShowFileDialog(string initialDirectory, string filter = "All files (*.*)|*.*");
         Optional<string> ShowDirectoryDialog(string initialDirectory, string selectedPath);
+
+        /// <summary>
+        /// Asks the person for an existing file without blocking the caller: the task gives its path, none when the person cancels or the host has no dialogs (the default).
+        /// <paramref name="filter"/> names the kinds of files with their patterns: "Text files|*.txt;*.log|All files|*.*".
+        /// </summary>
+        Task<Optional<string>> ShowOpenFileDialogAsync(string? title, string? initialDirectory, string filter = "All files (*.*)|*.*") => Task.FromResult(default(Optional<string>));
+
+        /// <summary>
+        /// Asks the person for the path to save a file to without blocking the caller: the task gives the path, none when the person cancels or the host has no dialogs (the default).
+        /// <paramref name="fileName"/> is the name the dialog proposes; <paramref name="filter"/> as for <see cref="ShowOpenFileDialogAsync"/>.
+        /// </summary>
+        Task<Optional<string>> ShowSaveFileDialogAsync(string? title, string? initialDirectory, string? fileName, string filter = "All files (*.*)|*.*") => Task.FromResult(default(Optional<string>));
 
         /// <summary>The displays (monitors) of the system. Hosts that do not know them return <see cref="NoDisplays.Instance"/>.</summary>
         IDisplays Displays => NoDisplays.Instance;
