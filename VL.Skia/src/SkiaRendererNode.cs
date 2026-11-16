@@ -142,7 +142,9 @@ public sealed class SkiaRendererNode : IDisposable
     {
         get
         {
-            var r = _renderer.Bounds;
+            var origin = _renderer.PointToScreen(Point.Empty);
+            var size = _renderer.ClientSize;
+            var r = _renderer.DeviceToLogicalUnits(new Stride.Core.Mathematics.RectangleF(origin.X, origin.Y, size.Width, size.Height));
             return new RectangleF(r.X, r.Y, r.Width, r.Height);
         }
     }
