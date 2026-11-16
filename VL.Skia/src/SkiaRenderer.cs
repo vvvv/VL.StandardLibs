@@ -1,268 +1,179 @@
 #nullable enable
-
-#if WINDOWS
-extern alias sw;
 using Stride.Core.Mathematics;
-using sw::System.Windows.Forms;
-using sw::VL.Skia;
 using System;
-using System.Data;
-using System.Linq;
-using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using VL.Core;
 using VL.Core.Commands;
-using VL.Core.Utils;
+using VL.Core.Windowing;
 using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
-using VL.Lib.Reactive;
-using VL.UI.Core;
-using Win32CustomTitleBar = VL.Core.Windows.Win32CustomTitleBar;
 
 namespace VL.Skia
 {
     /// <summary>
-    /// The render window used in patches. Exposed to user via <see cref="Graphics.Skia.SkiaRendererNode.Form"/> output.
+    /// The render window of patches: a window of the app host (<see cref="IAppWindow"/>, on Windows the Windows Forms window of VL.CoreLib.Windows)
+    /// drawn to with Skia (<see cref="ISkiaWindowSurface"/>). Exposed to the patch by the <c>Window</c> output of the renderer node.
     /// </summary>
-    public partial class SkiaRenderer : Form, IDisposable, IProjectionSpace, IWorldSpace2d
+    public sealed class SkiaRenderer : IDisposable, IProjectionSpace, IWorldSpace2d
     {
-        // TODO: How usses this? Seems misplaced
-        [DllImport("User32.dll")]
-        public static extern Int32 SetForegroundWindow(int hWnd);
+        readonly AppHost appHost;
+        readonly ISkiaWindowSurface surface;
+        readonly IDisposable notificationSubscription;
+        readonly BehaviorSubject<RectangleF> boundsStream = new(new RectangleF());
+        bool firstRenderCall = true;
+        bool hasValidLayer;
+        ILayer? layer;
+        bool disposed;
 
-        private readonly AppHost FAppHost;
-        private readonly SerialDisposable FDarkModeSubscription = new();
-        private readonly Subject<TouchNotification> touchNotifications = new();
-        private SkiaInputDevices? inputDevices;
-        private AngleWindowSurface? surface;
-
-        bool HasValidLayer;
-        ILayer? Layer;
-        bool FFirstRenderCall = true;
-
-        public SkiaRenderer(NodeContext nodeContext, Win32CustomTitleBar.Options options)
+        /// <param name="nodeContext">The node that renders.</param>
+        /// <param name="options">How the window is made. It is made hidden, with the graphics API Skia needs on this system; the node shows it once it has its bounds.</param>
+        public SkiaRenderer(NodeContext nodeContext, AppWindowOptions options)
         {
-            FAppHost = nodeContext.AppHost;
+            appHost = nodeContext.AppHost;
+            var windows = appHost.Services.GetService<IAppWindowService>()
+                ?? throw new InvalidOperationException("This app has no window system: a Renderer needs an app host that offers windows.");
 
-            Icon = Properties.Resources.QuadIcon;
-            StartPosition = FormStartPosition.Manual;
+            Window = windows.CreateWindow(options with
+            {
+                Graphics = SkiaWindowSurface.GraphicsApi,
+                Visible = false,
+                Owner = this
+            });
+            surface = SkiaWindowSurface.Create(Window, appHost);
 
-            SetStyle(ControlStyles.Opaque, true);
-            SetStyle(ControlStyles.UserPaint, true);
-            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-            ResizeRedraw = true;
-            DoubleBuffered = false;
-
-            customTitleBar = Win32CustomTitleBar.Install(this, nodeContext, options with { IsFullscreen = () => FFullScreen });
-
-            BoundsChanged = new BehaviorSubject<System.Drawing.Rectangle>(new System.Drawing.Rectangle());
-            FBoundsStream = new BehaviorSubject<RectangleF>(new RectangleF());
-
-            // Focus is the keyboard focus; the mouse entering and leaving the window has notifications of its own
-            var focus = Observable.Merge(
-                Observable.FromEventPattern<EventArgs>(this, nameof(GotFocus)).Select(p => (INotification)p.EventArgs.ToGotFocusNotification(this, this)),
-                Observable.FromEventPattern<EventArgs>(this, nameof(LostFocus)).Select(p => (INotification)p.EventArgs.ToLostFocusNotification(this, this)));
-            var mouseEnterAndLeave = Observable.Merge(
-                Observable.FromEventPattern<EventArgs>(this, nameof(MouseEnter)).Select(_ => (INotification)new MouseEnterNotification(PointToClient(MousePosition).ToVector2(), ClientSize.ToVector2(), ModifierKeys.ToOurs(), this)),
-                Observable.FromEventPattern<EventArgs>(this, nameof(MouseLeave)).Select(p => (INotification)p.EventArgs.ToMouseLostNotification(this, this)));
-
-            Observable.Merge(new IObservable<INotification>[] {
-                Mouse.Notifications,
-                Keyboard.Notifications,
-                TouchDevice.Notifications,
-                FBoundsStream.Select(r => new NotificationWithClientArea(r.Size.ToVector2(), ModifierKeys.ToOurs(), this)),
-                focus,
-                mouseEnterAndLeave
-            })
-            .Subscribe(OnNotification);
-
-            var size = LogicalToDeviceUnits(new System.Drawing.Size(600, 400));
-            var bounds = GetCenteredBoundsInPixel(size.Width, size.Height);
-            var boundsF = Conversions.ToRectangleF(ref bounds);
-            SetBounds(boundsF, inDIP: false, setClientSize: true);
+            notificationSubscription = Window.Notifications.Subscribe(OnNotification);
+            PublishBounds();
         }
+
+        public IAppWindow Window { get; }
+
+        /// <summary>The outer bounds of the window (with its frame) in DIP, a new value whenever it moves or resizes.</summary>
+        public IObservable<RectangleF> BoundsStream => boundsStream;
+
+        public float RenderTime => surface.RenderTime;
+
+        public bool VSync
+        {
+            get => surface.VSync;
+            set => surface.VSync = value;
+        }
+
+        public ICommandList? CommandList { get; set; }
+
+        /// <summary>Obsolete, the outer bounds in DIP. Use <see cref="BoundsStream"/>.</summary>
+        public BehaviorSubject<System.Drawing.Rectangle> BoundsChanged { get; } = new(new System.Drawing.Rectangle());
+
+        public Mouse Mouse => (Mouse)Window.Mouse;
+
+        public Keyboard Keyboard => (Keyboard)Window.Keyboard;
+
+        public TouchDevice TouchDevice => (TouchDevice)Window.TouchDevice;
+
+        public bool FullScreen
+        {
+            get => Window.IsFullscreen;
+            set => Window.IsFullscreen = value;
+        }
+
+        /// <summary>Called from the patch. The outer bounds in DIP.</summary>
+        public void SetSize(System.Drawing.Rectangle boundsInDIP)
+            => SetBounds(new RectangleF(boundsInDIP.X, boundsInDIP.Y, boundsInDIP.Width, boundsInDIP.Height));
 
         public ILayer? Input
         {
-            get => Layer;
+            get => layer;
             set
             {
-                HasValidLayer = true;
-                if (Layer != value)
-                {
-                    Layer = value;
-                    if (Layer != null)
-                        OnBoundsChanged();
-                }
+                hasValidLayer = true;
+                layer = value;
             }
         }
 
-        BehaviorSubject<RectangleF> FBoundsStream;
-        public IObservable<RectangleF> BoundsStream => FBoundsStream;
-        public BehaviorSubject<System.Drawing.Rectangle> BoundsChanged { get; } // obsolete
+        public bool IsDisposed => disposed;
 
-        public float RenderTime => surface?.RenderTime ?? 0;
-        public bool VSync { get; set; } = true;
-        public RenderContextProvider RenderContextProvider => FAppHost.GetRenderContextProvider();
-        public Mouse Mouse => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Mouse;
-        public Keyboard Keyboard => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Keyboard;
-        public TouchDevice TouchDevice => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).TouchDevice;
-        public ICommandList? CommandList { get; set; }
-        public Win32CustomTitleBar CustomTitleBar => customTitleBar;
+        /// <summary>
+        /// The window was hidden because the user closed it (in the editor closing only hides): nothing is drawn and the layer gets no notifications
+        /// until the window is visible again. Not the visibility of the window itself: a window of a headless host is never shown and is drawn anyway.
+        /// </summary>
+        public bool Hidden { get; set; }
 
-        System.Drawing.Rectangle FWindowedBoundsInPix;
-        FormBorderStyle FWindowedBorderStyle;
-        bool FFullScreen;
-        public bool FullScreen
+        /// <summary>The client area in DIP: its position on the screen and its size.</summary>
+        public RectangleF ClientBounds
         {
-            get => FFullScreen;
-            set
+            get
             {
-                if (FFullScreen != value)
-                {
-                    SuspendLayout();
-                    try
-                    {
-                        FFullScreen = value;
-                        if (value)
-                        {
-                            FWindowedBoundsInPix = Bounds;
-                            FWindowedBorderStyle = FormBorderStyle;
-                            FormBorderStyle = FormBorderStyle.None;
-                            WindowState = FormWindowState.Maximized;
-                        }
-                        else
-                        {
-                            FormBorderStyle = FWindowedBorderStyle;
-                            WindowState = FormWindowState.Normal;
-                        }
-                    }
-                    finally
-                    {
-                        ResumeLayout();
-                    }
-                }
+                var scale = Window.ScaleFactor;
+                var p = Window.Position;
+                var s = Window.ClientSize;
+                return new RectangleF(p.X / scale, p.Y / scale, s.X / scale, s.Y / scale);
             }
         }
 
-        // Called from patch
-        public void SetSize(System.Drawing.Rectangle boundsInDIP)
+        /// <summary>The outer bounds of the window, the client area with the frame, in DIP.</summary>
+        public RectangleF OuterBounds
         {
-            SetBounds(new RectangleF(boundsInDIP.X, boundsInDIP.Y, boundsInDIP.Width, boundsInDIP.Height), inDIP: true);
+            get
+            {
+                var scale = Window.ScaleFactor;
+                var m = Window.FrameMargins;
+                var p = Window.Position;
+                var s = Window.ClientSize;
+                return new RectangleF((p.X - m.Left) / scale, (p.Y - m.Top) / scale, (s.X + m.Left + m.Right) / scale, (s.Y + m.Top + m.Bottom) / scale);
+            }
         }
 
-        public void SetBounds(RectangleF bounds, bool inDIP = true, bool setClientSize = false)
+        /// <summary>Sets the outer bounds of the window (with its frame), in DIP. Bounds that are not on any display are centered on the primary one.</summary>
+        public void SetBounds(RectangleF bounds)
         {
             if (bounds.IsEmpty)
                 return;
 
-            var b = Conversions.ToRectangle(ref bounds);
-            SetBounds(inDIP ? this.LogicalToDeviceUnits(b) : b, setClientSize);
-        }
+            var scale = Window.ScaleFactor;
+            var m = Window.FrameMargins;
+            var outerPosition = new Int2((int)MathF.Round(bounds.X * scale), (int)MathF.Round(bounds.Y * scale));
+            var outerSize = new Int2((int)MathF.Round(bounds.Width * scale), (int)MathF.Round(bounds.Height * scale));
 
-        private void SetBounds(System.Drawing.Rectangle bounds, bool setClientSize)
-        {
-            var visible = Screen.AllScreens.Any(s => s.Bounds.IntersectsWith(bounds));
-
-            if (!visible)
-                bounds = GetCenteredBoundsInPixel(bounds.Width, bounds.Height);
-
-            if (setClientSize)
+            var displays = PlatformServices.Default?.Displays;
+            if (displays != null && displays.All.Count > 0)
             {
-                var location = bounds.Location;
-                var size = bounds.Size;
-                if (Location != location)
-                    Location = location;
-                if (ClientSize != size)
-                    ClientSize = size;
+                var visible = false;
+                foreach (var d in displays.All)
+                    visible |= outerPosition.X < d.Bounds.Right && outerPosition.X + outerSize.X > d.Bounds.Left && outerPosition.Y < d.Bounds.Bottom && outerPosition.Y + outerSize.Y > d.Bounds.Top;
+                if (!visible && displays.Primary is { } primary)
+                {
+                    var area = primary.WorkArea;
+                    outerPosition = new Int2((int)(area.X + (area.Width - outerSize.X) / 2), (int)(area.Y + (area.Height - outerSize.Y) / 2));
+                }
             }
-            else
-            {
-                if (bounds != Bounds)
-                    Bounds = bounds;
-            }
+
+            var position = new Int2(outerPosition.X + m.Left, outerPosition.Y + m.Top);
+            var size = new Int2(Math.Max(1, outerSize.X - m.Left - m.Right), Math.Max(1, outerSize.Y - m.Top - m.Bottom));
+            if (Window.Position != position || Window.ClientSize != size)
+                Window.SetBounds(position, size);
         }
 
-        static System.Drawing.Rectangle GetCenteredBoundsInPixel(int width = 600, int height = 400)
+        /// <summary>Draws the layer, and the caption buttons where the title bar is extended into the client area. Called once per frame by the node.</summary>
+        public void Update()
         {
-            var area = Screen.PrimaryScreen?.WorkingArea ?? System.Drawing.Rectangle.Empty;
-            var centerX = (area.Right + area.Left) / 2;
-            var centerY = (area.Top + area.Bottom) / 2;
-            var center = new System.Drawing.Point(centerX, centerY);
-            return new System.Drawing.Rectangle(center.X - width / 2, center.Y - height / 2, width, height);
-        }
-
-        public new void Update()
-        {
-            if (Visible)
-            {
-                base.Update();
-                Invalidate();
-            }
-        }
-
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            FDarkModeSubscription.Disposable = DarkTitleBarClass.Install(Handle);
-            base.OnHandleCreated(e);
-            surface = new AngleWindowSurface(Handle, RenderContextProvider);
-        }
-
-        protected override void OnHandleDestroyed(EventArgs e)
-        {
-            FDarkModeSubscription.Disposable = null;
-            base.OnHandleDestroyed(e);
-            surface?.Dispose();
-            surface = null;
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            OnBoundsChanged();
-        }
-
-        protected override void OnLocationChanged(EventArgs e)
-        {
-            base.OnLocationChanged(e);
-            OnBoundsChanged();
-        }
-
-        protected override void OnDpiChanged(DpiChangedEventArgs e)
-        {
-            base.OnDpiChanged(e);
-            OnBoundsChanged();
-        }
-
-        private void OnBoundsChanged()
-        {
-            BoundsChanged?.OnNext(this.DeviceToLogicalUnits(Bounds));
-            var bounds = Bounds;
-            var boundsF = Conversions.ToRectangleF(ref bounds);
-            boundsF = this.DeviceToLogicalUnits(boundsF);
-            FBoundsStream?.OnNext(boundsF);
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            if (!Visible || Handle == 0 || surface is null)
+            if (disposed || Window.IsDisposed)
+                return;
+            if (Hidden && Window.Visible)
+                Hidden = false;
+            if (Hidden)
                 return;
 
-            surface.VSync = VSync;
+            var titleBar = Window.GetFeature<IWindowTitleBar>();
             surface.Render(callerInfo =>
             {
-                using var _ = FAppHost?.MakeCurrentIfNone();
+                using var _ = appHost.MakeCurrentIfNone();
                 try
                 {
-                    if (!FFirstRenderCall && Visible && HasValidLayer)
-                        Input?.Render(callerInfo);
-                    PaintTitleBarButtons(callerInfo.Canvas);
-                    FFirstRenderCall = false;
+                    if (!firstRenderCall && hasValidLayer)
+                        layer?.Render(callerInfo);
+                    if (titleBar != null)
+                        TitleBarButtons.Paint(callerInfo.Canvas, titleBar, Window.State == WindowState.Maximized, Window.ScaleFactor);
+                    firstRenderCall = false;
                 }
                 catch (Exception exception)
                 {
@@ -271,23 +182,34 @@ namespace VL.Skia
             });
         }
 
-        private void OnNotification(INotification n)
+        void PublishBounds()
         {
-            if (Disposing)
+            var b = OuterBounds;
+            BoundsChanged.OnNext(new System.Drawing.Rectangle((int)b.X, (int)b.Y, (int)b.Width, (int)b.Height));
+            boundsStream.OnNext(b);
+        }
+
+        void OnNotification(INotification n)
+        {
+            if (disposed)
                 return;
 
-            using var _ = FAppHost?.MakeCurrentIfNone();
+            if (n is WindowResizedNotification or WindowMovedNotification or WindowDpiChangedNotification)
+            {
+                PublishBounds();
+                // The layer learns about the new size of the client area (in DIP)
+                n = new NotificationWithClientArea(ClientBounds.Size.ToVector2(), Keys.None, this);
+            }
+            else if (n is not (MouseNotification or KeyNotification or TouchNotification or GotFocusNotification or LostFocusNotification))
+                return;
 
+            using var _ = appHost.MakeCurrentIfNone();
             try
             {
                 if (CommandList != null && CommandList.TryExecute(n))
-                {
                     n.Handled = true;
-                }
-                else if (Visible && HasValidLayer && Input != null && surface is not null)
-                {
-                    n.Handled = Input.Notify(n, surface.CallerInfo);
-                }
+                else if (!Hidden && hasValidLayer && layer != null)
+                    n.Handled = layer.Notify(n, surface.CallerInfo);
             }
             catch (Exception exception)
             {
@@ -299,27 +221,17 @@ namespace VL.Skia
             => SpaceHelpers.DoMapFromPixels(notification.Position, notification.ClientArea, out inNormalizedProjection, out inProjection);
 
         public Vector2 MapFromPixels(INotificationWithPosition notification) => notification.Position;
-    }
 
-    public class SkiaRendererTopMost : SkiaRenderer
-    {
-        public SkiaRendererTopMost(NodeContext nodeContext) : base(nodeContext, new (AlwaysOnTop: Channel.Create(true), ExtendIntoTitleBar: Channel.Create(false)))
+        public void Dispose()
         {
-        }
-
-        protected override bool ShowWithoutActivation => true;
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                const int WS_EX_NOACTIVATE = 0x08000000;
-                const int WS_EX_TOPMOST = 0x00000008;
-                var cp = base.CreateParams;
-                cp.ExStyle |= WS_EX_TOPMOST;
-                cp.ExStyle |= WS_EX_NOACTIVATE;
-                return cp;
-            }
+            if (disposed)
+                return;
+            disposed = true;
+            notificationSubscription.Dispose();
+            boundsStream.Dispose();
+            surface.Dispose();
+            if (!Window.IsDisposed)
+                Window.Dispose();
         }
     }
 }
-#endif

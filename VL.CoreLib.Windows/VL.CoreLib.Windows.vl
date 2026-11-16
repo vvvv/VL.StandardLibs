@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="HylXxkKPeF0O6LWz4fSQKo" LanguageVersion="2025.7.1-0138-g7cf93861e8" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="HylXxkKPeF0O6LWz4fSQKo" LanguageVersion="2026.8.0-0535-gd381586349" Version="0.128">
   <Patch Id="CIpooRlXrt2Mw6BF6VPBFy">
     <Canvas Id="MZJPVCn2BIUMOoc9sC9i0L" CanvasType="FullCategory">
       <Canvas Id="GY9BpSq9QojOdC4IqvEFgr" Name="System.Windows" Position="253,108">
         <!--
 
-    ************************ WindowState ************************
+    ************************ WindowState (Form) ************************
 
 -->
-        <Node Name="WindowState" Bounds="445,300" Id="TXbwxGLVQe9QXZeFcq3TYX">
+        <Node Name="WindowState (Form)" Bounds="445,300" Id="TXbwxGLVQe9QXZeFcq3TYX">
           <p:NodeReference>
             <Choice Kind="ContainerDefinition" Name="Process" />
             <FullNameCategoryReference ID="Primitive" />
@@ -162,10 +162,10 @@
         </Node>
         <!--
 
-    ************************ SetWindowState ************************
+    ************************ SetWindowState (Form) ************************
 
 -->
-        <Node Name="SetWindowState" Bounds="445,362" Id="NN7pI7FI1mWOUtJE7erhXK">
+        <Node Name="SetWindowState (Form)" Bounds="445,362" Id="NN7pI7FI1mWOUtJE7erhXK">
           <p:NodeReference>
             <Choice Kind="ContainerDefinition" Name="Process" />
             <FullNameCategoryReference ID="Primitive" />
@@ -399,10 +399,10 @@
         </Node>
         <!--
 
-    ************************ SetWindowMode ************************
+    ************************ SetWindowMode (Form) ************************
 
 -->
-        <Node Name="SetWindowMode" Bounds="445,424" Id="AMQAfEPV6P2OO4P09IyY5H">
+        <Node Name="SetWindowMode (Form)" Bounds="445,424" Id="AMQAfEPV6P2OO4P09IyY5H">
           <p:NodeReference>
             <Choice Kind="ContainerDefinition" Name="Process" />
             <FullNameCategoryReference ID="Primitive" />
@@ -1302,6 +1302,31 @@
             </Patch>
           </Node>
         </Canvas>
+        <!--
+
+    ************************ Form (Window) ************************
+
+-->
+        <Node Name="Form (Window)" Bounds="445,486,107,62" Id="FkBBFlXkXrVN06d3HjsVVn" Summary="The Windows Forms Form of a window, when it is one (the window of a Renderer on Windows is), else nothing.">
+          <p:NodeReference>
+            <Choice Kind="OperationDefinition" Name="Operation" />
+            <FullNameCategoryReference ID="Primitive" />
+          </p:NodeReference>
+          <Patch Id="PLn64bZQiQ3OXxMv7LbxNs">
+            <Node Bounds="457,517,85,19" Id="OPUrjOxfYJbMJMiUUYTUu2">
+              <p:NodeReference LastCategoryFullName="VL.Core.Windows.WindowsFormsWindow" LastDependency="VL.CoreLib.Windows.dll">
+                <Choice Kind="OperationNode" Name="AsForm" />
+                <FullNameCategoryReference ID="VL.Core.Windows.WindowsFormsWindow" />
+              </p:NodeReference>
+              <Pin Id="TAZR1SrEX1CLCXZ8pqODXy" Name="Input" Kind="InputPin" />
+              <Pin Id="ME0Koq8yKE9PBOqNxfK9xq" Name="Result" Kind="OutputPin" />
+            </Node>
+            <Pin Id="Uzy7z4OMjhEMoxexSTol7E" Name="Input" Kind="InputPin" />
+            <Pin Id="LIRHT5bfgQWLOYK4Vv8Fu1" Name="Output" Kind="OutputPin" />
+            <Link Id="TvcedaqenEHNhnRzjvJp6d" Ids="Uzy7z4OMjhEMoxexSTol7E,TAZR1SrEX1CLCXZ8pqODXy" />
+            <Link Id="UVI6GNYt8zJLKDfFkTB6uF" Ids="ME0Koq8yKE9PBOqNxfK9xq,LIRHT5bfgQWLOYK4Vv8Fu1" />
+          </Patch>
+        </Node>
       </Canvas>
       <!--
 
@@ -2056,7 +2081,7 @@
     </Node>
   </Patch>
   <PlatformDependency Id="NaSKk9SlqeJOZ5gUcokhr3" Location="./bin/Debug/net472/VL.CoreLib.Windows.dll" />
-  <NugetDependency Id="Q8KVKcasvDRMriB8KtJqfi" Location="VL.CoreLib" IsForward="true" Version="2021.4.10-1021-g8bbd4c6f55" />
+  <NugetDependency Id="Q8KVKcasvDRMriB8KtJqfi" Location="VL.CoreLib" IsForward="true" />
   <PlatformDependency Id="KHlAUoSI97nNMpLiOcGkCN" Location="System.Windows.Forms" />
   <PlatformDependency Id="KMugJOFZiXqLPOMab6Db9i" Location="System.Drawing" />
   <DocumentDependency Id="OFAOFrrzAJgPdLMLxBBkki" Location="./VL.Audio.vl" IsForward="true" />

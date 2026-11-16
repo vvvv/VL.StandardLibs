@@ -2,7 +2,6 @@ using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using VL.Core.Windows;
 
-[assembly: InternalsVisibleTo("VL.Skia")]
 [assembly: InternalsVisibleTo("VL.Stride")]
 [assembly: InternalsVisibleTo("VL.Stride.Runtime")]
 [assembly: InternalsVisibleTo("SkiaGraphEditor")]

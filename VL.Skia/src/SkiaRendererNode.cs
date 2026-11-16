@@ -1,23 +1,18 @@
-﻿#nullable enable
-#if WINDOWS
-
-extern alias sw;
-
+#nullable enable
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Windows.Forms;
 using VL.Core;
 using VL.Core.Commands;
 using VL.Core.Import;
+using VL.Core.Windowing;
 using VL.Lang.PublicAPI;
 using VL.Lib.Reactive;
 using VL.Skia;
 using Keys = VL.Lib.IO.Keys;
-using sw::VL.Core.Windows;
 
 namespace Graphics.Skia;
 
@@ -48,38 +43,64 @@ public sealed class SkiaRendererNode : IDisposable
                            IChannel<bool> alwaysOnTop,
                            IChannel<bool> extendIntoTitleBar)
     {
-        _renderer = new SkiaRenderer(nodeContext, new (alwaysOnTop, extendIntoTitleBar))
+        _renderer = new SkiaRenderer(nodeContext, AppWindowOptions.Default with
         {
-            Text = "Skia",
-            FormBorderStyle = FormBorderStyle.Sizable
-        };
+            Title = "Skia",
+            IsAlwaysOnTop = alwaysOnTop.Value
+        });
+        var window = _renderer.Window;
 
         if (!bounds.IsEmpty)
-            _renderer.SetSize(bounds);
+            _renderer.SetBounds(new Stride.Core.Mathematics.RectangleF(bounds.X, bounds.Y, bounds.Width, bounds.Height));
 
         _formBoundsNotifications = _renderer.BoundsStream
             .Select(r => new FormBoundsNotification(r, _renderer));
 
-        var session = IDevSession.Current;
-        if (session != null)
+        // Always on top and the title bar: set by the patch through the channels, by the user through the system menu of the window
+        _disposables.Add(alwaysOnTop.Subscribe(v =>
         {
-            if (saveBounds)
+            if (!window.IsDisposed)
+                window.IsAlwaysOnTop = v;
+        }));
+        var titleBar = window.GetFeature<IWindowTitleBar>();
+        if (titleBar != null)
+        {
+            _disposables.Add(extendIntoTitleBar.Subscribe(v =>
             {
-                var writeBounds = _renderer.BoundsChanged
-                    .Throttle(TimeSpan.FromSeconds(0.5))
-                    .Subscribe(r =>
-                    {
-                        if (!_renderer.FullScreen)
-                            session.CurrentSolution
-                                .SetPinValue(nodeContext.Stack, "Bounds", r)
-                                .Confirm(VL.Model.SolutionUpdateKind.DontCompile);
-                    });
-                _disposables.Add(writeBounds);
-            }
+                if (!window.IsDisposed)
+                    titleBar.ExtendIntoTitleBar = v;
+            }));
+        }
+        _disposables.Add(window.Notifications.Subscribe(n =>
+        {
+            if (n is WindowAlwaysOnTopChangedNotification onTop)
+                alwaysOnTop.Value = onTop.IsAlwaysOnTop;
+            else if (n is WindowTitleBarChangedNotification titleBarChanged)
+                extendIntoTitleBar.Value = titleBarChanged.ExtendIntoTitleBar;
+        }));
+
+        var session = IDevSession.Current;
+        if (session != null && saveBounds)
+        {
+            var writeBounds = _renderer.BoundsStream
+                .Skip(1)
+                .Throttle(TimeSpan.FromSeconds(0.5))
+                .ObserveOn(nodeContext.AppHost.SynchronizationContext)
+                .Subscribe(r =>
+                {
+                    if (!window.IsDisposed && !window.IsFullscreen)
+                        session.CurrentSolution
+                            .SetPinValue(nodeContext.Stack, "Bounds", new Rectangle((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height))
+                            .Confirm(VL.Model.SolutionUpdateKind.DontCompile);
+                });
+            _disposables.Add(writeBounds);
         }
 
-        _renderer.FormClosing += (s, e) =>
+        _disposables.Add(window.Notifications.Subscribe(n =>
         {
+            if (n is not WindowCloseRequestedNotification close)
+                return;
+
             // if not exported: cancel and hide. User can then show the window again via SetWindowMode
             var isExported = nodeContext.AppHost.IsExported;
             var hide = !isExported;
@@ -89,17 +110,20 @@ public sealed class SkiaRendererNode : IDisposable
                 cancel = SessionNodes.CurrentSolution == SessionNodes.CloseDocumentOfNode(nodeContext.Stack.LastOrDefault(), dialogIfDocumentChanged);
                 hide = false;
             }
-            e.Cancel = cancel;
+            close.Handled = cancel;
             if (hide)
-                _renderer.Hide();
-        };
+            {
+                _renderer.Hidden = true;
+                window.Visible = false;
+            }
+        }));
 
         var showPatchOfNodeCmd = Command.Create(() => SessionNodes.ShowPatchOfNode(nodeContext.Stack.LastOrDefault()));
-        var toggleFullscreenCmd = Command.Create(() => _renderer.FullScreen = !_renderer.FullScreen);
+        var toggleFullscreenCmd = Command.Create(() => window.IsFullscreen = !window.IsFullscreen);
         var makeScreenshotCmd = Command.Create(() =>
         {
-            var screenShotService = nodeContext.AppHost.Services.GetService<IScreenshotService>();
-            screenShotService?.ScreenshotHandle(_renderer.Handle);
+            if (window.NativeHandle.Kind == NativeWindowKind.Win32)
+                nodeContext.AppHost.Services.GetService<IScreenshotService>()?.ScreenshotHandle(window.NativeHandle.Handle);
         });
         var togglePerfMeterCmd = Command.Create(() => showPerfMeter.Value = !showPerfMeter.Value);
         _ourCommands = CommandList.Create(
@@ -111,18 +135,8 @@ public sealed class SkiaRendererNode : IDisposable
             new(Keys.F2, togglePerfMeterCmd)
             );
 
-        _renderer.MouseEnter += (s, e) =>
-        {
-            if (!_lastShowCursor)
-                Cursor.Hide();
-        };
-        _renderer.MouseLeave += (s, e) =>
-        {
-            Cursor.Show();
-        };
-
-        _renderer.Show();
-        _renderer.Activate();
+        window.Visible = true;
+        window.Activate();
     }
 
     /// <summary>
@@ -131,9 +145,9 @@ public sealed class SkiaRendererNode : IDisposable
     public IObservable<FormBoundsNotification> FormBoundsNotifications => _formBoundsNotifications;
 
     /// <summary>
-    /// Returns the underlying SkiaRenderer Form.
+    /// The window the renderer draws into.
     /// </summary>
-    public SkiaRenderer Form => _renderer;
+    public IAppWindow Window => _renderer.Window;
 
     /// <summary>
     /// Current client rectangle in DIP.
@@ -142,17 +156,19 @@ public sealed class SkiaRendererNode : IDisposable
     {
         get
         {
-            var origin = _renderer.PointToScreen(Point.Empty);
-            var size = _renderer.ClientSize;
-            var r = _renderer.DeviceToLogicalUnits(new Stride.Core.Mathematics.RectangleF(origin.X, origin.Y, size.Width, size.Height));
+            var r = _renderer.ClientBounds;
             return new RectangleF(r.X, r.Y, r.Width, r.Height);
         }
     }
 
-    /// <inheritdoc cref="Win32CustomTitleBar.InteractionWidth" />
+    /// <inheritdoc cref="IWindowTitleBar.InteractionWidth" />
     public int InteractionWidth
     {
-        set => _renderer.CustomTitleBar.InteractionWidth = value;
+        set
+        {
+            if (!_renderer.Window.IsDisposed && _renderer.Window.GetFeature<IWindowTitleBar>() is { } titleBar)
+                titleBar.InteractionWidth = value;
+        }
     }
 
     public void Update(ILayer? input,
@@ -164,33 +180,31 @@ public sealed class SkiaRendererNode : IDisposable
                        [DefaultValue(true)] bool enabled,
                        out float renderTime)
     {
-        if (_disposed)
+        var window = _renderer.Window;
+        if (_disposed || window.IsDisposed)
         {
             renderTime = 0;
             return;
         }
 
-        // Title
         if (!string.Equals(_lastTitle, title, StringComparison.Ordinal))
         {
             _lastTitle = title;
-            _renderer.Text = title;
+            window.Title = title;
         }
 
-        // Cursor visibility toggling
         if (_lastShowCursor != showCursor)
         {
             _lastShowCursor = showCursor;
+            window.Cursor = showCursor ? WindowCursor.Default : WindowCursor.Hidden;
         }
 
-        // VSync
         if (_lastVSync != vSync)
         {
             _lastVSync = vSync;
             _renderer.VSync = vSync;
         }
 
-        // Commands
         if (!ReferenceEquals(_lastCommands, commands) || _lastEnableKeyboardShortcuts != enableKeyboardShortcuts)
         {
             _lastCommands = commands;
@@ -203,9 +217,7 @@ public sealed class SkiaRendererNode : IDisposable
 
         _renderer.Input = input;
         if (enabled)
-        {
             _renderer.Update();
-        }
 
         renderTime = _renderer.RenderTime;
     }
@@ -218,4 +230,3 @@ public sealed class SkiaRendererNode : IDisposable
         _renderer.Dispose();
     }
 }
-#endif

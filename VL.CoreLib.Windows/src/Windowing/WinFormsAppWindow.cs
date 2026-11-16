@@ -59,6 +59,8 @@ public sealed class WinFormsAppWindow : Form, IAppWindow, IWindowActivation
     private AppWindowState lastState;
     private bool closedRaised;
 
+    private static readonly Lazy<System.Drawing.Icon> VvvvIcon = new(() => new System.Drawing.Icon(typeof(WinFormsAppWindow).Assembly.GetManifestResourceStream("VL.Core.Windows.vvvv.ico")!));
+
     internal WinFormsAppWindow(WinFormsAppWindowService service, AppWindowOptions options)
     {
         if (options.Graphics != WindowGraphicsApi.None)
@@ -77,6 +79,7 @@ public sealed class WinFormsAppWindow : Form, IAppWindow, IWindowActivation
         DoubleBuffered = false;
         StartPosition = FormStartPosition.Manual;
         Text = options.Title;
+        Icon = VvvvIcon.Value;
 
         titleBar = new Win32CustomTitleBar(this) { IsFullScreen = () => isFullscreen, AlwaysOnTop = options.IsAlwaysOnTop };
         titleBar.PropertyChanged += OnTitleBarChanged;

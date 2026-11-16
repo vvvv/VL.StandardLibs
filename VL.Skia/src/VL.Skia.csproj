@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net10.0</TargetFrameworks>
-    <!-- The Windows flavor (WinForms renderer) can only be built on Windows -->
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0;net10.0-windows</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <OutputPath>..\lib</OutputPath>
     
     <!-- We pack native dll in our own NuGet package -->
@@ -15,65 +13,21 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <!-- DirectX is Windows: its managed side stays out of the portable flavor (and so out of apps for Linux and macOS) -->
-    <PackageReference Include="SharpDX.Direct3D11" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
+    <!-- Direct3D11 of the video nodes (they run on Windows only) -->
+    <PackageReference Include="SharpDX.Direct3D11" />
     <PackageReference Include="SkiaSharp.Skottie" ExcludeAssets="build;buildTransitive" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\VL.Core.Commands\src\VL.Core.Commands.csproj" />
-    <ProjectReference Include="..\..\VL.Core.Skia.Windows\VL.Core.Skia.Windows.csproj" Aliases="sw" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
     <ProjectReference Include="..\..\VL.Core.Skia\VL.Core.Skia.csproj" />
-    <ProjectReference Include="..\..\VL.CoreLib.Windows\src\VL.CoreLib.Windows.csproj" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
     <ProjectReference Include="..\..\VL.CoreLib\src\VL.CoreLib.csproj" />
     <ProjectReference Include="..\..\VL.Core\src\VL.Core.csproj" />
   </ItemGroup>
-
-  <!-- Helpers of the Direct3D11 video nodes (no node of a document uses them off Windows): Windows flavor only -->
-  <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-windows' AND '$(TargetFramework)' != ''">
-    <Compile Remove="Video\SKImageToVideoStream.cs;Video\TexturePool.cs" />
-  </ItemGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
-    <UseWindowsForms>true</UseWindowsForms>
-    <!-- Suppress warning about conditional compilation in SkiaRenderer.cs - the entire file is Windows-specific -->
-    <NoWarn>$(NoWarn);MSB3042</NoWarn>
-  </PropertyGroup>
 
   <ItemGroup>
     <Using Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Update="SkiaRenderer.cs" />
-    <Compile Update="SkiaRenderer.Designer.cs">
-      <DependentUpon>SkiaRenderer.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Control.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="SkiaRenderer.resx">
-      <DependentUpon>SkiaRenderer.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <!-- Exclude Windows-specific embedded resources from non-Windows builds -->
-  <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-windows' AND '$(TargetFramework)' != ''">
-    <Compile Remove="Properties\Resources.Designer.cs" />
-    <EmbeddedResource Remove="Properties\Resources.resx" />
-    <EmbeddedResource Remove="SkiaRenderer.resx" />
-  </ItemGroup>
   <!--
     The document VL.Skia.vl is written in the editor on Windows: its node "RenderWindow (Upcoming Experimental)" is made of Windows Forms nodes, and it depends on the packages
     VL.CoreLib.Windows and VL.Core.Skia.Windows and on System.Windows.Forms. Where those do not exist (Linux, macOS) the document can't be compiled.
