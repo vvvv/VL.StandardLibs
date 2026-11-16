@@ -29,6 +29,13 @@ namespace VL.Core.Windowing
         /// <summary>Size of the client area in pixels.</summary>
         Int2 ClientSize { get; set; }
 
+        /// <summary>
+        /// The frame around the client area (borders, title bar), in pixels: the outer bounds of the window are the client bounds
+        /// (<see cref="Position"/>, <see cref="ClientSize"/>) grown by it. Zero where the window has no frame (borderless, fullscreen)
+        /// and where the window system does not say (X11 without a window manager).
+        /// </summary>
+        WindowFrameMargins FrameMargins { get; }
+
         /// <summary>Pixels per DIP (1 at 96 dpi, 1.5 at 144 dpi). A change is announced by <see cref="WindowDpiChangedNotification"/>.</summary>
         float ScaleFactor { get; }
 
@@ -41,6 +48,7 @@ namespace VL.Core.Windowing
 
         bool IsResizable { get; set; }
 
+        /// <summary>Above the other windows. A change, by the program or by the user (the system menu of a Windows window), is announced by <see cref="WindowAlwaysOnTopChangedNotification"/>.</summary>
         bool IsAlwaysOnTop { get; set; }
 
         WindowCursor Cursor { get; set; }
@@ -71,7 +79,7 @@ namespace VL.Core.Windowing
         NativeWindowHandle NativeHandle { get; }
 
         /// <summary>
-        /// Optional features of a window, like <see cref="IGlWindowSurface"/>. Returns null if the window does not have it. Never throws.
+        /// Optional features of a window, like <see cref="IGlWindowSurface"/> or <see cref="IWindowTitleBar"/>. Returns null if the window does not have it. Never throws.
         /// </summary>
         T? GetFeature<T>() where T : class;
     }
@@ -113,4 +121,7 @@ namespace VL.Core.Windowing
     /// Cocoa: <see cref="Handle"/> = NSWindow*, <see cref="View"/> = NSView*.
     /// </summary>
     public readonly record struct NativeWindowHandle(NativeWindowKind Kind, nint Handle, nint Display = 0, nint View = 0);
+
+    /// <summary>The sizes of the frame of a window around its client area (<see cref="IAppWindow.FrameMargins"/>), in pixels.</summary>
+    public readonly record struct WindowFrameMargins(int Left, int Top, int Right, int Bottom);
 }

@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -27,7 +28,8 @@ namespace VL.Core.Windows;
 /// </summary>
 /// <remarks>
 /// Fullscreen is borderless and covers the bounds of the display the window is on; the state (normal, maximized) stays what it was and comes back with the bounds.
-/// The window has the custom system menu of <see cref="Win32CustomTitleBar"/> ("always on top"). Touch comes from the pointer messages (Windows 8 and later).
+/// The window has the custom title bar of <see cref="Win32CustomTitleBar"/>: its system menu ("always on top", "extend into title bar") and the feature <see cref="IWindowTitleBar"/>.
+/// Touch comes from the pointer messages (Windows 8 and later).
 /// </remarks>
 public sealed class WinFormsAppWindow : Form, IAppWindow
 {
@@ -77,6 +79,7 @@ public sealed class WinFormsAppWindow : Form, IAppWindow
         Text = options.Title;
 
         titleBar = new Win32CustomTitleBar(this) { IsFullScreen = () => isFullscreen, AlwaysOnTop = options.IsAlwaysOnTop };
+        titleBar.PropertyChanged += OnTitleBarChanged;
 
         isBorderless = options.IsBorderless;
         isResizable = options.IsResizable;
@@ -131,6 +134,19 @@ public sealed class WinFormsAppWindow : Form, IAppWindow
     {
         get { Check(); return ToInt2(ClientSize); }
         set { Check(); ClientSize = new Size(value.X, value.Y); }
+    }
+
+    WindowFrameMargins IAppWindow.FrameMargins
+    {
+        get
+        {
+            Check();
+            // The outer bounds are what GetWindowRect says (with the invisible resize borders of Windows 10 and later): what the render window of patches stores
+            var outer = Bounds;
+            var origin = PointToScreen(Point.Empty);
+            var client = ClientSize;
+            return new(origin.X - outer.Left, origin.Y - outer.Top, outer.Right - origin.X - client.Width, outer.Bottom - origin.Y - client.Height);
+        }
     }
 
     float IAppWindow.ScaleFactor
@@ -208,7 +224,7 @@ public sealed class WinFormsAppWindow : Form, IAppWindow
         get { Check(); return new NativeWindowHandle(NativeWindowKind.Win32, Handle); }
     }
 
-    T? IAppWindow.GetFeature<T>() where T : class => null;
+    T? IAppWindow.GetFeature<T>() where T : class => typeof(T) == typeof(IWindowTitleBar) ? (T)(object)titleBar : null;
 
     // Windows Forms
 
@@ -360,6 +376,14 @@ public sealed class WinFormsAppWindow : Form, IAppWindow
     }
 
     // Helpers
+
+    private void OnTitleBarChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Win32CustomTitleBar.AlwaysOnTop))
+            Raise(new WindowAlwaysOnTopChangedNotification(titleBar.AlwaysOnTop, this));
+        else if (e.PropertyName == nameof(Win32CustomTitleBar.ExtendIntoTitleBar))
+            Raise(new WindowTitleBarChangedNotification(titleBar.ExtendIntoTitleBar, this));
+    }
 
     private void Check()
     {

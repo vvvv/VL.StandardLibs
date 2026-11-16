@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Reactive.Disposables;
 using System.Windows.Forms;
+using VL.Core.Windowing;
 using VL.Lang.PublicAPI;
 using VL.Lib.Reactive;
 using Windows.Win32.Foundation;
@@ -24,7 +25,7 @@ namespace VL.Core.Windows
     /// but delegates the actual drawing to a separate renderer interface.
     /// Port of https://github.com/grassator/win32-window-custom-titlebar
     /// </summary>
-    public class Win32CustomTitleBar : INotifyPropertyChanged
+    public class Win32CustomTitleBar : INotifyPropertyChanged, IWindowTitleBar
     {
         public readonly record struct Options(IChannel<bool> AlwaysOnTop, IChannel<bool> ExtendIntoTitleBar, Func<bool>? IsFullscreen = default);
 
@@ -600,6 +601,13 @@ namespace VL.Core.Windows
         public bool IsMaximized => form.WindowState == FormWindowState.Maximized;
 
         public int LogicalToDeviceUnits(int value) => form.LogicalToDeviceUnits(value);
+
+        bool IWindowTitleBar.ShouldDrawButtons => ShouldDrawTitleBarButtons;
+        TitleBarButton IWindowTitleBar.MinimizeButton => new(ToStride(minimizeButtonRect), minimizeButtonHovered);
+        TitleBarButton IWindowTitleBar.MaximizeButton => new(ToStride(maximizeButtonRect), maximizeButtonHovered);
+        TitleBarButton IWindowTitleBar.CloseButton => new(ToStride(closeButtonRect), closeButtonHovered);
+
+        private static Stride.Core.Mathematics.Rectangle ToStride(Rectangle r) => new(r.X, r.Y, r.Width, r.Height);
 
         private static unsafe bool win32_window_is_maximized(HWND handle)
         {
