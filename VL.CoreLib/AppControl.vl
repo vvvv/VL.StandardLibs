@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="NdfSuUoimRdNn7HA9H1DF5" LanguageVersion="2026.8.0-0331-g6cbb08f9c4" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="NdfSuUoimRdNn7HA9H1DF5" LanguageVersion="2026.8.0-0335-ga3dfe2aa74" Version="0.128">
   <Patch Id="RaGjC5RM7sfP19PNjX94It">
     <Canvas Id="R0sbd7hO8N2O1uYsIzGhwC" DefaultCategory="Application" CanvasType="FullCategory">
       <Canvas Id="LHAhe9AyJR4O2rUtOmrW1x" Name="Transitions.Internal" Position="485,670">
@@ -9904,7 +9904,7 @@
     ************************ GoToValue ************************
 
 -->
-      <Node Name="GoToValue" Bounds="596,800" Id="VXw9lx2b0y0Lp1plXWR5d4">
+      <Node Name="GoToValue" Bounds="596,800" Id="VXw9lx2b0y0Lp1plXWR5d4" Summary="Starts from a PublicChannels value and moves toward the given target using the specified transition type and duration.">
         <p:NodeReference>
           <Choice Kind="ContainerDefinition" />
         </p:NodeReference>
@@ -10001,7 +10001,7 @@
     ************************ TriggerPreset ************************
 
 -->
-      <Node Name="TriggerPreset" Bounds="411,800" Id="L8kOnQXqhQJNWChTbWi66Z">
+      <Node Name="TriggerPreset" Bounds="411,800" Id="L8kOnQXqhQJNWChTbWi66Z" Summary="Applies the values of a given preset using the specified transition type and duration to reach the targets.">
         <p:NodeReference>
           <Choice Kind="ContainerDefinition" />
         </p:NodeReference>
@@ -15715,7 +15715,7 @@
     ************************ TriggerPreset (Model) ************************
 
 -->
-        <Node Name="TriggerPreset (Model)" Bounds="166,300" Id="VTQA25KK9wDNC7NhbxY2R4">
+        <Node Name="TriggerPreset (Model)" Bounds="166,300" Id="VTQA25KK9wDNC7NhbxY2R4" Summary="Applies the values of a given PresetModel using the specified transition type and duration to reach the targets.">
           <p:NodeReference>
             <Choice Kind="ContainerDefinition" />
           </p:NodeReference>
@@ -15912,7 +15912,7 @@
     ************************ TriggerPreset (ConfigureChannels) ************************
 
 -->
-        <Node Name="TriggerPreset (ConfigureChannels)" Bounds="166,230" Id="OcS1iYodTN2M3diM9ydcPG">
+        <Node Name="TriggerPreset (ConfigureChannels)" Bounds="166,230" Id="OcS1iYodTN2M3diM9ydcPG" Summary="Applies the values of a given preset using the specified transition type and duration to reach the targets." Remarks="Allows to specify an individual transition type and duration per channel">
           <p:NodeReference>
             <Choice Kind="ContainerDefinition" />
           </p:NodeReference>
@@ -19623,6 +19623,73 @@
           </Node>
         </Canvas>
       </Canvas>
+      <!--
+
+    ************************ CapturePreset ************************
+
+-->
+      <Node Name="CapturePreset" Bounds="411,850" Id="UuusdBvTtEkO8ptjDB19og" Summary="Captures a preset of the specified channels to the specified name">
+        <p:NodeReference>
+          <Choice Kind="ContainerDefinition" />
+        </p:NodeReference>
+        <Patch Id="AMnAEPZtjWnOW0pMpnXAR1">
+          <Canvas Id="MLqvGil2pVuNnb6XGQGiP1" CanvasType="Group">
+            <ControlPoint Id="UsV7iBfjGi4OgszDQVET07" Bounds="294,146" />
+            <Node Bounds="371,213,144,104" Id="Cf9AuKItyAsLINRdZYnPSM">
+              <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+                <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+                <CategoryReference Kind="Category" Name="Primitive" />
+                <Choice Kind="ApplicationStatefulRegion" Name="If" />
+              </p:NodeReference>
+              <Pin Id="Ai3m5t8BdSaLdVHvInvOK7" Name="Condition" Kind="InputPin" />
+              <Patch Id="OGzGjF7xl3YO9n4N48xrxm" ManuallySortedPins="true">
+                <Patch Id="VUhM8lf1olFL0gerRx21zF" Name="Create" ManuallySortedPins="true" />
+                <Patch Id="LpOQVfka0ClMSPHyoIH7H5" Name="Then" ManuallySortedPins="true" />
+                <Node Bounds="383,271,67,26" Id="Ld42PuMnx5sNjrLEmRqWRV">
+                  <p:NodeReference LastCategoryFullName="Reactive.ChannelHub.Presets" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <CategoryReference Kind="ClassType" Name="Presets" />
+                    <Choice Kind="OperationCallFlag" Name="StorePreset" />
+                  </p:NodeReference>
+                  <Pin Id="TYxOTBBOBMfPKYWgbiudzc" Name="Input" Kind="StateInputPin" />
+                  <Pin Id="T4hHd0QhLcfOafb3dL4yy1" Name="Name" Kind="InputPin" />
+                  <Pin Id="NmUKLNnp8lfMc2HkBBkaJD" Name="Preset" Kind="InputPin" />
+                  <Pin Id="Nj9DghOUaZwPK5PaqMlLlc" Name="Output" Kind="StateOutputPin" />
+                </Node>
+                <Node Bounds="445,236,58,19" Id="UNn3RRbRhYmLZ2TcLtqpf9">
+                  <p:NodeReference LastCategoryFullName="Reactive.ChannelHub.PresetModel" LastDependency="VL.CoreLib.vl">
+                    <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                    <Choice Kind="OperationCallFlag" Name="Snapshot (Add Channels)" />
+                  </p:NodeReference>
+                  <Pin Id="Fbph5zLxAThNaCNt3nyZNd" Name="Input" Kind="InputPin" />
+                  <Pin Id="C2z6hSAtUirQbxRdm6zn9x" Name="Channels" Kind="InputPin" />
+                  <Pin Id="QFZxjvj8Fe6OPse9YBKT9u" Name="Preset" Kind="OutputPin" />
+                  <Pin Id="MGWRqvWDzAZOYfotmmyUzg" Name="Channel Hub" Kind="InputPin" IsHidden="true" />
+                </Node>
+              </Patch>
+            </Node>
+            <ControlPoint Id="Cy82l3ftqj4QcsGAwEQFoS" Bounds="416,150" />
+            <ControlPoint Id="EU8nMVBg0WyNoijKXktt6a" Bounds="500,181" />
+          </Canvas>
+          <Patch Id="VxMUQVyS2a7NwAVqgD4jLM" Name="Create" />
+          <Patch Id="CPqs9saNT98NQyfkARHgKB" Name="Update" ManuallySortedPins="true">
+            <Pin Id="LZdBkl4GqWZM3LBbipNSGV" Name="Preset Name" Kind="InputPin" />
+            <Pin Id="SsWhxXswtesN11MFZ1xC32" Name="Channels" Kind="InputPin" />
+            <Pin Id="M6kXjMjZA2EM31WcxgwazS" Name="Apply" Kind="InputPin" />
+          </Patch>
+          <ProcessDefinition Id="Fu0IUKE7awSOCYWBZeUtjh">
+            <Fragment Id="ERHE6un5RXPQbSV7Ml0dU1" Patch="VxMUQVyS2a7NwAVqgD4jLM" Enabled="true" />
+            <Fragment Id="SpCS3fRz3dUMtg2BhPmpEm" Patch="CPqs9saNT98NQyfkARHgKB" Enabled="true" />
+          </ProcessDefinition>
+          <Link Id="KZ6cpvRMrzyO6R7b49Uz5a" Ids="M6kXjMjZA2EM31WcxgwazS,UsV7iBfjGi4OgszDQVET07" IsHidden="true" />
+          <Link Id="UdiCOC1Ee3SNGEs4mXCNYv" Ids="QFZxjvj8Fe6OPse9YBKT9u,NmUKLNnp8lfMc2HkBBkaJD" />
+          <Link Id="Vxxy0V4BalWMBh3i5B7ezv" Ids="UsV7iBfjGi4OgszDQVET07,Ai3m5t8BdSaLdVHvInvOK7" />
+          <Link Id="OZpPHcSASM5PLs8VmYCRYd" Ids="Cy82l3ftqj4QcsGAwEQFoS,T4hHd0QhLcfOafb3dL4yy1" />
+          <Link Id="RUcRcU3gO4SOKhLe7FoYon" Ids="LZdBkl4GqWZM3LBbipNSGV,Cy82l3ftqj4QcsGAwEQFoS" IsHidden="true" />
+          <Link Id="TtdGfY7ssjSNwLUprI5VtX" Ids="EU8nMVBg0WyNoijKXktt6a,C2z6hSAtUirQbxRdm6zn9x" />
+          <Link Id="Bi8cW4pg5R5LYXvBKxYJT8" Ids="SsWhxXswtesN11MFZ1xC32,EU8nMVBg0WyNoijKXktt6a" IsHidden="true" />
+        </Patch>
+      </Node>
     </Canvas>
     <!--
 
