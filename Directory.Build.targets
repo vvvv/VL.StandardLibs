@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project>
 
   <!-- Import VL custom Stride asset compiler targets -->
@@ -37,6 +37,29 @@
       <_NuspecDestinationPath Condition="'$(_NuspecDestinationPath)' == ''">$(MSBuildProjectDirectory)\..\$(PackageId).gen.nuspec</_NuspecDestinationPath>
     </PropertyGroup>
     <Copy Condition="Exists('$(_GeneratedNuspecFile)')" SourceFiles="$(_GeneratedNuspecFile)" DestinationFiles="$(_NuspecDestinationPath)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <!--
+    A package from source is read from its folder: the restore of a document takes the assemblies of lib/<framework> nearest to its target, whatever the nuspec lists.
+    So the output of this project for a framework it no longer builds (a flavor that went: lib/net10.0-windows of VL.Skia) would win over the one it builds.
+    After each build only the frameworks this project builds keep its assembly; an emptied framework folder goes too.
+  -->
+  <Target Name="_RemoveOutputOfFrameworksNotBuilt" AfterTargets="Build" Condition="'$(VLPackageBasePath)' != '' AND '$(TargetFramework)' != '' AND Exists('$(OutDir)..')">
+    <PropertyGroup>
+      <_BuiltFrameworks>;$(TargetFrameworks);$(TargetFramework);</_BuiltFrameworks>
+    </PropertyGroup>
+    <ItemGroup>
+      <_FrameworkFolder Include="$([System.IO.Directory]::GetDirectories('$([System.IO.Path]::GetFullPath('$(OutDir)..'))'))" />
+      <_NotBuiltFrameworkFolder Include="@(_FrameworkFolder)" Condition="$([System.String]::Copy('%(Filename)%(Extension)').StartsWith('net')) AND !$(_BuiltFrameworks.Contains(';%(Filename)%(Extension);'))" />
+      <_OutputOfFrameworkNotBuilt Include="%(_NotBuiltFrameworkFolder.FullPath)\$(AssemblyName).*" />
+    </ItemGroup>
+    <Message Importance="high" Condition="'@(_OutputOfFrameworkNotBuilt)' != ''" Text="$(AssemblyName): removing the output of frameworks it does not build: @(_OutputOfFrameworkNotBuilt->'%(Directory)%(Filename)%(Extension)', ', ')" />
+    <Delete Files="@(_OutputOfFrameworkNotBuilt)" />
+  </Target>
+
+  <!-- A framework folder which is empty now goes: the restore would take it as the nearest framework and find no assembly there -->
+  <Target Name="_RemoveEmptiedFrameworkFolders" AfterTargets="_RemoveOutputOfFrameworksNotBuilt" Condition="'@(_NotBuiltFrameworkFolder)' != ''">
+    <RemoveDir Directories="%(_NotBuiltFrameworkFolder.FullPath)" Condition="$([System.IO.Directory]::GetFiles('%(_NotBuiltFrameworkFolder.FullPath)').Length) == 0 AND $([System.IO.Directory]::GetDirectories('%(_NotBuiltFrameworkFolder.FullPath)').Length) == 0" />
   </Target>
 
   <ItemGroup Condition=" '$(IsPackable)' != 'false' ">
