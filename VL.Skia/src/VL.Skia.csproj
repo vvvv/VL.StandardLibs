@@ -27,17 +27,4 @@
   <ItemGroup>
     <Using Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
-
-  <!--
-    The document VL.Skia.vl is written in the editor on Windows: its node "RenderWindow (Upcoming Experimental)" is made of Windows Forms nodes, and it depends on the packages
-    VL.CoreLib.Windows and VL.Core.Skia.Windows and on System.Windows.Forms. Where those do not exist (Linux, macOS) the document can't be compiled.
-    The package therefore carries a copy of the document without these parts too (folder portable, build/PortableVlDocument.targets). Everything else is the same document:
-    the Renderer node, which is built on the SkiaRendererNode of the flavor of the assembly, is in it. (The long term solution is to move the Windows part into a document of
-    the Windows packages.)
-  -->
-  <PropertyGroup>
-    <PortableVlDocument>VL.Skia.vl</PortableVlDocument>
-    <PortableVlDocumentRemoveDependencies>VL.CoreLib.Windows;VL.Core.Skia.Windows;System.Windows.Forms;./lib/net10.0-windows/VL.CoreLib.dll</PortableVlDocumentRemoveDependencies>
-    <PortableVlDocumentRemoveNodes>RenderWindow (Upcoming Experimental);VideoSourceToSKImage</PortableVlDocumentRemoveNodes>
-  </PropertyGroup>
 </Project>
