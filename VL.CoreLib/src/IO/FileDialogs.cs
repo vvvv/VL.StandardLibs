@@ -1,6 +1,8 @@
 #nullable enable
+using System.Linq;
 using System.Threading.Tasks;
 using VL.Core;
+using VL.Lib.Collections;
 using VL.Core.Import;
 using VL.Lib.IO;
 
@@ -13,12 +15,18 @@ namespace VL.Lib.IO
     /// </summary>
     public static class FileDialogs
     {
-        /// <summary>Asks the person for an existing file. The task gives its path, none when the person cancelled or the app shows no dialogs.</summary>
+        /// <summary>Asks the person for existing files. The task gives their paths, none when the person cancelled or the app shows no dialogs.</summary>
         /// <param name="title">The title of the dialog.</param>
         /// <param name="initialDirectory">The folder the dialog shows first.</param>
         /// <param name="filter">The kinds of files with their patterns: "Text files|*.txt;*.log|All files|*.*".</param>
-        public static Task<Optional<Path>> OpenFileDialogAsync(string title = "Open", Path? initialDirectory = null, string filter = "All files (*.*)|*.*")
-            => ToPathAsync(PlatformServices.Default?.ShowOpenFileDialogAsync(title, initialDirectory?.ToString(), filter));
+        /// <param name="allowMultipleSelections">Whether several files can be chosen; else the task gives one at most.</param>
+        public static async Task<Spread<Path>> OpenFileDialogAsync(string title = "Open", Path? initialDirectory = null, string filter = "All files (*.*)|*.*", bool allowMultipleSelections = false)
+        {
+            if (PlatformServices.Default is not { } services)
+                return Spread<Path>.Empty;
+            var files = await services.ShowOpenFileDialogAsync(title, initialDirectory?.ToString(), filter, allowMultipleSelections);
+            return files.Select(f => new Path(f)).ToSpread();
+        }
 
         /// <summary>Asks the person for the path to save a file to. The task gives the path, none when the person cancelled or the app shows no dialogs.</summary>
         /// <param name="title">The title of the dialog.</param>
