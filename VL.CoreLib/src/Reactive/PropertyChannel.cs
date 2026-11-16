@@ -11,7 +11,7 @@ using VL.Core;
 using VL.Core.Import;
 using VL.Lib.Reactive;
 
-[assembly: ImportType(typeof(PropertyChannel<>), Category = "Reactive.Channel")]
+[assembly: ImportType(typeof(PropertyChannel<>), Name = "Property", Category = "Reactive")]
 
 namespace VL.Lib.Reactive;
 
