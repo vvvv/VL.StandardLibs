@@ -1,9 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Two flavors as VL.Skia: the portable one for an editor without Windows Forms (vvvvx) and other systems, without the save dialog of VL.CoreLib.Windows -->
-    <TargetFrameworks>net10.0</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0;net10.0-windows</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -13,17 +11,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\VL.CoreLib.Windows\src\VL.CoreLib.Windows.csproj" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
     <ProjectReference Include="..\..\VL.ImGui.Skia\src\VL.ImGui.Skia.csproj" />
     <ProjectReference Include="..\..\VL.Skia\src\VL.Skia.csproj" />
   </ItemGroup>
-
-  <!-- The portable document: without VL.CoreLib.Windows and its node FileDialog (Save) (the Save button of the log does nothing there) -->
-  <PropertyGroup>
-    <PortableVlDocument>VL.LogView.vl</PortableVlDocument>
-    <PortableVlDocumentRemoveDependencies>VL.CoreLib.Windows</PortableVlDocumentRemoveDependencies>
-    <PortableVlDocumentRemoveNodes>SssvcXmbbCzMK60e8zyobh</PortableVlDocumentRemoveNodes>
-  </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\buildTransitive\*">

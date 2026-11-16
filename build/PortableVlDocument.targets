@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <!--
-    The portable document of a package: a copy of its document without what needs Windows (folder portable). A package whose document is written in the editor
-    on Windows and uses Windows only packages or nodes sets PortableVlDocument (the file name of its document) and what to leave out:
-      PortableVlDocumentRemoveDependencies  locations of dependency elements (VL.CoreLib.Windows, System.Windows.Forms, ./Other.vl, ...)
-      PortableVlDocumentRemoveNodes         names (definitions) or ids (applications, pads, control points) of nodes; links to what is left out go with them
-    The compiler takes it for a target other than Windows, and an editor without Windows Forms on every system (PackageInfo.PortableDocumentFolder,
-    SessionConfiguration.PortablePackages). Made by every build of the net10.0 flavor (it sits in the folder of the package, where the compiler looks for it
-    when a package is used from source) and packed.
-
-    The task StripWindowsFromVlDocument does the work; a package with several such documents (VL.HDE) calls it itself. Besides the two lists above it takes:
+    The portable documents of VL.HDE, the last package with them: copies of its documents without what needs Windows (folder portable), which the compiler
+    takes for a target other than Windows, and an editor without Windows Forms on every system (PackageInfo.PortableDocumentFolder,
+    SessionConfiguration.PortablePackages). VL.HDE.csproj calls the task StripWindowsFromVlDocument for each of them; it takes:
+      RemoveDependencies    locations of dependency elements (VL.CoreLib.Windows, System.Windows.Forms, ./Other.vl, ...)
+      RemoveNodes           names (definitions) or ids (applications, pads, control points) of nodes; links to what is left out go with them
       BypassNodes           ids of nodes which only pass a value on (a style in, the style with more out): they go, what came into their first input goes where
                             their outputs went
       RemoveItems           id:text, the item of that text from the value of a pad (an entry of a spread in an IOBox)
@@ -76,14 +72,4 @@
       ]]></Code>
     </Task>
   </UsingTask>
-
-  <Target Name="MakePortableVlDocument" AfterTargets="Build" Condition="'$(PortableVlDocument)' != '' AND '$(TargetFramework)' == 'net10.0'">
-    <StripWindowsFromVlDocument Input="$(VLPackageBasePath)$(PortableVlDocument)" Output="$(VLPackageBasePath)portable\$(PortableVlDocument)"
-                                RemoveDependencies="$(PortableVlDocumentRemoveDependencies)" RemoveNodes="$(PortableVlDocumentRemoveNodes)" />
-  </Target>
-  <Target Name="PackPortableVlDocument" BeforeTargets="_GetPackageFiles" DependsOnTargets="MakePortableVlDocument" Condition="'$(PortableVlDocument)' != ''">
-    <ItemGroup>
-      <Content Include="$(VLPackageBasePath)portable\$(PortableVlDocument)" PackagePath="portable\$(PortableVlDocument)" Pack="true" />
-    </ItemGroup>
-  </Target>
 </Project>
