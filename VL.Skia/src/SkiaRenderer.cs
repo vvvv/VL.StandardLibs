@@ -62,22 +62,21 @@ namespace VL.Skia
             BoundsChanged = new BehaviorSubject<System.Drawing.Rectangle>(new System.Drawing.Rectangle());
             FBoundsStream = new BehaviorSubject<RectangleF>(new RectangleF());
 
-            var lostfocus = Observable.Never<EventPattern<EventArgs>>()
-                .Merge(Observable.FromEventPattern<EventArgs>(this, nameof(MouseLeave)))
-                .Merge(Observable.FromEventPattern<EventArgs>(this, nameof(LostFocus)))
-                .Select(p => p.EventArgs.ToLostFocusNotification(this, this));
-            var gotfocus = Observable.Never<EventPattern<EventArgs>>()
-                .Merge(Observable.FromEventPattern<EventArgs>(this, nameof(MouseEnter)))
-                .Merge(Observable.FromEventPattern<EventArgs>(this, nameof(GotFocus)))
-                .Select(p => p.EventArgs.ToGotFocusNotification(this, this));
+            // Focus is the keyboard focus; the mouse entering and leaving the window has notifications of its own
+            var focus = Observable.Merge(
+                Observable.FromEventPattern<EventArgs>(this, nameof(GotFocus)).Select(p => (INotification)p.EventArgs.ToGotFocusNotification(this, this)),
+                Observable.FromEventPattern<EventArgs>(this, nameof(LostFocus)).Select(p => (INotification)p.EventArgs.ToLostFocusNotification(this, this)));
+            var mouseEnterAndLeave = Observable.Merge(
+                Observable.FromEventPattern<EventArgs>(this, nameof(MouseEnter)).Select(_ => (INotification)new MouseEnterNotification(PointToClient(MousePosition).ToVector2(), ClientSize.ToVector2(), ModifierKeys.ToOurs(), this)),
+                Observable.FromEventPattern<EventArgs>(this, nameof(MouseLeave)).Select(p => (INotification)p.EventArgs.ToMouseLostNotification(this, this)));
 
             Observable.Merge(new IObservable<INotification>[] {
                 Mouse.Notifications,
                 Keyboard.Notifications,
                 TouchDevice.Notifications,
                 FBoundsStream.Select(r => new NotificationWithClientArea(r.Size.ToVector2(), ModifierKeys.ToOurs(), this)),
-                lostfocus,
-                gotfocus
+                focus,
+                mouseEnterAndLeave
             })
             .Subscribe(OnNotification);
 

@@ -1,4 +1,4 @@
-﻿using ImGuiNET;
+using ImGuiNET;
 using Stride.Core.Mathematics;
 using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
@@ -106,8 +106,8 @@ namespace VL.ImGui
                             _io.AddMouseWheelEvent(hWheel.WheelDelta / 120f, 0);
                         break;
                     case MouseNotificationKind.DeviceLost:
-                        _io.ClearInputKeys();
-                        _io.AddFocusEvent(false);
+                        // The mouse left the window: nothing is hovered any more. The keyboard focus stays (LostFocusNotification ends it)
+                        _io.AddMousePosEvent(-float.MaxValue, -float.MaxValue);
                         break;
                     default:
                         break;
