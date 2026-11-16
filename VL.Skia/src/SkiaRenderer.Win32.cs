@@ -8,7 +8,7 @@ using System;
 using System.Windows.Forms;
 using sw::System.Windows.Forms;
 using sw::VL.Skia;
-using sw::VL.Core.Windows;
+using VL.Core.Windows;
 
 namespace VL.Skia
 {

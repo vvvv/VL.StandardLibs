@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -18,9 +18,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWin32">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="AudioSwitcher.AudioApi.CoreAudio" />
     <PackageReference Include="AudioSwitcher.AudioApi" />
     <PackageReference Include="Ookii.Dialogs.WinForms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Win32 for the window of the window contract (Windowing/): title bar, pointer input -->
+    <None Remove="NativeMethods.txt" />
+    <AdditionalFiles Include="NativeMethods.txt" />
   </ItemGroup>
 
 </Project>

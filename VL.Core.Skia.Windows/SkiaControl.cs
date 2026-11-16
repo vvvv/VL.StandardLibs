@@ -5,6 +5,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Windows.Forms;
+using VL.Core.Windows;
 using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
 using VL.Skia.Egl;

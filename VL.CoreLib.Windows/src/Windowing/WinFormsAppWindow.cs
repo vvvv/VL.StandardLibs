@@ -14,7 +14,6 @@ using VL.Core.Utils;
 using VL.Core.Windowing;
 using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
-using VL.Skia;
 using Point = System.Drawing.Point;
 using Size = System.Drawing.Size;
 using Rectangle = System.Drawing.Rectangle;
@@ -64,7 +63,7 @@ public sealed class WinFormsAppWindow : Form, IAppWindow, IWindowActivation
     internal WinFormsAppWindow(WinFormsAppWindowService service, AppWindowOptions options)
     {
         if (options.Graphics != WindowGraphicsApi.None)
-            throw new NotSupportedException($"A Windows Forms window has no {options.Graphics} context: create it with {nameof(WindowGraphicsApi)}.{nameof(WindowGraphicsApi.None)} and draw with ANGLE ({nameof(AngleWindowSurface)}).");
+            throw new NotSupportedException($"A Windows Forms window has no {options.Graphics} context: create it with {nameof(WindowGraphicsApi)}.{nameof(WindowGraphicsApi.None)} and draw into its native handle (Skia: ANGLE, see SkiaWindowSurface of VL.Core.Skia).");
 
         this.service = service;
         this.options = options;

@@ -21,7 +21,7 @@ using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
 using VL.Lib.Reactive;
 using VL.UI.Core;
-using Win32CustomTitleBar = sw::VL.Core.Windows.Win32CustomTitleBar;
+using Win32CustomTitleBar = VL.Core.Windows.Win32CustomTitleBar;
 
 namespace VL.Skia
 {
