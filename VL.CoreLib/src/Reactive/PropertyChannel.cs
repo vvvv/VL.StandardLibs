@@ -57,7 +57,7 @@ public sealed class PropertyChannel<T> : IDisposable
     /// <returns>The channel bound to the property or item</returns>
     [Fragment(Order = -1)]
     [return: Pin(Name = "Output")]
-    public IChannel<T> Update(object? input, [NodeLabel, ChoiceProvider(typeof(ValuePathChoiceProvider))] string? path)
+    public IChannel<T> Update(object? input, [ChoiceProvider(typeof(ValuePathChoiceProvider))] string? path)
     {
         if (watcher is null || !ReferenceEquals(input, this.input) || path != boundPath)
         {
