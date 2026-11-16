@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using System;
 using System.Reactive;
@@ -17,7 +17,8 @@ namespace VL.Skia
     {
         private SkiaInputDevices? inputDevices;
         private readonly Subject<TouchNotification> touchNotifications = new();
-        private ISkiaRenderer? renderer;
+        private AngleWindowSurface? angleSurface;
+        private SoftwareSkiaRenderer? softwareRenderer;
 
         public SkiaControl()
         {
@@ -45,7 +46,7 @@ namespace VL.Skia
 
         public CallerInfo CallerInfo { get; protected set; } =  CallerInfo.Default;
         public event Action<CallerInfo>? OnRender;
-        public float RenderTime => renderer?.RenderTime ?? 0;
+        public float RenderTime => angleSurface?.RenderTime ?? softwareRenderer?.RenderTime ?? 0;
         public bool VSync { get; set; }
         public RenderContextProvider? RenderContextProvider { get; init; }
         public bool DirectCompositionEnabled { get; init; }
@@ -73,12 +74,12 @@ namespace VL.Skia
             base.OnHandleCreated(e);
             if (RenderContextProvider != null)
             {
-                renderer = new EglSkiaRenderer(RenderContextProvider);
+                angleSurface = new AngleWindowSurface(Handle, RenderContextProvider);
                 DoubleBuffered = false;
             }
             else
             {
-                renderer = new SoftwareSkiaRenderer();
+                softwareRenderer = new SoftwareSkiaRenderer();
                 DoubleBuffered = true;
             }
         }
@@ -86,8 +87,10 @@ namespace VL.Skia
         protected override void OnHandleDestroyed(EventArgs e)
         {
             base.OnHandleDestroyed(e);
-            renderer?.Dispose();
-            renderer = null;
+            angleSurface?.Dispose();
+            angleSurface = null;
+            softwareRenderer?.Dispose();
+            softwareRenderer = null;
         }
 
         protected override sealed void OnPaint(PaintEventArgs e)
@@ -100,22 +103,28 @@ namespace VL.Skia
 
         void DoRender(PaintEventArgs e)
         {
-            var r = renderer;
-            if (r is null)
-                return;
-
             try
             {
-                r.Render(Handle, Width, Height, this.LogicalToDeviceScalingFactor(), VSync, ci =>
+                if (angleSurface is { } surface)
                 {
-                    CallerInfo = ci;
-                    OnPaint(ci);
-                }, e.Graphics);
+                    surface.VSync = VSync;
+                    surface.Render(Paint);
+                }
+                else
+                {
+                    softwareRenderer?.Render(Width, Height, this.LogicalToDeviceScalingFactor(), Paint, e.Graphics);
+                }
             }
             catch (Exception ex) when (ex is EglException)
             {
                 Invalidate();
             }
+        }
+
+        void Paint(CallerInfo callerInfo)
+        {
+            CallerInfo = callerInfo;
+            OnPaint(callerInfo);
         }
 
         protected virtual void OnPaint(CallerInfo callerInfo) => OnRender?.Invoke(callerInfo);

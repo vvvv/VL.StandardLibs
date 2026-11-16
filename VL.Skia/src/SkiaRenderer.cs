@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 #if WINDOWS
 extern alias sw;
@@ -38,7 +38,7 @@ namespace VL.Skia
         private readonly SerialDisposable FDarkModeSubscription = new();
         private readonly Subject<TouchNotification> touchNotifications = new();
         private SkiaInputDevices? inputDevices;
-        private ISkiaRenderer? renderer;
+        private AngleWindowSurface? surface;
 
         bool HasValidLayer;
         ILayer? Layer;
@@ -106,7 +106,7 @@ namespace VL.Skia
         public IObservable<RectangleF> BoundsStream => FBoundsStream;
         public BehaviorSubject<System.Drawing.Rectangle> BoundsChanged { get; } // obsolete
 
-        public float RenderTime => renderer?.RenderTime ?? 0;
+        public float RenderTime => surface?.RenderTime ?? 0;
         public bool VSync { get; set; } = true;
         public RenderContextProvider RenderContextProvider => FAppHost.GetRenderContextProvider();
         public Mouse Mouse => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Mouse;
@@ -210,15 +210,15 @@ namespace VL.Skia
         {
             FDarkModeSubscription.Disposable = DarkTitleBarClass.Install(Handle);
             base.OnHandleCreated(e);
-            renderer = new EglSkiaRenderer(RenderContextProvider);
+            surface = new AngleWindowSurface(Handle, RenderContextProvider);
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
             FDarkModeSubscription.Disposable = null;
             base.OnHandleDestroyed(e);
-            renderer?.Dispose();
-            renderer = null;
+            surface?.Dispose();
+            surface = null;
         }
 
         protected override void OnResize(EventArgs e)
@@ -251,10 +251,11 @@ namespace VL.Skia
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if (!Visible || Handle == 0 || renderer is null)
+            if (!Visible || Handle == 0 || surface is null)
                 return;
 
-            renderer.Render(Handle, ClientSize.Width, ClientSize.Height, this.LogicalToDeviceScalingFactor(), VSync, callerInfo =>
+            surface.VSync = VSync;
+            surface.Render(callerInfo =>
             {
                 using var _ = FAppHost?.MakeCurrentIfNone();
                 try
@@ -268,7 +269,7 @@ namespace VL.Skia
                 {
                     RuntimeGraph.ReportException(exception);
                 }
-            }, e.Graphics);
+            });
         }
 
         private void OnNotification(INotification n)
@@ -284,9 +285,9 @@ namespace VL.Skia
                 {
                     n.Handled = true;
                 }
-                else if (Visible && HasValidLayer && Input != null && renderer is not null)
+                else if (Visible && HasValidLayer && Input != null && surface is not null)
                 {
-                    n.Handled = Input.Notify(n, renderer.CallerInfo);
+                    n.Handled = Input.Notify(n, surface.CallerInfo);
                 }
             }
             catch (Exception exception)

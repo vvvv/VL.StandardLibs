@@ -1,18 +1,25 @@
 #nullable enable
-
-using System;
-using System.Threading;
+using Microsoft.Extensions.Logging;
 using SkiaSharp;
 using Stride.Core.Mathematics;
+using System;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using System.Threading;
 using VL.Core;
 using VL.Skia.Egl;
-using Microsoft.Extensions.Logging;
-using System.Drawing;
 
 namespace VL.Skia;
 
-internal sealed class EglSkiaRenderer : ISkiaRenderer
+/// <summary>
+/// Skia through ANGLE (OpenGL ES on Direct3D 11) into a Win32 window. The GPU context is the one of the <see cref="RenderContextProvider"/>,
+/// so the window shares it with everything else that draws with Skia (and Stride, whose device the provider uses) on that thread.
+/// Needs nothing but the window handle: the size of the client area and the scale are read from the window on every <see cref="Render"/>.
+/// </summary>
+[SupportedOSPlatform("windows")]
+public sealed partial class AngleWindowSurface : ISkiaWindowSurface
 {
+    private readonly nint hwnd;
     private readonly RenderContextProvider renderContextProvider;
     private readonly RenderStopwatch stopwatch = new();
     private RenderContext? lastRenderContext;
@@ -24,21 +31,38 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
     private bool disposed;
     private float lastScaling;
 
-    public EglSkiaRenderer(RenderContextProvider renderContextProvider)
+    /// <param name="hwnd">The window to draw into. The surface does not own it.</param>
+    /// <param name="renderContextProvider">Provides the ANGLE context, usually <see cref="AppHostExtensions.GetRenderContextProvider(AppHost)"/> of the app.</param>
+    public AngleWindowSurface(nint hwnd, RenderContextProvider renderContextProvider)
     {
+        if (hwnd == 0)
+            throw new ArgumentException("No window handle", nameof(hwnd));
+        this.hwnd = hwnd;
         this.renderContextProvider = renderContextProvider ?? throw new ArgumentNullException(nameof(renderContextProvider));
     }
+
+    public bool VSync { get; set; } = true;
 
     public float RenderTime => stopwatch.RenderTime;
 
     public CallerInfo CallerInfo { get; private set; } = CallerInfo.Default;
 
-    public void Render(nint hwnd, int width, int height, float scaling, bool vsync, Action<CallerInfo> renderAction, Graphics? gdiTarget = null)
+    /// <summary>
+    /// Draws into the client area of the window and presents. Throws an <see cref="EglException"/> when the surface could not be made or presented;
+    /// the next call starts with a new one.
+    /// </summary>
+    public bool Render(Action<CallerInfo> renderAction)
     {
-        if (disposed)
-            throw new ObjectDisposedException(nameof(EglSkiaRenderer));
-        if (hwnd == 0 || width <= 0 || height <= 0)
-            return;
+        ObjectDisposedException.ThrowIf(disposed, this);
+
+        if (!GetClientRect(hwnd, out var clientRect))
+            return false;
+        var width = clientRect.Right - clientRect.Left;
+        var height = clientRect.Bottom - clientRect.Top;
+        if (width <= 0 || height <= 0)
+            return false;
+        var dpi = GetDpiForWindow(hwnd);
+        var scaling = dpi > 0 ? dpi / 96f : 1f;
 
         var renderContext = renderContextProvider.GetRenderContext();
         if (renderContext != lastRenderContext)
@@ -51,7 +75,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
         stopwatch.StartRender();
         try
         {
-            PaintCore(renderContext, hwnd, width, height, scaling, vsync, renderAction);
+            return PaintCore(renderContext, width, height, scaling, renderAction);
         }
         catch (EglException)
         {
@@ -64,7 +88,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
         }
     }
 
-    private void PaintCore(RenderContext renderContext, nint hwnd, int width, int height, float scaling, bool vsync, Action<CallerInfo> renderAction)
+    private bool PaintCore(RenderContext renderContext, int width, int height, float scaling, Action<CallerInfo> renderAction)
     {
         var eglContext = renderContext.EglContext;
 
@@ -80,7 +104,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
         }
 
         if (eglSurface is null)
-            return;
+            return false;
 
         using var _ = renderContext.MakeCurrent(forRendering: true, eglSurface);
 
@@ -92,7 +116,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
         }
 
         if (surface is null)
-            return;
+            return false;
 
         if (scaling != lastScaling)
         {
@@ -100,10 +124,10 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
             CallerInfo = CallerInfo.InRenderer(surfaceSize.X, surfaceSize.Y, surface, renderContext.SkiaContext, scaling);
         }
 
-        if (!lastSetVSync.HasValue || vsync != lastSetVSync.Value)
+        if (!lastSetVSync.HasValue || VSync != lastSetVSync.Value)
         {
-            lastSetVSync = vsync;
-            eglContext.SwapInterval(vsync ? 1 : 0);
+            lastSetVSync = VSync;
+            eglContext.SwapInterval(VSync ? 1 : 0);
         }
 
         using (new SKAutoCanvasRestore(canvas, true))
@@ -113,6 +137,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
         surface.Flush();
 
         eglContext.SwapBuffers(eglSurface);
+        return true;
     }
 
     public void Dispose()
@@ -129,7 +154,7 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
         DestroyResource(ref eglSurface);
     }
 
-    private void DestroyResource<T>(ref T? resource) where T : class, IDisposable
+    private static void DestroyResource<T>(ref T? resource) where T : class, IDisposable
     {
         try
         {
@@ -162,4 +187,16 @@ internal sealed class EglSkiaRenderer : ISkiaRenderer
 
         return SKSurface.Create(renderContext.SkiaContext, renderTarget, GRSurfaceOrigin.BottomLeft, colorType, colorspace: SKColorSpace.CreateSrgb());
     }
+
+    private struct RECT
+    {
+        public int Left, Top, Right, Bottom;
+    }
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool GetClientRect(nint hWnd, out RECT lpRect);
+
+    [LibraryImport("user32.dll")]
+    private static partial uint GetDpiForWindow(nint hwnd);
 }
