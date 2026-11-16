@@ -26,7 +26,7 @@ public static class SkiaWindowSurface
         if (GlWindowSurface.TryCreate(window) is { } gl)
             return gl;
         if (OperatingSystem.IsWindows() && window.NativeHandle.Kind == NativeWindowKind.Win32)
-            return new AngleWindowSurface(window.NativeHandle.Handle, appHost.GetRenderContextProvider());
+            return new AngleWindowSurface(window.NativeHandle.Handle, appHost.GetRenderContextProvider(), window.GetFeature<IPresentedFrames>());
         throw new NotSupportedException($"Skia cannot draw into this window ({window.NativeHandle.Kind}, no OpenGL context): create it with {nameof(AppWindowOptions.Graphics)} = {nameof(SkiaWindowSurface)}.{nameof(GraphicsApi)}.");
     }
 }

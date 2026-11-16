@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Threading;
 using VL.Core;
+using VL.Core.Windowing;
 using VL.Skia.Egl;
 
 namespace VL.Skia;
@@ -21,6 +22,7 @@ public sealed partial class AngleWindowSurface : ISkiaWindowSurface
 {
     private readonly nint hwnd;
     private readonly RenderContextProvider renderContextProvider;
+    private readonly IPresentedFrames? presentedFrames;
     private readonly RenderStopwatch stopwatch = new();
     private RenderContext? lastRenderContext;
     private EglSurface? eglSurface;
@@ -33,8 +35,10 @@ public sealed partial class AngleWindowSurface : ISkiaWindowSurface
 
     /// <param name="hwnd">The window to draw into. The surface does not own it.</param>
     /// <param name="renderContextProvider">Provides the ANGLE context, usually <see cref="AppHostExtensions.GetRenderContextProvider(AppHost)"/> of the app.</param>
-    public AngleWindowSurface(nint hwnd, RenderContextProvider renderContextProvider)
+    /// <param name="presentedFrames">The window's count of presented frames, told of each frame this surface presents. Null for a window that does not count (a control of the editor).</param>
+    public AngleWindowSurface(nint hwnd, RenderContextProvider renderContextProvider, IPresentedFrames? presentedFrames = null)
     {
+        this.presentedFrames = presentedFrames;
         if (hwnd == 0)
             throw new ArgumentException("No window handle", nameof(hwnd));
         this.hwnd = hwnd;
@@ -137,6 +141,7 @@ public sealed partial class AngleWindowSurface : ISkiaWindowSurface
         surface.Flush();
 
         eglContext.SwapBuffers(eglSurface);
+        presentedFrames?.FramePresented();
         return true;
     }
 

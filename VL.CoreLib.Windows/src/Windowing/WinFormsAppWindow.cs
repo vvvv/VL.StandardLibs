@@ -29,9 +29,10 @@ namespace VL.Core.Windows;
 /// Fullscreen is borderless and covers the bounds of the display the window is on; the state (normal, maximized) stays what it was and comes back with the bounds.
 /// The window has the custom title bar of <see cref="Win32CustomTitleBar"/>: its system menu ("always on top", "extend into title bar") and the feature <see cref="IWindowTitleBar"/>.
 /// Touch comes from the pointer messages (Windows 8 and later). Focus notifications mean the keyboard focus; the mouse entering and leaving is
-/// <see cref="MouseEnterNotification"/> and <see cref="MouseLostNotification"/>. The window offers <see cref="IWindowActivation"/> (<c>WS_EX_NOACTIVATE</c>).
+/// <see cref="MouseEnterNotification"/> and <see cref="MouseLostNotification"/>. The window offers <see cref="IWindowActivation"/> (<c>WS_EX_NOACTIVATE</c>) and counts the frames
+/// presented into it (<see cref="IPresentedFrames"/>).
 /// </remarks>
-public sealed class WinFormsAppWindow : Form, IAppWindow, IWindowActivation
+public sealed class WinFormsAppWindow : Form, IAppWindow, IWindowActivation, IPresentedFrames
 {
     static int lastId;
 
@@ -224,10 +225,16 @@ public sealed class WinFormsAppWindow : Form, IAppWindow, IWindowActivation
     {
         if (typeof(T) == typeof(IWindowTitleBar))
             return (T)(object)titleBar;
-        if (typeof(T) == typeof(IWindowActivation))
+        if (typeof(T) == typeof(IWindowActivation) || typeof(T) == typeof(IPresentedFrames))
             return (T)(object)this;
         return null;
     }
+
+    private long presentedFrames;
+
+    long IPresentedFrames.PresentedFrames => presentedFrames;
+
+    void IPresentedFrames.FramePresented() => presentedFrames++;
 
     bool IWindowActivation.NeverActivates
     {
