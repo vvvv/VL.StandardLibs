@@ -22,7 +22,8 @@ namespace VL.Lib.Windowing
 
         /// <summary>The display which contains the point, or the nearest one. None when the app knows no displays.</summary>
         /// <param name="pixel">A point of the virtual screen, in pixels.</param>
-        public static Optional<DisplayInfo> FromPoint(Int2 pixel) => Current.FromPoint(pixel) is { } display ? display : default(Optional<DisplayInfo>);
+        public static Optional<DisplayInfo> FromPoint(Vector2 pixel)
+            => Current.FromPoint(new Int2((int)System.MathF.Round(pixel.X), (int)System.MathF.Round(pixel.Y))) is { } display ? display : default(Optional<DisplayInfo>);
 
         /// <summary>The primary display. None when the app knows no displays.</summary>
         public static Optional<DisplayInfo> Primary => Current.Primary is { } display ? display : default(Optional<DisplayInfo>);
