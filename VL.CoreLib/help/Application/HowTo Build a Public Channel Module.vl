@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="OT2nSO9aR0lLba0aFcGweu" LanguageVersion="2025.7.0-0420-gfa71002a1a" Version="0.128">
-  <NugetDependency Id="VAfHYlLhO8AMV1lqIWCZOE" Location="VL.CoreLib" Version="2022.5.0-0696-g73767f5671" />
+<Document xmlns:p="property" xmlns:r="reflection" Id="OT2nSO9aR0lLba0aFcGweu" LanguageVersion="2026.8.0-0342-g7a145c5b56" Version="0.128">
+  <NugetDependency Id="VAfHYlLhO8AMV1lqIWCZOE" Location="VL.CoreLib" />
   <Patch Id="JLHZ1cVYh5tPSBf9kOUon9">
     <Canvas Id="Gv6AOC6DJebQLJLEAg2IuZ" DefaultCategory="Main" CanvasType="FullCategory" />
     <!--
@@ -23,7 +23,7 @@
             <Pin Id="MWCQsua7YkmMMkAupyMcHj" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="QAifjrmO9a1LPajpHFxC1s" Name="Output" Kind="OutputPin" IsHidden="true" />
           </Node>
-          <Pad Id="HLMZTLbMyyuM7uPtJDqMWA" Bounds="224,202,317,142" ShowValueBox="true" isIOBox="true" Value="Try adding an &quot;ECHO&quot; Binding to a Channel in the Global Channels Browser!&#xD;&#xA;&#xD;&#xA;Scrub the Value.&#xD;&#xA;&#xD;&#xA;This is just a demo module to introduce the topic. It's not here to make sense, but only in order to demonstrate the API and how to build a module.">
+          <Pad Id="HLMZTLbMyyuM7uPtJDqMWA" Bounds="224,202,317,112" ShowValueBox="true" isIOBox="true" Value="&#xD;&#xA;Scrub the Value of the test channel.&#xD;&#xA;&#xD;&#xA;This is just a demo module to introduce the topic. It's not here to make sense, but only in order to demonstrate the API and how to build a module.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -35,7 +35,7 @@
           <Overlay Id="PK3oCdsspJ2NCYklxrwX3W" Name="" Bounds="202,109,383,257">
             <p:ColorIndex p:Type="Int32">5</p:ColorIndex>
           </Overlay>
-          <Pad Id="GFNUlkBEoIPNWMJ2euzvlN" Bounds="223,142,218,21" ShowValueBox="true" isIOBox="true" Value="Open Channel Browser">
+          <Pad Id="GFNUlkBEoIPNWMJ2euzvlN" Bounds="223,142,218,21" ShowValueBox="true" isIOBox="true" Value="Open Channel Browser (Ctrl + F4)">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -56,6 +56,34 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
+          <Node Bounds="679,371,80,19" Id="IejlYcScenZLebBH16H2ES">
+            <p:NodeReference LastCategoryFullName="Application" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="PublicChannel" />
+            </p:NodeReference>
+            <Pin Id="IETgr9RdraMNpCmQ4lykbo" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="A7t4HPpyOp7O3UT2KdZJ2c" Name="Path" Kind="InputPin" />
+            <Pin Id="RLFBi8BIKDXMfTSFT6c9vh" Name="Value" Kind="InputPin" DefaultValue="0.4" />
+            <Pin Id="D3PP0hxE1lqOn593aHLJEd" Name="Path" Kind="OutputPin" IsHidden="true" />
+            <Pin Id="RHBP8hbZJUFNJWfUF5c9Pb" Name="Output" Kind="OutputPin" />
+            <Pin Id="En1w9T0JeUfNXIu55V1ZRz" Name="Value" Kind="OutputPin" />
+            <Pin Id="CobjtAwwLHmL0CIXAJ2rOb" Name="Author" Kind="InputPin" IsHidden="true" />
+          </Node>
+          <Pad Id="JYvLD0EzWSyMBAoH2TwcAl" Comment="Path" Bounds="681,330,35,15" ShowValueBox="true" isIOBox="true" Value="test">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="VturkmDzzlvObUCiKcWOhE" Comment="" Bounds="756,420,35,15" ShowValueBox="true" isIOBox="true">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="ImmutableTypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="LxLcSEojZvSMWrSKrfsRY4" Comment="" Bounds="756,350,35,15" ShowValueBox="true" isIOBox="true" Value="0.4">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Float32" />
+            </p:TypeAnnotation>
+          </Pad>
         </Canvas>
         <Patch Id="CPjqaGO113jPocorJ7hdE9" Name="Create" />
         <Patch Id="F4CiIuwbKLVQCMVruCdLWc" Name="Update" />
@@ -63,6 +91,9 @@
           <Fragment Id="QnPcOd9JcelQYXBWyDr9LW" Patch="CPjqaGO113jPocorJ7hdE9" Enabled="true" />
           <Fragment Id="SfdQURNO3h0MgIRVlEPkmP" Patch="F4CiIuwbKLVQCMVruCdLWc" Enabled="true" />
         </ProcessDefinition>
+        <Link Id="Ur2fpMY85GTLA8VIGE32dd" Ids="JYvLD0EzWSyMBAoH2TwcAl,A7t4HPpyOp7O3UT2KdZJ2c" />
+        <Link Id="EfqYwN8FcHmOwl3QM2GW1H" Ids="En1w9T0JeUfNXIu55V1ZRz,VturkmDzzlvObUCiKcWOhE" />
+        <Link Id="BwYB3uvbBPROcwCgJuBVGX" Ids="LxLcSEojZvSMWrSKrfsRY4,RLFBi8BIKDXMfTSFT6c9vh" />
       </Patch>
     </Node>
   </Patch>
