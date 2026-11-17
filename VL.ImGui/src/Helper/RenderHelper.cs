@@ -145,7 +145,9 @@ namespace VL.ImGui
                     continue;
 
                 var fontPath = FontListDefinition.GetFontPath(font.FamilyName.Value, font.FontStyle);
-                if (fontPath.IsDefault)
+                // A custom range asks for code points of that family (the icons of Segoe MDL2 Assets in the private use area): another family has other
+                // glyphs there or none, and ImGui crashes building a font without any glyph (ImFont::BuildLookupTable). So only a font of text is replaced
+                if (fontPath.IsDefault && font.CustomRanges is null)
                     fontPath = GetSubstitutePath(font.FamilyName.Value, font.FontStyle);
                 if (fontPath.IsDefault)
                     continue;
