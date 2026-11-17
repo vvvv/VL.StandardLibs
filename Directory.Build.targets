@@ -39,8 +39,9 @@
 
   <!--
     A package from source is read from its folder: the restore of a document takes the assemblies of lib/<framework> nearest to its target, whatever the nuspec lists.
-    So the output of this project for a framework it no longer builds (a flavor that went: lib/net10.0-windows of VL.Skia) would win over the one it builds.
-    After each build only the frameworks this project builds keep its assembly; an emptied framework folder goes too.
+    So the output of this project for a framework it no longer builds (a flavor that went: lib/net10.0-windows of VL.Skia, VL.HDE) would win over the one it builds,
+    even without its assembly (the copies of its references are still there, and the restore takes the folder). After each build a framework folder of a framework
+    this project does not build goes whole: it is build output, and the lib folder of a package belongs to its one project.
   -->
   <Target Name="_RemoveOutputOfFrameworksNotBuilt" AfterTargets="Build" Condition="'$(VLPackageBasePath)' != '' AND '$(TargetFramework)' != '' AND Exists('$(OutDir)..')">
     <PropertyGroup>
@@ -49,15 +50,9 @@
     <ItemGroup>
       <_FrameworkFolder Include="$([System.IO.Directory]::GetDirectories('$([System.IO.Path]::GetFullPath('$(OutDir)..'))'))" />
       <_NotBuiltFrameworkFolder Include="@(_FrameworkFolder)" Condition="$([System.String]::Copy('%(Filename)%(Extension)').StartsWith('net')) AND !$(_BuiltFrameworks.Contains(';%(Filename)%(Extension);'))" />
-      <_OutputOfFrameworkNotBuilt Include="%(_NotBuiltFrameworkFolder.FullPath)\$(AssemblyName).*" />
     </ItemGroup>
-    <Message Importance="high" Condition="'@(_OutputOfFrameworkNotBuilt)' != ''" Text="$(AssemblyName): removing the output of frameworks it does not build: @(_OutputOfFrameworkNotBuilt->'%(Directory)%(Filename)%(Extension)', ', ')" />
-    <Delete Files="@(_OutputOfFrameworkNotBuilt)" />
-  </Target>
-
-  <!-- A framework folder which is empty now goes: the restore would take it as the nearest framework and find no assembly there -->
-  <Target Name="_RemoveEmptiedFrameworkFolders" AfterTargets="_RemoveOutputOfFrameworksNotBuilt" Condition="'@(_NotBuiltFrameworkFolder)' != ''">
-    <RemoveDir Directories="%(_NotBuiltFrameworkFolder.FullPath)" Condition="$([System.IO.Directory]::GetFiles('%(_NotBuiltFrameworkFolder.FullPath)').Length) == 0 AND $([System.IO.Directory]::GetDirectories('%(_NotBuiltFrameworkFolder.FullPath)').Length) == 0" />
+    <Message Importance="high" Condition="'@(_NotBuiltFrameworkFolder)' != ''" Text="$(AssemblyName): removing the output of frameworks it does not build: @(_NotBuiltFrameworkFolder->'%(FullPath)', ', ')" />
+    <RemoveDir Directories="@(_NotBuiltFrameworkFolder)" />
   </Target>
 
   <ItemGroup Condition=" '$(IsPackable)' != 'false' ">
