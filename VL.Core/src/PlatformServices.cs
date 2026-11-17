@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using Stride.Core.Mathematics;
 using System;
 using System.Collections.Generic;
@@ -67,8 +67,8 @@ namespace VL.Core
         public void SetImage(Lib.Basics.Imaging.IImage image) { }
 
         /// <summary>
-        /// Fires when the content of the clipboard changed, by this program or another; a program which puts several formats on it at once makes one change. Nothing is
-        /// watched while nobody subscribes. A subscriber is called on the <see cref="System.Threading.SynchronizationContext"/> it subscribed on, if it has one.
+        /// Fires when another program changed the content of the clipboard (what this program puts on it is not reported: a program watching for pictures does not
+        /// take its own copy); a program which puts several formats on it at once makes one change. Nothing is watched while nobody subscribes. A subscriber is called on the <see cref="System.Threading.SynchronizationContext"/> it subscribed on, if it has one.
         /// Hosts which cannot watch the clipboard give an observable that never fires (the default).
         /// </summary>
         public IObservable<Unit> Changed => System.Reactive.Linq.Observable.Never<Unit>();
@@ -86,7 +86,7 @@ namespace VL.Core
         /// <summary>Puts the picture on the clipboard in place of what was there.</summary>
         public static void SetImage(Lib.Basics.Imaging.IImage image) => PlatformServices.Default?.Clipboard?.SetImage(image);
 
-        /// <summary>Fires when the content of the clipboard changed; the clipboard is only watched while something is subscribed.</summary>
+        /// <summary>Fires when another program changed the content of the clipboard; the clipboard is only watched while something is subscribed.</summary>
         public static IObservable<Unit> Changed => PlatformServices.Default?.Clipboard?.Changed ?? System.Reactive.Linq.Observable.Never<Unit>();
     }
 
