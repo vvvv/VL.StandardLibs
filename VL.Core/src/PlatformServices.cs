@@ -50,6 +50,19 @@ namespace VL.Core
     {
         public string GetText();
         public void SetText(string text);
+
+        /// <summary>The picture on the clipboard, null when there is none or the host cannot read pictures (the default).</summary>
+        public Lib.Basics.Imaging.IImage? GetImage() => null;
+
+        /// <summary>Puts the picture on the clipboard in place of what was there. Does nothing on a host which cannot (the default).</summary>
+        public void SetImage(Lib.Basics.Imaging.IImage image) { }
+
+        /// <summary>
+        /// Fires when the content of the clipboard changed, by this program or another; a program which puts several formats on it at once makes one change. Nothing is
+        /// watched while nobody subscribes. A subscriber is called on the <see cref="System.Threading.SynchronizationContext"/> it subscribed on, if it has one.
+        /// Hosts which cannot watch the clipboard give an observable that never fires (the default).
+        /// </summary>
+        public IObservable<Unit> Changed => System.Reactive.Linq.Observable.Never<Unit>();
     }
 
     public static class Clipboard
@@ -57,6 +70,15 @@ namespace VL.Core
         public static string GetText() => PlatformServices.Default.Clipboard?.GetText();
 
         public static void SetText(string text) => PlatformServices.Default.Clipboard?.SetText(text);
+
+        /// <summary>The picture on the clipboard, null when there is none or the app cannot read pictures.</summary>
+        public static Lib.Basics.Imaging.IImage? GetImage() => PlatformServices.Default?.Clipboard?.GetImage();
+
+        /// <summary>Puts the picture on the clipboard in place of what was there.</summary>
+        public static void SetImage(Lib.Basics.Imaging.IImage image) => PlatformServices.Default?.Clipboard?.SetImage(image);
+
+        /// <summary>Fires when the content of the clipboard changed; the clipboard is only watched while something is subscribed.</summary>
+        public static IObservable<Unit> Changed => PlatformServices.Default?.Clipboard?.Changed ?? System.Reactive.Linq.Observable.Never<Unit>();
     }
 
     /// <summary>The displays of the system. Everything on the UI thread.</summary>
