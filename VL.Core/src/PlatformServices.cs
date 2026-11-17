@@ -44,6 +44,15 @@ namespace VL.Core
         /// Hosts that cannot watch the desktop (the default) give an observable that never fires.
         /// </summary>
         IObservable<Lib.IO.Notifications.INotification> GlobalInput => System.Reactive.Linq.Observable.Never<Lib.IO.Notifications.INotification>();
+
+        /// <summary>
+        /// Encrypts the bytes so that only the user who runs the program, on this computer, can decrypt them (<see cref="UnprotectForCurrentUser"/>): for a secret a program
+        /// keeps in a file, such as an access token. Null when the host keeps no secrets (the default): the program should then keep none.
+        /// </summary>
+        byte[]? ProtectForCurrentUser(byte[] data) => null;
+
+        /// <summary>Decrypts what <see cref="ProtectForCurrentUser"/> gave. Null when the host keeps no secrets, or the bytes cannot be decrypted (another user or computer, damaged).</summary>
+        byte[]? UnprotectForCurrentUser(byte[] data) => null;
     }
 
     public interface IClipboard
