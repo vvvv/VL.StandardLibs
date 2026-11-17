@@ -8,8 +8,13 @@ using System.Collections.Immutable;
 using System.Reactive.Linq;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using VL.Core.Import;
+using VL.Core.Reactive;
 
 #nullable enable
+
+// Type forward from VL.Core
+[assembly: ImportType(typeof(ChannelChoiceProvider), Category = "Reactive.Advanced")]
 
 namespace VL.Core.Reactive
 {
