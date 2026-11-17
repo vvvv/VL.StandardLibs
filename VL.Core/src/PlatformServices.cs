@@ -33,6 +33,17 @@ namespace VL.Core
 
         /// <summary>The displays (monitors) of the system. Hosts that do not know them return <see cref="NoDisplays.Instance"/>.</summary>
         IDisplays Displays => NoDisplays.Instance;
+
+        /// <summary>
+        /// The keys and the mouse of the whole desktop, whichever window or program has the focus: <see cref="Lib.IO.Notifications.KeyDownNotification"/> and
+        /// <see cref="Lib.IO.Notifications.KeyUpNotification"/> (an auto repeat is another down) with the modifiers held at that moment; mouse down, up, move, wheel and
+        /// horizontal wheel, and after an up a <see cref="Lib.IO.Notifications.MouseClickNotification"/> with the count of the click (2 for a double click).
+        /// Positions are in pixels of the virtual screen, as <see cref="DisplayInfo.Bounds"/>; the client area is empty. A subscriber gets them on the
+        /// <see cref="System.Threading.SynchronizationContext"/> it subscribed on, if it has one.
+        /// Nothing is watched while nobody subscribes: the first subscriber starts the watching, the last one to end its subscription stops it.
+        /// Hosts that cannot watch the desktop (the default) give an observable that never fires.
+        /// </summary>
+        IObservable<Lib.IO.Notifications.INotification> GlobalInput => System.Reactive.Linq.Observable.Never<Lib.IO.Notifications.INotification>();
     }
 
     public interface IClipboard
