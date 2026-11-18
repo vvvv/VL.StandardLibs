@@ -3,10 +3,13 @@
 namespace VL.Core
 {
     /// <summary>
-    /// WARNING: This interface is experimental!
+    /// Typed variant of <see cref="IVLPin"/>, avoiding boxing for value types.
     /// </summary>
     public interface IVLPin<T> : IVLPin
     {
+        /// <summary>
+        /// The current value of the pin.
+        /// </summary>
         new T? Value { get; set; }
     }
 }
