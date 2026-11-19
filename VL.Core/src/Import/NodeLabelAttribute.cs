@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.ComponentModel;
 
 namespace VL.Core.Import;
 
@@ -9,7 +10,11 @@ namespace VL.Core.Import;
 /// The editor shows a node with such a label a bit different from other nodes (in a monospace font, like code), as the user can't find it by that label in the node browser.
 /// An optional pin with this attribute is visible on new nodes, it can then be hidden per node.
 /// </summary>
+/// <remarks>
+/// Currently disabled in the editor.
+/// </remarks>
 [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class NodeLabelAttribute : Attribute
 {
 }
