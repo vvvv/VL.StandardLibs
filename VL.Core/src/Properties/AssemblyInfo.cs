@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("VL.HDE")]
 [assembly: InternalsVisibleTo("VL.UI.Core")]
 [assembly: InternalsVisibleTo("VL.UI.Forms")]
+[assembly: InternalsVisibleTo("VL.UI.PatchEditor")]
 [assembly: InternalsVisibleTo("VL.UI.PatchEditor.Utils")]
 [assembly: InternalsVisibleTo("VL.TestLib")]
 [assembly: InternalsVisibleTo("VL.TestFramework")]
