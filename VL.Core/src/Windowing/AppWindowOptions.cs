@@ -20,9 +20,7 @@ namespace VL.Core.Windowing
 
         public bool Visible { get; init; } = true;
 
-        public bool IsBorderless { get; init; }
-
-        public bool IsResizable { get; init; } = true;
+        public WindowBorderStyle BorderStyle { get; init; } = WindowBorderStyle.Sizable;
 
         public bool IsAlwaysOnTop { get; init; }
 

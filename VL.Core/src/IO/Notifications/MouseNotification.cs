@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Stride.Core.Mathematics;
 
 namespace VL.Lib.IO.Notifications
@@ -11,7 +11,10 @@ namespace VL.Lib.IO.Notifications
         MouseWheel,
         MouseHorizontalWheel,
         MouseClick,
-        DeviceLost
+        /// <summary>The mouse left the client area, or the device is gone.</summary>
+        DeviceLost,
+        /// <summary>The mouse entered the client area.</summary>
+        MouseEnter
     }
 
     public abstract class MouseNotification : NotificationWithPosition
@@ -217,6 +220,10 @@ namespace VL.Lib.IO.Notifications
             => new MouseHorizontalWheelNotification(transformer.TransformPosition(Position), transformer.TransformSize(ClientArea), WheelDelta, ModifierKeys, Sender);
     }
 
+    /// <summary>
+    /// The mouse left the client area, or the device is gone. The position lies far outside, so that nothing stays hovered.
+    /// Windows of the window contract (<see cref="VL.Core.Windowing.IAppWindow"/>) raise it when the mouse leaves; leaving is not a loss of the focus.
+    /// </summary>
     public class MouseLostNotification : MouseNotification
     {
         public MouseLostNotification(Vector2 position, Vector2 clientArea, Keys modifierKeys, object sender)
@@ -229,5 +236,23 @@ namespace VL.Lib.IO.Notifications
 
         public override INotification Transform(INotificationSpaceTransformer transformer)
             => new MouseLostNotification(transformer.TransformPosition(Position), transformer.TransformSize(ClientArea), ModifierKeys, Sender);
+    }
+
+    /// <summary>
+    /// The mouse entered the client area, at the position given. Entering is not focus: the keyboard focus is announced by <see cref="GotFocusNotification"/>.
+    /// Leaving is announced by <see cref="MouseLostNotification"/>.
+    /// </summary>
+    public class MouseEnterNotification : MouseNotification
+    {
+        public MouseEnterNotification(Vector2 position, Vector2 clientArea, Keys modifierKeys, object sender)
+            : base(MouseNotificationKind.MouseEnter, position, clientArea, modifierKeys, sender)
+        {
+        }
+
+        public override INotification WithSender(object sender)
+            => new MouseEnterNotification(Position, ClientArea, ModifierKeys, sender);
+
+        public override INotification Transform(INotificationSpaceTransformer transformer)
+            => new MouseEnterNotification(transformer.TransformPosition(Position), transformer.TransformSize(ClientArea), ModifierKeys, Sender);
     }
 }
