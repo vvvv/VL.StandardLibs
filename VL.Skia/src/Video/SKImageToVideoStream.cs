@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.HighPerformance;
-using SharpDX.Direct3D11;
 using SkiaSharp;
 using Stride.Core;
 using Stride.Core.Mathematics;
@@ -17,7 +16,10 @@ using VL.Lib.Basics.Imaging;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Basics.Video;
 using VL.Skia.Egl;
-using MapMode = SharpDX.Direct3D11.MapMode;
+using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Direct3D11;
+using Windows.Win32.Graphics.Dxgi;
+using Windows.Win32.Graphics.Dxgi.Common;
 
 [assembly: ImportType(typeof(VL.Skia.Video.SKImageToVideoStream))]
 
@@ -33,14 +35,14 @@ namespace VL.Skia.Video
     /// </remarks>
     [ProcessNode(Category = "Graphics.Skia.Video")]
     [System.Runtime.Versioning.SupportedOSPlatform("windows6.1")]
-    public sealed class SKImageToVideoStream : IDisposable
+    public sealed unsafe class SKImageToVideoStream : IDisposable
     {
         record struct MetadataAndFrameRate(string Metadata, (int N, int D) FrameRate);
 
         private static readonly IRefCounter<SKImage> refCounter = RefCounting.GetRefCounter<SKImage>();
 
         private readonly SynchronizationContext synchronizationContext = SynchronizationContext.Current;
-        private readonly Queue<(Texture2D texture, MetadataAndFrameRate metadata)> textureDownloads = new();
+        private readonly Queue<(nint texture, MetadataAndFrameRate metadata)> textureDownloads = new();
         private readonly Subject<IResourceProvider<VideoFrame>> frames = new Subject<IResourceProvider<VideoFrame>>();
         private readonly SerialDisposable texturePoolSubscription = new SerialDisposable();
         private readonly RenderContextProvider renderContextProvider;
@@ -48,8 +50,10 @@ namespace VL.Skia.Video
 
         // Nullable
         private RenderContext previousRenderContext;
-        private Device device;
-        private Texture2D renderTarget;
+        // The device of the render context (not ours), and the texture Skia draws into
+        private ID3D11Device* device;
+        private ID3D11Texture2D* renderTarget;
+        private D3D11_TEXTURE2D_DESC renderTargetDescription;
         private EglSurface eglSurface;
         private SKSurface surface;
 
@@ -79,8 +83,7 @@ namespace VL.Skia.Video
             {
                 previousRenderContext = renderContext;
 
-                if (renderContext.EglContext.Display.TryGetD3D11Device(out var devicePtr))
-                    device = new Device(devicePtr);
+                device = renderContext.EglContext.Display.TryGetD3D11DeviceInterface(out var d3dDevice) ? d3dDevice : null;
             }
 
             using var _ = renderContext.MakeCurrent(forRendering: false);
@@ -101,70 +104,93 @@ namespace VL.Skia.Video
             // - Create staging texture
             // - Copy render texture into staging texture
 
-            var description = new Texture2DDescription()
+            var description = new D3D11_TEXTURE2D_DESC()
             {
-                Width = skImage.Width,
-                Height = skImage.Height,
+                Width = (uint)skImage.Width,
+                Height = (uint)skImage.Height,
                 MipLevels = 1,
                 ArraySize = 1,
-                Format = SharpDX.DXGI.Format.B8G8R8A8_UNorm,
-                SampleDescription = new SharpDX.DXGI.SampleDescription(1, 0),
-                Usage = ResourceUsage.Default,
-                CpuAccessFlags = CpuAccessFlags.None,
-                BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                OptionFlags = ResourceOptionFlags.Shared
+                Format = DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM,
+                SampleDesc = new DXGI_SAMPLE_DESC() { Count = 1, Quality = 0 },
+                Usage = D3D11_USAGE.D3D11_USAGE_DEFAULT,
+                CPUAccessFlags = 0,
+                BindFlags = D3D11_BIND_FLAG.D3D11_BIND_RENDER_TARGET | D3D11_BIND_FLAG.D3D11_BIND_SHADER_RESOURCE,
+                MiscFlags = D3D11_RESOURCE_MISC_FLAG.D3D11_RESOURCE_MISC_SHARED
             };
 
             var stagingDescription = description;
-            stagingDescription.CpuAccessFlags = CpuAccessFlags.Read;
-            stagingDescription.BindFlags = BindFlags.None;
-            stagingDescription.Usage = ResourceUsage.Staging;
-            stagingDescription.OptionFlags = ResourceOptionFlags.None;
+            stagingDescription.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG.D3D11_CPU_ACCESS_READ;
+            stagingDescription.BindFlags = 0;
+            stagingDescription.Usage = D3D11_USAGE.D3D11_USAGE_STAGING;
+            stagingDescription.MiscFlags = 0;
 
             var texturePool = GetTexturePool(device, stagingDescription);
 
             // Render into a temp target and request copy of it to staging texture
             {
-                if (renderTarget is null || renderTarget.Description.Width != description.Width || renderTarget.Description.Height != description.Height)
+                if (renderTarget is null || renderTargetDescription.Width != description.Width || renderTargetDescription.Height != description.Height)
                 {
                     surface?.Dispose();
                     eglSurface?.Dispose();
-                    renderTarget?.Dispose();
+                    ReleaseRenderTarget();
 
-                    renderTarget = new Texture2D(device, description);
+                    ID3D11Texture2D* texture;
+                    device->CreateTexture2D(&description, null, &texture);
+                    renderTarget = texture;
+                    renderTargetDescription = description;
 
-                    //eglSurface = eglContext.CreateSurfaceFromClientBuffer(renderTarget.NativePointer);
-                    using var sharedResource = renderTarget.QueryInterface<SharpDX.DXGI.Resource>();
-                    eglSurface = renderContext.EglContext.CreateSurfaceFromSharedHandle(description.Width, description.Height, sharedResource.SharedHandle);
+                    IDXGIResource* sharedResource;
+                    renderTarget->QueryInterface(out sharedResource).ThrowOnFailure();
+                    HANDLE sharedHandle;
+                    try
+                    {
+                        sharedResource->GetSharedHandle(&sharedHandle);
+                    }
+                    finally
+                    {
+                        sharedResource->Release();
+                    }
+                    eglSurface = renderContext.EglContext.CreateSurfaceFromSharedHandle(skImage.Width, skImage.Height, sharedHandle);
 
                     // Setup a skia surface around the currently set render target
-                    surface = CreateSkSurface(renderContext, eglSurface, renderTarget);
+                    surface = CreateSkSurface(renderContext, eglSurface, skImage.Width, skImage.Height);
                 }
 
                 // Render
                 var canvas = surface.Canvas;
                 canvas.DrawImage(skImage, 0f, 0f);
+                // The drawing reaches the device before the copy does: Skia submits it to ANGLE, ANGLE to the immediate context the copy goes to
+                surface.Flush();
+                NativeGles.glFlush();
 
                 var stagingTexture = texturePool.Rent();
-                device.ImmediateContext.CopyResource(renderTarget, stagingTexture);
-                textureDownloads.Enqueue((stagingTexture, new MetadataAndFrameRate(metadata, frameRate)));
+                using (var deviceContext = ImmediateContext())
+                    deviceContext.Ptr->CopyResource((ID3D11Resource*)stagingTexture, (ID3D11Resource*)renderTarget);
+                textureDownloads.Enqueue(((nint)stagingTexture, new MetadataAndFrameRate(metadata, frameRate)));
             }
 
             // Download recently staged
             {
-                var (stagedTexture, stagedMetadata) = textureDownloads.Peek();
+                var (staged, stagedMetadata) = textureDownloads.Peek();
+                var stagedTexture = (ID3D11Texture2D*)staged;
                 var doNotWait = textureDownloads.Count <= 8 /* Under normal scenarios we shouldn't reach this limit */;
-                var data = device.ImmediateContext.MapSubresource(stagedTexture, 0, MapMode.Read, doNotWait ? MapFlags.DoNotWait : MapFlags.None);
-                if (!data.IsEmpty)
+                D3D11_MAPPED_SUBRESOURCE data;
+                HRESULT mapped;
+                using (var deviceContext = ImmediateContext())
+                    mapped = deviceContext.Ptr->Map((ID3D11Resource*)stagedTexture, 0, D3D11_MAP.D3D11_MAP_READ, doNotWait ? (uint)D3D11_MAP_FLAG.D3D11_MAP_FLAG_DO_NOT_WAIT : 0u, &data);
+                if (mapped.Succeeded)
                 {
                     // Dequeue
                     textureDownloads.Dequeue();
 
                     // Setup the new image resource
-                    var stagedDescription = stagedTexture.Description;
-                    var memoryOwner = new UnmanagedMemoryManager<BgraPixel>(data.DataPointer, data.SlicePitch);
-                    var pitch = data.RowPitch - (stagedDescription.Width * Unsafe.SizeOf<BgraPixel>());
-                    var videoFrame = new VideoFrame<BgraPixel>(memoryOwner.Memory.AsMemory2D(0, stagedDescription.Height, stagedDescription.Width, pitch), stagedMetadata.Metadata, FrameRate: stagedMetadata.FrameRate);
+                    stagedTexture->GetDesc(out var stagedDescription);
+                    var width = (int)stagedDescription.Width;
+                    var height = (int)stagedDescription.Height;
+                    // The rows of the mapped texture are RowPitch bytes apart; the pitch of the frame is the padding of a row in pixels
+                    var memoryOwner = new UnmanagedMemoryManager<BgraPixel>((nint)data.pData, (int)data.RowPitch * height);
+                    var pitch = (int)data.RowPitch / Unsafe.SizeOf<BgraPixel>() - width;
+                    var videoFrame = new VideoFrame<BgraPixel>(memoryOwner.Memory.AsMemory2D(0, height, width, pitch), stagedMetadata.Metadata, FrameRate: stagedMetadata.FrameRate);
                     var videoFrameProvider = ResourceProvider.Return(videoFrame, ReleaseVideoFrame);
                     using (videoFrameProvider.GetHandle())
                     {
@@ -179,14 +205,18 @@ namespace VL.Skia.Video
                         else
                         {
                             ((IDisposable)memoryOwner).Dispose();
-                            device?.ImmediateContext.UnmapSubresource(stagedTexture, 0);
-                            texturePool.Return(stagedTexture);
+                            if (device != null)
+                            {
+                                using var deviceContext = ImmediateContext();
+                                deviceContext.Ptr->Unmap((ID3D11Resource*)staged, 0);
+                            }
+                            texturePool.Return((ID3D11Texture2D*)staged);
                         }
                     }
                 }
             }
 
-            SKSurface CreateSkSurface(RenderContext context, EglSurface eglSurface, Texture2D texture)
+            SKSurface CreateSkSurface(RenderContext context, EglSurface eglSurface, int width, int height)
             {
                 var eglContext = context.EglContext;
 
@@ -215,8 +245,8 @@ namespace VL.Skia.Video
                     format: colorType.ToGlSizedFormat());
 
                 using var renderTarget = new GRBackendRenderTarget(
-                    width: texture.Description.Width,
-                    height: texture.Description.Height,
+                    width: width,
+                    height: height,
                     sampleCount: samples,
                     stencilBits: stencil,
                     glInfo: glInfo);
@@ -229,7 +259,7 @@ namespace VL.Skia.Video
                     colorspace: SKColorSpace.CreateSrgb());
             }
 
-            D3D11TexturePool GetTexturePool(Device graphicsDevice, in Texture2DDescription description )
+            D3D11TexturePool GetTexturePool(ID3D11Device* graphicsDevice, in D3D11_TEXTURE2D_DESC description)
             {
                 return D3D11TexturePool.Get(graphicsDevice, in description)
                     .Subscribe(texturePoolSubscription);
@@ -237,6 +267,22 @@ namespace VL.Skia.Video
 
             [DllImport("libGLESv2.dll")]
             static extern void glFramebufferTexture2D(uint target, uint attachment, uint textarget, uint texture, int level);
+        }
+
+        private ComPtr<ID3D11DeviceContext> ImmediateContext()
+        {
+            ID3D11DeviceContext* deviceContext;
+            device->GetImmediateContext(&deviceContext);
+            return deviceContext;
+        }
+
+        private void ReleaseRenderTarget()
+        {
+            if (renderTarget != null)
+            {
+                renderTarget->Release();
+                renderTarget = null;
+            }
         }
 
         private void DownloadWithRasterImage(SKImage skImage, string metadata, (int N, int D) frameRate)
@@ -259,7 +305,7 @@ namespace VL.Skia.Video
 
             var pixmap = rasterImage.PeekPixels();
             var memoryOwner = new UnmanagedMemoryManager<BgraPixel>(pixmap.GetPixels(), pixmap.BytesSize);
-            var pitch = pixmap.RowBytes - (pixmap.Width * pixmap.BytesPerPixel);
+            var pitch = pixmap.RowBytes / pixmap.BytesPerPixel - pixmap.Width;
             var videoFrame = new VideoFrame<BgraPixel>(memoryOwner.Memory.AsMemory2D(0, pixmap.Height, pixmap.Width, pitch), metadata, FrameRate: frameRate);
             var videoFrameProvider = ResourceProvider.Return(videoFrame, (rasterImage, pixmap, (IDisposable)memoryOwner), static x =>
             {
@@ -278,13 +324,13 @@ namespace VL.Skia.Video
             texturePoolSubscription.Dispose();
 
             while (textureDownloads.Count > 0)
-                textureDownloads.Dequeue().texture.Dispose();
+                ((ID3D11Texture2D*)textureDownloads.Dequeue().texture)->Release();
 
             var renderContext = renderContextProvider.GetRenderContext();
             using var _ = renderContext.MakeCurrent(forRendering: false);
             surface?.Dispose();
             eglSurface?.Dispose();
-            renderTarget?.Dispose();
+            ReleaseRenderTarget();
             device = null;
         }
     }

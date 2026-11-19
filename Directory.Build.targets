@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project>
 
   <!-- Import VL custom Stride asset compiler targets -->
@@ -35,6 +35,24 @@
       <_NuspecDestinationPath Condition="'$(_NuspecDestinationPath)' == ''">$(MSBuildProjectDirectory)\..\$(PackageId).gen.nuspec</_NuspecDestinationPath>
     </PropertyGroup>
     <Copy Condition="Exists('$(_GeneratedNuspecFile)')" SourceFiles="$(_GeneratedNuspecFile)" DestinationFiles="$(_NuspecDestinationPath)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <!--
+    A package from source is read from its folder: the restore of a document takes the assemblies of lib/<framework> nearest to its target, whatever the nuspec lists.
+    So the output of this project for a framework it no longer builds (a flavor that went: lib/net10.0-windows of VL.Skia, VL.HDE) would win over the one it builds,
+    even without its assembly (the copies of its references are still there, and the restore takes the folder). After each build a framework folder of a framework
+    this project does not build goes whole: it is build output, and the lib folder of a package belongs to its one project.
+  -->
+  <Target Name="_RemoveOutputOfFrameworksNotBuilt" AfterTargets="Build" Condition="'$(VLPackageBasePath)' != '' AND '$(TargetFramework)' != '' AND Exists('$(OutDir)..')">
+    <PropertyGroup>
+      <_BuiltFrameworks>;$(TargetFrameworks);$(TargetFramework);</_BuiltFrameworks>
+    </PropertyGroup>
+    <ItemGroup>
+      <_FrameworkFolder Include="$([System.IO.Directory]::GetDirectories('$([System.IO.Path]::GetFullPath('$(OutDir)..'))'))" />
+      <_NotBuiltFrameworkFolder Include="@(_FrameworkFolder)" Condition="$([System.String]::Copy('%(Filename)%(Extension)').StartsWith('net')) AND !$(_BuiltFrameworks.Contains(';%(Filename)%(Extension);'))" />
+    </ItemGroup>
+    <Message Importance="high" Condition="'@(_NotBuiltFrameworkFolder)' != ''" Text="$(AssemblyName): removing the output of frameworks it does not build: @(_NotBuiltFrameworkFolder->'%(FullPath)', ', ')" />
+    <RemoveDir Directories="@(_NotBuiltFrameworkFolder)" />
   </Target>
 
   <ItemGroup Condition=" '$(IsPackable)' != 'false' ">
