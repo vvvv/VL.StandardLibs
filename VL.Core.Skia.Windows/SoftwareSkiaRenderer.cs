@@ -7,21 +7,23 @@ using SkiaSharp;
 
 namespace VL.Skia;
 
-internal sealed class SoftwareSkiaRenderer : ISkiaRenderer
+/// <summary>Skia on the CPU into a GDI bitmap, drawn with the <see cref="Graphics"/> of a paint event: <see cref="SkiaControl"/> without a render context.</summary>
+internal sealed class SoftwareSkiaRenderer : IDisposable
 {
     private Bitmap? bitmap;
     private bool disposed;
     private readonly RenderStopwatch stopwatch = new();
 
+    /// <summary>The time in microseconds spent inside the renderAction of the last Render call.</summary>
     public float RenderTime => stopwatch.RenderTime;
 
     public CallerInfo CallerInfo { get; private set; } = CallerInfo.Default;
 
-    public void Render(nint hwnd, int width, int height, float scaling, bool vsync, Action<CallerInfo> renderAction, Graphics? gdiTarget = null)
+    public void Render(int width, int height, float scaling, Action<CallerInfo> renderAction, Graphics gdiTarget)
     {
         if (disposed)
             throw new ObjectDisposedException(nameof(SoftwareSkiaRenderer));
-        if (width <= 0 || height <= 0 || gdiTarget is null)
+        if (width <= 0 || height <= 0)
             return;
 
         stopwatch.StartRender();

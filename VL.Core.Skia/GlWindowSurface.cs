@@ -23,6 +23,7 @@ namespace VL.Skia
 
         readonly IAppWindow window;
         readonly IGlWindowSurface gl;
+        readonly IPresentedFrames? presentedFrames;
         readonly RenderStopwatch stopwatch = new();
         GRGlInterface? glInterface;
         GRContext? grContext;
@@ -37,6 +38,7 @@ namespace VL.Skia
         {
             this.window = window;
             this.gl = gl;
+            presentedFrames = window.GetFeature<IPresentedFrames>();
         }
 
         public bool VSync
@@ -108,6 +110,7 @@ namespace VL.Skia
             }
 
             gl.SwapBuffers();
+            presentedFrames?.FramePresented();
             return true;
         }
 

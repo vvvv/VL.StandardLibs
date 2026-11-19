@@ -7,12 +7,12 @@ using static Windows.Win32.PInvoke;
 using static Windows.Win32.UI.WindowsAndMessaging.POINTER_INPUT_TYPE;
 using static Windows.Win32.UI.Input.Pointer.POINTER_FLAGS;
 
-namespace VL.Skia;
+namespace VL.Core.Windows;
 
 /// <summary>
-/// Shared helper that processes pointer/touch messages and generates TouchNotifications.
+/// Turns the pointer messages of touch input (WM_POINTER*) of a Windows Forms control into <see cref="TouchNotification"/>s. Call it from <c>WndProc</c>.
 /// </summary>
-internal static class TouchMessageProcessor
+public static class TouchMessageProcessor
 {
     [SupportedOSPlatform("Windows8.0")]
     public static bool TryHandle(ref Message m, Control target, IObserver<TouchNotification> sink)

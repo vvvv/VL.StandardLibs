@@ -21,6 +21,7 @@ namespace VL.Core.Windowing
 
         bool Visible { get; set; }
 
+        /// <summary>Has the keyboard focus. The mouse over the window is not focus.</summary>
         bool IsFocused { get; }
 
         /// <summary>Position of the client area in virtual screen pixels.</summary>
@@ -28,6 +29,13 @@ namespace VL.Core.Windowing
 
         /// <summary>Size of the client area in pixels.</summary>
         Int2 ClientSize { get; set; }
+
+        /// <summary>
+        /// The frame around the client area (borders, title bar), in pixels: the outer bounds of the window are the client bounds
+        /// (<see cref="Position"/>, <see cref="ClientSize"/>) grown by it. Zero where the window has no frame (borderless, fullscreen)
+        /// and where the window system does not say (X11 without a window manager).
+        /// </summary>
+        WindowFrameMargins FrameMargins { get; }
 
         /// <summary>Pixels per DIP (1 at 96 dpi, 1.5 at 144 dpi). A change is announced by <see cref="WindowDpiChangedNotification"/>.</summary>
         float ScaleFactor { get; }
@@ -37,10 +45,10 @@ namespace VL.Core.Windowing
         /// <summary>Borderless on the display the window is on. Switching it off restores the bounds and the decorations the window had before.</summary>
         bool IsFullscreen { get; set; }
 
-        bool IsBorderless { get; set; }
+        /// <summary>The frame of the window: none, one of fixed size, or one the user can size. Fullscreen has no frame; switching it off brings this one back.</summary>
+        WindowBorderStyle BorderStyle { get; set; }
 
-        bool IsResizable { get; set; }
-
+        /// <summary>Above the other windows. A change, by the program or by the user (the system menu of a Windows window), is announced by <see cref="WindowAlwaysOnTopChangedNotification"/>.</summary>
         bool IsAlwaysOnTop { get; set; }
 
         WindowCursor Cursor { get; set; }
@@ -52,9 +60,11 @@ namespace VL.Core.Windowing
         void SetBounds(Int2 position, Int2 clientSize);
 
         /// <summary>
-        /// Everything the user or the system does to the window, in the order it happened: mouse, keyboard, touch, text input,
-        /// <see cref="GotFocusNotification"/>, <see cref="LostFocusNotification"/>, drops and the window notifications
-        /// (<see cref="WindowResizedNotification"/>, <see cref="WindowMovedNotification"/>, ...).
+        /// Everything the user or the system does to the window, in the order it happened: mouse, keyboard, touch, text input, drops and the
+        /// window notifications (<see cref="WindowResizedNotification"/>, <see cref="WindowMovedNotification"/>, ...).
+        /// <see cref="GotFocusNotification"/> and <see cref="LostFocusNotification"/> mean the keyboard focus and nothing else (a <see cref="KeyboardLostNotification"/>
+        /// comes before the <see cref="LostFocusNotification"/>); the mouse entering and leaving the client area is <see cref="MouseEnterNotification"/> and
+        /// <see cref="MouseLostNotification"/>.
         /// Hot and shared; raised on the UI thread, in the call that pumps the events. Positions are in client pixels.
         /// A subscriber sets <see cref="INotification.Handled"/> to tell the window that it dealt with the notification:
         /// for <see cref="WindowCloseRequestedNotification"/> that means "do not close".
@@ -71,7 +81,7 @@ namespace VL.Core.Windowing
         NativeWindowHandle NativeHandle { get; }
 
         /// <summary>
-        /// Optional features of a window, like <see cref="IGlWindowSurface"/>. Returns null if the window does not have it. Never throws.
+        /// Optional features of a window, like <see cref="IGlWindowSurface"/> or <see cref="IWindowTitleBar"/>. Returns null if the window does not have it. Never throws.
         /// </summary>
         T? GetFeature<T>() where T : class;
     }
@@ -81,6 +91,17 @@ namespace VL.Core.Windowing
         Normal,
         Minimized,
         Maximized
+    }
+
+    /// <summary>The frame of a window (<see cref="IAppWindow.BorderStyle"/>).</summary>
+    public enum WindowBorderStyle
+    {
+        /// <summary>No frame and no title bar; the user cannot size the window.</summary>
+        None,
+        /// <summary>A frame with a title bar; the user cannot size the window.</summary>
+        Fixed,
+        /// <summary>A frame with a title bar; the user can size the window.</summary>
+        Sizable,
     }
 
     public enum WindowCursor
@@ -113,4 +134,7 @@ namespace VL.Core.Windowing
     /// Cocoa: <see cref="Handle"/> = NSWindow*, <see cref="View"/> = NSView*.
     /// </summary>
     public readonly record struct NativeWindowHandle(NativeWindowKind Kind, nint Handle, nint Display = 0, nint View = 0);
+
+    /// <summary>The sizes of the frame of a window around its client area (<see cref="IAppWindow.FrameMargins"/>), in pixels.</summary>
+    public readonly record struct WindowFrameMargins(int Left, int Top, int Right, int Bottom);
 }

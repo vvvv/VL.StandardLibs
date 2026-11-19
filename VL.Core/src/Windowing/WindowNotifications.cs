@@ -97,6 +97,36 @@ namespace VL.Core.Windowing
         public override INotification Transform(INotificationSpaceTransformer transformer) => this;
     }
 
+    /// <summary>The window became always on top or stopped being it (<see cref="IAppWindow.IsAlwaysOnTop"/>), by the program or by the user.</summary>
+    public sealed class WindowAlwaysOnTopChangedNotification : NotificationBase
+    {
+        public readonly bool IsAlwaysOnTop;
+
+        public WindowAlwaysOnTopChangedNotification(bool isAlwaysOnTop, object sender)
+            : base(sender, Keys.None)
+        {
+            IsAlwaysOnTop = isAlwaysOnTop;
+        }
+
+        public override INotification WithSender(object sender) => new WindowAlwaysOnTopChangedNotification(IsAlwaysOnTop, sender);
+        public override INotification Transform(INotificationSpaceTransformer transformer) => this;
+    }
+
+    /// <summary>The client area of the window was extended into the title bar or given it back (<see cref="IWindowTitleBar.ExtendIntoTitleBar"/>), by the program or by the user.</summary>
+    public sealed class WindowTitleBarChangedNotification : NotificationBase
+    {
+        public readonly bool ExtendIntoTitleBar;
+
+        public WindowTitleBarChangedNotification(bool extendIntoTitleBar, object sender)
+            : base(sender, Keys.None)
+        {
+            ExtendIntoTitleBar = extendIntoTitleBar;
+        }
+
+        public override INotification WithSender(object sender) => new WindowTitleBarChangedNotification(ExtendIntoTitleBar, sender);
+        public override INotification Transform(INotificationSpaceTransformer transformer) => this;
+    }
+
     /// <summary>Sent by <see cref="IAppWindowService.WindowListChanged"/>.</summary>
     public sealed class WindowListChangedNotification : NotificationBase
     {
