@@ -61,7 +61,9 @@ namespace VL.ImGui
 
                 _fontPaint = new Handle<SKPaint>(new SKPaint());
 
-                var scaling = VL.UI.Core.DIPHelpers.DIPFactor();
+                // Unscaled until the first update takes the scale of the window: scaling the style from the one of the process first and then to the one of the window
+                // would round twice (a window of scale 1 in a process at 150 % got rows 1 pixel closer than one in a process at 100 %)
+                var scaling = 1f;
                 updateScaling(fontScaling: scaling, uiScaling: scaling);
             }
         }
@@ -75,6 +77,14 @@ namespace VL.ImGui
 
             using (_context.MakeCurrent())
             {
+                // The scale of the window the layer draws in (pixels per DIP), not the one of the process: on a Retina display the window has 2 while
+                // DIPHelpers.DIPFactor() says 1 off Windows, and the fonts were built at 1, magnified, and the display was twice as wide as the window
+                if (_lastCallerInfo.Scaling > 0)
+                    updateScaling(fontScaling: _lastCallerInfo.Scaling, uiScaling: _lastCallerInfo.Scaling);
+
+                // after the scale is known, so that the conversions of this update are the new ones
+                using var scaling = WindowScaling();
+
                 if (!_fonts.SequenceEqual(fonts))
                 {
                     _fonts = fonts;
@@ -151,10 +161,13 @@ namespace VL.ImGui
             }
             if (uiScaling != _uiScaling) 
             {
+                // ScaleAllSizes multiplies the sizes of the style it has: from the scale before to the new one
+                RenderHelper.UpdateUIScaling(_uiScaling > 0 ? uiScaling / _uiScaling : uiScaling);
                 _uiScaling = uiScaling;
-                RenderHelper.UpdateUIScaling(uiScaling);
             }
         }
+
+        IDisposable WindowScaling() => ImGuiConversion.UseScaling(_uiScaling);
 
         public unsafe void Render(CallerInfo caller)
         {
@@ -207,13 +220,15 @@ namespace VL.ImGui
         private void Render(CallerInfo caller, ImDrawDataPtr drawData)
         {
             var canvas = caller.Canvas;
+            // Where the solid shapes take their colour from: the white pixel of the font atlas
+            var whitePixel = new SKPoint(_io.Fonts.TexUvWhitePixel.X, _io.Fonts.TexUvWhitePixel.Y);
             //using var _ = new SKAutoCanvasRestore(canvas, true);
+            using var scaling = WindowScaling();
             canvas.Save();
             try
             {
                 var us = PushTransformation(caller, SKMatrix.CreateScale(ImGuiConversion.FromImGuiScaling, ImGuiConversion.FromImGuiScaling));
                     canvas.SetMatrix(us.Transformation);
-                //updateScaling(us.Transformation.ScaleY);
 
                 for (int i = 0; i < drawData.CmdListsCount; ++i)
                 {
@@ -280,26 +295,14 @@ namespace VL.ImGui
                                 if (paint is null)
                                     continue;
 
-                                // Managed approach - we need to allocate arrays for each call
-                                //var indices = new ushort[drawCmd.ElemCount];
-                                //for (int k = 0; k < indices.Length; k++)
-                                //    indices[k] = drawList.IdxBuffer[indexOffset + k];
-
-                                //canvas.DrawVertices(SKVertexMode.Triangles, pos, uv, color, SKBlendMode.Modulate, indices, paint);
-
-                                // Native approach - allocation free
+                                // Without a GPU the solid shapes of ImGui are drawn apart (ImGuiVertices)
                                 unsafe
                                 {
                                     var indexPtr = (ushort*)drawList.IdxBuffer.Data.ToPointer() + drawCmd.IdxOffset;
                                     fixed (SKPoint* pPos = pos)
                                     fixed (SKPoint* pTex = uv)
                                     fixed (SKColor* pColor = color)
-                                    {
-                                        var vertices = sk_vertices_make_copy(SKVertexMode.Triangles, size, pPos, pTex, (uint*)pColor, (int)drawCmd.ElemCount, indexPtr);
-                                        sk_canvas_draw_vertices(canvas.Handle, vertices, SKBlendMode.Modulate, paint.Handle);
-                                        sk_vertices_unref(vertices);
-                                            
-                                    }
+                                        ImGuiVertices.Draw(canvas, pPos, pTex, pColor, size, indexPtr, (int)drawCmd.ElemCount, paint, whitePixel, hasGpu: caller.GRContext is not null);
                                 }
                             } 
                         }
@@ -318,16 +321,6 @@ namespace VL.ImGui
             {
                 canvas.Restore();
             }
-
-            // Taken from SkiaApi - allows us to draw the vertices without allocating
-            [DllImport("libSkiaSharp", CallingConvention = CallingConvention.Cdecl)]
-            static extern void sk_canvas_draw_vertices(IntPtr ccanvas, IntPtr vertices, SKBlendMode mode, IntPtr paint);
-
-            [DllImport("libSkiaSharp", CallingConvention = CallingConvention.Cdecl)]
-            unsafe static extern IntPtr sk_vertices_make_copy(SKVertexMode vmode, int vertexCount, SKPoint* positions, SKPoint* texs, uint* colors, int indexCount, ushort* indices);
-
-            [DllImport("libSkiaSharp", CallingConvention = CallingConvention.Cdecl)]
-            static extern void sk_vertices_unref(IntPtr cvertices);
         }
 
         public CallerInfo PushTransformation(CallerInfo caller, SKMatrix relative)
@@ -344,6 +337,7 @@ namespace VL.ImGui
             ObjectDisposedException.ThrowIf(_disposed, this);
 
             using (_context.MakeCurrent())
+            using (WindowScaling())
             {
                 _io.HandleNotification(notification);
 

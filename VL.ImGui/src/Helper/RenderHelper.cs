@@ -98,11 +98,12 @@ namespace VL.ImGui
                         break;
                     case MouseNotificationKind.MouseWheel:
                         if (mouseNotification is MouseWheelNotification wheel)
-                            _io.AddMouseWheelEvent(0, wheel.WheelDelta / 120);
+                            // A notch of a wheel is 120; a trackpad and the wheel of macOS give fractions of it, which an integer division dropped
+                            _io.AddMouseWheelEvent(0, wheel.WheelDelta / 120f);
                         break;
                     case MouseNotificationKind.MouseHorizontalWheel:
                         if (mouseNotification is MouseHorizontalWheelNotification hWheel)
-                            _io.AddMouseWheelEvent(hWheel.WheelDelta / 120, 0);
+                            _io.AddMouseWheelEvent(hWheel.WheelDelta / 120f, 0);
                         break;
                     case MouseNotificationKind.DeviceLost:
                         _io.ClearInputKeys();
@@ -144,6 +145,10 @@ namespace VL.ImGui
                     continue;
 
                 var fontPath = FontListDefinition.GetFontPath(font.FamilyName.Value, font.FontStyle);
+                // A custom range asks for code points of that family (the icons of Segoe MDL2 Assets in the private use area): another family has other
+                // glyphs there or none, and ImGui crashes building a font without any glyph (ImFont::BuildLookupTable). So only a font of text is replaced
+                if (fontPath.IsDefault && font.CustomRanges is null)
+                    fontPath = GetSubstitutePath(font.FamilyName.Value, font.FontStyle);
                 if (fontPath.IsDefault)
                     continue;
 
@@ -182,12 +187,40 @@ namespace VL.ImGui
 
             if (!anyFontLoaded)
             {
-                atlas.AddFontDefault();
+                // The font of ImGui (13 pixels) at the scale of the window too
+                unsafe
+                {
+                    var cfg = ImGuiNative.ImFontConfig_ImFontConfig();
+                    cfg->SizePixels = 13f * scaling;
+                    atlas.AddFontDefault(cfg);
+                    ImGuiNative.ImFontConfig_destroy(cfg);
+                }
             }
 
             atlas.Build();
 
             return atlas;
+
+            // A family which the system does not have (Consolas of the log view on macOS and Linux) is replaced by one of the same kind which it has: before, it was
+            // left out, and with nothing loaded ImGui drew its own pixel font of 13 pixels, which does not follow the scale of the window
+            static FontListDefinition.FontPath GetSubstitutePath(string family, FontStyle style)
+            {
+                var monospaced = family.Contains("Mono", StringComparison.OrdinalIgnoreCase) || family.Contains("Consol", StringComparison.OrdinalIgnoreCase)
+                    || family.Contains("Courier", StringComparison.OrdinalIgnoreCase) || family.Contains("Code", StringComparison.OrdinalIgnoreCase)
+                    || family.Contains("Menlo", StringComparison.OrdinalIgnoreCase);
+                string[] substitutes = monospaced
+                    ? ["Consolas", "Menlo", "SF Mono", "Monaco", "DejaVu Sans Mono", "Liberation Mono", "Noto Sans Mono", "Ubuntu Mono", "Courier New"]
+                    : [FontConfig.Default?.FamilyName.Value ?? "", "Segoe UI", "Helvetica Neue", "Helvetica", "DejaVu Sans", "Liberation Sans", "Arial"];
+                foreach (var substitute in substitutes)
+                {
+                    if (string.IsNullOrEmpty(substitute) || string.Equals(substitute, family, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    var path = FontListDefinition.GetFontPath(substitute, style);
+                    if (!path.IsDefault)
+                        return path;
+                }
+                return default;
+            }
 
             static IntPtr GetGlypthRange(ImFontAtlasPtr atlas, GlyphRange glyphRange)
             {
