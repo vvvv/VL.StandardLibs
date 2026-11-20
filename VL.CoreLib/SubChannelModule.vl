@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" xmlns:r="reflection" Id="M9dWAzkiLFaOBsdAafTlsS" LanguageVersion="2025.7.4-0008-gc5eb9aa2fd" Version="0.128">
+<Document xmlns:p="property" xmlns:r="reflection" Id="M9dWAzkiLFaOBsdAafTlsS" LanguageVersion="2026.8.0-0363-gd68869f7b9" Version="0.128">
   <Patch Id="JLHZ1cVYh5tPSBf9kOUon9">
     <Canvas Id="Gv6AOC6DJebQLJLEAg2IuZ" DefaultCategory="Application.ChannelHub.Modules" CanvasType="FullCategory">
       <Canvas Id="OqVMba3eXYeMmDTr9g3vrK" Name="SubChannels" Position="408,412">
@@ -1006,6 +1006,7 @@
                           <Pin Id="GjuuLuZbGKJNikY8z98dms" Name="Path" Kind="InputPin" />
                           <Pin Id="I4PkhImKvZuQIbEY6Fw5KD" Name="Value" Kind="InputPin" />
                           <Pin Id="TRFvPJkh8lFLm5nl4jusR7" Name="Output" Kind="StateOutputPin" />
+                          <Pin Id="M7xmlv15A3HMOLe1ilvJOi" Name="Path Exists" Kind="OutputPin" />
                         </Node>
                         <Node Bounds="908,610,88,26" Id="Cca8ao5JFrCOVFA5XRO7kG">
                           <p:NodeReference LastCategoryFullName="Reactive.Channel (Ungeneric)" LastDependency="VL.CoreLib.vl">
@@ -1183,7 +1184,28 @@
               <Patch Id="NirluK4QA78PBuHpM1q5RV" Name="Create" />
               <Patch Id="OTecjnjCYUKL129J8g2E9G" Name="Update" ManuallySortedPins="true">
                 <Pin Id="JdboiRVaexUNc0MXgpHLh3" Name="Input" Kind="InputPin" Bounds="169,250" />
-                <Pin Id="JTHgJtGKHveQCVtJvjQ4pE" Name="Path" Kind="InputPin" Bounds="931,320" />
+                <Pin Id="JTHgJtGKHveQCVtJvjQ4pE" Name="Path" Kind="InputPin" Bounds="931,320">
+                  <p:Attributes>
+                    <AttributeData>
+                      <p:TypeReference LastCategoryFullName="VL.Core.Import" LastDependency="VL.Reactive.vl">
+                        <Choice Kind="TypeFlag" Name="ChoiceProviderAttribute" />
+                        <FullNameCategoryReference ID="VL.Core.Import" />
+                        <AssemblyReference ID="VL.Core.dll" />
+                      </p:TypeReference>
+                      <p:Arguments>
+                        <AttributeArgument>
+                          <p:Value SerializedValue="ValuePathChoiceProvider">
+                            <p:TypeAnnotation LastCategoryFullName="System.Reflection" LastDependency="System.Reflection.vl">
+                              <Choice Kind="TypeFlag" Name="Type" />
+                              <FullNameCategoryReference ID="System" />
+                              <AssemblyReference ID="System.Runtime.dll" />
+                            </p:TypeAnnotation>
+                          </p:Value>
+                        </AttributeArgument>
+                      </p:Arguments>
+                    </AttributeData>
+                  </p:Attributes>
+                </Pin>
                 <Pin Id="VIZTLlUCbEaMZivHyUPnul" Name="Binding Type" Kind="InputPin" Bounds="577,787" />
                 <Pin Id="HFY1i0Pg4IDOPE6qAeEZRx" Name="Output" Kind="OutputPin" />
                 <Pin Id="TJzs9GEbsbhPEEIc0u8qwr" Name="Full Path" Kind="InputPin" />
@@ -3128,6 +3150,6 @@
   <DocumentDependency Id="IKScZBjWqhGMgBgbAp30Tb" Location="./VL.CoreLib.Experimental.vl" />
   <DocumentDependency Id="PFSQUQvtoVPNlDjXNQLPBl" Location="./PublicAPI.vl" />
   <DocumentDependency Id="DHadwaI8RddPmw6qYHWvhT" Location="./AppControl.vl" />
-  <NugetDependency Id="T3izuMeuSMhPOHfZOUriR0" Location="VL.CoreLib" Version="2025.7.1-bg-0056-g22fb7c8875" />
+  <NugetDependency Id="T3izuMeuSMhPOHfZOUriR0" Location="VL.CoreLib" />
   <PlatformDependency Id="KtZlCX3uW9LN2QVe3rDJws" Location="System.ObjectModel" />
 </Document>
