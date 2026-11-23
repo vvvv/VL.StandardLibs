@@ -43,7 +43,7 @@ public sealed class ChannelChoiceProvider : IChoiceProvider
     // An order, like the one of a property, only ranks a channel among its siblings: the ones with the same parent path.
     // So the channels are grouped by their path up to the given depth and each group is ranked by the order of its own channel, a group without one has none.
     // The channel of a group comes before the ones below it.
-    static IEnumerable<IChannel<object>> SortByPath(IEnumerable<IChannel<object>> channels, int depth = 0)
+    internal static IEnumerable<IChannel<object>> SortByPath(IEnumerable<IChannel<object>> channels, int depth = 0)
         => channels
             .GroupBy(channel => string.Join('.', channel.Path.Split('.').Take(depth + 1)))
             .OrderBy(group => group.FirstOrDefault(channel => channel.Path == group.Key)?.GetOrder().ValueOrDefault() ?? 0)
