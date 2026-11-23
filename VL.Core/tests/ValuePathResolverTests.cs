@@ -42,9 +42,21 @@ namespace VL.Core.Tests
             var result = Get(new Root(), "");
             Assert.That(result.ResolvedSegmentCount, Is.EqualTo(0));
             Assert.That(result.Type, Is.EqualTo(typeof(Root)));
-            // No indexer, but the Count is there
-            Assert.That(Segments(result), Is.EqualTo(new[] { "Items+", "NoItems+", "Lookup+", "Numbers+", "Missing+", "Count" }));
+            // No indexer, but the Count is there. Ordered by name.
+            Assert.That(Segments(result), Is.EqualTo(new[] { "Count", "Items+", "Lookup+", "Missing+", "NoItems+", "Numbers+" }));
         }
+
+        class Ordered
+        {
+            public int Beta { get; init; }
+            [EditorAttributes.Order(2)] public int Late { get; init; }
+            public int Alpha { get; init; }
+            [EditorAttributes.Order(-1)] public int Early { get; init; }
+        }
+
+        [Test]
+        public void ListsPropertiesByOrderThenName()
+            => Assert.That(Segments(Get(new Ordered(), "")), Is.EqualTo(new[] { "Early", "Alpha", "Beta", "Late" }));
 
         [Test]
         public void ListsItemsOfSpreadsAndListsWithTheirType()
@@ -93,7 +105,7 @@ namespace VL.Core.Tests
         {
             // Null property
             var result = Get(new Root(), "Missing");
-            Assert.That(Segments(result), Is.EqualTo(new[] { "Name?", "Position+?", "Next+?" }));
+            Assert.That(Segments(result), Is.EqualTo(new[] { "Name?", "Next+?", "Position+?" }));
 
             // Empty spread
             var empty = Get(new Root(), "NoItems");
@@ -125,7 +137,7 @@ namespace VL.Core.Tests
             var result = Get(new Root(), "Items[0].Nope.Name");
             Assert.That(result.ResolvedSegmentCount, Is.EqualTo(2));
             Assert.That(result.Type, Is.EqualTo(typeof(Item)));
-            Assert.That(Segments(result), Is.EqualTo(new[] { "Name", "Position+", "Next+" }));
+            Assert.That(Segments(result), Is.EqualTo(new[] { "Name", "Next+", "Position+" }));
 
             Assert.That(Get(new Root(), "Items.Name").ResolvedSegmentCount, Is.EqualTo(1));
             Assert.That(Get(new Root(), "Name[0]").ResolvedSegmentCount, Is.EqualTo(0));

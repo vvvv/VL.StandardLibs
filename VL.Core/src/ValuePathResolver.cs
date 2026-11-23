@@ -3,7 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using VL.Core.EditorAttributes;
 using VL.Lib.Collections;
 
 namespace VL.Core;
@@ -83,7 +85,7 @@ public static class ValuePathResolver
         public Type? EffectiveType => Value?.GetType() ?? Type;
     }
 
-    readonly record struct Property(string Name, Type Type, Func<object, object?> GetValue);
+    readonly record struct Property(string Name, Type Type, Func<object, object?> GetValue, int Order);
 
     static bool TryStep(Node node, ValuePathSegment segment, TypeRegistry? typeRegistry, out Node next)
     {
@@ -159,7 +161,8 @@ public static class ValuePathResolver
             return Math.Max(0, count - maxItems);
         }
 
-        foreach (var property in GetProperties(value, type, typeRegistry))
+        // The properties go by their order, then by their name
+        foreach (var property in GetProperties(value, type, typeRegistry).OrderBy(p => p.Order).ThenBy(p => p.Name, StringComparer.OrdinalIgnoreCase))
         {
             // Only VL objects hand out their values for free
             var propertyValue = value is IVLObject ? ReadProperty(property, value!) : null;
@@ -294,7 +297,7 @@ public static class ValuePathResolver
             var typeInfo = value is IVLObject vlObject ? vlObject.Type : typeRegistry?.GetTypeInfo(type);
             return typeInfo?.Properties
                 .Where(p => ValuePathSegment.CanBeWrittenAsProperty(p.OriginalName))
-                .Select(p => new Property(p.OriginalName, p.Type.ClrType, p.GetValue))
+                .Select(p => new Property(p.OriginalName, p.Type.ClrType, p.GetValue, p.GetOrder().ValueOrDefault()))
                 ?? [];
         }
 
@@ -304,6 +307,13 @@ public static class ValuePathResolver
 
         return type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.CanRead && p.GetIndexParameters().Length == 0 && ValuePathSegment.CanBeWrittenAsProperty(p.Name))
-            .Select(p => new Property(p.Name, p.PropertyType, p.GetValue));
+            .Select(p => new Property(p.Name, p.PropertyType, p.GetValue, GetOrder(p)));
+    }
+
+    static int GetOrder(PropertyInfo property)
+    {
+        if (property.GetCustomAttribute<OrderAttribute>() is { } order)
+            return order.Order;
+        return property.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? 0;
     }
 }

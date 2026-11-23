@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,7 +54,7 @@ public sealed class PresetsCoiceProvider : IChoiceProvider
             presets.GetPresetNames(out IEnumerable<string> presetNames);
 
             var choices = ImmutableArray.CreateBuilder<ChoiceEntry>();
-            foreach (var presetName in presetNames)
+            foreach (var presetName in presetNames.OrderBy(name => name, StringComparer.OrdinalIgnoreCase))
             {
                 choices.Add(new ChoiceEntry(presetName));
             }

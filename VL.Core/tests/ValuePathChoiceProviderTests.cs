@@ -32,7 +32,7 @@ namespace VL.Core.Tests
 
         [Test]
         public void OffersPropertiesAtTheRoot()
-            => Assert.That(Values(new Root(), ""), Is.EqualTo(new[] { "Items+", "NoItems+", "Many+" }));
+            => Assert.That(Values(new Root(), ""), Is.EqualTo(new[] { "Items+", "Many+", "NoItems+" }));
 
         [Test]
         public void OffersWhatFollowsTheText()
