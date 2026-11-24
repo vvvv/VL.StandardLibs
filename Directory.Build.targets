@@ -16,6 +16,10 @@
   <PropertyGroup Condition="$(VLPackageBasePath) != ''">
     <PackageTags Condition="'$(PackageTags)' == ''">VL</PackageTags>
     <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">http://vvvv.org</PackageProjectUrl>
+  </PropertyGroup>
+
+  <!-- The license of this repository. The private repo imports this file too, its packages must not get it. -->
+  <PropertyGroup Condition="'$(IsPrivateVLProject)' == 'false'">
     <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == ''">LGPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
 
