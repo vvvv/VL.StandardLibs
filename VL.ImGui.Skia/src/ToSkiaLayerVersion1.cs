@@ -48,6 +48,12 @@ namespace VL.ImGui
         float _uiScaling;
         Spread<FontConfig?> _fonts = Spread<FontConfig?>.Empty;
 
+        // The lines ImGui draws with texture coordinates of its atlas (the caret of a text field, the borders of a table: lines of a whole pixel width) cannot be drawn by the raster backend of Skia
+        // (a surface in memory, a picture): it drops those triangles. For a canvas without a GPU the lines are made of triangles of the white pixel instead. Known from the last Render:
+        // the first frame after the layer is drawn on another kind of canvas is made as before.
+        bool _linesUseAtlas;
+        bool _drawnWithoutGpu;
+
         CallerInfo? _lastCallerInfo;
         ImDrawDataPtr _drawDataPtr;
         bool _readyToBeDrawn;
@@ -59,6 +65,7 @@ namespace VL.ImGui
             using (_context.MakeCurrent())
             {
                 _io = ImGui.GetIO();
+                _linesUseAtlas = ImGui.GetStyle().AntiAliasedLinesUseTex;
                 _io.NativePtr->IniFilename = null;
 
                 _fontPaint = new Handle<SKPaint>(new SKPaint());
@@ -100,6 +107,7 @@ namespace VL.ImGui
                 else
                     _io.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
+                ImGui.GetStyle().AntiAliasedLinesUseTex = _linesUseAtlas && !_drawnWithoutGpu;
                 _context.NewFrame();
                 try
                 {
@@ -177,6 +185,7 @@ namespace VL.ImGui
                 return;
             }
 
+            _drawnWithoutGpu = caller.GRContext is null;
             _lastCallerInfo = caller;
             if (_readyToBeDrawn)
                 Render(caller, _drawDataPtr);
