@@ -15,23 +15,31 @@ namespace VL.ImGui.Widgets
         {
             if (ImGuiNET.ImGui.BeginDragDropSource(Flags))
             {
-                var s = Payload?.Invoke();
-                if (s != null)
+                // Begin and End have to stay a pair whatever the delegates do: a delegate which throws (or a payload which is null) left ImGui without its EndDragDropSource, and the frame
+                // which was rendered after it ended the process (an access violation in native code)
+                try
                 {
-                    var payloadBytes = System.Text.Encoding.UTF8.GetBytes(s);
-                    unsafe
+                    var s = Payload?.Invoke();
+                    if (s != null)
                     {
-                        fixed (byte* ptr = payloadBytes)
+                        var payloadBytes = System.Text.Encoding.UTF8.GetBytes(s);
+                        unsafe
                         {
-                            ImGuiNET.ImGui.SetDragDropPayload("DragDropPayload", (IntPtr)ptr, (uint)payloadBytes.Length);
+                            fixed (byte* ptr = payloadBytes)
+                            {
+                                ImGuiNET.ImGui.SetDragDropPayload("DragDropPayload", (IntPtr)ptr, (uint)payloadBytes.Length);
+                            }
+                        }
+
+                        var tooltip = Tooltip?.Invoke();
+                        if (!string.IsNullOrEmpty(tooltip))
+                        {
+                            ImGuiNET.ImGui.TextUnformatted(tooltip);
                         }
                     }
-
-                    var tooltip = Tooltip?.Invoke();
-                    if (!string.IsNullOrEmpty(tooltip))
-                    {
-                        ImGuiNET.ImGui.TextUnformatted(tooltip);
-                    }
+                }
+                finally
+                {
                     ImGuiNET.ImGui.EndDragDropSource();
                 }
             }
