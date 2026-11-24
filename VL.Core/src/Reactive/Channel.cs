@@ -51,19 +51,26 @@ namespace VL.Lib.Reactive
 
         public IChannel<ConcurrentDictionary<UniqueId, AccessorNode>> Nodes => nodes;
 
-        public void AddAccessorNode(NodeContext node)
+        public void AddAccessorNode(NodeContext node) => AddAccessorNode(node.Path);
+
+        /// <summary>
+        /// Registers the node at the given path as accessor of the channel.
+        /// Can be used by nodes which access the channel on behalf of an enclosing node, like Publish. Allows to jump to that node and prevents the channel from being considered unused.
+        /// </summary>
+        public void AddAccessorNode(NodePath nodepath)
         {
-            var nodepath = node.Path;
             var accessorNode = nodes.Value!.GetOrAdd(nodepath.Stack.Peek(), _ => new AccessorNode(nodepath));
             accessorNode.AddRef();
             nodes.SetValue(nodes.Value);
         }
 
-        public void RemoveAccessorNode(NodeContext node)
+        public void RemoveAccessorNode(NodeContext node) => RemoveAccessorNode(node.Path);
+
+        public void RemoveAccessorNode(NodePath nodepath)
         {
             if (!nodes.Enabled)
                 return;
-            var uniqueId = node.Path.Stack.Peek();
+            var uniqueId = nodepath.Stack.Peek();
             if (nodes.Value!.TryGetValue(uniqueId, out var accessorNode))
             {
                 accessorNode.Release();

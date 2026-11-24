@@ -79,7 +79,7 @@ namespace VL.Core.EditorAttributes
             return fallback;
         }
 
-        public static bool GetPublishIndividualItems(this IHasAttributes propertyInfoOrChannel, bool fallback = true)
+        public static bool GetPublishIndividualItems(this IHasAttributes propertyInfoOrChannel, bool fallback = false)
         {
             foreach (var attr in propertyInfoOrChannel.Attributes)
             {

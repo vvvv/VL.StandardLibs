@@ -813,7 +813,9 @@ namespace VL.Core
 
             public void ActOnChildren(object instance, IVLTypeInfo typeInfo, int depth, ObjectGraphNode node, Action<ObjectGraphNode, int> action)
             {
-                if (!filter.IncludeItems(node.Path, node.AccessedViaKeyPath, instance, depth, node.AccessedViaKey))
+                // Not a collection: don't hand out the accessing property, otherwise filters would apply
+                // collection-only attributes like PublishIndividualItems to the children of plain objects.
+                if (!filter.IncludeItems(node.Path, node.AccessedViaKeyPath, instance, depth, null))
                     return;
 
                 var properties = filter.CrawlAllProperties ? typeInfo.AllProperties : typeInfo.Properties;

@@ -9,7 +9,7 @@ namespace VL.Core.EditorAttributes
 {
     /// <summary>
     /// Used by the Publish node to turn collection items of properties into individual public channels.
-    /// Items of properties are published unless marked with [PublishIndividualItems(false)].
+    /// Items of properties are published when marked with [PublishIndividualItems(true)].
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)] // TODO: shouldn't be on field
     public class PublishIndividualItemsAttribute : Attribute
