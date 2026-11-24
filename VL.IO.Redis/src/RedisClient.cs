@@ -28,7 +28,11 @@ namespace VL.IO.Redis
     // Patch calls AddBinding and later RemoveBinding.
     // Both methods will subsequently push a new model.
     // Internally we only need to keep the model in sync with what bindings we have at runtime.
-    [ProcessNode(FragmentSelection = FragmentSelection.Explicit, HasStateOutput = true)]
+
+    /// <summary>
+    /// A Redis client for binding channels
+    /// </summary>
+    [ProcessNode(FragmentSelection = FragmentSelection.Explicit, HasStateOutput = true, Tags ="binding module")]
     public sealed class RedisClient : IModule, IDisposable
     {
         private readonly ILogger _logger;

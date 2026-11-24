@@ -3,6 +3,7 @@ using Stride.Core.Extensions;
 using System;
 using System.Text;
 using VL.Core;
+using VL.Core.Import;
 using VL.Lib.Reactive;
 
 namespace VL.IO.Redis
@@ -19,6 +20,7 @@ namespace VL.IO.Redis
     /// <param name="When">Which condition to set the value under (defaults to always).</param>
     /// <param name="Database">The database to use. If not specified the one from the <see cref="RedisClient"/> is used.</param>
     /// <param name="CreatedViaNode">Whether the binding was created by a binding node (as opposed to a global channel).</param>
+    [Smell(SymbolSmell.Advanced)]
     public readonly record struct BindingModel(
         Optional<string> Key = default,
         Optional<Initialization> Initialization = default, //Initialization.Redis
@@ -141,6 +143,7 @@ namespace VL.IO.Redis
         }
     }
 
+    [Smell(SymbolSmell.Advanced)]
     public readonly record struct ResolvedBindingModel(
         BindingModel Model,
         string? PublicChannelPath,
