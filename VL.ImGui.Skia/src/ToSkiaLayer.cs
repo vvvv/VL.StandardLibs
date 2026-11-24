@@ -36,6 +36,7 @@ namespace VL.ImGui
         }
 
         readonly ImGuiIOPtr _io;
+        readonly ImGuiDeltaTime _deltaTime = new();
 
         // OpenGLES rendering (https://github.com/dotnet/Silk.NET/tree/v2.15.0/src/OpenGL/Extensions/Silk.NET.OpenGL.Extensions.ImGui)
         private readonly SkiaContext _context;
@@ -111,6 +112,8 @@ namespace VL.ImGui
                 var onlySomeStyles = _context.ApplyStyle(Style, beforeNewFrame: true);
 
                 ImGui.GetStyle().AntiAliasedLinesUseTex = _linesUseAtlas && !_drawnWithoutGpu;
+                // ImGui's clock goes by real time: its default is 1/60 s for every frame, whatever the rate the layer is updated at
+                _io.DeltaTime = _deltaTime.Step(System.Diagnostics.Stopwatch.GetTimestamp());
                 _context.NewFrame();
                 try
                 {

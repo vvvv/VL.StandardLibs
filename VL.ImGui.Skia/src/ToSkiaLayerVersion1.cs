@@ -36,6 +36,7 @@ namespace VL.ImGui
         }
 
         readonly ImGuiIOPtr _io;
+        readonly ImGuiDeltaTime _deltaTime = new();
 
         public bool DefaultWindow = true;
 
@@ -108,6 +109,8 @@ namespace VL.ImGui
                     _io.ConfigFlags &= ~ImGuiConfigFlags.DockingEnable;
 
                 ImGui.GetStyle().AntiAliasedLinesUseTex = _linesUseAtlas && !_drawnWithoutGpu;
+                // ImGui's clock goes by real time: its default is 1/60 s for every frame, whatever the rate the layer is updated at
+                _io.DeltaTime = _deltaTime.Step(System.Diagnostics.Stopwatch.GetTimestamp());
                 _context.NewFrame();
                 try
                 {
