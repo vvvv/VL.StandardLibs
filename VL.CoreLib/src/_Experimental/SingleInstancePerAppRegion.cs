@@ -1,10 +1,12 @@
 ﻿#nullable enable
 using System;
+using System.Reactive.Disposables;
 using System.Threading;
 using VL.Core;
 using VL.Core.Import;
 using VL.Core.PublicAPI;
 using VL.Lib.Animation;
+using VL.Lang;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Experimental;
 
@@ -43,11 +45,17 @@ namespace VL.Lib.Experimental
         : IRegion<ISingleInstanceInlay<T>>,
             IDisposable
     {
+        internal const string LinkWarningMessage =
+            "Links into this region are not supported. The patch inside is shared by all instances.";
+
         private readonly UniqueId _nodeId;
         private readonly Func<UniqueId, IResourceHandle<SharedInstance>> _acquire;
+        private readonly Func<IDisposable> _addLinkWarning;
 
         private Func<ISingleInstanceInlay<T>>? _factory;
         private IResourceHandle<SharedInstance>? _handle;
+        private IDisposable? _linkWarning;
+        private bool _linkAcknowledged;
         private bool _disposed;
 
         [Fragment]
@@ -56,19 +64,23 @@ namespace VL.Lib.Experimental
                 // Identifies the region node itself and is the same for all instances of the
                 // surrounding patch. The full path would be unique per instance.
                 nodeContext.Path.Stack.Peek(),
-                nodeId => AcquirePerApp(nodeContext, nodeId)
+                nodeId => AcquirePerApp(nodeContext, nodeId),
+                () => AddLinkWarning(nodeContext)
             ) { }
 
         /// <summary>
-        /// Test seam: allows to supply the node id and the pool the shared instance is taken from.
+        /// Test seam: allows to supply the node id, the pool the shared instance is taken from
+        /// and the way the link warning is shown.
         /// </summary>
         internal SingleInstancePerAppRegion(
             UniqueId nodeId,
-            Func<UniqueId, IResourceHandle<SharedInstance>> acquire
+            Func<UniqueId, IResourceHandle<SharedInstance>> acquire,
+            Func<IDisposable>? addLinkWarning = null
         )
         {
             _nodeId = nodeId;
             _acquire = acquire ?? throw new ArgumentNullException(nameof(acquire));
+            _addLinkWarning = addLinkWarning ?? (() => Disposable.Empty);
         }
 
         private static IResourceHandle<SharedInstance> AcquirePerApp(
@@ -76,14 +88,30 @@ namespace VL.Lib.Experimental
             UniqueId nodeId
         )
         {
-            // Pool and frame clock are resolved via AppHost.Current; ensure it is the app this node lives in.
-            using var scope = nodeContext.AppHost.MakeCurrent();
+            var appHost = nodeContext.AppHost;
 
-            var frameClock = Clocks.FrameClock;
+            // Clocks.FrameClock is cached per thread and might belong to another app, so the clock
+            // is taken from this node's app host directly.
+            var frameClock = appHost.Services.GetRequiredService<IFrameClock>();
+
+            // The per-app pool is resolved via AppHost.Current; ensure it is the app this node lives in.
+            using var scope = appHost.MakeCurrent();
 
             return ResourceProvider
                 .NewPooledPerApp(nodeId, _ => new SharedInstance(frameClock))
                 .GetHandle();
+        }
+
+        private static IDisposable AddLinkWarning(NodeContext nodeContext)
+        {
+            // The runtime is resolved via AppHost.Current; ensure it is the app this node lives in.
+            using var scope = nodeContext.AppHost.MakeCurrent();
+
+            return nodeContext.AddPersistentMessage(
+                MessageSeverity.Warning,
+                LinkWarningMessage,
+                includeAncestors: false
+            );
         }
 
         void IRegion<ISingleInstanceInlay<T>>.SetPatchInlayFactory(
@@ -106,6 +134,9 @@ namespace VL.Lib.Experimental
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
 
+            // Done first so that an exception further down can't keep a stale warning alive.
+            UpdateLinkWarning();
+
             var factory =
                 _factory
                 ?? throw new InvalidOperationException(
@@ -117,12 +148,44 @@ namespace VL.Lib.Experimental
             value = _handle.Resource.UpdateOncePerFrame(factory);
         }
 
+        // VL calls AcknowledgeInput for every link crossing into the region before each Update,
+        // but doesn't notify when a link is removed; the calls just stop.
+        private void UpdateLinkWarning()
+        {
+            if (!_linkAcknowledged)
+                RemoveLinkWarning();
+
+            _linkAcknowledged = false;
+        }
+
+        private void RemoveLinkWarning()
+        {
+            var warning = _linkWarning;
+            _linkWarning = null;
+            warning?.Dispose();
+        }
+
         // Border control points are not supported (see Region attribute), so there is no input
         // or output data to pass. The value is returned via Produce's typed return value.
+        // Links can't be supported either since all instances share one inlay, so the user gets a warning.
         void IRegion<ISingleInstanceInlay<T>>.AcknowledgeInput(
             in InputDescription description,
             object? outerValue
-        ) { }
+        )
+        {
+            if (_disposed || !description.IsLink)
+                return;
+
+            _linkAcknowledged = true;
+
+            if (_linkWarning is not null)
+                return;
+
+            // Empty means no runtime was available; don't keep it so the next call retries.
+            var warning = _addLinkWarning();
+            if (!ReferenceEquals(warning, Disposable.Empty))
+                _linkWarning = warning;
+        }
 
         void IRegion<ISingleInstanceInlay<T>>.RetrieveInput(
             in InputDescription description,
@@ -154,6 +217,8 @@ namespace VL.Lib.Experimental
                 return;
 
             _disposed = true;
+
+            RemoveLinkWarning();
 
             var handle = _handle;
             _handle = null;

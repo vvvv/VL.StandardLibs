@@ -225,9 +225,102 @@ namespace VL.Core.Tests
             Assert.Throws<ObjectDisposedException>(() => region.Update(out _));
         }
 
-        private SingleInstancePerAppRegion<int> CreateRegion(UniqueId nodeId, Func<ISingleInstanceInlay<int>> factory)
+        [Test]
+        public void AcknowledgeInput_LinkOnEveryUpdate_AddsWarningOnce()
         {
-            var region = new SingleInstancePerAppRegion<int>(nodeId, AcquireFromPool);
+            var warnings = new FakeWarnings();
+            var region = CreateRegion(NewNodeId(), CompiledVersion1(), warnings.Add);
+
+            for (var i = 0; i < 3; i++)
+            {
+                NextFrame();
+                AsRegion(region).AcknowledgeInput(Link, outerValue: 42);
+                region.Update(out _);
+            }
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(warnings.Added, Has.Count.EqualTo(1));
+                Assert.That(warnings.ActiveCount, Is.EqualTo(1));
+            });
+        }
+
+        [Test]
+        public void AcknowledgeInput_NoLinkInput_AddsNoWarning()
+        {
+            var warnings = new FakeWarnings();
+            var region = CreateRegion(NewNodeId(), CompiledVersion1(), warnings.Add);
+
+            NextFrame();
+            AsRegion(region).AcknowledgeInput(Link with { IsLink = false }, outerValue: 42);
+            region.Update(out _);
+
+            Assert.That(warnings.Added, Is.Empty);
+        }
+
+        [Test]
+        public void Update_NoLinkAcknowledgedSinceLastUpdate_RemovesWarning()
+        {
+            var warnings = new FakeWarnings();
+            var region = CreateRegion(NewNodeId(), CompiledVersion1(), warnings.Add);
+            NextFrame();
+            AsRegion(region).AcknowledgeInput(Link, outerValue: 42);
+            region.Update(out _);
+
+            NextFrame();
+            region.Update(out _);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(warnings.Added, Has.Count.EqualTo(1));
+                Assert.That(warnings.ActiveCount, Is.EqualTo(0));
+            });
+        }
+
+        [Test]
+        public void AcknowledgeInput_LinkReconnected_AddsWarningAgain()
+        {
+            var warnings = new FakeWarnings();
+            var region = CreateRegion(NewNodeId(), CompiledVersion1(), warnings.Add);
+            NextFrame();
+            AsRegion(region).AcknowledgeInput(Link, outerValue: 42);
+            region.Update(out _);
+            NextFrame();
+            region.Update(out _);
+
+            NextFrame();
+            AsRegion(region).AcknowledgeInput(Link, outerValue: 42);
+            region.Update(out _);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(warnings.Added, Has.Count.EqualTo(2));
+                Assert.That(warnings.ActiveCount, Is.EqualTo(1));
+            });
+        }
+
+        [Test]
+        public void Dispose_WithLinkWarning_RemovesWarning()
+        {
+            var warnings = new FakeWarnings();
+            var region = CreateRegion(NewNodeId(), CompiledVersion1(), warnings.Add);
+            NextFrame();
+            AsRegion(region).AcknowledgeInput(Link, outerValue: 42);
+            region.Update(out _);
+
+            region.Dispose();
+
+            Assert.That(warnings.ActiveCount, Is.EqualTo(0));
+        }
+
+        private static readonly InputDescription Link = new("link", typeof(int), typeof(int), IsLink: true);
+
+        private SingleInstancePerAppRegion<int> CreateRegion(
+            UniqueId nodeId,
+            Func<ISingleInstanceInlay<int>> factory,
+            Func<IDisposable>? addLinkWarning = null)
+        {
+            var region = new SingleInstancePerAppRegion<int>(nodeId, AcquireFromPool, addLinkWarning);
             AsRegion(region).SetPatchInlayFactory(factory);
             _regions.Add(region);
             return region;
@@ -264,6 +357,27 @@ namespace VL.Core.Tests
             public int Produce() => ++ProduceCalls;
 
             public void Dispose() => IsDisposed = true;
+        }
+
+        private sealed class FakeWarnings
+        {
+            public List<Warning> Added { get; } = new();
+
+            public int ActiveCount => Added.FindAll(w => !w.IsDisposed).Count;
+
+            public IDisposable Add()
+            {
+                var warning = new Warning();
+                Added.Add(warning);
+                return warning;
+            }
+
+            public sealed class Warning : IDisposable
+            {
+                public bool IsDisposed { get; private set; }
+
+                public void Dispose() => IsDisposed = true;
+            }
         }
 
         private sealed class RefCountedPool<TResource>
