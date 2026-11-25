@@ -49,6 +49,24 @@ namespace VL.Core.Tests
         }
 
         [Test]
+        public void Update_RegionCreatedAfterClockAdvanced_ExecutesOncePerFrame()
+        {
+            for (var i = 0; i < 5; i++)
+                NextFrame();
+            var region = CreateRegion(NewNodeId(), CompiledVersion1());
+
+            region.Update(out var firstInCreationFrame);
+            region.Update(out var secondInCreationFrame);
+            NextFrame();
+            region.Update(out var firstInNextFrame);
+            region.Update(out var secondInNextFrame);
+
+            Assert.That(
+                new[] { firstInCreationFrame, secondInCreationFrame, firstInNextFrame, secondInNextFrame },
+                Is.EqualTo(new[] { 1, 1, 2, 2 }));
+        }
+
+        [Test]
         public void Update_TwoRegionsWithSameNodeIdInSameFrame_ExecuteSharedInlayOnce()
         {
             var nodeId = NewNodeId();

@@ -232,17 +232,19 @@ namespace VL.Lib.Experimental
         /// </summary>
         internal sealed class SharedInstance : IDisposable
         {
+            private const ulong NeverUpdated = ulong.MaxValue;
+
             private readonly object _lock = new();
             private readonly IDisposable _ticks;
             private ISingleInstanceInlay<T>? _inlay;
-            private long _frame;
-            private long _lastUpdatedFrame = -1;
+            private ulong _frame;
+            private ulong _lastUpdatedFrame = NeverUpdated;
             private T _value = default!;
             private bool _disposed;
 
             public SharedInstance(IFrameClock frameClock)
             {
-                _ticks = frameClock.GetTicks().Subscribe(_ => Interlocked.Increment(ref _frame));
+                _ticks = frameClock.GetTicks().Subscribe(m => Volatile.Write(ref _frame, m.FrameNumber));
             }
 
             /// <summary>
@@ -255,7 +257,7 @@ namespace VL.Lib.Experimental
                 {
                     ObjectDisposedException.ThrowIf(_disposed, this);
 
-                    var frame = Interlocked.Read(ref _frame);
+                    var frame = Volatile.Read(ref _frame);
                     if (frame == _lastUpdatedFrame)
                         return _value;
 
