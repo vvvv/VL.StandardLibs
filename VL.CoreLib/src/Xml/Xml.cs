@@ -14,6 +14,7 @@ using System.Xml.Xsl;
 using VL.Core;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Collections;
+using System.Text.Json;
 
 namespace VL.Lib.Xml
 {
@@ -22,6 +23,18 @@ namespace VL.Lib.Xml
         None,
         Dtd,
         Schema
+    }
+
+    /// <summary>
+    /// User-facing enum allowing to pick a naming policy for objects serialized with the ObjectToJson node
+    /// </summary>
+    public enum JsonPropertyNamingPolicy
+    {
+        CamelCase,
+        KebabCaseLower,
+        KebabCaseUpper,
+        SnakeCaseLower,
+        SnakeCaseUpper
     }
 
     public static class XmlNodes
@@ -330,6 +343,25 @@ namespace VL.Lib.Xml
                 xslt.Transform(input.CreateReader(ReaderOptions.None), null, writer);
                 return writer.ToString();
             }
+        }
+
+        /// <summary>
+        /// Returns a JsonNamingPolicy from a JsonPropertyNamingPolicy
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static JsonNamingPolicy GetJsonNamingPolicyFromEnum(JsonPropertyNamingPolicy input)
+        {
+            return input switch
+            {
+                JsonPropertyNamingPolicy.CamelCase => JsonNamingPolicy.CamelCase,
+                JsonPropertyNamingPolicy.KebabCaseLower => JsonNamingPolicy.KebabCaseLower,
+                JsonPropertyNamingPolicy.KebabCaseUpper => JsonNamingPolicy.KebabCaseUpper,
+                JsonPropertyNamingPolicy.SnakeCaseLower => JsonNamingPolicy.SnakeCaseLower,
+                JsonPropertyNamingPolicy.SnakeCaseUpper => JsonNamingPolicy.SnakeCaseUpper,
+                _ => throw new ArgumentOutOfRangeException("input", input, "Could not create JsonNamingPolicy with provided value")
+            };
         }
     }
 }
