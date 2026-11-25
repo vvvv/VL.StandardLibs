@@ -29,8 +29,8 @@ namespace VL.Stride.Rendering
                 init: buildContext =>
                 {
                     var outputType = shaderMetadata.GetShaderFXOutputType(out var innerType);
-                    var (_effect, _messages, _) = 
-                        CreateEffectInstance("ShaderFXEffect", shaderName, shaderMetadata, serviceRegistry, graphicsDevice);
+                    var (_effect, _messages, _) 
+                        = CreateEffectInstance("ShaderFXEffect", shaderName, shaderMetadata, serviceRegistry, graphicsDevice);
 
                     var _inputs = new List<IVLPinDescription>();
                     var _outputs = new List<IVLPinDescription>() { buildContext.Pin("Output", outputType) };
@@ -71,6 +71,81 @@ namespace VL.Stride.Rendering
 
                     if (needsWorld)
                         _inputs.Add(new ParameterPinDescription(usedNames, TransformationKeys.World));
+
+                    // Build set of variable names with 'stage' qualifier
+                    var stageVariableNames = new HashSet<string>();
+                    if (shaderMetadata.ParsedShader != null)
+                    {
+                        foreach (var v in shaderMetadata.ParsedShader.Variables)
+                        {
+                            if (v.Qualifiers != null && v.Qualifiers.Contains(Stride.Core.Shaders.Ast.Stride.StrideStorageQualifier.Stage))
+                                stageVariableNames.Add(v.Name.Text);
+                        }
+                    }
+
+                    // Group pins by variable name
+                    var pinsByVarName = new Dictionary<string, List<ParameterPinDescription>>();
+                    foreach (var input in _inputs)
+                    {
+                        if (input is ParameterPinDescription paramDesc)
+                        {
+                            var varName = paramDesc.Key.GetVariableName();
+                            if (!pinsByVarName.TryGetValue(varName, out var list))
+                                pinsByVarName[varName] = list = new List<ParameterPinDescription>();
+                            list.Add(paramDesc);
+                        }
+                    }
+
+                    // Set pin names: simple if unique, long if ambiguous
+                    foreach (var pair in pinsByVarName)
+                    {
+                        var list = pair.Value;
+                        if (list.Count == 1)
+                        {
+                            // Use simple name
+                            list[0].Name = pair.Key;
+                        }
+                        else
+                        {
+                            // Use long name (already set by default)
+                            // Optionally, could forcefully set to paramDesc.Key.Name for clarity
+                            foreach (var pin in list)
+                                pin.Name = pin.Key.Name;
+                        }
+                    }
+
+                    // Deduplicate _inputs (with stage variable logic)
+                    var uniqueInputs = new Dictionary<string, IVLPinDescription>();
+                    var stagePins = new HashSet<string>();
+                    foreach (var input in _inputs)
+                    {
+                        if (input is ParameterPinDescription paramDesc)
+                        {
+                            var keyName = paramDesc.Key.Name;
+                            var varName = paramDesc.Key.GetVariableName();
+                            if (stageVariableNames.Contains(varName))
+                            {
+                                // Only keep one pin for this stage variable
+                                if (!stagePins.Contains(varName))
+                                {
+                                    uniqueInputs["stage:" + varName] = paramDesc;
+                                    stagePins.Add(varName);
+                                }
+                            }
+                            else
+                            {
+                                // Allow multiple pins for non-stage variables (by keyName)
+                                // Prefer pins with longer names for better clarity and disambiguation in case of conflicts
+                                if (!uniqueInputs.TryGetValue(keyName, out var existing) || (existing.Name.Length < paramDesc.Name.Length))
+                                    uniqueInputs[keyName] = paramDesc;
+                            }
+                        }
+                        else
+                            uniqueInputs[input.Name ?? input.GetType().FullName ?? Guid.NewGuid().ToString()] = input;
+                            uniqueInputs[Guid.NewGuid().ToString()] = input;
+                        }
+                    }
+                    _inputs = uniqueInputs.Values.ToList();
 
                     return buildContext.Node(
                         inputs: _inputs,
