@@ -5,14 +5,14 @@ using System.Threading;
 using VL.Core;
 using VL.Core.Import;
 using VL.Core.PublicAPI;
-using VL.Lib.Animation;
 using VL.Lang;
+using VL.Lib.Animation;
 using VL.Lib.Basics.Resources;
 using VL.Lib.Experimental;
 
 [assembly: ImportType(
     typeof(SingleInstancePerAppRegion<>),
-    Name = "SingleInstance (PerApp Region)",
+    Name = "SingleInstance (PerApp OncePerFrame)",
     Category = "Primitive.Experimental"
 )]
 
@@ -244,7 +244,9 @@ namespace VL.Lib.Experimental
 
             public SharedInstance(IFrameClock frameClock)
             {
-                _ticks = frameClock.GetTicks().Subscribe(m => Volatile.Write(ref _frame, m.FrameNumber));
+                _ticks = frameClock
+                    .GetTicks()
+                    .Subscribe(m => Volatile.Write(ref _frame, m.FrameNumber));
             }
 
             /// <summary>
