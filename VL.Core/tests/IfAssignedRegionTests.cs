@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using VL.Core.PublicAPI;
-using VL.Lib.Experimental;
+using VL.Lib.Control;
 
 namespace VL.Core.Tests
 {
