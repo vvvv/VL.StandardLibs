@@ -24,7 +24,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="OY2fgTFZXiGLqolkaWRnDg" Bounds="433,169,305,164" ShowValueBox="true" isIOBox="true" Value="Good to know:&#xD;&#xA;&#xD;&#xA;Value types can’t be null, so guarding one is a logic bug. Turning this into a warning where the patch always runs creates a silent no-op. Without the constraint, VL can infer a value type and cause a connected NULL node to throw at runtime.">
+          <Pad Id="OY2fgTFZXiGLqolkaWRnDg" Bounds="433,169,336,126" ShowValueBox="true" isIOBox="true" Value="Good to know:&#xD;&#xA;&#xD;&#xA;Value types (like RGBA) are never null, so the patch inside always runs and the node shows a warning. If VL infers a value type, connecting NULL will throw. Use a Nullable annotation instead (see below).&#xD;&#xA;">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
