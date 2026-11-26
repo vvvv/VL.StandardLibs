@@ -120,13 +120,34 @@ namespace VL.Core.Windows
                 if (this.showCustomSystemMenuItems)
                     InitializeCustomMenu();
                 UpdateTitleBarButtonRects();
+                if (alwaysOnTop)
+                    ApplyAlwaysOnTop();
             };
             form.Shown += (s, e) =>
             {
-                form.TopMost = alwaysOnTop;
+                if (alwaysOnTop)
+                    ApplyAlwaysOnTop();
             };
             form.Resize += (s, e) => UpdateTitleBarButtonRects();
             form.DpiChanged += (s, e) => UpdateTitleBarButtonRects();
+        }
+
+        private static readonly HWND HWND_TOPMOST = new(-1);
+        private static readonly HWND HWND_NOTOPMOST = new(-2);
+
+        /// <summary>
+        /// Applies <see cref="AlwaysOnTop"/> to the window without activating it. <see cref="Form.TopMost"/> does the same
+        /// but activates the window, which steals the focus from the application the user is working in (for example when
+        /// showing a window that is not supposed to be activated). As <see cref="Form.TopMost"/> is not updated by this, the
+        /// style gets lost when the handle is recreated, so we apply it again when the handle gets created.
+        /// </summary>
+        private void ApplyAlwaysOnTop()
+        {
+            if (!form.IsHandleCreated)
+                return;
+
+            SetWindowPos((HWND)form.Handle, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0,
+                SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -142,7 +163,7 @@ namespace VL.Core.Windows
 
                     if (form.IsHandleCreated)
                     {
-                        form.TopMost = alwaysOnTop;
+                        ApplyAlwaysOnTop();
                         if (showCustomSystemMenuItems)
                             ToggleMenu(ID_TOGGLE_TOPMOST, alwaysOnTop);
                     }
