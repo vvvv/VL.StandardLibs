@@ -83,12 +83,30 @@ namespace VL.Lib.Basics.Imaging
         {
             readonly Bitmap FBitmap;
             readonly System.Drawing.Imaging.BitmapData FBitmapData;
+            // The rows of a bitmap which stores them bottom up, with the top row first
+            readonly IntPtr FTopDownRows;
 
             public Data(Bitmap bitmap, bool canWrite)
             {
                 FBitmap = bitmap;
+                var bounds = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
                 var flags = canWrite ? System.Drawing.Imaging.ImageLockMode.ReadWrite : System.Drawing.Imaging.ImageLockMode.ReadOnly;
-                FBitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), flags, bitmap.PixelFormat);
+                FBitmapData = bitmap.LockBits(bounds, flags, bitmap.PixelFormat);
+                if (FBitmapData.Stride < 0)
+                {
+                    // Stored bottom up (a bitmap made of an HBITMAP): the image data has the top row first, so GDI+ copies the rows to a buffer of ours, and back on unlock
+                    var stride = -FBitmapData.Stride;
+                    bitmap.UnlockBits(FBitmapData);
+                    FTopDownRows = Marshal.AllocHGlobal(stride * bounds.Height);
+                    FBitmapData = bitmap.LockBits(bounds, flags | System.Drawing.Imaging.ImageLockMode.UserInputBuffer, bitmap.PixelFormat, new System.Drawing.Imaging.BitmapData
+                    {
+                        Width = bounds.Width,
+                        Height = bounds.Height,
+                        Stride = stride,
+                        PixelFormat = bitmap.PixelFormat,
+                        Scan0 = FTopDownRows,
+                    });
+                }
             }
 
             public int ScanSize => FBitmapData.Stride;
@@ -114,6 +132,7 @@ namespace VL.Lib.Basics.Imaging
             protected override void Dispose(bool disposing)
             {
                 FBitmap.UnlockBits(FBitmapData);
+                Marshal.FreeHGlobal(FTopDownRows);
             }
         }
 
