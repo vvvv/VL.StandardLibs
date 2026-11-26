@@ -5,15 +5,15 @@ using VL.Core;
 using VL.Core.Import;
 using VL.Core.PublicAPI;
 using VL.Lang;
-using VL.Lib.Experimental;
+using VL.Lib.Control;
 
 [assembly: ImportType(
     typeof(IfAssignedRegion<>),
     Name = "IfAssigned",
-    Category = "Primitive.Advanced"
+    Category = "Control.Advanced"
 )]
 
-namespace VL.Lib.Experimental
+namespace VL.Lib.Control
 {
     /// <summary>
     /// The patch inlay of the <see cref="IfAssignedRegion{T}"/>.
