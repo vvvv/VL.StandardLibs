@@ -40,7 +40,7 @@ namespace VL.Lib.Control
     /// <remarks>
     /// Values of a non-nullable value type are never null: the patch always runs and the node shows a warning.
     /// </remarks>
-    [ProcessNode(FragmentSelection = FragmentSelection.Explicit)]
+    [ProcessNode(FragmentSelection = FragmentSelection.Explicit, Tags = "IsAssigned")]
     [Region(SupportedBorderControlPoints = ControlPointType.Accumulator)]
     public sealed class IfAssignedRegion<T> : IRegion<IIfAssignedInlay<T>>, IDisposable
     {
