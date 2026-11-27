@@ -3,7 +3,6 @@
 using System;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Windows.Forms;
 using VL.Lib.IO;
 using VL.Lib.IO.Notifications;
@@ -16,7 +15,7 @@ namespace VL.Skia
     public partial class SkiaControl : Control, IProjectionSpace, IWorldSpace2d
     {
         private SkiaInputDevices? inputDevices;
-        private readonly Subject<TouchNotification> touchNotifications = new();
+        private readonly TouchMessageProcessor touch = new();
         private ISkiaRenderer? renderer;
 
         public SkiaControl()
@@ -51,10 +50,10 @@ namespace VL.Skia
         public bool DirectCompositionEnabled { get; init; }
         public bool TreatAllKeysAsInputKeys { get; init; }
 
-        public Mouse Mouse => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Mouse;
-        public Keyboard Keyboard => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Keyboard;
-        public TouchDevice TouchDevice => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).TouchDevice;
-        public IObservable<TouchNotification> TouchNotifications => touchNotifications;
+        public Mouse Mouse => (inputDevices ??= new SkiaInputDevices(this, touch.Notifications)).Mouse;
+        public Keyboard Keyboard => (inputDevices ??= new SkiaInputDevices(this, touch.Notifications)).Keyboard;
+        public TouchDevice TouchDevice => (inputDevices ??= new SkiaInputDevices(this, touch.Notifications)).TouchDevice;
+        public IObservable<TouchNotification> TouchNotifications => touch.Notifications;
         public IObservable<INotification> Notifications { get; }
 
         protected override CreateParams CreateParams
@@ -85,6 +84,7 @@ namespace VL.Skia
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
+            touch.CancelAll();
             base.OnHandleDestroyed(e);
             renderer?.Dispose();
             renderer = null;
@@ -133,7 +133,7 @@ namespace VL.Skia
 
         protected override void WndProc(ref Message m)
         {
-            if (OperatingSystem.IsWindowsVersionAtLeast(8) && TouchMessageProcessor.TryHandle(ref m, this, touchNotifications))
+            if (OperatingSystem.IsWindowsVersionAtLeast(8) && touch.TryHandle(ref m, this))
                 return;
             base.WndProc(ref m);
         }

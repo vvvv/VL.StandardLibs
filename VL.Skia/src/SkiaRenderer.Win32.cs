@@ -18,7 +18,7 @@ namespace VL.Skia
 
         protected override void WndProc(ref Message m)
         {
-            if (OperatingSystem.IsWindowsVersionAtLeast(8) && TouchMessageProcessor.TryHandle(ref m, this, touchNotifications))
+            if (OperatingSystem.IsWindowsVersionAtLeast(8) && touch.TryHandle(ref m, this))
                 return;
 
             // Let the custom title bar handle Win32 messages

@@ -82,16 +82,16 @@ namespace VL.Stride
                             }
                             break;
                         case PointerEventType.Released:
+                        case PointerEventType.Canceled:
                             // Stride simulates touch events when using the mouse. We don't want these made-up events here.
                             if (e.Device is not IMouseDevice)
                             {
-                                var n = new TouchNotification(TouchNotificationKind.TouchUp, e.AbsolutePosition, pointerDevice.SurfaceSize, e.PointerId, primary: e.PointerId == 0, default, default, modifiers, sender);
+                                var n = new TouchNotification(TouchNotificationKind.TouchUp, e.AbsolutePosition, pointerDevice.SurfaceSize, e.PointerId, primary: e.PointerId == 0, default, default, modifiers, sender,
+                                    canceled: e.EventType == PointerEventType.Canceled);
                                 observer.OnNext(n);
                                 if (!n.Handled)
                                     observer.OnNext(new MouseUpNotification(e.Position * pointerDevice.SurfaceSize, pointerDevice.SurfaceSize, MouseButtons.Left, modifiers, sender));
                             }
-                            break;
-                        case PointerEventType.Canceled:
                             break;
                         default:
                             break;
