@@ -36,7 +36,7 @@ namespace VL.Skia
 
         private readonly AppHost FAppHost;
         private readonly SerialDisposable FDarkModeSubscription = new();
-        private readonly Subject<TouchNotification> touchNotifications = new();
+        private readonly TouchMessageProcessor touch = new();
         private SkiaInputDevices? inputDevices;
         private ISkiaRenderer? renderer;
 
@@ -109,9 +109,9 @@ namespace VL.Skia
         public float RenderTime => renderer?.RenderTime ?? 0;
         public bool VSync { get; set; } = true;
         public RenderContextProvider RenderContextProvider => FAppHost.GetRenderContextProvider();
-        public Mouse Mouse => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Mouse;
-        public Keyboard Keyboard => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).Keyboard;
-        public TouchDevice TouchDevice => (inputDevices ??= new SkiaInputDevices(this, touchNotifications)).TouchDevice;
+        public Mouse Mouse => (inputDevices ??= new SkiaInputDevices(this, touch.Notifications)).Mouse;
+        public Keyboard Keyboard => (inputDevices ??= new SkiaInputDevices(this, touch.Notifications)).Keyboard;
+        public TouchDevice TouchDevice => (inputDevices ??= new SkiaInputDevices(this, touch.Notifications)).TouchDevice;
         public ICommandList? CommandList { get; set; }
         public Win32CustomTitleBar CustomTitleBar => customTitleBar;
 
@@ -215,10 +215,19 @@ namespace VL.Skia
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
+            touch.CancelAll();
             FDarkModeSubscription.Disposable = null;
             base.OnHandleDestroyed(e);
             renderer?.Dispose();
             renderer = null;
+        }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            // A hidden window still gets the messages of its contacts, but its layer gets no input: the contacts end here
+            if (!Visible)
+                touch.CancelAll();
+            base.OnVisibleChanged(e);
         }
 
         protected override void OnResize(EventArgs e)
@@ -284,7 +293,8 @@ namespace VL.Skia
                 {
                     n.Handled = true;
                 }
-                else if (Visible && HasValidLayer && Input != null && renderer is not null)
+                // The layer of a hidden window gets no input, except the end of a contact it saw going down
+                else if ((Visible || n is TouchNotification { Canceled: true }) && HasValidLayer && Input != null && renderer is not null)
                 {
                     n.Handled = Input.Notify(n, renderer.CallerInfo);
                 }
